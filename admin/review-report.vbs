@@ -1063,9 +1063,9 @@ If renewal_option = "Create Renewal Report" then
 	    	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	        objExcel.Columns(i).AutoFit()				'sizing the columns'
 	    NEXT
-	
+
 		objExcel.ActiveSheet.ListObjects.add xlSrcRange,objExcel.Range("A1:Y2"),,XlYes 'creating table for all 25 columns and 2 rows. Will increment as more cases/data columns are added.
-		
+
 	    excel_row = 2
 
 	    back_to_self    'We need to get back to SELF and manually update the footer month
@@ -2989,8 +2989,8 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 				notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
 
-				If er_with_intherview = True Then
-				' If er_with_intherview = True AND MFIP_status = True Then
+				' If er_with_intherview = True Then
+				If er_with_intherview = True AND MFIP_status = True Then
 					'Writing the SPEC MEMO - dates will be input from the determination made earlier.
 					' MsgBox "We're writing a MEMO here"
 					Call start_a_new_spec_memo_and_continue(memo_started)
