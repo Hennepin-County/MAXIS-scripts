@@ -302,9 +302,7 @@ function define_main_dialog()
 			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
 			Text 300, 60, 80, 10, "Health Care Eval is at "
-			' DropListBox 380, 85, 75, 45, "Application"+chr(9)+"Recertification", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
-			DropListBox 380, 55, 85, 45, "Application"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
-
+			DropListBox 380, 55, 85, 45, "Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
 			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
@@ -3767,6 +3765,8 @@ employment_source_list = income_source_list
 income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
 income_verif_time = "[Enter Time Frame]"
 bank_verif_time = "[Enter Time Frame]"
+processing_an_application = False
+processing_a_recert = False
 
 'These are booleans to decide if we can move on in the scirpt
 eval_questions_clear = False
@@ -3806,6 +3806,13 @@ Do
 Loop until are_we_passworded_out = FALSE
 Call check_for_MAXIS(False)					'Make sure we are in MAXIS
 
+For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+		If HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb) = "Application" Then processing_an_application = True
+		If HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb) = "Recertification" Then processing_a_recert = True
+	End If
+Next
+
 If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 	call navigate_to_MAXIS_screen("REPT", "PND2")
 	EMGetCursor PND2_row, PND2_col
@@ -3833,7 +3840,8 @@ If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 End if
 
 'if this application was 4/1/23 or after, we need to ask about STANDARD vs PROTECTED Policy
-If applied_after_03_23 = True Then
+'For cases that are at recert, we do not need to complete this process during the processing as a bulk script will create this CASE/NOTE
+If applied_after_03_23 = True and processing_an_application = True and processing_a_recert = False Then
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
 	DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
