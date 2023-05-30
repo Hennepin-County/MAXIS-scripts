@@ -249,8 +249,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             Text 65, 20, 75, 10, name_01
             Text 145, 20, 20, 10, "PMI:"
             Text 165, 20, 45, 10, PMI_01
+            'TO DO - only display case number once - not needed for each person
             Text 15, 35, 50, 10, "Case Number:"
             Text 65, 35, 60, 10, MAXIS_case_number
+            'TO DO - only display review month once - not needed for each person
             Text 145, 35, 50, 10, "Review Month:"
             Text 195, 35, 25, 10, review_month_01
         GroupBox 10, 60, 220, 60, "Person 1 - TPQY Information"
@@ -325,9 +327,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 300, 20, 75, 10, name_02
 				Text 380, 20, 20, 10, "PMI:"
 				Text 400, 20, 45, 10, PMI_02
+                'TO DO - only display case number once - not needed for each person
 				Text 250, 35, 50, 10, "Case Number:"
 				Text 300, 35, 60, 10, MAXIS_case_number
-				Text 380, 35, 50, 10, "Review Month:"
+				'TO DO - only display review month once - not needed for each person
+                Text 380, 35, 50, 10, "Review Month:"
 				Text 430, 35, 25, 10, review_month_02
 			GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
                 'TO DO - determine functionality to add multiple claim numbers
