@@ -200,7 +200,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objELIGRecordSet=nothing
 	Set objELIGConnection=nothing
 
-	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
+	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
 	Set objIncomeConnection = CreateObject("ADODB.Connection")
@@ -212,14 +212,29 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 	Do While NOT objIncomeRecordSet.Eof
-		panel_name_form_SQL = objIncomeRecordSet("IncExpTypeCode")
+		panel_name_from_SQL = objIncomeRecordSet("IncExpTypeCode")
 		income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
 		prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
+        income_description_from_SQL = objIncomeRecordSet("Description")
 
 		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
 			sent_date_01 = objIncomeRecordSet("QURY_Sent")
 			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-			If income_type_code_from_SQL = "03" Then SSI_01 = prosp_amt_from_SQL
+			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+            If panel_name_from_SQL = "JOBS" Then JOBS_01 = "Yes"
+			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
+		End If
+
+        If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
+			sent_date_02 = objIncomeRecordSet("QURY_Sent")
+			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
+			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+            If panel_name_from_SQL = "JOBS" Then JOBS_02 = "Yes"
+			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_02 = other_UNEA_types_02 & " " & income_type_code_from_SQL
 		End If
 
 		objIncomeRecordSet.MoveNext
@@ -299,8 +314,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             PushButton 515, 250, 25, 15, "STWK", stwk_button
             PushButton 490, 265, 25, 15, "UNEA", unea_button
         GroupBox 10, 125, 220, 180, "Person 1 - Add'l Information"
-            Text 15, 135, 15, 10, "SSI:"
-            Text 90, 135, 80, 10, SSI_01
+            'TO DO - remove and shift fields, duplicative with SDXS
+            ' Text 15, 135, 15, 10, "SSI:"
+            ' Text 90, 135, 80, 10, SSI_01
             Text 15, 150, 65, 10, "Other UNEA Types:"
             Text 90, 150, 80, 10, other_UNEA_types_01
             Text 15, 165, 50, 10, "JOBS Exists:"
@@ -341,15 +357,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 300, 90, 50, 10, sent_date_02
 				Text 250, 105, 50, 10, "Return Date:"
 				Text 300, 105, 50, 10, return_date_02
-				Text 355, 75, 50, 10, "SDXS Amount:"
+                Text 355, 75, 50, 10, "SDXS Amount:"
 				Text 405, 75, 45, 10, sdxs_amount_02
 				Text 355, 90, 50, 10, "BNDX Amount:"
 				Text 405, 90, 45, 10, bndx_amount_02
 				Text 355, 105, 35, 10, "MEDI Info: "
 				Text 405, 105, 45, 10, medi_info_02
 			GroupBox 245, 125, 220, 180, "Person 2 - Add'l Information"
-				Text 255, 135, 15, 10, "SSI:"
-				Text 330, 135, 80, 10, SSI_02
+				'TO DO - remove and shift fields, duplicative with SDXS
+                ' Text 255, 135, 15, 10, "SSI:"
+				' Text 330, 135, 80, 10, SSI_02
 				Text 255, 150, 65, 10, "Other UNEA Types:"
 				Text 330, 150, 80, 10, other_UNEA_types_02
 				Text 255, 165, 50, 10, "JOBS Exists:"
