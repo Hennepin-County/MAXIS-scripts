@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/30/2023", "Updated NOTES - Health Care Evaluation to support recertification processing.##~####~##Added the MN Health Care Programs Renewal form as an option to select.##~##'Recertification' can be selected for each person with HC being processed.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/28/2023", "Updates to the script funcationality to support:##~## ##~## - PBEN infomration for the requirment of other programs.##~## - Indicate for a requirement to apply for Medicare.##~## - Selection of Major Program wlong with Basis of Eligibility.##~## - Additional fields for LTC specific information.##~## - Place to provide details of the AVS steps taken.##~## - If only one person on the case, the script will no longer require you select the household members.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/23/2023", "Initial version.", "Casey Love, Hennepin County")
 
@@ -3354,6 +3355,7 @@ FOR i = 0 to total_clients
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
 					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
+					If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If
 			Next
@@ -4905,7 +4907,7 @@ Call script_end_procedure_with_error_report(end_msg)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------04/17/2023					The HH_Custom_Dialog can still cause a problem here
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/17/2023
 '--Tab orders reviewed & confirmed----------------------------------------------04/17/2023
 '--Mandatory fields all present & Reviewed--------------------------------------04/17/2023
 '--All variables in dialog match mandatory fields-------------------------------04/17/2023
