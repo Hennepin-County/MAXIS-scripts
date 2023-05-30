@@ -254,8 +254,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             Text 145, 35, 50, 10, "Review Month:"
             Text 195, 35, 25, 10, review_month_01
         GroupBox 10, 60, 220, 60, "Person 1 - TPQY Information"
-            Text 15, 75, 50, 10, "Claim Number:"
-            Text 65, 75, 50, 10, claim_number_01
+            'TO DO - determine functionality to add multiple claim numbers
+            ' Text 15, 75, 50, 10, "Claim Number:"
+            ' Text 65, 75, 50, 10, claim_number_01
             Text 15, 90, 35, 10, "Sent Date:"
             Text 65, 90, 50, 10, sent_date_01
             Text 15, 105, 45, 10, "Return Date:"
@@ -329,8 +330,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 380, 35, 50, 10, "Review Month:"
 				Text 430, 35, 25, 10, review_month_02
 			GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
-				Text 250, 75, 50, 10, "Claim Number:"
-				Text 300, 75, 50, 10, claim_number_02
+                'TO DO - determine functionality to add multiple claim numbers
+				' Text 250, 75, 50, 10, "Claim Number:"
+				' Text 300, 75, 50, 10, claim_number_02
 				Text 250, 90, 50, 10, "Sent Date:"
 				Text 300, 90, 50, 10, sent_date_02
 				Text 250, 105, 50, 10, "Return Date:"
