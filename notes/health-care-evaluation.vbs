@@ -2817,6 +2817,7 @@ form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Canc
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
 form_selection_options = form_selection_options+chr(9)+"SAGE Enrollment Form (MA/BC PE Only)"
 form_selection_options = form_selection_options+chr(9)+"Screen Our Circle Form (MA/BC PE Only)"
+form_selection_options = form_selection_options+chr(9)+"No Form - Ex Parte Determination"
 
 ma_basis_of_elig_list = "Disabled"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Blind"
@@ -2934,7 +2935,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+form_selection_options, HC_form_name
-  DropListBox 265, 240, 75, 45, "No"+chr(9)+"Yes", ltc_waiver_request_yn
+  DropListBox 265, 240, 75, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -2960,6 +2961,7 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   Text 25, 265, 40, 10, "Form Date:"
   Text 15, 285, 60, 10, "Worker Signature:"
   GroupBox 10, 25, 345, 170, "Health Care Processing"
+  Text 135, 265, 110, 10, "For ex parte, use processing date"
 EndDialog
 
 DO
@@ -2976,6 +2978,8 @@ DO
 			Call validate_MAXIS_case_number(err_msg, "*")
 			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
 			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
+			'Add validation to make sure LTC field is blank for ex parte
+            If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "N/A - Ex Parte Process" THEN err_msg = err_msg & vbCr & "* Select 'N/A - Ex Parte Process' for the LTC/Waiver Services field."
 			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		End If
