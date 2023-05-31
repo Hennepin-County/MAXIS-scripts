@@ -282,6 +282,53 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
         LOOP Until person_01_ref_number <> ""
     End If
 
+
+    'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
+
+    'Determine if MEDI exists for Person 1
+    CALL back_to_SELF()
+    CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+    EMWriteScreen person_01_ref_number, 20, 76
+    transmit
+    EMReadScreen check_if_MEDI_exists, 2, 2, 78
+    If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
+    If trim(check_if_MEDI_exists) <> 0 Then MEDI_info_01 = "MEDI Exists"
+    
+    'TO DO - Add functionality to read MEDI info from MEDI panel
+        'Check Part A Info
+    '     row = 17
+    '         Do
+    '         row = row - 1  
+    '             Do
+    '                 PF20
+    '                 EMReadScreen last_page_check, 16, 24, 2
+    '             Loop Until last_page_check = "THIS IS THE LAST PAGE"
+
+    '         Loop Until row = 15
+    ' End If
+
+    'Determine MEDI for Person 2
+    If person_02_ref_number <> "" Then
+        CALL back_to_SELF()
+        CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+        EMWriteScreen person_02_ref_number, 20, 76
+        transmit
+        EMReadScreen check_if_MEDI_exists, 2, 2, 78
+        If trim(check_if_MEDI_exists) = 0 Then MEDI_info_02 = "MEDI Does Not Exist"
+        If trim(check_if_MEDI_exists) <> 0 Then MEDI_info_02 = "MEDI Exists"
+            'TO DO - add functionality to read info from MEDI panel
+    '         Do
+    '             row = 17
+    '                 Do
+    '                     PF20
+    '                     EMReadScreen last_page_check, 16, 24, 2
+    '                 Loop Until last_page_check = "THIS IS THE LAST PAGE"
+
+    '             Loop Until row = 15
+    '     End If
+    End If
+    
+
 	Dialog1 = ""
 
     'TO DO - add functionality to determine ex parte phase based on case number
