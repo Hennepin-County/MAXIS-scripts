@@ -580,12 +580,12 @@ If ex_parte_determination = "Appears Ex Parte" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
-                EMReadScreen income_renewal_date, 8, 7, 27
-                EMReadScreen elig_renewal_date, 8, 8, 27
-                EMReadScreen HC_ex_parte_determination, 1, 9, 27
-                EMReadScreen income_asset_renewal_date, 8, 7, 71
-                EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-                EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+                EMReadScreen check_income_renewal_date, 8, 7, 27
+                EMReadScreen check_elig_renewal_date, 8, 8, 27
+                EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+                EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+                EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+                EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
             End If
 
             'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
@@ -641,12 +641,12 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
-                EMReadScreen income_renewal_date, 8, 7, 27
-                EMReadScreen elig_renewal_date, 8, 8, 27
-                EMReadScreen HC_ex_parte_determination, 1, 9, 27
-                EMReadScreen income_asset_renewal_date, 8, 7, 71
-                EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-                EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+                EMReadScreen check_income_renewal_date, 8, 7, 27
+                EMReadScreen check_elig_renewal_date, 8, 8, 27
+                EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+                EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+                EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+                EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
             End If
 
             'Validation to ensure that elig renewal date has not changed
@@ -676,7 +676,7 @@ End If
 
 'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 'TO DO - confirm TIKL information is correct
-If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.", 10, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
+If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 10, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
 
 'Navigate to and start a new CASE NOTE
 Call start_a_blank_case_note
@@ -686,7 +686,8 @@ CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_part
 
 'For ex parte approval, write information to case note
 If ex_parte_determination = "Appears Ex Parte" Then
-    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided. The case meets one of the criteria below.")
+    CALL write_variable_in_case_note(TIKL_note_text)
+    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided. The case meets one of the criteria below.")
     CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
     CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
     CALL write_bullet_and_variable_in_case_note("* ", "Retirement, Survivors, and Disability Insurance (RSDI)")
@@ -712,7 +713,7 @@ CALL write_variable_in_case_note(worker_signature)
 
 
 'Script end procedure
-script_end_procedure("Success! The ex parte determination has been added to the CASE NOTE")
+script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
