@@ -244,10 +244,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	objIncomeConnection.Close
 	Set objIncomeRecordSet=nothing
 	Set objIncomeConnection=nothing
-    
+
     'Adding functionality to determine the reference number for each person on the case
     'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
-    
+
     'Find reference numbers if two people on the case
     If PMI_02 <> "" Then
         CALL back_to_SELF()
@@ -255,25 +255,25 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
         person_01_ref_number = ""
         person_02_ref_number = ""
 
-    
-        Do 
+
+        Do
             EMReadScreen check_PMI, 8, 4, 46
             check_PMI = trim(check_PMI)
             check_PMI_full = right("00000000" & check_PMI, 8)
             If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
             If check_PMI_full = PMI_02 Then EMReadScreen person_02_ref_number, 2, 4, 33
             EMReadScreen MEMB_end_check, 13, 24, 2
-            transmit 
+            transmit
         LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
-    End If 
+    End If
 
     'Find reference numbers if only one person on the case
     If PMI_02 = "" Then
         CALL back_to_SELF()
         CALL navigate_to_MAXIS_screen("STAT", "MEMB")
         person_01_ref_number = ""
-    
-        Do 
+
+        Do
             EMReadScreen check_PMI, 8, 4, 46
             check_PMI = trim(check_PMI)
             check_PMI_full = right("00000000" & check_PMI, 8)
@@ -293,12 +293,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
     EMReadScreen check_if_MEDI_exists, 2, 2, 78
     If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
     If trim(check_if_MEDI_exists) <> 0 Then MEDI_info_01 = "MEDI Exists"
-    
+
     'TO DO - Add functionality to read MEDI info from MEDI panel
         'Check Part A Info
     '     row = 17
     '         Do
-    '         row = row - 1  
+    '         row = row - 1
     '             Do
     '                 PF20
     '                 EMReadScreen last_page_check, 16, 24, 2
@@ -327,7 +327,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
     '             Loop Until row = 15
     '     End If
     End If
-    
+
 
 	Dialog1 = ""
 
@@ -673,6 +673,23 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 End If
 
+If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
+If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
+
+If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+	MsgBox "STOP - YOU ARE GOING TO UPDATE"
+	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+	'Creating objects for Access
+	Set objUpdateConnection = CreateObject("ADODB.Connection")
+	Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+Else
+	MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
+End If
 
 'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 'TO DO - confirm TIKL information is correct
