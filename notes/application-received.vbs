@@ -224,6 +224,10 @@ row = 1                                             'searching for the CASE NUMB
 col = 1
 EMSearch MAXIS_case_number, row, col
 If row <> 24 and row <> 0 Then pnd2_row = row
+If pnd2_row = "" Then
+	EMReadScreen too_big_basket, 7, 21, 13
+	Call script_end_procedure_with_error_report("This script - Application Received - cannot read this case on REPT/PND2. This is likely because PND2 for the caseload " & too_big_basket & " has reached the MAXIS display limit and the case is not displayed on the page. Transfer this case to a caseload with fewer cases in PND2 status for this script to operate.")
+End If
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
 oldest_app_date = application_date
@@ -351,7 +355,7 @@ If app_recvd_note_found = True Then
 															 "The following household members have Health Care pending: " & HH_members_pending & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
     'If no HC or if answered 'No' we need to run Subsequent Application instead
-    If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
+	If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
     If hc_case = True and hc_request_on_second_app = vbYes Then     'if this is a HC application and CAF application, we need to determine which is which.
         If application_date = oldest_app_date Then                  'defaulting the program selection based on the application dates and programs
             not_processed_app_date = newest_app_date
