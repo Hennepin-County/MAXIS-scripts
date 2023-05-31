@@ -244,6 +244,43 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	objIncomeConnection.Close
 	Set objIncomeRecordSet=nothing
 	Set objIncomeConnection=nothing
+    
+    'Adding functionality to determine the reference number for each person on the case
+    'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
+    
+    'Find reference numbers if two people on the case
+    If PMI_02 <> "" Then
+        CALL back_to_SELF()
+        CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        person_01_ref_number = ""
+        person_02_ref_number = ""
+
+    
+        Do 
+            EMReadScreen check_PMI, 8, 4, 46
+            check_PMI = trim(check_PMI)
+            check_PMI_full = right("00000000" & check_PMI, 8)
+            If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
+            If check_PMI_full = PMI_02 Then EMReadScreen person_02_ref_number, 2, 4, 33
+            EMReadScreen MEMB_end_check, 13, 24, 2
+            transmit 
+        LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+    End If 
+
+    'Find reference numbers if only one person on the case
+    If PMI_02 = "" Then
+        CALL back_to_SELF()
+        CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        person_01_ref_number = ""
+    
+        Do 
+            EMReadScreen check_PMI, 8, 4, 46
+            check_PMI = trim(check_PMI)
+            check_PMI_full = right("00000000" & check_PMI, 8)
+            If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
+            transmit
+        LOOP Until person_01_ref_number <> ""
+    End If
 
 	Dialog1 = ""
 
