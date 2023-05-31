@@ -256,34 +256,31 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
         EditBox 220, 335, 235, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
         EditBox 80, 360, 110, 15, worker_signature
+        GroupBox 10, 0, 455, 25, "Case Information"
+            Text 15, 10, 50, 10, "Case Number:"
+            Text 65, 10, 70, 10, MAXIS_case_number
+            Text 140, 10, 50, 10, "Review Month:"
+            Text 190, 10, 65, 10, review_month_01
         ButtonGroup ButtonPressed
             OkButton 440, 365, 50, 15
             CancelButton 500, 365, 50, 15
-        GroupBox 10, 5, 220, 45, "Person 1 - Case Information"
-            Text 15, 20, 50, 10, "Person Name:"
-            Text 65, 20, 75, 10, name_01
-            Text 145, 20, 20, 10, "PMI:"
-            Text 165, 20, 45, 10, PMI_01
-            'TO DO - only display case number once - not needed for each person
-            Text 15, 35, 50, 10, "Case Number:"
-            Text 65, 35, 60, 10, MAXIS_case_number
-            'TO DO - only display review month once - not needed for each person
-            Text 145, 35, 50, 10, "Review Month:"
-            Text 195, 35, 25, 10, review_month_01
-        GroupBox 10, 60, 220, 60, "Person 1 - TPQY Information"
+        GroupBox 10, 25, 220, 35, "Person 1 - Information"
+            Text 15, 35, 25, 10, "Name:"
+            Text 40, 35, 180, 10, name_01
+            Text 15, 45, 20, 10, "PMI:"
+            Text 35, 45, 70, 10, PMI_01
+        GroupBox 10, 60, 220, 45, "Person 1 - TPQY Information"
             'TO DO - determine functionality to add multiple claim numbers
             ' Text 15, 75, 50, 10, "Claim Number:"
             ' Text 65, 75, 50, 10, claim_number_01
-            Text 15, 90, 35, 10, "Sent Date:"
-            Text 65, 90, 50, 10, sent_date_01
-            Text 15, 105, 45, 10, "Return Date:"
-            Text 65, 105, 50, 10, return_date_01
-            Text 120, 75, 50, 10, "SDXS Amount:"
-            Text 170, 75, 45, 10, sdxs_amount_01
-            Text 120, 90, 50, 10, "BNDX Amount:"
-            Text 170, 90, 45, 10, bndx_amount_01
-            Text 120, 105, 35, 10, "MEDI Info: "
-            Text 170, 105, 45, 10, medi_info_01
+            Text 15, 70, 35, 10, "Sent Date:"
+            Text 55, 70, 50, 10, sent_date_01
+            Text 120, 70, 45, 10, "Return Date:"
+            Text 165, 70, 55, 10, return_date_01
+            Text 15, 90, 50, 10, "SDXS Amount:"
+            Text 65, 90, 155, 10, sdxs_amount_01
+            Text 15, 80, 50, 10, "BNDX Amount:"
+            Text 65, 80, 155, 10, bndx_amount_01
         ButtonGroup ButtonPressed
             Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
             PushButton 490, 15, 55, 15, "instructions", instructions_button
@@ -313,80 +310,70 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             PushButton 490, 250, 25, 15, "SPON", spon_button
             PushButton 515, 250, 25, 15, "STWK", stwk_button
             PushButton 490, 265, 25, 15, "UNEA", unea_button
-        GroupBox 10, 125, 220, 180, "Person 1 - Add'l Information"
-            'TO DO - remove and shift fields, duplicative with SDXS
-            ' Text 15, 135, 15, 10, "SSI:"
-            ' Text 90, 135, 80, 10, SSI_01
-            Text 15, 150, 65, 10, "Other UNEA Types:"
-            Text 90, 150, 80, 10, other_UNEA_types_01
-            Text 15, 165, 50, 10, "JOBS Exists:"
-            Text 90, 165, 80, 10, JOBS_01
-            Text 15, 180, 60, 10, "MAXIS MA Basis:"
-            Text 90, 180, 80, 10, MAXIS_MA_basis_01
-            Text 15, 195, 60, 10, "MAXIS MSP Prog:"
-            Text 90, 195, 80, 10, MAXIS_msp_prog_01
-            Text 15, 210, 65, 10, "MAXIS MSP Basis:"
-            Text 90, 210, 80, 10, MAXIS_msp_basis_01
-            Text 15, 225, 55, 10, "MMIS MA Basis:"
-            Text 90, 225, 80, 10, MMIS_ma_basis_01
-            Text 15, 240, 60, 10, "MMIS MSP Prog:"
-            Text 90, 240, 80, 10, MMIS_msp_prog_01
-            Text 15, 255, 60, 10, "MMIS MSP Basis:"
-            Text 90, 255, 80, 10, MMIS_msp_basis_01
-            Text 15, 270, 70, 10, "MEDI - Part A Exists:"
-            Text 90, 270, 80, 10, MEDI_part_a_01
-            Text 15, 285, 70, 10, "MEDI - Part B Exists:"
-            Text 90, 285, 80, 10, MEDI_part_b_01
+        GroupBox 10, 105, 220, 200, "Person 1 - Add'l Information"
+            Text 15, 115, 35, 10, "MEDI Info: "
+            Text 85, 115, 135, 10, medi_info_01
+            Text 15, 130, 70, 10, "MEDI - Part A Exists:"
+            Text 85, 130, 135, 10, MEDI_part_a_01
+            Text 15, 145, 70, 10, "MEDI - Part B Exists:"
+            Text 85, 145, 135, 10, MEDI_part_b_01
+            Text 15, 175, 65, 10, "Other UNEA Types:"
+            Text 85, 175, 135, 10, other_UNEA_types_01
+            Text 15, 160, 50, 10, "JOBS Exists:"
+            Text 85, 160, 135, 10, JOBS_01
+            Text 15, 190, 60, 10, "MAXIS MA Basis:"
+            Text 85, 190, 135, 10, MAXIS_MA_basis_01
+            Text 15, 205, 60, 10, "MAXIS MSP Prog:"
+            Text 85, 205, 135, 10, MAXIS_msp_prog_01
+            Text 15, 220, 65, 10, "MAXIS MSP Basis:"
+            Text 85, 220, 135, 10, MAXIS_msp_basis_01
+            Text 15, 235, 55, 10, "MMIS MA Basis:"
+            Text 85, 235, 135, 10, MMIS_ma_basis_01
+            Text 15, 250, 60, 10, "MMIS MSP Prog:"
+            Text 85, 250, 135, 10, MMIS_msp_prog_01
+            Text 15, 265, 60, 10, "MMIS MSP Basis:"
+            Text 85, 265, 135, 10, MMIS_msp_basis_01
 		If name_02 <> "" Then
-			GroupBox 245, 5, 220, 45, "Person 2 - Case Information"
-				Text 250, 20, 50, 10, "Person Name:"
-				Text 300, 20, 75, 10, name_02
-				Text 380, 20, 20, 10, "PMI:"
-				Text 400, 20, 45, 10, PMI_02
-                'TO DO - only display case number once - not needed for each person
-				Text 250, 35, 50, 10, "Case Number:"
-				Text 300, 35, 60, 10, MAXIS_case_number
-				'TO DO - only display review month once - not needed for each person
-                Text 380, 35, 50, 10, "Review Month:"
-				Text 430, 35, 25, 10, review_month_02
-			GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
+			GroupBox 245, 25, 220, 35, "Person 2 - Information"
+                Text 250, 35, 25, 10, "Name:"
+                Text 275, 35, 185, 10, name_02
+                Text 250, 45, 20, 10, "PMI:"
+                Text 275, 45, 60, 10, PMI_02
+			GroupBox 245, 60, 220, 45, "Person 2 - TPQY Information"
                 'TO DO - determine functionality to add multiple claim numbers
 				' Text 250, 75, 50, 10, "Claim Number:"
 				' Text 300, 75, 50, 10, claim_number_02
-				Text 250, 90, 50, 10, "Sent Date:"
-				Text 300, 90, 50, 10, sent_date_02
-				Text 250, 105, 50, 10, "Return Date:"
-				Text 300, 105, 50, 10, return_date_02
-                Text 355, 75, 50, 10, "SDXS Amount:"
-				Text 405, 75, 45, 10, sdxs_amount_02
-				Text 355, 90, 50, 10, "BNDX Amount:"
-				Text 405, 90, 45, 10, bndx_amount_02
-				Text 355, 105, 35, 10, "MEDI Info: "
-				Text 405, 105, 45, 10, medi_info_02
-			GroupBox 245, 125, 220, 180, "Person 2 - Add'l Information"
-				'TO DO - remove and shift fields, duplicative with SDXS
-                ' Text 255, 135, 15, 10, "SSI:"
-				' Text 330, 135, 80, 10, SSI_02
-				Text 255, 150, 65, 10, "Other UNEA Types:"
-				Text 330, 150, 80, 10, other_UNEA_types_02
-				Text 255, 165, 50, 10, "JOBS Exists:"
-				Text 330, 165, 80, 10, JOBS_02
-				Text 255, 180, 60, 10, "MAXIS MA Basis:"
-				Text 330, 180, 80, 10, MAXIS_MA_basis_02
-				Text 255, 195, 60, 10, "MAXIS MSP Prog:"
-				Text 330, 195, 80, 10, MAXIS_msp_prog_02
-				Text 255, 210, 65, 10, "MAXIS MSP Basis:"
-				Text 330, 210, 80, 10, MAXIS_msp_basis_02
-				Text 255, 225, 55, 10, "MMIS MA Basis:"
-				Text 330, 225, 80, 10, MMIS_ma_basis_02
-				Text 255, 240, 60, 10, "MMIS MSP Prog:"
-				Text 330, 240, 80, 10, MMIS_msp_prog_02
-				Text 255, 255, 60, 10, "MMIS MSP Basis:"
-				Text 330, 255, 80, 10, MMIS_msp_basis_02
-				Text 255, 270, 70, 10, "MEDI - Part A Exists:"
-				Text 330, 270, 80, 10, MEDI_part_a_02
-				Text 255, 285, 70, 10, "MEDI - Part B Exists:"
-				Text 330, 285, 80, 10, MEDI_part_b_02
+                Text 250, 70, 35, 10, "Sent Date:"
+                Text 290, 70, 50, 10, sent_date_02
+                Text 355, 70, 45, 10, "Return Date:"
+                Text 400, 70, 55, 10, return_date_02
+                Text 250, 90, 50, 10, "SDXS Amount:"
+                Text 300, 90, 155, 10, sdxs_amount_02
+                Text 250, 80, 50, 10, "BNDX Amount:"
+                Text 300, 80, 155, 10, bndx_amount_02
+            GroupBox 245, 105, 220, 200, "Person 2 - Add'l Information"
+                Text 255, 115, 35, 10, "MEDI Info: "
+                Text 325, 115, 135, 10, medi_info_02
+                Text 255, 130, 70, 10, "MEDI - Part A Exists:"
+                Text 325, 130, 135, 10, MEDI_part_a_02
+                Text 255, 145, 70, 10, "MEDI - Part B Exists:"
+                Text 325, 145, 135, 10, MEDI_part_b_02
+                Text 255, 175, 65, 10, "Other UNEA Types:"
+                Text 325, 175, 135, 10, other_UNEA_types_02
+                Text 255, 160, 50, 10, "JOBS Exists:"
+                Text 325, 160, 135, 10, JOBS_02
+                Text 255, 190, 60, 10, "MAXIS MA Basis:"
+                Text 325, 190, 135, 10, MAXIS_MA_basis_02
+                Text 255, 205, 60, 10, "MAXIS MSP Prog:"
+                Text 325, 205, 135, 10, MAXIS_msp_prog_02
+                Text 255, 220, 65, 10, "MAXIS MSP Basis:"
+                Text 325, 220, 135, 10, MAXIS_msp_basis_02
+                Text 255, 235, 55, 10, "MMIS MA Basis:"
+                Text 325, 235, 135, 10, MMIS_ma_basis_02
+                Text 255, 250, 60, 10, "MMIS MSP Prog:"
+                Text 325, 250, 135, 10, MMIS_msp_prog_02
+                Text 255, 265, 60, 10, "MMIS MSP Basis:"
+                Text 325, 265, 135, 10, MMIS_msp_basis_02
 		End If
     EndDialog
 
