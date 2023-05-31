@@ -580,6 +580,9 @@ If ex_parte_determination = "Appears Ex Parte" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
+                CALL back_to_SELF()
+                CALL navigate_to_MAXIS_screen("STAT", "REVW")
+                CALL write_value_and_transmit("X", 5, 71)
                 EMReadScreen check_income_renewal_date, 8, 7, 27
                 EMReadScreen check_elig_renewal_date, 8, 8, 27
                 EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
@@ -641,6 +644,9 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
+                CALL back_to_SELF()
+                CALL navigate_to_MAXIS_screen("STAT", "REVW")
+                CALL write_value_and_transmit("X", 5, 71)
                 EMReadScreen check_income_renewal_date, 8, 7, 27
                 EMReadScreen check_elig_renewal_date, 8, 8, 27
                 EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
