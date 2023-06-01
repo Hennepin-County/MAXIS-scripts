@@ -3080,6 +3080,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objELIGRecordSet=nothing
 	Set objELIGConnection=nothing
 
+	JOBS_01 = "No"
+	JOBS_01_detail = ""
+
+	BUSI_01 = "No"
+	BUSI_01_detail = ""
+
 	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
@@ -3103,8 +3109,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-            If panel_name_from_SQL = "JOBS" Then JOBS_01 = "Yes"
+            If panel_name_from_SQL = "JOBS" Then
+				JOBS_01 = "Yes"
+				JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+			End If
+			If panel_name_from_SQL = "BUSI" Then
+				BUSI_01 = "Yes"
+				BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+			End If
 			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
+
 		End If
 
         If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
@@ -3113,7 +3127,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-            If panel_name_from_SQL = "JOBS" Then JOBS_02 = "Yes"
+            If panel_name_from_SQL = "JOBS" Then
+				JOBS_02 = "Yes"
+				JOBS_02_detail = JOBS_02_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+			End If
+			If panel_name_from_SQL = "BUSI" Then
+				BUSI_02 = "Yes"
+				BUSI_02_detail = BUSI_02_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+			End If
 			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_02 = other_UNEA_types_02 & " " & income_type_code_from_SQL
 		End If
 
@@ -3124,6 +3145,15 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	objIncomeConnection.Close
 	Set objIncomeRecordSet=nothing
 	Set objIncomeConnection=nothing
+
+	JOBS_01_detail = trim(BUSI_02_detail)
+	BUSI_01_detail = trim(BUSI_02_detail)
+	JOBS_02_detail = trim(BUSI_02_detail)
+	BUSI_02_detail = trim(BUSI_02_detail)
+	If right(JOBS_01_detail, 1) = "," Then JOBS_01_detail = left(JOBS_01_detail, len(JOBS_01_detail)-1)
+	If right(BUSI_01_detail, 1) = "," Then BUSI_01_detail = left(BUSI_01_detail, len(BUSI_01_detail)-1)
+	If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
+	If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
 
     'Adding functionality to determine the reference number for each person on the case
     'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
@@ -3287,22 +3317,25 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             Text 85, 130, 135, 10, MEDI_part_a_01
             Text 15, 145, 70, 10, "MEDI - Part B Exists:"
             Text 85, 145, 135, 10, MEDI_part_b_01
-            Text 15, 175, 65, 10, "Other UNEA Types:"
-            Text 85, 175, 135, 10, other_UNEA_types_01
-            Text 15, 160, 50, 10, "JOBS Exists:"
-            Text 85, 160, 135, 10, JOBS_01
-            Text 15, 190, 60, 10, "MAXIS MA Basis:"
-            Text 85, 190, 135, 10, MAXIS_MA_basis_01
-            Text 15, 205, 60, 10, "MAXIS MSP Prog:"
-            Text 85, 205, 135, 10, MAXIS_msp_prog_01
-            Text 15, 220, 65, 10, "MAXIS MSP Basis:"
-            Text 85, 220, 135, 10, MAXIS_msp_basis_01
-            Text 15, 235, 55, 10, "MMIS MA Basis:"
-            Text 85, 235, 135, 10, MMIS_ma_basis_01
-            Text 15, 250, 60, 10, "MMIS MSP Prog:"
-            Text 85, 250, 135, 10, MMIS_msp_prog_01
-            Text 15, 265, 60, 10, "MMIS MSP Basis:"
-            Text 85, 265, 135, 10, MMIS_msp_basis_01
+			If JOBS_01 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
+			If JOBS_01 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
+			If BUSI_01 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
+			If BUSI_01 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
+            Text 15, 190, 65, 10, "Other UNEA Types:"
+            Text 85, 190, 135, 10, other_UNEA_types_01
+            ' Text 85, 160, 135, 10, JOBS_01
+            Text 15, 205, 60, 10, "MAXIS MA Basis:"
+            Text 85, 205, 135, 10, MAXIS_MA_basis_01
+            Text 15, 220, 60, 10, "MAXIS MSP Prog:"
+            Text 85, 220, 135, 10, MAXIS_msp_prog_01
+            Text 15, 235, 65, 10, "MAXIS MSP Basis:"
+            Text 85, 235, 135, 10, MAXIS_msp_basis_01
+            Text 15, 250, 55, 10, "MMIS MA Basis:"
+            Text 85, 250, 135, 10, MMIS_ma_basis_01
+            Text 15, 265, 60, 10, "MMIS MSP Prog:"
+            Text 85, 265, 135, 10, MMIS_msp_prog_01
+            Text 15, 280, 60, 10, "MMIS MSP Basis:"
+            Text 85, 280, 135, 10, MMIS_msp_basis_01
 		If name_02 <> "" Then
 			GroupBox 245, 25, 220, 35, "Person 2 - Information"
                 Text 250, 35, 25, 10, "Name:"
@@ -3328,22 +3361,26 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
                 Text 325, 130, 135, 10, MEDI_part_a_02
                 Text 255, 145, 70, 10, "MEDI - Part B Exists:"
                 Text 325, 145, 135, 10, MEDI_part_b_02
-                Text 255, 175, 65, 10, "Other UNEA Types:"
-                Text 325, 175, 135, 10, other_UNEA_types_02
-                Text 255, 160, 50, 10, "JOBS Exists:"
-                Text 325, 160, 135, 10, JOBS_02
-                Text 255, 190, 60, 10, "MAXIS MA Basis:"
-                Text 325, 190, 135, 10, MAXIS_MA_basis_02
-                Text 255, 205, 60, 10, "MAXIS MSP Prog:"
-                Text 325, 205, 135, 10, MAXIS_msp_prog_02
-                Text 255, 220, 65, 10, "MAXIS MSP Basis:"
-                Text 325, 220, 135, 10, MAXIS_msp_basis_02
-                Text 255, 235, 55, 10, "MMIS MA Basis:"
-                Text 325, 235, 135, 10, MMIS_ma_basis_02
-                Text 255, 250, 60, 10, "MMIS MSP Prog:"
-                Text 325, 250, 135, 10, MMIS_msp_prog_02
-                Text 255, 265, 60, 10, "MMIS MSP Basis:"
-                Text 325, 265, 135, 10, MMIS_msp_basis_02
+				If JOBS_02 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
+				If JOBS_02 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
+				If BUSI_02 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
+				If BUSI_02 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
+                Text 255, 190, 65, 10, "Other UNEA Types:"
+                Text 325, 190, 135, 10, other_UNEA_types_02
+                ' Text 255, 160, 50, 10, "JOBS Exists:"
+                ' Text 325, 160, 135, 10, JOBS_02
+                Text 255, 205, 60, 10, "MAXIS MA Basis:"
+                Text 325, 205, 135, 10, MAXIS_MA_basis_02
+                Text 255, 220, 60, 10, "MAXIS MSP Prog:"
+                Text 325, 220, 135, 10, MAXIS_msp_prog_02
+                Text 255, 235, 65, 10, "MAXIS MSP Basis:"
+                Text 325, 235, 135, 10, MAXIS_msp_basis_02
+                Text 255, 250, 55, 10, "MMIS MA Basis:"
+                Text 325, 250, 135, 10, MMIS_ma_basis_02
+                Text 255, 265, 60, 10, "MMIS MSP Prog:"
+                Text 325, 265, 135, 10, MMIS_msp_prog_02
+                Text 255, 280, 60, 10, "MMIS MSP Basis:"
+                Text 325, 280, 135, 10, MMIS_msp_basis_02
 		End If
     EndDialog
 
