@@ -3573,7 +3573,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 	'TO DO - confirm TIKL information is correct
-	If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
+	If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
 
 	'Navigate to and start a new CASE NOTE
 	Call start_a_blank_case_note
