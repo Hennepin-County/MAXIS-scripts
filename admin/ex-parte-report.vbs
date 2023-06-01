@@ -142,11 +142,11 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 			If panel_type_code = UNEA_type_code Then panel_found = True
 
 			If UNEA_type_code = "01" or UNEA_type_code = "02" Then
-				If UNEA_claim_number <> panel_claim_number Then panel_found = False
+				If UNEA_claim_number = panel_claim_number Then panel_found = True
 			End If
-			MsgBox "panel_type_code - " & panel_type_code & vbcr & "UNEA_type_code - " & UNEA_type_code & vbCr & vbCr &_
-					"panel_claim_number - " & panel_claim_number & vbCr & "UNEA_claim_number - " & UNEA_claim_number & vbCr & vbCr &_
-					"panel_found - " & panel_found
+			' MsgBox "panel_type_code - " & panel_type_code & vbcr & "UNEA_type_code - " & UNEA_type_code & vbCr & vbCr &_
+			' 		"panel_claim_number - " & panel_claim_number & vbCr & "UNEA_claim_number - " & UNEA_claim_number & vbCr & vbCr &_
+			' 		"panel_found - " & panel_found
 			If panel_found = True Then
 				EMReadScreen UNEA_instance, 1, 2, 73
 				UNEA_instance = "0" & UNEA_instance
@@ -244,11 +244,11 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 	If panel_in_edit_mode = True Then
 		Call clear_line_of_text(6, 37)
 		EMWriteScreen claim_number, 6, 37
-		If panel_found = False Then
-			Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
-			EMWriteScreen unea_type, 5, 37
-		End If
+		EMWriteScreen unea_type, 5, 37
 		EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
+		If panel_found = False Then Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
+
+		Call clear_line_of_text(10, 67)		'clear the COLA disregard - TODO - update this for Jan - June to not remove this
 
 		'Clear amounts
 		row = 13
@@ -286,8 +286,8 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 			' If HC_popup = "HC Income" then transmit
 		Loop until HC_popup <> "HC Income"
 
-		MsgBox "STOP AND LOOK AT THE PANEL"
-		PF10
+		' MsgBox "STOP AND LOOK AT THE PANEL"
+		' PF10
 
 		transmit
 		EMReadScreen cola_warning, 29, 24, 2
@@ -1117,16 +1117,16 @@ If ex_parte_function = "Prep" Then
 End If
 
 If ex_parte_function = "Phase 1" Then
-	MsgBox 	"In preparation for the HSR completion of a Phase 1 review, the script will complete updates to MAXIS information, to prevent HSRs from having to amnually enter verified information." & vbCr & vbCr &_
-			"If the case is potentially Ex Parte, the script will:" & vbCr &_
-			" - Read SVES/TPQY" & vbCr &_
-			" - Update UNEA and MEDI with SSA information from SVES/TPQY." & vbCr &_
-			" - Enter VA Income reported back after verification." & vbCr &_
-			" - Create a CASE/NOTE of any information verified and updated in MAXIS." & vbCr &_
-			" - Run the case through background." & vbCr &_
-			" - Capture details of the income verified and the Eligibility results into the Table to track Ex Parte work." & vbCr & vbCr &_
-			"This script will look at each case for the specified review month, preparing the case to be assigned to an HSR for Phase 1 Review of Ex Parte Eligbility." & vbCr  & vbCr &_
-			"This script is run on the 1st of the month of the Budget Month."
+	' MsgBox 	"In preparation for the HSR completion of a Phase 1 review, the script will complete updates to MAXIS information, to prevent HSRs from having to amnually enter verified information." & vbCr & vbCr &_
+	' 		"If the case is potentially Ex Parte, the script will:" & vbCr &_
+	' 		" - Read SVES/TPQY" & vbCr &_
+	' 		" - Update UNEA and MEDI with SSA information from SVES/TPQY." & vbCr &_
+	' 		" - Enter VA Income reported back after verification." & vbCr &_
+	' 		" - Create a CASE/NOTE of any information verified and updated in MAXIS." & vbCr &_
+	' 		" - Run the case through background." & vbCr &_
+	' 		" - Capture details of the income verified and the Eligibility results into the Table to track Ex Parte work." & vbCr & vbCr &_
+	' 		"This script will look at each case for the specified review month, preparing the case to be assigned to an HSR for Phase 1 Review of Ex Parte Eligbility." & vbCr  & vbCr &_
+	' 		"This script is run on the 1st of the month of the Budget Month."
 
 
 	MAXIS_footer_month = CM_plus_1_mo
@@ -1184,7 +1184,9 @@ If ex_parte_function = "Phase 1" Then
 				If check_TPQY_panel = "TPQY" Then
 					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39
 					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
-					MsgBox "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & vbCr & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb)
+					EMReadScreen sves_response, 8, 7, 22 		'Return Date
+					sves_response = replace(sves_response," ", "/")
+					' MsgBox "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & vbCr & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb)
 				End If
 				transmit
 
@@ -1212,7 +1214,7 @@ If ex_parte_function = "Phase 1" Then
 					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
 					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/01")
 					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/01")
-					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 				End If
 				transmit
 
@@ -1336,7 +1338,7 @@ If ex_parte_function = "Phase 1" Then
 
 				If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
 					If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
-					If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then MsgBox "STOP"
+					' If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then MsgBox "STOP"
 				End If
 				If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
@@ -1349,22 +1351,35 @@ If ex_parte_function = "Phase 1" Then
 				ssi_end_date = ""
 				rsdi_end_date = ""
 
+				objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] like '" & MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & "%'"
+
+				'Creating objects for Access
+				Set objIncomeConnection = CreateObject("ADODB.Connection")
+				Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+
+				'This is the file path for the statistics Access database.
+				' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+				objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+
 				Call back_to_SELF
 
 			Next
 
 			Call navigate_to_MAXIS_screen("STAT", "SUMM")
+			verif_types = ""
 
 			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-				MsgBox "MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) & vbCr &_
-						"MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) & vbCr &_
-						"MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb)
+				' MsgBox "MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) & vbCr &_
+				' 		"MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) & vbCr &_
+				' 		"MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb)
 
 				'Update MAXIS UNEA panels with information from TPQY
 				If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
 					Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
 					Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "")
+					If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
 				End If
 
 				If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
@@ -1376,6 +1391,7 @@ If ex_parte_function = "Phase 1" Then
 						Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 					End If
 					Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "")
+					If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 				End If
 
 
@@ -1491,24 +1507,8 @@ If ex_parte_function = "Phase 1" Then
 
 					End If
 
-
-
-					' Call clear_line_of_text(7, 46)
-					' Call clear_line_of_text(7, 73)
-					' If part_a_ended = False Then EMWriteScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb)
-					' If part_b_ended = False Then EMWriteScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb)
-
-
-					' If MEDI_panel_exists = False and MEDI_active = True Then
-					' 	Call write_value_and_transmit("NN", 20, 79)
-					' 	EMWriteSceeen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 6, 39
-					' 	EMWriteScreen "  ", 6, 52
-
-					' Else
-					' 	PF9
-					' End If
-
 					If MEDI_panel_exists = True and (panel_part_a_accurate = False or panel_part_b_accurate = False) Then
+						If InStr(verif_types, "Medicare") = 0 Then verif_types = verif_types & "/Medicare"
 						PF9
 						If panel_part_a_accurate = False Then
 							Do
@@ -1643,6 +1643,7 @@ If ex_parte_function = "Phase 1" Then
 						' PF10
 					End If
 					If MEDI_panel_exists = False and MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) <> "" Then
+						If InStr(verif_types, "Medicare") = 0 Then verif_types = verif_types & "/Medicare"
 						If (MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) <> "" and MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = "") or (MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) <> "" and MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = "") Then
 							MEMBER_INFO_ARRAY(created_medi, each_memb) = True
 							Call write_value_and_transmit("NN", 20, 79)
@@ -1680,7 +1681,9 @@ If ex_parte_function = "Phase 1" Then
 
 
 
-				' End If
+				End If
+
+
 				' Show_msg = False
 				' If MEDI_panel_exists = True and (panel_part_a_accurate = False or panel_part_b_accurate = False) Then Show_msg = True
 				' If MEDI_panel_exists = False and MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) <> "" Then Show_msg = True
@@ -1697,56 +1700,111 @@ If ex_parte_function = "Phase 1" Then
 			Next
 
 			'Send the case through background
-			' Call write_value_and_transmit("BGTX", 20, 71)
-			' EMReadScreen wrap_check, 4, 2, 46
-			' If wrap_check = "WRAP" Then transmit
+			Call write_value_and_transmit("BGTX", 20, 71)
+			EMReadScreen wrap_check, 4, 2, 46
+			If wrap_check = "WRAP" Then transmit
+			Call back_to_SELF
+
+			'CASE/NOTE details of the case information
+			If left(verif_types, 1) = "/" Then verif_types = right(verif_types, len(verif_types)-1)
+			note_title = "Verification of " & verif_types
+			Call navigate_to_MAXIS_screen("CASE", "NOTE")
+			EMReadScreen last_note, 55, 5, 25
+			last_note = trim(last_note)
+
+			If last_note <> note_title Then
+				start_a_blank_CASE_NOTE
+				Call write_variable_in_CASE_NOTE(note_title)
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True or MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
+						Call write_variable_in_CASE_NOTE("Income from SSA for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb) & ".")
+						Call write_variable_in_CASE_NOTE("* Verified through worker initiated data match.")
+						Call write_variable_in_CASE_NOTE("* UNEA panel updated eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & ".")
+						If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
+							Call write_variable_in_CASE_NOTE("  - SSI Income of $ " & MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) & " per month.")
+						End If
+						If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
+							rsdi_inc = "RSDI"
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then rsdi_inc = "RSDI, Disa"
+							Call write_variable_in_CASE_NOTE("  - " & rsdi_inc & " Income of $ " & MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) & " per month.")
+						End If
+					End If
+				Next
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True or MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True Then
+						Call write_variable_in_CASE_NOTE("Medicare for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb) & ".")
+
+						If MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True Then
+							If MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) <> "" Then
+								Call write_variable_in_CASE_NOTE("* Medicare Part A ended " & MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
+							Else
+								Call write_variable_in_CASE_NOTE("* Medicare Part A started " & MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
+							End If
+						End If
+						If MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True Then
+							If MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) <> "" Then
+								Call write_variable_in_CASE_NOTE("* Medicare Part B ended " & MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
+							Else
+								Call write_variable_in_CASE_NOTE("* Medicare Part B started " & MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
+								If MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) <> "" Then
+									Call write_variable_in_CASE_NOTE("  - Part B Premium: $ " &MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
+								Else
+									Call write_variable_in_CASE_NOTE("  - Part B Buy-In Start Date: " & MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb))
+								End If
+
+							End If
+						End If
+					End If
+				Next
+
+				call write_variable_in_case_note("---")
+				call write_variable_in_case_note(worker_signature)
+				call write_variable_in_case_note("Automated Update")
+
+			End If
+
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & date & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
+
 			' Call back_to_SELF
+			' Call MAXIS_background_check
 
-			' 'CASE/NOTE details of the case information
-			' start_a_blank_CASE_NOTE
-			' Call write_variable_in_CASE_NOTE("---Income Verification Case Note---")
-			' Call write_variable_in_CASE_NOTE("Updated UNEA panel and MEDI panel through a data match for " & member_number)
+			' 'Read ELIG and MMIS
+			' Call navigate_to_MAXIS_screen("ELIG", "HC  ")
 			' For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-			' 	If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True or MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
-			' 		Call write_variable_in_CASE_NOTE("Income from SSA for MEMB " & MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb) & ".")
-			' 		Call write_variable_in_CASE_NOTE("Verified through worker initiated data match.")
-			' 		If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
-			' 			Call write_variable_in_CASE_NOTE("SSI Income of $ " & MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) & " per month.")
+			' 	elig_row = 8
+			' 	Do
+			' 		EMReadScreen ref_num, 2, elig_row, 3
+			' 		EMReadScreen elig_program, 10, elig_row, 28
+			' 		elig_program = trim(elig_program)
+			' 		If ref_num = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) Then
+			' 			EMReadScreen result, 8, elig_row, 41
+			' 			result = trim(result)
+
+
+			' 			Exit Do
 			' 		End If
-			' 		If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
-			' 			Call write_variable_in_CASE_NOTE("RSDI Net Income of $ " & MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) & " per month.")
-			' 		End If
-			' 	End If
+
+			' 	Loop until ref_num = "  " and elig_program = ""
 			' Next
+			' ' ,[Phase1ELIG_Created]
+			' ' ,[Phase1ELIG_Result]
+			' ' ,[Phase1ELIG_Prog]
+			' ' ,[Phase1ELIG_Type]
+			' ' ,[Phase1ELIG_Method]
+			' ' ,[Phase1ELIG_IncStandard]
+			' ' ,[Phase1ELIG_Waiver]
+			' ' ,[Phase1ELIG_SpenddownType]
+			' ' ,[Phase1ELIG_SpenddownAmount]
 
-			' Call write_variable_in_CASE_NOTE("*RSDI Information*")
-			' Call write_variable_with_indent_in_CASE_NOTE("RSDI Pay Date: " & rsdi_paydate)
-			' Call write_variable_with_indent_in_CASE_NOTE("RSDI Gross Amount: " & rsdi_gross_amt)
-			' Call write_variable_with_indent_in_CASE_NOTE("RSDI Net Amount: " & rsdi_net_amt)
-
-			' Call write_variable_in_case_note("*Medicare Information*")
-			' Call write_variable_with_indent_in_CASE_NOTE("Medicare claim number: " & medi_claim_num)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part A Premium: " & part_a_premium)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part A Start Date: " & part_a_start)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part A Stop Date: " & part_a_stop)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part B Premium: " & part_b_premium)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part B Start Date: " & part_b_start)
-			' Call write_variable_with_indent_in_CASE_NOTE("Part B Stop Date: " & part_b_stop)
-
-			' Call write_variable_in_case_note("*SSI Information*")
-			' Call write_variable_with_indent_in_CASE_NOTE("SSI claim number: " & ssi_claim_num)
-			' Call write_variable_with_indent_in_CASE_NOTE("Payment Status: " & ssi_pay_code & ssi_pay_desc)
-			' Call write_variable_with_indent_in_CASE_NOTE("Pay Date: " & ssi_pay_date)
-			' Call write_variable_with_indent_in_CASE_NOTE("SSI Gross Amount: " & ssi_gross_amt)
-			' Call write_variable_with_indent_in_CASE_NOTE("Gross Earned income: " & gross_EI)
-			' Call write_variable_with_indent_in_CASE_NOTE("Net Earned income: " & net_EI)
-			' Call write_variable_with_indent_in_CASE_NOTE("Gross RSDI Income Amount: " & rsdi_income_amt)
-
-			' call write_variable_in_case_note("---")
-			' call write_variable_in_case_note(worker_signature)
-
-
-			'Read ELIG and MMIS
 
 			'Save all details from the income updates and ELIG information into the SQL Table
 
