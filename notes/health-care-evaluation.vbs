@@ -3487,12 +3487,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
 				elig_renewal_date = replace(elig_renewal_date, " ", "/")
-				income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+				' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 				check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
 				check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
 				elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-				income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+				' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
 				' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
 				'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
@@ -3502,6 +3502,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				'TO DO - determine how to determine if meets spenddown?
 				' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
 				If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+				'TODO - put back the funcitonality for spenddowns
 
 				'Validate that Exempt from 6 Mo IR is set to N
 				If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
@@ -3563,12 +3564,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
 				elig_renewal_date = replace(elig_renewal_date, " ", "/")
-				income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+				' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
 				check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
 				check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
 				elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-				income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+				' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
 				'Validation to ensure that elig renewal date has not changed
 				If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
