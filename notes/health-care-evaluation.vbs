@@ -2813,6 +2813,7 @@ form_selection_options = form_selection_options+chr(9)+"Health Care Programs App
 form_selection_options = form_selection_options+chr(9)+"MNsure Application for Health Coverage and Help paying Costs (DHS-6696)"
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal (DHS-3418)"
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
+form_selection_options = form_selection_options+chr(9)+"Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
 form_selection_options = form_selection_options+chr(9)+"SAGE Enrollment Form (MA/BC PE Only)"
@@ -2932,35 +2933,35 @@ End If
 
 'Gather Case Number and the form processed
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
+BeginDialog Dialog1, 0, 0, 400, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
-  DropListBox 80, 220, 275, 45, "Select One..."+form_selection_options, HC_form_name
-  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
+  DropListBox 80, 220, 310, 45, "Select One..."+form_selection_options, HC_form_name
+  DropListBox 300, 240, 90, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 250, 280, 50, 15
-    CancelButton 305, 280, 50, 15
-    PushButton 295, 35, 50, 13, "Instructions", instructions_btn
-    PushButton 295, 50, 50, 13, "Video Demo", video_demo_btn
-  Text 105, 10, 120, 10, "Health Care Evaluation Script"
-  Text 20, 40, 255, 20, "This script is to be run once MAXIS STAT panels have been updated with all accurate information from a Health Care Application Form."
-  Text 20, 65, 255, 25, "If information displayed in this script is inaccurate, this means the information entered into STAT requires update. Cancel the script run and update STAT panels before running the script again."
-  Text 20, 95, 255, 10, "The information and coding in STAT will directly pull into the script details:"
-  Text 35, 105, 250, 10, "- Panels coded as needing verification will show up as verifications needed."
-  Text 35, 115, 250, 10, "- Income amounts will be pulled from JOBS / UNEA / BUSI / ect panels"
-  Text 40, 125, 150, 10, "and cannot be updated in the script dialogs."
-  Text 35, 135, 250, 10, "- Asset amounts will be pulled from ACCT / CASH / SECU / ect panels and"
-  Text 40, 145, 175, 10, "cannot be updated in the script dialogs."
-  Text 35, 155, 250, 10, "- The details in STAT Panels should be accurate and the script serves as a"
-  Text 40, 165, 245, 10, "secondary review of information that makes an eligibility determinations."
-  Text 15, 180, 300, 10, "IF THE CASE INFORMATION IS WRONG IN THE SCRIPT, IT IS WRONG IN THE SYSTEM"
+    OkButton 285, 280, 50, 15
+    CancelButton 340, 280, 50, 15
+    PushButton 315, 35, 50, 13, "Instructions", instructions_btn
+    PushButton 315, 50, 50, 13, "Video Demo", video_demo_btn
+  Text 120, 10, 120, 10, "Health Care Evaluation Script"
+  Text 40, 40, 255, 20, "This script is to be run once MAXIS STAT panels have been updated with all accurate information from a Health Care Application Form."
+  Text 40, 65, 255, 25, "If information displayed in this script is inaccurate, this means the information entered into STAT requires update. Cancel the script run and update STAT panels before running the script again."
+  Text 40, 95, 255, 10, "The information and coding in STAT will directly pull into the script details:"
+  Text 55, 105, 250, 10, "- Panels coded as needing verification will show up as verifications needed."
+  Text 55, 115, 250, 10, "- Income amounts will be pulled from JOBS / UNEA / BUSI / ect panels"
+  Text 60, 125, 150, 10, "and cannot be updated in the script dialogs."
+  Text 55, 135, 250, 10, "- Asset amounts will be pulled from ACCT / CASH / SECU / ect panels and"
+  Text 60, 145, 175, 10, "cannot be updated in the script dialogs."
+  Text 55, 155, 250, 10, "- The details in STAT Panels should be accurate and the script serves as a"
+  Text 60, 165, 245, 10, "secondary review of information that makes an eligibility determinations."
+  Text 35, 180, 300, 10, "IF THE CASE INFORMATION IS WRONG IN THE SCRIPT, IT IS WRONG IN THE SYSTEM"
   Text 25, 205, 50, 10, "Case Number:"
   Text 15, 225, 60, 10, "Health Care Form:"
-  Text 80, 245, 185, 10, "Does this form qualify to request LTC/Waiver Services?"
+  Text 115, 245, 185, 10, "Does this form qualify to request LTC/Waiver Services?"
   Text 25, 265, 40, 10, "Form Date:"
   Text 15, 285, 60, 10, "Worker Signature:"
-  GroupBox 10, 25, 345, 170, "Health Care Processing"
+  GroupBox 30, 25, 345, 170, "Health Care Processing"
   Text 135, 265, 110, 10, "For ex parte, use processing date"
 EndDialog
 
@@ -2970,6 +2971,10 @@ DO
 	   	Dialog Dialog1
 	   	cancel_without_confirmation
 
+		If HC_form_name = "No Form - Ex Parte Determination" Then
+			ltc_waiver_request_yn = "N/A - Ex Parte Process"
+			form_date = date & ""
+		End If
 	    If ButtonPressed > 4000 Then
 			If ButtonPressed = instructions_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION.docx")
 			If ButtonPressed = video_demo_btn Then Call open_URL_in_browser("https://web.microsoftstream.com/video/21fa4c6c-0b95-4a53-b683-9b3bdce9fe95?referrer=https:%2F%2Fgbc-word-edit.officeapps.live.com%2F")
@@ -4604,6 +4609,7 @@ If HC_form_name = "Health Care Programs Application for Certain Populations (DHS
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
 If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
+If HC_form_name = "Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)" Then short_form = "LTC Renewal"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"
 
