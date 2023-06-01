@@ -3548,9 +3548,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
 	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
+	' MsgBox "appears_ex_parte - " & appears_ex_parte
 
 	If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
-		MsgBox "STOP - YOU ARE GOING TO UPDATE"
+		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
 		'Creating objects for Access
