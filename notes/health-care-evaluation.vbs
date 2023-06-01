@@ -3203,6 +3203,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
     '     End If
     End If
 
+	instructions_button = 1000
+	policy_1_button = 1010
+    policy_2_button = 1020
+    policy_3_button = 1030
+
+
 
 	Dialog1 = ""
 
@@ -3242,11 +3248,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             Text 65, 80, 155, 10, bndx_amount_01
         ButtonGroup ButtonPressed
             Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-            PushButton 490, 15, 55, 15, "instructions", instructions_button
+            PushButton 490, 15, 55, 15, "Instructions", instructions_button
             Text 495, 40, 45, 10, "--- POLICY ---"
-            PushButton 490, 50, 55, 15, policy_1, policy_1_button
-            PushButton 490, 65, 55, 15, policy_2, policy_2_button
-            PushButton 490, 80, 55, 15, policy_3, policy_3_button
+            PushButton 490, 50, 55, 15, "DHS #23-21-18", policy_1_button
+            ' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+            ' PushButton 490, 80, 55, 15, policy_3, policy_3_button
             Text 490, 105, 55, 10, "--- NAVIGATE ---"
             PushButton 490, 115, 25, 15, "ACCI", acci_button
             PushButton 515, 115, 25, 15, "BILS", bils_button
@@ -3346,12 +3352,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             MAXIS_dialog_navigation
 
             'Add placeholder link to script instructions - To DO - update with correct link
-            If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+            If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
 
             'Add placeholder links for policy buttons - TO DO - update with correct links
-            If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-            If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-            If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+            If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-062948"
+            ' If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+            ' If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
 
 
             'Add validation to ensure ex parte determination is made
