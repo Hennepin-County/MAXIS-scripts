@@ -3388,7 +3388,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 	'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
 	EMReadScreen income_renewal_date, 8, 7, 27
-	EMReadScreen elig_renewal_date, 8, 8, 27
+	' EMReadScreen elig_renewal_date, 8, 8, 27
+	elig_renewal_date = review_month_from_SQL
 	EMReadScreen HC_ex_parte_determination, 1, 9, 27
 	EMReadScreen income_asset_renewal_date, 8, 7, 71
 	EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
@@ -3447,11 +3448,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
 				'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
-				If check_elig_renewal_date <> DateAdd("Y", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
+				If check_elig_renewal_date <> DateAdd("yyyy", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
 
 				'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
 				'TO DO - determine how to determine if meets spenddown?
-				If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+				' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
+				If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
 
 				'Validate that Exempt from 6 Mo IR is set to N
 				If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
@@ -3505,6 +3507,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					EMReadScreen check_income_renewal_date, 8, 7, 27
 					EMReadScreen check_elig_renewal_date, 8, 8, 27
 					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
 					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
 					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
 					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
@@ -3523,7 +3526,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
 				'Validation for Income/Asset Renewal Date to ensure that information has not changed
-				If check_income_asset_renewal_date <> income_asset_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+				If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
 				'Validation to ensure that Exempt from 6 Mo IR is set to N
 				If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
