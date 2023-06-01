@@ -3427,14 +3427,25 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					CALL back_to_SELF()
 					CALL navigate_to_MAXIS_screen("STAT", "REVW")
 					CALL write_value_and_transmit("X", 5, 71)
-					EMReadScreen check_income_renewal_date, 8, 7, 27
+					' EMReadScreen check_income_renewal_date, 8, 7, 27
 					EMReadScreen check_elig_renewal_date, 8, 8, 27
 					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
 					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
 					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
 					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 				End If
+				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+				elig_renewal_date = replace(elig_renewal_date, " ", "/")
+				income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
 
+				check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+				check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+				elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+				income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+				' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
 				'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
 				If check_elig_renewal_date <> DateAdd("Y", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
 
@@ -3494,10 +3505,19 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					EMReadScreen check_income_renewal_date, 8, 7, 27
 					EMReadScreen check_elig_renewal_date, 8, 8, 27
 					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
 					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
 					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 				End If
+				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+				elig_renewal_date = replace(elig_renewal_date, " ", "/")
+				income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+				check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+				check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+				elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+				income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 
 				'Validation to ensure that elig renewal date has not changed
 				If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
@@ -3581,7 +3601,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	'Script end procedure
 	script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
-	
+
 End If
 
 'determing if the application date is before or after 4/1/23
