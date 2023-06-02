@@ -3104,7 +3104,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
         income_description_from_SQL = objIncomeRecordSet("Description")
 
 		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
-			sent_date_01 = objIncomeRecordSet("QURY_Sent")
+			If objIncomeRecordSet("QURY_Sent") <> NULL Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
+			sent_date_01 = sent_date_01 & ""
 			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
 			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
@@ -3122,7 +3123,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		End If
 
         If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
-			sent_date_02 = objIncomeRecordSet("QURY_Sent")
+			If objIncomeRecordSet("QURY_Sent") <> NULL Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
+			sent_date_02 = sent_date_02 & ""
 			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
 			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
 			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
