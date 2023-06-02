@@ -3162,11 +3162,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			first_name = trim(replace(first_name, "_", "")) & " "
 			If read_ref_number = person_01_ref_number Then
 				EMReadScreen PMI_01, 8, 4, 46
+				PMI_01 = trim(PMI_01)
 				PMI_01 = right("00000000" & PMI_01, 8)
 				name_01 = first_name & " " & last_name
 			End If
 			If read_ref_number = person_02_ref_number Then
 				EMReadScreen PMI_02, 8, 4, 46
+				PMI_02 = trim(PMI_02)
 				PMI_02 = right("00000000" & PMI_02, 8)
 				name_02 = first_name & " " & last_name
 			End If
@@ -3233,7 +3235,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
 		prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
         income_description_from_SQL = objIncomeRecordSet("Description")
-
 		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
 			If objIncomeRecordSet("QURY_Sent") <> NULL Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
 			sent_date_01 = sent_date_01 & ""
