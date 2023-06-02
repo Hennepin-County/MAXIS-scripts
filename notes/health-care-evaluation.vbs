@@ -2994,6 +2994,8 @@ Loop until are_we_passworded_out = false
 
 'Add ex parte SQL connections and script
 If HC_form_name = "No Form - Ex Parte Determination" Then
+	MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
+	MAXIS_footer_year = CM_plus_1_yr
 	SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
@@ -3080,6 +3082,135 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objELIGRecordSet=nothing
 	Set objELIGConnection=nothing
 
+
+    'Adding functionality to determine the reference number for each person on the case
+    'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
+	If PMI_01 = "" and PMI_02 = "" Then
+		Call navigate_to_MAXIS_screen("ELIG", "HC  ")
+		hc_row = 8
+		Do
+			pers_type = ""
+			std = ""
+			meth = ""
+			' elig_result = ""
+			' results_created = ""
+			waiv = ""
+			EMReadScreen read_ref_numb, 2, hc_row, 3
+			EMReadScreen clt_hc_prog, 4, hc_row, 28
+			clt_hc_prog = trim(clt_hc_prog)
+			If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+
+
+				Call write_value_and_transmit("X", hc_row, 26)
+				If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+					elig_msp_prog = clt_hc_prog
+					EMReadScreen pers_type, 2, 6, 56
+				Else
+					col = 19
+					Do									'Finding the current month in elig to get the current elig type
+						EMReadScreen span_month, 2, 6, col
+						EMReadScreen span_year, 2, 6, col+3
+
+						If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
+							EMReadScreen pers_type, 2, 12, col - 2
+							EMReadScreen std, 1, 12, col + 3
+							EMReadScreen meth, 1, 13, col + 2
+							EMReadScreen waiv, 1, 17, col + 2
+							Exit Do
+						End If
+						col = col + 11
+					Loop until col = 85
+
+				End If
+				PF3
+
+				If person_01_ref_number = "" Then
+					person_01_ref_number = read_ref_numb
+				ElseIf person_02_ref_number = "" Then
+					person_02_ref_number = read_ref_numb
+				End If
+
+
+				If person_01_ref_number = read_ref_numb Then
+					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+						MAXIS_msp_prog_01 = clt_hc_prog
+						MAXIS_msp_basis_01 = pers_type
+					Else
+						MAXIS_MA_basis_01 = pers_type
+					End If
+				ElseIf person_02_ref_number = read_ref_numb Then
+					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+						MAXIS_msp_prog_02 = clt_hc_prog
+						MAXIS_msp_basis_02 = pers_type
+					Else
+						MAXIS_MA_basis_02 = pers_type
+					End If
+				End If
+			End If
+			hc_row = hc_row + 1
+			EMReadScreen next_ref_numb, 2, hc_row, 3
+			EMReadScreen next_maj_prog, 4, hc_row, 28
+		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+		CALL back_to_SELF()
+		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+		Do
+			EMReadScreen read_ref_number, 2, 4, 33
+			EMReadscreen last_name, 25, 6, 30
+			EMReadscreen first_name, 12, 6, 63
+			last_name = trim(replace(last_name, "_", "")) & " "
+			first_name = trim(replace(first_name, "_", "")) & " "
+			If read_ref_number = person_01_ref_number Then
+				EMReadScreen PMI_01, 8, 4, 46
+				PMI_01 = right("00000000" & PMI_01, 8)
+				name_01 = first_name & " " & last_name
+			End If
+			If read_ref_number = person_02_ref_number Then
+				EMReadScreen PMI_02, 8, 4, 46
+				PMI_02 = right("00000000" & PMI_02, 8)
+				name_02 = first_name & " " & last_name
+			End If
+			transmit
+			EMReadScreen MEMB_end_check, 13, 24, 2
+		LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+	Else
+		'Find reference numbers if two people on the case
+		If PMI_02 <> "" Then
+			CALL back_to_SELF()
+			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+			person_01_ref_number = ""
+			person_02_ref_number = ""
+
+
+			Do
+				EMReadScreen check_PMI, 8, 4, 46
+				check_PMI = trim(check_PMI)
+				check_PMI_full = right("00000000" & check_PMI, 8)
+				If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
+				If check_PMI_full = PMI_02 Then EMReadScreen person_02_ref_number, 2, 4, 33
+				EMReadScreen MEMB_end_check, 13, 24, 2
+				transmit
+			LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+		End If
+
+		'Find reference numbers if only one person on the case
+		If PMI_02 = "" Then
+			CALL back_to_SELF()
+			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+			person_01_ref_number = ""
+
+			Do
+				EMReadScreen check_PMI, 8, 4, 46
+				check_PMI = trim(check_PMI)
+				check_PMI_full = right("00000000" & check_PMI, 8)
+				If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
+				transmit
+			LOOP Until person_01_ref_number <> ""
+		End If
+	End If
+
+
+
 	JOBS_01 = "No"
 	JOBS_01_detail = ""
 
@@ -3157,42 +3288,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
 	If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
 
-    'Adding functionality to determine the reference number for each person on the case
-    'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
 
-    'Find reference numbers if two people on the case
-    If PMI_02 <> "" Then
-        CALL back_to_SELF()
-        CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-        person_01_ref_number = ""
-        person_02_ref_number = ""
-
-
-        Do
-            EMReadScreen check_PMI, 8, 4, 46
-            check_PMI = trim(check_PMI)
-            check_PMI_full = right("00000000" & check_PMI, 8)
-            If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
-            If check_PMI_full = PMI_02 Then EMReadScreen person_02_ref_number, 2, 4, 33
-            EMReadScreen MEMB_end_check, 13, 24, 2
-            transmit
-        LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
-    End If
-
-    'Find reference numbers if only one person on the case
-    If PMI_02 = "" Then
-        CALL back_to_SELF()
-        CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-        person_01_ref_number = ""
-
-        Do
-            EMReadScreen check_PMI, 8, 4, 46
-            check_PMI = trim(check_PMI)
-            check_PMI_full = right("00000000" & check_PMI, 8)
-            If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
-            transmit
-        LOOP Until person_01_ref_number <> ""
-    End If
 
 
     'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
@@ -3616,6 +3712,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
 	End If
 
+	MsgBox "About to CASE NOTE AND TIKL"
 	'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 	'TO DO - confirm TIKL information is correct
 	If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
