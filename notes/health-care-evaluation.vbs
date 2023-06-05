@@ -3970,7 +3970,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 	End If
-	MsgBox "STOP HERE FOR NOW!!!"
+	' MsgBox "STOP HERE FOR NOW!!!"
 
 	If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
 	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
