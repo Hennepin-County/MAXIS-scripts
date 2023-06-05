@@ -3234,33 +3234,44 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		panel_name_from_SQL = objIncomeRecordSet("IncExpTypeCode")
 		income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
 		prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
+		tpqy_net_amt = objIncomeRecordSet("NetAmt")
+		tpqy_gross_amt = objIncomeRecordSet("GrossAmt")
         income_description_from_SQL = objIncomeRecordSet("Description")
 		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
-			If objIncomeRecordSet("QURY_Sent") <> NULL Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
+			If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
+			If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_01 = objIncomeRecordSet("TPQY_Response")
 			sent_date_01 = sent_date_01 & ""
+			return_date_01 = return_date_01 & ""
 			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			income_to_use = ""
+			If tpqy_gross_amt <> "" Then income_to_use = tpqy_gross_amt
+			If tpqy_net_amt <> "" Then income_to_use = tpqy_net_amt
+			If income_to_use = "" Then income_to_use = prosp_amt_from_SQL
+
+			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
+			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
+			If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - $ " & income_to_use
             If panel_name_from_SQL = "JOBS" Then
 				JOBS_01 = "Yes"
-				JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+				JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & income_to_use & ", "
 			End If
 			If panel_name_from_SQL = "BUSI" Then
 				BUSI_01 = "Yes"
-				BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+				BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & income_to_use & ", "
 			End If
 			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
 
 		End If
 
         If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
-			If objIncomeRecordSet("QURY_Sent") <> NULL Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
+			If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
+			If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_02 = objIncomeRecordSet("TPQY_Response")
 			sent_date_02 = sent_date_02 & ""
+			return_date_02 = return_date_02 & ""
 			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
+			If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
             If panel_name_from_SQL = "JOBS" Then
 				JOBS_02 = "Yes"
 				JOBS_02_detail = JOBS_02_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
@@ -3301,8 +3312,89 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
     transmit
     EMReadScreen check_if_MEDI_exists, 2, 2, 78
     If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
-    If trim(check_if_MEDI_exists) <> 0 Then MEDI_info_01 = "MEDI Exists"
+    If trim(check_if_MEDI_exists) <> 0 Then
+		MEDI_info_01 = "MEDI Exists"
 
+
+		Do
+			PF20
+			EMReadScreen end_of_list, 9, 24, 14
+			' MsgBox end_of_list & " - 1"
+		Loop Until end_of_list = "LAST PAGE"
+		row = 17
+		Do
+			EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
+			begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
+			If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
+
+			EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
+			end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
+			If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+			' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
+			If end_dt_a <> "" or begin_dt_a <> "" Then
+				If begin_dt_a <> "" Then MEDI_part_a_01 = "Start: " & begin_dt_a
+				If end_dt_a <> "" Then MEDI_part_a_01 = MEDI_part_a_01 & ", End: " & end_dt_a
+				If left(MEDI_part_a_01, 1) = "," Then MEDI_part_a_01 = right(MEDI_part_a_01, len(MEDI_part_a_01)-2)
+				Exit Do
+			End If
+
+			row = row - 1
+			' MsgBox "PART A row - " & rowDosent_date_01
+			If row = 14 Then
+				PF19
+				EMReadScreen begining_of_list, 10, 24, 14
+				' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
+				If begining_of_list = "FIRST PAGE" Then
+					Exit Do
+				Else
+					row = 17
+				End If
+			End If
+		Loop
+		Do
+			PF19
+			EMReadScreen begining_of_list, 10, 24, 14
+			' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
+		Loop Until begining_of_list = "FIRST PAGE"
+
+		Do
+			PF20
+			EMReadScreen end_of_list, 9, 24, 14
+			' MsgBox end_of_list & " - 2"
+		Loop Until end_of_list = "LAST PAGE"
+		row = 17
+		Do
+			EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
+			begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
+			If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
+
+			EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
+			end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
+			If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+
+			' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
+			If end_dt_b <> "" or begin_dt_b <> "" Then
+				If begin_dt_b <> "" Then MEDI_part_b_01 = "Start: " & begin_dt_b
+				If end_dt_b <> "" Then MEDI_part_b_01 = MEDI_part_b_01 & ", End: " & end_dt_b
+				If left(MEDI_part_b_01, 1) = "," Then MEDI_part_b_01 = right(MEDI_part_b_01, len(MEDI_part_b_01)-2)
+				Exit Do
+			End If
+
+			row = row - 1
+			' MsgBox "PART B row - " & row
+			If row = 14 Then
+				PF19
+				EMReadScreen begining_of_list, 10, 24, 14
+				' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
+				If begining_of_list = "FIRST PAGE" Then
+					Exit Do
+				Else
+					row = 17
+				End If
+			End If
+		Loop
+
+	End If
     'TO DO - Add functionality to read MEDI info from MEDI panel
         'Check Part A Info
     '     row = 17
@@ -3324,18 +3416,177 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
         transmit
         EMReadScreen check_if_MEDI_exists, 2, 2, 78
         If trim(check_if_MEDI_exists) = 0 Then MEDI_info_02 = "MEDI Does Not Exist"
-        If trim(check_if_MEDI_exists) <> 0 Then MEDI_info_02 = "MEDI Exists"
-            'TO DO - add functionality to read info from MEDI panel
-    '         Do
-    '             row = 17
-    '                 Do
-    '                     PF20
-    '                     EMReadScreen last_page_check, 16, 24, 2
-    '                 Loop Until last_page_check = "THIS IS THE LAST PAGE"
+        If trim(check_if_MEDI_exists) <> 0 Then
+			MEDI_info_02 = "MEDI Exists"
+			Do
+				PF20
+				EMReadScreen end_of_list, 9, 24, 14
+				' MsgBox end_of_list & " - 1"
+			Loop Until end_of_list = "LAST PAGE"
+			row = 17
+			Do
+				EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
+				begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
+				If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
 
-    '             Loop Until row = 15
-    '     End If
+				EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
+				end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
+				If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+				' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
+				If end_dt_a <> "" or begin_dt_a <> "" Then
+					If begin_dt_a <> "" Then MEDI_part_a_02 = "Start: " & begin_dt_a
+					If end_dt_a <> "" Then MEDI_part_a_02 = MEDI_part_a_02 & ", End: " & end_dt_a
+					If left(MEDI_part_a_02, 1) = "," Then MEDI_part_a_02 = right(MEDI_part_a_02, len(MEDI_part_a_02)-2)
+					Exit Do
+				End If
+
+				row = row - 1
+				' MsgBox "PART A row - " & rowDosent_date_01
+				If row = 14 Then
+					PF19
+					EMReadScreen begining_of_list, 10, 24, 14
+					' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
+					If begining_of_list = "FIRST PAGE" Then
+						Exit Do
+					Else
+						row = 17
+					End If
+				End If
+			Loop
+			Do
+				PF19
+				EMReadScreen begining_of_list, 10, 24, 14
+				' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
+			Loop Until begining_of_list = "FIRST PAGE"
+
+			Do
+				PF20
+				EMReadScreen end_of_list, 9, 24, 14
+				' MsgBox end_of_list & " - 2"
+			Loop Until end_of_list = "LAST PAGE"
+			row = 17
+			Do
+				EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
+				begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
+				If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
+
+				EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
+				end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
+				If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+
+				' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
+				If end_dt_b <> "" or begin_dt_b <> "" Then
+					If begin_dt_b <> "" Then MEDI_part_b_02 = "Start: " & begin_dt_b
+					If end_dt_b <> "" Then MEDI_part_b_02 = MEDI_part_b_02 & ", End: " & end_dt_b
+					If left(MEDI_part_b_02, 1) = "," Then MEDI_part_b_02 = right(MEDI_part_b_02, len(MEDI_part_b_02)-2)
+					Exit Do
+				End If
+
+				row = row - 1
+				' MsgBox "PART B row - " & row
+				If row = 14 Then
+					PF19
+					EMReadScreen begining_of_list, 10, 24, 14
+					' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
+					If begining_of_list = "FIRST PAGE" Then
+						Exit Do
+					Else
+						row = 17
+					End If
+				End If
+			Loop
+
+		End If
+
     End If
+
+	CALL navigate_to_MAXIS_screen("STAT", "DISA")
+    EMWriteScreen person_01_ref_number, 20, 76
+    transmit
+    EMReadScreen check_if_DISA_exists, 2, 2, 78
+    If trim(check_if_DISA_exists) = 0 Then DISA_info_01 = "DISA Does Not Exist"
+    If trim(check_if_DISA_exists) <> 0 Then
+		' DISA_info_01 = "MEDI Exists"
+		EMReadScreen disa_end_date_01, 10, 6, 69
+		disa_end_date_01 = replace(disa_end_date_01, " ", "/")
+		If disa_end_date_01 = "__/__/____" Then disa_end_date_01 = ""
+		EMReadScreen HC_disa_status_01, 2, 13, 59
+		If HC_disa_status_01 = "01" Then DISA_info_01 = "RSDI Only Disability"
+		If HC_disa_status_01 = "02" Then DISA_info_01 = "RSDI Only Blindness"
+		If HC_disa_status_01 = "03" Then DISA_info_01 = "SSI, SSI/RSDI Disability"
+		If HC_disa_status_01 = "04" Then DISA_info_01 = "SSI, SSI/RSDI Blindness"
+		If HC_disa_status_01 = "06" Then DISA_info_01 = "SMRT Pend or SSA Pend"
+		If HC_disa_status_01 = "08" Then DISA_info_01 = "Certified Blind"
+		If HC_disa_status_01 = "10" Then DISA_info_01 = "Certified Disabled"
+		If HC_disa_status_01 = "11" Then DISA_info_01 = "Special Category - Disabled Child"
+		If HC_disa_status_01 = "20" Then DISA_info_01 = "TEFRA - Disabled"
+		If HC_disa_status_01 = "21" Then DISA_info_01 = "TEFRA - Blind"
+		If HC_disa_status_01 = "22" Then DISA_info_01 = "MA-EPD"
+		If HC_disa_status_01 = "23" Then DISA_info_01 = "MA/Waiver"
+		If HC_disa_status_01 = "24" Then DISA_info_01 = "SSA/SMRT Appeal Pending"
+		If HC_disa_status_01 = "26" Then DISA_info_01 = "SSA/SMRT Disa Deny"
+		If HC_disa_status_01 = "__" Then DISA_info_01 = "No HC DISA Status"
+
+		EMReadScreen disa_waiver_code_01, 1, 14, 59
+		If disa_waiver_code_01 = "F" Then disa_waiver_info_01 = "LTC CADI Conversion"
+		If disa_waiver_code_01 = "G" Then disa_waiver_info_01 = "LTC CADI DIversion"
+		If disa_waiver_code_01 = "H" Then disa_waiver_info_01 = "LTC CAC Conversion"
+		If disa_waiver_code_01 = "I" Then disa_waiver_info_01 = "LTC CAC Diversion"
+		If disa_waiver_code_01 = "J" Then disa_waiver_info_01 = "LTC EW Conversion"
+		If disa_waiver_code_01 = "K" Then disa_waiver_info_01 = "LTC EW Diversion"
+		If disa_waiver_code_01 = "L" Then disa_waiver_info_01 = "LTC TBI NF Conversion"
+		If disa_waiver_code_01 = "M" Then disa_waiver_info_01 = "LTC TBI NF Diversion"
+		If disa_waiver_code_01 = "P" Then disa_waiver_info_01 = "LTC TBI NB Conversion"
+		If disa_waiver_code_01 = "Q" Then disa_waiver_info_01 = "LTC TBI NB Diversion"
+		If disa_waiver_code_01 = "R" Then disa_waiver_info_01 = "DD Conversion"
+		If disa_waiver_code_01 = "S" Then disa_waiver_info_01 = "DD Conversion"
+		If disa_waiver_code_01 = "Y" Then disa_waiver_info_01 = "CSG Conversion"
+		If disa_waiver_code_01 = "_" Then disa_waiver_info_01 = "No Waiver"
+	End If
+    If person_02_ref_number <> "" Then
+		EMWriteScreen person_02_ref_number, 20, 76
+		transmit
+		EMReadScreen check_if_DISA_exists, 2, 2, 78
+		If trim(check_if_DISA_exists) = 0 Then DISA_info_02 = "DISA Does Not Exist"
+		If trim(check_if_DISA_exists) <> 0 Then
+			DISA_info_02 = "MEDI Exists"
+			EMReadScreen disa_end_date_02, 10, 6, 69
+			disa_end_date_02 = replace(disa_end_date_02, " ", "/")
+			If disa_end_date_02 = "__/__/____" Then disa_end_date_02 = ""
+			EMReadScreen HC_disa_status_02, 2, 13, 59
+			If HC_disa_status_02 = "01" Then DISA_info_02 = "RSDI Only Disability"
+			If HC_disa_status_02 = "02" Then DISA_info_02 = "RSDI Only Blindness"
+			If HC_disa_status_02 = "03" Then DISA_info_02 = "SSI, SSI/RSDI Disability"
+			If HC_disa_status_02 = "04" Then DISA_info_02 = "SSI, SSI/RSDI Blindness"
+			If HC_disa_status_02 = "06" Then DISA_info_02 = "SMRT Pend or SSA Pend"
+			If HC_disa_status_02 = "08" Then DISA_info_02 = "Certified Blind"
+			If HC_disa_status_02 = "10" Then DISA_info_02 = "Certified Disabled"
+			If HC_disa_status_02 = "11" Then DISA_info_02 = "Special Category - Disabled Child"
+			If HC_disa_status_02 = "20" Then DISA_info_02 = "TEFRA - Disabled"
+			If HC_disa_status_02 = "21" Then DISA_info_02 = "TEFRA - Blind"
+			If HC_disa_status_02 = "22" Then DISA_info_02 = "MA-EPD"
+			If HC_disa_status_02 = "23" Then DISA_info_02 = "MA/Waiver"
+			If HC_disa_status_02 = "24" Then DISA_info_02 = "SSA/SMRT Appeal Pending"
+			If HC_disa_status_02 = "26" Then DISA_info_02 = "SSA/SMRT Disa Deny"
+			If HC_disa_status_02 = "__" Then DISA_info_02 = "No HC DISA Status"
+
+			EMReadScreen disa_waiver_code_02, 1, 14, 59
+			If disa_waiver_code_02 = "F" Then disa_waiver_info_02 = "LTC CADI Conversion"
+			If disa_waiver_code_02 = "G" Then disa_waiver_info_02 = "LTC CADI DIversion"
+			If disa_waiver_code_02 = "H" Then disa_waiver_info_02 = "LTC CAC Conversion"
+			If disa_waiver_code_02 = "I" Then disa_waiver_info_02 = "LTC CAC Diversion"
+			If disa_waiver_code_02 = "J" Then disa_waiver_info_02 = "LTC EW Conversion"
+			If disa_waiver_code_02 = "K" Then disa_waiver_info_02 = "LTC EW Diversion"
+			If disa_waiver_code_02 = "L" Then disa_waiver_info_02 = "LTC TBI NF Conversion"
+			If disa_waiver_code_02 = "M" Then disa_waiver_info_02 = "LTC TBI NF Diversion"
+			If disa_waiver_code_02 = "P" Then disa_waiver_info_02 = "LTC TBI NB Conversion"
+			If disa_waiver_code_02 = "Q" Then disa_waiver_info_02 = "LTC TBI NB Diversion"
+			If disa_waiver_code_02 = "R" Then disa_waiver_info_02 = "DD Conversion"
+			If disa_waiver_code_02 = "S" Then disa_waiver_info_02 = "DD Conversion"
+			If disa_waiver_code_02 = "Y" Then disa_waiver_info_02 = "CSG Conversion"
+			If disa_waiver_code_02 = "_" Then disa_waiver_info_02 = "No Waiver"
+		End If
+	End If
 
 	instructions_button = 1000
 	policy_1_button = 1010
@@ -3347,141 +3598,130 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Dialog1 = ""
 
     'TO DO - add functionality to determine ex parte phase based on case number
-    BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
-        GroupBox 10, 310, 455, 50, "Ex Parte Determination"
-        Text 20, 325, 80, 10, "Ex Parte Determination:"
-        DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
-        Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
-        EditBox 220, 335, 235, 15, ex_parte_denial_explanation
-        Text 15, 365, 70, 10, "Worker Signature:"
-        EditBox 80, 360, 110, 15, worker_signature
-        GroupBox 10, 0, 455, 25, "Case Information"
-            Text 15, 10, 50, 10, "Case Number:"
-            Text 65, 10, 70, 10, MAXIS_case_number
-            Text 140, 10, 50, 10, "Review Month:"
-            Text 190, 10, 65, 10, review_month_01
-        ButtonGroup ButtonPressed
-            OkButton 440, 365, 50, 15
-            CancelButton 500, 365, 50, 15
-        GroupBox 10, 25, 220, 35, "Person 1 - Information"
-            Text 15, 35, 25, 10, "Name:"
-            Text 40, 35, 180, 10, name_01
-            Text 15, 45, 20, 10, "PMI:"
-            Text 35, 45, 70, 10, PMI_01
-        GroupBox 10, 60, 220, 45, "Person 1 - TPQY Information"
-            'TO DO - determine functionality to add multiple claim numbers
-            ' Text 15, 75, 50, 10, "Claim Number:"
-            ' Text 65, 75, 50, 10, claim_number_01
-            Text 15, 70, 35, 10, "Sent Date:"
-            Text 55, 70, 50, 10, sent_date_01
-            Text 120, 70, 45, 10, "Return Date:"
-            Text 165, 70, 55, 10, return_date_01
-            Text 15, 90, 50, 10, "SDXS Amount:"
-            Text 65, 90, 155, 10, sdxs_amount_01
-            Text 15, 80, 50, 10, "BNDX Amount:"
-            Text 65, 80, 155, 10, bndx_amount_01
-        ButtonGroup ButtonPressed
-            Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-            PushButton 490, 15, 55, 15, "Instructions", instructions_button
-            Text 495, 40, 45, 10, "--- POLICY ---"
-            PushButton 490, 50, 55, 15, "DHS #23-21-18", policy_1_button
-            ' PushButton 490, 65, 55, 15, policy_2, policy_2_button
-            ' PushButton 490, 80, 55, 15, policy_3, policy_3_button
-            Text 490, 105, 55, 10, "--- NAVIGATE ---"
-            PushButton 490, 115, 25, 15, "ACCI", acci_button
-            PushButton 515, 115, 25, 15, "BILS", bils_button
-            PushButton 490, 130, 25, 15, "BUDG", budg_button
-            PushButton 515, 130, 25, 15, "BUSI", busi_button
-            PushButton 490, 145, 25, 15, "DISA", disa_button
-            PushButton 515, 145, 25, 15, "EMMA", emma_button
-            PushButton 490, 160, 25, 15, "FACI", faci_button
-            PushButton 515, 160, 25, 15, "HCMI", hcmi_button
-            PushButton 490, 175, 25, 15, "IMIG", imig_button
-            PushButton 515, 175, 25, 15, "INSA", insa_button
-            PushButton 490, 190, 25, 15, "JOBS", jobs_button
-            PushButton 515, 190, 25, 15, "LUMP", lump_button
-            PushButton 490, 205, 25, 15, "MEDI", medi_button
-            PushButton 515, 205, 25, 15, "MEMB", memb_button
-            PushButton 490, 220, 25, 15, "MEMI", memi_button
-            PushButton 515, 220, 25, 15, "PBEN", pben_button
-            PushButton 490, 235, 25, 15, "PDED", pded_button
-            PushButton 515, 235, 25, 15, "REVW", revw_button
-            PushButton 490, 250, 25, 15, "SPON", spon_button
-            PushButton 515, 250, 25, 15, "STWK", stwk_button
-            PushButton 490, 265, 25, 15, "UNEA", unea_button
-        GroupBox 10, 105, 220, 200, "Person 1 - Add'l Information"
-            Text 15, 115, 35, 10, "MEDI Info: "
-            Text 85, 115, 135, 10, medi_info_01
-            Text 15, 130, 70, 10, "MEDI - Part A Exists:"
-            Text 85, 130, 135, 10, MEDI_part_a_01
-            Text 15, 145, 70, 10, "MEDI - Part B Exists:"
-            Text 85, 145, 135, 10, MEDI_part_b_01
-			If JOBS_01 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
-			If JOBS_01 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
-			If BUSI_01 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
-			If BUSI_01 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
-            Text 15, 190, 65, 10, "Other UNEA Types:"
-            Text 85, 190, 135, 10, other_UNEA_types_01
-            ' Text 85, 160, 135, 10, JOBS_01
-            Text 15, 205, 60, 10, "MAXIS MA Basis:"
-            Text 85, 205, 135, 10, MAXIS_MA_basis_01
-            Text 15, 220, 60, 10, "MAXIS MSP Prog:"
-            Text 85, 220, 135, 10, MAXIS_msp_prog_01
-            Text 15, 235, 65, 10, "MAXIS MSP Basis:"
-            Text 85, 235, 135, 10, MAXIS_msp_basis_01
-            Text 15, 250, 55, 10, "MMIS MA Basis:"
-            Text 85, 250, 135, 10, MMIS_ma_basis_01
-            Text 15, 265, 60, 10, "MMIS MSP Prog:"
-            Text 85, 265, 135, 10, MMIS_msp_prog_01
-            Text 15, 280, 60, 10, "MMIS MSP Basis:"
-            Text 85, 280, 135, 10, MMIS_msp_basis_01
-		If name_02 <> "" Then
-			GroupBox 245, 25, 220, 35, "Person 2 - Information"
-                Text 250, 35, 25, 10, "Name:"
-                Text 275, 35, 185, 10, name_02
-                Text 250, 45, 20, 10, "PMI:"
-                Text 275, 45, 60, 10, PMI_02
-			GroupBox 245, 60, 220, 45, "Person 2 - TPQY Information"
-                'TO DO - determine functionality to add multiple claim numbers
-				' Text 250, 75, 50, 10, "Claim Number:"
-				' Text 300, 75, 50, 10, claim_number_02
-                Text 250, 70, 35, 10, "Sent Date:"
-                Text 290, 70, 50, 10, sent_date_02
-                Text 355, 70, 45, 10, "Return Date:"
-                Text 400, 70, 55, 10, return_date_02
-                Text 250, 90, 50, 10, "SDXS Amount:"
-                Text 300, 90, 155, 10, sdxs_amount_02
-                Text 250, 80, 50, 10, "BNDX Amount:"
-                Text 300, 80, 155, 10, bndx_amount_02
-            GroupBox 245, 105, 220, 200, "Person 2 - Add'l Information"
-                Text 255, 115, 35, 10, "MEDI Info: "
-                Text 325, 115, 135, 10, medi_info_02
-                Text 255, 130, 70, 10, "MEDI - Part A Exists:"
-                Text 325, 130, 135, 10, MEDI_part_a_02
-                Text 255, 145, 70, 10, "MEDI - Part B Exists:"
-                Text 325, 145, 135, 10, MEDI_part_b_02
-				If JOBS_02 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
-				If JOBS_02 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
-				If BUSI_02 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
-				If BUSI_02 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
-                Text 255, 190, 65, 10, "Other UNEA Types:"
-                Text 325, 190, 135, 10, other_UNEA_types_02
-                ' Text 255, 160, 50, 10, "JOBS Exists:"
-                ' Text 325, 160, 135, 10, JOBS_02
-                Text 255, 205, 60, 10, "MAXIS MA Basis:"
-                Text 325, 205, 135, 10, MAXIS_MA_basis_02
-                Text 255, 220, 60, 10, "MAXIS MSP Prog:"
-                Text 325, 220, 135, 10, MAXIS_msp_prog_02
-                Text 255, 235, 65, 10, "MAXIS MSP Basis:"
-                Text 325, 235, 135, 10, MAXIS_msp_basis_02
-                Text 255, 250, 55, 10, "MMIS MA Basis:"
-                Text 325, 250, 135, 10, MMIS_ma_basis_02
-                Text 255, 265, 60, 10, "MMIS MSP Prog:"
-                Text 325, 265, 135, 10, MMIS_msp_prog_02
-                Text 255, 280, 60, 10, "MMIS MSP Basis:"
-                Text 325, 280, 135, 10, MMIS_msp_basis_02
+	BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
+		GroupBox 10, 310, 505, 50, "Ex Parte Determination"
+		Text 20, 325, 80, 10, "Ex Parte Determination:"
+		DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
+		Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
+		EditBox 220, 335, 285, 15, ex_parte_denial_explanation
+		Text 15, 365, 70, 10, "Worker Signature:"
+		EditBox 80, 360, 110, 15, worker_signature
+		' GroupBox 10, 0, 455, 25, "Case Information"
+		Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
+		' Text 65, 10, 70, 10, MAXIS_case_number
+		Text 375, 5, 75, 10, "Review Month: " & review_month_01
+		' Text 190, 10, 65, 10, review_month_01
+		ButtonGroup ButtonPressed
+			OkButton 440, 365, 50, 15
+			CancelButton 500, 365, 50, 15
+			Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+			PushButton 475, 15, 80, 15, "Instructions", instructions_button
+			Text 495, 40, 45, 10, "--- POLICY ---"
+			PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
+			' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+			' PushButton 490, 80, 55, 15, policy_3, policy_3_button
+			Text 490, 105, 55, 10, "--- NAVIGATE ---"
+			PushButton 485, 117, 25, 10, "ACCI", acci_button
+			PushButton 515, 117, 25, 10, "BILS", bils_button
+			PushButton 485, 130, 25, 10, "BUDG", budg_button
+			PushButton 515, 130, 25, 10, "BUSI", busi_button
+			PushButton 485, 143, 25, 10, "DISA", disa_button
+			PushButton 515, 143, 25, 10, "EMMA", emma_button
+			PushButton 485, 156, 25, 10, "FACI", faci_button
+			PushButton 515, 156, 25, 10, "HCMI", hcmi_button
+			PushButton 485, 169, 25, 10, "IMIG", imig_button
+			PushButton 515, 169, 25, 10, "INSA", insa_button
+			PushButton 485, 182, 25, 10, "JOBS", jobs_button
+			PushButton 515, 182, 25, 10, "LUMP", lump_button
+			PushButton 485, 195, 25, 10, "MEDI", medi_button
+			PushButton 515, 195, 25, 10, "MEMB", memb_button
+			PushButton 485, 208, 25, 10, "MEMI", memi_button
+			PushButton 515, 208, 25, 10, "PBEN", pben_button
+			PushButton 485, 221, 25, 10, "PDED", pded_button
+			PushButton 515, 221, 25, 10, "REVW", revw_button
+			PushButton 485, 234, 25, 10, "SPON", spon_button
+			PushButton 515, 234, 25, 10, "STWK", stwk_button
+			PushButton 485, 247, 25, 10, "UNEA", unea_button
+		GroupBox 10, 15, 220, 85, "Person 1 - Information"
+		Text 15, 25, 125, 10, "Name: " & name_01
+		Text 140, 25, 65, 10, "PMI: " & PMI_01
+		Text 15, 35, 100, 10, "DISA: " & DISA_info_01
+		Text 120, 35, 100, 10, "Waiver: " & disa_waiver_info_01
+		If MEDI_info_01 = "MEDI Exists" Then
+			Text 15, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_01
+			Text 15, 55, 200, 10, "                  Part B: " & MEDI_part_b_01
+		Else
+			Text 15, 45, 200, 10, MEDI_info_01
 		End If
-    EndDialog
+		If MAXIS_MA_basis_01 <> "" Then Text 15, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_01
+		If MAXIS_MA_basis_01 = "" Then Text 15, 65, 120, 10, "No MA Basis found."
+		If MAXIS_msp_prog_01 <> "" Then Text 15, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_01 & " (" & MAXIS_msp_basis_01 & ")"
+		If MAXIS_msp_prog_01 = "" Then Text 15, 75, 120, 10, "No MSP found."
+		Text 15, 85, 120, 10, "MMIS Detail not Ready"
+		' Text 15, 250, 55, 10, "MMIS MA Basis:"
+		' Text 85, 250, 135, 10, MMIS_ma_basis_01
+		' Text 15, 265, 60, 10, "MMIS MSP Prog:"
+		' Text 85, 265, 135, 10, MMIS_msp_prog_01
+		' Text 15, 280, 60, 10, "MMIS MSP Basis:"
+		' Text 85, 280, 135, 10, MMIS_msp_basis_01
+
+
+		GroupBox 10, 105, 220, 200, "Person 1 - Income"
+		'TO DO - determine functionality to add multiple claim numbers
+
+		Text 15, 120, 200, 10, "TPQY - Sent: " & sent_date_01 & ", Return: " & return_date_01
+		Text 15, 130, 150, 10, "BNDX Amount: " & bndx_amount_01
+		Text 15, 140, 150, 10, "SDXS Amount: " & sdxs_amount_01
+
+		If JOBS_01 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
+		If JOBS_01 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
+		If BUSI_01 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
+		If BUSI_01 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
+		Text 15, 190, 65, 10, "Other UNEA Types:"
+		Text 85, 190, 135, 10, other_UNEA_types_01
+
+		If name_02 <> "" Then
+			GroupBox 245, 15, 220, 85, "Person 2 - Information"
+			' GroupBox 10, 15, 220, 85, "Person 1 - Information"
+			Text 250, 25, 125, 10, "Name: " & name_02
+			Text 375, 25, 65, 10, "PMI: " & PMI_02
+			Text 250, 35, 100, 10, "DISA: " & DISA_info_02
+			Text 355, 35, 100, 10, "Waiver: " & disa_waiver_info_02
+			If MEDI_info_02 = "MEDI Exists" Then
+				Text 250, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
+				Text 250, 55, 200, 10, "                  Part B: " & MEDI_part_b_02
+			Else
+				Text 250, 45, 200, 10, MEDI_info_02
+			End If
+			If MAXIS_MA_basis_02 <> "" Then Text 250, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
+			If MAXIS_MA_basis_02 = "" Then Text 250, 65, 120, 10, "No MA Basis found."
+			If MAXIS_msp_prog_02 <> "" Then Text 250, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
+			If MAXIS_msp_prog_02 = "" Then Text 250, 75, 120, 10, "No MSP found."
+			Text 250, 85, 120, 10, "MMIS Detail not Ready"
+			' Text 15, 250, 55, 10, "MMIS MA Basis:"
+			' Text 85, 250, 135, 10, MMIS_ma_basis_01
+			' Text 15, 265, 60, 10, "MMIS MSP Prog:"
+			' Text 85, 265, 135, 10, MMIS_msp_prog_01
+			' Text 15, 280, 60, 10, "MMIS MSP Basis:"
+			' Text 85, 280, 135, 10, MMIS_msp_basis_01
+
+
+			GroupBox 245, 105, 220, 200, "Person 1 - Income"
+			'TO DO - determine functionality to add multiple claim numbers
+
+			Text 250, 120, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
+			Text 250, 130, 150, 10, "BNDX Amount: " & bndx_amount_02
+			Text 250, 140, 150, 10, "SDXS Amount: " & sdxs_amount_02
+
+			If JOBS_02 = "Yes" Then Text 250, 160, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
+			If JOBS_02 = "No" Then Text 250, 160, 50, 10, "No listed JOB."
+			If BUSI_02 = "Yes" Then Text 250, 175, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
+			If BUSI_02 = "No" Then Text 250, 175, 50, 10, "No listed BUSI."
+			Text 250, 190, 65, 10, "Other UNEA Types:"
+			Text 220, 190, 135, 10, other_UNEA_types_01
+
+		End If
+	EndDialog
 
     'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
     DO
@@ -3571,18 +3811,39 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				'TO DO - update with functions?
 				'Check the HC renewal screen data and compare against initial to ensure that changes made properly
-				If ButtonPressed = hc_renewal_button Then
-					CALL back_to_SELF()
-					CALL navigate_to_MAXIS_screen("STAT", "REVW")
+
+				'TODO - read DISA and display waiver
+
+				EMReadScreen stat_check, 4, 20, 21
+				EMReadScreen revw_panel_check, 4, 2, 46
+				EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+				If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+					If hc_revw_pop_up_check = "REVW" Then
+						EMReadScreen pop_up_open, 1, 4, 22
+						If pop_up_open <> "*" Then PF3
+						' Call write_value_and_transmit({"X", 5, 71)
+					ElseIf stat_check = "STAT" Then
+						Call write_value_and_transmit("REVW", 20, 71)
+						' Call write_value_and_transmit({"X", 5, 71)
+					Else
+						Call MAXIS_background_check
+						CALL navigate_to_MAXIS_screen("STAT", "REVW")
+					End If
 					CALL write_value_and_transmit("X", 5, 71)
-					' EMReadScreen check_income_renewal_date, 8, 7, 27
-					EMReadScreen check_elig_renewal_date, 8, 8, 27
-					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 				End If
+
+				' CALL back_to_SELF()
+				' CALL navigate_to_MAXIS_screen("STAT", "REVW")
+				' CALL write_value_and_transmit("X", 5, 71)
+				' EMReadScreen check_income_renewal_date, 8, 7, 27
+				EMReadScreen check_elig_renewal_date, 8, 8, 27
+				EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+				EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+				If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
+				EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+				EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
 				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
 				elig_renewal_date = replace(elig_renewal_date, " ", "/")
@@ -3648,18 +3909,34 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				'TO DO - update with functions?
 				'Check the HC renewal screen data and compare against initial to ensure that changes made properly
-				If ButtonPressed = hc_renewal_button Then
-					CALL back_to_SELF()
-					CALL navigate_to_MAXIS_screen("STAT", "REVW")
+
+				EMReadScreen stat_check, 4, 20, 21
+				EMReadScreen revw_panel_check, 4, 2, 46
+				EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+				If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+					If hc_revw_pop_up_check = "REVW" Then
+						EMReadScreen pop_up_open, 1, 4, 22
+						If pop_up_open <> "*" Then PF3
+						' Call write_value_and_transmit({"X", 5, 71)
+					ElseIf stat_check = "STAT" Then
+						Call write_value_and_transmit("REVW", 20, 71)
+						' Call write_value_and_transmit({"X", 5, 71)
+					Else
+						Call MAXIS_background_check
+						CALL navigate_to_MAXIS_screen("STAT", "REVW")
+					End If
 					CALL write_value_and_transmit("X", 5, 71)
-					EMReadScreen check_income_renewal_date, 8, 7, 27
-					EMReadScreen check_elig_renewal_date, 8, 8, 27
-					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 				End If
+
+				EMReadScreen check_income_renewal_date, 8, 7, 27
+				EMReadScreen check_elig_renewal_date, 8, 8, 27
+				EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+				EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+				If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
+				EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+				EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
 				check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 				check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
 				elig_renewal_date = replace(elig_renewal_date, " ", "/")
@@ -3693,6 +3970,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 	End If
+	MsgBox "STOP HERE FOR NOW!!!"
 
 	If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
 	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
