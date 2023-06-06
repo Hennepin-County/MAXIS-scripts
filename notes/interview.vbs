@@ -12984,7 +12984,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 
 	CALL write_variable_in_SPEC_MEMO("You have completed your interview on " & interview_date)
-	CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submiteed.")
+	CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submitted.")
 	' Call write_variable_in_SPEC_MEMO("THERE ARE VERIFS")
 	Call write_variable_in_SPEC_MEMO("In the interview, we reviewed a number of forms:")
 	Call write_variable_in_SPEC_MEMO("  -Client Rights and Responsibilities (DHS 4163)")
