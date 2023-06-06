@@ -50,6 +50,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+Call changelog_update("06/06/2023", "Added DAIL Scrubber support for additional ABAWD/WREG message: 'POTENTIAL ABAWD MEMBER, REVIEW WREG PANEL, UPDATE AND APPROV'.", "Ilse Ferris, Hennepin County")
 Call changelog_update("1/12/2023", "Added functionality to stop the DAIL scrubber script if it appears you are in INQUIRY and the specific DAIL being processed requires the ability to take some kind of action in MAXIS. The DAIL Scrubber may stop if it appears you are in inquiry and the DAIL requires the ability to take action of some kind.", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2022", "Added DAIL Scrubber support for additional ABAWD/WREG messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("05/23/2022", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
@@ -338,7 +340,8 @@ If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message,
 END IF
 
 'ABAWD Exemption DAIL Messages
-If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _
+If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _ 
+   instr(full_message, "POTENTIAL ABAWD MEMBER, REVIEW WREG PANEL, UPDATE AND APPROV") or _
    instr(full_message, "SNAP ABAWD ELIGIBILITY HAS EXPIR") or _
    instr(full_message, "SNAP MEMBERS AGE IS 50 OR OLDER-REVIEW FOR ABAWD EXEMPTION") or _
    instr(full_message, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") or _
