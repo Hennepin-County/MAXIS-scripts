@@ -2812,12 +2812,14 @@ hc_application_date = ""
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Application for Certain Populations (DHS-3876)"
 form_selection_options = form_selection_options+chr(9)+"MNsure Application for Health Coverage and Help paying Costs (DHS-6696)"
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal (DHS-3418)"
+form_selection_options = form_selection_options+chr(9)+"Combined Annual Renewal for Certain Populations (DHS-3727)"
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
 form_selection_options = form_selection_options+chr(9)+"Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
 form_selection_options = form_selection_options+chr(9)+"SAGE Enrollment Form (MA/BC PE Only)"
 form_selection_options = form_selection_options+chr(9)+"Screen Our Circle Form (MA/BC PE Only)"
+form_selection_options = form_selection_options+chr(9)+"Combined Six Month Report (DHS-5576)"
 form_selection_options = form_selection_options+chr(9)+"No Form - Ex Parte Determination"
 
 ma_basis_of_elig_list = "Disabled"
@@ -5024,10 +5026,13 @@ Next
 If HC_form_name = "Health Care Programs Application for Certain Populations (DHS-3876)" Then short_form = "HC Certain Pops App"
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
 If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal"
+If HC_form_name = "Combined Annual Renewal for Certain Populations (DHS-3727)" Then short_form = "Combined AR"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
 If HC_form_name = "Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)" Then short_form = "LTC Renewal"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"
+If HC_form_name = "Combined Six Month Report (DHS-5576)" Then short_form = "CSR"
+
 
 'MAIN CASE/NOTE
 start_a_blank_CASE_NOTE
