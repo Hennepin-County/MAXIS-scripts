@@ -570,6 +570,208 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+
+If ex_parte_function = "ADMIN Review" Then
+	allow_admin_use = False
+	If user_ID_for_validation = "CALO001" Then allow_admin_use = True
+	If user_ID_for_validation = "ILFE001" Then allow_admin_use = True
+	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
+	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
+
+	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
+
+	current_month_revw = CM_mo & "/1/" & CM_yr
+	next_month_revw = CM_plus_1_mo & "/1/" & CM_plus_1_yr
+	month_after_next_revw = CM_plus_2_mo & "/1/" & CM_plus_2_yr
+	prep_month_revw = CM_plus_3_mo & "/1/" & CM_plus_3_yr
+	current_month_revw = DateAdd("d", 0, current_month_revw)
+	next_month_revw = DateAdd("d", 0, next_month_revw)
+	month_after_next_revw = DateAdd("d", 0, month_after_next_revw)
+	prep_month_revw = DateAdd("d", 0, prep_month_revw)
+
+	PREP_PHASE_MO = CM_plus_3_mo & "/" & CM_plus_3_yr
+	PHASE_ONE_MO = CM_plus_2_mo & "/" & CM_plus_2_yr
+	PHASE_TWO_MO = CM_plus_1_mo & "/" & CM_plus_1_yr
+	COMPLETED_MO = CM_mo & "/" & CM_yr
+
+	'declare the SQL statement that will query the database
+	' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
+
+	'Setting a starting value for a list of cases so that every case is bracketed by * on both sides.
+	todays_cases_list = "*"
+	case_entry = 0      'Setting an incrementor for the array to be filled
+
+	const worker_numb_const 	= 0
+	const worker_name_const 	= 1
+	const case_complete_p1_count 	= 2
+	const case_complete_p2_count	= 3
+	const case_phase_const 		= 4
+	Dim HSR_WORK_ARRAY()
+	ReDim HSR_WORK_ARRAY(case_phase_const, 0)
+
+	'Open The CASE LIST Table
+	'Loop through each item on the CASE LIST Table
+	month_after_next_er_count = 0
+	month_after_next_expt_at_prep = 0
+	month_after_next_hsr_phase1_complete_count = 0
+	month_after_next_complete_and_expt = 0
+	month_after_next_still_expt = 0
+	month_after_next_need_to_work = 0
+
+	prep_month_er_count = 0
+	prep_month_expt_at_prep = 0
+	list_of_phase_one_hsrs = " "
+	hsr_count = 0
+	Do While NOT objRecordSet.Eof
+		If DateDiff("d", objRecordSet("HCEligReviewDate"), month_after_next_revw) = 0 Then
+			month_after_next_er_count = month_after_next_er_count + 1
+			If IsDate(objRecordSet("PREP_Complete")) = True Then month_after_next_expt_at_prep = month_after_next_expt_at_prep + 1
+			If IsNull(objRecordSet("Phase1HSR")) = False Then
+				month_after_next_hsr_phase1_complete_count = month_after_next_hsr_phase1_complete_count + 1
+				If objRecordSet("SelectExParte") = True Then month_after_next_complete_and_expt = month_after_next_complete_and_expt + 1
+				case_phase_one_hsr = objRecordSet("Phase1HSR")
+				If InStr(list_of_phase_one_hsrs, case_phase_one_hsr) = 0 Then
+					ReDim Preserve HSR_WORK_ARRAY(case_phase_const, hsr_count)
+					HSR_WORK_ARRAY(worker_numb_const, hsr_count) = case_phase_one_hsr
+					HSR_WORK_ARRAY(case_complete_p1_count, hsr_count) = 1
+					hsr_count = hsr_count + 1
+					list_of_phase_one_hsrs = list_of_phase_one_hsrs & case_phase_one_hsr & " "
+				Else
+					For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
+						If HSR_WORK_ARRAY(worker_numb_const, each_worker) = case_phase_one_hsr Then HSR_WORK_ARRAY(case_complete_p1_count, each_worker) = HSR_WORK_ARRAY(case_complete_p1_count, each_worker) + 1
+					Next
+				End If
+			Else
+				If objRecordSet("SelectExParte") = True Then month_after_next_need_to_work = month_after_next_need_to_work + 1
+			End If
+			If objRecordSet("SelectExParte") = True Then month_after_next_still_expt = month_after_next_still_expt + 1
+		End If
+		' If objRecordSet("HCEligReviewDate") = prep_month_revw Then
+		If DateDiff("d", objRecordSet("HCEligReviewDate"), prep_month_revw) = 0 Then
+			prep_month_er_count = prep_month_er_count + 1
+			If objRecordSet("SelectExParte") = True Then prep_month_expt_at_prep = prep_month_expt_at_prep + 1
+		End If
+
+		objRecordSet.MoveNext
+	Loop
+    objRecordSet.Close
+    objConnection.Close
+    Set objRecordSet=nothing
+    Set objConnection=nothing
+	function calculate_percent(numerator, denominator, percent)
+		percent = numerator/denominator
+		percent = percent * 100
+		percent = FormatNumber(percent, 2, -1, 0, -1)
+	end function
+	call calculate_percent(prep_month_expt_at_prep, prep_month_er_count, prep_month_percent_ex_parte_pcnt)
+	call calculate_percent(month_after_next_expt_at_prep, month_after_next_er_count, month_after_next_initially_expt_pcnt)
+	call calculate_percent(month_after_next_hsr_phase1_complete_count, month_after_next_expt_at_prep, month_after_next_processed_pcnt)
+	call calculate_percent(month_after_next_need_to_work, month_after_next_expt_at_prep, month_after_next_waiting_pcnt)
+	' call calculate_percent(numerator, denominator, percent)
+	' call calculate_percent(numerator, denominator, percent)
+	' call calculate_percent(numerator, denominator, percent)
+	' prep_month_percent_ex_parte = prep_month_expt_at_prep/prep_month_er_count
+	' prep_month_percent_ex_parte = prep_month_percent_ex_parte * 100
+	' prep_month_percent_ex_parte = FormatNumber(prep_month_percent_ex_parte, 2, -1, 0, -1)
+
+
+
+	SQL_table = "SELECT * from ES.V_ESAllStaff"				'identifying the table that stores the ES Staff user information
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		Name_array = ""
+		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
+			If HSR_WORK_ARRAY(worker_numb_const, each_worker) = objRecordSet("EmpLogOnID") Then
+				HSR_WORK_ARRAY(worker_name_const, each_worker) = objRecordSet("EmpFullName")
+				If InStr(HSR_WORK_ARRAY(worker_name_const, each_worker), ",") <> 0 Then
+					Name_array = split(HSR_WORK_ARRAY(worker_name_const, each_worker), ",")
+					HSR_WORK_ARRAY(worker_name_const, each_worker) = trim(Name_array(1)) & " " & trim(Name_array(0))
+				End If
+			End If
+		Next
+
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+
+	dlg_len = 135+(UBound(HSR_WORK_ARRAY, 2)+1)*10
+	If dlg_len < 180 Then dlg_len = 180
+	BeginDialog Dialog1, 0, 0, 335, dlg_len, "Ex Parte Work Details"
+
+		GroupBox 5, 10, 180, 50, "PREP Phase - " & PREP_PHASE_MO
+		Text 15, 25, 155, 10, "Total Cases with HC ER in " & PREP_PHASE_MO & ": " & prep_month_er_count
+		If prep_month_expt_at_prep = 0 Then Text 15, 40, 155, 10, "PREP Run not completed."
+		If prep_month_expt_at_prep <> 0 Then
+			Text 15, 40, 155, 10, "Case that appear Ex Parte Eligible: " & prep_month_expt_at_prep
+			Text 55, 50, 155, 10, "Percent: " & prep_month_percent_ex_parte_pcnt & " %"
+		End If
+
+		Text 15, 85, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
+		Text 15, 100, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
+		Text 115, 110, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
+		Text 15, 125, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
+		Text 115, 135, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
+		Text 15, 150, 165, 10, "Cases processed and still Ex Parte: " & month_after_next_complete_and_expt
+
+		y_pos = 85
+		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
+			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 4 Then Text 185, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 3 Then Text 190, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 2 Then Text 195, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 1 Then Text 200, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+			Text 210, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
+			y_pos = y_pos + 10
+		Next
+		y_pos = y_pos + 5
+		Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 1: " & month_after_next_need_to_work
+		Text 260, y_pos+10, 130, 10, "Percent: " & month_after_next_waiting_pcnt & " %"
+		GroupBox 180, 75, 140, y_pos-75, "Count"
+		Text 210, 75, 20, 10, "Name"
+		y_pos = y_pos + 25
+		GroupBox 5, 65, 320, y_pos-65, "PHASE ONE - " & PHASE_ONE_MO
+		' Text 235, 85, 70, 10, "Worker One "
+		' Text 315, 85, 25, 10, "Count One"
+		' Text 235, 95, 70, 10, "Worker Two"
+		' Text 315, 95, 25, 10, "Count Two"
+		' Text 235, 105, 70, 10, "Worker Three"
+		' Text 315, 105, 25, 10, "Count Three"
+		ButtonGroup ButtonPressed
+			OkButton 275, y_pos, 50, 15
+	EndDialog
+
+	Dialog Dialog1
+	end_msg = ""
+	Call script_end_procedure(end_msg)
+End If
+
+bz_user = False
+If user_ID_for_validation = "CALO001" Then bz_user = True
+If user_ID_for_validation = "ILFE001" Then bz_user = True
+If bz_user = False Then script_end_procedure("This script functionality can only be operated by the BlueZone Script Team. The script will now end.")
+
 If ex_parte_function = "FIX LIST" Then
 	Call script_end_procedure("There is no fix currently established.")
 	prep_status = "Not Ex Parte"
@@ -2356,200 +2558,6 @@ If ex_parte_function = "Phase 2" Then
 	MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
 End If
 
-If ex_parte_function = "ADMIN Review" Then
-	allow_admin_use = False
-	If user_ID_for_validation = "CALO001" Then allow_admin_use = True
-	If user_ID_for_validation = "ILFE001" Then allow_admin_use = True
-	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
-	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
-
-	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
-
-	current_month_revw = CM_mo & "/1/" & CM_yr
-	next_month_revw = CM_plus_1_mo & "/1/" & CM_plus_1_yr
-	month_after_next_revw = CM_plus_2_mo & "/1/" & CM_plus_2_yr
-	prep_month_revw = CM_plus_3_mo & "/1/" & CM_plus_3_yr
-	current_month_revw = DateAdd("d", 0, current_month_revw)
-	next_month_revw = DateAdd("d", 0, next_month_revw)
-	month_after_next_revw = DateAdd("d", 0, month_after_next_revw)
-	prep_month_revw = DateAdd("d", 0, prep_month_revw)
-
-	PREP_PHASE_MO = CM_plus_3_mo & "/" & CM_plus_3_yr
-	PHASE_ONE_MO = CM_plus_2_mo & "/" & CM_plus_2_yr
-	PHASE_TWO_MO = CM_plus_1_mo & "/" & CM_plus_1_yr
-	COMPLETED_MO = CM_mo & "/" & CM_yr
-
-	'declare the SQL statement that will query the database
-	' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open objSQL, objConnection
-
-	'Setting a starting value for a list of cases so that every case is bracketed by * on both sides.
-	todays_cases_list = "*"
-	case_entry = 0      'Setting an incrementor for the array to be filled
-
-	const worker_numb_const 	= 0
-	const worker_name_const 	= 1
-	const case_complete_p1_count 	= 2
-	const case_complete_p2_count	= 3
-	const case_phase_const 		= 4
-	Dim HSR_WORK_ARRAY()
-	ReDim HSR_WORK_ARRAY(case_phase_const, 0)
-
-	'Open The CASE LIST Table
-	'Loop through each item on the CASE LIST Table
-	month_after_next_er_count = 0
-	month_after_next_expt_at_prep = 0
-	month_after_next_hsr_phase1_complete_count = 0
-	month_after_next_complete_and_expt = 0
-	month_after_next_still_expt = 0
-	month_after_next_need_to_work = 0
-
-	prep_month_er_count = 0
-	prep_month_expt_at_prep = 0
-	list_of_phase_one_hsrs = " "
-	hsr_count = 0
-	Do While NOT objRecordSet.Eof
-		If DateDiff("d", objRecordSet("HCEligReviewDate"), month_after_next_revw) = 0 Then
-			month_after_next_er_count = month_after_next_er_count + 1
-			If IsDate(objRecordSet("PREP_Complete")) = True Then month_after_next_expt_at_prep = month_after_next_expt_at_prep + 1
-			If IsNull(objRecordSet("Phase1HSR")) = False Then
-				month_after_next_hsr_phase1_complete_count = month_after_next_hsr_phase1_complete_count + 1
-				If objRecordSet("SelectExParte") = True Then month_after_next_complete_and_expt = month_after_next_complete_and_expt + 1
-				case_phase_one_hsr = objRecordSet("Phase1HSR")
-				If InStr(list_of_phase_one_hsrs, case_phase_one_hsr) = 0 Then
-					ReDim Preserve HSR_WORK_ARRAY(case_phase_const, hsr_count)
-					HSR_WORK_ARRAY(worker_numb_const, hsr_count) = case_phase_one_hsr
-					HSR_WORK_ARRAY(case_complete_p1_count, hsr_count) = 1
-					hsr_count = hsr_count + 1
-					list_of_phase_one_hsrs = list_of_phase_one_hsrs & case_phase_one_hsr & " "
-				Else
-					For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
-						If HSR_WORK_ARRAY(worker_numb_const, each_worker) = case_phase_one_hsr Then HSR_WORK_ARRAY(case_complete_p1_count, each_worker) = HSR_WORK_ARRAY(case_complete_p1_count, each_worker) + 1
-					Next
-				End If
-			Else
-				If objRecordSet("SelectExParte") = True Then month_after_next_need_to_work = month_after_next_need_to_work + 1
-			End If
-			If objRecordSet("SelectExParte") = True Then month_after_next_still_expt = month_after_next_still_expt + 1
-		End If
-		' If objRecordSet("HCEligReviewDate") = prep_month_revw Then
-		If DateDiff("d", objRecordSet("HCEligReviewDate"), prep_month_revw) = 0 Then
-			prep_month_er_count = prep_month_er_count + 1
-			If objRecordSet("SelectExParte") = True Then prep_month_expt_at_prep = prep_month_expt_at_prep + 1
-		End If
-
-		objRecordSet.MoveNext
-	Loop
-    objRecordSet.Close
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-	function calculate_percent(numerator, denominator, percent)
-		percent = numerator/denominator
-		percent = percent * 100
-		percent = FormatNumber(percent, 2, -1, 0, -1)
-	end function
-	call calculate_percent(prep_month_expt_at_prep, prep_month_er_count, prep_month_percent_ex_parte_pcnt)
-	call calculate_percent(month_after_next_expt_at_prep, month_after_next_er_count, month_after_next_initially_expt_pcnt)
-	call calculate_percent(month_after_next_hsr_phase1_complete_count, month_after_next_expt_at_prep, month_after_next_processed_pcnt)
-	call calculate_percent(month_after_next_need_to_work, month_after_next_expt_at_prep, month_after_next_waiting_pcnt)
-	' call calculate_percent(numerator, denominator, percent)
-	' call calculate_percent(numerator, denominator, percent)
-	' call calculate_percent(numerator, denominator, percent)
-	' prep_month_percent_ex_parte = prep_month_expt_at_prep/prep_month_er_count
-	' prep_month_percent_ex_parte = prep_month_percent_ex_parte * 100
-	' prep_month_percent_ex_parte = FormatNumber(prep_month_percent_ex_parte, 2, -1, 0, -1)
-
-
-
-	SQL_table = "SELECT * from ES.V_ESAllStaff"				'identifying the table that stores the ES Staff user information
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
-
-	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
-		Name_array = ""
-		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
-			If HSR_WORK_ARRAY(worker_numb_const, each_worker) = objRecordSet("EmpLogOnID") Then
-				HSR_WORK_ARRAY(worker_name_const, each_worker) = objRecordSet("EmpFullName")
-				If InStr(HSR_WORK_ARRAY(worker_name_const, each_worker), ",") <> 0 Then
-					Name_array = split(HSR_WORK_ARRAY(worker_name_const, each_worker), ",")
-					HSR_WORK_ARRAY(worker_name_const, each_worker) = trim(Name_array(1)) & " " & trim(Name_array(0))
-				End If
-			End If
-		Next
-
-		objRecordSet.MoveNext											'Going to the next row in the table
-	Loop
-
-	'Now we disconnect from the table and close the connections
-	objRecordSet.Close
-	objConnection.Close
-	Set objRecordSet=nothing
-	Set objConnection=nothing
-
-	dlg_len = 135+(UBound(HSR_WORK_ARRAY, 2)+1)*10
-	If dlg_len < 180 Then dlg_len = 180
-	BeginDialog Dialog1, 0, 0, 335, dlg_len, "Ex Parte Work Details"
-
-		GroupBox 5, 10, 180, 50, "PREP Phase - " & PREP_PHASE_MO
-		Text 15, 25, 155, 10, "Total Cases with HC ER in " & PREP_PHASE_MO & ": " & prep_month_er_count
-		If prep_month_expt_at_prep = 0 Then Text 15, 40, 155, 10, "PREP Run not completed."
-		If prep_month_expt_at_prep <> 0 Then
-			Text 15, 40, 155, 10, "Case that appear Ex Parte Eligible: " & prep_month_expt_at_prep
-			Text 55, 50, 155, 10, "Percent: " & prep_month_percent_ex_parte_pcnt & " %"
-		End If
-
-		Text 15, 85, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
-		Text 15, 100, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
-		Text 115, 110, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
-		Text 15, 125, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
-		Text 115, 135, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
-		Text 15, 150, 165, 10, "Cases processed and still Ex Parte: " & month_after_next_complete_and_expt
-
-		y_pos = 85
-		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
-			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 4 Then Text 185, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 3 Then Text 190, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 2 Then Text 195, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-			If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 1 Then Text 200, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-			Text 210, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
-			y_pos = y_pos + 10
-		Next
-		y_pos = y_pos + 5
-		Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 1: " & month_after_next_need_to_work
-		Text 260, y_pos+10, 130, 10, "Percent: " & month_after_next_waiting_pcnt & " %"
-		GroupBox 180, 75, 140, y_pos-75, "Count"
-		Text 210, 75, 20, 10, "Name"
-		y_pos = y_pos + 25
-		GroupBox 5, 65, 320, y_pos-65, "PHASE ONE - " & PHASE_ONE_MO
-		' Text 235, 85, 70, 10, "Worker One "
-		' Text 315, 85, 25, 10, "Count One"
-		' Text 235, 95, 70, 10, "Worker Two"
-		' Text 315, 95, 25, 10, "Count Two"
-		' Text 235, 105, 70, 10, "Worker Three"
-		' Text 315, 105, 25, 10, "Count Three"
-		ButtonGroup ButtonPressed
-			OkButton 275, y_pos, 50, 15
-	EndDialog
-
-	Dialog Dialog1
-	end_msg = ""
-End If
 
 
 'Loop through all the SQL Items and look for the right revew month and year and phase to determine if it's done.
