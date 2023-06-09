@@ -3312,8 +3312,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
 	If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
 
-
-
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+	EMReadScreen current_case_pw, 4, 21, 14
+	If current_case_pw <> "X127" Then ex_parte_determination = "Case Transfered Out of County"
 
     'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
 
@@ -3613,12 +3614,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
 		GroupBox 10, 310, 505, 50, "Ex Parte Determination"
 		Text 20, 325, 80, 10, "Ex Parte Determination:"
-		DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed", ex_parte_determination
+		DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
 		Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
 		EditBox 220, 335, 285, 15, ex_parte_denial_explanation
 		Text 15, 365, 70, 10, "Worker Signature:"
 		EditBox 80, 360, 110, 15, worker_signature
 		' GroupBox 10, 0, 455, 25, "Case Information"
+		If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
 		Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
 		' Text 65, 10, 70, 10, MAXIS_case_number
 		Text 375, 5, 75, 10, "Review Month: " & review_month_01
@@ -3990,6 +3992,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
 	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
 	If ex_parte_determination = "Health Care has been Closed" Then appears_ex_parte = False
+	If ex_parte_determination = "Case Transfered Out of County" Then appears_ex_parte = False
 	' MsgBox "appears_ex_parte - " & appears_ex_parte
 
 	If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
@@ -4012,6 +4015,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	'TO DO - confirm TIKL information is correct
 	If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
 
+	If ex_parte_determination = "Case Transfered Out of County" Then script_end_procedure("Case List updated with Ex parte Evaluation. No CASE/NOTE as case is not in Hennepin County.")
 	'Navigate to and start a new CASE NOTE
 	Call start_a_blank_case_note
 
@@ -4048,7 +4052,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	'Add worker signature
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
-
 
 	'Script end procedure
 	script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
