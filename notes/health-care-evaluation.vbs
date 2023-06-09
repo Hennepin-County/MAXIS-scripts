@@ -3012,7 +3012,17 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	objRecordSet.Open objSQL, objConnection
 
 	ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
-	If ex_parte_determination_from_SQL = 0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+	ex_parte_phase_1_worker = objRecordSet("Phase1HSR")
+	ex_parte_phase_2_worker = objRecordSet("Phase2HSR")
+	If ex_parte_determination_from_SQL = 0 Then
+		If IsNull(ex_parte_phase_2_worker) = True and ex_parte_phase_1_worker = user_ID_for_validation Then
+			Change_ex_parte_determination_msg = MsgBox("It appears that you previously made a determination on Phase 1 for this case." & vbCr & vbCr & "Do you need to update the Ex Parte Determination?", vbQuestion + vbYesNo, "Update Ex Parte Determination")
+			If Change_ex_parte_determination_msg = vbNo Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+			' If Change_ex_parte_determination_msg = vbYes Then
+		Else
+			call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+		End If
+	End If
 	review_month_from_SQL = objRecordSet("HCEligReviewDate")
 	If review_month_from_SQL = "" Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") is not listed on the Ex Parte Data Table and cannot be processed as Ex Parte.")
 	review_month_from_SQL = DateAdd("d", 0, review_month_from_SQL)
