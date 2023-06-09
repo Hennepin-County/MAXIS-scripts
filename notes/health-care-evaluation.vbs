@@ -3231,6 +3231,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	BUSI_01 = "No"
 	BUSI_01_detail = ""
 
+
+	JOBS_02 = "No"
+	JOBS_02_detail = ""
+
+	BUSI_02 = "No"
+	BUSI_02_detail = ""
+
 	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
@@ -3513,6 +3520,230 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
     End If
 
+
+	call navigate_to_MAXIS_screen("STAT", "FACI")
+    EMWriteScreen person_01_ref_number, 20, 76
+	transmit
+	EMReadScreen existance_check, 1, 2, 73
+	If existance_check <> "0" Then
+		Do
+			EMReadScreen FACI_current_panel, 1, 2, 73
+			EMReadScreen FACI_total_check, 1, 2, 78
+			EMReadScreen in_year_check_01, 4, 14, 53
+			EMReadScreen in_year_check_02, 4, 15, 53
+			EMReadScreen in_year_check_03, 4, 16, 53
+			EMReadScreen in_year_check_04, 4, 17, 53
+			EMReadScreen in_year_check_05, 4, 18, 53
+			EMReadScreen out_year_check_01, 4, 14, 77
+			EMReadScreen out_year_check_02, 4, 15, 77
+			EMReadScreen out_year_check_03, 4, 16, 77
+			EMReadScreen out_year_check_04, 4, 17, 77
+			EMReadScreen out_year_check_05, 4, 18, 77
+			If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+			(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+				currently_in_FACI_01 = True
+				If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+				If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+				If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+				If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+				If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
+
+				EMReadScreen stat_faci_01_date_in, 10, faci_row, 47
+				EMReadScreen stat_faci_01_date_out, 10, faci_row, 	71
+
+				If stat_faci_01_date_in = "__ __ ____" Then stat_faci_01_date_in = ""
+				stat_faci_01_date_in = replace(stat_faci_01_date_in, " ", "/")
+				If stat_faci_01_date_out = "__ __ ____" Then stat_faci_01_date_out = ""
+				stat_faci_01_date_out = replace(stat_faci_01_date_out, " ", "/")
+
+				exit do
+			Elseif FACI_current_panel = FACI_total_check then
+				currently_in_FACI_01 = False
+				exit do
+			Else
+				transmit
+			End if
+		Loop until FACI_current_panel = FACI_total_check
+
+		If currently_in_FACI_01 = True then
+			EMReadScreen faci_name_01, 30, 6, 43
+			EMReadScreen faci_type_code, 2, 7, 43
+			' EmReadscreen stat_faci_vendor, 8, 5, 43
+			'List of FACI types
+			IF faci_type_code = "41" then faci_type_info_01 = "NF-I"
+			IF faci_type_code = "42" then faci_type_info_01 = "NF-II"
+			IF faci_type_code = "43" then faci_type_info_01 = "ICF-DD"
+			IF faci_type_code = "44" then faci_type_info_01 = "Short stay in NF-I"
+			IF faci_type_code = "45" then faci_type_info_01 = "Short stay in NF-II"
+			IF faci_type_code = "46" then faci_type_info_01 = "Short stay in ICF-DD"
+			IF faci_type_code = "47" then faci_type_info_01 = "RTC - Not IMD"
+			IF faci_type_code = "48" then faci_type_info_01 = "Medical Hospital"
+			IF faci_type_code = "49" then faci_type_info_01 = "MSOP"
+			IF faci_type_code = "50" then faci_type_info_01 = "IMD/RTC"
+			IF faci_type_code = "51" then faci_type_info_01 = "Rule 31 CD_IMD"
+			IF faci_type_code = "52" then faci_type_info_01 = "Rule 36 MI-IMD"
+			IF faci_type_code = "53" then faci_type_info_01 = "IMD Hospitals"
+			IF faci_type_code = "55" then faci_type_info_01 = "Adult Foster Care/Rule 203"
+			IF faci_type_code = "56" then faci_type_info_01 = "GRH (Not FC or Rule 36)"
+			IF faci_type_code = "57" then faci_type_info_01 = "Rule 36 MI - Non-IMD"
+			IF faci_type_code = "60" then faci_type_info_01 = "Non-GRH"
+			IF faci_type_code = "61" then faci_type_info_01 = "Rule 31 CD - Non-IMD"
+			IF faci_type_code = "67" then faci_type_info_01 = "Family Violence Shelter"
+			IF faci_type_code = "68" then faci_type_info_01 = "County Correctional Facility"
+			IF faci_type_code = "69" then faci_type_info_01 = "Non-Cty Adult Correctional"
+
+			faci_name_01 = trim(replace(faci_name_01, "_", ""))
+			' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
+
+			' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
+			' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
+			' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
+			' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
+			' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
+			' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
+			' EMReadScreen stat_faci_approval_county, 2, 12, 71
+
+			' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
+			' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
+
+			' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
+			' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
+			' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
+			' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
+			' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
+			' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
+			' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
+			' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
+			' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
+			' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
+
+			' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
+			' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
+			' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
+			' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
+			' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
+			' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
+			' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
+
+			' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
+			' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
+			' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
+
+		End if
+	End If
+
+    If person_02_ref_number <> "" Then
+		EMWriteScreen person_02_ref_number, 20, 76
+		transmit
+		EMReadScreen existance_check, 1, 2, 73
+		If existance_check <> "0" Then
+			Do
+				EMReadScreen FACI_current_panel, 1, 2, 73
+				EMReadScreen FACI_total_check, 1, 2, 78
+				EMReadScreen in_year_check_01, 4, 14, 53
+				EMReadScreen in_year_check_02, 4, 15, 53
+				EMReadScreen in_year_check_03, 4, 16, 53
+				EMReadScreen in_year_check_04, 4, 17, 53
+				EMReadScreen in_year_check_05, 4, 18, 53
+				EMReadScreen out_year_check_01, 4, 14, 77
+				EMReadScreen out_year_check_02, 4, 15, 77
+				EMReadScreen out_year_check_03, 4, 16, 77
+				EMReadScreen out_year_check_04, 4, 17, 77
+				EMReadScreen out_year_check_05, 4, 18, 77
+				If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+				(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+					currently_in_FACI_02 = True
+					If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+					If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+					If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+					If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+					If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
+
+					EMReadScreen stat_faci_02_date_in, 10, faci_row, 47
+					EMReadScreen stat_faci_02_date_out, 10, faci_row, 	71
+
+					If stat_faci_02_date_in = "__ __ ____" Then stat_faci_02_date_in = ""
+					stat_faci_02_date_in = replace(stat_faci_02_date_in, " ", "/")
+					If stat_faci_02_date_out = "__ __ ____" Then stat_faci_02_date_out = ""
+					stat_faci_02_date_out = replace(stat_faci_02_date_out, " ", "/")
+
+					exit do
+				Elseif FACI_current_panel = FACI_total_check then
+					currently_in_FACI_02 = False
+					exit do
+				Else
+					transmit
+				End if
+			Loop until FACI_current_panel = FACI_total_check
+
+			If currently_in_FACI_02 = True then
+				EMReadScreen faci_name_02, 30, 6, 43
+				EMReadScreen faci_type_code, 2, 7, 43
+				' EmReadscreen stat_faci_vendor, 8, 5, 43
+				'List of FACI types
+				IF faci_type_code = "41" then faci_type_info_02 = "NF-I"
+				IF faci_type_code = "42" then faci_type_info_02 = "NF-II"
+				IF faci_type_code = "43" then faci_type_info_02 = "ICF-DD"
+				IF faci_type_code = "44" then faci_type_info_02 = "Short stay in NF-I"
+				IF faci_type_code = "45" then faci_type_info_02 = "Short stay in NF-II"
+				IF faci_type_code = "46" then faci_type_info_02 = "Short stay in ICF-DD"
+				IF faci_type_code = "47" then faci_type_info_02 = "RTC - Not IMD"
+				IF faci_type_code = "48" then faci_type_info_02 = "Medical Hospital"
+				IF faci_type_code = "49" then faci_type_info_02 = "MSOP"
+				IF faci_type_code = "50" then faci_type_info_02 = "IMD/RTC"
+				IF faci_type_code = "51" then faci_type_info_02 = "Rule 31 CD_IMD"
+				IF faci_type_code = "52" then faci_type_info_02 = "Rule 36 MI-IMD"
+				IF faci_type_code = "53" then faci_type_info_02 = "IMD Hospitals"
+				IF faci_type_code = "55" then faci_type_info_02 = "Adult Foster Care/Rule 203"
+				IF faci_type_code = "56" then faci_type_info_02 = "GRH (Not FC or Rule 36)"
+				IF faci_type_code = "57" then faci_type_info_02 = "Rule 36 MI - Non-IMD"
+				IF faci_type_code = "60" then faci_type_info_02 = "Non-GRH"
+				IF faci_type_code = "61" then faci_type_info_02 = "Rule 31 CD - Non-IMD"
+				IF faci_type_code = "67" then faci_type_info_02 = "Family Violence Shelter"
+				IF faci_type_code = "68" then faci_type_info_02 = "County Correctional Facility"
+				IF faci_type_code = "69" then faci_type_info_02 = "Non-Cty Adult Correctional"
+
+				faci_name_02 = trim(replace(faci_name_02, "_", ""))
+				' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
+
+				' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
+				' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
+				' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
+				' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
+				' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
+				' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
+				' EMReadScreen stat_faci_approval_county, 2, 12, 71
+
+				' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
+				' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
+
+				' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
+				' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
+				' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
+				' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
+				' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
+				' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
+				' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
+				' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
+				' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
+				' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
+
+				' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
+				' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
+				' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
+				' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
+				' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
+				' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
+				' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
+
+				' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
+				' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
+				' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
+
+			End if
+		End If
+	End If
+
 	CALL navigate_to_MAXIS_screen("STAT", "DISA")
     EMWriteScreen person_01_ref_number, 20, 76
     transmit
@@ -3625,6 +3856,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		' Text 65, 10, 70, 10, MAXIS_case_number
 		Text 375, 5, 75, 10, "Review Month: " & review_month_01
 		' Text 190, 10, 65, 10, review_month_01
+		Text 280, 15, 125, 10, "SNAP Status: " & snap_status
+		Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
 		ButtonGroup ButtonPressed
 			OkButton 440, 365, 50, 15
 			CancelButton 500, 365, 50, 15
@@ -3656,6 +3889,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			PushButton 485, 234, 25, 10, "SPON", spon_button
 			PushButton 515, 234, 25, 10, "STWK", stwk_button
 			PushButton 485, 247, 25, 10, "UNEA", unea_button
+
+
 		GroupBox 10, 15, 220, 85, "Person 1 - Information"
 		Text 15, 25, 125, 10, "Name: " & name_01
 		Text 140, 25, 65, 10, "PMI: " & PMI_01
@@ -3667,6 +3902,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Else
 			Text 15, 45, 200, 10, MEDI_info_01
 		End If
+
 		If MAXIS_MA_basis_01 <> "" Then Text 15, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_01
 		If MAXIS_MA_basis_01 = "" Then Text 15, 65, 120, 10, "No MA Basis found."
 		If MAXIS_msp_prog_01 <> "" Then Text 15, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_01 & " (" & MAXIS_msp_basis_01 & ")"
@@ -3680,38 +3916,47 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		' Text 85, 280, 135, 10, MMIS_msp_basis_01
 
 
-		GroupBox 10, 105, 220, 200, "Person 1 - Income"
+		GroupBox 10, 105, 220, 85, "Person 1 - Income"
 		'TO DO - determine functionality to add multiple claim numbers
 
 		Text 15, 120, 200, 10, "TPQY - Sent: " & sent_date_01 & ", Return: " & return_date_01
 		Text 15, 130, 150, 10, "BNDX Amount: " & bndx_amount_01
 		Text 15, 140, 150, 10, "SDXS Amount: " & sdxs_amount_01
 
-		If JOBS_01 = "Yes" Then Text 15, 160, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
-		If JOBS_01 = "No" Then Text 15, 160, 50, 10, "No listed JOB."
-		If BUSI_01 = "Yes" Then Text 15, 175, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
-		If BUSI_01 = "No" Then Text 15, 175, 50, 10, "No listed BUSI."
-		Text 15, 190, 65, 10, "Other UNEA Types:"
-		Text 85, 190, 135, 10, other_UNEA_types_01
+		If JOBS_01 = "Yes" Then Text 15, 155, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
+		If JOBS_01 = "No" Then Text 15, 155, 50, 10, "No listed JOB."
+		If BUSI_01 = "Yes" Then Text 15, 165, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
+		If BUSI_01 = "No" Then Text 15, 165, 50, 10, "No listed BUSI."
+		Text 15, 175, 65, 10, "Other UNEA Types:"
+		Text 85, 175, 135, 10, other_UNEA_types_01
+
+		If currently_in_FACI_01 = True then
+			Text 10, 195, 200, 10, name_01 & " - currently in a facility"
+			Text 10, 205, 200, 10, "Facility Name: " & faci_name_01
+			Text 20, 215, 150, 10, "Entry Date: " & stat_faci_01_date_in
+			Text 14, 225, 200, 10,"Facility Type: " & faci_type_info_01
+		Else
+			Text 10, 195, 200, 10, name_01 & " - Does not appear to be in a facility"
+		End If
 
 		If name_02 <> "" Then
-			GroupBox 245, 15, 220, 85, "Person 2 - Information"
+			GroupBox 245, 35, 220, 85, "Person 2 - Information"
 			' GroupBox 10, 15, 220, 85, "Person 1 - Information"
-			Text 250, 25, 125, 10, "Name: " & name_02
-			Text 375, 25, 65, 10, "PMI: " & PMI_02
-			Text 250, 35, 100, 10, "DISA: " & DISA_info_02
-			Text 355, 35, 100, 10, "Waiver: " & disa_waiver_info_02
+			Text 250, 45, 125, 10, "Name: " & name_02
+			Text 375, 45, 65, 10, "PMI: " & PMI_02
+			Text 250, 55, 100, 10, "DISA: " & DISA_info_02
+			Text 355, 55, 100, 10, "Waiver: " & disa_waiver_info_02
 			If MEDI_info_02 = "MEDI Exists" Then
-				Text 250, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
-				Text 250, 55, 200, 10, "                  Part B: " & MEDI_part_b_02
+				Text 250, 65, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
+				Text 250, 75, 200, 10, "                  Part B: " & MEDI_part_b_02
 			Else
-				Text 250, 45, 200, 10, MEDI_info_02
+				Text 250, 65, 200, 10, MEDI_info_02
 			End If
-			If MAXIS_MA_basis_02 <> "" Then Text 250, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
-			If MAXIS_MA_basis_02 = "" Then Text 250, 65, 120, 10, "No MA Basis found."
-			If MAXIS_msp_prog_02 <> "" Then Text 250, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
-			If MAXIS_msp_prog_02 = "" Then Text 250, 75, 120, 10, "No MSP found."
-			Text 250, 85, 120, 10, "MMIS Detail not Ready"
+			If MAXIS_MA_basis_02 <> "" Then Text 250, 85, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
+			If MAXIS_MA_basis_02 = "" Then Text 250, 85, 120, 10, "No MA Basis found."
+			If MAXIS_msp_prog_02 <> "" Then Text 250, 95, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
+			If MAXIS_msp_prog_02 = "" Then Text 250, 95, 120, 10, "No MSP found."
+			Text 250, 105, 120, 10, "MMIS Detail not Ready"
 			' Text 15, 250, 55, 10, "MMIS MA Basis:"
 			' Text 85, 250, 135, 10, MMIS_ma_basis_01
 			' Text 15, 265, 60, 10, "MMIS MSP Prog:"
@@ -3720,19 +3965,28 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			' Text 85, 280, 135, 10, MMIS_msp_basis_01
 
 
-			GroupBox 245, 105, 220, 200, "Person 1 - Income"
+			GroupBox 245, 125, 220, 85, "Person 2 - Income"
 			'TO DO - determine functionality to add multiple claim numbers
 
-			Text 250, 120, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
-			Text 250, 130, 150, 10, "BNDX Amount: " & bndx_amount_02
-			Text 250, 140, 150, 10, "SDXS Amount: " & sdxs_amount_02
+			Text 250, 140, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
+			Text 250, 150, 150, 10, "BNDX Amount: " & bndx_amount_02
+			Text 250, 160, 150, 10, "SDXS Amount: " & sdxs_amount_02
 
-			If JOBS_02 = "Yes" Then Text 250, 160, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
-			If JOBS_02 = "No" Then Text 250, 160, 50, 10, "No listed JOB."
-			If BUSI_02 = "Yes" Then Text 250, 175, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
-			If BUSI_02 = "No" Then Text 250, 175, 50, 10, "No listed BUSI."
-			Text 250, 190, 65, 10, "Other UNEA Types:"
-			Text 220, 190, 135, 10, other_UNEA_types_01
+			If JOBS_02 = "Yes" Then Text 250, 175, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
+			If JOBS_02 = "No" Then Text 250, 175, 50, 10, "No listed JOB."
+			If BUSI_02 = "Yes" Then Text 250, 185, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
+			If BUSI_02 = "No" Then Text 250, 185, 50, 10, "No listed BUSI."
+			Text 250, 195, 65, 10, "Other UNEA Types:"
+			Text 320, 195, 135, 10, other_UNEA_types_02
+
+			If currently_in_FACI_02 = True then
+				Text 245, 215, 200, 10, name_02 & " - currently in a facility"
+				Text 245, 225, 200, 10, "Facility Name: " & faci_name_02
+				Text 255, 235, 150, 10, "Entry Date: " & stat_faci_02_date_in
+				Text 249, 245, 200, 10,"Facility Type: " & faci_type_info_02
+			Else
+				Text 245, 215, 200, 10, name_02 & " - Does not appear to be in a facility"
+			End If
 
 		End If
 	EndDialog
@@ -3745,6 +3999,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             cancel_confirmation
             'Function belows creates navigation to STAT panels for navigation buttons
             MAXIS_dialog_navigation
+			ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
 
             'Add placeholder link to script instructions - To DO - update with correct link
             If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
@@ -3759,12 +4014,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
 
             'Add validation that if ex parte approved, then explanation should be blank
-            If ex_parte_determination = "Appears Ex Parte" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved."
+            If ex_parte_determination = "Appears Ex Parte" AND ex_parte_denial_explanation <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved."
 
             'Add validation that if ex parte denied, then explanation must be provided
-            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial."
+            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND ex_parte_denial_explanation = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial."
 
-            'Add validation to ensure worker signature is not blank
+			If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 character."
+
+			'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
 
             'Error message handling
