@@ -3198,12 +3198,37 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 			Do
 				EMReadScreen check_PMI, 8, 4, 46
+				EMReadScreen check_ref_number, 2, 4, 33
 				check_PMI = trim(check_PMI)
 				check_PMI_full = right("00000000" & check_PMI, 8)
-				If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
-				If check_PMI_full = PMI_02 Then EMReadScreen person_02_ref_number, 2, 4, 33
+				If check_PMI_full = PMI_01 Then person_01_ref_number = check_ref_number
+				If check_PMI_full = PMI_02 Then person_02_ref_number = check_ref_number
 				EMReadScreen MEMB_end_check, 13, 24, 2
 				transmit
+
+				If check_ref_number = "01" Then
+					If person_02_ref_number = check_ref_number Then
+						hold_01_PMI = PMI_01
+						hold_01_name = name_01
+						hold_01_MA_basis = MAXIS_MA_basis_01
+						hold_msp_prog = MAXIS_msp_prog_01
+						hold_msp_basis = MAXIS_msp_basis_01
+
+						PMI_01 = PMI_02
+						name_01 = name_02
+						MAXIS_MA_basis_01 = MAXIS_MA_basis_02
+						MAXIS_msp_prog_01 = MAXIS_msp_prog_02
+						MAXIS_msp_basis_01 = MAXIS_msp_basis_02
+						person_01_ref_number = check_ref_number
+
+						PMI_02 = hold_01_PMI
+						name_02 = hold_01_name
+						MAXIS_MA_basis_02 = hold_01_MA_basis
+						MAXIS_msp_prog_02 = hold_msp_prog
+						MAXIS_msp_basis_02 = hold_msp_basis
+						person_02_ref_number = ""
+					End If
+				End If
 			LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
 		End If
 
@@ -3222,7 +3247,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			LOOP Until person_01_ref_number <> ""
 		End If
 	End If
-
+	If PMI_02 <> "" and person_02_ref_number = "" Then
+		PMI_02 = ""
+		name_02 = ""
+	End If
 
 
 	JOBS_01 = "No"
