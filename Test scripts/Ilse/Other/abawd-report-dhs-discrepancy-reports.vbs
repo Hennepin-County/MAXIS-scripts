@@ -53,11 +53,11 @@ changelog_display
 'TODO figure out what is the highest ranking of WREG/FSET status
 
 Function BULK_ABAWD_FSET_exemption_finder()
-'excluding matching grant and participating in CD treatment due to non-MAXIS indicators. 
+'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
 '----------------------------------------------------------------------------------------------------Determining the EATS Household
     'default strings and counts
 	eats_HH_count = 0
-	possible_exemptions = "" 
+	possible_exemptions = ""
 
     CALL navigate_to_MAXIS_screen("STAT", "EATS")
     eats_group_members = ""
@@ -71,14 +71,14 @@ Function BULK_ABAWD_FSET_exemption_finder()
     'HH's where all members eat together
         eats_row = 5
         DO
-            EMReadScreen eats_eats_pers, 2, eats_row, 3
-            eats_eats_pers = replace(eats_eats_pers, " ", "")
-            IF eats_eats_pers <> "" THEN
-                eats_group_members = eats_group_members & eats_eats_pers & ","
+            EMReadScreen eats_pers, 2, eats_row, 3
+            eats_pers = replace(eats_pers, " ", "")
+            IF eats_pers <> "" THEN
+                eats_group_members = eats_group_members & eats_pers & ","
 				eats_HH_count = eats_HH_count  + 1
                 eats_row = eats_row + 1
             END IF
-        LOOP UNTIL eats_eats_pers = ""
+        LOOP UNTIL eats_pers = ""
     ELSEIF all_eat_together = "N" THEN
     'multiple eats HH cases - we are only caring about the 1st eats group that contains MEMB 01.
         eats_row = 13
@@ -106,109 +106,105 @@ Function BULK_ABAWD_FSET_exemption_finder()
         LOOP UNTIL eats_group = "__"
     END IF
 
-	'msgbox eats_HH_count	
+	'msgbox eats_HH_count
 	ObjExcel.Cells(excel_row, eats_HH_col).Value = eats_HH_count
 
 	'Case-based determination
-    '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP 
-	'----------------------------------------------------------------------------------------------------17 – Receiving RCA 
-	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP 
+    '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
+	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
+	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	If mfip_case = True then verified_wreg = verified_wreg & "14" & "|"
 	If RCA_case = True then verified_wreg = verified_wreg & "17" & "|"
 	If DWP_case = True then verified_wreg = verified_wreg & "20" & "|"
-	
+
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
-	'Case-based determination 
+	'Case-based determination
     IF memb_found = True THEN
-		If SNAP_status <> "INACTIVE" then 
+		If SNAP_status <> "INACTIVE" then
 			verified_wreg = ""
 			verified_abawd = ""
 
             eats_group_members = trim(eats_group_members)
             eats_group_members = split(eats_group_members, ",")
-    
-		    child_under_six = False 	'defaulting to False 
-		    child_under_18 = False		'defaulting to False 
+
+		    child_under_six = False 	'defaulting to False
+		    child_under_18 = False		'defaulting to False
 			adult_HH_count = 0
-    
+
             IF all_eat_together <> "_" THEN
-                CALL write_value_and_transmit("MEMB", 20, 71)
+                CALL navigate_to_MAXIS_screen("STAT", "MEMB")
                 FOR EACH eats_pers IN eats_group_members
-                    IF eats_pers <> "" AND eats_pers <> eats_pers THEN
+                    IF trim(eats_pers) <> "" THEN
                         CALL write_value_and_transmit(eats_pers, 20, 76)
                         EMReadScreen cl_age, 2, 8, 76
-                        IF cl_age = "  " THEN cl_age = 0
+                        cl_age = trim(cl_age)
+                        IF cl_age = "" THEN cl_age = 0
                         cl_age = cl_age * 1
-	
+                        'msgbox "~" & cl_age & "~"
 						If cl_age < 6 then child_under_six = True
                         IF cl_age =< 17 THEN
-							child_under_18 = True 
-							msgbox "child < 18 " & child_under_18 
-							possible_exemptions = possible_exemptions & vbcr & "May have exemption for minor child caretaker. HH member " & eats_pers & " is minor."
-		    			Elseif cl_age >= 50 THEN 
-							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have exemption. Age = " & cl_age & "."
+							child_under_18 = True
+		    			Else
 							adult_HH_count = adult_HH_count + 1
-						Else
-							adult_HH_count = adult_HH_count + 1
-		    			End if 
+		    			End if
                     END IF
                 NEXT
             END IF
 
-		    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit 
+		    '----------------------------------------------------------------------------------------------------21 – Child < 18 Living in the SNAP Unit
  		    If child_under_18 = True then verified_wreg = verified_wreg & "21" & "|"
 
-			'----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old 
-			If child_under_six = True then 
-				If adult_HH_count = 1 then 
-					verified_wreg = verified_wreg & "8" & "|"
+			'----------------------------------------------------------------------------------------------------08 – Responsible for care of child <6 years old
+			If child_under_six = True then
+				If adult_HH_count = 1 then
+					verified_wreg = verified_wreg & "08" & "|"
 				Else
 					possible_exemptions = possible_exemptions & vbcr & "Child under 6 is in the SNAP Household."
 				End if
-			End if 
+			End if
 
 		    'person-based determination
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen cl_age, 2, 8, 76
+            cl_age = trim(cl_age)
 		    EMReadScreen age_verif_code, 2, 8, 68
-            IF cl_age = "  " THEN cl_age = 0
-            cl_age = cl_age * 1	
-		    If cl_age < 6 then child_under_six = True 
-		    If cl_age < 18 then child_under_18 = True
+            IF cl_age = "" THEN cl_age = 0
+            cl_age = cl_age * 1
+
 		    '----------------------------------------------------------------------------------------------------07 – Age 16-17, Living W/Pare/Crgvr
-		    If cl_age = 16 or cl_age = 17 then 
+		    If cl_age = 16 or cl_age = 17 then
 		    	EMReadScreen age_verif_code, 2, 8, 68
-		    	If age_verif_code <> "NO" then 
-		    		verified_wreg = verified_wreg & "7" & "|"
-		    	End if 
+		    	If age_verif_code <> "NO" then
+		    		verified_wreg = verified_wreg & "07" & "|"
+		    	End if
 		    End if
-		    
+
 		    '----------------------------------------------------------------------------------------------------06 – Under age 16
-		    If cl_age < 16 then 
-		    	If age_verif_code <> "NO" then 
-		    		verified_wreg = verified_wreg & "6" & "|"
-		    	End if 
+		    If cl_age < 16 then
+		    	If age_verif_code <> "NO" then
+		    		verified_wreg = verified_wreg & "06" & "|"
+		    	End if
 		    End if
 		    '----------------------------------------------------------------------------------------------------'16 – 50-59 Years Old
-		    If cl_age => 50 then 
-		    	If cl_age < 60 then 
-		    		If age_verif_code <> "NO" then 
+		    If cl_age => 50 then
+		    	If cl_age < 60 then
+		    		If age_verif_code <> "NO" then
 		    			verified_wreg = verified_wreg & "16" & "|"
-		    		End if 
-		    	End if 
+		    		End if
+		    	End if
 		    End if
 		    '----------------------------------------------------------------------------------------------------'05 - Age 60 or older
-		    If cl_age => 60 then 
-		    If age_verif_code <> "NO" then 
-		    	verified_wreg = verified_wreg & "5" & "|"
-		    	End if 
+		    If cl_age => 60 then
+		    If age_verif_code <> "NO" then
+		    	verified_wreg = verified_wreg & "05" & "|"
+		    	End if
 		    End if
-            
-			'<<<<<<<<<<DISA 
-			'Case-based evaluation 
+
+			'<<<<<<<<<<DISA
+			'Case-based evaluation
             CALL navigate_to_MAXIS_screen("STAT", "DISA")
             FOR EACH eats_pers IN eats_group_members
             	disa_status = false
@@ -223,35 +219,35 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			IF IsDate(disa_end_dt) = True THEN
             				IF DateDiff("D", date, disa_end_dt) > 0 THEN
 								disa_status = True
-            					If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption. DISA end date = " & disa_end_dt & "."
+            					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & "."
             				END IF
             			ELSE
             				IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN
 								disa_status = True
-								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption. DISA has no end date."
+								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA has no end date."
             				END IF
             			END IF
             			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            				IF DateDiff("D", date, cert_end_dt) > 0 THEN 
-								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption. DISA Certification end date = " & cert_end_dt & "."
-							End if 
+            				IF DateDiff("D", date, cert_end_dt) > 0 THEN
+								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & "."
+							End if
 						ELSE
             				IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
             					EMReadScreen cert_begin_dt, 8, 7, 47
-            					IF cert_begin_dt <> "__ __ __" THEN 
-									If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption. DISA certification has no end date."
-								End if 
+            					IF cert_begin_dt <> "__ __ __" THEN
+									If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " -DISA certification has no end date."
+								End if
 							END IF
             			END IF
             		END IF
             	END IF
             NEXT
-								
+
 			'Person based evaluation
             'Still in DISA
             CALL write_value_and_transmit(member_number, 20, 76)
 			verified_disa = False
-			disa_status = False 
+			disa_status = False
             EMReadScreen num_of_DISA, 1, 2, 78
 
 			IF num_of_DISA <> "0" THEN
@@ -265,42 +261,42 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
             	END IF
             	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = True 
+            		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = True
 				ELSE
             		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
             			EMReadScreen cert_begin_dt, 8, 7, 47
-            			IF cert_begin_dt <> "__ __ __" THEN disa_status = True 
+            			IF cert_begin_dt <> "__ __ __" THEN disa_status = True
 					End if
-				End if  
+				End if
 			END IF
 
-            If disa_status = True then 
+            If disa_status = True then
 				Emreadscreen cash_disa, 2, 11, 59
-				If cash_disa <> "__" then 
-		    		EMReadScreen cash_disa_verif, 1, 11, 69	
-					If snap_disa_verif <> "N" then verified_disa = True 
+				If cash_disa <> "__" then
+		    		EMReadScreen cash_disa_verif, 1, 11, 69
+					If snap_disa_verif <> "N" then verified_disa = True
 				End If
 				Emreadscreen snap_disa, 2, 12, 59
-				If snap_disa <> "__" then 
-		    		EMReadScreen snap_disa_verif, 1, 12, 69	
-					If snap_disa_verif <> "N" or snap_disa_verif <> "7" then verified_disa = True 
+				If snap_disa <> "__" then
+		    		EMReadScreen snap_disa_verif, 1, 12, 69
+					If snap_disa_verif <> "N" or snap_disa_verif <> "7" then verified_disa = True
 				End If
 				Emreadscreen hc_disa, 2, 13, 59
-				If hc_disa <> "__" then 
-		    		EMReadScreen hc_disa_verif, 1, 13, 69	
-					If hc_disa_verif <> "N" then verified_disa = True 
+				If hc_disa <> "__" then
+		    		EMReadScreen hc_disa_verif, 1, 13, 69
+					If hc_disa_verif <> "N" then verified_disa = True
 				End If
-				If verified_disa = True then verified_wreg = verified_wreg & "3" & "|"
-			End if 
-		    							    	
+				If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
+			End if
+
             '>>>>>>>>>>>>>>EARNED INCOME
-		    'Person-based determination for Earned Income 			
+		    'Person-based determination for Earned Income
             prosp_inc = 0
             prosp_hrs = 0
             prospective_hours = 0
             CALL navigate_to_MAXIS_screen("STAT", "JOBS")
             EMWritescreen member_number, 20, 76
-		    Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job		
+		    Call write_value_and_transmit("01", 20, 79)				'ensures that we start at 1st job
             EMReadScreen num_of_JOBS, 1, 2, 78
             IF num_of_JOBS <> "0" THEN
             	DO
@@ -360,8 +356,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		If cint(JOBS_panel_current) < cint(num_of_JOBS) then transmit
             	Loop until cint(JOBS_panel_current) = cint(num_of_JOBS)
             END IF
-    
-		    'Person-basd determination 
+
+		    'Person-basd determination
             EMWriteScreen "BUSI", 20, 71
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_BUSI, 1, 2, 78
@@ -372,7 +368,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		IF IsDate(busi_end_dt) = True THEN
 		    			Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
 		    			EMReadScreen busi_verif_code, 1, 11, 73
-		    			PF3 'to exit pop up 
+		    			PF3 'to exit pop up
             			IF DateDiff("D", date, busi_end_dt) > 0 THEN
             				EMReadScreen busi_inc, 8, 10, 69
             				busi_inc = trim(busi_inc)
@@ -399,32 +395,32 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		EMReadScreen enter_a_valid, 13, 24, 2
             	LOOP UNTIL enter_a_valid = "ENTER A VALID"
             END IF
-    
-		    'Person based since very unlikley to be case based at this point. 
+
+		    'Person based since very unlikley to be case based at this point.
             EMWriteScreen "RBIC", 20, 71
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_RBIC, 1, 2, 78
             IF num_of_RBIC <> "0" then ObjExcel.Cells(excel_row, notes_col).Value = "Actally found an RBIC."
 		    'THEN possible_exemptions = possible_exemptions & vbCr & "* M" & eats_pers & ": Has RBIC panel. Please review for ABAWD and/or SNAP E&T exemption."
             IF prosp_inc >= 935.25 OR prospective_hours >= 129 THEN
-		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then 
-		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then 
-		    			verified_wreg = verified_wreg & "9" & "|"	
+		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then
+		    			verified_wreg = verified_wreg & "09" & "|"
 		    		End if
-		    	End if		
+		    	End if
             	'possible_exemptions = possible_exemptions & vbCr & "* M" & eats_pers & ": Appears to be working 30 hours/wk (regardless of wage level) or earning equivalent of 30 hours/wk at federal minimum wage."
             ELSEIF prospective_hours >= 80 AND prospective_hours < 129 THEN
-		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then 
-		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then 
-		    			verified_abawd = verified_wreg & "6"	
+		    	If jobs_verif_code <> "N" or jobs_verif_code <> "N" then
+		    		If busi_verif_code <> "_" or busi_verif_code <> "N" then
+		    			verified_abawd = verified_wreg & "06"
 		    		End if
 		    	End if
             	'possible_exemptions = possible_exemptions & vbCr & "* M" & eats_pers & ": Appears to be working at least 80 hours in the benefit month. Please review for ABAWD exemption and SNAP E&T exemptions."
             END IF
-    
+
             '>>>>>>>>>>>>UNEA
-		    '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment 
-		    'Person-based determination 
+		    '----------------------------------------------------------------------------------------------------'03 – Unfit for Employment
+		    'Person-based determination
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_UNEA, 1, 2, 78
             IF num_of_UNEA <> "0" THEN
@@ -434,24 +430,24 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
             			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-            				IF unea_type = "11" then 
-		    					EmReadScreen VA_verif_code, 1, 5, 65 
-		    					If VA_verif_code <> "N" then 
-		    						verified_wreg = verified_wreg & "3" & "|"
-		    						Exit do 
-		    					Else 
+            				IF unea_type = "11" then
+		    					EmReadScreen VA_verif_code, 1, 5, 65
+		    					If VA_verif_code <> "N" then
+		    						verified_wreg = verified_wreg & "03" & "|"
+		    						Exit do
+		    					Else
 		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have VA disability benefits."
-		    					End if 
-		    				End if 
+		    					End if
+		    				End if
             			END IF
             		END IF
             		transmit
             		EMReadScreen enter_a_valid, 13, 24, 2
             	LOOP UNTIL enter_a_valid = "ENTER A VALID"
             END IF
-        
-		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending  	
-		    'Person-based determination 
+
+		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
+		    'Person-based determination
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_UNEA, 1, 2, 78
             IF num_of_UNEA <> "0" THEN
@@ -461,25 +457,25 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
             			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-            				IF unea_type = "14" then 
-		    					EmReadScreen UC_verif_code, 1, 5, 65 
-		    					If UC_verif_code <> "N" then 
-		    						verified_wreg = verified_wreg & "11" & "|" 
+            				IF unea_type = "14" then
+		    					EmReadScreen UC_verif_code, 1, 5, 65
+		    					If UC_verif_code <> "N" then
+		    						verified_wreg = verified_wreg & "11" & "|"
 		    						Exit do
 		    					Else
 		    						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active unemployment benefits."
-		    					End if 
-		    				End if 
+		    					End if
+		    				End if
             			END IF
             		END IF
             		transmit
             		EMReadScreen enter_a_valid, 13, 24, 2
             	LOOP UNTIL enter_a_valid = "ENTER A VALID"
             END IF
-            
-		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending  
+
+		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
             '>>>>>>>>>PBEN
-		    'Person based determination 
+		    'Person based determination
             CALL navigate_to_MAXIS_screen("STAT", "PBEN")
 		    Call write_value_and_transmit(member_number, 20, 76)
 		    EMReadScreen num_of_PBEN, 1, 2, 78
@@ -491,22 +487,22 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
 		    				verified_wreg = verified_wreg & "11" & "|"
 		    				EXIT DO
-            			Else 
-		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have pending, appealing, or eligible Unemployment benefits." 
+            			Else
+		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have pending, appealing, or eligible Unemployment benefits."
             			END IF
             		ELSE
             			pben_row = pben_row + 1
             		END IF
             	LOOP UNTIL pben_row = 14
 		    End if
-        
-		    '----------------------------------------------------------------------------------------------------23 – Pregnant  
+
+		    '----------------------------------------------------------------------------------------------------23 – Pregnant
             '>>>>>>>>>>PREG
 		    'Person based determination
             CALL navigate_to_MAXIS_screen("STAT", "PREG")
 			Call write_value_and_transmit(member_number, 20, 76)
 		    EMReadScreen num_of_PREG, 1, 2, 78
-            IF num_of_PREG <> "0" THEN	
+            IF num_of_PREG <> "0" THEN
 				ObjExcel.Cells(excel_row, notes_col).Value = "Found PX case!"
             	EMReadScreen num_of_PREG, 1, 2, 78
                 EMReadScreen preg_due_dt, 8, 10, 53
@@ -515,38 +511,38 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
                 If preg_due_dt <> "__/__/__" Then
 		    		EMReadscreen preg_verif, 1, 6, 75
-                    If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN 
-						If preg_verif = "Y" then 
+                    If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN
+						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
-						Else 
+						Else
 							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active pregnancy. Please review for ABAWD exemption."
-						End if 
- 		    		End if 
-                    If DateDiff("d", date, preg_due_dt) < 0 Then 
+						End if
+ 		    		End if
+                    If DateDiff("d", date, preg_due_dt) < 0 Then
 						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have an overdue pregnancy, eats_pers may meet a minor child exemption. Contact client."
 					End If
-				End if 
-            End If 
-            
+				End if
+            End If
+
             '>>>>>>>>>>ADDR
-		    'Case based determination 
+		    'Case based determination
             CALL navigate_to_MAXIS_screen("STAT", "ADDR")
             EMReadScreen homeless_code, 1, 10, 43
             EmReadscreen addr_line_01, 16, 6, 43
-    
+
             IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN possible_exemptions = possible_exemptions & vbcr & "Case is coded for homelessness."
-    
+
             '>>>>>>>>>SCHL/STIN/STEC
-		    'person based determination 
+		    'person based determination
 		    CALL navigate_to_MAXIS_screen("STAT", "SCHL")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_SCHL, 1, 2, 78
             IF num_of_SCHL = "1" THEN
             	EMReadScreen school_status, 1, 6, 40
             	IF school_status = "F" or school_status = "H" then verified_wreg = verified_wreg & "12" & "|"
-		    End if 
-    
-		    'Case-based determination 
+		    End if
+
+		    'Case-based determination
             FOR EACH eats_pers IN eats_group_members
             	IF eats_pers <> "" THEN
                     CALL navigate_to_MAXIS_screen("STAT", "SCHL")
@@ -554,9 +550,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		EMReadScreen num_of_SCHL, 1, 2, 78
             		IF num_of_SCHL = "1" THEN
             			EMReadScreen school_status, 1, 6, 40
-            			IF school_status <> "N" THEN 
+            			IF school_status <> "N" THEN
 							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be enrolled in school."
-						End if 
+						End if
             		ELSE
             			EMWriteScreen "STIN", 20, 71
             			CALL write_value_and_transmit(eats_pers, 20, 76)
@@ -620,24 +616,27 @@ Function BULK_ABAWD_FSET_exemption_finder()
             	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
             NEXT
             IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
-		End if 
-	End if	
+		End if
+	End if
 		'fileter the list here for best_wreg_code
-	If trim(verified_wreg) = "" then 
+	If trim(verified_wreg) = "" then
 		best_wreg_code = "30"
-		If verified_abawd = "" then 
+		If verified_abawd = "" then
 			best_abawd_code = "10"
-		Else 
+		Else
 			best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
-		End if 
-	Elseif len(verified_wreg) = 2 or len(verified_wreg) = 3 then 
-		verified_wreg = replace(verified_wreg, "|", "")
-		best_wreg_code = "0" & right(verified_wreg, 2)
+		End if
+	Elseif len(verified_wreg) = 2 or len(verified_wreg) = 3 then
+		best_wreg_code = replace(verified_wreg, "|", "")
 	Else
-		Call sort_numeric_array_ascending(verified_wreg, "|", verified_wreg)
-		best_wreg_code = "0" & left(verified_wreg, 2)
-		msgbox best_wreg_code
-	End if 
+        wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
+        for each code in wreg_hierarchy
+            If instr(verified_wreg, code) then
+                best_wreg_code = code
+                exit for
+            End if
+        next
+	End if
 
 	If best_wreg_code = "03" or _
 		best_wreg_code = "04" or _
@@ -651,150 +650,73 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		best_wreg_code = "12" or _
 		best_wreg_code = "13" or _
 		best_wreg_code = "14" or _
-		best_wreg_code = "20" then 
-			best_abawd_code = "01"	
+		best_wreg_code = "20" then
+			best_abawd_code = "01"
 	End if
 
-	If best_wreg_code = "15" then best_abawd_code = "02" 
-	If best_wreg_code = "16" then best_abawd_code = "03" 
-	If best_wreg_code = "21" then best_abawd_code = "04" 
-	If best_wreg_code = "17" then best_abawd_code = "12" 
-	If best_wreg_code = "23" then best_abawd_code = "05" 
+	If best_wreg_code = "15" then best_abawd_code = "02"
+	If best_wreg_code = "16" then best_abawd_code = "03"
+	If best_wreg_code = "21" then best_abawd_code = "04"
+	If best_wreg_code = "17" then best_abawd_code = "12"
+	If best_wreg_code = "23" then best_abawd_code = "05"
 
-		'wreg_array =split(verified_wreg, "|")
-		'For best_wreg_code = "03" or _each wreg in wreg_array 
-'
-		'    If instr(wreg, "03") then 
-		'		best_wreg_code = "03"
-		'		best_abawd_code = "01"	
-		'		exit for 
-		'	End if 
-'
-		'    If instr(wreg, "04") then 
-		'		best_wreg_code = "04"
-		'		best_abawd_code = "01"	
-		'		exit for 
-		'	End if 
-'
-		'	If instr(wreg, "05") then 
-		'		best_wreg_code = "05"
-		'		best_abawd_code = "01"	
-		'		exit for 
-		'	End if 
-	    '
-		'	If instr(wreg, "06") then 
-		'		best_wreg_code = "06"
-		'		best_abawd_code = "01"	
-		'		exit for 
-		'	End if
-'
-	    '    If instr(wreg, "07") then 
-		'		best_wreg_code = "07"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-		'
-		'	If instr(wreg, "08") then 
-		'		best_wreg_code = "08"
-		'		best_abawd_code = "01"	
-		'		exit for 
-		'	End if 
-'
-		'	If instr(wreg, "09") then 
-		'		best_wreg_code = "09"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "10") then 
-		'		best_wreg_code = "10"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-		'	
-		'	If instr(wreg, "11") then 
-		'		best_wreg_code = "11"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-		'	
-		'	If instr(wreg, "12") then 
-		'		best_wreg_code = "12"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-'
-		'	
-		'	If instr(wreg, "13") then 
-		'		best_wreg_code = "13"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "14") then 
-		'		best_wreg_code = "14"
-		'		best_abawd_code = "01"	
-		'		exit for
-		'	End if 
-		'	
-		'	If instr(wreg, "20") then 
-		'		best_wreg_code = "20"
-		'		best_abawd_code = "01"
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "15") then 
-		'		best_wreg_code = "15"
-		'		best_abawd_code = "02"
-		'		exit for
-		'	End if 
-		'	
-		'	If instr(wreg, "16") then 
-		'		best_wreg_code = "16"
-		'		best_abawd_code = "03"
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "21") then 
-		'		best_wreg_code = "21"
-		'		best_abawd_code = "04"
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "17") then 
-		'		best_wreg_code = "17"
-		'		best_abawd_code = "12"
-		'		exit for
-		'	End if 
-'
-		'	If instr(wreg, "23") then 
-		'		best_wreg_code = "23"
-		'		best_abawd_code = "05"
-		'		exit for
-		'	End if 
-		'Next 	
-	'End if
-	
+    updates_needed = True
+    If snap_status = "ACTIVE" then
+        If FSET_code = best_wreg_code then
+            If ABAWD_code = best_abawd_code then
+                ObjExcel.Cells(excel_row, notes_col).Value = "No Updates Needed."
+                updates_needed = False
+            End if
+        End if
+    End if
+
+    If updates_needed = True then
+        'script will update the WREG panel for the member if an update
+        Call navigate_to_MAXIS_screen("STAT", "WREG")
+        Call write_value_and_transmit(member_number, 20, 76)
+        PF9
+        EMWriteScreen best_wreg_code, 8, 50
+        EMWriteScreen best_abawd_code, 13, 50
+        If best_wreg_code = "30" then
+            EmWriteScreen "N", 8, 80
+        Else
+            EMWriteScreen "_", 8, 80
+        End if
+
+        EmReadScreen wreg_check, 2, 8, 50
+        EmReadScreen abawd_check, 2, 13, 50
+        If wreg_check = best_wreg_code then
+            If abawd_check = best_abawd_code then
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = True
+            Else
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = False
+            End if
+        End if
+        PF3
+        EmReadScreen warning_check, 8, 24, 2
+        If warning_check = "WARNING:" then transmit
+        PF3 'out of STAT/WRAP
+    End if
+
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
 	ObjExcel.Cells(excel_row, verified_wreg_col).Value = verified_wreg
     ObjExcel.Cells(excel_row, all_exemptions_col).Value = trim(possible_exemptions)
-
 End Function
 
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
 worker_county_code = "X127"
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
 
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\05-2023.xlsx"
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\06-2023.xlsx"
 
 'column constants
 case_number_col 	= 1
 pmi_col         	= 2
-SNAP_status_col	    = 3	
+SNAP_status_col	    = 3
 memb_numb_col   	= 4
 eats_HH_col			= 5
 CM_wreg_col		   	= 6
@@ -802,8 +724,9 @@ CM_abawd_col		= 7
 best_wreg_col		= 8
 best_abawd_col		= 9
 notes_col			= 10
-verified_wreg_col 	= 11
-all_exemptions_col	= 12
+auto_wreg_col       = 11
+verified_wreg_col 	= 12
+all_exemptions_col	= 13
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -843,22 +766,20 @@ Call MAXIS_footer_month_confirmation
 excel_row = 2
 
 Do
+    MAXIS_case_number = ""
 	MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do		
-	
+    If MAXIS_case_number = "" then exit do
+
 	PMI_number = trim(ObjExcel.Cells(excel_row, pmi_col).Value)
 	PMI_number = right ("00000000" & trim(PMI_number), 8)
-	ObjExcel.Cells(excel_row, PMI_col).Value = PMI_number
+	ObjExcel.Cells(excel_row, pmi_col).Value = PMI_number
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-    EmReadscreen self_screen, 4, 2, 50
-    EmReadscreen self_error, 60, 24, 2
     If is_this_priv = True then
         ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
-    Elseif (is_this_priv = False and self_screen = "SELF") then
-        ObjExcel.Cells(excel_row, notes_col).Value = trim(self_error)
     Else
+        Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
         If county_code <> UCASE(worker_county_code) then
@@ -892,6 +813,7 @@ Do
         End if
     End if
     excel_row = excel_row + 1
+    PMI_number = ""
 Loop until ObjExcel.Cells(excel_row, 1).Value = ""
 
 FOR i = 1 to 15		'formatting the cells'
