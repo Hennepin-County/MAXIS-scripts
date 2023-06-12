@@ -32,49 +32,5 @@ END IF
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
-'next_revw_date = "01/01/19"
-'
-'last_day_of_revw = dateadd("d", -1, next_revw_date) & "" 	'blank space added to make vorianble to make a string
-'
-'revw_start_date = dateadd("M", - 6, next_revw_date)	'blank space added to make vorianble to make a string
-''revw_start_date = right("0" & DatePart("YYYY", next_revw_date), 2)
-'
-'msgbox last_day_of_revw & vbcr & revw_start_date
-cash_review_year = "19"
-cash_review_year = abs(cash_review_year) - 1
-MsgBox cash_review_year
-
-'start_date = "02/01/2018"   'start and end service agreement dates
-'end_date = "06/18/2018"
-'total_units = datediff("D", start_date, end_date)
-'msgbox total_units
-
-'MsgBox(client_age("08/18/1963"))
-'Function client_age(client_DOB)
-'    Dim CurrentDate, Years, ThisYear, Months, ThisMonth, Days
-'    CurrentDate = CDate(client_DOB)
-'    Years = DateDiff("yyyy", CurrentDate, Date)
-'    ThisYear = DateAdd("yyyy", Years, CurrentDate)
-'    Months = DateDiff("m", ThisYear, Date)
-'    ThisMonth = DateAdd("m", Months, ThisYear)
-'    Days = DateDiff("d", ThisMonth, Date)
-'
-'    Do While (Days < 0) Or (Months < 0)
-'        If Days < 0 Then
-'            Months = Months - 1
-'            ThisMonth = DateAdd("m", Months, ThisYear)
-'            Days = DateDiff("d", ThisMonth, Date)
-'        End If
-'        If Months < 0 Then
-'            Years = Years - 1
-'            ThisYear = DateAdd("yyyy", Years, CurrentDate)
-'            Months = DateDiff("m", ThisYear, Date)
-'            ThisMonth = DateAdd("m", Months, ThisYear)
-'            Days = DateDiff("d", ThisMonth, Date)
-'        End If
-'    Loop
-'    client_age = Years & "y/" & Months & "m/" & Days
-'End Function
-
 
 stopscript
