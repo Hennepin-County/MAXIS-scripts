@@ -3870,12 +3870,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Dialog1 = ""
 
     'TO DO - add functionality to determine ex parte phase based on case number
-	BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
-		GroupBox 10, 310, 505, 50, "Ex Parte Determination"
-		Text 20, 325, 80, 10, "Ex Parte Determination:"
-		DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
-		Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
-		EditBox 220, 335, 285, 15, ex_parte_denial_explanation
+	BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
+		GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
+		Text 20, 295, 80, 10, "Ex Parte Evaluation:"
+		DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
+		Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
+		Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
+		ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis.", ex_parte_denial_select
+		Text 20, 335, 80, 10, "Not Ex Parte Notes:"
+		EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
+		Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
 		Text 15, 365, 70, 10, "Worker Signature:"
 		EditBox 80, 360, 110, 15, worker_signature
 		' GroupBox 10, 0, 455, 25, "Case Information"
@@ -4027,9 +4031,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             cancel_confirmation
             'Function belows creates navigation to STAT panels for navigation buttons
             MAXIS_dialog_navigation
-			ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
 
-            'Add placeholder link to script instructions - To DO - update with correct link
+			ex_parte_denial_explanation = ""
+			ex_parte_denial_explanation = trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", ""))
+			ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
+			ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
+			' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
+
+			'Add placeholder link to script instructions - To DO - update with correct link
             If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
 
             'Add placeholder links for policy buttons - TO DO - update with correct links
