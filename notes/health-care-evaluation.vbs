@@ -4038,6 +4038,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
 			' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
 
+
 			'Add placeholder link to script instructions - To DO - update with correct link
             If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
 
@@ -4291,7 +4292,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
 		'Creating objects for Access
 		Set objUpdateConnection = CreateObject("ADODB.Connection")
