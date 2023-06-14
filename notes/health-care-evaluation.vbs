@@ -5220,7 +5220,7 @@ If applied_after_03_23 = True and processing_an_application = True and processin
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
 	DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
-	DropListBox 160, 215, 275, 35, "Select One..."+chr(9)+"Applied on or after 4/1/2023 and no Non-Retro coverage existed in 03/2023.", policy_selection_reason
+	DropListBox 160, 215, 275, 35, "Applied on or after 4/1/2023 and no Non-Retro coverage existed in 03/2023.", policy_selection_reason
 	ButtonGroup ButtonPressed
 		OkButton 360, 260, 50, 15
 		CancelButton 415, 260, 50, 15
