@@ -50,8 +50,6 @@ call changelog_update("06/17/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'TODO figure out what is the highest ranking of WREG/FSET status
-
 Function BULK_ABAWD_FSET_exemption_finder()
 'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
 '----------------------------------------------------------------------------------------------------Determining the EATS Household
@@ -217,7 +215,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			EMReadScreen cert_end_dt, 10, 7, 69
             			cert_end_dt = replace(cert_end_dt, " ", "/")
             			IF IsDate(disa_end_dt) = True THEN
-            				IF DateDiff("D", date, disa_end_dt) > 0 THEN
+            				IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN
 								disa_status = True
             					If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - DISA end date = " & disa_end_dt & "."
             				END IF
@@ -228,7 +226,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             				END IF
             			END IF
             			IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            				IF DateDiff("D", date, cert_end_dt) > 0 THEN
+            				IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN
 								If eats_pers <> member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have disability exemption for the case of HH member " & eats_pers & " - " & cert_end_dt & "."
 							End if
 						ELSE
@@ -256,12 +254,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
             	EMReadScreen cert_end_dt, 10, 7, 69
             	cert_end_dt = replace(cert_end_dt, " ", "/")
             	IF IsDate(disa_end_dt) = True THEN
-            		IF DateDiff("D", date, disa_end_dt) > 0 THEN disa_status = True
+            		IF DateDiff("D", ABAWD_eval_date, disa_end_dt) > 0 THEN disa_status = True
             	ELSE
             		IF disa_end_dt = "__/__/____" OR disa_end_dt = "99/99/9999" THEN disa_status = True
             	END IF
             	IF IsDate(cert_end_dt) = True AND disa_status = False THEN
-            		IF DateDiff("D", date, cert_end_dt) > 0 THEN disa_status = True
+            		IF DateDiff("D", ABAWD_eval_date, cert_end_dt) > 0 THEN disa_status = True
 				ELSE
             		IF cert_end_dt = "__/__/____" OR cert_end_dt = "99/99/9999" THEN
             			EMReadScreen cert_begin_dt, 8, 7, 47
@@ -271,23 +269,54 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			END IF
 
             If disa_status = True then
-				Emreadscreen cash_disa, 2, 11, 59
-				If cash_disa <> "__" then
-		    		EMReadScreen cash_disa_verif, 1, 11, 69
-					If snap_disa_verif <> "N" then verified_disa = True
-				End If
-				Emreadscreen snap_disa, 2, 12, 59
-				If snap_disa <> "__" then
-		    		EMReadScreen snap_disa_verif, 1, 12, 69
-					If snap_disa_verif <> "N" or snap_disa_verif <> "7" then verified_disa = True
-				End If
-				Emreadscreen hc_disa, 2, 13, 59
-				If hc_disa <> "__" then
-		    		EMReadScreen hc_disa_verif, 1, 13, 69
-					If hc_disa_verif <> "N" then verified_disa = True
-				End If
+                'msgbox "1. " & disa_status
+                row = 11
+                Do
+                    EmReadscreen prog_disa_code, 2, row, 59
+                    'msgbox "prog_disa_code: " & prog_disa_code
+                    If prog_disa_code <> "__" then
+                        EmReadscreen prog_disa_verif, 1, row, 69
+                        'msgbox "prog_disa_verif: " & prog_disa_verif
+                        If prog_disa_verif <> "N" then
+                            If row = 11 or row = 13 then
+                                verified_disa = True
+                                exit do
+                            Else
+                                If prog_disa_verif = "7" then
+                                    verified_disa = False
+                                Else
+                                    verified_disa = True
+                                    exit do
+                                End if
+                            End if
+                        End if
+                    End if
+                    row = row + 1
+                Loop until row = 14
+
 				If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
+                'msgbox "verified_disa: " & verified_disa
 			End if
+
+            'If disa_status = True then
+            '    Emreadscreen cash_disa, 2, 11, 59
+            '    If cash_disa <> "__" then
+            '        EMReadScreen cash_disa_verif, 1, 11, 69
+            '        If cash_disa_verif <> "N" then verified_disa = True
+            '    End If
+            '    Emreadscreen snap_disa, 2, 12, 59
+            '    If snap_disa <> "__" then
+            '        EMReadScreen snap_disa_verif, 1, 12, 69
+            '        If snap_disa_verif <> "N" or snap_disa_verif <> "7" then verified_disa = True
+            '    End If
+            '    Emreadscreen hc_disa, 2, 13, 59
+            '    If hc_disa <> "__" then
+            '        EMReadScreen hc_disa_verif, 1, 13, 69
+            '        If hc_disa_verif <> "N" then verified_disa = True
+            '    End If
+            '    If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
+            'End if
+
 
             '>>>>>>>>>>>>>>EARNED INCOME
 		    'Person-based determination for Earned Income
@@ -326,7 +355,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             			prospective_hours = prospective_hours + prosp_hrs
             		ELSE
             			jobs_end_dt = replace(jobs_end_dt, " ", "/")
-            			IF DateDiff("D", date, jobs_end_dt) > 0 THEN
+            			IF DateDiff("D", ABAWD_eval_date, jobs_end_dt) > 0 THEN
             				'Going into the PIC for a job with an end date in the future
             				CALL write_value_and_transmit("X", 19, 38)        'Entering the PIC
             				EMReadScreen prosp_monthly, 8, 18, 56
@@ -369,7 +398,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    			Call write_value_and_transmit("X", 6, 26) 'entering gross income calculation pop-up
 		    			EMReadScreen busi_verif_code, 1, 11, 73
 		    			PF3 'to exit pop up
-            			IF DateDiff("D", date, busi_end_dt) > 0 THEN
+            			IF DateDiff("D", ABAWD_eval_date, busi_end_dt) > 0 THEN
             				EMReadScreen busi_inc, 8, 10, 69
             				busi_inc = trim(busi_inc)
             				EMReadScreen busi_hrs, 3, 13, 74
@@ -429,7 +458,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		EMReadScreen unea_end_dt, 8, 7, 68
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
-            			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+            			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
             				IF unea_type = "11" then
 		    					EmReadScreen VA_verif_code, 1, 5, 65
 		    					If VA_verif_code <> "N" then
@@ -456,7 +485,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		EMReadScreen unea_end_dt, 8, 7, 68
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
-            			IF DateDiff("D", date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
+            			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
             				IF unea_type = "14" then
 		    					EmReadScreen UC_verif_code, 1, 5, 65
 		    					If UC_verif_code <> "N" then
@@ -510,7 +539,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
                 If preg_due_dt <> "__/__/__" Then
 		    		EMReadscreen preg_verif, 1, 6, 75
-                    If DateDiff("d", date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN
+                    If DateDiff("d", ABAWD_eval_date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN
 						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
 						Else
@@ -579,7 +608,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             '						cov_thru = replace(cov_thru, " ", "/01/")
             '						cov_thru = DateAdd("M", 1, cov_thru)
             '						cov_thru = DateAdd("D", -1, cov_thru)
-            '						IF DateDiff("D", date, cov_thru) > 0 THEN
+            '						IF DateDiff("D", ABAWD_eval_date, cov_thru) > 0 THEN
             '							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student income."
             '							EXIT DO
             '						ELSE
@@ -607,7 +636,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             '							stec_thru = replace(stec_thru, " ", "/01/")
             '							stec_thru = DateAdd("M", 1, stec_thru)
             '							stec_thru = DateAdd("D", -1, stec_thru)
-            '							IF DateDiff("D", date, stec_thru) > 0 THEN
+            '							IF DateDiff("D", ABAWD_eval_date, stec_thru) > 0 THEN
             '								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
 			'								EXIT DO
             '							ELSE
@@ -725,6 +754,7 @@ EMConnect ""
 worker_county_code = "X127"
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
+ABAWD_eval_date = #07-01-2023#
 
 file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\06-2023.xlsx"
 
