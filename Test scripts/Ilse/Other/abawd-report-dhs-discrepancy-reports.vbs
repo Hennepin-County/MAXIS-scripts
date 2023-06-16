@@ -504,7 +504,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    EMReadScreen num_of_PREG, 1, 2, 78
             IF num_of_PREG <> "0" THEN
 				ObjExcel.Cells(excel_row, notes_col).Value = "Found PX case!"
-            	EMReadScreen num_of_PREG, 1, 2, 78
                 EMReadScreen preg_due_dt, 8, 10, 53
                 preg_due_dt = replace(preg_due_dt, " ", "/")
             	EMReadScreen preg_end_dt, 8, 12, 53
@@ -515,11 +514,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
 						Else
-							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active pregnancy. Please review for ABAWD exemption."
+							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
 						End if
- 		    		End if
-                    If DateDiff("d", date, preg_due_dt) < 0 Then
-						If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have an overdue pregnancy, eats_pers may meet a minor child exemption. Contact client."
 					End If
 				End if
             End If
@@ -539,82 +535,100 @@ Function BULK_ABAWD_FSET_exemption_finder()
             EMReadScreen num_of_SCHL, 1, 2, 78
             IF num_of_SCHL = "1" THEN
             	EMReadScreen school_status, 1, 6, 40
-            	IF school_status = "F" or school_status = "H" then verified_wreg = verified_wreg & "12" & "|"
+                EMReadScreen school_verif, 2, 6, 63
+                EMReadScreen SNAP_code, 2, 16, 63
+            	IF school_status = "F" or school_status = "H" then
+                    If school_verif = "SC" or school_verif = "OT" then
+                        If  SNAP_code = "01" or _
+                            SNAP_code = "02" or _
+                            SNAP_code = "04" or _
+                            SNAP_code = "05" or _
+                            SNAP_code = "06" or _
+                            SNAP_code = "07" or _
+                            SNAP_code = "09" or _
+                            SNAP_code = "10" then
+                            verified_wreg = verified_wreg & "12" & "|"
+                        Else
+                            If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be in school w/ unverified school status."
+                        End if
+                    End if
+                End if
 		    End if
 
-		    'Case-based determination
-            FOR EACH eats_pers IN eats_group_members
-            	IF eats_pers <> "" THEN
-                    CALL navigate_to_MAXIS_screen("STAT", "SCHL")
-            		CALL write_value_and_transmit(eats_pers, 20, 76)
-            		EMReadScreen num_of_SCHL, 1, 2, 78
-            		IF num_of_SCHL = "1" THEN
-            			EMReadScreen school_status, 1, 6, 40
-            			IF school_status <> "N" THEN
-							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be enrolled in school."
-						End if
-            		ELSE
-            			EMWriteScreen "STIN", 20, 71
-            			CALL write_value_and_transmit(eats_pers, 20, 76)
-            			EMReadScreen num_of_STIN, 1, 2, 78
-            			IF num_of_STIN = "1" THEN
-            				STIN_row = 8
-            				DO
-            					EMReadScreen cov_thru, 5, STIN_row, 67
-            					IF cov_thru <> "__ __" THEN
-            						cov_thru = replace(cov_thru, " ", "/01/")
-            						cov_thru = DateAdd("M", 1, cov_thru)
-            						cov_thru = DateAdd("D", -1, cov_thru)
-            						IF DateDiff("D", date, cov_thru) > 0 THEN
-            							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student income."
-            							EXIT DO
-            						ELSE
-            							STIN_row = STIN_row + 1
-            							IF STIN_row = 18 THEN
-            								PF20
-            								STIN_row = 8
-            								EMReadScreen last_page, 21, 24, 2
-            								IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-            							END IF
-            						END IF
-            					ELSE
-            						EXIT DO
-            					END IF
-            				LOOP
-            			ELSE
-            				EMWriteScreen "STEC", 20, 71
-            				CALL write_value_and_transmit(eats_pers, 20, 76)
-            				EMReadScreen num_of_STEC, 1, 2, 78
-            				IF num_of_STEC = "1" THEN
-            					STEC_row = 8
-            					DO
-            						EMReadScreen stec_thru, 5, STEC_row, 48
-            						IF stec_thru <> "__ __" THEN
-            							stec_thru = replace(stec_thru, " ", "/01/")
-            							stec_thru = DateAdd("M", 1, stec_thru)
-            							stec_thru = DateAdd("D", -1, stec_thru)
-            							IF DateDiff("D", date, stec_thru) > 0 THEN
-            								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
-											EXIT DO
-            							ELSE
-            								STEC_row = STEC_row + 1
-            								IF STEC_row = 17 THEN
-            									PF20
-            									STEC_row = 8
-            									EMReadScreen last_page, 21, 24, 2
-            									IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-            								END IF
-            							END IF
-            						ELSE
-            							EXIT DO
-            						END IF
-            					LOOP
-            				END IF
-            			END IF
-            		END IF
-            	END IF
-            	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-            NEXT
+
+		    ''Case-based determination
+            'FOR EACH eats_pers IN eats_group_members
+            '	IF eats_pers <> "" THEN
+            '        CALL navigate_to_MAXIS_screen("STAT", "SCHL")
+            '		CALL write_value_and_transmit(eats_pers, 20, 76)
+            '		EMReadScreen num_of_SCHL, 1, 2, 78
+            '		IF num_of_SCHL = "1" THEN
+            '			EMReadScreen school_status, 1, 6, 40
+            '			IF school_status <> "N" THEN
+			'				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be enrolled in school."
+			'			End if
+            '		ELSE
+            '			EMWriteScreen "STIN", 20, 71
+            '			CALL write_value_and_transmit(eats_pers, 20, 76)
+            '			EMReadScreen num_of_STIN, 1, 2, 78
+            '			IF num_of_STIN = "1" THEN
+            '				STIN_row = 8
+            '				DO
+            '					EMReadScreen cov_thru, 5, STIN_row, 67
+            '					IF cov_thru <> "__ __" THEN
+            '						cov_thru = replace(cov_thru, " ", "/01/")
+            '						cov_thru = DateAdd("M", 1, cov_thru)
+            '						cov_thru = DateAdd("D", -1, cov_thru)
+            '						IF DateDiff("D", date, cov_thru) > 0 THEN
+            '							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student income."
+            '							EXIT DO
+            '						ELSE
+            '							STIN_row = STIN_row + 1
+            '							IF STIN_row = 18 THEN
+            '								PF20
+            '								STIN_row = 8
+            '								EMReadScreen last_page, 21, 24, 2
+            '								IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
+            '							END IF
+            '						END IF
+            '					ELSE
+            '						EXIT DO
+            '					END IF
+            '				LOOP
+            '			ELSE
+            '				EMWriteScreen "STEC", 20, 71
+            '				CALL write_value_and_transmit(eats_pers, 20, 76)
+            '				EMReadScreen num_of_STEC, 1, 2, 78
+            '				IF num_of_STEC = "1" THEN
+            '					STEC_row = 8
+            '					DO
+            '						EMReadScreen stec_thru, 5, STEC_row, 48
+            '						IF stec_thru <> "__ __" THEN
+            '							stec_thru = replace(stec_thru, " ", "/01/")
+            '							stec_thru = DateAdd("M", 1, stec_thru)
+            '							stec_thru = DateAdd("D", -1, stec_thru)
+            '							IF DateDiff("D", date, stec_thru) > 0 THEN
+            '								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
+			'								EXIT DO
+            '							ELSE
+            '								STEC_row = STEC_row + 1
+            '								IF STEC_row = 17 THEN
+            '									PF20
+            '									STEC_row = 8
+            '									EMReadScreen last_page, 21, 24, 2
+            '									IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
+            '								END IF
+            '							END IF
+            '						ELSE
+            '							EXIT DO
+            '						END IF
+            '					LOOP
+            '				END IF
+            '			END IF
+            '		END IF
+            '	END IF
+            '	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+            'NEXT
             IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
 		End if
 	End if
@@ -685,6 +699,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
         EmReadScreen wreg_check, 2, 8, 50
         EmReadScreen abawd_check, 2, 13, 50
+
         If wreg_check = best_wreg_code then
             If abawd_check = best_abawd_code then
                 ObjExcel.Cells(excel_row, auto_wreg_col).Value = True
