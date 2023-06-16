@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/16/2023", "ACTIONS - ABAWD FSET EXEMPTION CHECK is back with Time-Limited Recipient rules going back into effect for 07/23.", "Ilse Ferris, Hennepin County")
 Call changelog_update("01/12/2023", "Retired the following ABAWD scripts: ABAWD FSET EXEMPTION CHECK, COUNTED ABAWD MONTHS and ABAWD SCREENING TOOL. ABAWD/TLR supports will be evaluated as new rules are released and the federal ABAWD exemption is lifted.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/02/2021", "NEW SCRIPT ADDED##~## ##~##MA FIATER for GRH MSA - script to FIAT the Method X budget to be a Method B budget for MSA and GRH cases because these programs no longer grant automatic MA eligibility.##~## ##~##See the OneSource page 'Health Care Eligibility Determination for a GRH or MSA MAXIS case' for details on this process.##~##**This script is in testing at this time, please report any issues or concerns to the BlueZone Script Team.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2020", "Script has been retired.##~## ##~##ACTIONS - New Job Reported is retired and no longer available.##~## ##~##Job Change Reported now has the functionality from New Job Reported.##~##", "09/25/2020")
