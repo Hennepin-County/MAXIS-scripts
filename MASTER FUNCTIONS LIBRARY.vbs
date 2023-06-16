@@ -100,7 +100,7 @@ time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM",
 HOLIDAYS_ARRAY = Array(#11/11/22#, #11/24/22#, #11/25/22#, #12/26/22#, #01/2/23#, #1/16/23#, #2/20/23#, #5/29/23#, #6/19/23#, #7/4/23#, #9/4/23#, #11/10/23#, #11/23/23#, #11/24/23#, #12/25/23#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
-Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr, CM_plus_3_mo, CM_plus_3_yr, CM_minus_1_mo, CM_minus_1_yr, CM_minus_2_mo, CM_minus_2_yr, CM_minus_3_mo, CM_minus_3_yr 
+Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr, CM_plus_3_mo, CM_plus_3_yr, CM_minus_1_mo, CM_minus_1_yr, CM_minus_2_mo, CM_minus_2_yr, CM_minus_3_mo, CM_minus_3_yr
 'var equals...  the right part of...    the specific part...    of either today or next month... just the right 2 chars!
 CM_mo =         right("0" &             DatePart("m",           date                             ), 2)
 CM_yr =         right(                  DatePart("yyyy",        date                             ), 2)
@@ -1161,11 +1161,11 @@ Function ABAWD_FSET_exemption_finder()
         END IF
     NEXT
 
-    '>>>>>>>>>>PROG
-    CALL navigate_to_MAXIS_screen("STAT", "PROG")
-    EMReadScreen cash1_status, 4, 6, 74
-    EMReadScreen cash2_status, 4, 7, 74
-    IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN closing_message = closing_message & vbCr & "* Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
+    '>>>>>>>>>>Program based
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+	If mfip_case = True then closing_message = closing_message & vbCr & "* This is a MFIP case. Review for ABAWD and SNAP E&T exemption."
+	If RCA_case = True then closing_message = closing_message & vbCr & "* This is a RCA case. Review for ABAWD and SNAP E&T exemption."
+	If DWP_case = True then closing_message = closing_message & vbCr & "* This is a DWP case. Review for ABAWD and SNAP E&T exemption."
 
     '>>>>>>>>>>ADDR
     CALL navigate_to_MAXIS_screen("STAT", "ADDR")
