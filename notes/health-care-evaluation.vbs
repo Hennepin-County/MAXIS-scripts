@@ -3094,6 +3094,207 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Set objELIGRecordSet=nothing
 	Set objELIGConnection=nothing
 
+	'Add Phase 2 - Ex Parte Denied dialog and update HC renewal screen
+	'TO DO - Verify best way to handle logic for phase 2
+	If ex_parte_phase = "Phase 2" Then
+		Dialog1 = ""
+
+		'TO DO - add functionality to determine ex parte phase based on case number
+		BeginDialog Dialog1, 0, 0, 216, 265, "Phase 2 - Ex Parte Denied"
+		GroupBox 10, 5, 200, 60, "Case Info"
+			Text 15, 20, 20, 10, "Case:"
+			Text 55, 20, 150, 10, case_number
+			Text 15, 35, 35, 10, "Person 1:"
+			Text 55, 35, 150, 10, name_01
+			If name_02 <> "" Then
+				Text 15, 50, 35, 10, "Person 2:"
+				Text 55, 50, 150, 10, name_02
+			End If
+		GroupBox 10, 70, 200, 65, "Ex Parte Denial Explanation"
+			Text 15, 85, 185, 20, "You are documenting an ex parte denial. Provide an explanation for the denial below."
+			EditBox 15, 110, 185, 15, ex_parte_denial_explanation
+		GroupBox 10, 140, 200, 75, "Update HC Renewal Date"
+			Text 15, 155, 190, 10, "Update the HC renewal date based on the ex parte denial."
+			Text 15, 175, 100, 10, "Updated HC Renewal Month:"
+			EditBox 110, 170, 20, 15, updated_hc_renewal_month
+			Text 15, 195, 100, 10, "Updated HC Renewal Year:"
+			EditBox 110, 190, 20, 15, updated_hc_renewal_year
+		Text 15, 225, 60, 10, "Worker Signature:"
+		EditBox 80, 220, 125, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 100, 245, 50, 15
+			CancelButton 155, 245, 50, 15
+
+		EndDialog
+
+		
+		DO
+			Do
+				err_msg = ""    'This is the error message handling
+				Dialog Dialog1
+				cancel_confirmation
+				'Function belows creates navigation to STAT panels for navigation buttons
+				MAXIS_dialog_navigation
+
+				'Add validation to ensure ex parte denial explanation is not blank
+				If trim(ex_parte_denial_explanation) = "" Then err_msg = err_msg & vbCr & "* You must provide an explanation for the Ex Parte denial for this case."
+
+				'Add validation to ensure that ex parte denial explanation is not greater than 255 characters
+				If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 characters."
+
+				'Add validation that HC renewal month is not blank and is a number
+				If IsNumeric(updated_hc_renewal_month) = FALSE OR len(updated_hc_renewal_month) <> 2 THEN err_msg = err_msg & vbCr & "* The update HC renewal month cannot be blank and must be a two-digit number."
+
+				'Add validation that HC renewal year is not blank and is a number
+				If IsNumeric(updated_hc_renewal_year) = FALSE OR len(updated_hc_renewal_year) <> 2 THEN err_msg = err_msg & vbCr & "* The update HC renewal month cannot be blank and must be a two-digit number."
+							
+				'Add validation to ensure worker signature is not blank
+				IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
+
+				'Error message handling
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = ""
+			'Add to all dialogs where you need to work within BLUEZONE
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+
+		'TO DO - add validation for HC renewal screen based on ex parte denial
+		'Checks to see if in MAXIS
+		Call check_for_MAXIS(False)
+
+		'Ensure starting at SELF so that writing to CASE NOTE works properly
+		CALL back_to_SELF()
+
+		'Navigate to STAT, REVW, and open HC Renewal Window with instructions
+		CALL navigate_to_MAXIS_screen("STAT", "REVW")
+		CALL write_value_and_transmit("X", 5, 71)
+
+		'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
+		'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
+		EMReadScreen income_renewal_date, 8, 7, 27
+		' EMReadScreen elig_renewal_date, 8, 8, 27
+		elig_renewal_date = review_month_from_SQL
+		EMReadScreen HC_ex_parte_determination, 1, 9, 27
+		EMReadScreen income_asset_renewal_date, 8, 7, 71
+		EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
+		EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+
+		'Open dialog to verify changes to HC renewal screen
+			Dialog1 = "" 'blanking out dialog name
+
+			BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Phase 2 Ex Parte Denied"
+			ButtonGroup ButtonPressed
+				PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+			'TO DO - update instructions and verifications based on direction from DHS
+			' Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+			' Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
+			' Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+			' Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
+			' Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
+			' Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+			' Text 10, 95, 145, 10, "- ExParte: Enter Y"
+			' Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+			EndDialog
+
+			'TO DO - update validation based on DHS direction for ex parte denial in phase 2
+			DO
+				Do
+					err_msg = ""    'This is the error message handling
+					Dialog Dialog1
+					cancel_confirmation
+
+					' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+
+					'TO DO - update with functions?
+					'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+
+					'TODO - read DISA and display waiver
+
+					EMReadScreen stat_check, 4, 20, 21
+					EMReadScreen revw_panel_check, 4, 2, 46
+					EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+					If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+						If hc_revw_pop_up_check = "REVW" Then
+							EMReadScreen pop_up_open, 1, 4, 22
+							If pop_up_open <> "*" Then PF3
+							' Call write_value_and_transmit({"X", 5, 71)
+						ElseIf stat_check = "STAT" Then
+							Call write_value_and_transmit("REVW", 20, 71)
+							' Call write_value_and_transmit({"X", 5, 71)
+						Else
+							Call MAXIS_background_check
+							CALL navigate_to_MAXIS_screen("STAT", "REVW")
+						End If
+						CALL write_value_and_transmit("X", 5, 71)
+					End If
+
+					' CALL back_to_SELF()
+					' CALL navigate_to_MAXIS_screen("STAT", "REVW")
+					' CALL write_value_and_transmit("X", 5, 71)
+					' EMReadScreen check_income_renewal_date, 8, 7, 27
+					EMReadScreen check_elig_renewal_date, 8, 8, 27
+					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
+					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
+					check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+					check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+					elig_renewal_date = replace(elig_renewal_date, " ", "/")
+					' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+					check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+					check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+					elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+					' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+					' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
+					'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
+					If check_elig_renewal_date <> DateAdd("yyyy", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
+
+					'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
+					'TO DO - determine how to determine if meets spenddown?
+					' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
+					If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+					'TODO - put back the funcitonality for spenddowns
+
+					'Validate that Exempt from 6 Mo IR is set to N
+					If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+
+					'Validate that ExParte field updated to Y
+					If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
+
+					'Validate that ExParte Renewal Month is correct
+					'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
+					If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+
+					'Error message handling
+					IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+				Loop until err_msg = ""
+					'Add to all dialogs where you need to work within BLUEZONE
+					CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+			LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		End If
+
+
+
+		'For ex parte denial, write information to case note
+		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - EX PARTE DENIED ***")
+		CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
+		CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
+
+		'Add worker signature
+		CALL write_variable_in_case_note("---")
+		CALL write_variable_in_case_note(worker_signature)
+
+		'Script end procedure
+		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
+
+	End If
+
 
     'Adding functionality to determine the reference number for each person on the case
     'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
