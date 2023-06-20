@@ -3038,436 +3038,336 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	review_month_01 = er_month & "/" & er_year
 	review_month_02 = er_month & "/" & er_year
 
-	objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
+	If ex_parte_phase = "Phase 1" Then
 
-	'Creating objects for Access
-	Set objELIGConnection = CreateObject("ADODB.Connection")
-	Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+		objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objELIGRecordSet.Open objELIGSQL, objELIGConnection
+		'Creating objects for Access
+		Set objELIGConnection = CreateObject("ADODB.Connection")
+		Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
-	Do While NOT objELIGRecordSet.Eof
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
-		If name_01 = "" Then
-			name_01 = trim(objELIGRecordSet("Name"))
-			PMI_01 = trim(objELIGRecordSet("PMINumber"))
+		Do While NOT objELIGRecordSet.Eof
 
-			If objELIGRecordSet("MajorProgram") = "MA" Then
-				MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-			Else
-				MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-				MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-			End If
-		ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-			If objELIGRecordSet("MajorProgram") = "MA" Then
-				MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-			Else
-				MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-				MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-			End If
-		ElseIf name_02 = "" Then
-			name_02 = trim(objELIGRecordSet("Name"))
-			PMI_02 = trim(objELIGRecordSet("PMINumber"))
+			If name_01 = "" Then
+				name_01 = trim(objELIGRecordSet("Name"))
+				PMI_01 = trim(objELIGRecordSet("PMINumber"))
 
-			If objELIGRecordSet("MajorProgram") = "MA" Then
-				MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-			Else
-				MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-				MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-			End If
-		ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-			If objELIGRecordSet("MajorProgram") = "MA" Then
-				MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-			Else
-				MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-				MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-			End If
-		End If
-		objELIGRecordSet.MoveNext
-	Loop
-
-	objELIGRecordSet.Close
-	objELIGConnection.Close
-	Set objELIGRecordSet=nothing
-	Set objELIGConnection=nothing
-
-	'Add Phase 2 - Ex Parte Denied dialog and update HC renewal screen
-	'TO DO - Verify best way to handle logic for phase 2
-
-    'Adding functionality to determine the reference number for each person on the case
-    'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
-	If PMI_01 = "" and PMI_02 = "" Then
-		Call navigate_to_MAXIS_screen("ELIG", "HC  ")
-		hc_row = 8
-		Do
-			pers_type = ""
-			std = ""
-			meth = ""
-			' elig_result = ""
-			' results_created = ""
-			waiv = ""
-			EMReadScreen read_ref_numb, 2, hc_row, 3
-			EMReadScreen clt_hc_prog, 4, hc_row, 28
-			clt_hc_prog = trim(clt_hc_prog)
-			If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
-
-
-				Call write_value_and_transmit("X", hc_row, 26)
-				If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-					elig_msp_prog = clt_hc_prog
-					EMReadScreen pers_type, 2, 6, 56
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
 				Else
-					col = 19
-					Do									'Finding the current month in elig to get the current elig type
-						EMReadScreen span_month, 2, 6, col
-						EMReadScreen span_year, 2, 6, col+3
+					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+				End If
+			ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+				End If
+			ElseIf name_02 = "" Then
+				name_02 = trim(objELIGRecordSet("Name"))
+				PMI_02 = trim(objELIGRecordSet("PMINumber"))
 
-						If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
-							EMReadScreen pers_type, 2, 12, col - 2
-							EMReadScreen std, 1, 12, col + 3
-							EMReadScreen meth, 1, 13, col + 2
-							EMReadScreen waiv, 1, 17, col + 2
-							Exit Do
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+				End If
+			ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+				End If
+			End If
+			objELIGRecordSet.MoveNext
+		Loop
+
+		objELIGRecordSet.Close
+		objELIGConnection.Close
+		Set objELIGRecordSet=nothing
+		Set objELIGConnection=nothing
+
+		'Add Phase 2 - Ex Parte Denied dialog and update HC renewal screen
+		'TO DO - Verify best way to handle logic for phase 2
+
+		'Adding functionality to determine the reference number for each person on the case
+		'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
+		If PMI_01 = "" and PMI_02 = "" Then
+			Call navigate_to_MAXIS_screen("ELIG", "HC  ")
+			hc_row = 8
+			Do
+				pers_type = ""
+				std = ""
+				meth = ""
+				' elig_result = ""
+				' results_created = ""
+				waiv = ""
+				EMReadScreen read_ref_numb, 2, hc_row, 3
+				EMReadScreen clt_hc_prog, 4, hc_row, 28
+				clt_hc_prog = trim(clt_hc_prog)
+				If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+
+
+					Call write_value_and_transmit("X", hc_row, 26)
+					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+						elig_msp_prog = clt_hc_prog
+						EMReadScreen pers_type, 2, 6, 56
+					Else
+						col = 19
+						Do									'Finding the current month in elig to get the current elig type
+							EMReadScreen span_month, 2, 6, col
+							EMReadScreen span_year, 2, 6, col+3
+
+							If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
+								EMReadScreen pers_type, 2, 12, col - 2
+								EMReadScreen std, 1, 12, col + 3
+								EMReadScreen meth, 1, 13, col + 2
+								EMReadScreen waiv, 1, 17, col + 2
+								Exit Do
+							End If
+							col = col + 11
+						Loop until col = 85
+
+					End If
+					PF3
+
+					If person_01_ref_number = "" Then
+						person_01_ref_number = read_ref_numb
+					ElseIf person_02_ref_number = "" Then
+						person_02_ref_number = read_ref_numb
+					End If
+
+
+					If person_01_ref_number = read_ref_numb Then
+						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+							MAXIS_msp_prog_01 = clt_hc_prog
+							MAXIS_msp_basis_01 = pers_type
+						Else
+							MAXIS_MA_basis_01 = pers_type
 						End If
-						col = col + 11
-					Loop until col = 85
-
-				End If
-				PF3
-
-				If person_01_ref_number = "" Then
-					person_01_ref_number = read_ref_numb
-				ElseIf person_02_ref_number = "" Then
-					person_02_ref_number = read_ref_numb
-				End If
-
-
-				If person_01_ref_number = read_ref_numb Then
-					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-						MAXIS_msp_prog_01 = clt_hc_prog
-						MAXIS_msp_basis_01 = pers_type
-					Else
-						MAXIS_MA_basis_01 = pers_type
-					End If
-				ElseIf person_02_ref_number = read_ref_numb Then
-					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-						MAXIS_msp_prog_02 = clt_hc_prog
-						MAXIS_msp_basis_02 = pers_type
-					Else
-						MAXIS_MA_basis_02 = pers_type
+					ElseIf person_02_ref_number = read_ref_numb Then
+						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+							MAXIS_msp_prog_02 = clt_hc_prog
+							MAXIS_msp_basis_02 = pers_type
+						Else
+							MAXIS_MA_basis_02 = pers_type
+						End If
 					End If
 				End If
-			End If
-			hc_row = hc_row + 1
-			EMReadScreen next_ref_numb, 2, hc_row, 3
-			EMReadScreen next_maj_prog, 4, hc_row, 28
-		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+				hc_row = hc_row + 1
+				EMReadScreen next_ref_numb, 2, hc_row, 3
+				EMReadScreen next_maj_prog, 4, hc_row, 28
+			Loop until next_ref_numb = "  " and next_maj_prog = "    "
 
-		CALL back_to_SELF()
-		CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-		Do
-			EMReadScreen read_ref_number, 2, 4, 33
-			EMReadscreen last_name, 25, 6, 30
-			EMReadscreen first_name, 12, 6, 63
-			last_name = trim(replace(last_name, "_", "")) & " "
-			first_name = trim(replace(first_name, "_", "")) & " "
-			If read_ref_number = person_01_ref_number Then
-				EMReadScreen PMI_01, 8, 4, 46
-				PMI_01 = trim(PMI_01)
-				PMI_01 = right("00000000" & PMI_01, 8)
-				name_01 = first_name & " " & last_name
-			End If
-			If read_ref_number = person_02_ref_number Then
-				EMReadScreen PMI_02, 8, 4, 46
-				PMI_02 = trim(PMI_02)
-				PMI_02 = right("00000000" & PMI_02, 8)
-				name_02 = first_name & " " & last_name
-			End If
-			transmit
-			EMReadScreen MEMB_end_check, 13, 24, 2
-		LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
-	Else
-		'Find reference numbers if two people on the case
-		If PMI_02 <> "" Then
 			CALL back_to_SELF()
 			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-			person_01_ref_number = ""
-			person_02_ref_number = ""
-
-
 			Do
-				EMReadScreen check_PMI, 8, 4, 46
-				EMReadScreen check_ref_number, 2, 4, 33
-				check_PMI = trim(check_PMI)
-				check_PMI_full = right("00000000" & check_PMI, 8)
-				If check_PMI_full = PMI_01 Then person_01_ref_number = check_ref_number
-				If check_PMI_full = PMI_02 Then person_02_ref_number = check_ref_number
+				EMReadScreen read_ref_number, 2, 4, 33
+				EMReadscreen last_name, 25, 6, 30
+				EMReadscreen first_name, 12, 6, 63
+				last_name = trim(replace(last_name, "_", "")) & " "
+				first_name = trim(replace(first_name, "_", "")) & " "
+				If read_ref_number = person_01_ref_number Then
+					EMReadScreen PMI_01, 8, 4, 46
+					PMI_01 = trim(PMI_01)
+					PMI_01 = right("00000000" & PMI_01, 8)
+					name_01 = first_name & " " & last_name
+				End If
+				If read_ref_number = person_02_ref_number Then
+					EMReadScreen PMI_02, 8, 4, 46
+					PMI_02 = trim(PMI_02)
+					PMI_02 = right("00000000" & PMI_02, 8)
+					name_02 = first_name & " " & last_name
+				End If
+				transmit
 				EMReadScreen MEMB_end_check, 13, 24, 2
-				transmit
-
-				If check_ref_number = "01" Then
-					If person_02_ref_number = check_ref_number Then
-						hold_01_PMI = PMI_01
-						hold_01_name = name_01
-						hold_01_MA_basis = MAXIS_MA_basis_01
-						hold_msp_prog = MAXIS_msp_prog_01
-						hold_msp_basis = MAXIS_msp_basis_01
-
-						PMI_01 = PMI_02
-						name_01 = name_02
-						MAXIS_MA_basis_01 = MAXIS_MA_basis_02
-						MAXIS_msp_prog_01 = MAXIS_msp_prog_02
-						MAXIS_msp_basis_01 = MAXIS_msp_basis_02
-						person_01_ref_number = check_ref_number
-
-						PMI_02 = hold_01_PMI
-						name_02 = hold_01_name
-						MAXIS_MA_basis_02 = hold_01_MA_basis
-						MAXIS_msp_prog_02 = hold_msp_prog
-						MAXIS_msp_basis_02 = hold_msp_basis
-						person_02_ref_number = ""
-					End If
-				End If
 			LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+		Else
+			'Find reference numbers if two people on the case
+			If PMI_02 <> "" Then
+				CALL back_to_SELF()
+				CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+				person_01_ref_number = ""
+				person_02_ref_number = ""
+
+
+				Do
+					EMReadScreen check_PMI, 8, 4, 46
+					EMReadScreen check_ref_number, 2, 4, 33
+					check_PMI = trim(check_PMI)
+					check_PMI_full = right("00000000" & check_PMI, 8)
+					If check_PMI_full = PMI_01 Then person_01_ref_number = check_ref_number
+					If check_PMI_full = PMI_02 Then person_02_ref_number = check_ref_number
+					EMReadScreen MEMB_end_check, 13, 24, 2
+					transmit
+
+					If check_ref_number = "01" Then
+						If person_02_ref_number = check_ref_number Then
+							hold_01_PMI = PMI_01
+							hold_01_name = name_01
+							hold_01_MA_basis = MAXIS_MA_basis_01
+							hold_msp_prog = MAXIS_msp_prog_01
+							hold_msp_basis = MAXIS_msp_basis_01
+
+							PMI_01 = PMI_02
+							name_01 = name_02
+							MAXIS_MA_basis_01 = MAXIS_MA_basis_02
+							MAXIS_msp_prog_01 = MAXIS_msp_prog_02
+							MAXIS_msp_basis_01 = MAXIS_msp_basis_02
+							person_01_ref_number = check_ref_number
+
+							PMI_02 = hold_01_PMI
+							name_02 = hold_01_name
+							MAXIS_MA_basis_02 = hold_01_MA_basis
+							MAXIS_msp_prog_02 = hold_msp_prog
+							MAXIS_msp_basis_02 = hold_msp_basis
+							person_02_ref_number = ""
+						End If
+					End If
+				LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+			End If
+
+			'Find reference numbers if only one person on the case
+			If PMI_02 = "" Then
+				CALL back_to_SELF()
+				CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+				person_01_ref_number = ""
+
+				Do
+					EMReadScreen check_PMI, 8, 4, 46
+					check_PMI = trim(check_PMI)
+					check_PMI_full = right("00000000" & check_PMI, 8)
+					If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
+					transmit
+				LOOP Until person_01_ref_number <> ""
+			End If
+		End If
+		If PMI_02 <> "" and person_02_ref_number = "" Then
+			PMI_02 = ""
+			name_02 = ""
 		End If
 
-		'Find reference numbers if only one person on the case
-		If PMI_02 = "" Then
-			CALL back_to_SELF()
-			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-			person_01_ref_number = ""
 
-			Do
-				EMReadScreen check_PMI, 8, 4, 46
-				check_PMI = trim(check_PMI)
-				check_PMI_full = right("00000000" & check_PMI, 8)
-				If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
-				transmit
-			LOOP Until person_01_ref_number <> ""
-		End If
-	End If
-	If PMI_02 <> "" and person_02_ref_number = "" Then
-		PMI_02 = ""
-		name_02 = ""
-	End If
+		JOBS_01 = "No"
+		JOBS_01_detail = ""
+
+		BUSI_01 = "No"
+		BUSI_01_detail = ""
 
 
-	JOBS_01 = "No"
-	JOBS_01_detail = ""
+		JOBS_02 = "No"
+		JOBS_02_detail = ""
 
-	BUSI_01 = "No"
-	BUSI_01_detail = ""
+		BUSI_02 = "No"
+		BUSI_02_detail = ""
 
+		objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
-	JOBS_02 = "No"
-	JOBS_02_detail = ""
+		'Creating objects for Access
+		Set objIncomeConnection = CreateObject("ADODB.Connection")
+		Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
-	BUSI_02 = "No"
-	BUSI_02_detail = ""
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
-	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
+		Do While NOT objIncomeRecordSet.Eof
+			panel_name_from_SQL = objIncomeRecordSet("IncExpTypeCode")
+			income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
+			prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
+			tpqy_net_amt = objIncomeRecordSet("NetAmt")
+			tpqy_gross_amt = objIncomeRecordSet("GrossAmt")
+			income_description_from_SQL = objIncomeRecordSet("Description")
+			If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
+				If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
+				If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_01 = objIncomeRecordSet("TPQY_Response")
+				sent_date_01 = sent_date_01 & ""
+				return_date_01 = return_date_01 & ""
+				' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
+				income_to_use = ""
+				If tpqy_gross_amt <> "" Then income_to_use = tpqy_gross_amt
+				If tpqy_net_amt <> "" Then income_to_use = tpqy_net_amt
+				If income_to_use = "" Then income_to_use = prosp_amt_from_SQL
 
-	'Creating objects for Access
-	Set objIncomeConnection = CreateObject("ADODB.Connection")
-	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-	Do While NOT objIncomeRecordSet.Eof
-		panel_name_from_SQL = objIncomeRecordSet("IncExpTypeCode")
-		income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
-		prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
-		tpqy_net_amt = objIncomeRecordSet("NetAmt")
-		tpqy_gross_amt = objIncomeRecordSet("GrossAmt")
-        income_description_from_SQL = objIncomeRecordSet("Description")
-		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
-			If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
-			If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_01 = objIncomeRecordSet("TPQY_Response")
-			sent_date_01 = sent_date_01 & ""
-			return_date_01 = return_date_01 & ""
-			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-			income_to_use = ""
-			If tpqy_gross_amt <> "" Then income_to_use = tpqy_gross_amt
-			If tpqy_net_amt <> "" Then income_to_use = tpqy_net_amt
-			If income_to_use = "" Then income_to_use = prosp_amt_from_SQL
-
-			If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-			If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-			If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-            If panel_name_from_SQL = "JOBS" Then
-				JOBS_01 = "Yes"
-				JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & income_to_use & ", "
-			End If
-			If panel_name_from_SQL = "BUSI" Then
-				BUSI_01 = "Yes"
-				BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & income_to_use & ", "
-			End If
-			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
-
-		End If
-
-        If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
-			If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
-			If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_02 = objIncomeRecordSet("TPQY_Response")
-			sent_date_02 = sent_date_02 & ""
-			return_date_02 = return_date_02 & ""
-			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-			If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-			If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-            If panel_name_from_SQL = "JOBS" Then
-				JOBS_02 = "Yes"
-				JOBS_02_detail = JOBS_02_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
-			End If
-			If panel_name_from_SQL = "BUSI" Then
-				BUSI_02 = "Yes"
-				BUSI_02_detail = BUSI_02_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
-			End If
-			If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_02 = other_UNEA_types_02 & " " & income_type_code_from_SQL
-		End If
-
-		objIncomeRecordSet.MoveNext
-	Loop
-
-	objIncomeRecordSet.Close
-	objIncomeConnection.Close
-	Set objIncomeRecordSet=nothing
-	Set objIncomeConnection=nothing
-
-	JOBS_01_detail = trim(BUSI_02_detail)
-	BUSI_01_detail = trim(BUSI_02_detail)
-	JOBS_02_detail = trim(BUSI_02_detail)
-	BUSI_02_detail = trim(BUSI_02_detail)
-	If right(JOBS_01_detail, 1) = "," Then JOBS_01_detail = left(JOBS_01_detail, len(JOBS_01_detail)-1)
-	If right(BUSI_01_detail, 1) = "," Then BUSI_01_detail = left(BUSI_01_detail, len(BUSI_01_detail)-1)
-	If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
-	If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
-
-	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-	EMReadScreen current_case_pw, 4, 21, 14
-	If current_case_pw <> "X127" Then ex_parte_determination = "Case Transfered Out of County"
-
-    'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
-
-    'Determine if MEDI exists for Person 1
-    CALL back_to_SELF()
-    CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-    EMWriteScreen person_01_ref_number, 20, 76
-    transmit
-    EMReadScreen check_if_MEDI_exists, 2, 2, 78
-    If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
-    If trim(check_if_MEDI_exists) <> 0 Then
-		MEDI_info_01 = "MEDI Exists"
-
-
-		Do
-			PF20
-			EMReadScreen end_of_list, 9, 24, 14
-			' MsgBox end_of_list & " - 1"
-		Loop Until end_of_list = "LAST PAGE"
-		row = 17
-		Do
-			EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
-			begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
-			If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
-
-			EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
-			end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
-			If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
-			' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
-			If end_dt_a <> "" or begin_dt_a <> "" Then
-				If begin_dt_a <> "" Then MEDI_part_a_01 = "Start: " & begin_dt_a
-				If end_dt_a <> "" Then MEDI_part_a_01 = MEDI_part_a_01 & ", End: " & end_dt_a
-				If left(MEDI_part_a_01, 1) = "," Then MEDI_part_a_01 = right(MEDI_part_a_01, len(MEDI_part_a_01)-2)
-				Exit Do
-			End If
-
-			row = row - 1
-			' MsgBox "PART A row - " & rowDosent_date_01
-			If row = 14 Then
-				PF19
-				EMReadScreen begining_of_list, 10, 24, 14
-				' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
-				If begining_of_list = "FIRST PAGE" Then
-					Exit Do
-				Else
-					row = 17
+				If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
+				If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
+				If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - $ " & income_to_use
+				If panel_name_from_SQL = "JOBS" Then
+					JOBS_01 = "Yes"
+					JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & income_to_use & ", "
 				End If
-			End If
-		Loop
-		Do
-			PF19
-			EMReadScreen begining_of_list, 10, 24, 14
-			' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
-		Loop Until begining_of_list = "FIRST PAGE"
-
-		Do
-			PF20
-			EMReadScreen end_of_list, 9, 24, 14
-			' MsgBox end_of_list & " - 2"
-		Loop Until end_of_list = "LAST PAGE"
-		row = 17
-		Do
-			EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
-			begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
-			If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
-
-			EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
-			end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
-			If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
-
-			' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
-			If end_dt_b <> "" or begin_dt_b <> "" Then
-				If begin_dt_b <> "" Then MEDI_part_b_01 = "Start: " & begin_dt_b
-				If end_dt_b <> "" Then MEDI_part_b_01 = MEDI_part_b_01 & ", End: " & end_dt_b
-				If left(MEDI_part_b_01, 1) = "," Then MEDI_part_b_01 = right(MEDI_part_b_01, len(MEDI_part_b_01)-2)
-				Exit Do
-			End If
-
-			row = row - 1
-			' MsgBox "PART B row - " & row
-			If row = 14 Then
-				PF19
-				EMReadScreen begining_of_list, 10, 24, 14
-				' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
-				If begining_of_list = "FIRST PAGE" Then
-					Exit Do
-				Else
-					row = 17
+				If panel_name_from_SQL = "BUSI" Then
+					BUSI_01 = "Yes"
+					BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & income_to_use & ", "
 				End If
+				If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
+
 			End If
+
+			If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
+				If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
+				If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_02 = objIncomeRecordSet("TPQY_Response")
+				sent_date_02 = sent_date_02 & ""
+				return_date_02 = return_date_02 & ""
+				' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
+				If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
+				If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
+				If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
+				If panel_name_from_SQL = "JOBS" Then
+					JOBS_02 = "Yes"
+					JOBS_02_detail = JOBS_02_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+				End If
+				If panel_name_from_SQL = "BUSI" Then
+					BUSI_02 = "Yes"
+					BUSI_02_detail = BUSI_02_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
+				End If
+				If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_02 = other_UNEA_types_02 & " " & income_type_code_from_SQL
+			End If
+
+			objIncomeRecordSet.MoveNext
 		Loop
 
-	End If
-    'TO DO - Add functionality to read MEDI info from MEDI panel
-        'Check Part A Info
-    '     row = 17
-    '         Do
-    '         row = row - 1
-    '             Do
-    '                 PF20
-    '                 EMReadScreen last_page_check, 16, 24, 2
-    '             Loop Until last_page_check = "THIS IS THE LAST PAGE"
+		objIncomeRecordSet.Close
+		objIncomeConnection.Close
+		Set objIncomeRecordSet=nothing
+		Set objIncomeConnection=nothing
 
-    '         Loop Until row = 15
-    ' End If
+		JOBS_01_detail = trim(BUSI_02_detail)
+		BUSI_01_detail = trim(BUSI_02_detail)
+		JOBS_02_detail = trim(BUSI_02_detail)
+		BUSI_02_detail = trim(BUSI_02_detail)
+		If right(JOBS_01_detail, 1) = "," Then JOBS_01_detail = left(JOBS_01_detail, len(JOBS_01_detail)-1)
+		If right(BUSI_01_detail, 1) = "," Then BUSI_01_detail = left(BUSI_01_detail, len(BUSI_01_detail)-1)
+		If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
+		If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
 
-    'Determine MEDI for Person 2
-    If person_02_ref_number <> "" Then
-        CALL back_to_SELF()
-        CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-        EMWriteScreen person_02_ref_number, 20, 76
-        transmit
-        EMReadScreen check_if_MEDI_exists, 2, 2, 78
-        If trim(check_if_MEDI_exists) = 0 Then MEDI_info_02 = "MEDI Does Not Exist"
-        If trim(check_if_MEDI_exists) <> 0 Then
-			MEDI_info_02 = "MEDI Exists"
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+		EMReadScreen current_case_pw, 4, 21, 14
+		If current_case_pw <> "X127" Then ex_parte_determination = "Case Transfered Out of County"
+
+		'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
+
+		'Determine if MEDI exists for Person 1
+		CALL back_to_SELF()
+		CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+		EMWriteScreen person_01_ref_number, 20, 76
+		transmit
+		EMReadScreen check_if_MEDI_exists, 2, 2, 78
+		If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
+		If trim(check_if_MEDI_exists) <> 0 Then
+			MEDI_info_01 = "MEDI Exists"
+
+
 			Do
 				PF20
 				EMReadScreen end_of_list, 9, 24, 14
@@ -3484,9 +3384,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
 				' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
 				If end_dt_a <> "" or begin_dt_a <> "" Then
-					If begin_dt_a <> "" Then MEDI_part_a_02 = "Start: " & begin_dt_a
-					If end_dt_a <> "" Then MEDI_part_a_02 = MEDI_part_a_02 & ", End: " & end_dt_a
-					If left(MEDI_part_a_02, 1) = "," Then MEDI_part_a_02 = right(MEDI_part_a_02, len(MEDI_part_a_02)-2)
+					If begin_dt_a <> "" Then MEDI_part_a_01 = "Start: " & begin_dt_a
+					If end_dt_a <> "" Then MEDI_part_a_01 = MEDI_part_a_01 & ", End: " & end_dt_a
+					If left(MEDI_part_a_01, 1) = "," Then MEDI_part_a_01 = right(MEDI_part_a_01, len(MEDI_part_a_01)-2)
 					Exit Do
 				End If
 
@@ -3526,9 +3426,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
 				If end_dt_b <> "" or begin_dt_b <> "" Then
-					If begin_dt_b <> "" Then MEDI_part_b_02 = "Start: " & begin_dt_b
-					If end_dt_b <> "" Then MEDI_part_b_02 = MEDI_part_b_02 & ", End: " & end_dt_b
-					If left(MEDI_part_b_02, 1) = "," Then MEDI_part_b_02 = right(MEDI_part_b_02, len(MEDI_part_b_02)-2)
+					If begin_dt_b <> "" Then MEDI_part_b_01 = "Start: " & begin_dt_b
+					If end_dt_b <> "" Then MEDI_part_b_01 = MEDI_part_b_01 & ", End: " & end_dt_b
+					If left(MEDI_part_b_01, 1) = "," Then MEDI_part_b_01 = right(MEDI_part_b_01, len(MEDI_part_b_01)-2)
 					Exit Do
 				End If
 
@@ -3547,123 +3447,114 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			Loop
 
 		End If
+		'TO DO - Add functionality to read MEDI info from MEDI panel
+			'Check Part A Info
+		'     row = 17
+		'         Do
+		'         row = row - 1
+		'             Do
+		'                 PF20
+		'                 EMReadScreen last_page_check, 16, 24, 2
+		'             Loop Until last_page_check = "THIS IS THE LAST PAGE"
 
-    End If
+		'         Loop Until row = 15
+		' End If
+
+		'Determine MEDI for Person 2
+		If person_02_ref_number <> "" Then
+			CALL back_to_SELF()
+			CALL navigate_to_MAXIS_screen("STAT", "MEDI")
+			EMWriteScreen person_02_ref_number, 20, 76
+			transmit
+			EMReadScreen check_if_MEDI_exists, 2, 2, 78
+			If trim(check_if_MEDI_exists) = 0 Then MEDI_info_02 = "MEDI Does Not Exist"
+			If trim(check_if_MEDI_exists) <> 0 Then
+				MEDI_info_02 = "MEDI Exists"
+				Do
+					PF20
+					EMReadScreen end_of_list, 9, 24, 14
+					' MsgBox end_of_list & " - 1"
+				Loop Until end_of_list = "LAST PAGE"
+				row = 17
+				Do
+					EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
+					begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
+					If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
+
+					EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
+					end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
+					If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+					' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
+					If end_dt_a <> "" or begin_dt_a <> "" Then
+						If begin_dt_a <> "" Then MEDI_part_a_02 = "Start: " & begin_dt_a
+						If end_dt_a <> "" Then MEDI_part_a_02 = MEDI_part_a_02 & ", End: " & end_dt_a
+						If left(MEDI_part_a_02, 1) = "," Then MEDI_part_a_02 = right(MEDI_part_a_02, len(MEDI_part_a_02)-2)
+						Exit Do
+					End If
+
+					row = row - 1
+					' MsgBox "PART A row - " & rowDosent_date_01
+					If row = 14 Then
+						PF19
+						EMReadScreen begining_of_list, 10, 24, 14
+						' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
+						If begining_of_list = "FIRST PAGE" Then
+							Exit Do
+						Else
+							row = 17
+						End If
+					End If
+				Loop
+				Do
+					PF19
+					EMReadScreen begining_of_list, 10, 24, 14
+					' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
+				Loop Until begining_of_list = "FIRST PAGE"
+
+				Do
+					PF20
+					EMReadScreen end_of_list, 9, 24, 14
+					' MsgBox end_of_list & " - 2"
+				Loop Until end_of_list = "LAST PAGE"
+				row = 17
+				Do
+					EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
+					begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
+					If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
+
+					EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
+					end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
+					If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+
+					' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
+					If end_dt_b <> "" or begin_dt_b <> "" Then
+						If begin_dt_b <> "" Then MEDI_part_b_02 = "Start: " & begin_dt_b
+						If end_dt_b <> "" Then MEDI_part_b_02 = MEDI_part_b_02 & ", End: " & end_dt_b
+						If left(MEDI_part_b_02, 1) = "," Then MEDI_part_b_02 = right(MEDI_part_b_02, len(MEDI_part_b_02)-2)
+						Exit Do
+					End If
+
+					row = row - 1
+					' MsgBox "PART B row - " & row
+					If row = 14 Then
+						PF19
+						EMReadScreen begining_of_list, 10, 24, 14
+						' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
+						If begining_of_list = "FIRST PAGE" Then
+							Exit Do
+						Else
+							row = 17
+						End If
+					End If
+				Loop
+
+			End If
+
+		End If
 
 
-	call navigate_to_MAXIS_screen("STAT", "FACI")
-    EMWriteScreen person_01_ref_number, 20, 76
-	transmit
-	EMReadScreen existance_check, 1, 2, 73
-	If existance_check <> "0" Then
-		Do
-			EMReadScreen FACI_current_panel, 1, 2, 73
-			EMReadScreen FACI_total_check, 1, 2, 78
-			EMReadScreen in_year_check_01, 4, 14, 53
-			EMReadScreen in_year_check_02, 4, 15, 53
-			EMReadScreen in_year_check_03, 4, 16, 53
-			EMReadScreen in_year_check_04, 4, 17, 53
-			EMReadScreen in_year_check_05, 4, 18, 53
-			EMReadScreen out_year_check_01, 4, 14, 77
-			EMReadScreen out_year_check_02, 4, 15, 77
-			EMReadScreen out_year_check_03, 4, 16, 77
-			EMReadScreen out_year_check_04, 4, 17, 77
-			EMReadScreen out_year_check_05, 4, 18, 77
-			If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
-			(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-				currently_in_FACI_01 = True
-				If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
-				If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
-				If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
-				If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
-				If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
-
-				EMReadScreen stat_faci_01_date_in, 10, faci_row, 47
-				EMReadScreen stat_faci_01_date_out, 10, faci_row, 	71
-
-				If stat_faci_01_date_in = "__ __ ____" Then stat_faci_01_date_in = ""
-				stat_faci_01_date_in = replace(stat_faci_01_date_in, " ", "/")
-				If stat_faci_01_date_out = "__ __ ____" Then stat_faci_01_date_out = ""
-				stat_faci_01_date_out = replace(stat_faci_01_date_out, " ", "/")
-
-				exit do
-			Elseif FACI_current_panel = FACI_total_check then
-				currently_in_FACI_01 = False
-				exit do
-			Else
-				transmit
-			End if
-		Loop until FACI_current_panel = FACI_total_check
-
-		If currently_in_FACI_01 = True then
-			EMReadScreen faci_name_01, 30, 6, 43
-			EMReadScreen faci_type_code, 2, 7, 43
-			' EmReadscreen stat_faci_vendor, 8, 5, 43
-			'List of FACI types
-			IF faci_type_code = "41" then faci_type_info_01 = "NF-I"
-			IF faci_type_code = "42" then faci_type_info_01 = "NF-II"
-			IF faci_type_code = "43" then faci_type_info_01 = "ICF-DD"
-			IF faci_type_code = "44" then faci_type_info_01 = "Short stay in NF-I"
-			IF faci_type_code = "45" then faci_type_info_01 = "Short stay in NF-II"
-			IF faci_type_code = "46" then faci_type_info_01 = "Short stay in ICF-DD"
-			IF faci_type_code = "47" then faci_type_info_01 = "RTC - Not IMD"
-			IF faci_type_code = "48" then faci_type_info_01 = "Medical Hospital"
-			IF faci_type_code = "49" then faci_type_info_01 = "MSOP"
-			IF faci_type_code = "50" then faci_type_info_01 = "IMD/RTC"
-			IF faci_type_code = "51" then faci_type_info_01 = "Rule 31 CD_IMD"
-			IF faci_type_code = "52" then faci_type_info_01 = "Rule 36 MI-IMD"
-			IF faci_type_code = "53" then faci_type_info_01 = "IMD Hospitals"
-			IF faci_type_code = "55" then faci_type_info_01 = "Adult Foster Care/Rule 203"
-			IF faci_type_code = "56" then faci_type_info_01 = "GRH (Not FC or Rule 36)"
-			IF faci_type_code = "57" then faci_type_info_01 = "Rule 36 MI - Non-IMD"
-			IF faci_type_code = "60" then faci_type_info_01 = "Non-GRH"
-			IF faci_type_code = "61" then faci_type_info_01 = "Rule 31 CD - Non-IMD"
-			IF faci_type_code = "67" then faci_type_info_01 = "Family Violence Shelter"
-			IF faci_type_code = "68" then faci_type_info_01 = "County Correctional Facility"
-			IF faci_type_code = "69" then faci_type_info_01 = "Non-Cty Adult Correctional"
-
-			faci_name_01 = trim(replace(faci_name_01, "_", ""))
-			' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
-
-			' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
-			' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
-			' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
-			' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
-			' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
-			' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
-			' EMReadScreen stat_faci_approval_county, 2, 12, 71
-
-			' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
-			' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
-
-			' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
-			' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
-			' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
-			' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
-			' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
-			' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
-			' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
-			' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
-			' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
-			' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
-
-			' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
-			' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
-			' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
-			' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
-			' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
-			' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
-			' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
-
-			' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
-			' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
-			' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
-
-		End if
-	End If
-
-    If person_02_ref_number <> "" Then
-		EMWriteScreen person_02_ref_number, 20, 76
+		call navigate_to_MAXIS_screen("STAT", "FACI")
+		EMWriteScreen person_01_ref_number, 20, 76
 		transmit
 		EMReadScreen existance_check, 1, 2, 73
 		If existance_check <> "0" Then
@@ -3682,58 +3573,58 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				EMReadScreen out_year_check_05, 4, 18, 77
 				If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
 				(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-					currently_in_FACI_02 = True
+					currently_in_FACI_01 = True
 					If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
 					If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
 					If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
 					If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
 					If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
 
-					EMReadScreen stat_faci_02_date_in, 10, faci_row, 47
-					EMReadScreen stat_faci_02_date_out, 10, faci_row, 	71
+					EMReadScreen stat_faci_01_date_in, 10, faci_row, 47
+					EMReadScreen stat_faci_01_date_out, 10, faci_row, 	71
 
-					If stat_faci_02_date_in = "__ __ ____" Then stat_faci_02_date_in = ""
-					stat_faci_02_date_in = replace(stat_faci_02_date_in, " ", "/")
-					If stat_faci_02_date_out = "__ __ ____" Then stat_faci_02_date_out = ""
-					stat_faci_02_date_out = replace(stat_faci_02_date_out, " ", "/")
+					If stat_faci_01_date_in = "__ __ ____" Then stat_faci_01_date_in = ""
+					stat_faci_01_date_in = replace(stat_faci_01_date_in, " ", "/")
+					If stat_faci_01_date_out = "__ __ ____" Then stat_faci_01_date_out = ""
+					stat_faci_01_date_out = replace(stat_faci_01_date_out, " ", "/")
 
 					exit do
 				Elseif FACI_current_panel = FACI_total_check then
-					currently_in_FACI_02 = False
+					currently_in_FACI_01 = False
 					exit do
 				Else
 					transmit
 				End if
 			Loop until FACI_current_panel = FACI_total_check
 
-			If currently_in_FACI_02 = True then
-				EMReadScreen faci_name_02, 30, 6, 43
+			If currently_in_FACI_01 = True then
+				EMReadScreen faci_name_01, 30, 6, 43
 				EMReadScreen faci_type_code, 2, 7, 43
 				' EmReadscreen stat_faci_vendor, 8, 5, 43
 				'List of FACI types
-				IF faci_type_code = "41" then faci_type_info_02 = "NF-I"
-				IF faci_type_code = "42" then faci_type_info_02 = "NF-II"
-				IF faci_type_code = "43" then faci_type_info_02 = "ICF-DD"
-				IF faci_type_code = "44" then faci_type_info_02 = "Short stay in NF-I"
-				IF faci_type_code = "45" then faci_type_info_02 = "Short stay in NF-II"
-				IF faci_type_code = "46" then faci_type_info_02 = "Short stay in ICF-DD"
-				IF faci_type_code = "47" then faci_type_info_02 = "RTC - Not IMD"
-				IF faci_type_code = "48" then faci_type_info_02 = "Medical Hospital"
-				IF faci_type_code = "49" then faci_type_info_02 = "MSOP"
-				IF faci_type_code = "50" then faci_type_info_02 = "IMD/RTC"
-				IF faci_type_code = "51" then faci_type_info_02 = "Rule 31 CD_IMD"
-				IF faci_type_code = "52" then faci_type_info_02 = "Rule 36 MI-IMD"
-				IF faci_type_code = "53" then faci_type_info_02 = "IMD Hospitals"
-				IF faci_type_code = "55" then faci_type_info_02 = "Adult Foster Care/Rule 203"
-				IF faci_type_code = "56" then faci_type_info_02 = "GRH (Not FC or Rule 36)"
-				IF faci_type_code = "57" then faci_type_info_02 = "Rule 36 MI - Non-IMD"
-				IF faci_type_code = "60" then faci_type_info_02 = "Non-GRH"
-				IF faci_type_code = "61" then faci_type_info_02 = "Rule 31 CD - Non-IMD"
-				IF faci_type_code = "67" then faci_type_info_02 = "Family Violence Shelter"
-				IF faci_type_code = "68" then faci_type_info_02 = "County Correctional Facility"
-				IF faci_type_code = "69" then faci_type_info_02 = "Non-Cty Adult Correctional"
+				IF faci_type_code = "41" then faci_type_info_01 = "NF-I"
+				IF faci_type_code = "42" then faci_type_info_01 = "NF-II"
+				IF faci_type_code = "43" then faci_type_info_01 = "ICF-DD"
+				IF faci_type_code = "44" then faci_type_info_01 = "Short stay in NF-I"
+				IF faci_type_code = "45" then faci_type_info_01 = "Short stay in NF-II"
+				IF faci_type_code = "46" then faci_type_info_01 = "Short stay in ICF-DD"
+				IF faci_type_code = "47" then faci_type_info_01 = "RTC - Not IMD"
+				IF faci_type_code = "48" then faci_type_info_01 = "Medical Hospital"
+				IF faci_type_code = "49" then faci_type_info_01 = "MSOP"
+				IF faci_type_code = "50" then faci_type_info_01 = "IMD/RTC"
+				IF faci_type_code = "51" then faci_type_info_01 = "Rule 31 CD_IMD"
+				IF faci_type_code = "52" then faci_type_info_01 = "Rule 36 MI-IMD"
+				IF faci_type_code = "53" then faci_type_info_01 = "IMD Hospitals"
+				IF faci_type_code = "55" then faci_type_info_01 = "Adult Foster Care/Rule 203"
+				IF faci_type_code = "56" then faci_type_info_01 = "GRH (Not FC or Rule 36)"
+				IF faci_type_code = "57" then faci_type_info_01 = "Rule 36 MI - Non-IMD"
+				IF faci_type_code = "60" then faci_type_info_01 = "Non-GRH"
+				IF faci_type_code = "61" then faci_type_info_01 = "Rule 31 CD - Non-IMD"
+				IF faci_type_code = "67" then faci_type_info_01 = "Family Violence Shelter"
+				IF faci_type_code = "68" then faci_type_info_01 = "County Correctional Facility"
+				IF faci_type_code = "69" then faci_type_info_01 = "Non-Cty Adult Correctional"
 
-				faci_name_02 = trim(replace(faci_name_02, "_", ""))
+				faci_name_01 = trim(replace(faci_name_01, "_", ""))
 				' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
 
 				' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
@@ -3772,225 +3663,287 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 			End if
 		End If
-	End If
 
-	CALL navigate_to_MAXIS_screen("STAT", "DISA")
-    EMWriteScreen person_01_ref_number, 20, 76
-    transmit
-    EMReadScreen check_if_DISA_exists, 2, 2, 78
-    If trim(check_if_DISA_exists) = 0 Then DISA_info_01 = "DISA Does Not Exist"
-    If trim(check_if_DISA_exists) <> 0 Then
-		' DISA_info_01 = "MEDI Exists"
-		EMReadScreen disa_end_date_01, 10, 6, 69
-		disa_end_date_01 = replace(disa_end_date_01, " ", "/")
-		If disa_end_date_01 = "__/__/____" Then disa_end_date_01 = ""
-		EMReadScreen HC_disa_status_01, 2, 13, 59
-		If HC_disa_status_01 = "01" Then DISA_info_01 = "RSDI Only Disability"
-		If HC_disa_status_01 = "02" Then DISA_info_01 = "RSDI Only Blindness"
-		If HC_disa_status_01 = "03" Then DISA_info_01 = "SSI, SSI/RSDI Disability"
-		If HC_disa_status_01 = "04" Then DISA_info_01 = "SSI, SSI/RSDI Blindness"
-		If HC_disa_status_01 = "06" Then DISA_info_01 = "SMRT Pend or SSA Pend"
-		If HC_disa_status_01 = "08" Then DISA_info_01 = "Certified Blind"
-		If HC_disa_status_01 = "10" Then DISA_info_01 = "Certified Disabled"
-		If HC_disa_status_01 = "11" Then DISA_info_01 = "Special Category - Disabled Child"
-		If HC_disa_status_01 = "20" Then DISA_info_01 = "TEFRA - Disabled"
-		If HC_disa_status_01 = "21" Then DISA_info_01 = "TEFRA - Blind"
-		If HC_disa_status_01 = "22" Then DISA_info_01 = "MA-EPD"
-		If HC_disa_status_01 = "23" Then DISA_info_01 = "MA/Waiver"
-		If HC_disa_status_01 = "24" Then DISA_info_01 = "SSA/SMRT Appeal Pending"
-		If HC_disa_status_01 = "26" Then DISA_info_01 = "SSA/SMRT Disa Deny"
-		If HC_disa_status_01 = "__" Then DISA_info_01 = "No HC DISA Status"
+		If person_02_ref_number <> "" Then
+			EMWriteScreen person_02_ref_number, 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			If existance_check <> "0" Then
+				Do
+					EMReadScreen FACI_current_panel, 1, 2, 73
+					EMReadScreen FACI_total_check, 1, 2, 78
+					EMReadScreen in_year_check_01, 4, 14, 53
+					EMReadScreen in_year_check_02, 4, 15, 53
+					EMReadScreen in_year_check_03, 4, 16, 53
+					EMReadScreen in_year_check_04, 4, 17, 53
+					EMReadScreen in_year_check_05, 4, 18, 53
+					EMReadScreen out_year_check_01, 4, 14, 77
+					EMReadScreen out_year_check_02, 4, 15, 77
+					EMReadScreen out_year_check_03, 4, 16, 77
+					EMReadScreen out_year_check_04, 4, 17, 77
+					EMReadScreen out_year_check_05, 4, 18, 77
+					If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+					(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+						currently_in_FACI_02 = True
+						If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+						If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+						If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+						If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+						If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
 
-		EMReadScreen disa_waiver_code_01, 1, 14, 59
-		If disa_waiver_code_01 = "F" Then disa_waiver_info_01 = "LTC CADI Conversion"
-		If disa_waiver_code_01 = "G" Then disa_waiver_info_01 = "LTC CADI DIversion"
-		If disa_waiver_code_01 = "H" Then disa_waiver_info_01 = "LTC CAC Conversion"
-		If disa_waiver_code_01 = "I" Then disa_waiver_info_01 = "LTC CAC Diversion"
-		If disa_waiver_code_01 = "J" Then disa_waiver_info_01 = "LTC EW Conversion"
-		If disa_waiver_code_01 = "K" Then disa_waiver_info_01 = "LTC EW Diversion"
-		If disa_waiver_code_01 = "L" Then disa_waiver_info_01 = "LTC TBI NF Conversion"
-		If disa_waiver_code_01 = "M" Then disa_waiver_info_01 = "LTC TBI NF Diversion"
-		If disa_waiver_code_01 = "P" Then disa_waiver_info_01 = "LTC TBI NB Conversion"
-		If disa_waiver_code_01 = "Q" Then disa_waiver_info_01 = "LTC TBI NB Diversion"
-		If disa_waiver_code_01 = "R" Then disa_waiver_info_01 = "DD Conversion"
-		If disa_waiver_code_01 = "S" Then disa_waiver_info_01 = "DD Conversion"
-		If disa_waiver_code_01 = "Y" Then disa_waiver_info_01 = "CSG Conversion"
-		If disa_waiver_code_01 = "_" Then disa_waiver_info_01 = "No Waiver"
-	End If
-    If person_02_ref_number <> "" Then
-		EMWriteScreen person_02_ref_number, 20, 76
+						EMReadScreen stat_faci_02_date_in, 10, faci_row, 47
+						EMReadScreen stat_faci_02_date_out, 10, faci_row, 	71
+
+						If stat_faci_02_date_in = "__ __ ____" Then stat_faci_02_date_in = ""
+						stat_faci_02_date_in = replace(stat_faci_02_date_in, " ", "/")
+						If stat_faci_02_date_out = "__ __ ____" Then stat_faci_02_date_out = ""
+						stat_faci_02_date_out = replace(stat_faci_02_date_out, " ", "/")
+
+						exit do
+					Elseif FACI_current_panel = FACI_total_check then
+						currently_in_FACI_02 = False
+						exit do
+					Else
+						transmit
+					End if
+				Loop until FACI_current_panel = FACI_total_check
+
+				If currently_in_FACI_02 = True then
+					EMReadScreen faci_name_02, 30, 6, 43
+					EMReadScreen faci_type_code, 2, 7, 43
+					' EmReadscreen stat_faci_vendor, 8, 5, 43
+					'List of FACI types
+					IF faci_type_code = "41" then faci_type_info_02 = "NF-I"
+					IF faci_type_code = "42" then faci_type_info_02 = "NF-II"
+					IF faci_type_code = "43" then faci_type_info_02 = "ICF-DD"
+					IF faci_type_code = "44" then faci_type_info_02 = "Short stay in NF-I"
+					IF faci_type_code = "45" then faci_type_info_02 = "Short stay in NF-II"
+					IF faci_type_code = "46" then faci_type_info_02 = "Short stay in ICF-DD"
+					IF faci_type_code = "47" then faci_type_info_02 = "RTC - Not IMD"
+					IF faci_type_code = "48" then faci_type_info_02 = "Medical Hospital"
+					IF faci_type_code = "49" then faci_type_info_02 = "MSOP"
+					IF faci_type_code = "50" then faci_type_info_02 = "IMD/RTC"
+					IF faci_type_code = "51" then faci_type_info_02 = "Rule 31 CD_IMD"
+					IF faci_type_code = "52" then faci_type_info_02 = "Rule 36 MI-IMD"
+					IF faci_type_code = "53" then faci_type_info_02 = "IMD Hospitals"
+					IF faci_type_code = "55" then faci_type_info_02 = "Adult Foster Care/Rule 203"
+					IF faci_type_code = "56" then faci_type_info_02 = "GRH (Not FC or Rule 36)"
+					IF faci_type_code = "57" then faci_type_info_02 = "Rule 36 MI - Non-IMD"
+					IF faci_type_code = "60" then faci_type_info_02 = "Non-GRH"
+					IF faci_type_code = "61" then faci_type_info_02 = "Rule 31 CD - Non-IMD"
+					IF faci_type_code = "67" then faci_type_info_02 = "Family Violence Shelter"
+					IF faci_type_code = "68" then faci_type_info_02 = "County Correctional Facility"
+					IF faci_type_code = "69" then faci_type_info_02 = "Non-Cty Adult Correctional"
+
+					faci_name_02 = trim(replace(faci_name_02, "_", ""))
+					' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
+
+					' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
+					' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
+					' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
+					' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
+					' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
+					' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
+					' EMReadScreen stat_faci_approval_county, 2, 12, 71
+
+					' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
+					' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
+
+					' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
+					' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
+					' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
+					' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
+					' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
+					' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
+					' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
+					' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
+					' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
+					' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
+
+					' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
+					' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
+					' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
+					' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
+					' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
+					' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
+					' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
+
+					' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
+					' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
+					' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
+
+				End if
+			End If
+		End If
+
+		CALL navigate_to_MAXIS_screen("STAT", "DISA")
+		EMWriteScreen person_01_ref_number, 20, 76
 		transmit
 		EMReadScreen check_if_DISA_exists, 2, 2, 78
-		If trim(check_if_DISA_exists) = 0 Then DISA_info_02 = "DISA Does Not Exist"
+		If trim(check_if_DISA_exists) = 0 Then DISA_info_01 = "DISA Does Not Exist"
 		If trim(check_if_DISA_exists) <> 0 Then
-			DISA_info_02 = "MEDI Exists"
-			EMReadScreen disa_end_date_02, 10, 6, 69
-			disa_end_date_02 = replace(disa_end_date_02, " ", "/")
-			If disa_end_date_02 = "__/__/____" Then disa_end_date_02 = ""
-			EMReadScreen HC_disa_status_02, 2, 13, 59
-			If HC_disa_status_02 = "01" Then DISA_info_02 = "RSDI Only Disability"
-			If HC_disa_status_02 = "02" Then DISA_info_02 = "RSDI Only Blindness"
-			If HC_disa_status_02 = "03" Then DISA_info_02 = "SSI, SSI/RSDI Disability"
-			If HC_disa_status_02 = "04" Then DISA_info_02 = "SSI, SSI/RSDI Blindness"
-			If HC_disa_status_02 = "06" Then DISA_info_02 = "SMRT Pend or SSA Pend"
-			If HC_disa_status_02 = "08" Then DISA_info_02 = "Certified Blind"
-			If HC_disa_status_02 = "10" Then DISA_info_02 = "Certified Disabled"
-			If HC_disa_status_02 = "11" Then DISA_info_02 = "Special Category - Disabled Child"
-			If HC_disa_status_02 = "20" Then DISA_info_02 = "TEFRA - Disabled"
-			If HC_disa_status_02 = "21" Then DISA_info_02 = "TEFRA - Blind"
-			If HC_disa_status_02 = "22" Then DISA_info_02 = "MA-EPD"
-			If HC_disa_status_02 = "23" Then DISA_info_02 = "MA/Waiver"
-			If HC_disa_status_02 = "24" Then DISA_info_02 = "SSA/SMRT Appeal Pending"
-			If HC_disa_status_02 = "26" Then DISA_info_02 = "SSA/SMRT Disa Deny"
-			If HC_disa_status_02 = "__" Then DISA_info_02 = "No HC DISA Status"
+			' DISA_info_01 = "MEDI Exists"
+			EMReadScreen disa_end_date_01, 10, 6, 69
+			disa_end_date_01 = replace(disa_end_date_01, " ", "/")
+			If disa_end_date_01 = "__/__/____" Then disa_end_date_01 = ""
+			EMReadScreen HC_disa_status_01, 2, 13, 59
+			If HC_disa_status_01 = "01" Then DISA_info_01 = "RSDI Only Disability"
+			If HC_disa_status_01 = "02" Then DISA_info_01 = "RSDI Only Blindness"
+			If HC_disa_status_01 = "03" Then DISA_info_01 = "SSI, SSI/RSDI Disability"
+			If HC_disa_status_01 = "04" Then DISA_info_01 = "SSI, SSI/RSDI Blindness"
+			If HC_disa_status_01 = "06" Then DISA_info_01 = "SMRT Pend or SSA Pend"
+			If HC_disa_status_01 = "08" Then DISA_info_01 = "Certified Blind"
+			If HC_disa_status_01 = "10" Then DISA_info_01 = "Certified Disabled"
+			If HC_disa_status_01 = "11" Then DISA_info_01 = "Special Category - Disabled Child"
+			If HC_disa_status_01 = "20" Then DISA_info_01 = "TEFRA - Disabled"
+			If HC_disa_status_01 = "21" Then DISA_info_01 = "TEFRA - Blind"
+			If HC_disa_status_01 = "22" Then DISA_info_01 = "MA-EPD"
+			If HC_disa_status_01 = "23" Then DISA_info_01 = "MA/Waiver"
+			If HC_disa_status_01 = "24" Then DISA_info_01 = "SSA/SMRT Appeal Pending"
+			If HC_disa_status_01 = "26" Then DISA_info_01 = "SSA/SMRT Disa Deny"
+			If HC_disa_status_01 = "__" Then DISA_info_01 = "No HC DISA Status"
 
-			EMReadScreen disa_waiver_code_02, 1, 14, 59
-			If disa_waiver_code_02 = "F" Then disa_waiver_info_02 = "LTC CADI Conversion"
-			If disa_waiver_code_02 = "G" Then disa_waiver_info_02 = "LTC CADI DIversion"
-			If disa_waiver_code_02 = "H" Then disa_waiver_info_02 = "LTC CAC Conversion"
-			If disa_waiver_code_02 = "I" Then disa_waiver_info_02 = "LTC CAC Diversion"
-			If disa_waiver_code_02 = "J" Then disa_waiver_info_02 = "LTC EW Conversion"
-			If disa_waiver_code_02 = "K" Then disa_waiver_info_02 = "LTC EW Diversion"
-			If disa_waiver_code_02 = "L" Then disa_waiver_info_02 = "LTC TBI NF Conversion"
-			If disa_waiver_code_02 = "M" Then disa_waiver_info_02 = "LTC TBI NF Diversion"
-			If disa_waiver_code_02 = "P" Then disa_waiver_info_02 = "LTC TBI NB Conversion"
-			If disa_waiver_code_02 = "Q" Then disa_waiver_info_02 = "LTC TBI NB Diversion"
-			If disa_waiver_code_02 = "R" Then disa_waiver_info_02 = "DD Conversion"
-			If disa_waiver_code_02 = "S" Then disa_waiver_info_02 = "DD Conversion"
-			If disa_waiver_code_02 = "Y" Then disa_waiver_info_02 = "CSG Conversion"
-			If disa_waiver_code_02 = "_" Then disa_waiver_info_02 = "No Waiver"
+			EMReadScreen disa_waiver_code_01, 1, 14, 59
+			If disa_waiver_code_01 = "F" Then disa_waiver_info_01 = "LTC CADI Conversion"
+			If disa_waiver_code_01 = "G" Then disa_waiver_info_01 = "LTC CADI DIversion"
+			If disa_waiver_code_01 = "H" Then disa_waiver_info_01 = "LTC CAC Conversion"
+			If disa_waiver_code_01 = "I" Then disa_waiver_info_01 = "LTC CAC Diversion"
+			If disa_waiver_code_01 = "J" Then disa_waiver_info_01 = "LTC EW Conversion"
+			If disa_waiver_code_01 = "K" Then disa_waiver_info_01 = "LTC EW Diversion"
+			If disa_waiver_code_01 = "L" Then disa_waiver_info_01 = "LTC TBI NF Conversion"
+			If disa_waiver_code_01 = "M" Then disa_waiver_info_01 = "LTC TBI NF Diversion"
+			If disa_waiver_code_01 = "P" Then disa_waiver_info_01 = "LTC TBI NB Conversion"
+			If disa_waiver_code_01 = "Q" Then disa_waiver_info_01 = "LTC TBI NB Diversion"
+			If disa_waiver_code_01 = "R" Then disa_waiver_info_01 = "DD Conversion"
+			If disa_waiver_code_01 = "S" Then disa_waiver_info_01 = "DD Conversion"
+			If disa_waiver_code_01 = "Y" Then disa_waiver_info_01 = "CSG Conversion"
+			If disa_waiver_code_01 = "_" Then disa_waiver_info_01 = "No Waiver"
 		End If
-	End If
+		If person_02_ref_number <> "" Then
+			EMWriteScreen person_02_ref_number, 20, 76
+			transmit
+			EMReadScreen check_if_DISA_exists, 2, 2, 78
+			If trim(check_if_DISA_exists) = 0 Then DISA_info_02 = "DISA Does Not Exist"
+			If trim(check_if_DISA_exists) <> 0 Then
+				DISA_info_02 = "MEDI Exists"
+				EMReadScreen disa_end_date_02, 10, 6, 69
+				disa_end_date_02 = replace(disa_end_date_02, " ", "/")
+				If disa_end_date_02 = "__/__/____" Then disa_end_date_02 = ""
+				EMReadScreen HC_disa_status_02, 2, 13, 59
+				If HC_disa_status_02 = "01" Then DISA_info_02 = "RSDI Only Disability"
+				If HC_disa_status_02 = "02" Then DISA_info_02 = "RSDI Only Blindness"
+				If HC_disa_status_02 = "03" Then DISA_info_02 = "SSI, SSI/RSDI Disability"
+				If HC_disa_status_02 = "04" Then DISA_info_02 = "SSI, SSI/RSDI Blindness"
+				If HC_disa_status_02 = "06" Then DISA_info_02 = "SMRT Pend or SSA Pend"
+				If HC_disa_status_02 = "08" Then DISA_info_02 = "Certified Blind"
+				If HC_disa_status_02 = "10" Then DISA_info_02 = "Certified Disabled"
+				If HC_disa_status_02 = "11" Then DISA_info_02 = "Special Category - Disabled Child"
+				If HC_disa_status_02 = "20" Then DISA_info_02 = "TEFRA - Disabled"
+				If HC_disa_status_02 = "21" Then DISA_info_02 = "TEFRA - Blind"
+				If HC_disa_status_02 = "22" Then DISA_info_02 = "MA-EPD"
+				If HC_disa_status_02 = "23" Then DISA_info_02 = "MA/Waiver"
+				If HC_disa_status_02 = "24" Then DISA_info_02 = "SSA/SMRT Appeal Pending"
+				If HC_disa_status_02 = "26" Then DISA_info_02 = "SSA/SMRT Disa Deny"
+				If HC_disa_status_02 = "__" Then DISA_info_02 = "No HC DISA Status"
 
-	instructions_button = 1000
-	policy_1_button = 1010
-    policy_2_button = 1020
-    policy_3_button = 1030
-
-
-
-	Dialog1 = ""
-
-    'TO DO - add functionality to determine ex parte phase based on case number
-	BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
-		GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
-		Text 20, 295, 80, 10, "Ex Parte Evaluation:"
-		DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
-		Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
-		Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
-		ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis.", ex_parte_denial_select
-		Text 20, 335, 80, 10, "Not Ex Parte Notes:"
-		EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
-		Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
-		Text 15, 365, 70, 10, "Worker Signature:"
-		EditBox 80, 360, 110, 15, worker_signature
-		' GroupBox 10, 0, 455, 25, "Case Information"
-		If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
-		Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
-		' Text 65, 10, 70, 10, MAXIS_case_number
-		Text 375, 5, 75, 10, "Review Month: " & review_month_01
-		' Text 190, 10, 65, 10, review_month_01
-		Text 280, 15, 125, 10, "SNAP Status: " & snap_status
-		Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
-		ButtonGroup ButtonPressed
-			OkButton 440, 365, 50, 15
-			CancelButton 500, 365, 50, 15
-			Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-			PushButton 475, 15, 80, 15, "Instructions", instructions_button
-			Text 495, 40, 45, 10, "--- POLICY ---"
-			PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
-			' PushButton 490, 65, 55, 15, policy_2, policy_2_button
-			' PushButton 490, 80, 55, 15, policy_3, policy_3_button
-			Text 490, 105, 55, 10, "--- NAVIGATE ---"
-			PushButton 485, 117, 25, 10, "ACCI", acci_button
-			PushButton 515, 117, 25, 10, "BILS", bils_button
-			PushButton 485, 130, 25, 10, "BUDG", budg_button
-			PushButton 515, 130, 25, 10, "BUSI", busi_button
-			PushButton 485, 143, 25, 10, "DISA", disa_button
-			PushButton 515, 143, 25, 10, "EMMA", emma_button
-			PushButton 485, 156, 25, 10, "FACI", faci_button
-			PushButton 515, 156, 25, 10, "HCMI", hcmi_button
-			PushButton 485, 169, 25, 10, "IMIG", imig_button
-			PushButton 515, 169, 25, 10, "INSA", insa_button
-			PushButton 485, 182, 25, 10, "JOBS", jobs_button
-			PushButton 515, 182, 25, 10, "LUMP", lump_button
-			PushButton 485, 195, 25, 10, "MEDI", medi_button
-			PushButton 515, 195, 25, 10, "MEMB", memb_button
-			PushButton 485, 208, 25, 10, "MEMI", memi_button
-			PushButton 515, 208, 25, 10, "PBEN", pben_button
-			PushButton 485, 221, 25, 10, "PDED", pded_button
-			PushButton 515, 221, 25, 10, "REVW", revw_button
-			PushButton 485, 234, 25, 10, "SPON", spon_button
-			PushButton 515, 234, 25, 10, "STWK", stwk_button
-			PushButton 485, 247, 25, 10, "UNEA", unea_button
-
-
-		GroupBox 10, 15, 220, 85, "Person 1 - Information"
-		Text 15, 25, 125, 10, "Name: " & name_01
-		Text 140, 25, 65, 10, "PMI: " & PMI_01
-		Text 15, 35, 100, 10, "DISA: " & DISA_info_01
-		Text 120, 35, 100, 10, "Waiver: " & disa_waiver_info_01
-		If MEDI_info_01 = "MEDI Exists" Then
-			Text 15, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_01
-			Text 15, 55, 200, 10, "                  Part B: " & MEDI_part_b_01
-		Else
-			Text 15, 45, 200, 10, MEDI_info_01
-		End If
-
-		If MAXIS_MA_basis_01 <> "" Then Text 15, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_01
-		If MAXIS_MA_basis_01 = "" Then Text 15, 65, 120, 10, "No MA Basis found."
-		If MAXIS_msp_prog_01 <> "" Then Text 15, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_01 & " (" & MAXIS_msp_basis_01 & ")"
-		If MAXIS_msp_prog_01 = "" Then Text 15, 75, 120, 10, "No MSP found."
-		Text 15, 85, 120, 10, "MMIS Detail not Ready"
-		' Text 15, 250, 55, 10, "MMIS MA Basis:"
-		' Text 85, 250, 135, 10, MMIS_ma_basis_01
-		' Text 15, 265, 60, 10, "MMIS MSP Prog:"
-		' Text 85, 265, 135, 10, MMIS_msp_prog_01
-		' Text 15, 280, 60, 10, "MMIS MSP Basis:"
-		' Text 85, 280, 135, 10, MMIS_msp_basis_01
-
-
-		GroupBox 10, 105, 220, 85, "Person 1 - Income"
-		'TO DO - determine functionality to add multiple claim numbers
-
-		Text 15, 120, 200, 10, "TPQY - Sent: " & sent_date_01 & ", Return: " & return_date_01
-		Text 15, 130, 150, 10, "BNDX Amount: " & bndx_amount_01
-		Text 15, 140, 150, 10, "SDXS Amount: " & sdxs_amount_01
-
-		If JOBS_01 = "Yes" Then Text 15, 155, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
-		If JOBS_01 = "No" Then Text 15, 155, 50, 10, "No listed JOB."
-		If BUSI_01 = "Yes" Then Text 15, 165, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
-		If BUSI_01 = "No" Then Text 15, 165, 50, 10, "No listed BUSI."
-		Text 15, 175, 65, 10, "Other UNEA Types:"
-		Text 85, 175, 135, 10, other_UNEA_types_01
-
-		If currently_in_FACI_01 = True then
-			Text 10, 195, 200, 10, name_01 & " - currently in a facility"
-			Text 10, 205, 200, 10, "Facility Name: " & faci_name_01
-			Text 20, 215, 150, 10, "Entry Date: " & stat_faci_01_date_in
-			Text 14, 225, 200, 10,"Facility Type: " & faci_type_info_01
-		Else
-			Text 10, 195, 200, 10, name_01 & " - Does not appear to be in a facility"
-		End If
-
-		If name_02 <> "" Then
-			GroupBox 245, 35, 220, 85, "Person 2 - Information"
-			' GroupBox 10, 15, 220, 85, "Person 1 - Information"
-			Text 250, 45, 125, 10, "Name: " & name_02
-			Text 375, 45, 65, 10, "PMI: " & PMI_02
-			Text 250, 55, 100, 10, "DISA: " & DISA_info_02
-			Text 355, 55, 100, 10, "Waiver: " & disa_waiver_info_02
-			If MEDI_info_02 = "MEDI Exists" Then
-				Text 250, 65, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
-				Text 250, 75, 200, 10, "                  Part B: " & MEDI_part_b_02
-			Else
-				Text 250, 65, 200, 10, MEDI_info_02
+				EMReadScreen disa_waiver_code_02, 1, 14, 59
+				If disa_waiver_code_02 = "F" Then disa_waiver_info_02 = "LTC CADI Conversion"
+				If disa_waiver_code_02 = "G" Then disa_waiver_info_02 = "LTC CADI DIversion"
+				If disa_waiver_code_02 = "H" Then disa_waiver_info_02 = "LTC CAC Conversion"
+				If disa_waiver_code_02 = "I" Then disa_waiver_info_02 = "LTC CAC Diversion"
+				If disa_waiver_code_02 = "J" Then disa_waiver_info_02 = "LTC EW Conversion"
+				If disa_waiver_code_02 = "K" Then disa_waiver_info_02 = "LTC EW Diversion"
+				If disa_waiver_code_02 = "L" Then disa_waiver_info_02 = "LTC TBI NF Conversion"
+				If disa_waiver_code_02 = "M" Then disa_waiver_info_02 = "LTC TBI NF Diversion"
+				If disa_waiver_code_02 = "P" Then disa_waiver_info_02 = "LTC TBI NB Conversion"
+				If disa_waiver_code_02 = "Q" Then disa_waiver_info_02 = "LTC TBI NB Diversion"
+				If disa_waiver_code_02 = "R" Then disa_waiver_info_02 = "DD Conversion"
+				If disa_waiver_code_02 = "S" Then disa_waiver_info_02 = "DD Conversion"
+				If disa_waiver_code_02 = "Y" Then disa_waiver_info_02 = "CSG Conversion"
+				If disa_waiver_code_02 = "_" Then disa_waiver_info_02 = "No Waiver"
 			End If
-			If MAXIS_MA_basis_02 <> "" Then Text 250, 85, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
-			If MAXIS_MA_basis_02 = "" Then Text 250, 85, 120, 10, "No MA Basis found."
-			If MAXIS_msp_prog_02 <> "" Then Text 250, 95, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
-			If MAXIS_msp_prog_02 = "" Then Text 250, 95, 120, 10, "No MSP found."
-			Text 250, 105, 120, 10, "MMIS Detail not Ready"
+		End If
+
+		instructions_button = 1000
+		policy_1_button = 1010
+		policy_2_button = 1020
+		policy_3_button = 1030
+
+
+
+		Dialog1 = ""
+
+		'TO DO - add functionality to determine ex parte phase based on case number
+		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
+			GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
+			Text 20, 295, 80, 10, "Ex Parte Evaluation:"
+			DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
+			Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
+			Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
+			ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis.", ex_parte_denial_select
+			Text 20, 335, 80, 10, "Not Ex Parte Notes:"
+			EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
+			Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
+			Text 15, 365, 70, 10, "Worker Signature:"
+			EditBox 80, 360, 110, 15, worker_signature
+			' GroupBox 10, 0, 455, 25, "Case Information"
+			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
+			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
+			' Text 65, 10, 70, 10, MAXIS_case_number
+			Text 375, 5, 75, 10, "Review Month: " & review_month_01
+			' Text 190, 10, 65, 10, review_month_01
+			Text 280, 15, 125, 10, "SNAP Status: " & snap_status
+			Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
+			ButtonGroup ButtonPressed
+				OkButton 440, 365, 50, 15
+				CancelButton 500, 365, 50, 15
+				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+				PushButton 475, 15, 80, 15, "Instructions", instructions_button
+				Text 495, 40, 45, 10, "--- POLICY ---"
+				PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
+				' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+				' PushButton 490, 80, 55, 15, policy_3, policy_3_button
+				Text 490, 105, 55, 10, "--- NAVIGATE ---"
+				PushButton 485, 117, 25, 10, "ACCI", acci_button
+				PushButton 515, 117, 25, 10, "BILS", bils_button
+				PushButton 485, 130, 25, 10, "BUDG", budg_button
+				PushButton 515, 130, 25, 10, "BUSI", busi_button
+				PushButton 485, 143, 25, 10, "DISA", disa_button
+				PushButton 515, 143, 25, 10, "EMMA", emma_button
+				PushButton 485, 156, 25, 10, "FACI", faci_button
+				PushButton 515, 156, 25, 10, "HCMI", hcmi_button
+				PushButton 485, 169, 25, 10, "IMIG", imig_button
+				PushButton 515, 169, 25, 10, "INSA", insa_button
+				PushButton 485, 182, 25, 10, "JOBS", jobs_button
+				PushButton 515, 182, 25, 10, "LUMP", lump_button
+				PushButton 485, 195, 25, 10, "MEDI", medi_button
+				PushButton 515, 195, 25, 10, "MEMB", memb_button
+				PushButton 485, 208, 25, 10, "MEMI", memi_button
+				PushButton 515, 208, 25, 10, "PBEN", pben_button
+				PushButton 485, 221, 25, 10, "PDED", pded_button
+				PushButton 515, 221, 25, 10, "REVW", revw_button
+				PushButton 485, 234, 25, 10, "SPON", spon_button
+				PushButton 515, 234, 25, 10, "STWK", stwk_button
+				PushButton 485, 247, 25, 10, "UNEA", unea_button
+
+
+			GroupBox 10, 15, 220, 85, "Person 1 - Information"
+			Text 15, 25, 125, 10, "Name: " & name_01
+			Text 140, 25, 65, 10, "PMI: " & PMI_01
+			Text 15, 35, 100, 10, "DISA: " & DISA_info_01
+			Text 120, 35, 100, 10, "Waiver: " & disa_waiver_info_01
+			If MEDI_info_01 = "MEDI Exists" Then
+				Text 15, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_01
+				Text 15, 55, 200, 10, "                  Part B: " & MEDI_part_b_01
+			Else
+				Text 15, 45, 200, 10, MEDI_info_01
+			End If
+
+			If MAXIS_MA_basis_01 <> "" Then Text 15, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_01
+			If MAXIS_MA_basis_01 = "" Then Text 15, 65, 120, 10, "No MA Basis found."
+			If MAXIS_msp_prog_01 <> "" Then Text 15, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_01 & " (" & MAXIS_msp_basis_01 & ")"
+			If MAXIS_msp_prog_01 = "" Then Text 15, 75, 120, 10, "No MSP found."
+			Text 15, 85, 120, 10, "MMIS Detail not Ready"
 			' Text 15, 250, 55, 10, "MMIS MA Basis:"
 			' Text 85, 250, 135, 10, MMIS_ma_basis_01
 			' Text 15, 265, 60, 10, "MMIS MSP Prog:"
@@ -3999,361 +3952,410 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			' Text 85, 280, 135, 10, MMIS_msp_basis_01
 
 
-			GroupBox 245, 125, 220, 85, "Person 2 - Income"
+			GroupBox 10, 105, 220, 85, "Person 1 - Income"
 			'TO DO - determine functionality to add multiple claim numbers
 
-			Text 250, 140, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
-			Text 250, 150, 150, 10, "BNDX Amount: " & bndx_amount_02
-			Text 250, 160, 150, 10, "SDXS Amount: " & sdxs_amount_02
+			Text 15, 120, 200, 10, "TPQY - Sent: " & sent_date_01 & ", Return: " & return_date_01
+			Text 15, 130, 150, 10, "BNDX Amount: " & bndx_amount_01
+			Text 15, 140, 150, 10, "SDXS Amount: " & sdxs_amount_01
 
-			If JOBS_02 = "Yes" Then Text 250, 175, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
-			If JOBS_02 = "No" Then Text 250, 175, 50, 10, "No listed JOB."
-			If BUSI_02 = "Yes" Then Text 250, 185, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
-			If BUSI_02 = "No" Then Text 250, 185, 50, 10, "No listed BUSI."
-			Text 250, 195, 65, 10, "Other UNEA Types:"
-			Text 320, 195, 135, 10, other_UNEA_types_02
+			If JOBS_01 = "Yes" Then Text 15, 155, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
+			If JOBS_01 = "No" Then Text 15, 155, 50, 10, "No listed JOB."
+			If BUSI_01 = "Yes" Then Text 15, 165, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
+			If BUSI_01 = "No" Then Text 15, 165, 50, 10, "No listed BUSI."
+			Text 15, 175, 65, 10, "Other UNEA Types:"
+			Text 85, 175, 135, 10, other_UNEA_types_01
 
-			If currently_in_FACI_02 = True then
-				Text 245, 215, 200, 10, name_02 & " - currently in a facility"
-				Text 245, 225, 200, 10, "Facility Name: " & faci_name_02
-				Text 255, 235, 150, 10, "Entry Date: " & stat_faci_02_date_in
-				Text 249, 245, 200, 10,"Facility Type: " & faci_type_info_02
+			If currently_in_FACI_01 = True then
+				Text 10, 195, 200, 10, name_01 & " - currently in a facility"
+				Text 10, 205, 200, 10, "Facility Name: " & faci_name_01
+				Text 20, 215, 150, 10, "Entry Date: " & stat_faci_01_date_in
+				Text 14, 225, 200, 10,"Facility Type: " & faci_type_info_01
 			Else
-				Text 245, 215, 200, 10, name_02 & " - Does not appear to be in a facility"
+				Text 10, 195, 200, 10, name_01 & " - Does not appear to be in a facility"
 			End If
 
+			If name_02 <> "" Then
+				GroupBox 245, 35, 220, 85, "Person 2 - Information"
+				' GroupBox 10, 15, 220, 85, "Person 1 - Information"
+				Text 250, 45, 125, 10, "Name: " & name_02
+				Text 375, 45, 65, 10, "PMI: " & PMI_02
+				Text 250, 55, 100, 10, "DISA: " & DISA_info_02
+				Text 355, 55, 100, 10, "Waiver: " & disa_waiver_info_02
+				If MEDI_info_02 = "MEDI Exists" Then
+					Text 250, 65, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
+					Text 250, 75, 200, 10, "                  Part B: " & MEDI_part_b_02
+				Else
+					Text 250, 65, 200, 10, MEDI_info_02
+				End If
+				If MAXIS_MA_basis_02 <> "" Then Text 250, 85, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
+				If MAXIS_MA_basis_02 = "" Then Text 250, 85, 120, 10, "No MA Basis found."
+				If MAXIS_msp_prog_02 <> "" Then Text 250, 95, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
+				If MAXIS_msp_prog_02 = "" Then Text 250, 95, 120, 10, "No MSP found."
+				Text 250, 105, 120, 10, "MMIS Detail not Ready"
+				' Text 15, 250, 55, 10, "MMIS MA Basis:"
+				' Text 85, 250, 135, 10, MMIS_ma_basis_01
+				' Text 15, 265, 60, 10, "MMIS MSP Prog:"
+				' Text 85, 265, 135, 10, MMIS_msp_prog_01
+				' Text 15, 280, 60, 10, "MMIS MSP Basis:"
+				' Text 85, 280, 135, 10, MMIS_msp_basis_01
+
+
+				GroupBox 245, 125, 220, 85, "Person 2 - Income"
+				'TO DO - determine functionality to add multiple claim numbers
+
+				Text 250, 140, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
+				Text 250, 150, 150, 10, "BNDX Amount: " & bndx_amount_02
+				Text 250, 160, 150, 10, "SDXS Amount: " & sdxs_amount_02
+
+				If JOBS_02 = "Yes" Then Text 250, 175, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
+				If JOBS_02 = "No" Then Text 250, 175, 50, 10, "No listed JOB."
+				If BUSI_02 = "Yes" Then Text 250, 185, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
+				If BUSI_02 = "No" Then Text 250, 185, 50, 10, "No listed BUSI."
+				Text 250, 195, 65, 10, "Other UNEA Types:"
+				Text 320, 195, 135, 10, other_UNEA_types_02
+
+				If currently_in_FACI_02 = True then
+					Text 245, 215, 200, 10, name_02 & " - currently in a facility"
+					Text 245, 225, 200, 10, "Facility Name: " & faci_name_02
+					Text 255, 235, 150, 10, "Entry Date: " & stat_faci_02_date_in
+					Text 249, 245, 200, 10,"Facility Type: " & faci_type_info_02
+				Else
+					Text 245, 215, 200, 10, name_02 & " - Does not appear to be in a facility"
+				End If
+
+			End If
+		EndDialog
+
+		'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
+		DO
+			Do
+				err_msg = ""    'This is the error message handling
+				Dialog Dialog1
+				cancel_confirmation
+				'Function belows creates navigation to STAT panels for navigation buttons
+				MAXIS_dialog_navigation
+
+				ex_parte_denial_explanation = ""
+				ex_parte_denial_explanation = trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", ""))
+				ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
+				ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
+				' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
+
+
+				'Add placeholder link to script instructions - To DO - update with correct link
+				If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
+
+				'Add placeholder links for policy buttons - TO DO - update with correct links
+				If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-062948"
+				' If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+				' If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+
+
+				'Add validation to ensure ex parte determination is made
+				If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
+
+				'Add validation that if ex parte approved, then explanation should be blank
+				If ex_parte_determination = "Appears Ex Parte" AND ex_parte_denial_explanation <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved."
+
+				'Add validation that if ex parte denied, then explanation must be provided
+				If ex_parte_determination = "Cannot be Processed as Ex Parte" AND ex_parte_denial_explanation = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial."
+
+				If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 character."
+
+				'Add validation to ensure worker signature is not blank
+				IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
+
+				'Error message handling
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = "" AND ButtonPressed = -1
+			'Add to all dialogs where you need to work within BLUEZONE
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		'End dialog section-----------------------------------------------------------------------------------------------
+
+
+		'Checks to see if in MAXIS
+		Call check_for_MAXIS(False)
+
+		'Ensure starting at SELF so that writing to CASE NOTE works properly
+		CALL back_to_SELF()
+
+		If ex_parte_determination = "Appears Ex Parte" or ex_parte_determination = "Cannot be Processed as Ex Parte" Then
+
+			'Navigate to STAT, REVW, and open HC Renewal Window with instructions
+			CALL navigate_to_MAXIS_screen("STAT", "REVW")
+			CALL write_value_and_transmit("X", 5, 71)
+
+			'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
+			'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
+			EMReadScreen income_renewal_date, 8, 7, 27
+			' EMReadScreen elig_renewal_date, 8, 8, 27
+			elig_renewal_date = review_month_from_SQL
+			EMReadScreen HC_ex_parte_determination, 1, 9, 27
+			EMReadScreen income_asset_renewal_date, 8, 7, 71
+			EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
+			EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+
+			'Dialog and review of HC renewal for approval of ex parte
+			If ex_parte_determination = "Appears Ex Parte" Then
+
+				Dialog1 = "" 'blanking out dialog name
+
+				BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Appears Ex Parte"
+				ButtonGroup ButtonPressed
+					PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+				Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
+				Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+				Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
+				Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
+				Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+				Text 10, 95, 145, 10, "- ExParte: Enter Y"
+				Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+				EndDialog
+
+
+				DO
+					Do
+						err_msg = ""    'This is the error message handling
+						Dialog Dialog1
+						cancel_confirmation
+
+						' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+
+						'TO DO - update with functions?
+						'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+
+						'TODO - read DISA and display waiver
+
+						EMReadScreen stat_check, 4, 20, 21
+						EMReadScreen revw_panel_check, 4, 2, 46
+						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+							If hc_revw_pop_up_check = "REVW" Then
+								EMReadScreen pop_up_open, 1, 4, 22
+								If pop_up_open <> "*" Then PF3
+								' Call write_value_and_transmit({"X", 5, 71)
+							ElseIf stat_check = "STAT" Then
+								Call write_value_and_transmit("REVW", 20, 71)
+								' Call write_value_and_transmit({"X", 5, 71)
+							Else
+								Call MAXIS_background_check
+								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							End If
+							CALL write_value_and_transmit("X", 5, 71)
+						End If
+
+						' CALL back_to_SELF()
+						' CALL navigate_to_MAXIS_screen("STAT", "REVW")
+						' CALL write_value_and_transmit("X", 5, 71)
+						' EMReadScreen check_income_renewal_date, 8, 7, 27
+						EMReadScreen check_elig_renewal_date, 8, 8, 27
+						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
+						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						elig_renewal_date = replace(elig_renewal_date, " ", "/")
+						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+						' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
+						'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
+						If check_elig_renewal_date <> DateAdd("yyyy", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
+
+						'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
+						'TO DO - determine how to determine if meets spenddown?
+						' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
+						If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+						'TODO - put back the funcitonality for spenddowns
+
+						'Validate that Exempt from 6 Mo IR is set to N
+						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+
+						'Validate that ExParte field updated to Y
+						If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
+
+						'Validate that ExParte Renewal Month is correct
+						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
+						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+
+						'Error message handling
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+					Loop until err_msg = ""
+						'Add to all dialogs where you need to work within BLUEZONE
+						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+			End If
+
+			'Dialog and review of HC renewal for denial of ex parte
+			If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
+
+				Dialog1 = ""
+
+				BeginDialog Dialog1, 0, 0, 331, 120, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
+				ButtonGroup ButtonPressed
+					PushButton 205, 100, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+				Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
+				Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+				Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+				Text 10, 65, 145, 10, "- ExParte: Enter N"
+				Text 10, 80, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+				EndDialog
+
+
+				DO
+					Do
+						err_msg = ""    'This is the error message handling
+						Dialog Dialog1
+						cancel_confirmation
+
+						' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+
+						'TO DO - update with functions?
+						'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+
+						EMReadScreen stat_check, 4, 20, 21
+						EMReadScreen revw_panel_check, 4, 2, 46
+						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+							If hc_revw_pop_up_check = "REVW" Then
+								EMReadScreen pop_up_open, 1, 4, 22
+								If pop_up_open <> "*" Then PF3
+								' Call write_value_and_transmit({"X", 5, 71)
+							ElseIf stat_check = "STAT" Then
+								Call write_value_and_transmit("REVW", 20, 71)
+								' Call write_value_and_transmit({"X", 5, 71)
+							Else
+								Call MAXIS_background_check
+								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							End If
+							CALL write_value_and_transmit("X", 5, 71)
+						End If
+
+						EMReadScreen check_income_renewal_date, 8, 7, 27
+						EMReadScreen check_elig_renewal_date, 8, 8, 27
+						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
+						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						elig_renewal_date = replace(elig_renewal_date, " ", "/")
+						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+						'Validation to ensure that elig renewal date has not changed
+						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
+
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed
+						If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+
+						'Validation to ensure that Exempt from 6 Mo IR is set to N
+						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+
+						'Validation to ensure that ExParte field updated to N
+						If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte."
+
+						'Validate that ExParte Renewal Month is correct
+						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
+						If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+
+						'Error message handling
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+					Loop until err_msg = ""
+						'Add to all dialogs where you need to work within BLUEZONE
+						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+			End If
 		End If
-	EndDialog
+		' MsgBox "STOP HERE FOR NOW!!!"
 
-    'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
-    DO
-        Do
-            err_msg = ""    'This is the error message handling
-            Dialog Dialog1
-            cancel_confirmation
-            'Function belows creates navigation to STAT panels for navigation buttons
-            MAXIS_dialog_navigation
+		If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
+		If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
+		If ex_parte_determination = "Health Care has been Closed" Then appears_ex_parte = False
+		If ex_parte_determination = "Case Transfered Out of County" Then appears_ex_parte = False
+		' MsgBox "appears_ex_parte - " & appears_ex_parte
 
-			ex_parte_denial_explanation = ""
-			ex_parte_denial_explanation = trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", ""))
-			ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
-			ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
-			' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
+		If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+			' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+			sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'Add placeholder link to script instructions - To DO - update with correct link
-            If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+		Else
+			MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
+		End If
 
-            'Add placeholder links for policy buttons - TO DO - update with correct links
-            If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-062948"
-            ' If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-            ' If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+		' MsgBox "About to CASE NOTE AND TIKL"
+		'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
+		'TO DO - confirm TIKL information is correct
+		If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
 
+		If ex_parte_determination = "Case Transfered Out of County" Then script_end_procedure("Case List updated with Ex parte Evaluation. No CASE/NOTE as case is not in Hennepin County.")
+		'Navigate to and start a new CASE NOTE
+		Call start_a_blank_case_note
 
-            'Add validation to ensure ex parte determination is made
-            If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
+		'Add title to CASE NOTE
+		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
 
-            'Add validation that if ex parte approved, then explanation should be blank
-            If ex_parte_determination = "Appears Ex Parte" AND ex_parte_denial_explanation <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved."
-
-            'Add validation that if ex parte denied, then explanation must be provided
-            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND ex_parte_denial_explanation = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial."
-
-			If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 character."
-
-			'Add validation to ensure worker signature is not blank
-            IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
-
-            'Error message handling
-            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-        Loop until err_msg = "" AND ButtonPressed = -1
-        'Add to all dialogs where you need to work within BLUEZONE
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    'End dialog section-----------------------------------------------------------------------------------------------
-
-
-	'Checks to see if in MAXIS
-	Call check_for_MAXIS(False)
-
-	'Ensure starting at SELF so that writing to CASE NOTE works properly
-	CALL back_to_SELF()
-
-	If ex_parte_determination = "Appears Ex Parte" or ex_parte_determination = "Cannot be Processed as Ex Parte" Then
-
-		'Navigate to STAT, REVW, and open HC Renewal Window with instructions
-		CALL navigate_to_MAXIS_screen("STAT", "REVW")
-		CALL write_value_and_transmit("X", 5, 71)
-
-		'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
-		'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
-		EMReadScreen income_renewal_date, 8, 7, 27
-		' EMReadScreen elig_renewal_date, 8, 8, 27
-		elig_renewal_date = review_month_from_SQL
-		EMReadScreen HC_ex_parte_determination, 1, 9, 27
-		EMReadScreen income_asset_renewal_date, 8, 7, 71
-		EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-		EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
-
-		'Dialog and review of HC renewal for approval of ex parte
+		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
-
-			Dialog1 = "" 'blanking out dialog name
-
-			BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Appears Ex Parte"
-			ButtonGroup ButtonPressed
-				PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-			Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
-			Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
-			Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
-			Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
-			Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
-			Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-			Text 10, 95, 145, 10, "- ExParte: Enter Y"
-			Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
-			EndDialog
-
-
-			DO
-				Do
-					err_msg = ""    'This is the error message handling
-					Dialog Dialog1
-					cancel_confirmation
-
-					' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-
-					'TO DO - update with functions?
-					'Check the HC renewal screen data and compare against initial to ensure that changes made properly
-
-					'TODO - read DISA and display waiver
-
-					EMReadScreen stat_check, 4, 20, 21
-					EMReadScreen revw_panel_check, 4, 2, 46
-					EMReadScreen hc_revw_pop_up_check, 20, 4, 32
-
-					If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-						If hc_revw_pop_up_check = "REVW" Then
-							EMReadScreen pop_up_open, 1, 4, 22
-							If pop_up_open <> "*" Then PF3
-							' Call write_value_and_transmit({"X", 5, 71)
-						ElseIf stat_check = "STAT" Then
-							Call write_value_and_transmit("REVW", 20, 71)
-							' Call write_value_and_transmit({"X", 5, 71)
-						Else
-							Call MAXIS_background_check
-							CALL navigate_to_MAXIS_screen("STAT", "REVW")
-						End If
-						CALL write_value_and_transmit("X", 5, 71)
-					End If
-
-					' CALL back_to_SELF()
-					' CALL navigate_to_MAXIS_screen("STAT", "REVW")
-					' CALL write_value_and_transmit("X", 5, 71)
-					' EMReadScreen check_income_renewal_date, 8, 7, 27
-					EMReadScreen check_elig_renewal_date, 8, 8, 27
-					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
-
-					check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
-					check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
-					elig_renewal_date = replace(elig_renewal_date, " ", "/")
-					' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
-
-					check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-					check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
-					elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-					' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
-
-					' MsgBox "check_elig_renewal_date - " & check_elig_renewal_date & vbCr & "elig_renewal_date - " & elig_renewal_date
-					'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
-					If check_elig_renewal_date <> DateAdd("yyyy", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
-
-					'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
-					'TO DO - determine how to determine if meets spenddown?
-					' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
-					If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
-					'TODO - put back the funcitonality for spenddowns
-
-					'Validate that Exempt from 6 Mo IR is set to N
-					If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
-
-					'Validate that ExParte field updated to Y
-					If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
-
-					'Validate that ExParte Renewal Month is correct
-					'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-					If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
-
-					'Error message handling
-					IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-				Loop until err_msg = ""
-					'Add to all dialogs where you need to work within BLUEZONE
-					CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-			LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+			CALL write_variable_in_case_note(TIKL_note_text)
+			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided. The case meets one of the criteria below.")
+			CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
+			CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
+			CALL write_bullet_and_variable_in_case_note("* ", "Retirement, Survivors, and Disability Insurance (RSDI)")
+			CALL write_bullet_and_variable_in_case_note("* ", "SSI + RSDI")
+			CALL write_bullet_and_variable_in_case_note("* ", "Railroad Retirement Benefits (RRB)")
+			CALL write_bullet_and_variable_in_case_note("* ", "RSDI + RRB")
+			'TO DO - add additional language listing what would qualify for ex parte?
+			'TO DO - add additional case details - case number, renewal info, etc?
 		End If
 
-		'Dialog and review of HC renewal for denial of ex parte
+
+		'For ex parte denial, write information to case note
 		If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
-
-			Dialog1 = ""
-
-			BeginDialog Dialog1, 0, 0, 331, 120, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
-			ButtonGroup ButtonPressed
-				PushButton 205, 100, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-			Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
-			Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
-			Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
-			Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-			Text 10, 65, 145, 10, "- ExParte: Enter N"
-			Text 10, 80, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
-			EndDialog
-
-
-			DO
-				Do
-					err_msg = ""    'This is the error message handling
-					Dialog Dialog1
-					cancel_confirmation
-
-					' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-
-					'TO DO - update with functions?
-					'Check the HC renewal screen data and compare against initial to ensure that changes made properly
-
-					EMReadScreen stat_check, 4, 20, 21
-					EMReadScreen revw_panel_check, 4, 2, 46
-					EMReadScreen hc_revw_pop_up_check, 20, 4, 32
-
-					If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
-						If hc_revw_pop_up_check = "REVW" Then
-							EMReadScreen pop_up_open, 1, 4, 22
-							If pop_up_open <> "*" Then PF3
-							' Call write_value_and_transmit({"X", 5, 71)
-						ElseIf stat_check = "STAT" Then
-							Call write_value_and_transmit("REVW", 20, 71)
-							' Call write_value_and_transmit({"X", 5, 71)
-						Else
-							Call MAXIS_background_check
-							CALL navigate_to_MAXIS_screen("STAT", "REVW")
-						End If
-						CALL write_value_and_transmit("X", 5, 71)
-					End If
-
-					EMReadScreen check_income_renewal_date, 8, 7, 27
-					EMReadScreen check_elig_renewal_date, 8, 8, 27
-					EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-					If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-					EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
-
-					check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
-					check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
-					elig_renewal_date = replace(elig_renewal_date, " ", "/")
-					' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
-
-					check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
-					check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
-					elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
-					' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
-
-					'Validation to ensure that elig renewal date has not changed
-					If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
-
-					'Validation for Income/Asset Renewal Date to ensure that information has not changed
-					If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
-
-					'Validation to ensure that Exempt from 6 Mo IR is set to N
-					If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
-
-					'Validation to ensure that ExParte field updated to N
-					If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte."
-
-					'Validate that ExParte Renewal Month is correct
-					'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-					If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
-
-					'Error message handling
-					IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-				Loop until err_msg = ""
-					'Add to all dialogs where you need to work within BLUEZONE
-					CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-			LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
+			CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
+			'TO DO - add additional language listing what would qualify for ex parte?
+			'TO DO - add additional case details - case number, renewal info, etc?
 		End If
+
+		If ex_parte_determination = "Health Care has been Closed" Then
+			CALL write_variable_in_case_note("No renewal required on case as the Health Care is no longer active.")
+		End If
+
+		'Add worker signature
+		CALL write_variable_in_case_note("---")
+		CALL write_variable_in_case_note(worker_signature)
+
+		'Script end procedure
+		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
 	End If
-	' MsgBox "STOP HERE FOR NOW!!!"
-
-	If ex_parte_determination = "Appears Ex Parte" Then appears_ex_parte = True
-	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then appears_ex_parte = False
-	If ex_parte_determination = "Health Care has been Closed" Then appears_ex_parte = False
-	If ex_parte_determination = "Case Transfered Out of County" Then appears_ex_parte = False
-	' MsgBox "appears_ex_parte - " & appears_ex_parte
-
-	If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
-		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
-
-		'Creating objects for Access
-		Set objUpdateConnection = CreateObject("ADODB.Connection")
-		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
-
-		'This is the file path for the statistics Access database.
-		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-	Else
-		MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
-	End If
-
-	' MsgBox "About to CASE NOTE AND TIKL"
-	'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
-	'TO DO - confirm TIKL information is correct
-	If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
-
-	If ex_parte_determination = "Case Transfered Out of County" Then script_end_procedure("Case List updated with Ex parte Evaluation. No CASE/NOTE as case is not in Hennepin County.")
-	'Navigate to and start a new CASE NOTE
-	Call start_a_blank_case_note
-
-	'Add title to CASE NOTE
-	CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
-
-	'For ex parte approval, write information to case note
-	If ex_parte_determination = "Appears Ex Parte" Then
-		CALL write_variable_in_case_note(TIKL_note_text)
-		CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided. The case meets one of the criteria below.")
-		CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
-		CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
-		CALL write_bullet_and_variable_in_case_note("* ", "Retirement, Survivors, and Disability Insurance (RSDI)")
-		CALL write_bullet_and_variable_in_case_note("* ", "SSI + RSDI")
-		CALL write_bullet_and_variable_in_case_note("* ", "Railroad Retirement Benefits (RRB)")
-		CALL write_bullet_and_variable_in_case_note("* ", "RSDI + RRB")
-		'TO DO - add additional language listing what would qualify for ex parte?
-		'TO DO - add additional case details - case number, renewal info, etc?
-	End If
-
-
-	'For ex parte denial, write information to case note
-	If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
-		CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
-		CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
-		'TO DO - add additional language listing what would qualify for ex parte?
-		'TO DO - add additional case details - case number, renewal info, etc?
-	End If
-
-	If ex_parte_determination = "Health Care has been Closed" Then
-		CALL write_variable_in_case_note("No renewal required on case as the Health Care is no longer active.")
-	End If
-
-	'Add worker signature
-	CALL write_variable_in_case_note("---")
-	CALL write_variable_in_case_note(worker_signature)
-
-	'Script end procedure
-	script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
-
 
 	If ex_parte_phase = "Phase 2" Then
 		Dialog1 = ""
