@@ -59,8 +59,8 @@ changelog_display
 'Connecting to MAXIS, and grabbing the case number and current footer month/year
 EMConnect ""
 
-EMReadScreen are_we_at_ABAWD_tracking_record, 21, 4, 34
-If are_we_at_ABAWD_tracking_record = "ABAWD Tracking Record" Then
+EMReadScreen are_we_at_ABAWD_tracking_record, 8, 1, 71
+If are_we_at_ABAWD_tracking_record = "FMCDJAMF" Then
     EMGetCursor tracker_row, tracker_col
 
     If tracker_col = 19 Then
@@ -127,9 +127,8 @@ Do
 		err_msg = ""
 		dialog Dialog1
 		cancel_confirmation
-		IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "* Please enter a case number."
-		IF MAXIS_footer_month = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit month."
-		IF MAXIS_footer_year = "" THEN err_msg = err_msg & vbCr & "* Please enter a benefit year."
+		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

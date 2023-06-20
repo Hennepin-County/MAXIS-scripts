@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/16/2023", "NOTES - ABAWD TRACKING RECORD is back! NOTES - ABAWD WAIVED APPROVAL is now retired.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/11/2023", "Retired the scripts:##~## NOTES - HCAPP##~## NOTES - IMIG - EMA##~## NOTES - LTC - Application Received##~## ##~## The functionality of this script is supported by NOTES - Health Care Evaluation.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Retired HC Renewal and LTC-Rennewal scripts. These scripts will be enhanced prior to renewals starting again. Health Care renewals remain paused during the PHE.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2022", "****** NEW SCRIPT ******##~####~##NOTES - MFIP Orientation is now available.##~## ##~##The same functionality you find in NOTES - Interview can also be accessed in a stand-alone script. This functionality is also available through the DAIL Scrubber.##~##", "Casey Love, Hennepin County")
