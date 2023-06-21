@@ -4394,8 +4394,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				err_msg = ""    'This is the error message handling
 				Dialog Dialog1
 				cancel_confirmation
-				'Function belows creates navigation to STAT panels for navigation buttons
-				MAXIS_dialog_navigation
 
 				'Add validation to ensure ex parte denial explanation is not blank
 				If trim(ex_parte_denial_explanation) = "" Then err_msg = err_msg & vbCr & "* You must provide an explanation for the Ex Parte denial for this case."
@@ -4543,7 +4541,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		'For ex parte denial, write information to case note
 		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - EX PARTE DENIED ***")
-		CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
+		CALL write_variable_in_case_note("Phase 2 - The case has been evaluated for ex parte and has been denied based on the information provided.")
 		CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
 
 		'Add worker signature
