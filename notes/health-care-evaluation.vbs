@@ -4417,33 +4417,35 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		Dialog1 = ""
 
-		BeginDialog Dialog1, 0, 0, 216, 265, "Phase 2 - Ex Parte Denied"
-		GroupBox 10, 5, 200, 60, "Case Info"
+
+		BeginDialog Dialog1, 0, 0, 350, 265, "Phase 2 - Ex Parte Denied"
+		GroupBox 10, 5, 330, 60, "Case Info"
 			Text 15, 20, 20, 10, "Case:"
-			Text 55, 20, 150, 10, MAXIS_case_number
+			Text 50, 20, 145, 10, MAXIS_case_number
 			Text 15, 35, 35, 10, "Person 1:"
-			Text 55, 35, 150, 10, name_01
+			Text 50, 35, 285, 10, name_01
 			If name_02 <> "" Then
 				Text 15, 50, 35, 10, "Person 2:"
-				Text 55, 50, 150, 10, name_02
+				Text 50, 50, 150, 10, name_02
 			End If
-		GroupBox 10, 70, 200, 65, "Ex Parte Denial Explanation"
-			Text 15, 85, 185, 20, "You are documenting an ex parte denial. Provide an explanation for the denial below."
-			EditBox 15, 110, 185, 15, ex_parte_denial_explanation
-		GroupBox 10, 140, 200, 75, "Update HC Renewal Date"
-			Text 15, 155, 190, 10, "Update the HC renewal date based on the ex parte denial."
-			Text 15, 175, 100, 10, "Updated HC Renewal Month:"
-			EditBox 110, 170, 20, 15, updated_hc_renewal_month
-			Text 15, 195, 100, 10, "Updated HC Renewal Year:"
-			EditBox 110, 190, 20, 15, updated_hc_renewal_year
-		Text 15, 225, 60, 10, "Worker Signature:"
-		EditBox 80, 220, 125, 15, worker_signature
+		GroupBox 10, 70, 330, 105, "Ex Parte Denial Explanation"
+			Text 15, 85, 285, 10, "You are documenting an ex parte denial. Provide an explanation for the denial below."
+			EditBox 15, 95, 320, 15, ex_parte_denial_explanation
+			Text 15, 115, 225, 10, "Provide a summary of any changes from the Phase 1 determination."
+			EditBox 15, 125, 320, 15, phase_1_changes_summary
+			Text 15, 145, 225, 10, "Provide any additional notes below."
+			EditBox 15, 155, 320, 15, phase_2_notes
+		GroupBox 10, 185, 330, 50, "Update HC Renewal Date"
+			Text 15, 200, 190, 10, "Update the HC renewal date based on the ex parte denial."
+			Text 15, 220, 130, 10, "Updated HC Renewal Month and Year:"
+			EditBox 145, 215, 20, 15, updated_hc_renewal_month
+			EditBox 170, 215, 20, 15, updated_hc_renewal_year
+		Text 15, 250, 60, 10, "Worker Signature:"
+		EditBox 80, 245, 125, 15, worker_signature
 		ButtonGroup ButtonPressed
-			OkButton 100, 245, 50, 15
-			CancelButton 155, 245, 50, 15
-
+			OkButton 235, 245, 50, 15
+			CancelButton 290, 245, 50, 15
 		EndDialog
-
 		
 		DO
 			Do
