@@ -4358,6 +4358,63 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	End If
 
 	If ex_parte_phase = "Phase 2" Then
+
+		objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objELIGConnection = CreateObject("ADODB.Connection")
+		Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objELIGRecordSet.Open objELIGSQL, objELIGConnection
+
+		Do While NOT objELIGRecordSet.Eof
+
+			If name_01 = "" Then
+				name_01 = trim(objELIGRecordSet("Name"))
+				PMI_01 = trim(objELIGRecordSet("PMINumber"))
+
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+				End If
+			ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+				End If
+			ElseIf name_02 = "" Then
+				name_02 = trim(objELIGRecordSet("Name"))
+				PMI_02 = trim(objELIGRecordSet("PMINumber"))
+
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+				End If
+			ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+				If objELIGRecordSet("MajorProgram") = "MA" Then
+					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+				Else
+					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+				End If
+			End If
+			objELIGRecordSet.MoveNext
+		Loop
+
+		objELIGRecordSet.Close
+		objELIGConnection.Close
+		Set objELIGRecordSet=nothing
+		Set objELIGConnection=nothing
+
 		Dialog1 = ""
 
 		'TO DO - add functionality to determine ex parte phase based on case number
