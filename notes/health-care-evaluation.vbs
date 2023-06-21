@@ -4417,11 +4417,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		Dialog1 = ""
 
-		'TO DO - add functionality to determine ex parte phase based on case number
 		BeginDialog Dialog1, 0, 0, 216, 265, "Phase 2 - Ex Parte Denied"
 		GroupBox 10, 5, 200, 60, "Case Info"
 			Text 15, 20, 20, 10, "Case:"
-			Text 55, 20, 150, 10, case_number
+			Text 55, 20, 150, 10, MAXIS_case_number
 			Text 15, 35, 35, 10, "Person 1:"
 			Text 55, 35, 150, 10, name_01
 			If name_02 <> "" Then
