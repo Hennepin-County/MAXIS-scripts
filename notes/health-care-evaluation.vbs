@@ -4459,11 +4459,17 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				'Add validation to ensure that ex parte denial explanation is not greater than 255 characters
 				If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 characters."
 
-				'Add validation that HC renewal month is not blank and is a number
-				If IsNumeric(updated_hc_renewal_month) = FALSE OR len(updated_hc_renewal_month) <> 2 THEN err_msg = err_msg & vbCr & "* The update HC renewal month cannot be blank and must be a two-digit number."
+				'Add validation to ensure phase 1 changes summary field is not blank
+				If trim(phase_1_changes_summary) = "" Then err_msg = err_msg & vbCr & "* You must provide a summary of any changes since the Phase 1 determination for this case."
 
-				'Add validation that HC renewal year is not blank and is a number
-				If IsNumeric(updated_hc_renewal_year) = FALSE OR len(updated_hc_renewal_year) <> 2 THEN err_msg = err_msg & vbCr & "* The update HC renewal month cannot be blank and must be a two-digit number."
+				'Add validation to ensure that phase 1 changes summary field is not greater than 255 characters
+				If len(phase_1_changes_summary) > 255 Then err_msg = err_msg & vbCr & "* The summary of changes since the Phase 1 determination is too long and should be shortened. The length of the information cannot be more than 255 characters."
+
+				'Add validation to ensure phase 2 notes field is not greater than 255 characters
+				If len(phase_2_notes) > 255 Then err_msg = err_msg & vbCr & "* The additional notes field is too long and should be shortened. The length of the information cannot be more than 255 characters."
+
+				'Add validation for HC renewal month and year
+				Call validate_footer_month_entry(updated_hc_renewal_month, updated_hc_renewal_year, err_msg, "*")
 							
 				'Add validation to ensure worker signature is not blank
 				IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
