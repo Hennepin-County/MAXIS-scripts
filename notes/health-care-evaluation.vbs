@@ -3096,9 +3096,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Set objELIGRecordSet=nothing
 		Set objELIGConnection=nothing
 
-		'Add Phase 2 - Ex Parte Denied dialog and update HC renewal screen
-		'TO DO - Verify best way to handle logic for phase 2
-
 		'Adding functionality to determine the reference number for each person on the case
 		'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
 		If PMI_01 = "" and PMI_02 = "" Then
@@ -3873,7 +3870,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		Dialog1 = ""
 
-		'TO DO - add functionality to determine ex parte phase based on case number
 		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
 			GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
 			Text 20, 295, 80, 10, "Ex Parte Evaluation:"
@@ -4312,7 +4308,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		' MsgBox "About to CASE NOTE AND TIKL"
 		'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
-		'TO DO - confirm TIKL information is correct
 		If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
 
 		If ex_parte_determination = "Case Transfered Out of County" Then script_end_procedure("Case List updated with Ex parte Evaluation. No CASE/NOTE as case is not in Hennepin County.")
@@ -4332,8 +4327,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			CALL write_bullet_and_variable_in_case_note("* ", "SSI + RSDI")
 			CALL write_bullet_and_variable_in_case_note("* ", "Railroad Retirement Benefits (RRB)")
 			CALL write_bullet_and_variable_in_case_note("* ", "RSDI + RRB")
-			'TO DO - add additional language listing what would qualify for ex parte?
-			'TO DO - add additional case details - case number, renewal info, etc?
 		End If
 
 
@@ -4341,8 +4334,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
 			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
 			CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
-			'TO DO - add additional language listing what would qualify for ex parte?
-			'TO DO - add additional case details - case number, renewal info, etc?
 		End If
 
 		If ex_parte_determination = "Health Care has been Closed" Then
@@ -4416,7 +4407,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Set objELIGConnection=nothing
 
 		Dialog1 = ""
-
 
 		BeginDialog Dialog1, 0, 0, 350, 265, "Phase 2 - Ex Parte Denied"
 		GroupBox 10, 5, 330, 60, "Case Info"
@@ -4527,10 +4517,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Dialog Dialog1
 				cancel_confirmation
 
-				' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-
-				'TO DO - update with functions?
-				'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+				'TO DO - Once receive direction from DHS, check the HC renewal screen data and compare against initial to ensure that changes made properly
 
 				'TODO - read DISA and display waiver
 
