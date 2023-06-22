@@ -4588,7 +4588,24 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+		'TO DO - verify that ex parte determination update to SQL database is correct 
+		ex_parte_determination = "Cannot be Processed as Ex Parte" 
+		appears_ex_parte = False
 
+		If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+			sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_determination & "', Phase2ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+		Else
+			MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
+		End If
 
 		'For ex parte denial, write information to case note
 		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - EX PARTE DENIED ***")
