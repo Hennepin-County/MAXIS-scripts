@@ -4594,6 +4594,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - EX PARTE DENIED ***")
 		CALL write_variable_in_case_note("Phase 2 - The case has been evaluated for ex parte and has been denied based on the information provided.")
 		CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
+		CALL write_bullet_and_variable_in_case_note("Updated HC Renewal Date:", updated_hc_renewal_month & "/" & updated_hc_renewal_year)
 		CALL write_bullet_and_variable_in_case_note("Changes since Phase 1:", phase_1_changes_summary)
 		If trim(phase_2_notes) <> "" Then CALL write_bullet_and_variable_in_case_note("Additional notes:", phase_2_notes)
 
