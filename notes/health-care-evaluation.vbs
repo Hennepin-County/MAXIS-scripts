@@ -4362,41 +4362,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 		Do While NOT objELIGRecordSet.Eof
-
-			If name_01 = "" Then
+			If name_01 = "" or name_01 = trim(objELIGRecordSet("Name")) Then
 				name_01 = trim(objELIGRecordSet("Name"))
 				PMI_01 = trim(objELIGRecordSet("PMINumber"))
-
-				If objELIGRecordSet("MajorProgram") = "MA" Then
-					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-				Else
-					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-				End If
-			ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-				If objELIGRecordSet("MajorProgram") = "MA" Then
-					MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-				Else
-					MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-					MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-				End If
 			ElseIf name_02 = "" Then
 				name_02 = trim(objELIGRecordSet("Name"))
 				PMI_02 = trim(objELIGRecordSet("PMINumber"))
-
-				If objELIGRecordSet("MajorProgram") = "MA" Then
-					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-				Else
-					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-				End If
-			ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-				If objELIGRecordSet("MajorProgram") = "MA" Then
-					MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-				Else
-					MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-					MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-				End If
 			End If
 			objELIGRecordSet.MoveNext
 		Loop
