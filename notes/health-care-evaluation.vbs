@@ -3027,10 +3027,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	If review_month_from_SQL = "" Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") is not listed on the Ex Parte Data Table and cannot be processed as Ex Parte.")
 	review_month_from_SQL = DateAdd("d", 0, review_month_from_SQL)
 	Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
-	If DateDiff("d", date, review_month_from_SQL) =<0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is in the past and cannot be processed as Ex Parte.")
-	If DateDiff("d", date, review_month_from_SQL) > 90 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is too far in the future to be processed as Ex Parte.")
+	If DateDiff("d", date, review_month_from_SQL) =< 0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is in the past and cannot be processed as Ex Parte.")
+	If DateDiff("m", date, review_month_from_SQL) > 3 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is too far in the future to be processed as Ex Parte.")
 	ex_parte_phase = ""
-	If DateDiff("d", date, review_month_from_SQL) < 32 Then
+	If DateDiff("m", date, review_month_from_SQL) = 1 Then
 		ex_parte_phase = "Phase 2"
 	Else
 		ex_parte_phase = "Phase 1"
