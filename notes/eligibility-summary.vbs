@@ -10994,9 +10994,18 @@ class mfip_eligibility_detail
 			End if
 
 			Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
-			EMReadScreen still_in_menu, 20, 4, 34
-			Do while still_in_menu = "Deemer Income Budget"
-				EMReadScreen pop_up_name, 40, 6, 27
+			dm_row = 1
+			dm_col = 1
+			EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+			' EMReadScreen still_in_menu, 20, 2, 34
+			' MsgBox"still_in_menu - " & still_in_menu
+			Do while dm_row <> 0
+			' Do while still_in_menu = "Deemer Income Budget"
+				' MsgBox"still_in_menu - " & still_in_menu & " - in loop - DEEMER INCOME"
+				pers_row = 1
+				pers_col = 1
+				EMSearch "Mbrsp Code", pers_row, pers_col
+				EMReadScreen pop_up_name, 40, pers_row-1, pers_col+5
 				pop_up_name = trim(pop_up_name)
 				pop_up_name_array = split(pop_up_name, ",")
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -11050,7 +11059,10 @@ class mfip_eligibility_detail
 					End If
 				Next
 				transmit
-				EMReadScreen still_in_menu, 20, 4, 34
+				dm_row = 1
+				dm_col = 1
+				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+				' EMReadScreen still_in_menu, 20, 4, 34
 			Loop
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
