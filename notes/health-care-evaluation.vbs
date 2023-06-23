@@ -4414,20 +4414,19 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Dialog Dialog1
 				cancel_confirmation
 
+				'Trim information for CASE/NOTES
+				ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
+				phase_1_changes_summary = trim(phase_1_changes_summary)
+				phase_2_notes = trim(phase_2_notes)
+
 				'Add validation to ensure ex parte denial explanation is not blank
-				If trim(ex_parte_denial_explanation) = "" Then err_msg = err_msg & vbCr & "* You must provide an explanation for the Ex Parte denial for this case."
+				If ex_parte_denial_explanation = "" Then err_msg = err_msg & vbCr & "* You must provide an explanation for the Ex Parte denial for this case."
 
 				'Add validation to ensure that ex parte denial explanation is not greater than 255 characters
 				If len(ex_parte_denial_explanation) > 255 Then err_msg = err_msg & vbCr & "* The explanation for the Ex Parte denial is too long and should be shortened. The length of the information cannot be more than 255 characters."
 
 				'Add validation to ensure phase 1 changes summary field is not blank
-				If trim(phase_1_changes_summary) = "" Then err_msg = err_msg & vbCr & "* You must provide a summary of any changes since the Phase 1 determination for this case."
-
-				'Add validation to ensure that phase 1 changes summary field is not greater than 255 characters
-				If len(phase_1_changes_summary) > 255 Then err_msg = err_msg & vbCr & "* The summary of changes since the Phase 1 determination is too long and should be shortened. The length of the information cannot be more than 255 characters."
-
-				'Add validation to ensure phase 2 notes field is not greater than 255 characters
-				If len(phase_2_notes) > 255 Then err_msg = err_msg & vbCr & "* The additional notes field is too long and should be shortened. The length of the information cannot be more than 255 characters."
+				If phase_1_changes_summary = "" Then err_msg = err_msg & vbCr & "* You must provide a summary of any changes since the Phase 1 determination for this case."
 
 				'Add validation for HC renewal month and year
 				Call validate_footer_month_entry(updated_hc_renewal_month, updated_hc_renewal_year, err_msg, "*")
@@ -4584,7 +4583,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
 		CALL write_bullet_and_variable_in_case_note("Updated HC Renewal Date:", updated_hc_renewal_month & "/" & updated_hc_renewal_year)
 		CALL write_bullet_and_variable_in_case_note("Changes since Phase 1:", phase_1_changes_summary)
-		If trim(phase_2_notes) <> "" Then CALL write_bullet_and_variable_in_case_note("Additional notes:", phase_2_notes)
+		If phase_2_notes <> "" Then CALL write_bullet_and_variable_in_case_note("Additional notes:", phase_2_notes)
 
 		'Add worker signature
 		CALL write_variable_in_case_note("---")
