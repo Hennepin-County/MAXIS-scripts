@@ -101,20 +101,20 @@ mmis_last_day_after_cap = last_day_mo & "/" & last_day_day & "/" & last_day_yr
 
 'Setting amounts
 total_savings = 0                   'setting this at zero so that we can add up what we save
-capitation_11x      = 938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
-capitation_PW       = 1241.53
-capitation_1        = 235.68
-capitation_2_15     = 236.03
-capitation_16_20    = 261.67
-capitation_21_49    = 808.96
-capitation_21_49_ax = 800.89
-capitation_50_64    = 1118.34
-capitation_50_64_ax = 801.27
-capitation_65       = 2681.89
+capitation_11x      = 1051.66'938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
+capitation_PW       = 791.45'1241.53
+capitation_1        = 256.59'235.68
+capitation_2_15     = 256.57'236.03
+capitation_16_20    = 282.16'261.67
+capitation_21_49    = 932.53'808.96
+capitation_21_49_ax = 996.84'800.89
+capitation_50_64    = 1260.16'1118.34
+capitation_50_64_ax = 988.53'801.27
+capitation_65       = 3094.54'2681.89
 
-capitation_QMB      = 135.50
-capitation_SLMB     = 135.50
-capitation_QI1      = 135.50
+capitation_QMB      = 164.90'135.50
+capitation_SLMB     = 164.90'135.50
+capitation_QI1      = 164.90'135.50
 
 'Constants
 Const basket_nbr            = 0
@@ -204,7 +204,7 @@ list_of_cases = 0                       'array incrementer
 For each worker in worker_array         'going through each worker in the list of workers
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
     worker = trim(worker)               'making sure there aren't any spaces around the basket number
-	Call navigate_to_MAXIS_screen("rept", "eomc")      'go to EOMC for the correct worker number
+	Call navigate_to_MAXIS_screen("REPT", "EOMC")      'go to EOMC for the correct worker number
 	EMWriteScreen worker, 21, 16
 	transmit
 
@@ -385,11 +385,18 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     ' If MAXIS_case_number = "" Then MsgBox "Case number: " & EOMC_CLIENT_ARRAY(case_nbr, hc_case) & vbNewLine & "Client: " & EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) & vbNewLines & "PMI: " & EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
 
     Call navigate_to_MAXIS_screen("STAT", "MEMB")                       'going to MEMB to get age for identifying correct capitation
-    EMWriteScreen CLIENT_reference_number, 20, 76
-    EMReadScreen age_of_client, 3, 8, 76
-    age_of_client = trim(age_of_client)
-    If age_of_client = "" Then age_of_client = 0
-    EOMC_CLIENT_ARRAY(clt_age, hc_clt) = age_of_client*1
+    Call write_value_and_transmit(CLIENT_reference_number, 20, 76)
+	EMWaitReady 0, 0
+	EMReadScreen access_denied_check, 13, 24, 2
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 2 'TODO - decide what 'age' we want to assign when a MEMB panel is access denied
+	Else
+		EMReadScreen age_of_client, 3, 8, 76
+		age_of_client = trim(age_of_client)
+		If age_of_client = "" Then age_of_client = 0
+		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = age_of_client*1
+	End If
 
     Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
     APPROVAL_NEEDED = FALSE                                             'setting some booleans
@@ -747,7 +754,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     PMI_Number = right("00000000" & EOMC_CLIENT_ARRAY(clt_pmi, hc_clt), 8)    'making this 8 charactes because MMIS
     MAXIS_case_number = right("00000000" & EOMC_CLIENT_ARRAY(case_nbr, hc_clt), 8)
 
-    If EOMC_CLIENT_ARRAY(err_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
+	If EOMC_CLIENT_ARRAY(err_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
         EMWriteScreen "I", 2, 19                                                    'read only
         EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
         transmit
