@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/26/2023", "Added handling to support selection of specific programs for HRF processing.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Fixed a bug that prevented the script from reading the grant amount if Significant Change was applied on MFIP. Additionally added functionality to copy significant change information into the casenote if ELIG/MF is read.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
 call changelog_update("04/23/2018", "Added NOTES on INCOME field and some preselected options to input on NOTES on INCOME field for more detailed case notes.", "Casey Love, Hennepin County")
@@ -138,7 +139,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'NAV to STAT
-call navigate_to_MAXIS_screen("stat", "memb")
+call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
@@ -168,7 +169,6 @@ End If
 
 'If workers answers yes to this is a LTC case - script runs this specific functionality
 If LTC_case = vbYes then
-
 	'LTC cases should not have these programs active
 	If MFIP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* MFIP will be removed."
 	If SNAP_check = checked Then uncheck_msg = uncheck_msg & vbNewLine & "* SNAP will be removed."
@@ -511,7 +511,7 @@ If LTC_case = vbYes then
 
 	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
 	If grab_MSA_info_check = 1 then		'Going to MSA
-		call navigate_to_MAXIS_screen("elig", "msa_")
+		call navigate_to_MAXIS_screen("ELIG", "MSA_")
 		EMReadScreen MSPR_check, 4, 3, 47
 		If MSPR_check <> "MSPR" then
 			MsgBox "The script couldn't find ELIG/MSA. It will now jump to case note."
@@ -541,7 +541,7 @@ If LTC_case = vbYes then
 				EMReadScreen MSA_grant, 8, 11, 73		'Checking the amount - if a supplement, getting additional detail
 				MSA_grant = trim(MSA_grant)
 				If MSA_grant <> "81.00" Then			'Anything other than 81 is typically a supplement
-					EMWriteScreen "x", 9, 44
+					EMWriteScreen "X", 9, 44
 					transmit
 					mx_row = 8
 					'This will read each row in the supplement pop up to add deail to the case note
@@ -571,7 +571,7 @@ If LTC_case = vbYes then
 	If grab_HC_info_check = checked Then
 		For each member in HH_member_array
 			clt_ref_num = member
-			call navigate_to_MAXIS_screen("elig", "hc__")
+			call navigate_to_MAXIS_screen("ELIG", "HC__")
 			EMReadScreen hc_elig_check, 4, 3, 51
 			If hc_elig_check <> "HHMM" then
 				MsgBox "The script couldn't find ELIG/HC. It will now jump to case note."
@@ -609,7 +609,7 @@ If LTC_case = vbYes then
 				                End If
 				            Else
 				                EMReadScreen elig_result, 8, row, 41        'Goes into the elig version to get the major program and elig type
-				                EMWriteScreen "x", row, 26
+				                EMWriteScreen "X", row, 26
 				                transmit
 								If clt_hc_prog = "MA  " then
 									mx_col = 19
@@ -684,7 +684,6 @@ If LTC_case = vbYes then
 	call write_variable_in_CASE_NOTE(worker_signature)
 
 	end_msg = "Success! Your HRF for " & MAXIS_footer_month & "/" & MAXIS_footer_year & " on a LTC case has been case noted."
-
 ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 	'The case note dialog, complete with panel navigation, reading the ELIG/MFIP screen, and navigation to case note, as well as logic for certain sections to be required.
 	DO
@@ -818,7 +817,7 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 
 	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
 	If grab_MFIP_info_check = 1 then
-		call navigate_to_MAXIS_screen("elig", "mfip")
+		call navigate_to_MAXIS_screen("ELIG", "MFIP")
         EMReadScreen sig_change_check, 4, 3, 38
         If sig_change_check = "MFSC" Then
             EMReadScreen budeget_month_income, 8, 9, 35
@@ -840,7 +839,7 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 		End if
 	End if
 	If grab_FS_info_check = 1 then
-		call navigate_to_MAXIS_screen("elig", "fs__")
+		call navigate_to_MAXIS_screen("ELIG", "FS__")
 		EMReadScreen FS_check, 4, 3, 48
 		If FS_check <> "FSPR" then
 			MsgBox "The script couldn't find Elig/FS. It will now jump to case note."
@@ -911,4 +910,4 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 
 End If
 
-script_end_procedure(end_msg & vbcr & "Please make sure to accept the Work items in ECF associated with this HRF. Thank you!")
+script_end_procedure_with_error_report(end_msg & vbcr & "Please make sure to accept the Work items in ECF associated with this HRF. Thank you!")
