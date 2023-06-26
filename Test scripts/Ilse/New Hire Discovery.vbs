@@ -248,7 +248,8 @@ Loop
 '			If trim(next_dail_check) = "" then
 '				PF8
 '				EMReadScreen last_page_check, 21, 24, 2
-'				If last_page_check = "THIS IS THE LAST PAGE" then
+'				'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+'               If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
 '					all_done = true
 '					exit do
 '				Else
