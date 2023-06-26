@@ -4380,7 +4380,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Dialog1 = ""
 
 		BeginDialog Dialog1, 0, 0, 350, 265, "Phase 2 - Ex Parte Denied"
-		GroupBox 10, 5, 330, 60, "Case Info"
+			GroupBox 10, 5, 330, 60, "Case Info"
 			Text 15, 20, 20, 10, "Case:"
 			Text 50, 20, 145, 10, MAXIS_case_number
 			Text 15, 35, 35, 10, "Person 1:"
@@ -4389,25 +4389,27 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 15, 50, 35, 10, "Person 2:"
 				Text 50, 50, 150, 10, name_02
 			End If
-		GroupBox 10, 70, 330, 105, "Ex Parte Denial Explanation"
+
+			GroupBox 10, 70, 330, 105, "Ex Parte Denial Explanation"
 			Text 15, 85, 285, 10, "You are documenting an ex parte denial. Provide an explanation for the denial below."
 			EditBox 15, 95, 320, 15, ex_parte_denial_explanation
 			Text 15, 115, 225, 10, "Provide a summary of any changes from the Phase 1 determination."
 			EditBox 15, 125, 320, 15, phase_1_changes_summary
 			Text 15, 145, 225, 10, "Provide any additional notes below."
 			EditBox 15, 155, 320, 15, phase_2_notes
-		GroupBox 10, 185, 330, 50, "Update HC Renewal Date"
+
+			GroupBox 10, 185, 330, 50, "Update HC Renewal Date"
 			Text 15, 200, 190, 10, "Update the HC renewal date based on the ex parte denial."
 			Text 15, 220, 130, 10, "Updated HC Renewal Month and Year:"
 			EditBox 145, 215, 20, 15, updated_hc_renewal_month
 			EditBox 170, 215, 20, 15, updated_hc_renewal_year
-		Text 15, 250, 60, 10, "Worker Signature:"
-		EditBox 80, 245, 125, 15, worker_signature
-		ButtonGroup ButtonPressed
-			OkButton 235, 245, 50, 15
-			CancelButton 290, 245, 50, 15
+			Text 15, 250, 60, 10, "Worker Signature:"
+			EditBox 80, 245, 125, 15, worker_signature
+			ButtonGroup ButtonPressed
+				OkButton 235, 245, 50, 15
+				CancelButton 290, 245, 50, 15
 		EndDialog
-		
+
 		DO
 			Do
 				err_msg = ""    'This is the error message handling
@@ -4430,7 +4432,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				'Add validation for HC renewal month and year
 				Call validate_footer_month_entry(updated_hc_renewal_month, updated_hc_renewal_year, err_msg, "*")
-							
+
 				'Add validation to ensure worker signature is not blank
 				IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
 
@@ -4554,12 +4556,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				'Error message handling
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 			Loop until err_msg = ""
-				'Add to all dialogs where you need to work within BLUEZONE
-				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+			'Add to all dialogs where you need to work within BLUEZONE
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-		'TO DO - verify that ex parte determination update to SQL database is correct 
-		ex_parte_determination = "Cannot be Processed as Ex Parte" 
+		'TO DO - verify that ex parte determination update to SQL database is correct
+		ex_parte_determination = "Cannot be Processed as Ex Parte"
 		appears_ex_parte = False
 
 		If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
