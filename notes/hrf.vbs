@@ -61,51 +61,81 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
-'Connecting to BlueZone
-EMConnect ""
-
-'Grabbing case number & footer month/year
-call MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect "" 'Connecting to BlueZone
+Call MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing case number & footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 181, 100, "Case number"
-  EditBox 80, 5, 70, 15, MAXIS_case_number
-  EditBox 65, 25, 30, 15, MAXIS_footer_month
-  EditBox 140, 25, 30, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
-  CheckBox 45, 60, 30, 10, "SNAP", SNAP_check
-  CheckBox 85, 60, 20, 10, "HC", HC_check
-  CheckBox 115, 60, 25, 10, "GA", GA_check
-  CheckBox 145, 60, 50, 10, "MSA", MSA_check
-  ButtonGroup ButtonPressed
-    OkButton 35, 80, 50, 15
-    CancelButton 95, 80, 50, 15
-  Text 25, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 110, 30, 25, 10, "Year:"
-  GroupBox 5, 45, 170, 30, "Programs recertifying"
-EndDialog
-
-'Showing case number dialog
 Do
-	Do
-  		Dialog Dialog1
-  		cancel_confirmation
-  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then MsgBox "You need to type a valid case number."
-	Loop until MAXIS_case_number <> "" and IsNumeric(MAXIS_case_number) = True and len(MAXIS_case_number) <= 8
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+    Do
+        '-------------------------------------------------------------------------------------------------DIALOG
+        Dialog1 = "" 'Blanking out previous dialog detail
+        BeginDialog Dialog1, 0, 0, 181, 100, "HRF Case Number"
+          EditBox 80, 5, 70, 15, MAXIS_case_number
+          EditBox 65, 25, 30, 15, MAXIS_footer_month
+          EditBox 140, 25, 30, 15, MAXIS_footer_year
+          CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
+          CheckBox 45, 60, 30, 10, "SNAP", SNAP_check
+          CheckBox 85, 60, 20, 10, "HC", HC_check
+          CheckBox 115, 60, 25, 10, "GA", GA_check
+          CheckBox 145, 60, 50, 10, "MSA", MSA_check
+          ButtonGroup ButtonPressed
+            OkButton 35, 80, 50, 15
+            CancelButton 95, 80, 50, 15
+          Text 25, 10, 50, 10, "Case number:"
+          Text 10, 30, 50, 10, "Footer month:"
+          Text 110, 30, 25, 10, "Year:"
+          GroupBox 5, 45, 170, 30, "Programs Recertifying"
+        EndDialog
 
-'Checking for an active MAXIS seesion
-Call check_for_MAXIS(False)
+        err_msg = ""
+      	Dialog Dialog1
+      	cancel_without_confirmation
+        Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+        If (MFIP_check = 0 and SNAP_check = 0 and HC_check = 0 and GA_check = 0 and MSA_check = 0) then err_msg = err_msg & "* Select all applicable programs at monthly report."
+
+        'Checking to ensure the case is actually at a HRF
+        Call check_for_MAXIS(False)
+        Call navigate_to_MAXIS_screen("STAT", "MONT")
+        EmReadscreen HRF_panels, 1, 2, 73
+        If HRF_panels = 0 then
+            script_end_procedure_with_error_report("This case is not subject to monthly reporting. The script will now end.")
+        Else
+            cash_hrf = False    'defaulting programs to false for determination
+            hc_hrf = False
+            snap_hrf = False
+
+            'setting boolean here since there are more than one cash programs
+            If MFIP_check = 1 or GA_check = 1 or MSA_check = 1 then
+                cash_progs = True
+            else
+                cash_progs = False
+            End if
+
+            EmReadscreen cash_code, 1, 11, 43
+            EmReadscreen snap_code, 1, 11, 53
+            EmReadscreen HC_code, 1, 11, 63
+
+            If cash_code <> "_" then cash_HRF = True
+            If snap_code <> "_" then snap_HRF = True
+            If HC_code <> "_" then hc_HRF = True
+
+            'program selected in dialog, not open available as HRF process
+            If HC_check = 1 and hc_hrf = False then err_msg = err_msg & vbcr & "* You've selected to process health care, but you cannot use a HRF for health care programs on this case. Update your program selections." & vbcr
+            If SNAP_check = 1 and snap_hrf = False then err_msg = err_msg & vbcr & "* You've selected to process SNAP, but you cannot use a HRF for SNAP on this case. Update your program selections." & vbcr
+            If cash_progs = True and cash_hrf = False then err_msg = err_msg & vbcr & "* You've selected to process cash programs, but you cannot use a HRF for cash programs on this case. Update your program selection." & vbcr
+
+            'program listed on MONT page, but NOT in program selection in dialog
+            If HC_check = 0 and hc_hrf = True then err_msg = err_msg & vbcr & "* Health Care is not selected on this case, but is due for a HRF this month. Update your program selections." & vbcr
+            If SNAP_check = 0 and snap_hrf = True then err_msg = err_msg & vbcr & "* SNAP is not selected on this case, but is due for a HRF this month. Update your program selections." & vbcr
+            If cash_progs = false and cash_hrf = True then err_msg = err_msg & vbcr & "* Cash is not selected on this case, but is due for a HRF this month. Update your program selections." & vbcr
+        End if
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'NAV to STAT
 call navigate_to_MAXIS_screen("stat", "memb")
