@@ -304,7 +304,7 @@ function define_main_dialog()
 			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
 			Text 300, 60, 80, 10, "Health Care Eval is at "
-			DropListBox 380, 55, 85, 45, "Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			DropListBox 380, 55, 85, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
 			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
@@ -4971,7 +4971,7 @@ FOR i = 0 to total_clients
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
 					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
-					If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
+					' If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If
 			Next
