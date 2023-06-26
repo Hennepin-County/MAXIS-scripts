@@ -433,7 +433,8 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #09/25/2017#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -465,7 +466,8 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= ""
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -513,7 +515,8 @@ script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).retirement_date		= ""
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -4276,7 +4279,6 @@ script_array(script_num).tags                   = array("ABAWD", "Communication"
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
