@@ -612,7 +612,7 @@ function enter_excel_headers(ObjExcel)
 	ObjExcel.Cells(t3_csr_all,  		t3_progs).Value = "CSR - All"
 	ObjExcel.Cells(t3_csr_grh,  		t3_progs).Value = "CSR - GRH"
 	ObjExcel.Cells(t3_csr_snap, 		t3_progs).Value = "CSR - SNAP"
-	ObjExcel.Cells(t3_csr_hc, 			t3_progs).Value = "CSR - SNAP"
+	ObjExcel.Cells(t3_csr_hc, 			t3_progs).Value = "CSR - HC"
 
 	ObjExcel.Cells(t3_priv_all, 		t3_progs).Value = "PRIV - All"
 	ObjExcel.Cells(t3_priv_cash,		t3_progs).Value = "PRIV - Cash"
