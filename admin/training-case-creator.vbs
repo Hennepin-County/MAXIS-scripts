@@ -2253,12 +2253,12 @@ function write_panel_to_MAXIS_TYPE_PROG_REVW(appl_date, type_cash_yn, type_hc_yn
 					EMReadScreen health_care_renewals, 20, 4, 32
 				LOOP UNTIL health_care_renewals = "HEALTH CARE RENEWALS"
 				IF revw_ar_or_ir = "AR" THEN
-					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 71)
+					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 7, 71)
 				ELSEIF revw_ar_or_ir = "IR" THEN
-					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 8, 27)
+					call create_MAXIS_friendly_date((dateadd("M", 6, appl_date)), 0, 7, 27)
 				END IF
-				call create_MAXIS_friendly_date((dateadd("M", 12, appl_date)), 0, 9, 27)
-				EMWriteScreen revw_exempt, 9, 71
+				call create_MAXIS_friendly_date((dateadd("M", 12, appl_date)), 0, 8, 27)
+				EMWriteScreen revw_exempt, 8, 71
 				transmit
 			END IF
 	END IF
@@ -3162,18 +3162,18 @@ For each MAXIS_case_number in case_number_array
 		EMWriteScreen "x", 5, 71
 		transmit
 		If REVW_ar_or_ir = "IR" then
-			EMWriteScreen six_month_month, 8, 27
-			EMWriteScreen six_month_year, 8, 33
+			EMWriteScreen six_month_month, 7, 27
+			EMWriteScreen six_month_year, 7, 33
 		ElseIf REVW_ar_or_ir = "AR" then
-			EMWriteScreen six_month_month, 8, 71
-			EMWriteScreen six_month_year, 8, 77
+			EMWriteScreen six_month_month, 7, 71
+			EMWriteScreen six_month_year, 7, 77
 		ElseIf REVW_ar_or_ir = "ER Only" then
-			EMWriteScreen one_year_month, 8, 27
-			EMWriteScreen one_year_year, 8, 33
+			EMWriteScreen one_year_month, 7, 27
+			EMWriteScreen one_year_year, 7, 33
 		End if
-		EMWriteScreen one_year_month, 9, 27
-		EMWriteScreen one_year_year, 9, 33
-		EMWriteScreen REVW_exempt, 9, 71
+		EMWriteScreen one_year_month, 8, 27
+		EMWriteScreen one_year_year, 8, 33
+		EMWriteScreen REVW_exempt, 8, 71
 		transmit
 		transmit
 	End if
