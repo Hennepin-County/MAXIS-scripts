@@ -2999,41 +2999,51 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
 	MAXIS_footer_year = CM_plus_1_yr
 	SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
-	'declare the SQL statement that will query the database
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
+	Call back_to_SELF
+	EMReadScreen MX_region, 10, 22, 48
+	MX_region = trim(MX_region)
+	If MX_region <> "TRAINING" Then
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open objSQL, objConnection
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
-	ex_parte_phase_1_worker = objRecordSet("Phase1HSR")
-	ex_parte_phase_2_worker = objRecordSet("Phase2HSR")
-	If ex_parte_determination_from_SQL = 0 Then
-		If IsNull(ex_parte_phase_2_worker) = True and ex_parte_phase_1_worker = user_ID_for_validation Then
-			Change_ex_parte_determination_msg = MsgBox("It appears that you previously made a determination on Phase 1 for this case." & vbCr & vbCr & "Do you need to update the Ex Parte Determination?", vbQuestion + vbYesNo, "Update Ex Parte Determination")
-			If Change_ex_parte_determination_msg = vbNo Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
-			' If Change_ex_parte_determination_msg = vbYes Then
-		Else
-			call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
+		ex_parte_phase_1_worker = objRecordSet("Phase1HSR")
+		ex_parte_phase_2_worker = objRecordSet("Phase2HSR")
+		If ex_parte_determination_from_SQL = 0 Then
+			If IsNull(ex_parte_phase_2_worker) = True and ex_parte_phase_1_worker = user_ID_for_validation Then
+				Change_ex_parte_determination_msg = MsgBox("It appears that you previously made a determination on Phase 1 for this case." & vbCr & vbCr & "Do you need to update the Ex Parte Determination?", vbQuestion + vbYesNo, "Update Ex Parte Determination")
+				If Change_ex_parte_determination_msg = vbNo Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+				' If Change_ex_parte_determination_msg = vbYes Then
+			Else
+				call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+			End If
 		End If
-	End If
-	review_month_from_SQL = objRecordSet("HCEligReviewDate")
-	If review_month_from_SQL = "" Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") is not listed on the Ex Parte Data Table and cannot be processed as Ex Parte.")
-	review_month_from_SQL = DateAdd("d", 0, review_month_from_SQL)
-	Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
-	If DateDiff("d", date, review_month_from_SQL) =< 0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is in the past and cannot be processed as Ex Parte.")
-	If DateDiff("m", date, review_month_from_SQL) > 3 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is too far in the future to be processed as Ex Parte.")
-	ex_parte_phase = ""
-	If DateDiff("m", date, review_month_from_SQL) = 1 Then
-		ex_parte_phase = "Phase 2"
+		review_month_from_SQL = objRecordSet("HCEligReviewDate")
+		If review_month_from_SQL = "" Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") is not listed on the Ex Parte Data Table and cannot be processed as Ex Parte.")
+		review_month_from_SQL = DateAdd("d", 0, review_month_from_SQL)
+		Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
+		If DateDiff("d", date, review_month_from_SQL) =< 0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is in the past and cannot be processed as Ex Parte.")
+		If DateDiff("m", date, review_month_from_SQL) > 3 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is too far in the future to be processed as Ex Parte.")
+		ex_parte_phase = ""
+		If DateDiff("m", date, review_month_from_SQL) = 1 Then
+			ex_parte_phase = "Phase 2"
+		Else
+			ex_parte_phase = "Phase 1"
+		End If
 	Else
 		ex_parte_phase = "Phase 1"
+		review_month_from_SQL = #9/1/2023#
+		Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
 	End If
 	review_month_01 = er_month & "/" & er_year
 	review_month_02 = er_month & "/" & er_year
@@ -4290,22 +4300,23 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ex_parte_determination = "Case Transfered Out of County" Then appears_ex_parte = False
 		' MsgBox "appears_ex_parte - " & appears_ex_parte
 
-		If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
-			' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-			sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+		If MX_region <> "TRAINING" Then
+			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+				' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+				sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
-			'Creating objects for Access
-			Set objUpdateConnection = CreateObject("ADODB.Connection")
-			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+				'Creating objects for Access
+				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-		Else
-			MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
+				'This is the file path for the statistics Access database.
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			Else
+				MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
+			End If
 		End If
-
 		' MsgBox "About to CASE NOTE AND TIKL"
 		'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 		If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
