@@ -547,9 +547,9 @@ function enter_excel_headers(ObjExcel)
 	ObjExcel.Cells(t1_row_titles, t1_REVW_type).Value = "REVW Type"
 	ObjExcel.Cells(t1_er_w_intv, t1_REVW_type).Value = "ER with Interview"
 	ObjExcel.Cells(t1_er_no_intv_cash, t1_REVW_type).Value = "ER - No Interview - Cash"
-	ObjExcel.Cells(t1_er_no_intv_hc, t1_REVW_type).Value = "ER - No Interview - HC"
+	ObjExcel.Cells(t1_er_no_intv_hc, t1_REVW_type).Value = "HC ER"
 	ObjExcel.Cells(t1_csr, t1_REVW_type).Value = "CSR - Cash/SNAP"
-	ObjExcel.Cells(t1_csr_hc, t1_REVW_type).Value = "CSR - HC"
+	ObjExcel.Cells(t1_csr_hc, t1_REVW_type).Value = "HC CSR"
 	ObjExcel.Cells(t1_priv, t1_REVW_type).Value = "PRIV"
 	ObjExcel.Cells(t1_total, t1_REVW_type).Value = "Total"
 
@@ -607,7 +607,7 @@ function enter_excel_headers(ObjExcel)
 	ObjExcel.Cells(t3_er_no_intv_all, 	t3_progs).Value = "ER no Intvw - All"
 	ObjExcel.Cells(t3_er_no_intv_cash,	t3_progs).Value = "ER no Intvw - Cash"
 	ObjExcel.Cells(t3_er_no_intv_snap,	t3_progs).Value = "ER no Intvw - SNAP"
-	ObjExcel.Cells(t3_er_no_intv_hc,	t3_progs).Value = "ER no Intvw - HC"
+	ObjExcel.Cells(t3_er_no_intv_hc,	t3_progs).Value = "ER - HC"
 
 	ObjExcel.Cells(t3_csr_all,  		t3_progs).Value = "CSR - All"
 	ObjExcel.Cells(t3_csr_grh,  		t3_progs).Value = "CSR - GRH"
@@ -2229,9 +2229,9 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(t1_er_no_intv_cash, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_no_intv_cash &"/" & t1_all_count_letter & t1_er_no_intv_cash
 	ObjExcel.Cells(t1_er_no_intv_cash, t1_app_percent_count).NumberFormat = "0.00%"
 
-	ObjExcel.Cells(t1_er_no_intv_hc, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_er_no_intv_hc, t1_apps_revd_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_er_no_intv_hc, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+	ObjExcel.Cells(t1_er_no_intv_hc, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_er_no_intv_hc, t1_apps_revd_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+	ObjExcel.Cells(t1_er_no_intv_hc, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_blank&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")],"&is_not_blank&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
 	ObjExcel.Cells(t1_er_no_intv_hc, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_no_intv_hc &"/" & t1_all_count_letter & t1_er_no_intv_hc
 	ObjExcel.Cells(t1_er_no_intv_hc, t1_app_percent_count).NumberFormat = "0.00%"
 
@@ -2403,49 +2403,49 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	ObjExcel.Cells(t3_er_no_intv_all, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&",Table1[CASH ("&date_header&")], "&is_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
 
 
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>I"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>I"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>U"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>U"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>N"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>N"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>A"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>A"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>O"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>O"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>T"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>T"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
 
 	ObjExcel.Cells(t3_er_no_intv_all, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"<>D"&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"<>D"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_cash, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
 	ObjExcel.Cells(t3_er_no_intv_snap, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+	ObjExcel.Cells(t3_er_no_intv_hc, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_true&",Table1[HC ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
 
 	For the_col = t3_apps_recvd_percent to t3_revw_d_percent Step 2
 		the_col_letter = convert_digit_to_excel_column(the_col-1)
