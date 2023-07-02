@@ -2887,6 +2887,7 @@ Const ltc_page_btn	= 2022
 Const last_btn		= 2030
 Const verif_button	= 2500
 Const clear_verifs_btn = 2510
+Const ex_parte_phase_2_problem_btn = 2520
 
 Const completed_hc_eval_btn = 3000
 Const next_btn				= 3010
@@ -2944,6 +2945,7 @@ BeginDialog Dialog1, 0, 0, 400, 300, "Health Care Evaluation"
   ButtonGroup ButtonPressed
     OkButton 285, 280, 50, 15
     CancelButton 340, 280, 50, 15
+	PushButton 285, 260, 105, 13, "Phase 2 Ex Parte PROBLEM", ex_parte_phase_2_problem_btn
     PushButton 315, 35, 50, 13, "Instructions", instructions_btn
     PushButton 315, 50, 50, 13, "Video Demo", video_demo_btn
   Text 120, 10, 120, 10, "Health Care Evaluation Script"
@@ -2983,16 +2985,63 @@ DO
 			err_msg = "LOOP"
 		Else
 			Call validate_MAXIS_case_number(err_msg, "*")
-			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
-			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
-			'Add validation to make sure LTC field is blank for ex parte
-            If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "N/A - Ex Parte Process" THEN err_msg = err_msg & vbCr & "* Select 'N/A - Ex Parte Process' for the LTC/Waiver Services field."
-			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
+			If ButtonPressed <> ex_parte_phase_2_problem_btn Then
+				If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
+				If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
+				'Add validation to make sure LTC field is blank for ex parte
+				If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "N/A - Ex Parte Process" THEN err_msg = err_msg & vbCr & "* Select 'N/A - Ex Parte Process' for the LTC/Waiver Services field."
+				If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
+			End If
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		End If
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
+
+If ButtonPressed = ex_parte_phase_2_problem_btn Then
+	SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 391, 95, "Ex Parte Phase 2 Problem Case"
+		EditBox 10, 40, 375, 15, ex_parte_2_problem_notes
+		ButtonGroup ButtonPressed
+			OkButton 280, 75, 50, 15
+			CancelButton 335, 75, 50, 15
+		Text 10, 10, 100, 10, "Case Number: " & MAXIS_case_number
+		Text 10, 30, 100, 10, "Notes about the problem:"
+		Text 315, 60, 70, 10, "(Character limit: 255)"
+		Text 10, 70, 160, 20, "This script will not CASE/NOTE any detail, only add the informaiton to the Ex Parte Data List."
+	EndDialog
+
+	Do
+		err_msg = ""
+
+		dialog Dialog1
+		cancel_confirmation
+
+		ex_parte_2_problem_notes = trim(ex_parte_2_problem_notes)
+
+		If len(ex_parte_2_problem_notes) > 255 Then err_msg = err_msg & vbCr & "* The explanation of the problem with this case must be less thatn 255 characters."
+		If err_msg <> "" Then MsgBox "NOTICE:" & vbCr & err_msg
+	Loop until err_msg = ""
+
+	If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" AND user_ID_for_validation <> "ILFE001" Then
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'REVIEW', Phase2ExParteCancelReason = '" & ex_parte_2_problem_notes & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objUpdateConnection = CreateObject("ADODB.Connection")
+		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+	Else
+		MsgBox "This is where the update would happen" & vbCr & vbCr & "ExParteAfterPhase2 - REVIEW " & vbCr & "user_ID_for_validation - " & user_ID_for_validation & vbCr & "Phase2ExParteCancelReason - " & ex_parte_2_problem_notes
+	End If
+	script_end_procedure("Phase 2 Problem case recorded for review. Complete the ES Workflow assignment and move on to the next case. SMEs will review the case and follow up.")
+End If
+
 
 'Add ex parte SQL connections and script
 If HC_form_name = "No Form - Ex Parte Determination" Then
