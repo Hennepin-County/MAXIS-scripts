@@ -3077,7 +3077,7 @@ function define_hc_elig_dialog()
 						Text 175, y_pos+10, 135, 10, "Earned Inc .  .  .  .  .  .  .  . $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_gross_earned(memb_ind)
 						Text 175, y_pos+20, 135, 10, "Excld Earned .  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_excluded_earned(memb_ind) ''& "(-)"
 						Text 175, y_pos+30, 135, 10, "Wrk Exp Deduct .  .  .   (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_work_exp_deduction(memb_ind)
-						Text 175, y_pos+40, 135, 10, "EI Disregard .  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregarrd(memb_ind)
+						Text 175, y_pos+40, 135, 10, "EI Disregard .  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregard(memb_ind)
 						Text 175, y_pos+50, 135, 10, "Dpdnt Care  .  .  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_dependent_care(memb_ind)
 						Text 175, y_pos+60, 135, 10, "Earned Deduct  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_deduction(memb_ind) ''& "(-)"
 						Text 175, y_pos+75, 135, 10, "Net Earned Inc  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_net_earned_income(memb_ind)
@@ -3200,10 +3200,6 @@ function define_hc_elig_dialog()
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) = "DP" Then grp_hgt = grp_hgt + 55
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then grp_hgt = grp_hgt + 55
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-			If offer_exparte_option = True Then
-				Text 300, 10, 100, 10, "Is this an Ex-Parte Approval?"
-				DropListBox 400, 5, 50, 15, "No"+chr(9)+"Yes", is_this_exparte_renewal
-			End If
 		End If
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QI1" Then
@@ -3339,10 +3335,6 @@ function define_hc_elig_dialog()
 			' GroupBox 10, 245, 440, 30, "Spenddown Exists"
 
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-			If offer_exparte_option = True Then
-				Text 300, 10, 100, 10, "Is this an Ex-Parte Approval?"
-				DropListBox 400, 5, 50, 15, "No"+chr(9)+"Yes", is_this_exparte_renewal
-			End If
 		End If
 
 		' If scnd_elig_ind <> "" Then
@@ -3637,6 +3629,11 @@ function define_hc_elig_dialog()
 			y_pos_2 = y_pos_2 + 10
 		End if
 
+		If ex_parte_approval = True Then
+			Text 10, 355, 145, 10, "This case is an EX PARTE APPROVAL"
+			CheckBox 155, 355, 300, 10, "Check here to stop the script from processing as Ex Parte.", stop_ex_parte_checkbox
+		End If
+	EndDialog
 end function
 
 function define_emer_elig_dialog()
@@ -6754,10 +6751,6 @@ function hc_elig_case_note()
 
 	end_msg_info = end_msg_info & "NOTE entered for HC - " & program_detail & " " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
-	If ex_parte_hc_run = True Then
-		Call write_variable_in_CASE_NOTE("* Case approved as a part of the Ex-Parte Renewal Pilot for " & first_month & ".")
-		If one_ex_parte_memo_sent = True Then Call write_variable_in_CASE_NOTE("* SPEC/MEMO sent to resident about Ex-Parte Renewal Pilot.")
-	End if
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
@@ -7116,7 +7109,7 @@ function hc_elig_case_note()
 
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    Excld Earned: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_excluded_earned(memb_ind), 8)) ''& "(-)"
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)  Wrk Exp Deduct: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_work_exp_deduction(memb_ind), 8))
-					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    EI Disregard: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregarrd(memb_ind), 8))
+					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    EI Disregard: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregard(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)      Dpdnt Care: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_dependent_care(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)   Earned Deduct: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_deduction(memb_ind), 8)) ''& "(-)"
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|     Net Earned Inc: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_net_earned_income(memb_ind), 8))
@@ -16693,12 +16686,13 @@ class hc_eligibility_detail
 	public hc_budget_type()
 	public hc_prog_elig_budg_gross_unearned()
 	public hc_prog_elig_budg_excluded_unearned()
+	public hc_prog_list_all_income()
 	public hc_prog_elig_budg_unearned_deduction()
 	public hc_prog_elig_budg_net_unearned_income()
 	public hc_prog_elig_budg_gross_earned()
 	public hc_prog_elig_budg_excluded_earned()
 	public hc_prog_elig_budg_work_exp_deduction()
-	public hc_prog_elig_budg_earned_disregarrd()
+	public hc_prog_elig_budg_earned_disregard()
 	public hc_prog_elig_budg_dependent_care()
 	public hc_prog_elig_budg_earned_deduction()
 	public hc_prog_elig_budg_net_earned_income()
@@ -16894,12 +16888,13 @@ class hc_eligibility_detail
 		ReDim hc_budget_type(0)
 		ReDim hc_prog_elig_budg_gross_unearned(0)
 		ReDim hc_prog_elig_budg_excluded_unearned(0)
+		ReDim hc_prog_list_all_income(0)
 		ReDim hc_prog_elig_budg_unearned_deduction(0)
 		ReDim hc_prog_elig_budg_net_unearned_income(0)
 		ReDim hc_prog_elig_budg_gross_earned(0)
 		ReDim hc_prog_elig_budg_excluded_earned(0)
 		ReDim hc_prog_elig_budg_work_exp_deduction(0)
-		ReDim hc_prog_elig_budg_earned_disregarrd(0)
+		ReDim hc_prog_elig_budg_earned_disregard(0)
 		ReDim hc_prog_elig_budg_dependent_care(0)
 		ReDim hc_prog_elig_budg_earned_deduction(0)
 		ReDim hc_prog_elig_budg_net_earned_income(0)
@@ -17099,12 +17094,13 @@ class hc_eligibility_detail
 			ReDim preserve hc_budget_type(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_gross_unearned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_excluded_unearned(hc_prog_count)
+			ReDim preserve hc_prog_list_all_income(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_unearned_deduction(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_net_unearned_income(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_gross_earned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_excluded_earned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_work_exp_deduction(hc_prog_count)
-			ReDim preserve hc_prog_elig_budg_earned_disregarrd(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_earned_disregard(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_dependent_care(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_earned_deduction(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_net_earned_income(hc_prog_count)
@@ -17489,6 +17485,9 @@ class hc_eligibility_detail
 									Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
 									' MsgBox "MOVING - 16"
 									EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+									hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
+									hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
+
 									hh_row = 12
 									Do
 										EMReadScreen inc_count_ind, 1, hh_row, 61
@@ -17541,7 +17540,7 @@ class hc_eligibility_detail
 											EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 14, 31
 											EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 31
 											EMReadScreen hc_prog_elig_budg_work_exp_deduction(hc_prog_count), 	10, 16, 31
-											EMReadScreen hc_prog_elig_budg_earned_disregarrd(hc_prog_count), 	10, 17, 31
+											EMReadScreen hc_prog_elig_budg_earned_disregard(hc_prog_count), 	10, 17, 31
 											EMReadScreen hc_prog_elig_budg_dependent_care(hc_prog_count), 		10, 18, 31
 
 											EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 9, 71
@@ -17554,6 +17553,7 @@ class hc_eligibility_detail
 											EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
 											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
 											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+
 										End If
 
 										If InStr(budg_panel, "BBUD") <> 0 Then
@@ -17706,7 +17706,7 @@ class hc_eligibility_detail
 										hc_prog_elig_budg_deemed_earned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_earned(hc_prog_count))
 										hc_prog_elig_budg_excluded_earned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_earned(hc_prog_count))
 										hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = trim(hc_prog_elig_budg_work_exp_deduction(hc_prog_count))
-										hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = trim(hc_prog_elig_budg_earned_disregarrd(hc_prog_count))
+										hc_prog_elig_budg_earned_disregard(hc_prog_count) = trim(hc_prog_elig_budg_earned_disregard(hc_prog_count))
 										hc_prog_elig_budg_dependent_care(hc_prog_count) = trim(hc_prog_elig_budg_dependent_care(hc_prog_count))
 
 										hc_prog_elig_budg_earned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_earned_deduction(hc_prog_count))
@@ -17779,7 +17779,7 @@ class hc_eligibility_detail
 										If hc_prog_elig_budg_deemed_earned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_earned(hc_prog_count) = "0.00"
 										If hc_prog_elig_budg_excluded_earned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_earned(hc_prog_count) = "0.00"
 										If hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = "" Then hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = "0.00"
+										If hc_prog_elig_budg_earned_disregard(hc_prog_count) = "" Then hc_prog_elig_budg_earned_disregard(hc_prog_count) = "0.00"
 										If hc_prog_elig_budg_dependent_care(hc_prog_count) = "" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
 										If hc_prog_elig_budg_dependent_care(hc_prog_count) = "__________" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
 
@@ -18019,6 +18019,8 @@ class hc_eligibility_detail
 						' MsgBox hc_prog_elig_major_program(hc_prog_count)
 						' EmReadScreen hc_elig_membs_prog_one
 						hc_budget_type(hc_prog_count) = "MBUD"
+						EMReadScreen hc_elig_full_name(hc_prog_count), 40, 5, 15
+						hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
 						EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 6, 56
 						EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 6, 64
 						EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
@@ -18040,6 +18042,94 @@ class hc_eligibility_detail
 						EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 15, 71
 						EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 	10, 16, 71
 						EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 17, 71
+
+						income_string = ""
+						Call write_value_and_transmit("X", 9, 3)	'Unearned Income
+						EMReadScreen in_menu_check, 15, 2, 33
+						If in_menu_check = "Unearned Income" Then
+							EMReadScreen income_name, 40, 4, 20
+							income_name = trim(income_name)
+							menu_row = 8
+							Do
+								EMReadScreen income_type, 25, menu_row, 12
+								EMReadScreen income_amt, 10, menu_row, 43
+
+								income_type = trim(income_type)
+								income_amt = replace(income_amt, "_", "")
+								If income_amt <> "" Then
+									income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+								End If
+								menu_row = menu_row + 1
+							Loop until income_amt = ""
+							transmit
+						End If
+
+						Call write_value_and_transmit("X", 10, 3)	'Unearned Income - Deemed
+						EMReadScreen in_menu_check, 15, 2, 33
+						If in_menu_check = "Unearned Income" Then
+							EMReadScreen income_name, 40, 4, 20
+							income_name = trim(income_name)
+							menu_row = 8
+							Do
+								EMReadScreen income_type, 25, menu_row, 12
+								EMReadScreen income_amt, 10, menu_row, 43
+
+								income_type = trim(income_type)
+								income_amt = replace(income_amt, "_", "")
+								If income_amt <> "" Then
+									income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+								End If
+								menu_row = menu_row + 1
+							Loop until income_amt = ""
+							transmit
+						End If
+
+
+						Call write_value_and_transmit("X", 9, 43)	'Earned Income
+						EMReadScreen in_menu_check, 13, 2, 38
+						If in_menu_check = "Earned Income" Then
+							EMReadScreen income_name, 40, 4, 19
+							income_name = trim(income_name)
+							menu_row = 8
+							Do
+								EMReadScreen income_type, 25, menu_row, 11
+								EMReadScreen income_amt, 10, menu_row, 43
+
+								income_type = trim(income_type)
+								income_amt = replace(income_amt, "_", "")
+								If income_amt <> "" Then
+									income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+								End If
+								menu_row = menu_row + 1
+							Loop until income_amt = ""
+							transmit
+						End If
+
+
+						Call write_value_and_transmit("X", 10, 43)	'Earned Income - Deemed
+						EMReadScreen in_menu_check, 13, 2, 38
+						If in_menu_check = "Earned Income" Then
+							EMReadScreen income_name, 40, 4, 19
+							income_name = trim(income_name)
+							menu_row = 8
+							Do
+								EMReadScreen income_type, 25, menu_row, 11
+								EMReadScreen income_amt, 10, menu_row, 43
+
+								income_type = trim(income_type)
+								income_amt = replace(income_amt, "_", "")
+								If income_amt <> "" Then
+									income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+								End If
+								menu_row = menu_row + 1
+							Loop until income_amt = ""
+							transmit
+						End If
+						hc_prog_list_all_income(hc_prog_count) = income_string
+						If right(hc_prog_list_all_income(hc_prog_count), 1) = "~" and len(hc_prog_list_all_income(hc_prog_count)) <> 1 Then hc_prog_list_all_income(hc_prog_count) = left(hc_prog_list_all_income(hc_prog_count), len(hc_prog_list_all_income(hc_prog_count))-1)
+						If len(hc_prog_list_all_income(hc_prog_count)) = 1 Then hc_prog_list_all_income(hc_prog_count) = ""
+						' MsgBox hc_prog_list_all_income(hc_prog_count)
+
 
 						hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
 						hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
@@ -18078,6 +18168,8 @@ class hc_eligibility_detail
 						Call write_value_and_transmit("X", 5, 66)			'Household Count'
 						' MsgBox "MOVING - 26"
 						EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+						hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
+						hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
 						hh_row = 12
 						Do
 							EMReadScreen inc_count_ind, 1, hh_row, 61
@@ -23028,6 +23120,11 @@ developer_mode = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
+ex_parte_approval = False
+stop_ex_parte_checkbox = unchecked
+MSP_approvals_only = True
+MSP_memo_success = False
+
 first_DWP_approval = ""
 first_MFIP_approval = ""
 first_MSA_approval = ""
@@ -23432,6 +23529,31 @@ For each footer_month in MONTHS_ARRAY
 
    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+
+			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
+			sql_revw_date = "20"&CM_plus_1_yr&"-"&CM_plus_1_mo&"-01"
+
+			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_revw_date & "' and [SelectExParte] = '1'"
+
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+			number_of_rows = objRecordSet(0).value
+			number_of_rows = number_of_rows*1
+
+			objRecordSet.Close
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
+
+			If number_of_rows = 1 Then ex_parte_approval = True
+		End If
    		approval_found_for_this_month = True
 		for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 			If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then ineligible_approval_exists = True
@@ -24534,10 +24656,6 @@ Call back_to_SELF
 EMWriteScreen MAXIS_case_number, 18, 43
 
 CASE_NOTE_entered = False
-ex_parte_hc_run = False
-ex_parte_memo_failed = False
-one_ex_parte_memo_sent = False
-ex_parte_worker = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
@@ -24568,39 +24686,6 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If enter_CNOTE_for_GRH = True Then testing_run = True
 ' If enter_CNOTE_for_HC = True Then testing_run = True
 ' If enter_CNOTE_for_EMER = True Then testing_run = True
-
-is_this_exparte_renewal = "No"
-If user_ID_for_validation = "CALO001" Then ex_parte_worker = True
-If user_ID_for_validation = "BETE001" Then ex_parte_worker = True
-If user_ID_for_validation = "WFJ985" Then ex_parte_worker = True
-If user_ID_for_validation = "WFR391" Then ex_parte_worker = True
-If user_ID_for_validation = "LIAH002" Then ex_parte_worker = True
-If user_ID_for_validation = "LOWE001" Then ex_parte_worker = True
-If user_ID_for_validation = "WFF816" Then ex_parte_worker = True
-If user_ID_for_validation = "WFU072" Then ex_parte_worker = True
-If user_ID_for_validation = "LALA004" Then ex_parte_worker = True
-If user_ID_for_validation = "WFU210" Then ex_parte_worker = True
-'TODO - add other ex parte worker IDs here
-If other_county_redirect = True Then
-	ex_parte_worker = True
-	enter_CNOTE_for_DWP 	= False
-	enter_CNOTE_for_MFIP 	= False
-	enter_CNOTE_for_MSA 	= False
-	enter_CNOTE_for_GA 		= False
-	enter_CNOTE_for_DENY 	= False
-	enter_CNOTE_for_EMER 	= False
-	enter_CNOTE_for_GRH 	= False
-	enter_CNOTE_for_SNAP 	= False
-
-	redirect_end_msg = "The Eligibility Summary script has ended because Health Care results have not been created and approved today. This script reads for information from MAXIS that was processed the same day as that is when the CASE/NOTE should be created."
-	redirect_end_msg = redirect_end_msg & vbCr & vbCr & "If you need to use this script to CASE/NOTE the approval of Health Care, ensure the case has been run through background and complete the approval."
-	If approvals_not_created_today <> "" Then redirect_end_msg = redirect_end_msg & vbCr & vbCr & "It appears there were approvals completed today on ELIG Results that were created on a different day:" & vbCr & approvals_not_created_today
-	redirect_end_msg = redirect_end_msg & vbCr & vbCr & "The script will now end."
-
-	If enter_CNOTE_for_HC = False Then Call script_end_procedure(redirect_end_msg)
-	ex_parte_hc_run = True
-	If ex_parte_hc_run = True Then is_this_exparte_renewal = "Yes"
-End If
 
 deductions_detail_btn 	= 1010
 hh_comp_detail			= 1020
@@ -24714,6 +24799,10 @@ Do
 		If InStr(note_title, " EA ") <> 0 Then approval_note_found_for_EMER = True
 		If InStr(note_title, " EGA ") <> 0 Then approval_note_found_for_EMER = True
 		If InStr(note_title, "EMER") <> 0 Then approval_note_found_for_EMER = True
+	End If
+	If ex_parte_approval = True Then
+		If mid(note_title, 7, 25) = "Ex Parte Renewal Complete" Then ex_parte_approval = False
+		' Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
 	End If
 
 	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
@@ -25033,7 +25122,7 @@ If enter_CNOTE_for_DWP = True Then
 		dialog Dialog1
 	End If
 
-	all_mfip_approvals_confirmed = False
+	all_dwp_approvals_confirmed = False
 	approval_selected = 0
 
 	Do
@@ -27001,9 +27090,14 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 		For approval = 0 to UBound(HC_ELIG_APPROVALS)
 			If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_HC_approval Then start_capturing_approvals = True
+
 			' MsgBox "HC ELIG Month" & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "first_HC_approval - " & first_HC_approval & vbCr & "start_capturing_approvals - " & start_capturing_approvals
 			If start_capturing_approvals = True Then
 				For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "MA" Then MSP_approvals_only = False
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "EMA" Then MSP_approvals_only = False
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "IMD" Then MSP_approvals_only = False
+
 					' MsgBox "start_capturing_approvals - " & start_capturing_approvals & vbCr & "approval - " & approval & vbCr & "unique_app_count - " & unique_app_count & vbCr & "HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
 
 					' MsgBox "HC ELIG Ref Numb - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "every_hc_member - " & every_hc_member & vbCr & "member - " & member
@@ -27118,10 +27212,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	Do
 		Do
 			first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
-			offer_exparte_option = False
-			' If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
-			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "06/23") <> 0 Then offer_exparte_option = True
-			If ex_parte_worker = False Then offer_exparte_option = False
 			elig_ind = ""
 			memb_ind = ""
 			month_ind = ""
@@ -27220,7 +27310,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
-
 			If err_msg = "" Then
 
 				all_hc_approvals_confirmed = True
@@ -27273,138 +27362,56 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
+	If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
+
 	If hc_approval_is_incorrect = True Then
 		enter_CNOTE_for_HC = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
-	If is_this_exparte_renewal = "Yes" Then ex_parte_hc_run = True
 End If
 
-'EX PARTE FUNCTIONALITY===================================================================================
-Const memo_recip_name_const = 0
-Const memo_display_name		= 1
-Const has_rsdi_income_const	= 2
-Const household_size_const  = 3
-Const msp_program_const 	= 4
-Const memo_sent_const 		= 5
-Const last_memo_const		= 6
-
-Dim EX_PARTE_MEMO_TO_SEND()
-ReDim EX_PARTE_MEMO_TO_SEND(last_memo_const, 0)
-
-If ex_parte_hc_run = True Then
-	memo_count = 0
-	For unique_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
-
-		elig_ind = ""
-		memb_ind = ""
-		month_ind = ""
-		For approval = 0 to UBound(HC_ELIG_APPROVALS)
-			For member = 0 to UBound(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
-
-				If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_month and HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) and HC_UNIQUE_APPROVALS(major_prog_for_hc_app, unique_app) = HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) Then
-					elig_ind = approval
-					memb_ind = member
+If ex_parte_approval = True and MSP_approvals_only = True Then
+	For approval = 0 to UBound(HC_ELIG_APPROVALS)
+		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+			MSP_memo_success = True		'TODO - add a way to make sure the memo was created
+			If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+				temp_array = ""
+				If InStr(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~") <> 0 Then
+					temp_array = split(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~")
+				Else
+					temp_array = Array(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member))
 				End If
-			Next
-		Next
-		For each_month = 0 to UBound(STAT_INFORMATION)
-			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
-		Next
-		If InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "05/23") <> 0 OR InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "06/23") <> 0 Then
-			member_already_found = False
-			For each_memo = 0 to UBound(EX_PARTE_MEMO_TO_SEND, 2)
-				If EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, each_memo) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) Then
-					member_already_found = True
-					For each_pers = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_pers) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
-							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-							If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
-						End If
-					Next
-					EX_PARTE_MEMO_TO_SEND(household_size_const, each_memo) = replace(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_hh_size(memb_ind), "_", "")
-					If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" Then EX_PARTE_MEMO_TO_SEND(msp_program_const, each_memo) = True
-				End if
-			Next
-			If member_already_found = False Then
-				ReDim preserve EX_PARTE_MEMO_TO_SEND(last_memo_const, memo_count)
-
-				EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, memo_count) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind)
-				For each_pers = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_pers) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
-						EX_PARTE_MEMO_TO_SEND(memo_display_name, memo_count) = STAT_INFORMATION(month_ind).stat_memb_first_name(each_pers) & " " & STAT_INFORMATION(month_ind).stat_memb_last_name(each_pers)
-						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-						If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
-					End If
-				Next
-				EX_PARTE_MEMO_TO_SEND(household_size_const, memo_count) = replace(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_hh_size(memb_ind), "_", "")
-				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" Then EX_PARTE_MEMO_TO_SEND(msp_program_const, memo_count) = True
-
-				memo_count = memo_count + 1
 			End If
-		End If
-	Next
+			'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-15010315'
+			Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
 
-	For each_memo = 0 to UBound(EX_PARTE_MEMO_TO_SEND, 2)
-		covered_programs = "Medical Assistance"
-		If EX_PARTE_MEMO_TO_SEND(msp_program_const, each_memo) = True Then covered_programs = covered_programs & " and Medicare Savings Program"
-		' function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, end_script)
-		Call start_a_new_spec_memo(EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo), True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
-
-		If EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo) = False Then ex_parte_memo_failed = True
-
-		If EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo) = True Then
-			one_ex_parte_memo_sent = True
-			'TRAINING CASE - 318946
-			'SSI ONLY
-			call write_variable_in_SPEC_MEMO(EX_PARTE_MEMO_TO_SEND(memo_display_name, each_memo) & "'s healthcare coverage has been automatically renewed for " & covered_programs & " effective 6/1/2023. Please review the information included with this notice. We used this information to review " & EX_PARTE_MEMO_TO_SEND(memo_display_name, each_memo) & "'s coverage. (42 CFR 435.916 & 256B.056.)")
-			call write_variable_in_SPEC_MEMO(" ")
-			call write_variable_in_SPEC_MEMO("***    Review the information listed in this notice.    ***")
-			call write_variable_in_SPEC_MEMO("*** If any of the information is wrong, please contact  ***")
-			If other_county_redirect = True  Then call write_variable_in_SPEC_MEMO("***          your worker listed in the notice.          ***")
-			If other_county_redirect = False Then call write_variable_in_SPEC_MEMO("***   your county at the number listed in the notice.   ***")
-			call write_variable_in_SPEC_MEMO(" ")
-			'SSI Only
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Supplemental Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
-			'RSDI and SSI
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Supplemental Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
-			call write_variable_in_SPEC_MEMO(" ")
-			call write_variable_in_SPEC_MEMO("Household Size: " & EX_PARTE_MEMO_TO_SEND(household_size_const, each_memo))
-			call write_variable_in_SPEC_MEMO(" ")
-			call write_variable_in_SPEC_MEMO("Counted Income                   Assets")
-			call write_variable_in_SPEC_MEMO("Counted income, $0               Assets verified by SSA")
-			'SSI Only
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("SSI income excluded")
-			'RSDI and SSI
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("SSI/RSDI income excluded")
-			call write_variable_in_SPEC_MEMO(" ")
-			call write_variable_in_SPEC_MEMO("For more information about your automated renewal please")
-			call write_variable_in_SPEC_MEMO("visit: www.mn/gov/dhs/AutoRenewalPilot")
-			call write_variable_in_SPEC_MEMO(" ")
-			call write_variable_in_SPEC_MEMO("*** IMPORTANT APPEAL RIGHTS ***")
-			call write_variable_in_SPEC_MEMO("If you don't agree with the action taken on your case,")
-			call write_variable_in_SPEC_MEMO("please refer to the back of this notice.")
-			PF4
-		End If
+			Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following Medicare Savings Program:")
+			' Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member))
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("Your Income was verified using electronic sources.")
+			Call write_variable_in_SPEC_MEMO("Household size: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member))
+			Call write_variable_in_SPEC_MEMO("")
+			If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+				Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
+				For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
+					Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+				Next
+			Else
+				Call write_variable_in_SPEC_MEMO("No Income known that Counts for your HC Program.")
+			End If
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
+			Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
+			' MsgBox "See the MEMO?"
+			PF4 'Exits the MEMO
+		Next
 	Next
 End If
-
 
 If enter_CNOTE_for_EMER = True Then
 	confirm_emer_budget_selection = ""
@@ -28914,7 +28921,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 		If developer_mode = True Then
 			MsgBox "ER NOTE REVIEW"			'TESTING OPTION'
 			PF10
-			MsgBox "SNAP Gone?"
+			MsgBox "ER Note Gone?"
 		End If
 	End If
 
@@ -28946,12 +28953,90 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 		Call write_variable_in_CASE_NOTE(worker_signature)
 
 		If developer_mode = True Then
-			MsgBox "ER NOTE REVIEW"			'TESTING OPTION'
+			MsgBox "SR NOTE REVIEW"			'TESTING OPTION'
 			PF10
-			MsgBox "SNAP Gone?"
+			MsgBox "SR NOTE Gone?"
 		End If
 	End If
+
 Next
+If ex_parte_approval = True Then
+
+	If developer_mode = True Then
+		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+	Else
+		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objUpdateConnection = CreateObject("ADODB.Connection")
+		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+	End If
+
+
+	Call start_a_blank_CASE_NOTE
+
+	Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
+	Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
+	Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
+	Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
+	Call write_variable_in_CASE_NOTE("-------------------------------------------------")
+	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
+	If MSP_approvals_only = True and MSP_memo_success = True Then
+		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
+		Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
+	End If
+	' Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+	If developer_mode = True Then
+		MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
+		PF10
+		MsgBox "Ex Parte note Gone?"
+	End If
+	PF3
+
+	Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
+	Next_REPT_year = Next_REPT_year*1
+	Next_REPT_year = Next_REPT_year + 1
+	Next_REPT_year = Next_REPT_year & ""
+
+	Call start_a_blank_CASE_NOTE
+
+	Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
+	Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
+	Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
+	Call write_variable_in_CASE_NOTE("**************************************************************************")
+	Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
+	Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
+	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+	Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
+	Call write_variable_in_CASE_NOTE("**************************************************************************")
+	Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
+	Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
+	Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
+	Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
+	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+	Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
+	Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+	If developer_mode = True Then
+		MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
+		PF10
+		MsgBox "Standard Policy Note Gone?"
+	End If
+
+	PF3
+
+
+End If
 
 
 
