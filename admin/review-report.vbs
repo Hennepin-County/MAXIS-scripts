@@ -60,28 +60,32 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 			If revw_status_hc <> "" Then
 				hc_revw_completed = False
 				If revw_status_hc = "A" Then
-					hc_revw_completed = True
-					Call start_a_blank_case_note
+					Call navigate_to_MAXIS_screen("CASE", "NOTE")
+					EMReadScreen current_county, 2, 21, 16
+					If current_county = "27" Then
+						hc_revw_completed = True
+						Call start_a_blank_case_note
 
-					Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-					Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
-					Call write_variable_in_CASE_NOTE("Review completed for " & REPT_month & "/" & REPT_year & ")")
-					Call write_variable_in_CASE_NOTE("**************************************************************************")
-					Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-					Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-					Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-					Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-					Call write_variable_in_CASE_NOTE("**************************************************************************")
-					Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
-					Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & REPT_month & "/01/" & Next_REPT_year & ".")
-					Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
-					Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
-					Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-					Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-					Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE(worker_signature)
-					PF3
+						Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
+						Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
+						Call write_variable_in_CASE_NOTE("Review completed for " & REPT_month & "/" & REPT_year & ")")
+						Call write_variable_in_CASE_NOTE("**************************************************************************")
+						Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
+						Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
+						Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+						Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
+						Call write_variable_in_CASE_NOTE("**************************************************************************")
+						Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
+						Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & REPT_month & "/01/" & Next_REPT_year & ".")
+						Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
+						Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
+						Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+						Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
+						Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
+						Call write_variable_in_CASE_NOTE("---")
+						Call write_variable_in_CASE_NOTE(worker_signature)
+						PF3
+					End If
 				End If
 
 				ObjExcel.Cells(excel_row, hc_std_policy_rtrn_col) = hc_revw_completed
@@ -1919,7 +1923,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 			ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
 
 			hc_std_policy_rtrn_col = col_to_use + 8
-			ObjExcel.Cells(1, closure_progs_col).Value = "HC Cont Cov End"
+			ObjExcel.Cells(1, hc_std_policy_rtrn_col).Value = "HC Cont Cov End"
 		End If
 	Else
 		For each_col = 1 to col_to_use
