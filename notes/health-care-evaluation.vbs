@@ -3020,6 +3020,7 @@ If ButtonPressed = ex_parte_phase_2_problem_btn Then
 		cancel_confirmation
 
 		ex_parte_2_problem_notes = trim(ex_parte_2_problem_notes)
+		ex_parte_2_problem_notes = replace(ex_parte_2_problem_notes, "'", "")
 
 		If len(ex_parte_2_problem_notes) > 255 Then err_msg = err_msg & vbCr & "* The explanation of the problem with this case must be less thatn 255 characters."
 		If err_msg <> "" Then MsgBox "NOTICE:" & vbCr & err_msg
