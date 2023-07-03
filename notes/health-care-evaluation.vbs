@@ -3920,6 +3920,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			End If
 		End If
 
+		Call navigate_to_MAXIS_screen("CASE", "CURR")
+
 		instructions_button = 1000
 		policy_1_button = 1010
 		policy_2_button = 1020
