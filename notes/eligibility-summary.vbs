@@ -23121,6 +23121,7 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AN
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
+complete_ex_parte_as_closed = False
 stop_ex_parte_checkbox = unchecked
 MSP_approvals_only = True
 MSP_memo_success = False
@@ -23552,7 +23553,13 @@ For each footer_month in MONTHS_ARRAY
 			Set objRecordSet=nothing
 			Set objConnection=nothing
 
-			If number_of_rows = 1 Then ex_parte_approval = True
+
+			If number_of_rows = 1 Then
+				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then ex_parte_approval = True
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then complete_ex_parte_as_closed = True
+				next
+			End If
 		End If
    		approval_found_for_this_month = True
 		for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
@@ -24800,9 +24807,9 @@ Do
 		If InStr(note_title, " EGA ") <> 0 Then approval_note_found_for_EMER = True
 		If InStr(note_title, "EMER") <> 0 Then approval_note_found_for_EMER = True
 	End If
-	If ex_parte_approval = True Then
-		If mid(note_title, 7, 25) = "Ex Parte Renewal Complete" Then ex_parte_approval = False
-		' Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
+	If mid(note_title, 7, 25) = "Ex Parte Renewal Complete" Then
+		ex_parte_approval = False
+		complete_ex_parte_as_closed = False
 	End If
 
 	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
@@ -28960,6 +28967,25 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 	End If
 
 Next
+
+If complete_ex_parte_as_closed = True Then
+	If developer_mode = True Then
+		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+	Else
+		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objUpdateConnection = CreateObject("ADODB.Connection")
+		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+	End If
+End If
+
 If ex_parte_approval = True Then
 
 	If developer_mode = True Then
