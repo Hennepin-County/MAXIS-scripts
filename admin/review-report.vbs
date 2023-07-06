@@ -828,7 +828,7 @@ do_we_create_u_code_worklists = False
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 130, "Review Report"
   EditBox 70, 5, 110, 15, worker_number
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+"Check for NOMIs"+chr(9)+"July Jam Daily Assignment", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+"Check for NOMIs", renewal_option
   CheckBox 10, 55, 115, 10, "Select to create U code worklist", create_u_code_worklist_checkbox
   CheckBox 10, 65, 70, 10, "Select all agency.", all_workers_check
   CheckBox 10, 75, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
@@ -857,122 +857,120 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If renewal_option <> "July Jam Daily Assignment" Then
-	If create_u_code_worklist_checkbox = checked Then do_we_create_u_code_worklists = True
+If create_u_code_worklist_checkbox = checked Then do_we_create_u_code_worklists = True
 
-	'Starting the query start time (for the query runtime at the end)
-	query_start_time = timer
-	If CM_plus_two_checkbox = 1 then
-		REPT_month = CM_plus_2_mo
-		REPT_year  = CM_plus_2_yr
-	Else
-		REPT_month = CM_plus_1_mo
-		REPT_year  = CM_plus_1_yr
-	End if
+'Starting the query start time (for the query runtime at the end)
+query_start_time = timer
+If CM_plus_two_checkbox = 1 then
+	REPT_month = CM_plus_2_mo
+	REPT_year  = CM_plus_2_yr
+Else
+	REPT_month = CM_plus_1_mo
+	REPT_year  = CM_plus_1_yr
+End if
 
-	'The End of Processing Month option is mostly 'collecting statistics' just with adding a CNOTE
-	If renewal_option = "End of Processing Month" Then
-		renewal_option = "Collect Statistics"
-		add_case_note = True
-		last_day_checkbox = checked
-		REPT_month = CM_mo
-		REPT_year  = CM_yr
-		call back_to_self
-		EMReadScreen mx_region, 10, 22, 48
+'The End of Processing Month option is mostly 'collecting statistics' just with adding a CNOTE
+If renewal_option = "End of Processing Month" Then
+	renewal_option = "Collect Statistics"
+	add_case_note = True
+	last_day_checkbox = checked
+	REPT_month = CM_mo
+	REPT_year  = CM_yr
+	call back_to_self
+	EMReadScreen mx_region, 10, 22, 48
 
-		If mx_region = "INQUIRY DB" Then
-			continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
-			If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
-		End If
+	If mx_region = "INQUIRY DB" Then
+		continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
+		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
 	End If
+End If
+
+report_date = REPT_month & "-" & REPT_year  'establishing review date
+
+open_existing_review_report = FALSE
+If renewal_option <> "Create Renewal Report" Then open_existing_review_report = TRUE
+
+If open_existing_review_report = TRUE Then
+
+	'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 115, 55, "Select REVW Month for Information"
+	EditBox 75, 10, 15, 15, REPT_month
+	EditBox 95, 10, 15, 15, REPT_year
+	Text 10, 10, 60, 20, "Which REVW Month?"
+	ButtonGroup ButtonPressed
+		OkButton 25, 35, 40, 15
+		CancelButton 70, 35, 40, 15
+	EndDialog
+
+	Do
+		Do
+			err_msg = ""
+
+			dialog Dialog1
+			cancel_without_confirmation
+
+		Loop Until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 
 	report_date = REPT_month & "-" & REPT_year  'establishing review date
 
-	open_existing_review_report = FALSE
-	If renewal_option <> "Create Renewal Report" Then open_existing_review_report = TRUE
-
-	If open_existing_review_report = TRUE Then
-
-		'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 115, 55, "Select REVW Month for Information"
-		EditBox 75, 10, 15, 15, REPT_month
-		EditBox 95, 10, 15, 15, REPT_year
-		Text 10, 10, 60, 20, "Which REVW Month?"
-		ButtonGroup ButtonPressed
-			OkButton 25, 35, 40, 15
-			CancelButton 70, 35, 40, 15
-		EndDialog
-
-		Do
-			Do
-				err_msg = ""
-
-				dialog Dialog1
-				cancel_without_confirmation
-
-			Loop Until err_msg = ""
-			Call check_for_password(are_we_passworded_out)
-		Loop until are_we_passworded_out = FALSE
-
-		report_date = REPT_month & "-" & REPT_year  'establishing review date
-
-		'This is where the review report is currently saved.
-		excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
+	'This is where the review report is currently saved.
+	excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\" & report_date & " Review Report.xlsx"
 
 
-		'Initial Dialog which requests a file path for the excel file
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications - Send Appointment Notices"
-		EditBox 130, 20, 175, 15, excel_file_path
-		ButtonGroup ButtonPressed
-			PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
-			If renewal_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the END of the processing month.", last_day_checkbox
-			OkButton 250, 45, 50, 15
-			CancelButton 305, 45, 50, 15
-		Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
-		Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
-		EndDialog
+	'Initial Dialog which requests a file path for the excel file
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 361, 65, "On Demand Recertifications - Send Appointment Notices"
+	EditBox 130, 20, 175, 15, excel_file_path
+	ButtonGroup ButtonPressed
+		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
+		If renewal_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the END of the processing month.", last_day_checkbox
+		OkButton 250, 45, 50, 15
+		CancelButton 305, 45, 50, 15
+	Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
+	Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
+	EndDialog
 
-		'Show file path dialog
+	'Show file path dialog
+	Do
+		Dialog Dialog1
+		cancel_confirmation
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
+	Loop until ButtonPressed = OK and excel_file_path <> ""
+
+	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+	Next
+	scenario_dropdown = report_date & " Review Report"
+
+	'Dialog to select worksheet
+	'DIALOG is defined here so that the dropdown can be populated with the above code
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
+	DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
+	ButtonGroup ButtonPressed
+		OkButton 40, 55, 50, 15
+		CancelButton 95, 55, 50, 15
+	Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
+	EndDialog
+
+	'Shows the dialog to select the correct worksheet
+	Do
 		Do
 			Dialog Dialog1
-			cancel_confirmation
-			If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
-		Loop until ButtonPressed = OK and excel_file_path <> ""
+			cancel_without_confirmation
+		Loop until scenario_dropdown <> "Select One..."
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 
-		'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
-		call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
-
-		'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
-		For Each objWorkSheet In objWorkbook.Worksheets
-			If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
-		Next
-		scenario_dropdown = report_date & " Review Report"
-
-		'Dialog to select worksheet
-		'DIALOG is defined here so that the dropdown can be populated with the above code
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 151, 75, "Select the Worksheet"
-		DropListBox 5, 35, 140, 15, "Select One..." & scenario_list, scenario_dropdown
-		ButtonGroup ButtonPressed
-			OkButton 40, 55, 50, 15
-			CancelButton 95, 55, 50, 15
-		Text 5, 10, 130, 20, "Select the correct worksheet to run for review statistics:"
-		EndDialog
-
-		'Shows the dialog to select the correct worksheet
-		Do
-			Do
-				Dialog Dialog1
-				cancel_without_confirmation
-			Loop until scenario_dropdown <> "Select One..."
-			call check_for_password(are_we_passworded_out)
-		Loop until are_we_passworded_out = FALSE
-
-		'Activates worksheet based on user selection
-		objExcel.worksheets(scenario_dropdown).Activate
-	End If
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
 End If
 
 'Stats option ignores the 'list of workers' since it works off of an existing Excel, it needs to pull all of the workers
@@ -1358,490 +1356,7 @@ If renewal_option = "Create Renewal Report" then
     objExcel.Quit
 
 	end_msg = "Success! The review report is ready."
-ElseIf renewal_option = "July Jam Daily Assignment" Then
 
-	july_jam_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Work Tracking.xlsx"
-	call excel_open(july_jam_file_path, True, True, ObjExcel, objWorkbook)
-
-	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
-	date_day = DatePart("d", date)
-	date_header = date_month & "/" & date_day
-	statistics_already_run_today = False
-
-	last_working_day = DateAdd("d", -1, date)
-	Call change_date_to_soonest_working_day(last_working_day, "BACK")
-	yest_file_date = replace(last_working_day, "/", "-")
-	yest_date_month = DatePart("m", last_working_day)
-	yest_date_day = DatePart("d", last_working_day)
-	yesterday_header = yest_date_month & "/" & yest_date_day
-
-	' info_sheet_name = replace(excel_file_path, t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\", "")
-
-	'Finding the last column that has something in it so we can add to the end.
-	col_to_use = 0
-	Do
-		col_to_use = col_to_use + 1
-		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
-		If InStr(col_header, "("&date_header&")") <> 0 Then statistics_already_run_today = True
-		If col_header = "HC (" & date_header & ")" Then existing_hc_revw_excel_col = col_to_use
-		If col_header = "FORM Date (" & date_header & ")" Then existing_recvd_date_excel_col = col_to_use
-	Loop until col_header = ""
-	last_col_letter = convert_digit_to_excel_column(col_to_use)
-
-	If statistics_already_run_today = False Then
-		'Insert columns in excel for additional information to be added
-		column_end = last_col_letter & "1"
-		Set objRange = objExcel.Range(column_end).EntireColumn
-
-		'TODO - add columns for yesterday's assignment information (or one column and combined the notes)
-		objRange.Insert(xlShiftToRight)			'We neeed six more columns
-		objRange.Insert(xlShiftToRight)
-		objRange.Insert(xlShiftToRight)
-		objRange.Insert(xlShiftToRight)
-
-		yest_worker_excel_col = col_to_use		'Setting the columns to individual variables so we enter the found information in the right place
-		yest_notes_excel_col = col_to_use + 1
-		hc_stat_excel_col = col_to_use + 2
-		recvd_date_excel_col = col_to_use + 3
-
-		ObjExcel.Cells(1, yest_worker_excel_col).Value = "Worker (" & yesterday_header & ")"
-		ObjExcel.Cells(1, yest_notes_excel_col).Value = "Notes (" & yesterday_header & ")"
-		ObjExcel.Cells(1, hc_stat_excel_col).Value = "HC (" & date_header & ")"
-		ObjExcel.Cells(1, recvd_date_excel_col).Value = "FORM Date (" & date_header & ")"
-
-		FOR i = col_to_use to col_to_use + 1									'formatting the cells'
-			objExcel.Cells(1, i).Font.Bold = True		'bold font'
-			ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-			objExcel.Columns(i).AutoFit()				'sizing the columns'
-		NEXT
-	Else
-		For each_col = 1 to col_to_use
-			If ObjExcel.Cells(1, each_col).Value = "Worker (" & yesterday_header & ")" Then yest_worker_excel_col = each_col
-			If ObjExcel.Cells(1, each_col).Value = "Notes (" & yesterday_header & ")" Then yest_notes_excel_col = each_col
-			If ObjExcel.Cells(1, each_col).Value = "HC (" & date_header & ")" Then hc_stat_excel_col = each_col
-			If ObjExcel.Cells(1, each_col).Value = "FORM Date (" & date_header & ")" Then recvd_date_excel_col = each_col
-			'TODO - add column for yesterday's assignment
-		Next
-	End If
-	'TODO - create an array of ALL the assignment notes and worker columns
-
-	every_col = 34			'starting at 34 because that is the worker column for mon 6/26 and we are restarting the work from there
-	list_of_cols = " "
-	Do
-		col_header = ObjExcel.Cells(1, every_col).Value
-		If InStr(col_header, "Worker (") <> 0 Then list_of_cols = list_of_cols & every_col & " "
-		If InStr(col_header, "Notes (") <> 0 Then list_of_cols = list_of_cols & every_col & " "
-
-		every_col = every_col + 1
-	Loop until col_header = ""
-	list_of_cols = trim(list_of_cols)
-	work_columns_array = split(list_of_cols)
-	' For each every_col in work_columns_array
-	' 	MsgBox "-" & every_col & "-"
-	' 	every_col = every_col * 1
-	' Next
-
-	Const yest_case_numb_const 		= 0
-	Const yest_worker_name_const 	= 1
-	Const yest_assign_notes_cosnt	= 3
-	Const yest_last_const 			= 4
-
-	Dim YESTERDAYS_CASES_ARRAY()
-	ReDim YESTERDAYS_CASES_ARRAY(yest_last_const, 0)
-
-	'TODO Open yesterday's assignment
-	work_assignment_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Todays Assignment.xlsx"
-	call excel_open(work_assignment_file_path, True, True, ObjYestExcel, objYestWorkbook)
-
-	'TODO read all information from yesterday's assignment and record it into today's assignment
-	yest_excel_row = 2
-	yest_work_count = 0
-	Do
-		review_case_number = trim(ObjYestExcel.Cells(yest_excel_row, 2))
-		review_worker_name = trim(ObjYestExcel.Cells(yest_excel_row, 10))
-		review_worker_notes = trim(ObjYestExcel.Cells(yest_excel_row, 11))
-		' MsgBox "review_case_number - '" & review_case_number & "'" & vbCr & "review_worker_name - '" & review_worker_name & "'" & vbCr & "review_worker_notes - '" & review_worker_notes & "'"
-		If review_case_number <> "" and (review_worker_name <> "" or review_worker_notes <> "") Then
-			ReDim Preserve YESTERDAYS_CASES_ARRAY(yest_last_const, yest_work_count)
-
-			YESTERDAYS_CASES_ARRAY(yest_case_numb_const, yest_work_count) = review_case_number
-			YESTERDAYS_CASES_ARRAY(yest_worker_name_const, yest_work_count) = review_worker_name
-			YESTERDAYS_CASES_ARRAY(yest_assign_notes_cosnt, yest_work_count) = review_worker_notes
-
-			' MsgBox "ARRAY Info" & vbCr & YESTERDAYS_CASES_ARRAY(yest_case_numb_const, yest_work_count) & vbCr & YESTERDAYS_CASES_ARRAY(yest_worker_name_const, yest_work_count) & vbCr & YESTERDAYS_CASES_ARRAY(yest_assign_notes_cosnt, yest_work_count)
-			yest_work_count = yest_work_count + 1
-		End If
-		yest_excel_row = yest_excel_row + 1
-	Loop until review_case_number = ""
-
-	'TODO save yesterday's assignment as a new file in an archive
-	ObjYestExcel.ActiveWorkbook.SaveAs "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Archive\July Jam " & yest_file_date & " Assignment.xlsx"
-
-	'TODO close yesterday's assignment
-	ObjYestExcel.ActiveWorkbook.Close
-	ObjYestExcel.Application.Quit
-	ObjYestExcel.Quit
-
-	excel_row = "2"		'starts at row 2'
-	Do
-		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
-		For yest_item = 0 to UBound(YESTERDAYS_CASES_ARRAY, 2)
-			' MsgBox "case_number_to_check - '" & case_number_to_check & "'" & vbCr &"YESTERDAYS_CASES_ARRAY(yest_case_numb_const, yest_item) - '" & YESTERDAYS_CASES_ARRAY(yest_case_numb_const, yest_item) & "'"
-			If case_number_to_check = YESTERDAYS_CASES_ARRAY(yest_case_numb_const, yest_item) Then		'if the case numbers match we have found our case.
-				ObjExcel.Cells(excel_row, yest_worker_excel_col).Value = YESTERDAYS_CASES_ARRAY(yest_worker_name_const, yest_item)
-				ObjExcel.Cells(excel_row, yest_notes_excel_col).Value = YESTERDAYS_CASES_ARRAY(yest_assign_notes_cosnt, yest_item)
-			End If
-		Next
-		excel_row = excel_row + 1
-	Loop until case_number_to_check = ""
-
-	const JJ_yest_worker	= 35
-	Const JJ_yest_notes		= 36
-	Const JJ_case_has_been_worked 	= 37
-	const JJ_notes_const	= 38
-
-	Dim JJ_review_array()
-	ReDim JJ_review_array(JJ_notes_const, 0)       're-establihing size of array.
-
-	'TODO - as we read through each case - discover if it has been worked or not
-
-	REPT_month = "07"
-	REPT_year = "23"
-
-	recert_cases = 0	            'incrementor for the array
-
-	back_to_self    'We need to get back to SELF and manually update the footer month
-	Call navigate_to_MAXIS_screen("REPT", "REVS")		'going to REPT REVS where all the information is displayed'
-	EMWriteScreen REPT_month, 20, 55					'going to the right month
-	EMWriteScreen REPT_year, 20, 58
-	transmit
-
-	'We are going to look at REPT/REVS for each worker in Hennepin County
-	For each worker in worker_array
-		worker = trim(worker)				'get to the right worker
-		If worker = "" then exit for
-		Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
-
-		'Grabbing case numbers from REVS for requested worker
-		DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
-			row = 7	'Setting or resetting this to look at the top of the list
-			DO		'All of this loops until row = 19
-				'Reading case information (case number, SNAP status, and cash status)
-				EMReadScreen MAXIS_case_number, 8, row, 6
-				MAXIS_case_number = trim(MAXIS_case_number)
-				EmReadscreen HC_status, 1, row, 49
-				EMReadScreen recvd_date, 8, row, 62
-
-				'Navigates though until it runs out of case numbers to read
-				IF MAXIS_case_number = "" then exit do
-
-				'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
-				If HC_status = "-" 		then HC_status = ""
-
-				If trim(HC_status) = "N" or trim(HC_status) = "I" or trim(HC_status) = "U"  or trim(HC_status) = "A" or trim(HC_status) = "O" or trim(HC_status) = "D" or trim(HC_status) = "T" then
-
-					ReDim Preserve JJ_review_array(JJ_notes_const, recert_cases)		'resizing the array
-
-					'Adding the case information to the array
-					JJ_review_array(worker_const, recert_cases) = worker
-					JJ_review_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
-					JJ_review_array(HC_revw_status_const, recert_cases) = HC_status
-					JJ_review_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
-					If JJ_review_array(review_recvd_const, recert_cases) = "__/__/__" Then JJ_review_array(review_recvd_const, recert_cases) = ""
-					JJ_review_array(saved_to_excel_const, recert_cases) = FALSE
-
-					for each_yest_case = 0 to UBound(YESTERDAYS_CASES_ARRAY, 2)
-						If JJ_review_array(case_number_const, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_case_numb_const, each_yest_case) Then
-							JJ_review_array(JJ_yest_worker, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_worker_name_const, each_yest_case)
-							JJ_review_array(JJ_yest_notes, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_assign_notes_cosnt, each_yest_case)
-							Exit For
-						End If
-					Next
-
-					recert_cases = recert_cases + 1
-					STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
-				End If
-				row = row + 1    'On the next loop it must look to the next row
-				MAXIS_case_number = "" 'Clearing variables before next loop
-			Loop until row = 19		'Last row in REPT/REVS
-			'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
-			PF8
-			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-			'if max reviews are reached, the goes to next worker is applicable
-		Loop until last_page_check = "THIS IS THE LAST PAGE"
-	next
-	Call back_to_SELF
-
-
-
-	'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
-	excel_row = "2"		'starts at row 2'
-	Do
-		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
-		found_in_array = FALSE													'variale to identify if we have found this case in our array
-		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-		'Here we look through the entire array until we find a match
-		For revs_item = 0 to UBound(JJ_review_array, 2)
-			If JJ_review_array(saved_to_excel_const, revs_item) = FALSE Then
-				If case_number_to_check = JJ_review_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
-					'Entering information from the array into the excel spreadsheet
-					JJ_review_array(JJ_yest_worker, revs_item) = ObjExcel.Cells(excel_row, yest_worker_excel_col).Value
-					JJ_review_array(JJ_yest_notes, revs_item) = ObjExcel.Cells(excel_row, yest_notes_excel_col).Value
-					ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = JJ_review_array(HC_revw_status_const, revs_item)
-					ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = JJ_review_array(review_recvd_const, revs_item)
-					JJ_review_array(JJ_case_has_been_worked, revs_item) = False
-					For every_col = 0 to UBound(work_columns_array)
-						work_columns_array(every_col) = work_columns_array(every_col)*1
-						If trim(ObjExcel.Cells(excel_row, work_columns_array(every_col)).Value) <> "" Then JJ_review_array(JJ_case_has_been_worked, revs_item) = True
-					Next
-
-
-					JJ_review_array(MA_status_const,   	revs_item) = objExcel.cells(excel_row,  3).value
-					JJ_review_array(MSP_status_const,  	revs_item) = objExcel.cells(excel_row,  4).value
-					JJ_review_array(HC_SR_status_const, 	revs_item) = objExcel.cells(excel_row,  5).value
-					JJ_review_array(HC_ER_status_const,	revs_item) = objExcel.cells(excel_row,  6).value
-					JJ_review_array(JJ_notes_const, 		revs_item) = objExcel.Cells(excel_row,  7).value
-
-					found_in_array = TRUE			'this lets the script know that this case was found in the array
-					JJ_review_array(saved_to_excel_const, revs_item) = TRUE
-					Exit For						'if we found a match, we should stop looking
-				End If
-			End If
-		Next
-		'if the case was not found in the array, we need to look in STAT for the information
-		If found_in_array = FALSE AND case_number_to_check <> "" Then
-			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-
-			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-			call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
-			EMReadScreen are_we_at_SELF, 4, 2, 50
-			If is_this_priv = FALSE AND are_we_at_SELF <> "SELF" Then
-				EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
-				recvd_date = replace(recvd_date, " ", "/")
-				if recvd_date = "__/__/__" then recvd_date = ""
-
-				EMReadScreen hc_review_status, 1, 7, 73
-				If hc_review_status = "_" Then hc_review_status = ""
-
-				EMReadScreen case_worker_number, 7, 21, 21
-
-				If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
-				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
-
-				ReDim Preserve JJ_review_array(JJ_notes_const, recert_cases)		'resizing the array
-
-				'Adding the case information to the array
-				JJ_review_array(worker_const, recert_cases) = case_worker_number
-				JJ_review_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
-				JJ_review_array(HC_revw_status_const, recert_cases) = hc_review_status
-				JJ_review_array(review_recvd_const, recert_cases) = recvd_date
-				JJ_review_array(saved_to_excel_const, recert_cases) = True
-
-				JJ_review_array(JJ_case_has_been_worked, recert_cases) = False
-				For each every_col in work_columns_array
-					If trim(ObjExcel.Cells(excel_row, every_col).Value) <> "" Then JJ_review_array(JJ_case_has_been_worked, recert_cases) = True
-				Next
-
-				JJ_review_array(MA_status_const,   	recert_cases) = objExcel.cells(excel_row,  3).value
-				JJ_review_array(MSP_status_const,  	recert_cases) = objExcel.cells(excel_row,  4).value
-				JJ_review_array(HC_SR_status_const, 	recert_cases) = objExcel.cells(excel_row,  5).value
-				JJ_review_array(HC_ER_status_const,	recert_cases) = objExcel.cells(excel_row,  6).value
-				JJ_review_array(JJ_notes_const, 		recert_cases) = objExcel.Cells(excel_row,  7).value
-				JJ_review_array(JJ_yest_worker, recert_cases) = ObjExcel.Cells(excel_row, yest_worker_excel_col).Value
-				JJ_review_array(JJ_yest_notes, recert_cases) = ObjExcel.Cells(excel_row, yest_notes_excel_col).Value
-
-				for each_yest_case = 0 to UBound(YESTERDAYS_CASES_ARRAY, 2)
-					If JJ_review_array(case_number_const, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_case_numb_const, each_yest_case) Then
-						JJ_review_array(JJ_yest_worker, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_worker_name_const, each_yest_case)
-						JJ_review_array(JJ_yest_notes, recert_cases) = YESTERDAYS_CASES_ARRAY(yest_assign_notes_cosnt, each_yest_case)
-						Exit For
-					End If
-				Next
-				recert_cases = recert_cases + 1
-
-			End If
-
-			Call back_to_SELF		'Back out in case we need to look into another case.
-		End If
-		excel_row = excel_row + 1		'going to the next excel
-	Loop until case_number_to_check = ""
-	excel_row = excel_row - 1
-
-
-
-	For revs_item = 0 to UBound(JJ_review_array, 2)
-		If JJ_review_array(saved_to_excel_const, revs_item) = FALSE Then
-			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-			MAXIS_case_number = JJ_review_array(case_number_const, revs_item)
-
-			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) 'function to check PRIV status
-			If is_this_priv = True then
-				JJ_review_array(JJ_notes_const, revs_item) = "PRIV Case."
-			Else
-				EmReadscreen worker_prefix, 4, 21, 14
-				If worker_prefix <> "X127" then
-					JJ_review_array(JJ_notes_const, revs_item) = "Out-of-County: " & right(worker_prefix, 2)
-				Else
-					'function to determine programs and the program's status---Yay Casey!
-					Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-
-					If case_active = False then
-						JJ_review_array(JJ_notes_const, revs_item) = "Case Not Active."
-					Else
-						'valuing the array variables from the inforamtion gathered in from CASE/CURR
-						JJ_review_array(MA_status_const,   revs_item) = ma_case
-						JJ_review_array(MSP_status_const,  revs_item) = msp_case
-
-						CALL navigate_to_MAXIS_screen("STAT", "REVW")
-
-						Call write_value_and_transmit("X", 5, 71) 'HC Review Information
-						EmReadscreen HC_review_popup, 20, 4, 32
-						If HC_review_popup = "HEALTH CARE RENEWALS" then
-						'The script will now read the CSR MO/YR and the Recert MO/YR
-							EMReadScreen CSR_mo, 2, 7, 27   'IR dates
-							EMReadScreen CSR_yr, 2, 7, 33
-							If CSR_mo = "__" or CSR_yr = "__" then
-								EMReadScreen CSR_mo, 2, 7, 71   'IR/AR dates
-								EMReadScreen CSR_yr, 2, 7, 77
-							End if
-							EMReadScreen recert_mo, 2, 8, 27
-							EMReadScreen recert_yr, 2, 8, 33
-
-							HC_CSR_date = CSR_mo & "/" & CSR_yr
-							If HC_CSR_date = "__/__" then HC_CSR_date = ""
-
-							HC_ER_date = recert_mo & "/" & recert_yr
-							If HC_ER_date = "__/__" then HC_ER_date = ""
-
-							EMReadScreen Ex_Parte_indicator, 1, 9, 27 'Y/N
-							EMReadScreen Ex_Parte_mo, 2, 9, 71
-							EMReadScreen Ex_Parte_yr, 4, 9, 74
-
-
-							'Next HC ER and SR dates
-							JJ_review_array(HC_SR_status_const, revs_item) = HC_CSR_date
-							JJ_review_array(HC_ER_status_const, revs_item) = HC_ER_date
-
-							Transmit 'to exit out of the pop-up screen
-						Else
-							Transmit 'to exit out of the pop-up screen
-							JJ_review_array(JJ_notes_const, revs_item) = "Unable to Access HC Review Information."
-						End if
-					End If
-				End If
-			End If
-
-
-			'----------------------------------------------------------------------------------------------------Excel Output
-			objExcel.cells(excel_row,  1).value = JJ_review_array(worker_const, 		revs_item)
-			objExcel.cells(excel_row,  2).value = JJ_review_array(case_number_const, 	revs_item)
-			objExcel.cells(excel_row,  3).value = JJ_review_array(MA_status_const,   	revs_item)
-			objExcel.cells(excel_row,  4).value = JJ_review_array(MSP_status_const,  	revs_item)
-			objExcel.cells(excel_row,  5).value = JJ_review_array(HC_SR_status_const, 	revs_item)
-			objExcel.cells(excel_row,  6).value = JJ_review_array(HC_ER_status_const,	revs_item)
-			objExcel.Cells(excel_row,  7).value = JJ_review_array(JJ_notes_const, 		revs_item)
-
-			'Entering information from the array into the excel spreadsheet
-			ObjExcel.Cells(excel_row, yest_worker_excel_col).Value = JJ_review_array(JJ_yest_worker, revs_item)
-			ObjExcel.Cells(excel_row, yest_notes_excel_col).Value = JJ_review_array(JJ_yest_notes, revs_item)
-			ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = JJ_review_array(HC_revw_status_const, revs_item)
-			ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = JJ_review_array(review_recvd_const, revs_item)
-			JJ_review_array(JJ_case_has_been_worked, revs_item) = False
-
-			' ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, intvw_date_excel_col)).Interior.ColorIndex = 6
-			Call back_to_SELF		'Back out in case we need to look into another case.
-
-			excel_row = excel_row + 1		'going to the next excel
-		End If
-	Next
-	'TODO - add a stats page and a stats line automation to the tracking sheet
-
-	'Formatting the columns to autofit after they are all finished being created.
-	FOR i = 1 to recvd_date_excel_col
-		objExcel.Columns(i).autofit()
-	Next
-
-	' MsgBox "Pause here and sheck to see if all the case information from the assignment file is in the tracking file"
-
-	'Saves and closes the main reivew report
-	objWorkbook.Save()
-	objExcel.ActiveWorkbook.Close
-	objExcel.Application.Quit
-	objExcel.Quit
-
-
-	'Opening the Excel file, (now that the dialog is done)
-	Set objAssignExcel = CreateObject("Excel.Application")
-	objAssignExcel.Visible = True
-	Set objAssignWorkbook = objAssignExcel.Workbooks.Add()
-	objAssignExcel.DisplayAlerts = True
-
-	assignment_date = replace(date_header, "/", "-")
-	'Changes name of Excel sheet to "Case information"
-	objAssignExcel.ActiveSheet.Name = assignment_date & " HC ER Assignment"
-
-	'formatting excel file with columns for case number and interview date/time
-	objAssignExcel.cells(1,  1).value = "X number"
-	objAssignExcel.cells(1,  2).value = "Case number"
-	objAssignExcel.cells(1,  3).value = "MA Status"
-	objAssignExcel.cells(1,  4).value = "MSP Status"
-	objAssignExcel.cells(1,  5).value = "Next HC SR"
-	objAssignExcel.cells(1,  6).value = "Next HC ER"
-	objAssignExcel.Cells(1,  7).value = "Notes"
-	objAssignExcel.Cells(1,  8).Value = "HC (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
-	objAssignExcel.Cells(1,  9).Value = "FORM Date (" & date_header & ")"
-	objAssignExcel.Cells(1, 10).Value = "WORKER"
-	objAssignExcel.Cells(1, 11).Value = "ASSIGNMENT NOTES"
-
-	FOR i = 1 to 11									'formatting the cells'
-		objAssignExcel.Cells(1, i).Font.Bold = True		'bold font'
-		objAssignExcel.columns(i).NumberFormat = "@" 		'formatting as text
-		objAssignExcel.Columns(i).AutoFit()				'sizing the columns'
-	NEXT
-
-	objAssignExcel.ActiveSheet.ListObjects.add xlSrcRange,objAssignExcel.Range("A1:K2"),,XlYes 'creating table for all 25 columns and 2 rows. Will increment as more cases/data columns are added.
-
-	excel_row = 2
-
-	For revs_item = 0 to UBound(JJ_review_array, 2)
-		If JJ_review_array(HC_revw_status_const, revs_item) = "U" or (JJ_review_array(HC_revw_status_const, revs_item) = "I" and JJ_review_array(JJ_case_has_been_worked, revs_item) = False) Then
-			' If JJ_review_array(JJ_yest_worker, revs_item) = "" and JJ_review_array(JJ_yest_notes, revs_item) = "" Then
-			' If JJ_review_array(JJ_case_has_been_worked, revs_item) = False Then
-				objAssignExcel.cells(excel_row,  1).value = JJ_review_array(worker_const, 		revs_item)
-				objAssignExcel.cells(excel_row,  2).value = JJ_review_array(case_number_const, 	revs_item)
-				objAssignExcel.cells(excel_row,  3).value = JJ_review_array(MA_status_const,   	revs_item)
-				objAssignExcel.cells(excel_row,  4).value = JJ_review_array(MSP_status_const,  	revs_item)
-				objAssignExcel.cells(excel_row,  5).value = JJ_review_array(HC_SR_status_const, 	revs_item)
-				objAssignExcel.cells(excel_row,  6).value = JJ_review_array(HC_ER_status_const,	revs_item)
-				objAssignExcel.Cells(excel_row,  7).value = JJ_review_array(JJ_notes_const, 		revs_item)
-
-				'Entering information from the array into the excel spreadsheet
-				objAssignExcel.Cells(excel_row, 8).Value = JJ_review_array(HC_revw_status_const, revs_item)
-				objAssignExcel.Cells(excel_row, 9).Value = JJ_review_array(review_recvd_const, revs_item)
-
-				excel_row = excel_row + 1
-			' End If
-		End If
-	Next
-
-	FOR i = 1 to 11									'formatting the cells'
-		objAssignExcel.Columns(i).AutoFit()				'sizing the columns'
-	NEXT
-
-	' 'TODO - delete yesterday's assignment file
-	' objFSO = CreateObject("Scripting.FileSystemObject")
-	' If objFSO.FileExists("C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Todays Assignment.xlsx") Then
-	' 	objFSO.DeleteFile("C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Todays Assignment.xlsx")
-	' End If
-
-
-	objAssignExcel.ActiveWorkbook.SaveAs "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\July Jam Todays Assignment.xlsx"
-
-	objAssignExcel.ActiveWorkbook.Close
-	objAssignExcel.Application.Quit
-	objAssignExcel.Quit
-
-	end_msg = "HC REVW Statistics complete and Today's Assignment List has been created."
 ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we are ready to collect statistics about review cases.
 	If REPT_month = CM_plus_2_mo AND REPT_year = CM_plus_2_yr Then
 		MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
