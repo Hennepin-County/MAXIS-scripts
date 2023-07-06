@@ -911,7 +911,7 @@ If ex_parte_function = "ADMIN Review" Then
 	Next
 	If phase_1_factor < 6 Then phase_1_factor = 6
 	If phase_2_factor < 6 Then phase_2_factor = 6
-	If phase_1_factor mod 2= 1 Then phase_1_factor = phase_1_factor + 1
+	If phase_1_factor mod 2 = 1 Then phase_1_factor = phase_1_factor + 1
 	If phase_2_factor mod 2 = 1 Then phase_2_factor = phase_2_factor + 1
 	dlg_len = 180 + (phase_1_factor/2)*10 + (phase_2_factor/2)*10
 
@@ -954,6 +954,7 @@ If ex_parte_function = "ADMIN Review" Then
 				End If
 			End If
 		Next
+		If x_pos = 350 Then y_pos = y_pos + 10
 		y_pos = y_pos + 5
 		Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 1: " & month_after_next_need_to_work
 		Text 350, y_pos, 130, 10, "Percent: " & month_after_next_waiting_pcnt & " %"
@@ -984,7 +985,8 @@ If ex_parte_function = "ADMIN Review" Then
 		Text 15, y_pos, 165, 10, "Cases to REVIEW (not approved Phase 2): " & next_month_need_more_review
 		' If Phase_one_hard_stop_passed = True Then Text 15, 165, 165, 10, "Phase One Processing has stopped."
 
-		y_pos = set_y_pos + 15
+		y_pos = set_y_pos + 10
+		x_pos = 185
 		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
 			If HSR_WORK_ARRAY(case_complete_p2_count, each_worker) <> 0 Then
 				If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 4 Then Text x_pos, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
@@ -1000,6 +1002,7 @@ If ex_parte_function = "ADMIN Review" Then
 				End If
 			End If
 		Next
+		If x_pos = 350 Then y_pos = y_pos + 10
 		y_pos = y_pos + 5
 		Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
 		Text 350, y_pos, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
