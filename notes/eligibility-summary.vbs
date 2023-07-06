@@ -3630,8 +3630,8 @@ function define_hc_elig_dialog()
 		End if
 
 		If ex_parte_approval = True Then
-			Text 10, 355, 145, 10, "This case is an EX PARTE APPROVAL"
-			CheckBox 155, 355, 300, 10, "Check here to stop the script from processing as Ex Parte.", stop_ex_parte_checkbox
+			Text 10, 345, 145, 10, "This case is an EX PARTE APPROVAL"
+			CheckBox 155, 345, 300, 10, "Check here to stop the script from processing as Ex Parte.", stop_ex_parte_checkbox
 		End If
 	EndDialog
 end function
