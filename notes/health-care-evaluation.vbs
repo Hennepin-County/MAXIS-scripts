@@ -4969,6 +4969,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	'MsgBox access_denied_check
 	If access_denied_check = "ACCESS DENIED" Then
 		PF10
+		EMWaitReady 0, 0
 		last_name = "UNABLE TO FIND"
 		first_name = " - Access Denied"
 		mid_initial = ""
