@@ -9197,6 +9197,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 		End If
 		If client_array <> "" Then client_array = client_array & "|" & ref_nbr
 		If client_array = "" Then client_array = client_array & ref_nbr
@@ -9224,6 +9225,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			HH_MEMB_ARRAY(last_name_const, clt_count) = "UNABLE TO FIND"
 			HH_MEMB_ARRAY(first_name_const, clt_count) = "Access Denied"
 			HH_MEMB_ARRAY(mid_initial, clt_count) = ""
