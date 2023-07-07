@@ -27386,42 +27386,44 @@ End If
 If ex_parte_approval = True and MSP_approvals_only = True Then
 	For approval = 0 to UBound(HC_ELIG_APPROVALS)
 		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
-			MSP_memo_success = True		'TODO - add a way to make sure the memo was created
-			If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
-				temp_array = ""
-				If InStr(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~") <> 0 Then
-					temp_array = split(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~")
-				Else
-					temp_array = Array(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member))
+			If  HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" Then
+				MSP_memo_success = True		'TODO - add a way to make sure the memo was created
+				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+					temp_array = ""
+					If InStr(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~") <> 0 Then
+						temp_array = split(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~")
+					Else
+						temp_array = Array(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member))
+					End If
 				End If
-			End If
-			'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-15010315'
-			Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
+				'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-15010315'
+				Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
 
-			Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following Medicare Savings Program:")
-			' Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member))
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("Your Income was verified using electronic sources.")
-			Call write_variable_in_SPEC_MEMO("Household size: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member))
-			Call write_variable_in_SPEC_MEMO("")
-			If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
-				Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
-				For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
-					Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
-				Next
-			Else
-				Call write_variable_in_SPEC_MEMO("No Income known that Counts for your HC Program.")
+				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following Medicare Savings Program:")
+				' Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member))
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("Your Income was verified using electronic sources.")
+				Call write_variable_in_SPEC_MEMO("Household size: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member))
+				Call write_variable_in_SPEC_MEMO("")
+				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+					Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
+					For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
+						Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+					Next
+				Else
+					Call write_variable_in_SPEC_MEMO("No Income known that Counts for your HC Program.")
+				End If
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
+				Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
+				' MsgBox "See the MEMO?"
+				PF4 'Exits the MEMO
 			End If
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
-			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
-			Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
-			' MsgBox "See the MEMO?"
-			PF4 'Exits the MEMO
 		Next
 	Next
 End If
