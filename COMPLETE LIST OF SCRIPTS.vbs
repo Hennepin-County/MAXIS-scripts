@@ -3367,6 +3367,21 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Repair Ex Parte Phase 2"
+' script_array(script_num).description 			= "Send an idea, error report, or other kind of request to the blueZone Script Team"
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/07/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Report to the BZST"
 ' script_array(script_num).description 			= "Send an idea, error report, or other kind of request to the blueZone Script Team"
 script_array(script_num).category               = "UTILITIES"
