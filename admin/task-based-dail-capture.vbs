@@ -247,6 +247,8 @@ For each worker in worker_array
 
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+            'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties. 
+            If instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then actionable_dail = False
 
             IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
                 If len(dail_month) = 5 then
