@@ -555,7 +555,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
             EMReadScreen homeless_code, 1, 10, 43
             EmReadscreen addr_line_01, 16, 6, 43
 
-            IF homeless_code = "Y" or addr_line_01 = "GENERAL DELIVERY" THEN possible_exemptions = possible_exemptions & vbcr & "Case is coded for homelessness."
+            IF homeless_code = "Y" then
+                verified_wreg = verified_wreg & "03" & "|"
+            Elseif addr_line_01 = "GENERAL DELIVERY" THEN
+                possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery."
+            End if
 
             '>>>>>>>>>SCHL/STIN/STEC
 		    'person based determination
