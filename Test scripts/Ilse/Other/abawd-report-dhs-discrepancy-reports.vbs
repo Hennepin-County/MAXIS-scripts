@@ -756,11 +756,11 @@ End Function
 'CONNECTS TO BlueZone
 EMConnect ""
 worker_county_code = "X127"
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
-ABAWD_eval_date = #07-01-2023#
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\06-2023.xlsx"
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
 
 'column constants
 case_number_col 	= 1
