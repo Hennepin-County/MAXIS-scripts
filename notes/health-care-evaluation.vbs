@@ -3106,6 +3106,20 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ma_case = False and msp_case = False and unknown_hc_pending = False Then
 			NO_HC_EXISTS = True
 		Else
+			persons_list = " "
+			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+			Call write_value_and_transmit("01", 20, 76)
+			Do
+				EMReadScreen read_pmi, 8, 4, 46
+				read_pmi = trim(read_pmi)
+				read_pmi = right("00000000" & read_pmi, 8)
+
+				persons_list = persons_list & read_pmi & " "
+
+				transmit
+				EMReadScreen MEMB_end_check, 13, 24, 2
+			LOOP Until MEMB_end_check = "ENTER A VALID"
+
 			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
 
 			'Creating objects for Access
@@ -3118,40 +3132,42 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 			Do While NOT objELIGRecordSet.Eof
+				If InStr(persons_list, objELIGRecordSet("PMINumber")) <> 0 Then
 
-				If name_01 = "" Then
-					name_01 = trim(objELIGRecordSet("Name"))
-					PMI_01 = trim(objELIGRecordSet("PMINumber"))
+					If name_01 = "" Then
+						name_01 = trim(objELIGRecordSet("Name"))
+						PMI_01 = trim(objELIGRecordSet("PMINumber"))
 
-					If objELIGRecordSet("MajorProgram") = "MA" Then
-						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-					Else
-						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-					End If
-				ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-					If objELIGRecordSet("MajorProgram") = "MA" Then
-						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-					Else
-						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-					End If
-				ElseIf name_02 = "" Then
-					name_02 = trim(objELIGRecordSet("Name"))
-					PMI_02 = trim(objELIGRecordSet("PMINumber"))
+						If objELIGRecordSet("MajorProgram") = "MA" Then
+							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						Else
+							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+						End If
+					ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+						If objELIGRecordSet("MajorProgram") = "MA" Then
+							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						Else
+							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+						End If
+					ElseIf name_02 = "" Then
+						name_02 = trim(objELIGRecordSet("Name"))
+						PMI_02 = trim(objELIGRecordSet("PMINumber"))
 
-					If objELIGRecordSet("MajorProgram") = "MA" Then
-						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-					Else
-						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-					End If
-				ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-					If objELIGRecordSet("MajorProgram") = "MA" Then
-						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-					Else
-						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+						If objELIGRecordSet("MajorProgram") = "MA" Then
+							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+						Else
+							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+						End If
+					ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+						If objELIGRecordSet("MajorProgram") = "MA" Then
+							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+						Else
+							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+						End If
 					End If
 				End If
 				objELIGRecordSet.MoveNext
@@ -3306,7 +3322,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					CALL back_to_SELF()
 					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 					Call write_value_and_transmit("01", 20, 76)
-					MsgBox "Pause"
 					person_01_ref_number = ""
 
 					Do
@@ -4969,6 +4984,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	'MsgBox access_denied_check
 	If access_denied_check = "ACCESS DENIED" Then
 		PF10
+		EMWaitReady 0, 0
 		last_name = "UNABLE TO FIND"
 		first_name = " - Access Denied"
 		mid_initial = ""

@@ -8504,6 +8504,7 @@ function HH_member_custom_dialog(HH_member_array)
         'MsgBox access_denied_check
         If access_denied_check = "ACCESS DENIED" Then
             PF10
+			EMWaitReady 0, 0
             last_name = "UNABLE TO FIND"
             first_name = " - Access Denied"
             mid_initial = ""
@@ -11029,6 +11030,7 @@ function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent
 		'MsgBox access_denied_check
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			last_name = "UNABLE TO FIND"
 			first_name = " - Access Denied"
 			mid_initial = ""
