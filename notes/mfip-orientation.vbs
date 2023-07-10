@@ -833,6 +833,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 	If access_denied_check = "ACCESS DENIED" Then
 		PF10
+		EMWaitReady 0, 0
 	End If
 	If client_array <> "" Then client_array = client_array & "|" & ref_nbr
 	If client_array = "" Then client_array = client_array & ref_nbr
@@ -860,6 +861,7 @@ For each hh_clt in client_array
 	EMReadScreen access_denied_check, 13, 24, 2         						'Sometimes MEMB gets this access denied issue and we have to work around it.
 	If access_denied_check = "ACCESS DENIED" Then
 		PF10
+		EMWaitReady 0, 0
 		memb_last_name_const = "UNABLE TO FIND"
 		memb_first_name_const = "Access Denied"
 	Else

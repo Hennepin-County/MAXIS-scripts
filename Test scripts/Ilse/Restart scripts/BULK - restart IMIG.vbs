@@ -116,6 +116,7 @@ Do
 		If access_check = "ACCESS DENIED" then 
 			objExcel.Cells(excel_row, 5).Value = "Unable to access case."
 			PF10
+			EMWaitReady 0, 0
 			PF3
 		Else 
 		

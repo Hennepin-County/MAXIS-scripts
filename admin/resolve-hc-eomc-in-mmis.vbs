@@ -390,6 +390,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 	EMReadScreen access_denied_check, 13, 24, 2
 	If access_denied_check = "ACCESS DENIED" Then
 		PF10
+        EMWaitReady 0, 0
 		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 2 'TODO - decide what 'age' we want to assign when a MEMB panel is access denied
 	Else
 		EMReadScreen age_of_client, 3, 8, 76
