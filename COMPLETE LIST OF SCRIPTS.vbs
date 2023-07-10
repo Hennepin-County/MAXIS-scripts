@@ -97,7 +97,11 @@ class script_bowie
 			    script_URL = script_repository & lcase(url_category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
             End If
 		Else
-        	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
+        	If script_repository = "" then
+				script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
+				IF on_the_desert_island = TRUE Then script_repository = desert_island_respository
+			End If
+
             If header_exists = TRUE Then
                 script_URL = script_repository & lcase(url_category) & "/" & lcase(header) & "-" & replace(lcase(name_to_use) & ".vbs", " ", "-")
             Else
