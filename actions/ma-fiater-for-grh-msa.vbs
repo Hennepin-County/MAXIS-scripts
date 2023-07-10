@@ -483,6 +483,13 @@ class income_object
 		NEXT
 		'Now figure out the future months
 		IF budg_month > current_plus_one THEN
+			If hc_inc_est_pay_freq = "_" Then
+				EMReadScreen panel_type, 25, 2, 28
+				EMReadScreen panel_memb, 2, 4, 33
+				EMReadScreen panel_instance, 1, 2, 73
+				script_run_lowdown = script_run_lowdown & vbCr & "PANEL Information: " & trim(panel_type) & " " & panel_memb & " 0" & panel_instance
+				script_end_procedure_with_error_report("The MA FIATer for GRH/MSA cannot run because the HC Income Estimate pop-up is not completed and the pay frequency is not entered. The HC Income Estimate is required for all income panels on a case with HC.")
+			End If
 			IF hc_inc_est_pay_freq = 1 THEN paydates_in_budg_month = 1
 			IF hc_inc_est_pay_freq = 2 THEN paydates_in_budg_month = 2
 			IF hc_inc_est_pay_freq = 3 THEN
