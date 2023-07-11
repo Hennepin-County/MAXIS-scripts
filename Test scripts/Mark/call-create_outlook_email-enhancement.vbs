@@ -6,7 +6,7 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 '~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
 '~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or high (2)
-'~~~~~ (email_body): body of email in quotations or a variable
+'~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
 '~~~~~ (email_attachment): set as "" if no email or file location
 '~~~~~ (send_email): set as TRUE or FALSE
 '===== Keywords: MAXIS, PRISM, create, outlook, email
@@ -23,7 +23,16 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
     objMail.Bcc = email_recip_bcc                   'bcc recipient
     objMail.Subject = email_subject                 'email subject
     objMail.Importance = email_importance           'email importance - 0 (low), 1 (normal), or high (2)
-    objMail.Body = email_body                       'email body
+    objMail.Body = email_body                       'Default email body
+    'Determines if HTML body is needed based on email_body content
+    If instr(email_body, "<p>") OR _
+        instr(email_body, "<br>") OR _
+        instr(email_body, "<i>") OR _
+        instr(email_body, "&emsp") OR _
+        instr(email_body, "&ensp") OR _
+        instr(email_body, "href") Then 
+            objMail.HTMLBody = email_body
+    End If
     If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachement (can only support one for now)
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
