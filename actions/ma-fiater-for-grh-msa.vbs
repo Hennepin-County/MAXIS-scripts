@@ -575,7 +575,7 @@ FUNCTION calculate_assets(input_array, asset_counted_total)
 		       ButtonGroup ButtonPressed
 		         OkButton 10, dialog_height - 20, 50, 15
 		         CancelButton 60, dialog_height - 20, 50, 15
-		         PushButton 320, dialog_height - 20, 55, 15, "CALCULATE", calculator_button
+		         If isempty(input_array(0)) = FALSE Then PushButton 320, dialog_height - 20, 55, 15, "CALCULATE", calculator_button
 		     EndDialog
 
 			DIALOG Dialog1
@@ -600,19 +600,22 @@ FUNCTION calculate_assets(input_array, asset_counted_total)
 	asset_counted_total = 0
 	asset_excluded_total = 0
 	asset_unavailable_total = 0
-	FOR i = 0 TO number_of_assets
-		IF (parallel_array(i, 0)) = "" THEN parallel_array(i, 0) = 0
-		IF (parallel_array(i, 1)) = "" THEN parallel_array(i, 1) = 0
-		IF (parallel_array(i, 2)) = "" THEN parallel_array(i, 2) = 0
+	If isempty(input_array(0)) = FALSE Then
+		FOR i = 0 TO number_of_assets
+			IF (parallel_array(i, 0)) = "" THEN parallel_array(i, 0) = 0
+			IF (parallel_array(i, 1)) = "" THEN parallel_array(i, 1) = 0
+			IF (parallel_array(i, 2)) = "" THEN parallel_array(i, 2) = 0
 
-		asset_counted_total = asset_counted_total + parallel_array(i, 0)
-		asset_excluded_total = asset_excluded_total + parallel_array(i, 1)
-		asset_unavailable_total = asset_unavailable_total + parallel_array(i, 2)
+			asset_counted_total = asset_counted_total + parallel_array(i, 0)
+			asset_excluded_total = asset_excluded_total + parallel_array(i, 1)
+			asset_unavailable_total = asset_unavailable_total + parallel_array(i, 2)
+			MsgBox "i - " & i
+			CALL input_array(i).set_counted_amount(parallel_array(i, 0))
+			CALL input_array(i).set_excluded_amount(parallel_array(i, 1))
+			CALL input_array(i).set_unavailable_amount(parallel_array(i, 2))
+		NEXT
+	End If
 
-		CALL input_array(i).set_counted_amount(parallel_array(i, 0))
-		CALL input_array(i).set_excluded_amount(parallel_array(i, 1))
-		CALL input_array(i).set_unavailable_amount(parallel_array(i, 2))
-	NEXT
 END FUNCTION
 
 FUNCTION calculate_income(input_array)
@@ -872,33 +875,35 @@ END IF																	' }
 CALL calculate_assets(asset_array, asset_counted_total)
 
 ' creating totals for the ttl_whatever variables for to FIAT the assets
-FOR i = 0 TO ubound(asset_array)
-	IF asset_array(i).asset_panel = "ACCT" THEN
-		ttl_ACCT_counted = ttl_ACCT_counted +   (1 * asset_array(i).asset_counted_amount)
-		ttl_ACCT_excluded = ttl_ACCT_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_ACCT_unavail = ttl_ACCT_unavail +   (1 * asset_array(i).asset_unavailable_amount)
-	ELSEIF asset_array(i).asset_panel = "CARS" THEN
-		ttl_CARS_counted = ttl_CARS_counted +   (1 * asset_array(i).asset_counted_amount)
-		ttl_CARS_excluded = ttl_CARS_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_CARS_unavail = ttl_CARS_unavail +   (1 * asset_array(i).asset_unavailable_amount)
-	ELSEIF asset_array(i).asset_panel = "CASH" THEN
-		ttl_CASH_counted = ttl_CASH_counted + (1 * asset_array(i).asset_counted_amount)
-		ttl_CASH_excluded = ttl_CASH_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_CASH_unavail = ttl_CASH_unavail + (1 * asset_array(i).asset_unavailable_amount)
-	ELSEIF asset_array(i).asset_panel = "OTHR" THEN
-		ttl_OTHR_counted = ttl_OTHR_counted + (1 * asset_array(i).asset_counted_amount)
-		ttl_OTHR_excluded = ttl_OTHR_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_OTHR_unavail = ttl_OTHR_unavail + (1 * asset_array(i).asset_unavailable_amount)
-	ELSEIF asset_array(i).asset_panel = "REST" THEN
-		ttl_REST_counted = ttl_REST_counted + (1 * asset_array(i).asset_counted_amount)
-		ttl_REST_excluded = ttl_REST_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_REST_unavail = ttl_REST_unavail + (1 * asset_array(i).asset_unavailable_amount)
-	ELSEIF asset_array(i).asset_panel = "SECU" THEN
-		ttl_SECU_counted = ttl_SECU_counted + (1 * asset_array(i).asset_counted_amount)
-		ttl_SECU_excluded = ttl_SECU_excluded + (1 * asset_array(i).asset_excluded_amount)
-		ttl_SECU_unavail = ttl_SECU_unavail + (1 * asset_array(i).asset_unavailable_amount)
-	END IF
-NEXT
+If isempty(asset_array(0)) = FALSE Then
+	FOR i = 0 TO ubound(asset_array)
+		IF asset_array(i).asset_panel = "ACCT" THEN
+			ttl_ACCT_counted = ttl_ACCT_counted +   (1 * asset_array(i).asset_counted_amount)
+			ttl_ACCT_excluded = ttl_ACCT_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_ACCT_unavail = ttl_ACCT_unavail +   (1 * asset_array(i).asset_unavailable_amount)
+		ELSEIF asset_array(i).asset_panel = "CARS" THEN
+			ttl_CARS_counted = ttl_CARS_counted +   (1 * asset_array(i).asset_counted_amount)
+			ttl_CARS_excluded = ttl_CARS_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_CARS_unavail = ttl_CARS_unavail +   (1 * asset_array(i).asset_unavailable_amount)
+		ELSEIF asset_array(i).asset_panel = "CASH" THEN
+			ttl_CASH_counted = ttl_CASH_counted + (1 * asset_array(i).asset_counted_amount)
+			ttl_CASH_excluded = ttl_CASH_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_CASH_unavail = ttl_CASH_unavail + (1 * asset_array(i).asset_unavailable_amount)
+		ELSEIF asset_array(i).asset_panel = "OTHR" THEN
+			ttl_OTHR_counted = ttl_OTHR_counted + (1 * asset_array(i).asset_counted_amount)
+			ttl_OTHR_excluded = ttl_OTHR_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_OTHR_unavail = ttl_OTHR_unavail + (1 * asset_array(i).asset_unavailable_amount)
+		ELSEIF asset_array(i).asset_panel = "REST" THEN
+			ttl_REST_counted = ttl_REST_counted + (1 * asset_array(i).asset_counted_amount)
+			ttl_REST_excluded = ttl_REST_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_REST_unavail = ttl_REST_unavail + (1 * asset_array(i).asset_unavailable_amount)
+		ELSEIF asset_array(i).asset_panel = "SECU" THEN
+			ttl_SECU_counted = ttl_SECU_counted + (1 * asset_array(i).asset_counted_amount)
+			ttl_SECU_excluded = ttl_SECU_excluded + (1 * asset_array(i).asset_excluded_amount)
+			ttl_SECU_unavail = ttl_SECU_unavail + (1 * asset_array(i).asset_unavailable_amount)
+		END IF
+	NEXT
+End If
 
 CALL check_for_MAXIS(false) 	' checking for MAXIS again again
 
