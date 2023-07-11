@@ -1,5 +1,6 @@
-Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_importance, email_body, email_attachment, send_email)
+Function create_outlook_email(email_from, email_recip, email_recip_CC, email_subject, email_importance, email_body, email_attachment, send_email)
 '--- This function creates a an outlook appointment
+'~~~~~ (email_from): email address for sender
 '~~~~~ (email_recip): email address for recipeint - seperated by semicolon
 '~~~~~ (email_recip_CC): email address for recipeints to cc - seperated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
@@ -15,6 +16,7 @@ Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_
     If send_email = False then objMail.Display      'To display message only if the script is NOT sending the email for the user.
 
     'Adds the information to the email
+    objMail.SentOnBehalfOfName = email_from         'email sender
     objMail.to = email_recip                        'email recipient
     objMail.cc = email_recip_CC                     'cc recipient
     objMail.Subject = email_subject                 'email subject
