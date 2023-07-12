@@ -5,7 +5,7 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 '~~~~~ (email_recip_CC): email address for recipients to cc - separated by semicolon
 '~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
-'~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or high (2)
+'~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or 2 (high)
 '~~~~~ (include_flag): indicate whether to include follow-up flag on email - true or false
 '~~~~~ (email_flag_text): set the text of the follow-up flag, if no follow-up flag needed then use ""
 '~~~~~ (email_flag_days): set the number of days from today that the flag is due
