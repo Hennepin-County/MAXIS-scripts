@@ -1,8 +1,8 @@
 Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, email_attachment, send_email)
 '--- This function creates a an outlook appointment
 '~~~~~ (email_from): email address for sender
-'~~~~~ (email_recip): email address for recipeint - seperated by semicolon
-'~~~~~ (email_recip_CC): email address for recipeints to cc - seperated by semicolon
+'~~~~~ (email_recip): email address for recipient - separated by semicolon
+'~~~~~ (email_recip_CC): email address for recipients to cc - separated by semicolon
 '~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
 '~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or high (2)
@@ -41,7 +41,7 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
         instr(email_body, "href") Then 
             objMail.HTMLBody = email_body
     End If
-    If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachement (can only support one for now)
+    If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachment (can only support one for now)
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
     Set objMail =   Nothing
