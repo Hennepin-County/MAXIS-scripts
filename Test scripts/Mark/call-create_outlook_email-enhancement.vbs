@@ -1,4 +1,4 @@
-Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, email_body, email_attachment, send_email)
+Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, email_attachment, send_email)
 '--- This function creates a an outlook appointment
 '~~~~~ (email_from): email address for sender
 '~~~~~ (email_recip): email address for recipeint - seperated by semicolon
@@ -6,6 +6,10 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 '~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
 '~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or high (2)
+'~~~~~ (email_flag_text): set the text of the follow-up flag, if no follow-up flag needed then use ""
+'~~~~~ (email_flag_days): set the number of days from today that the flag is due
+'~~~~~ (email_flag_reminder): set whether a flag reminder should be set - true or false
+'~~~~~ (email_flag_reminder_days): set the number of days from today that a reminder for the flag should be set
 '~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
 '~~~~~ (email_attachment): set as "" if no email or file location
 '~~~~~ (send_email): set as TRUE or FALSE
@@ -23,6 +27,10 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
     objMail.Bcc = email_recip_bcc                   'bcc recipient
     objMail.Subject = email_subject                 'email subject
     objMail.Importance = email_importance           'email importance - 0 (low), 1 (normal), or high (2)
+    objMail.FlagRequest = email_flag_text
+    objMail.FlagDueBy = DateAdd("d", email_flag_days, Date())
+    objMail.ReminderSet = email_flag_reminder
+    objMail.ReminderTime = DateAdd("d", email_flag_reminder_days, Date()) & " 12:00:00 PM"
     objMail.Body = email_body                       'Default email body
     'Determines if HTML body is needed based on email_body content
     If instr(email_body, "<p>") OR _
