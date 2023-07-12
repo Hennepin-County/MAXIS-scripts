@@ -5653,16 +5653,17 @@ If vars_filled = False Then
 				End If
 			End If
 		End If
-		If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" or hc_revw_code = "T" Then
-			get_dates = True
-			the_process_for_hc = "Recertification"
-			hc_recert_mo = MAXIS_footer_month
-			hc_recert_yr = MAXIS_footer_year
-			If processing_footer_month = "" Then
-				processing_footer_month = MAXIS_footer_month
-				processing_footer_year = MAXIS_footer_year
-			End If
-		End If
+		'TODO - remove this? Why do we have it? How does this help us?
+		' If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" or hc_revw_code = "T" Then
+		' 	get_dates = True
+		' 	the_process_for_hc = "Recertification"
+		' 	hc_recert_mo = MAXIS_footer_month
+		' 	hc_recert_yr = MAXIS_footer_year
+		' 	If processing_footer_month = "" Then
+		' 		processing_footer_month = MAXIS_footer_month
+		' 		processing_footer_year = MAXIS_footer_year
+		' 	End If
+		' End If
 
 		If get_dates = True Then
 			EMReadScreen REVW_CAF_datestamp, 8, 13, 37                       'reading theform date on REVW
@@ -5682,6 +5683,7 @@ If vars_filled = False Then
 			End if
 
 		End If
+		' MsgBox "MAXIS_footer_month - " & MAXIS_footer_month & vbCr & "get_dates - " & get_dates & vbCr & "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "REVW_interview_date - " & REVW_interview_date
 
 		IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
 			EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
