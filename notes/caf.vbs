@@ -5618,6 +5618,8 @@ If vars_filled = False Then
 					Call write_value_and_transmit("X", 5, 35)
 					EMReadScreen sr_date_month, 2, 9, 26
 					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+					EMReadScreen er_date_month, 2, 9, 64
+					If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
 					PF3
 				End If
 				If the_review_is_ER = True Then
@@ -5626,6 +5628,7 @@ If vars_filled = False Then
 					grh_recert_yr = MAXIS_footer_year
 					If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
 				End If
+				' MsgBox "next_revw_process - " & next_revw_process & vbCr & "sr_date_month - " & sr_date_month & vbCr & "er_date_month - " & er_date_month & vbCr & "the_review_is_ER - " & the_review_is_ER & vbCr & "the_process_for_grh - " & the_process_for_grh
 			End If
 			If mfip_case = True Then snap_with_mfip = True
 			If processing_footer_month = "" Then
@@ -6101,6 +6104,7 @@ If vars_filled = False Then
 			If the_process_for_cash = "Recertification" and adult_cash_case = True Then option_to_process_with_no_interview = True
 			If the_process_for_grh = "Recertification" Then option_to_process_with_no_interview = True
 			If interview_date <> "" Then option_to_process_with_no_interview = False
+			' MsgBox "the_process_for_grh - " & the_process_for_grh & vbCr & "option_to_process_with_no_interview - " & option_to_process_with_no_interview & vbCr & "interview_date - " & interview_date
 
 			' MsgBox "adult_cash_case - " & adult_cash_case & vbCr & "family_cash_case - "& family_cash_case
 			If adult_cash_case = TRUE Then type_of_cash = "Adult"
