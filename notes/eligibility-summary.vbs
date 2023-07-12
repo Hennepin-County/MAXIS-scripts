@@ -28377,11 +28377,11 @@ If enter_CNOTE_for_GRH = True Then
 	Next
 End If
 
-
 If complete_ex_parte_as_closed = True Then
 	If developer_mode = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
 	Else
+		end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
 		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
 		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "'"
@@ -28393,6 +28393,7 @@ If complete_ex_parte_as_closed = True Then
 		'This is the file path for the statistics Access database.
 		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
 	End If
 End If
 
