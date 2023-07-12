@@ -1,4 +1,4 @@
-Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, email_attachment, send_email)
+Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 '--- This function creates a an outlook appointment
 '~~~~~ (email_from): email address for sender
 '~~~~~ (email_recip): email address for recipient - separated by semicolon
@@ -12,7 +12,8 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 '~~~~~ (email_flag_reminder): set whether a flag reminder should be set - true or false
 '~~~~~ (email_flag_reminder_days): set the number of days from today that a reminder for the flag should be set
 '~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
-'~~~~~ (email_attachment): set as "" if no email or file location
+'~~~~~ (include_email_attachment): indicate if any (1 or more) attachments should be included - indicate true to include attachments or false to not include attachments
+'~~~~~ (email_attachment_array): if including 1 or more attachments, then enter the array name here to add these attachments to the email
 '~~~~~ (send_email): set as TRUE or FALSE
 '===== Keywords: MAXIS, PRISM, create, outlook, email
 
@@ -46,7 +47,13 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
         instr(email_body, "href") Then 
             objMail.HTMLBody = email_body
     End If
-    If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachment (can only support one for now)
+
+    'Iterates through array of email attachments if indicated
+    If include_email_attachment = True Then
+      For Each attachment In email_attachment_array
+        objMail.Attachments.Add(attachment)
+      Next
+    End If
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
     Set objMail =   Nothing
