@@ -59,7 +59,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 211, 175, "Ex Parte Phase 2 Completion Repair"
   If admin_run = True Then EditBox 150, 5, 50, 15, user_id_to_update
   If admin_run = False Then Text 150, 10, 50, 10, user_id_to_update
-  DropListBox 10, 40, 120, 45, "Yes - HC is Eligibile"+chr(9)+"No - HC has been Closed", elig_or_not
+  DropListBox 10, 40, 170, 45, "Yes - HC is Eligibile"+chr(9)+"No - HC has been Closed"+chr(9)+"Case already Transferred out of County", elig_or_not
   ButtonGroup ButtonPressed
     OkButton 95, 150, 50, 15
     CancelButton 150, 150, 50, 15
@@ -81,10 +81,21 @@ Do
 
 Loop until err_msg = ""
 
+If elig_or_not = "Case already Transferred out of County" Then
+	' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = 'Case not in 27' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+	'Creating objects for Access
+	Set objUpdateConnection = CreateObject("ADODB.Connection")
+	Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+End If
 
 If elig_or_not = "No - HC has been Closed" Then
 	' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-	sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
 	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
@@ -97,10 +108,7 @@ If elig_or_not = "No - HC has been Closed" Then
 End If
 
 If elig_or_not = "Yes - HC is Eligibile" Then
-
-
 	' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-	sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
 	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
