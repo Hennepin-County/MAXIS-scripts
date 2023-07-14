@@ -146,7 +146,7 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-      	IF IsNumeric(MAXIS_case_number) = false or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
         If ButtonPressed = script_instructions_btn Then             'Pulling up the instructions if the instruction button was pressed.
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
             err_msg = "LOOP"
@@ -1072,9 +1072,10 @@ If snap_status = "ACTIVE" Then revw_pending_table = False
 If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
 
 If revw_pending_table = True Then
+	MAXIS_case_number = trim(MAXIS_case_number)
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
-    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
+	If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
 
     If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
     If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
