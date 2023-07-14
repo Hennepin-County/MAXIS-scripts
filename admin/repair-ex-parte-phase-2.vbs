@@ -59,7 +59,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 211, 175, "Ex Parte Phase 2 Completion Repair"
   If admin_run = True Then EditBox 150, 5, 50, 15, user_id_to_update
   If admin_run = False Then Text 150, 10, 50, 10, user_id_to_update
-  DropListBox 10, 40, 170, 45, "Yes - HC is Eligibile"+chr(9)+"No - HC has been Closed"+chr(9)+"Case already Transferred out of County", elig_or_not
+  DropListBox 10, 40, 170, 45, "Needs Standard ER"+chr(9)+"Yes - HC is Eligibile"+chr(9)+"No - HC has been Closed"+chr(9)+"Case already Transferred out of County", elig_or_not
   ButtonGroup ButtonPressed
     OkButton 95, 150, 50, 15
     CancelButton 150, 150, 50, 15
@@ -80,6 +80,29 @@ Do
 	cancel_confirmation
 
 Loop until err_msg = ""
+
+If elig_or_not = "Needs Standard ER" Then
+	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = '09/23 ER Scheduled' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+	'Creating objects for Access
+	Set objUpdateConnection = CreateObject("ADODB.Connection")
+	Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
+	Call start_a_blank_CASE_NOTE
+
+	Call write_variable_in_CASE_NOTE("09/23 HC ER Scheduled - Ex Parte Could not be Processed")
+	Call write_variable_in_CASE_NOTE("Unable to complete all necessary Verifications to continue HC.")
+	Call write_variable_in_CASE_NOTE("Health Care Enrollees will need to complete a standard Renewal for 09/23")
+	Call write_variable_in_CASE_NOTE("09/23 is the next available month for and Eligibility Review.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+End If
+
 
 If elig_or_not = "Case already Transferred out of County" Then
 	' MsgBox "STOP - YOU ARE GOING TO UPDATE"
