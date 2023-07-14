@@ -609,7 +609,7 @@ FUNCTION calculate_assets(input_array, asset_counted_total)
 			asset_counted_total = asset_counted_total + parallel_array(i, 0)
 			asset_excluded_total = asset_excluded_total + parallel_array(i, 1)
 			asset_unavailable_total = asset_unavailable_total + parallel_array(i, 2)
-			MsgBox "i - " & i
+
 			CALL input_array(i).set_counted_amount(parallel_array(i, 0))
 			CALL input_array(i).set_excluded_amount(parallel_array(i, 1))
 			CALL input_array(i).set_unavailable_amount(parallel_array(i, 2))
