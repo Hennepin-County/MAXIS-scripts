@@ -835,6 +835,7 @@ If snap_status = "ACTIVE" Then revw_pending_table = False
 If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
 
 If revw_pending_table = True Then
+	MAXIS_case_number = trim(MAXIS_case_number)
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
     If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
