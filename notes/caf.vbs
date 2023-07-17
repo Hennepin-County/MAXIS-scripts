@@ -5590,6 +5590,10 @@ If vars_filled = False Then
 
 	CM_minus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
 	CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+	cash_terminated_revw_date = ""
+	grh_terminated_revw_date = ""
+	snap_terminated_revw_date = ""
+
 	call date_array_generator(CM_minus_1_mo, CM_minus_1_yr, date_array)
 	call Back_to_SELF
 	For each month_date in date_array
@@ -5607,12 +5611,14 @@ If vars_filled = False Then
 				the_process_for_cash = "Recertification"
 				cash_recert_mo = MAXIS_footer_month
 				cash_recert_yr = MAXIS_footer_year
+				If cash_revw_code = "T" Then cash_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 
 				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_CASH_untrack = True
 			End If
 			If grh_case = True Then
 				the_review_is_ER = False
 				EMReadScreen next_revw_process, 2, 9, 46
+				grh_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 				If next_revw_process = "SR" Then the_review_is_ER = True
 				If next_revw_process = "ER" Then
 					Call write_value_and_transmit("X", 5, 35)
@@ -5641,6 +5647,8 @@ If vars_filled = False Then
 			Call write_value_and_transmit("X", 5, 58)
 			EMReadScreen er_date_month, 2, 9, 64
 			If er_date_month = MAXIS_footer_month Then the_review_is_ER = True
+			If snap_revw_code = "T" Then snap_terminated_revw_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+
 			PF3
 
 			If the_review_is_ER = True Then
@@ -5723,8 +5731,11 @@ If vars_filled = False Then
 		EMER_checkbox = checked
 		the_process_for_emer = "Application"
 	End If
+	If cash_terminated_revw_date <> "" then cash_terminated_revw_date = DateAdd("d", 0, cash_terminated_revw_date)
+	If grh_terminated_revw_date <> "" then grh_terminated_revw_date = DateAdd("d", 0, grh_terminated_revw_date)
+	If snap_terminated_revw_date <> "" then snap_terminated_revw_date = DateAdd("d", 0, snap_terminated_revw_date)
 
-	If CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked Then
+	If (CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked) or IsDate(cash_terminated_revw_date) = True or IsDate(grh_terminated_revw_date) = True or IsDate(snap_terminated_revw_date) = True Then
 		past_90_days = DateAdd("d", -90, date)
 
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
@@ -5752,7 +5763,18 @@ If vars_filled = False Then
 
 		prog_cash_1_appl_date = replace(prog_cash_1_appl_date, " ", "/")
 		If IsDate(prog_cash_1_appl_date) = True Then
-			If DateDiff("d", past_90_days, prog_cash_1_appl_date) >= 0 Then
+			If IsDate(cash_terminated_revw_date) = True Then
+				If DateDiff("d", cash_terminated_revw_date, prog_cash_1_appl_date) > 0 Then
+					CASH_checkbox = checked
+					allow_CASH_untrack = True
+					the_process_for_cash = "Application"
+					PROG_CAF_datestamp = prog_cash_1_appl_date
+					prog_cash_1_intv_date = replace(prog_cash_1_intv_date, " ", "/")
+					If prog_cash_1_intv_date <> "__/__/__" Then PROG_interview_date = prog_cash_1_intv_date
+					cash_recert_mo = ""
+					cash_recert_yr = ""
+				End If
+			ElseIf DateDiff("d", past_90_days, prog_cash_1_appl_date) >= 0 Then
 				CASH_checkbox = checked
 				allow_CASH_untrack = True
 				the_process_for_cash = "Application"
@@ -5763,7 +5785,19 @@ If vars_filled = False Then
 		End If
 		prog_cash_2_appl_date = replace(prog_cash_2_appl_date, " ", "/")
 		If IsDate(prog_cash_2_appl_date) = True Then
-			If DateDiff("d", past_90_days, prog_cash_2_appl_date) >= 0 Then
+
+			If IsDate(cash_terminated_revw_date) = True Then
+				If DateDiff("d", cash_terminated_revw_date, prog_cash_2_appl_date) > 0 Then
+					CASH_checkbox = checked
+					allow_CASH_untrack = True
+					the_process_for_cash = "Application"
+					PROG_CAF_datestamp = prog_cash_2_appl_date
+					prog_cash_2_intv_date = replace(prog_cash_2_intv_date, " ", "/")
+					If prog_cash_2_intv_date <> "__/__/__" Then PROG_interview_date = prog_cash_2_intv_date
+					cash_recert_mo = ""
+					cash_recert_yr = ""
+				End If
+			ElseIf DateDiff("d", past_90_days, prog_cash_2_appl_date) >= 0 Then
 				CASH_checkbox = checked
 				allow_CASH_untrack = True
 				the_process_for_cash = "Application"
@@ -5787,7 +5821,18 @@ If vars_filled = False Then
 
 		prog_grh_appl_date = replace(prog_grh_appl_date, " ", "/")
 		If IsDate(prog_grh_appl_date) = True Then
-			If DateDiff("d", past_90_days, prog_grh_appl_date) >= 0 Then
+			If IsDate(grh_terminated_revw_date) = True Then
+				If DateDiff("d", grh_terminated_revw_date, prog_grh_appl_date) > 0 Then
+					GRH_checkbox = checked
+					allow_GRH_untrack = True
+					the_process_for_grh = "Application"
+					PROG_CAF_datestamp = prog_grh_appl_date
+					prog_grh_intv_date = replace(prog_grh_intv_date, " ", "/")
+					If prog_grh_intv_date <> "__/__/__" Then PROG_interview_date = prog_grh_intv_date
+					grh_recert_mo = ""
+					grh_recert_yr = ""
+				End If
+			ElseIf DateDiff("d", past_90_days, prog_grh_appl_date) >= 0 Then
 				GRH_checkbox = checked
 				allow_GRH_untrack = True
 				the_process_for_grh = "Application"
@@ -5799,13 +5844,26 @@ If vars_filled = False Then
 
 		prog_snap_appl_date = replace(prog_snap_appl_date, " ", "/")
 		If IsDate(prog_snap_appl_date) = True Then
-			If DateDiff("d", past_90_days, prog_snap_appl_date) >= 0 Then
+			If IsDate(snap_terminated_revw_date) = True Then
+				If DateDiff("d", snap_terminated_revw_date, prog_snap_appl_date) > 0 Then
+					SNAP_checkbox = checked
+					allow_SNAP_untrack = True
+					the_process_for_SNAP = "Application"
+					PROG_CAF_datestamp = prog_snap_appl_date
+					prog_snap_intv_date = replace(prog_snap_intv_date, " ", "/")
+					If prog_snap_intv_date <> "__/__/__" Then PROG_interview_date = prog_snap_intv_date
+					snap_recert_mo = ""
+					snap_recert_yr = ""
+
+				End If
+			ElseIf DateDiff("d", past_90_days, prog_snap_appl_date) >= 0 Then
 				SNAP_checkbox = checked
 				allow_SNAP_untrack = True
 				the_process_for_SNAP = "Application"
 				PROG_CAF_datestamp = prog_snap_appl_date
 				prog_snap_intv_date = replace(prog_snap_intv_date, " ", "/")
 				If prog_snap_intv_date <> "__/__/__" Then PROG_interview_date = prog_snap_intv_date
+
 			End If
 		End If
 
