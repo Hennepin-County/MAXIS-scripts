@@ -10995,6 +10995,11 @@ class mfip_eligibility_detail
 			dm_row = 1
 			dm_col = 1
 			EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
+			If dm_row = 0 Then
+				dm_row = 1
+				dm_col = 1
+				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+			End If
 			' EMReadScreen still_in_menu, 20, 2, 34
 			' MsgBox"still_in_menu - " & still_in_menu
 			' MsgBox "DEEMED INCOME POP-UP - dm_row: " & dm_row
