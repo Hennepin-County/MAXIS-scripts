@@ -5725,7 +5725,7 @@ If vars_filled = False Then
 	End If
 
 	If CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked Then
-		past_60_days = DateAdd("d", -60, date)
+		past_90_days = DateAdd("d", -90, date)
 
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
 		EMReadScreen prog_cash_1_appl_date, 8, 6, 33
@@ -5752,7 +5752,7 @@ If vars_filled = False Then
 
 		prog_cash_1_appl_date = replace(prog_cash_1_appl_date, " ", "/")
 		If IsDate(prog_cash_1_appl_date) = True Then
-			If DateDiff("d", past_60_days, prog_cash_1_appl_date) >= 0 Then
+			If DateDiff("d", past_90_days, prog_cash_1_appl_date) >= 0 Then
 				CASH_checkbox = checked
 				allow_CASH_untrack = True
 				the_process_for_cash = "Application"
@@ -5763,7 +5763,7 @@ If vars_filled = False Then
 		End If
 		prog_cash_2_appl_date = replace(prog_cash_2_appl_date, " ", "/")
 		If IsDate(prog_cash_2_appl_date) = True Then
-			If DateDiff("d", past_60_days, prog_cash_2_appl_date) >= 0 Then
+			If DateDiff("d", past_90_days, prog_cash_2_appl_date) >= 0 Then
 				CASH_checkbox = checked
 				allow_CASH_untrack = True
 				the_process_for_cash = "Application"
@@ -5775,7 +5775,7 @@ If vars_filled = False Then
 
 		prog_emer_appl_date = replace(prog_emer_appl_date, " ", "/")
 		If IsDate(prog_emer_appl_date) = True Then
-			If DateDiff("d", past_60_days, prog_emer_appl_date) >= 0 Then
+			If DateDiff("d", past_90_days, prog_emer_appl_date) >= 0 Then
 				EMER_checkbox = checked
 				allow_EMER_untrack = True
 				the_process_for_emer = "Application"
@@ -5787,7 +5787,7 @@ If vars_filled = False Then
 
 		prog_grh_appl_date = replace(prog_grh_appl_date, " ", "/")
 		If IsDate(prog_grh_appl_date) = True Then
-			If DateDiff("d", past_60_days, prog_grh_appl_date) >= 0 Then
+			If DateDiff("d", past_90_days, prog_grh_appl_date) >= 0 Then
 				GRH_checkbox = checked
 				allow_GRH_untrack = True
 				the_process_for_grh = "Application"
@@ -5799,7 +5799,7 @@ If vars_filled = False Then
 
 		prog_snap_appl_date = replace(prog_snap_appl_date, " ", "/")
 		If IsDate(prog_snap_appl_date) = True Then
-			If DateDiff("d", past_60_days, prog_snap_appl_date) >= 0 Then
+			If DateDiff("d", past_90_days, prog_snap_appl_date) >= 0 Then
 				SNAP_checkbox = checked
 				allow_SNAP_untrack = True
 				the_process_for_SNAP = "Application"
@@ -10374,7 +10374,7 @@ If snap_status = "ACTIVE" Then revw_pending_table = False
 
 'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
 If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
-
+	MAXIS_case_number = trim(MAXIS_case_number)
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
     If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
