@@ -10876,6 +10876,7 @@ class mfip_eligibility_detail
 			Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
 			EMReadScreen still_in_menu, 12, 5, 32
 
+			' MsgBox "EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			Do while still_in_menu = "Maxis Person"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
@@ -10925,10 +10926,13 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen still_in_menu, 12, 5, 32
+				' MsgBox "LEVAING???  EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
+
 			Loop
 
 			Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
 			EMReadScreen still_in_menu, 15, 6, 34
+			' MsgBox "UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			If still_in_menu = "Unearned Income" Then
 				' EMReadScreen pop_up_name, 25, 8, 34
 				' pop_up_name = trim(pop_up_name)
@@ -10954,44 +10958,46 @@ class mfip_eligibility_detail
 						If still_in_menu <> "Unearned Income" Then Exit For
 					End If
 				Next
-			' 		' If mfip_elig_membs_last_name_complete(case_memb) = False Then
-			' 		' 	pop_up_last_name = left(pop_up_name, 10)
-			' 		' 	pop_up_first_name = trim(left(pop_up_name_array(1), 10))
-			' 		' 	compare_pop_up_name = pop_up_last_name & " " & pop_up_first_name
-			' 		' End If
-			' 		' If mfip_elig_membs_last_name_complete(case_memb) = True Then
-			' 		' 	pop_up_last_name = trim(pop_up_name_array(0))
-			' 		' 	pop_up_first_name = left(trim(pop_up_name_array(1)), len(mfip_elig_membs_partial_first_name(case_memb)))
-			' 		' 	compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
-			' 		' End If
-			' 		MsgBox compare_pop_up_name & " - compare_pop_up_name" & vbCr & mfip_elig_membs_full_name(case_memb) & " - mfip_elig_membs_full_name(case_memb)" & vbCr & "Length of COMPARE NAME - " & len(compare_pop_up_name)
-			' 		If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-			'
-			' 			EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
-			' 			EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
-			' 			EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
-			' 			EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
-			'
-			' 			mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
-			' 			mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
-			' 			mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
-			' 			mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
-			'
-			' 			If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
-			'
-			' 		End If
-			' 	Next
-			' 	transmit
-			' 	EMReadScreen still_in_menu, 15, 6, 34
-			' Loop
+				' 		' If mfip_elig_membs_last_name_complete(case_memb) = False Then
+				' 		' 	pop_up_last_name = left(pop_up_name, 10)
+				' 		' 	pop_up_first_name = trim(left(pop_up_name_array(1), 10))
+				' 		' 	compare_pop_up_name = pop_up_last_name & " " & pop_up_first_name
+				' 		' End If
+				' 		' If mfip_elig_membs_last_name_complete(case_memb) = True Then
+				' 		' 	pop_up_last_name = trim(pop_up_name_array(0))
+				' 		' 	pop_up_first_name = left(trim(pop_up_name_array(1)), len(mfip_elig_membs_partial_first_name(case_memb)))
+				' 		' 	compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
+				' 		' End If
+				' 		MsgBox compare_pop_up_name & " - compare_pop_up_name" & vbCr & mfip_elig_membs_full_name(case_memb) & " - mfip_elig_membs_full_name(case_memb)" & vbCr & "Length of COMPARE NAME - " & len(compare_pop_up_name)
+				' 		If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+				'
+				' 			EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
+				' 			EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
+				' 			EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
+				' 			EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
+				'
+				' 			mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
+				' 			mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
+				' 			mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
+				' 			mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
+				'
+				' 			If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
+				'
+				' 		End If
+				' 	Next
+				' 	transmit
+				' 	EMReadScreen still_in_menu, 15, 6, 34
+				' Loop
+				' MsgBox "LEAVE ???   UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			End if
 
 			Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
 			dm_row = 1
 			dm_col = 1
-			EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+			EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
 			' EMReadScreen still_in_menu, 20, 2, 34
 			' MsgBox"still_in_menu - " & still_in_menu
+			' MsgBox "DEEMED INCOME POP-UP - dm_row: " & dm_row
 			Do while dm_row <> 0
 			' Do while still_in_menu = "Deemer Income Budget"
 				' MsgBox"still_in_menu - " & still_in_menu & " - in loop - DEEMER INCOME"
@@ -11056,9 +11062,12 @@ class mfip_eligibility_detail
 				dm_col = 1
 				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
 				' EMReadScreen still_in_menu, 20, 4, 34
+				' MsgBox "LEAVING ??   DEEMED INCOME POP-UP - dm_row: " & dm_row
 			Loop
+			' MsgBox "We should be at main"
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
+			' MsgBox "In CSES Excl"
 			EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
 			EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
 			EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
@@ -11066,10 +11075,11 @@ class mfip_eligibility_detail
 			mfip_budg_cses_excln_cses_income = trim(mfip_budg_cses_excln_cses_income)
 			mfip_budg_cses_excln_child_count = trim(mfip_budg_cses_excln_child_count)
 			mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
-
 			transmit
+			' MsgBox "Left the CSES Excl - back to main"
 
 			Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
+			' MsgBox "IN memb SPECIFIC Tribal income"
 			EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
 			EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
 			EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
@@ -11078,6 +11088,7 @@ class mfip_eligibility_detail
 			mfip_budg_total_tribal_income_fs_portion_deduction = trim(mfip_budg_total_tribal_income_fs_portion_deduction)
 
 			Call write_value_and_transmit("X", 6, 12)		' member specific Tribal Child Support Income
+			' MsgBox "IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			EMReadScreen back_to_menu, 21, 4, 31
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 25, 8, 34
@@ -11092,10 +11103,12 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
+				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			Loop
 
 			Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
 			EMReadScreen back_to_menu, 21, 4, 31
+			' MsgBox "IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 30, 7, 37
 				pop_up_name = trim(pop_up_name)
@@ -11119,10 +11132,13 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
+				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Loop
 			transmit                  ''back to MFB1
+			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
+			' MsgBox "Memb specific SUBSIDY"
 			EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
 			EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
 			EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
@@ -11131,6 +11147,8 @@ class mfip_eligibility_detail
 			mfip_budg_total_subsidy_tribal_cash_portion_deduction = trim(mfip_budg_total_subsidy_tribal_cash_portion_deduction)
 
 			Call write_value_and_transmit("X", 8, 13)		' member specific subsidy Income
+			' MsgBox "Memb specific SUBSIDY"
+
 			EMReadScreen mfip_elig_budg_total_countable_housing_subsidy, 10, 19, 48
 			EMReadScreen mfip_elig_budg_housing_subsidy_exempt, 1, 21, 47
 
@@ -11154,8 +11172,10 @@ class mfip_eligibility_detail
 				EMReadScreen next_memb_ref_numb, 2, row, 6
 			Loop until next_memb_ref_numb = "  "
 			transmit 					'back to pop-up
+			' MsgBox "Back to SUBSIDY POP UP"
 
 			transmit                 	'back to MFB1
+			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
 			EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
