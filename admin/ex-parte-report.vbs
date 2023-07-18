@@ -666,6 +666,7 @@ DO
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 341, 165, "Confirm Ex Parte process"
 				EditBox 600, 700, 10, 10, fake_edit_box
+				Checkbox 10, 115, 330, 10, "Check here to clear any previous 'In Progress' statuses on cases in the Data Table.", reset_in_Progress
 				ButtonGroup ButtonPressed
 					PushButton 10, 145, 210, 15, "CONFIRMED! This is the correct Process and Review Month", Confirm_Process_to_Run_btn
 					PushButton 230, 145, 100, 15, "Incorrect Process/Month", incorrect_process_btn
@@ -1125,12 +1126,6 @@ If ex_parte_function = "FIX LIST" Then
 End If
 
 If ex_parte_function = "Prep 1" Then
-	' MsgBox  "At this point the script will pull the cases from a SQL Table that has identified cases due for a HC ER and evaluates them as potentially Ex Parte." & vbCr & vbCr &_
-	' 		"If the case is potentially Ex Parte, the script will:" & vbCr &_
-	' 		" - Send a SVES/QURY." & vbCr &_
-	' 		" - Add the case to a report if VA Income is listed on the case to gather verification." & vbCr & vbCR &_
-	' 		"This script will look at each case for the specified review month, preparing the case for review." & vbCr  & vbCr &_
-	' 		"This script is run 4 business days before the Budget Month, or the end of the 3rd month BEFORE the ER month."
 
 	MAXIS_footer_month = CM_plus_1_mo
 	MAXIS_footer_year = CM_plus_1_yr
@@ -1138,6 +1133,48 @@ If ex_parte_function = "Prep 1" Then
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr
 	review_date = DateAdd("d", 0, review_date)
 	smrt_cut_off = DateAdd("m", 1, review_date)
+
+	If reset_in_Progress = checked Then
+		'Open The CASE LIST Table
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		'Loop through each item on the CASE LIST Table
+		Do While NOT objRecordSet.Eof
+			If objRecordSet("PREP_Complete") = "In Progress" Then
+				MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+				'Creating objects for Access
+				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+				'This is the file path for the statistics Access database.
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			End If
+			objRecordSet.MoveNext
+		Loop
+
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+
+	End If
+
+
+
 
 	va_count = 0
 	uc_count = 0
@@ -1181,8 +1218,7 @@ If ex_parte_function = "Prep 1" Then
 
 	'Loop through each item on the CASE LIST Table
 	Do While NOT objRecordSet.Eof
-		If IsNull(objRecordSet("PREP_Complete")) = True Then
-		' If objRecordSet("SelectExParte") = True Then
+		If IsNull(objRecordSet("PREP_Complete")) = True or objRecordSet("PREP_Complete") = "" Then
 			all_hc_is_ABD = ""
 			SSA_income_exists = ""
 			JOBS_income_exists = ""
@@ -1196,9 +1232,21 @@ If ex_parte_function = "Prep 1" Then
 			case_has_EPD = False
 			case_is_in_henn = False
 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			' MsgBox "CASE NUMBER - " & MAXIS_case_number & " - In Progress"
 			' MsgBox MAXIS_case_number
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
 			memb_count = 0
+			list_of_membs_on_hc = " "
 
 			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
 
@@ -1212,7 +1260,7 @@ If ex_parte_function = "Prep 1" Then
 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
 			person_found = False
 			Do While NOT objELIGRecordSet.Eof
-
+				list_of_membs_on_hc = list_of_membs_on_hc & objELIGRecordSet("PMINumber") & " "
 				person_found = True
 				memb_known = False
 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
@@ -1490,6 +1538,9 @@ If ex_parte_function = "Prep 1" Then
 						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True
 						If MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" Then at_least_one_hc_active = True
 						If MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then at_least_one_hc_active = True
+						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then
+							list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "
+						End If
 
 					Next
 					If at_least_one_hc_active = False Then appears_ex_parte = False
@@ -1525,45 +1576,50 @@ If ex_parte_function = "Prep 1" Then
 			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 			Do While NOT objIncomeRecordSet.Eof
-				' MsgBox "IncExpTypeCode - " & objIncomeRecordSet("IncExpTypeCode") & vbCr & "IncomeTypeCode - " & objIncomeRecordSet("IncomeTypeCode")
-				If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
-					If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
+				income_for_person_is_on_HC = False
+				If InStr(list_of_membs_on_hc, objIncomeRecordSet("PersonID")) <> 0 Then income_for_person_is_on_HC = True
 
-					If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
+				If income_for_person_is_on_HC = True Then
+					' MsgBox "IncExpTypeCode - " & objIncomeRecordSet("IncExpTypeCode") & vbCr & "IncomeTypeCode - " & objIncomeRecordSet("IncomeTypeCode")
+					If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
+						If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
 
-					If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
+
+						If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
+					End If
+					If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True
+					If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
 				End If
-				If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True
-				If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
 
 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 					If trim(objIncomeRecordSet("PersonID")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
@@ -1593,9 +1649,9 @@ If ex_parte_function = "Prep 1" Then
 				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 				EMReadScreen case_pw, 7, 21, 14
 				If left(case_pw, 4) = "X127" Then case_is_in_henn = True
-				If case_is_in_henn = False then  appears_ex_parte = False
-				If case_active = False Then appears_ex_parte = False
-				If ma_status <> "ACTIVE" and msp_status <> "ACTIVE" Then appears_ex_parte = False
+				' If case_is_in_henn = False then  appears_ex_parte = False				'we are not going to exclude for inactive or out of county uuntil Phase 1 at this point
+				' If case_active = False Then appears_ex_parte = False
+				' If ma_status <> "ACTIVE" and msp_status <> "ACTIVE" Then appears_ex_parte = False
 
 				If Other_UNEA_income_exists = True OR JOBS_income_exists = True OR BUSI_income_exists = True Then
 					appears_ex_parte = False
@@ -1641,24 +1697,6 @@ If ex_parte_function = "Prep 1" Then
 					objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
-					'THIS IS FOR A SECOND QURY AND WE DON"T NEED IT
-					' MEMBER_INFO_ARRAY(second_qury_sent, each_memb) = False
-					' If MEMBER_INFO_ARRAY(unmatched_claim_numb, each_memb) <> "" Then
-					' 	Call send_sves_qury("CLAIM", qury_finish)
-					' 	MEMBER_INFO_ARRAY(second_qury_sent, each_memb) = qury_finish
-
-					' 	objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET QURY_Sent = '" & qury_finish & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] like '" & MEMBER_INFO_ARRAY(unmatched_claim_numb, each_memb) & "%'"
-
-					' 	'Creating objects for Access
-					' 	Set objIncomeConnection = CreateObject("ADODB.Connection")
-					' 	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-					' 	'This is the file path for the statistics Access database.
-					' 	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-					' 	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-					' 	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-					' End If
 
 					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb)	= True Then
 						call navigate_to_MAXIS_screen("STAT", "DISA")
@@ -1796,7 +1834,8 @@ If ex_parte_function = "Prep 1" Then
 							objVAExcel.Cells(va_excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 5).value = VA_INCOME_ARRAY(va_pers_ssn_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
+							If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) <> "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
+							If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) = "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 7).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
 
@@ -1842,7 +1881,8 @@ If ex_parte_function = "Prep 1" Then
 							objUCExcel.Cells(uc_excel_row, 3).value = UC_INCOME_ARRAY(uc_pers_name_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 4).value = UC_INCOME_ARRAY(uc_pers_pmi_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 5).value = UC_INCOME_ARRAY(uc_pers_ssn_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) & " - " & UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
+							If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) <> "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) & " - " & UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
+							If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) = "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 7).value = UC_INCOME_ARRAY(uc_claim_numb_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 8).value = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_inc_count)
 
@@ -1889,7 +1929,8 @@ If ex_parte_function = "Prep 1" Then
 							objRRExcel.Cells(rr_excel_row, 3).value = RR_INCOME_ARRAY(rr_pers_name_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 4).value = RR_INCOME_ARRAY(rr_pers_pmi_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 5).value = RR_INCOME_ARRAY(rr_pers_ssn_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) & " - " & UC_INCOME_ARRAY(uc_inc_type_info_const, rr_inc_count)
+							If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) <> "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) & " - " & RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
+							If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) = "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 7).value = RR_INCOME_ARRAY(rr_claim_numb_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 8).value = RR_INCOME_ARRAY(rr_prosp_inc_const, rr_inc_count)
 
@@ -1910,15 +1951,16 @@ If ex_parte_function = "Prep 1" Then
 				' If mfip_status = "ACTIVE" OR snap_status = "ACTIVE" Then prep_status = "SNAP/MFIP"
 			' End If
 
-			' objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
-			' 'Creating objects for Access
-			' Set objUpdateConnection = CreateObject("ADODB.Connection")
-			' Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			' 'This is the file path for the statistics Access database.
-			' objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			' objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			' MsgBox "CASE NUMBER - " & MAXIS_case_number & " - DONE"
 
 		End If
 		objRecordSet.MoveNext
