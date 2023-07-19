@@ -585,12 +585,11 @@ ReDim RR_INCOME_ARRAY(rr_last_const, 0)
 Const adOpenStatic = 3
 Const adLockOptimistic = 3
 
+'These are the constants that we need to create tables in Excel
+Const xlSrcRange = 1
+Const xlYes = 1
 
 'END DECLARATIONS BLOCK ====================================================================================================
-
-
-
-
 
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
@@ -599,6 +598,9 @@ EMConnect ""		'Connects to BlueZone
 Confirm_Process_to_Run_btn	= 200
 incorrect_process_btn		= 100
 end_msg = "DONE"
+
+MAXIS_footer_month = CM_plus_1_mo		'We are always operating in Current Month plus 1 while runing this script
+MAXIS_footer_year = CM_plus_1_yr
 
 If Day(date) < 1 Then ex_parte_function = "Prep"
 
@@ -609,7 +611,7 @@ DO
 		DO
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 401, 255, "Ex Parte Report"
-				DropListBox 300, 25, 90, 15, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Capture ELIG and SVES Info"+chr(9)+"DHS Data Validation", ex_parte_function
+				DropListBox 300, 25, 90, 15, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Capture ELIG and SVES Info"+chr(9)+"Check REVW information on Phase 1 Cases"+chr(9)+"DHS Data Validation", ex_parte_function
 				ButtonGroup ButtonPressed
 					OkButton 290, 235, 50, 15
 					CancelButton 345, 235, 50, 15
@@ -1081,153 +1083,61 @@ If bz_user = False Then script_end_procedure("This script functionality can only
 
 If ex_parte_function = "FIX LIST" Then
 	Call script_end_procedure("There is no fix currently established.")
+	fix_report_out = ""
 
-	' prep_status = "Not Ex Parte"
-	' appears_ex_parte = False
-	' MAXIS_footer_month = CM_plus_1_mo
-	' MAXIS_footer_year = CM_plus_1_yr
+	'This area is here in the event that we need to create an update process to the Ex Parte data list on a large number of cases.
+	'This will need to be defined on a case-by-case scenario.
 
-	' review_date = ep_revw_mo & "/1/" & ep_revw_yr
-	' review_date = DateAdd("d", 0, review_date)
-
-	' Set ObjSMRTExcel = CreateObject("Excel.Application")
-	' ObjSMRTExcel.Visible = True
-	' Set objSMRTWorkbook = ObjSMRTExcel.Workbooks.Add()
-	' ObjSMRTExcel.DisplayAlerts = True
-
-	' 'Setting the first 4 col as worker, case number, name, and APPL date
-	' ObjSMRTExcel.Cells(1, 1).Value = "CASE NUMBER"
-	' excel_row = 2
-
-	' ' "WHERE CaseNumber = '00063035' and HCEligReviewDate = '2023-09-01'"
-	' objSQL = "UPDATE  ES.ES_ExParte_CaseList SET SelectExParte = '" & False &"', Phase1HSR = '" & NULL & "', ExParteAfterPhase1 = '" & NULL & "', Phase1ExParteCancelReason = '" & NULL & "' WHERE CaseNumber = '00063035' and HCEligReviewDate = '2023-09-01'"
-    ' ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-
-	' ' "PREP_Complete = '5/24/2023', Phase1Complete = '6/1/2023'"
-
-	' ' 'declare the SQL statement that will query the database
-	' ' ' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "' and [SelectExParte] = '1' and [NoIncome] = 'False'"
-	' ' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
-	' ' objSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "' WHERE [HCEligReviewDate] = '" & review_date & "' and [SelectExParte] = '1' and [VAIncomeExist] = 'True'"
-
-	' 'Creating objects for Access
-	' Set objConnection = CreateObject("ADODB.Connection")
-	' Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	' 'This is the file path for the statistics Access database.
-	' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	' objRecordSet.Open objSQL, objConnection
-
-	'Open The CASE LIST Table
-	'Loop through each item on the CASE LIST Table
-	' case_list = "~"
-
-	' Do While NOT objRecordSet.Eof
-	' 	MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
-	' 	If InStr(case_list, MAXIS_case_number) = 0 Then
-	' 		case_list = case_list & MAXIS_case_number & "~"
-	' 	Else
-	' 		ObjSMRTExcel.Cells(excel_row, 1).Value = MAXIS_case_number
-	' 		excel_row = excel_row + 1
-	' 	End If
-	' 	' UC_income_exists = False
-
-	' 	' objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
-
-	' 	' 'Creating objects for Access
-	' 	' Set objIncomeConnection = CreateObject("ADODB.Connection")
-	' 	' Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-	' 	' 'This is the file path for the statistics Access database.
-	' 	' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	' 	' objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	' 	' objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-	' 	' Do While NOT objIncomeRecordSet.Eof
-	' 	' 	If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
-	' 	' 		If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
-	' 	' 	End If
-	' 	' 	objIncomeRecordSet.MoveNext
-	' 	' Loop
-	' 	' objIncomeRecordSet.Close
-	' 	' objIncomeConnection.Close
-	' 	' Set objIncomeRecordSet=nothing
-	' 	' Set objIncomeConnection=nothing
-
-	' 	' If UC_income_exists = True Then
-
-	' 	' 	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
-
-	' 	' 	'Creating objects for Access
-	' 	' 	Set objUpdateConnection = CreateObject("ADODB.Connection")
-	' 	' 	Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
-
-	' 	' 	'This is the file path for the statistics Access database.
-	' 	' 	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	' 	' 	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-	' 	' End IF
-	' 	objRecordSet.MoveNext
-	' Loop
-	Call script_end_procedure("We did it")
+	Call script_end_procedure("Fix completed." & fix_report_out)
 
 End If
 
+'This is the first functionality to run after the data list is created. It will likely be run some time between the 6th and the 15th.
+'This will evaluate the cases for Ex Parte, send the initial SVES QURY and create the other verification lists
 If ex_parte_function = "Prep 1" Then
-
-	MAXIS_footer_month = CM_plus_1_mo
-	MAXIS_footer_year = CM_plus_1_yr
-
-	review_date = ep_revw_mo & "/1/" & ep_revw_yr
+	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
-	smrt_cut_off = DateAdd("m", 1, review_date)
+	smrt_cut_off = DateAdd("m", 1, review_date)				'This is the cutoff date for SMRT ending to identify which ones we want to have evaluated
 
+	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
 	If reset_in_Progress = checked Then
-		'Open The CASE LIST Table
-		'declare the SQL statement that will query the database
-		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+		'This is opening the Ex Parte Case List data table so we can loop through it.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
 
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
+		Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-		'This is the file path for the statistics Access database.
-		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		'opening the connections and data table
 		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 		objRecordSet.Open objSQL, objConnection
 
 		'Loop through each item on the CASE LIST Table
 		Do While NOT objRecordSet.Eof
-			If objRecordSet("PREP_Complete") = "In Progress" Then
-				MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+			If objRecordSet("PREP_Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
+				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
 
-				'Creating objects for Access
-				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-				'This is the file path for the statistics Access database.
+				'opening the connections and data table
 				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
-			objRecordSet.MoveNext
+			objRecordSet.MoveNext			'move to the next item in the table
 		Loop
-
-		objRecordSet.Close
+		objRecordSet.Close			'Closing all the data connections
 		objConnection.Close
 		Set objRecordSet=nothing
 		Set objConnection=nothing
-
 	End If
 
-
-
-
-	va_count = 0
+	va_count = 0		'initializing these counter variables at 0
 	uc_count = 0
 	rr_count = 0
 
+	'Opening a spreadsheet to capture the cases with a SMRT ending soon
 	Set ObjSMRTExcel = CreateObject("Excel.Application")
 	ObjSMRTExcel.Visible = True
 	Set objSMRTWorkbook = ObjSMRTExcel.Workbooks.Add()
@@ -1240,34 +1150,29 @@ If ex_parte_function = "Prep 1" Then
 	ObjSMRTExcel.Cells(1, 4).Value = "PMI NUMBER"
 	ObjSMRTExcel.Cells(1, 5).Value = "SSN"
 	ObjSMRTExcel.Cells(1, 6).Value = "SMRT Cert End Date"
-	' objVAExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
-	' objVAExcel.Cells(1, 8).Value = "CURR VA INCOME"
-	' objVAExcel.Cells(1, 9).Value = "Verified VA Income"
-	' objVAExcel.columns(2).NumberFormat = "@" 		'formatting as text
+	ObjSMRTExcel.Cells(1, 7).Value = "SMRT Renewal Status"
+	ObjSMRTExcel.Cells(1, 8).Value = "Ongoing SMRT"
 
-	FOR i = 1 to 6		'formatting the cells'
+	FOR i = 1 to 8		'formatting the cells'
 		ObjSMRTExcel.Cells(1, i).Font.Bold = True		'bold font'
 	NEXT
 
-	smrt_excel_row = 2
+	smrt_excel_row = 2		'initializing the counter to move through the excel lines
 
-	'Open The CASE LIST Table
-	'declare the SQL statement that will query the database
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+	'This is opening the Ex Parte Case List data table so we can loop through it.
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open objSQL, objConnection
 
-	'Loop through each item on the CASE LIST Table
-	Do While NOT objRecordSet.Eof
+	Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
+		'Pulling any case where the PREP_complete is null or blank
 		If IsNull(objRecordSet("PREP_Complete")) = True or objRecordSet("PREP_Complete") = "" Then
-			all_hc_is_ABD = ""
+			all_hc_is_ABD = ""				'resetting all these variables to blank at the beginning of each loop so information doesn't carry over from one case to another
 			SSA_income_exists = ""
 			JOBS_income_exists = ""
 			VA_income_exists = ""
@@ -1275,45 +1180,50 @@ If ex_parte_function = "Prep 1" Then
 			case_has_no_income = ""
 			case_has_EPD = ""
 
-			appears_ex_parte = True
+			appears_ex_parte = True			'we default this to true and find reasons that exclude the case from Ex Parte as we look at case data.
 			all_hc_is_ABD = True
 			case_has_EPD = False
 			case_is_in_henn = False
 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
 
+			'Here we are setting the PREP_Complete to 'In Progress' to hold the case as being worked.
+			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
+			'opening the connections and data table
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-			' MsgBox "CASE NUMBER - " & MAXIS_case_number & " - In Progress"
-			' MsgBox MAXIS_case_number
-			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
-			memb_count = 0
-			list_of_membs_on_hc = " "
 
+			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
+			memb_count = 0										'resetting the counting variable to size the member array
+			list_of_membs_on_hc = " "							'we need to keep a list members by pmi to know if a person is already accounted for as we find all the members and programs
+
+			'We need to pull all of the instances from the ELIG table for the currently defined case number
+			'This will list the HH member and eligibility program for HC. We will use this to start to determine if the case can be processed as Ex Parte
 			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objELIGConnection = CreateObject("ADODB.Connection")
+			Set objELIGConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			'opening the connections and data table
 			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
-			person_found = False
+
+			person_found = False		'setting the default of if we have found a person in the list
 			Do While NOT objELIGRecordSet.Eof
-				list_of_membs_on_hc = list_of_membs_on_hc & objELIGRecordSet("PMINumber") & " "
-				person_found = True
-				memb_known = False
+				list_of_membs_on_hc = list_of_membs_on_hc & objELIGRecordSet("PMINumber") & " "		'adding the PMI to the list of all PMIs known on the case
+				person_found = True																	'indicating that there was a person in the list for this case
+				memb_known = False																	'sets that we don't know if we have already looked at this person
+				'now we loop through all of the people we have already found for this case - we only want 1 array instance per person.
 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
-						memb_known = True
+					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'If the PMI matches one in the array, we are going to set the information to that array instance
+						memb_known = True															'identifies that we know about this person and they are already in the array
+
+						'figuring out which program type location the information should be saved in for this table data
+						'each person on a case may have up to three different lines for different programs
 						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
 							MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
 							MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
@@ -1324,6 +1234,7 @@ If ex_parte_function = "Prep 1" Then
 							MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
 							MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
 						End If
+						'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
 						If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
 						If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
 						If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
@@ -1342,26 +1253,29 @@ If ex_parte_function = "Prep 1" Then
 						If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
 						If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
 
-						If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False
-						If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True
+						If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+						If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 					End If
 				Next
 
+				'If this is an unknown member, and has not been added to the array already, we need to add it
 				If memb_known = False Then
-					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
 
+					'setting personal information to the array
 					MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
 					MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
-					name_var									 		= trim(objELIGRecordSet("Name"))
+					name_var									 		= trim(objELIGRecordSet("Name"))		'we want to format the name corectly.
 					name_array = split(name_var)
 					MEMBER_INFO_ARRAY(memb_name_const, memb_count) = name_array(UBound(name_array))
 					For name_item = 0 to UBound(name_array)-1
 						MEMBER_INFO_ARRAY(memb_name_const, memb_count) = MEMBER_INFO_ARRAY(memb_name_const, memb_count) & " " & name_array(name_item)
 					Next
 					MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
-					MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))
+					MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))	'setting the program information
 					MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
 
+					'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
 					If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
 					If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
 					If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
@@ -1380,98 +1294,104 @@ If ex_parte_function = "Prep 1" Then
 					If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
 					If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
 
-					If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False
-					If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True
+					If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+					If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 
-					MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False
+					MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
 					MEMBER_INFO_ARRAY(sql_va_income_exists, memb_count) = False
 					MEMBER_INFO_ARRAY(sql_uc_income_exists, memb_count) = False
 
-					memb_count = memb_count + 1
+					memb_count = memb_count + 1		'incrementing the array counter up for the next loop
 				End if
-				objELIGRecordSet.MoveNext
+				objELIGRecordSet.MoveNext			'going to the next record
 			Loop
-			objELIGRecordSet.Close
+			objELIGRecordSet.Close			'Closing all the data connections
 			objELIGConnection.Close
 			Set objELIGRecordSet=nothing
 			Set objELIGConnection=nothing
 
+			'If the ELIG types still indicate that the case is Ex Parte, we are going to check REVW to make sure the case meets renewal requirements
 			If appears_ex_parte = True Then
-
 				'check HC ER date in STAT/REVW
 				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)
-				If is_this_priv = True Then appears_ex_parte = False
+				If is_this_priv = True Then appears_ex_parte = False						'excluding cases that are privileged
 				If is_this_priv = False Then
 					Call write_value_and_transmit("X", 5, 71)
 					EMReadScreen STAT_HC_ER_mo, 2, 8, 27
 					EMReadScreen STAT_HC_ER_yr, 2, 8, 33
-					If ep_revw_mo <> STAT_HC_ER_mo or ep_revw_yr <> STAT_HC_ER_yr Then  appears_ex_parte = False
+					If ep_revw_mo <> STAT_HC_ER_mo or ep_revw_yr <> STAT_HC_ER_yr Then  appears_ex_parte = False		'if this does not have the correct renewal month, we will exclude it from Ex Parte
 				End If
 			End If
 
+			'If the case still appears Ex Parte, we are going to check if we are missing people, and check income for further determination of Ex Parte
 			If appears_ex_parte = True Then
+				'If we did not find people in the ELIG list, we are going to check ELIG/HC
 				If person_found = False Then
-					Call navigate_to_MAXIS_screen("STAT", "SUMM")
+					Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Creating new ELIG results
 					Call write_value_and_transmit("BGTX", 20, 71)
 					Call MAXIS_background_check
 
-					Call navigate_to_MAXIS_screen("ELIG", "HC  ")
+					Call navigate_to_MAXIS_screen("ELIG", "HC  ")		'Navigate to ELIG/HC
+					'Here we start at the top of ELIG/HC and read each row to find HC information
 					hc_row = 8
 					Do
-						pers_type = ""
+						pers_type = ""		'blanking out variables so they don't carry over from loop to loop
 						std = ""
 						meth = ""
-						' elig_result = ""
-						' results_created = ""
 						waiv = ""
+
+						'reading the main HC Elig information - member, program, status
 						EMReadScreen read_ref_numb, 2, hc_row, 3
 						EMReadScreen clt_hc_prog, 4, hc_row, 28
 						EMReadScreen hc_prog_status, 6, hc_row, 50
 						ref_row = hc_row
-						Do while read_ref_numb = "  "
+						Do while read_ref_numb = "  "				'this will read for the reference number if there are multiple programs for a single member
 							ref_row = ref_row - 1
 							EMReadScreen read_ref_numb, 2, ref_row, 3
 						Loop
 
-						If hc_prog_status = "ACTIVE" Then
-							clt_hc_prog = trim(clt_hc_prog)
-							If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+						If hc_prog_status = "ACTIVE" Then			'If HC is currently active, we need to read more details about the program/eligibility
+							clt_hc_prog = trim(clt_hc_prog)			'formatting this to remove whitespace
+							If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then		'these are non-hc persons
 
-
-								Call write_value_and_transmit("X", hc_row, 26)
-								If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+								Call write_value_and_transmit("X", hc_row, 26)									'opening the ELIG detail spans
+								If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then		'If it is an MSP, we want to read the type only from a specific place
 									elig_msp_prog = clt_hc_prog
 									EMReadScreen pers_type, 2, 6, 56
-								Else
+								Else																			'These are MA type programs (not MSP)
+									'Now we have to fund the current month in elig to get the current elig type
 									col = 19
-									Do									'Finding the current month in elig to get the current elig type
-										EMReadScreen span_month, 2, 6, col
+									Do
+										EMReadScreen span_month, 2, 6, col										'reading the month in ELIG
 										EMReadScreen span_year, 2, 6, col+3
 
-										If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
-											EMReadScreen pers_type, 2, 12, col - 2
+										'if the span month matchest current month plus 1, we are going to grab elig from that month
+										If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then
+											EMReadScreen pers_type, 2, 12, col - 2								'reading the ELIG TYPE
 											EMReadScreen std, 1, 12, col + 3
 											EMReadScreen meth, 1, 13, col + 2
 											EMReadScreen waiv, 1, 17, col + 2
-											Exit Do
+											Exit Do																'leaving once we've found the information for this elig
 										End If
-										col = col + 11
-									Loop until col = 85
+										col = col + 11			'this goes to the next column
+									Loop until col = 85			'This is off the page - if we hit this, we did NOT find the elig type in this elig result
+
+									'If we hit 85, we did not get the information. So we are going to read it from the last budget month (most current)
 									If col = 85 Then
-										EMReadScreen pers_type, 2, 12, 72
+										EMReadScreen pers_type, 2, 12, 72										'reading the ELIG TYPE
 										EMReadScreen std, 1, 12, 77
 										EMReadScreen meth, 1, 13, 76
 										EMReadScreen waiv, 1, 17, 76
 									End If
 								End If
-								PF3
-								' MsgBox "row - " & hc_row & vbCr & "clt_hc_prog - " & clt_hc_prog & vbCr & "pers_type - " & pers_type
+								PF3			'leaving the elig detail information
 
-								memb_known = False
-								For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-									If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then
-										memb_known = True
-										If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
+								'now we need to add the information we just read to the member array
+								memb_known = False										'default that the member know is false
+								For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)								'Looking at all the members known in the array
+									If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then	'if the member reference from ELIG matches the ARRAY, we are going to add more elig details
+										memb_known = True														'look we found a person
+										If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then				'finding which area of the array is blank to save the elig information there
 											MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= clt_hc_prog
 											MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= pers_type
 										ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
@@ -1482,6 +1402,7 @@ If ex_parte_function = "Prep 1" Then
 											MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= pers_type
 										End If
 
+										'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
 										If clt_hc_prog = "EH" Then appears_ex_parte = False
 										If pers_type = "AX" Then appears_ex_parte = False
 										If pers_type = "AA" Then appears_ex_parte = False
@@ -1500,29 +1421,22 @@ If ex_parte_function = "Prep 1" Then
 										If pers_type = "PC" Then appears_ex_parte = False
 										If pers_type = "BC" Then appears_ex_parte = False
 
-										If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False
-										If pers_type = "DP" Then case_has_EPD = True
-										' MsgBox "appears_ex_parte - " & appears_ex_parte & " - 1"
+										If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+										If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 									End If
 								Next
 
-
+								'If this is an unknown member, and has not been added to the array already, we need to add it
 								If memb_known = False Then
-									ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+									ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
 
+									'setting personal information to the array
 									MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = read_ref_numb
-									' MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
-									' MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
-									' name_var									 		= trim(objELIGRecordSet("Name"))
-									' name_array = split(name_var)
-									' MEMBER_INFO_ARRAY(memb_name_const, memb_count) = name_array(UBound(name_array))
-									' For name_item = 0 to UBound(name_array)-1
-									' 	MEMBER_INFO_ARRAY(memb_name_const, memb_count) = MEMBER_INFO_ARRAY(memb_name_const, memb_count) & " " & name_array(name_item)
-									' Next
 									MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
 									MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(clt_hc_prog)
 									MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(pers_type)
 
+									'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
 									If clt_hc_prog = "EH" Then appears_ex_parte = False
 									If pers_type = "AX" Then appears_ex_parte = False
 									If pers_type = "AA" Then appears_ex_parte = False
@@ -1541,69 +1455,60 @@ If ex_parte_function = "Prep 1" Then
 									If pers_type = "PC" Then appears_ex_parte = False
 									If pers_type = "BC" Then appears_ex_parte = False
 
-									If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False
-									If pers_type = "DP" Then case_has_EPD = True
+									If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+									If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 
-									MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False
+									MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
 									MEMBER_INFO_ARRAY(sql_va_income_exists, memb_count) = False
 									MEMBER_INFO_ARRAY(sql_uc_income_exists, memb_count) = False
 
-									memb_count = memb_count + 1
-									' MsgBox "appears_ex_parte - " & appears_ex_parte & " - 2"
-
+									memb_count = memb_count + 1 	'incrementing the array counter up for the next loop
 								End If
-
-
 
 							End If
 						End If
-						hc_row = hc_row + 1
-						EMReadScreen next_ref_numb, 2, hc_row, 3
+						hc_row = hc_row + 1												'now we go to the next row
+						EMReadScreen next_ref_numb, 2, hc_row, 3						'read the next HC information to find when we've reeached the end of the list
 						EMReadScreen next_maj_prog, 4, hc_row, 28
 					Loop until next_ref_numb = "  " and next_maj_prog = "    "
 
-					CALL back_to_SELF()
+					CALL back_to_SELF()													'going to STAT/MEMB - because there is misssing personal information for the members discovered in this way
 					Do
 						CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 						EMReadScreen memb_check, 4, 2, 48
-						' MsgBox "memb_check - " & memb_check
 					Loop until memb_check = "MEMB"
-					at_least_one_hc_active = False
-					For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)
-						EMReadscreen last_name, 25, 6, 30
+
+					at_least_one_hc_active = False										'this is a default to identify if HC is active on the case
+					For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
+						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)		'navigate to the member for this instance of the array
+						EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
 						EMReadscreen first_name, 12, 6, 63
 						last_name = trim(replace(last_name, "_", "")) & " "
 						first_name = trim(replace(first_name, "_", "")) & " "
-						' MsgBox "first_name &  & last_name:" & vbCr & first_name & " " & last_name
 						MEMBER_INFO_ARRAY(memb_name_const, known_membs) = first_name & " " & last_name
-						EMReadScreen PMI_numb, 8, 4, 46
+						EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
 						PMI_numb = trim(PMI_numb)
-						MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)
-						EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42
+						MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
+						EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42							'catpturing the SSN
 						MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), " ", "")
 						MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), "_", "")
-						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True
+						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
 						If MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" Then at_least_one_hc_active = True
 						If MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then at_least_one_hc_active = True
 						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then
-							list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "
+							list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "		'adding individuals to our list of members on HC
 						End If
 
 					Next
-					If at_least_one_hc_active = False Then appears_ex_parte = False
-
-
+					If at_least_one_hc_active = False Then appears_ex_parte = False			'if no one is on HC, this cannot be Ex Parte
 				End If
-				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					' MsgBox "PERSON FOUND IS FALSE" & vbCr & "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) & " - " & MEMBER_INFO_ARRAY(memb_name_const, known_membs) & " PMI: " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & vbCr &_
-					' 		"PROGRAM 1 - " & MEMBER_INFO_ARRAY(table_prog_1, known_membs) & "-" & MEMBER_INFO_ARRAY(table_type_1, known_membs) & vbCr &_
-					' 		"PROGRAM 2 - " & MEMBER_INFO_ARRAY(table_prog_2, known_membs) & "-" & MEMBER_INFO_ARRAY(table_type_2, known_membs) & vbCr &_
-					' 		"PROGRAM 3 - " & MEMBER_INFO_ARRAY(table_prog_3, known_membs) & "-" & MEMBER_INFO_ARRAY(table_type_3, known_membs) & vbCr &_
-					' 		"appears_ex_parte - " & appears_ex_parte
-				Next
 			End If
-			SSA_income_exists = False
+
+			Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
+			Call get_list_of_members
+
+			'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
+			SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
 			RR_income_exists = False
 			VA_income_exists = False
 			UC_income_exists = False
@@ -1612,24 +1517,24 @@ If ex_parte_function = "Prep 1" Then
 			JOBS_income_exists = False
 			BUSI_income_exists = False
 
+			'Pulling all rows from the INCOME list for the case number we are currently processing
 			objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objIncomeConnection = CreateObject("ADODB.Connection")
+			Set objIncomeConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			'opening the connections and data table
 			objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
+			'looping through each row in this case
 			Do While NOT objIncomeRecordSet.Eof
-				income_for_person_is_on_HC = False
-				If InStr(list_of_membs_on_hc, objIncomeRecordSet("PersonID")) <> 0 Then income_for_person_is_on_HC = True
+				income_for_person_is_on_HC = False			'default this variable to false, indicating if the income is for a person on HC
+				If InStr(list_of_membs_on_hc, objIncomeRecordSet("PersonID")) <> 0 Then income_for_person_is_on_HC = True		'this compares the PMI for the income to the list of PMIS discovered in finding HC elig information
 
+				'If this income is for someone on HC, we are going to assess the income detail to determine if the case should still be Ex Parte
 				If income_for_person_is_on_HC = True Then
-					' MsgBox "IncExpTypeCode - " & objIncomeRecordSet("IncExpTypeCode") & vbCr & "IncomeTypeCode - " & objIncomeRecordSet("IncomeTypeCode")
-					If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
+					If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then									'UNEA income exists each type code will set the boolean about that income typr for this case
 						If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
@@ -1665,13 +1570,14 @@ If ex_parte_function = "Prep 1" Then
 						If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
 					End If
-					If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True
+					If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True					'we do not need to clarify further for JOBS or BUSI income, just indicate if these incomes exist.
 					If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
 				End If
 
-				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					If trim(objIncomeRecordSet("PersonID")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
-						If objIncomeRecordSet("IncomeTypeCode") = "16" Then MEMBER_INFO_ARRAY(sql_rr_income_exists, known_membs) = True
+				'Here we set if there is certain types of income on the case for any member. This will information the creation of verification lists
+				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)			'loop through all the members
+					If trim(objIncomeRecordSet("PersonID")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then						'if the PMI matches
+						If objIncomeRecordSet("IncomeTypeCode") = "16" Then MEMBER_INFO_ARRAY(sql_rr_income_exists, known_membs) = True		'if the income type is any of the specified, identify that the income exists
 						If objIncomeRecordSet("IncomeTypeCode") = "11" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
 						If objIncomeRecordSet("IncomeTypeCode") = "12" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
 						If objIncomeRecordSet("IncomeTypeCode") = "13" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
@@ -1680,46 +1586,45 @@ If ex_parte_function = "Prep 1" Then
 					End If
 				Next
 
-				objIncomeRecordSet.MoveNext
+				objIncomeRecordSet.MoveNext		'move to the next Income row
 			Loop
-			objIncomeRecordSet.Close
+			objIncomeRecordSet.Close			'Closing all the data connections
 			objIncomeConnection.Close
 			Set objIncomeRecordSet=nothing
 			Set objIncomeConnection=nothing
 
-			case_has_no_income = False
+			'This part is for logic to help us determine if the income impacts the Ex parte option
+			case_has_no_income = False			'start at false for 'no income' basically false here means the case has income
+			'If every income type is false, then the case has no income and the variable, 'case_has_no_income' is set to True, because it is true that there is no income.
 			If SSA_income_exists = False and RR_income_exists = False and VA_income_exists = False and UC_income_exists = False and PRISM_income_exists = False and Other_UNEA_income_exists = False and JOBS_income_exists = False and BUSI_income_exists = False Then case_has_no_income = True
 
+			'If the case apears Ex Parte at this point, we are going to do another assessment
 			If appears_ex_parte = True Then
-				Call navigate_to_MAXIS_screen("STAT", "MEMB")
-				Call get_list_of_members
-
+				'reading case program information and PW
 				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 				EMReadScreen case_pw, 7, 21, 14
 				If left(case_pw, 4) = "X127" Then case_is_in_henn = True
+				'This would exclude cases that are not in Hennepin or are Closed
 				' If case_is_in_henn = False then  appears_ex_parte = False				'we are not going to exclude for inactive or out of county uuntil Phase 1 at this point
 				' If case_active = False Then appears_ex_parte = False
 				' If ma_status <> "ACTIVE" and msp_status <> "ACTIVE" Then appears_ex_parte = False
 
+				'Any other UNEA, or JOBS/BUSI income requires the case be on SNAP or MFIP at this point
 				If Other_UNEA_income_exists = True OR JOBS_income_exists = True OR BUSI_income_exists = True Then
-					appears_ex_parte = False
-					If mfip_status = "ACTIVE" Then appears_ex_parte = True
+					appears_ex_parte = False									'if there is JOBS/BUSI/Other UNEA - this cannot be ex parte
+					If mfip_status = "ACTIVE" Then appears_ex_parte = True		'unless MFIP or SNAP is active
 					If snap_status = "ACTIVE" Then appears_ex_parte = True
 				End If
-				' MsgBox "case_pw - " & case_pw & vbCr &"case_is_in_henn - " & case_is_in_henn & vbCr & "case_active - " & case_active & vbCr & "mfip_status - " & mfip_status & vbCr & "snap_status - " & snap_status & vbCr & "appears_ex_parte - " & appears_ex_parte
 			End If
 
+			'If the case still appears Ex Parte at this point, we need to start the verifications
 			If appears_ex_parte = True Then
 				'For each case that is indicated as potentially ExParte, we are going to take preperation actions
-				last_va_count = va_count
+				last_va_count = va_count			'These are counting variables to set for each loop
 				last_uc_count = uc_count
 				last_rr_count = rr_count
 
-				' Call find_unea_information
-
-				' MEMBER_INFO_ARRAY(unea_VA_exists, each_memb) = False
-				' MEMBER_INFO_ARRAY(unea_UC_exists, each_memb) = False
-
+				Call find_unea_information			'Now we are reading UNEA information for all the HH members
 
 				Call back_to_SELF
 
@@ -1731,72 +1636,50 @@ If ex_parte_function = "Prep 1" Then
 
 				'We need to loop through each HH Member on the case and send a QURY for every one.
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					Call send_sves_qury("SSN", qury_finish)
-					MEMBER_INFO_ARRAY(sves_qury_sent, each_memb) = qury_finish
-					' MsgBox "qury_finish - " & qury_finish
+					Call send_sves_qury("SSN", qury_finish)							'function to send a SVES/QURY
+					MEMBER_INFO_ARRAY(sves_qury_sent, each_memb) = qury_finish		'set the output of the qury attempt to the member array
+
+					'we are trying to find and update any rows in the INCOME list where the case number and pmi match exactly and the claim number is close to the SSN to se the QURY information
 					objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET QURY_Sent = '" & qury_finish & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] like '" & MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) & "%'"
 
-					'Creating objects for Access
-					Set objIncomeConnection = CreateObject("ADODB.Connection")
+					Set objIncomeConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 					Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
-					'This is the file path for the statistics Access database.
-					' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+					'opening the connections and data table
 					objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
-
+					'If the member has HC eligibility, we need to check DISA to see if it is ending
 					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb)	= True Then
 						call navigate_to_MAXIS_screen("STAT", "DISA")
 						EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76
 						transmit
 
-						EMReadScreen disa_vers, 1, 2, 78
+						EMReadScreen disa_vers, 1, 2, 78													'disa panel exists
 						If disa_vers <> "0" Then
-							EMReadScreen disa_hc_verif, 1, 13, 69
+							EMReadScreen disa_hc_verif, 1, 13, 69											'disa is SMRT verified
 							If disa_hc_verif = "2" Then
-								EMReadScreen disa_cert_end_date, 10, 7, 69
+								EMReadScreen disa_cert_end_date, 10, 7, 69									'grabbing the cert period end date
 								If disa_cert_end_date = "__ __ ____" Then disa_cert_end_date = ""
-								disa_cert_end_date = replace(disa_cert_end_date, " ", "/")
+								disa_cert_end_date = replace(disa_cert_end_date, " ", "/")					'making this a date
 								If disa_cert_end_date <> "" Then
 									disa_cert_end_date  = DateAdd("d", 0, disa_cert_end_date)
-									If DateDiff("d", disa_cert_end_date, smrt_cut_off) >=0 Then
+									If DateDiff("d", disa_cert_end_date, smrt_cut_off) >=0 Then				'if the cert end date is before or equal to the smrt cut off set at the beginning of the run
+										'set the SMRT information to the list of SMRT cases
 										ObjSMRTExcel.Cells(smrt_excel_row, 1).Value = MAXIS_case_number
 										ObjSMRTExcel.Cells(smrt_excel_row, 2).Value = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 										ObjSMRTExcel.Cells(smrt_excel_row, 3).Value = MEMBER_INFO_ARRAY(memb_name_const, each_memb)
 										ObjSMRTExcel.Cells(smrt_excel_row, 4).Value = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
 										ObjSMRTExcel.Cells(smrt_excel_row, 5).Value = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
 										ObjSMRTExcel.Cells(smrt_excel_row, 6).Value = disa_cert_end_date
-										smrt_excel_row = smrt_excel_row + 1
-
-										' UC_INCOME_ARRAY(uc_case_numb_const, uc_count) = MAXIS_case_number
-										' UC_INCOME_ARRAY(uc_ref_numb_const, uc_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
-										' UC_INCOME_ARRAY(uc_pers_name_const, uc_count) = MEMBER_INFO_ARRAY(memb_name_const, each_memb)
-										' UC_INCOME_ARRAY(uc_pers_ssn_const, uc_count) = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
-										' UC_INCOME_ARRAY(uc_pers_pmi_const, uc_count) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
-										' ObjSMRTExcel.Cells(1, 1).Value = "CASE NUMBER"
-										' ObjSMRTExcel.Cells(1, 2).Value = "REF"
-										' ObjSMRTExcel.Cells(1, 3).Value = "NAME"
-										' ObjSMRTExcel.Cells(1, 4).Value = "PMI NUMBER"
-										' ObjSMRTExcel.Cells(1, 5).Value = "SSN"
-										' ObjSMRTExcel.Cells(1, 6).Value = "SMRT Cert End Date"
-										' ' objVAExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
-										' ' objVAExcel.Cells(1, 8).Value = "CURR VA INCOME"
-										' ' objVAExcel.Cells(1, 9).Value = "Verified VA Income"
-										' ' objVAExcel.columns(2).NumberFormat = "@" 		'formatting as text
-
-										' FOR i = 1 to 6		'formatting the cells'
-										' 	objVAExcel.Cells(1, i).Font.Bold = True		'bold font'
-										' NEXT
-
-										' smrt_excel_row = 2
+										smrt_excel_row = smrt_excel_row + 1									'counting to increment to the next excel row
 									End If
 								End If
 							End If
 						End If
-
 					End If
 
+					'If there is RR income listed from the SQL table and NOT from UNEA - it is going to save any member with RR income listed on SQL to the RR array for the verif list
 					If MEMBER_INFO_ARRAY(sql_rr_income_exists, each_memb) = True and MEMBER_INFO_ARRAY(unea_RR_exists, each_memb) = False Then
 						ReDim Preserve RR_INCOME_ARRAY(rr_last_const, rr_count)
 
@@ -1813,6 +1696,7 @@ If ex_parte_function = "Prep 1" Then
 						rr_count = rr_count + 1
 					End If
 
+					'If there is VA income listed from the SQL table and NOT from UNEA - it is going to save any member with VA income listed on SQL to the VA array for the verif list
 					If MEMBER_INFO_ARRAY(sql_va_income_exists, each_memb) = True and MEMBER_INFO_ARRAY(unea_VA_exists, each_memb) = False Then
 						ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)
 
@@ -1829,6 +1713,7 @@ If ex_parte_function = "Prep 1" Then
 						va_count = va_count + 1
 					End If
 
+					'If there is UC income listed from the SQL table and NOT from UNEA - it is going to save any member with UC income listed on SQL to the UC array for the verif list
 					If MEMBER_INFO_ARRAY(sql_uc_income_exists, each_memb) = True and MEMBER_INFO_ARRAY(unea_UC_exists, each_memb) = False Then
 						ReDim Preserve UC_INCOME_ARRAY(uc_last_const, uc_count)
 
@@ -1846,18 +1731,20 @@ If ex_parte_function = "Prep 1" Then
 					End If
 				Next
 
-				If va_count <> 0 Then
-					If last_va_count <> va_count Then
-						If last_va_count = 0 Then
-							va_excel_created = True
-							'Create an Excel file to record members that have VA Income
-							Set objVAExcel = CreateObject("Excel.Application")
+				'Now that we have an array saved, we are going to add it to the Excel sheet right away for UC, VA, or RR income.
+				'We do it all at once because if we have a script error, this way we don't lose the information
+
+				If va_count <> 0 Then								'if there is VA income found
+					If last_va_count <> va_count Then				'and the va income found has incremented up since the last loop
+						If last_va_count = 0 Then						'First, if this is the first VA income, we need to set the Excel sheet up
+							va_excel_created = True						'Identifying that the VA excel list was created
+
+							Set objVAExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
 							objVAExcel.Visible = True
 							Set objVAWorkbook = objVAExcel.Workbooks.Add()
 							objVAExcel.DisplayAlerts = True
 
-							'Setting the first 4 col as worker, case number, name, and APPL date
-							objVAExcel.Cells(1, 1).Value = "CASE NUMBER"
+							objVAExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
 							objVAExcel.Cells(1, 2).Value = "REF"
 							objVAExcel.Cells(1, 3).Value = "NAME"
 							objVAExcel.Cells(1, 4).Value = "PMI NUMBER"
@@ -1876,6 +1763,7 @@ If ex_parte_function = "Prep 1" Then
 							va_inc_count = 0
 						End If
 
+						'adding any va income from the array to the spreadsheet
 						Do
 							objVAExcel.Cells(va_excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, va_inc_count)
@@ -1887,24 +1775,23 @@ If ex_parte_function = "Prep 1" Then
 							objVAExcel.Cells(va_excel_row, 7).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
 							objVAExcel.Cells(va_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
 
-							va_inc_count = va_inc_count + 1
-							va_excel_row = va_excel_row + 1
-						Loop until va_inc_count = va_count
+							va_inc_count = va_inc_count + 1			'going to the next array item
+							va_excel_row = va_excel_row + 1			'going to the next row
+						Loop until va_inc_count = va_count			'loop until the income count gets to the total of va counted
 					End If
 				End If
 
-				If uc_count <> 0 Then
-					If last_uc_count <> uc_count Then
-						If last_uc_count = 0 Then
-							uc_excel_created = True
-							'Create an Excel file to record members that have VA Income
-							Set objUCExcel = CreateObject("Excel.Application")
+				If uc_count <> 0 Then								'If there is UC income found
+					If last_uc_count <> uc_count Then				'and the UC income found has incremented up since the last loop
+						If last_uc_count = 0 Then						'First, if this is the first UC income, we need to set the Excel sheet up
+							uc_excel_created = True						'Identifying that the UC excel list was created
+
+							Set objUCExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
 							objUCExcel.Visible = True
 							Set objUCWorkbook = objUCExcel.Workbooks.Add()
 							objUCExcel.DisplayAlerts = True
 
-							'Setting the first 4 col as worker, case number, name, and APPL date
-							objUCExcel.Cells(1, 1).Value = "CASE NUMBER"
+							objUCExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
 							objUCExcel.Cells(1, 2).Value = "REF"
 							objUCExcel.Cells(1, 3).Value = "NAME"
 							objUCExcel.Cells(1, 4).Value = "PMI NUMBER"
@@ -1923,6 +1810,7 @@ If ex_parte_function = "Prep 1" Then
 							uc_inc_count = 0
 						End If
 
+						'adding any uc income from the array to the spreadsheet
 						Do
 							objUCExcel.Cells(uc_excel_row, 1).value = UC_INCOME_ARRAY(uc_case_numb_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 2).value = UC_INCOME_ARRAY(uc_ref_numb_const, uc_inc_count)
@@ -1934,25 +1822,24 @@ If ex_parte_function = "Prep 1" Then
 							objUCExcel.Cells(uc_excel_row, 7).value = UC_INCOME_ARRAY(uc_claim_numb_const, uc_inc_count)
 							objUCExcel.Cells(uc_excel_row, 8).value = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_inc_count)
 
-							uc_inc_count = uc_inc_count + 1
-							uc_excel_row = uc_excel_row + 1
-						Loop until uc_inc_count = uc_count
+							uc_inc_count = uc_inc_count + 1			'going to the next array item
+							uc_excel_row = uc_excel_row + 1			'going to the next row
+						Loop until uc_inc_count = uc_count			'loop until the income count gets to the total of uc counted
 					End If
 				End If
 
 
-				If rr_count <> 0 Then
-					If last_rr_count <> rr_count Then
-						If last_rr_count = 0 Then
-							rr_excel_created = True
-							'Create an Excel file to record members that have VA Income
-							Set objRRExcel = CreateObject("Excel.Application")
+				If rr_count <> 0 Then								'If there is RR income found
+					If last_rr_count <> rr_count Then				'and the RR income found has incremented up since the last loop
+						If last_rr_count = 0 Then							'First, if this is the first RR income, we need to set the Excel sheet up
+							rr_excel_created = True							'Identifying that the RR excel list was created
+
+							Set objRRExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
 							objRRExcel.Visible = True
 							Set objRRWorkbook = objRRExcel.Workbooks.Add()
 							objRRExcel.DisplayAlerts = True
 
-							'Setting the first 4 col as worker, case number, name, and APPL date
-							objRRExcel.Cells(1, 1).Value = "CASE NUMBER"
+							objRRExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
 							objRRExcel.Cells(1, 2).Value = "REF"
 							objRRExcel.Cells(1, 3).Value = "NAME"
 							objRRExcel.Cells(1, 4).Value = "PMI NUMBER"
@@ -1971,6 +1858,7 @@ If ex_parte_function = "Prep 1" Then
 							rr_inc_count = 0
 						End If
 
+						'adding any rr income from the array to the spreadsheet
 						Do
 							objRRExcel.Cells(rr_excel_row, 1).value = RR_INCOME_ARRAY(rr_case_numb_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 2).value = RR_INCOME_ARRAY(rr_ref_numb_const, rr_inc_count)
@@ -1982,61 +1870,75 @@ If ex_parte_function = "Prep 1" Then
 							objRRExcel.Cells(rr_excel_row, 7).value = RR_INCOME_ARRAY(rr_claim_numb_const, rr_inc_count)
 							objRRExcel.Cells(rr_excel_row, 8).value = RR_INCOME_ARRAY(rr_prosp_inc_const, rr_inc_count)
 
-							rr_inc_count = rr_inc_count + 1
-							rr_excel_row = rr_excel_row + 1
-						Loop until rr_inc_count = rr_count
+							rr_inc_count = rr_inc_count + 1			'going to the next array item
+							rr_excel_row = rr_excel_row + 1			'going to the next row
+						Loop until rr_inc_count = rr_count			'loop until the income count gets to the total of rr counted
 					End If
 				End If
-
-				'save details of the actions into the table
-				' objRecordSet.Open "UPDATE"
 			End If
 
-			Call back_to_SELF
+			Call back_to_SELF				'getting back to base
 
-			prep_status = date
-			If appears_ex_parte = False Then prep_status = "Not Ex Parte"
-				' If mfip_status = "ACTIVE" OR snap_status = "ACTIVE" Then prep_status = "SNAP/MFIP"
-			' End If
+			'Now we are going to update the case list with the Ex parte evaluation done. This also removes the 'In Progress' marker
+			prep_status = date														'prep status should be a date
+			If appears_ex_parte = False Then prep_status = "Not Ex Parte"			'if this case is not ex parte, the prep status is reset
 
+			'here is the update statement. setting the exparte eval and the income/case information for the case running
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
+			'opening the connections and data table
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-			' MsgBox "CASE NUMBER - " & MAXIS_case_number & " - DONE"
-
 		End If
-		objRecordSet.MoveNext
+		objRecordSet.MoveNext			'now we go to the next case
 	Loop
 
+	'now we format and save the verification lists
+	ex_parte_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte"
 	For col_to_autofit = 1 to 9
-		If va_excel_created = True Then objVAExcel.columns(col_to_autofit).AutoFit()
-		If uc_excel_created = True Then objUCExcel.columns(col_to_autofit).AutoFit()
-		If rr_excel_created = True Then objRRExcel.columns(col_to_autofit).AutoFit()
+		If va_excel_created = True Then
+			objVAExcel.columns(col_to_autofit).AutoFit()
+			objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
+			objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+			objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		End If
+		If uc_excel_created = True Then
+			objUCExcel.columns(col_to_autofit).AutoFit()
+			objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
+			objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+			objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		End If
+		If rr_excel_created = True Then
+			objRRExcel.columns(col_to_autofit).AutoFit()
+			objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
+			objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+			objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		End If
+
+		ObjSMRTExcel.columns(col_to_autofit).AutoFit()
+		ObjSMRTExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:H" & smrt_excel_row - 1), xlYes).Name = "Table1"
+		ObjSMRTExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		ObjSMRTExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\SMRT Ending\SMRT Ending - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	Next
 
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-
+	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 1 Run has been completed."
 
-	'declare the SQL statement that will query the database
+	'declare the SQL statement that will query the database for all cases with the review month we are evaluating
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open objSQL, objConnection
 
@@ -2045,21 +1947,25 @@ If ex_parte_function = "Prep 1" Then
 	case_count = 0
 	ex_parte_count = 0
 	Do While NOT objRecordSet.Eof
-		case_count = case_count + 1
-		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1
-		objRecordSet.MoveNext
+		case_count = case_count + 1															'counting all the cases
+		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1	'counting all the ex parte cases
+		objRecordSet.MoveNext		'go to the next case
 	Loop
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
-	percent_ex_parte = ex_parte_count/case_count
+
+	percent_ex_parte = ex_parte_count/case_count						'doing some calculations for see percentages
 	percent_ex_parte = percent_ex_parte * 100
 	percent_ex_parte = FormatNumber(percent_ex_parte, 2, -1, 0, -1)
 
+	'Creating an end message to display the case list counts
 	end_msg = end_msg & vbCr & "Cases appear to have a HC ER scheduled for " & ep_revw_mo & "/" & ep_revw_yr & ": " & case_count
 	end_msg = end_msg & vbCr & "Cases that appear to meet Ex Parte Criteria: " & ex_parte_count
 	end_msg = end_msg & vbCr & "This appears to be " & percent_ex_parte & "% of cases."
+
+	'This is the end of the fucntionality and will just display the end message at the end of this script file.
 End If
 
 
@@ -4318,6 +4224,17 @@ If ex_parte_function = "Phase 2" Then
 	end_msg = end_msg & vbCr & "Cases with Phase 2 Done: " & phase_2_done_count
 	end_msg = end_msg & vbCr & "Cases with Phase 2 Done Today: " & today_phase_2_count
 
+End If
+
+If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
+	'This should be run for cases at Phase 1 only after ER cutoff
+	'Create a spreadsheet and pull all cases in the data table for CM + 2 review into the list
+	'Capture the Ex Parte information from the table into the excel.
+	'Run to REPT/REVS for CM+2
+	'Pull all REVS cases into an array
+	'Match the array cases to the ones on Excel and output the renewal information
+	'navigate to STAT/REVW for any case that was not on the list.
+	'Add any cases that are in the REVS array to Excel if they were not already there
 End If
 
 If ex_parte_function = "DHS Data Validation" Then
