@@ -1085,6 +1085,64 @@ If ex_parte_function = "FIX LIST" Then
 	Call script_end_procedure("There is no fix currently established.")
 	fix_report_out = ""
 
+	' 'THIS IS FOR CREATING A LIST OF CASES APPROVED FOR THE REVIEW MONTH THAT HAVE MSA and/or GRH
+	' review_date = "8/1/2023"			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
+	' review_date = DateAdd("d", 0, review_date)
+
+	' 'Opening a spreadsheet to capture the cases with a SMRT ending soon
+	' Set ObjExcel = CreateObject("Excel.Application")
+	' ObjExcel.Visible = True
+	' Set objSMRTWorkbook = ObjExcel.Workbooks.Add()
+	' ObjExcel.DisplayAlerts = True
+
+	' 'Setting the first 4 col as worker, case number, name, and APPL date
+	' ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+	' ObjExcel.Cells(1, 2).Value = "APPROVAL WORKER"
+	' ObjExcel.Cells(1, 3).Value = "MSA Status"
+	' ObjExcel.Cells(1, 4).Value = "GRH Status"
+
+	' FOR i = 1 to 8		'formatting the cells'
+	' 	ObjExcel.Cells(1, i).Font.Bold = True		'bold font'
+	' NEXT
+
+	' excel_row = 2		'initializing the counter to move through the excel lines
+
+	' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
+
+	' Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+	' Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	' 'opening the connections and data table
+	' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objRecordSet.Open objSQL, objConnection
+
+	' Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
+	' 	If objRecordSet("ExParteAfterPhase2") = "Approved as Ex Parte" Then
+	' 		MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+	' 		Call back_to_SELF
+
+	' 		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+	' 		If msa_case = True or grh_case = True Then
+	' 			ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+	' 			ObjExcel.Cells(excel_row, 2).Value = objRecordSet("Phase2HSR")
+	' 			ObjExcel.Cells(excel_row, 3).Value = msa_status
+	' 			ObjExcel.Cells(excel_row, 4).Value = grh_status
+	' 			excel_row = excel_row + 1
+	' 		End If
+	' 	End If
+	' 	objRecordSet.MoveNext			'now we go to the next case
+	' Loop
+	' objRecordSet.Close			'Closing all the data connections
+	' objConnection.Close
+	' Set objRecordSet=nothing
+	' Set objConnection=nothing
+
+	' For col_to_autofit = 1 to 4
+	' 	ObjExcel.columns(col_to_autofit).AutoFit()
+	' Next
+	'----------------------------------------------------------------
+
 	'This area is here in the event that we need to create an update process to the Ex Parte data list on a large number of cases.
 	'This will need to be defined on a case-by-case scenario.
 
@@ -1899,30 +1957,31 @@ If ex_parte_function = "Prep 1" Then
 	'now we format and save the verification lists
 	ex_parte_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte"
 	For col_to_autofit = 1 to 9
-		If va_excel_created = True Then
-			objVAExcel.columns(col_to_autofit).AutoFit()
-			objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
-			objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-			objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
-		End If
-		If uc_excel_created = True Then
-			objUCExcel.columns(col_to_autofit).AutoFit()
-			objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
-			objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-			objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
-		End If
-		If rr_excel_created = True Then
-			objRRExcel.columns(col_to_autofit).AutoFit()
-			objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
-			objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-			objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
-		End If
+		If va_excel_created = True Then objVAExcel.columns(col_to_autofit).AutoFit()
+		If uc_excel_created = True Then objUCExcel.columns(col_to_autofit).AutoFit()
+		If rr_excel_created = True Then objRRExcel.columns(col_to_autofit).AutoFit()
 
 		ObjSMRTExcel.columns(col_to_autofit).AutoFit()
-		ObjSMRTExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:H" & smrt_excel_row - 1), xlYes).Name = "Table1"
-		ObjSMRTExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-		ObjSMRTExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\SMRT Ending\SMRT Ending - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	Next
+
+	If va_excel_created = True Then
+		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
+		objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+	If uc_excel_created = True Then
+		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
+		objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+	If rr_excel_created = True Then
+		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
+		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+	ObjSMRTExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objExcel.Range("A1:H" & smrt_excel_row - 1), xlYes).Name = "Table1"
+	ObjSMRTExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+	ObjSMRTExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\SMRT Ending\SMRT Ending - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 
     objRecordSet.Close			'Closing all the data connections
     objConnection.Close
@@ -4114,7 +4173,10 @@ End If
 'EMail BI when done
 
 If ex_parte_function = "Phase 2" Then
-	MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
+	' MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
+
+	'TODO - add a check of the Phase 1 reason and information to update 'SelectExparte' if wrong
+
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
 	Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "phase 2 budg issues.txt", ForAppending, true)
 	objTextStream.WriteLine "LIST START"
