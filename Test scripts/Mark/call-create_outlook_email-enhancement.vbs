@@ -13,7 +13,7 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 '~~~~~ (email_flag_reminder_days): set the number of days from today that a reminder for the flag should be set
 '~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
 '~~~~~ (include_email_attachment): indicate if any (1 or more) attachments should be included - indicate true to include attachments or false to not include attachments
-'~~~~~ (email_attachment_array): if including 1 or more attachments, then enter the array name here to add these attachments to the email
+'~~~~~ (email_attachment_array): if including 1 or more attachments, then enter the array name here to add these attachments to the email or enter the list of attachment file paths within a single string with each file path separated by a comma
 '~~~~~ (send_email): set as TRUE or FALSE
 '===== Keywords: MAXIS, PRISM, create, outlook, email
 
