@@ -877,7 +877,7 @@ main_email_body = main_email_body & vbCr & email_signature
 'send the new ideas of things to count to the BZST email
 ' If assignment_new_ideas <> "" Then CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", ideas_email_subject, ideas_email_body, "", TRUE)
 'email all the people that this is done
-CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+Call create_outlook_email("", qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
 ' CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, main_email_body, "", TRUE)
 
 Call script_end_procedure_with_error_report("Great work! Thank you for completing your assignment report.")
