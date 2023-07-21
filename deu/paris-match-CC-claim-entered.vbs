@@ -483,8 +483,8 @@ IF HC_claim_number <> "" THEN
 			End If
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+	'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+	Call create_outlook_email("", "HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "", "", "Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, 1, False, "", "", False, "", "CASE NOTE" & vbcr & message_array, False, "", False)
 END IF
 '---------------------------------------------------------------writing the CCOL case note'
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
