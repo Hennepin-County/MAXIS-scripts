@@ -100,7 +100,7 @@ If number_of_rows = 0 Then
 	script_info_for_email = script_info_for_email & vbCr & "The BlueZone Script Team will need to connect with the BI Team to review the data issues and will provide additional information as it becomes available."
 	script_info_for_email = script_info_for_email & vbCr & vbCr & "There is no workaround for this issue and was not caused by any individual, it was caused by a data upload/connection issue that is scheduled to happen automatically and failed for some reason. The BlueZone Script Team will provide addtional information once we have it from the BI Team."
 	script_info_for_email = script_info_for_email & vbCr & vbCR & "EMAIL AUTOMATED BY THE ON DEMAND DASHBOARD SCRIPT"
-	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "URGENT - On Demand Pending Table Empty", script_info_for_email, "", True)
+	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "", "URGENT - On Demand Pending Table Empty", 1, False, "", "", False, "", script_info_for_email, False, "", True)
 	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Tanya and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
 End if
 
@@ -2642,7 +2642,7 @@ email_body = email_body & "The cases to review are now available to access on th
 email_body = email_body & "Please contact Tanya if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
-Call create_outlook_email(qi_member_email, cc_email, email_subject, email_body, "", True)
+Call create_outlook_email("", qi_member_email, cc_email, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 If list_of_baskets_at_display_limit <> "" Then
 	If left(list_of_baskets_at_display_limit, 1) = "," Then list_of_baskets_at_display_limit = right(list_of_baskets_at_display_limit, len(list_of_baskets_at_display_limit)-1)
@@ -2654,13 +2654,13 @@ If list_of_baskets_at_display_limit <> "" Then
 	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
 	' basket_email_body = basket_email_body & "" & vbCr
 	basket_email_body = basket_email_body & "Thank you!" & vbCr
-	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", basket_email_subject, basket_email_body, "", True)
+	Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", "", basket_email_subject, 1, False, "", "", False, "", basket_email_body, False, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
 	If left(cases_to_alert_BZST, 1) = "," Then cases_to_alert_BZST = right(cases_to_alert_BZST, len(cases_to_alert_BZST)-1)
 	cases_to_alert_BZST = trim(cases_to_alert_BZST)
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
+	Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", "ON DEMAND Could not determine next action needed", 1, False, "", "", False, "", "These cases have an unknown issue... " & cases_to_alert_BZST, False, "", True)
 End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
