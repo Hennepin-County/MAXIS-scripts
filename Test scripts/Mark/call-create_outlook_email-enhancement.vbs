@@ -48,14 +48,24 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
             objMail.HTMLBody = email_body
     End If
 
-    'Iterates through array of email attachments if indicated
+    'Iterates through array or list of email attachments if indicated
     If include_email_attachment = True Then
-      For Each attachment In email_attachment_array
-        objMail.Attachments.Add(attachment)
+      If TypeName(email_attachment_array) = "String" Then
+        email_attachment_array = Split(email_attachment_array, ",")
+        For Each attachment In email_attachment_array
+          objMail.Attachments.Add(trim(attachment))
       Next
+        Else
+          For Each attachment In email_attachment_array
+          objMail.Attachments.Add(attachment)
+      Next
+      End If
     End If
+
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
     Set objMail =   Nothing
     Set objOutlook = Nothing
 End Function
+
+'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
