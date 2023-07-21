@@ -11711,7 +11711,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
                     body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, PROGRAM, POPULATION, or REGION"
                     body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
-                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & testing_script_name, body_text, "", TRUE)
+					Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "FUNCTION ERROR - select_testing_file for " & testing_script_name, 1, False, "", "", False, "", body_text, False, "", True)
             End Select
 
             If tester.tester_population = "BZ" Then
