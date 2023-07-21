@@ -703,7 +703,7 @@ function send_script_error()
 
 		If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
 
-		Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+        Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, False, "", True)
 
 		MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
 	Else
@@ -978,7 +978,7 @@ Do
 				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
 				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
 
-				Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+                Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject_line, 1, False, "", "", False, "", email_body_lines, False, "", True)
 
 				MsgBox "Email Sent to BZST" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
 			Else
@@ -1046,7 +1046,7 @@ Do
 				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
 				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
 
-				Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+				Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject_line, 1, False, "", "", False, "", email_body_lines, False, "", True)
 
 				MsgBox "Email Sent to Quality Improvement Team" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
 			Else
