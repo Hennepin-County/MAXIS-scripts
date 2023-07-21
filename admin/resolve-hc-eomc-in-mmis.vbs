@@ -1544,4 +1544,38 @@ If make_changes = TRUE Then
     Loop until on_loop = 5
 End If
 
+EOMC_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\"
+file_name = CM_plus_1_mo & "-" & CM_plus_1_yr & " Closures - EOMC workslist.xlsx"
+objExcel.ActiveWorkbook.SaveAs EOMC_folder & file_name
+
+email_subject = "HC End of Month Closures list is Ready"
+
+email_body = "Hello QI!" & "<br>" & "<br>"
+email_body = email_body & vbCr & "The Excel file has been created to review HC cases that are set to close for " & CM_plus_1_mo & "/" & CM_plus_1_yr & "." & "<br>"
+email_body = email_body & vbCr & "This list is here:" & "<br>"
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & file_name & chr(34) & ">" & file_name & "</a><br>" & "<br>"
+
+email_body = email_body & vbCr & vbCr & "This script has attempted to align MMIS to the MAXIS HC eligibility, but some cases need manual review/action." & "<br>"
+email_body = email_body & vbCr & "There is an instruction document here:" & "<br>"
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & "EOMC Work List Instructions.docx" & chr(34) & ">" & "EOMC Work List Instructions.docx" & "</a><br>" & "<br>"
+
+email_body = email_body & vbCr & "Please reach out to Tanya with questions about this assignment." & "<br>"
+email_body = email_body & vbCr & vbCr & "Thank you!"
+
+'TODO - this needs to be replaced with the function call when it is updated in the FuncLib
+'Setting up the Outlook application
+Set objOutlook = CreateObject("Outlook.Application")
+Set objMail = objOutlook.CreateItem(0)
+
+objMail.to = "HSPH.EWS.QI@hennepin.us"                        'email recipient
+objMail.cc = "Tanya.Payne@hennepin.us; HSPH.EWS.BlueZoneScripts@hennepin.us"                     'cc recipient
+objMail.Subject = email_subject                 'email subject
+objMail.HTMLBody = email_body                       'email body
+
+objMail.Send	                   'Sends the email
+Set objMail =   Nothing
+Set objOutlook = Nothing
+
 script_end_procedure("All Done")
+
+'TODO - we need closing project documentation.
