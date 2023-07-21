@@ -405,7 +405,7 @@ DO
 	END IF
 LOOP UNTIL END_info_confirmation = vbYes
 'to help check on app rcvd'
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'CALL create_outlook_email("pahoua.vang@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+' Call create_outlook_email("", "pahoua.vang@hennepin.us;", "", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", 1, False, "", "", False, "", "", False, "", True)
 'msgbox "where am i ending?"
 script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")
