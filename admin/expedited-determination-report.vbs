@@ -457,7 +457,7 @@ If missing_HSRs <> "" Then
 	email_body = email_body & vbCr & vbCr & "This email is automated as a part of the script run of ADMIN - Expedited Determination Report."
 
 	send_email = True
-	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", send_email)
+	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
 End If
 
 ' Here we go and delete the txt files that are generated with the Exp Det script run from the archive files IF the file is more than 2 weeks old.
