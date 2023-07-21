@@ -11634,8 +11634,7 @@ function script_end_procedure_with_error_report(closing_message)
 					End if
 				End With
 			End If
-
-            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, attachment_here, true)
+			Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
         Else

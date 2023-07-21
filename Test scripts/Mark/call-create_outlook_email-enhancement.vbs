@@ -69,3 +69,12 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
 End Function
 
 'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+
+'Test array
+attachment_here = Array("C:\Users\MARI001\Downloads\Minnesota-Digital-Government-Summit.ics","C:\Users\MARI001\Downloads\NOTES - HEALTH CARE EVALUATION - EX PARTE.docx")
+
+' Call create_outlook_email("email_from", "email_recip", "email_recip_CC", "email_recip_bcc", "email_subject", 2, True, "Follow up on this", 3, True, 5, "Here is the email body", true, ex_parte_attachments, False)
+
+Call create_outlook_email("", "bzt_email", "", "", "subject_of_email", 1, False, "", "", False, "", "full_text", True, attachment_here, false)
+
+' email_attachment_array = Split(email_attachment_array, ",")
