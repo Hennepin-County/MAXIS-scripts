@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("08/16/2022", "Added supports to read case note headers created by the ELIGIBLITY SUMMARY script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/08/2020", "Added message reminding you to let the script work without trying to multitask. This can cause the script to error.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin County")
