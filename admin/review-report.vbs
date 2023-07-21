@@ -328,7 +328,7 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_c
 	email_body = email_body & vbCr & "<" & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\REVW " & date_for_excel & " U Code Worklist.xlsx" & ">"
 	email_body = email_body & vbCr & vbCr & "-This email is automated from a script."
 
-	Call create_outlook_email("tanya.payne@hennepin.us", "", email_subject, email_body, "", True)
+	Call create_outlook_email("", "tanya.payne@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 	If end_msg = "" Then
 		end_msg = "Worklist of U Code cases created."
