@@ -1294,8 +1294,8 @@ Else            'If we are in developer mode, we will go here to allow for some 
             email_body = email_body & vbCr
             email_body = email_body & worker_signature & vbCr
         End If
+        Call create_outlook_email("", all_email_recipients, "", "", "Job Change Reported for MX Case", 1, False, "", "", False, "", email_body, False, "", True)
 
-        Call create_outlook_email(all_email_recipients, "", "Job Change Reported for MX Case", email_body, "", TRUE)
     End If
 End If
 If refused_empl_yn = "?" Then refused_empl_yn = "N/A"
