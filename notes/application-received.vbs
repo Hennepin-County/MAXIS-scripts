@@ -921,8 +921,8 @@ IF how_application_rcvd = "Request to APPL Form" Then
 	IF send_appt_ltr = TRUE THEN email_body = email_body & vbCr & vbCr & "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
 	email_body = email_body & vbCr & vbCr & "Case is ready to be processed."
 
-	CALL create_outlook_email(send_email_to, cc_email_to, email_subject, email_body, "", FALSE)
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+    'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+	Call create_outlook_email("", send_email_to, cc_email_to, "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
 End If
 
 'Expedited Screening CNOTE for cases where SNAP is pending
