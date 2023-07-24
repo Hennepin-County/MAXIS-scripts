@@ -1346,9 +1346,9 @@ function send_support_email_to_KN()
 	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
 	email_body = "~~This email is generated from within the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
-	' call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)
-	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+	'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+	'Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, True, email_attachment, send_email)
 end function
 '---------------------------------------------------------------------------------------------------------------------------
 
@@ -2484,7 +2484,7 @@ End if
 ' 	email_body = email_body & vbCr & delay_explanation
 '
 ' 	email_body = "~~This email is generated from within the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-' 	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
+'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 ' End If
 
 
