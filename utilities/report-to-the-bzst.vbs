@@ -681,7 +681,7 @@ If caf_script_reported = True Then
 End If
 
 email_body = "~~This email is generated from completion of the 'Report to the BZST' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, attachment_here, TRUE)
+Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, True, attachment_here, True)
 
 STATS_manualtime = (timer-start_time) + 90
 end_msg = "Thank you!" & vbCr & "The Script to Report to BZST is Complete." & vbCr & vbCr & "Your Report has been submitted to the BlueZone Script Team. We will respond within a week. This response may not a resolution as some requests take longer for the team to discuss, plan and schedule."
