@@ -1348,7 +1348,7 @@ function send_support_email_to_KN()
 	email_body = "~~This email is generated from within the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
 	Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 	'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
-	'Call create_outlook_email("", email_recip, email_recip_CC, "", email_subject, 1, False, "", "", False, "", email_body, True, email_attachment, send_email)
+	'create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 end function
 '---------------------------------------------------------------------------------------------------------------------------
 
