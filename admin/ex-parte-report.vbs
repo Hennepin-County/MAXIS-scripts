@@ -347,7 +347,7 @@ function update_stat_budg()
 end function
 
 
-function update_unea_pane(panel_found, unea_type, income_amount, claim_number, start_date, end_date)
+function update_unea_pane(panel_found, unea_type, income_amount, claim_number, start_date, end_date, last_pay)
 	panel_in_edit_mode = False
 	If panel_found = False and end_date = "" Then
 		Call write_value_and_transmit("NN", 20, 79)
@@ -392,6 +392,12 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 
 		If end_date <> "" Then
 			Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
+			Call convert_date_into_MAXIS_footer_month(end_date, footer_month_end, footer_year_end)
+
+			If footer_month_end = CM_plus_1_mo and footer_year_end = CM_plus_1_yr Then
+				Call create_mainframe_friendly_date(end_date, 13, 54, "YY")
+				EMWriteScreen last_pay, 13, 68
+			End If
 		Else
 			' MsgBox "retro_date - " & retro_date & vbCr & "start_date - " & start_date & vbCr & "DateDiff - " & DateDiff("d", retro_date, start_date)
 			'TODO - this retro date thing failed
@@ -529,8 +535,9 @@ Const tpqy_pass_exclusion 			= 103
 Const tpqy_inc_inkind_start 		= 104
 Const tpqy_inc_inkind_stop 			= 105
 Const tpqy_rep_payee 				= 106
-Const tpqy_sssi_last_pay_date		= 107
+Const tpqy_ssi_last_pay_date		= 107
 Const tpqy_ssi_is_ongoing			= 108
+COnst tpqy_ssi_last_pay_amt			= 109
 
 Const tpqy_memb_has_ssi				= 110
 Const tpqy_memb_has_rsdi			= 111
@@ -2057,6 +2064,7 @@ If ex_parte_function = "Prep 2" Then
 
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
+	MsgBox "review_date - " & review_date
 
 	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
 	If reset_in_Progress = checked Then
@@ -2113,7 +2121,6 @@ If ex_parte_function = "Prep 2" Then
 	excel_row = 2		'initializing the counter to move through the excel lines
 
 	yesterday = DateAdd("d", -1, date)
-	MsgBox "yesterday - " & yesterday
 
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -2326,13 +2333,15 @@ If ex_parte_function = "Prep 2" Then
 								EMReadScreen sdx_payment_type, 1, sdx_row, 25
 								If sdx_payment_type <> "0" and sdx_payment_type <> " " Then
 									EMReadScreen last_payment_date, 5, sdx_row, 3
+									EMReadScreen last_payment_amt, 9, sdx_row, 13
 									Exit Do
 								End If
 								sdx_row = sdx_row + 1
 							Loop until sdx_payment_type = " "
 							If last_payment_date <> "" Then
-								MEMBER_INFO_ARRAY(tpqy_sssi_last_pay_date, each_memb) = replace(last_payment_date, " ", "/1/")
-								MEMBER_INFO_ARRAY(tpqy_sssi_last_pay_date, each_memb) = DateAdd("d", 0, MEMBER_INFO_ARRAY(tpqy_sssi_last_pay_date, each_memb))
+								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = replace(last_payment_date, " ", "/1/")
+								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = DateAdd("d", 0, MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb))
+								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb) = trim(last_payment_amt)
 							End If
 						End If
 
@@ -2410,12 +2419,12 @@ If ex_parte_function = "Prep 2" Then
 							If MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True Then		'If SSI appears to be ongoing (Current Pay)
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "")
+								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
 								If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
-							ElseIf isDate(MEMBER_INFO_ARRAY(tpqy_sssi_last_pay_date, each_memb)) = True Then	'If SSI has an end date listed
+							ElseIf isDate(MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb)) = True Then	'If SSI has an end date listed
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), MEMBER_INFO_ARRAY(tpqy_sssi_last_pay_date, each_memb))
+								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb))
 								If InStr(verif_types, "SSI End") = 0 Then verif_types = verif_types & "/SSI End"
 							'There is no handling for if person appears to have SSI ended but we could not find an end date.
 							End If
@@ -2431,7 +2440,7 @@ If ex_parte_function = "Prep 2" Then
 									rsdi_type = "02"
 									Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 								End If
-								Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "")
+								Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
 								If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 							End If
 						End If
@@ -2862,17 +2871,18 @@ If ex_parte_function = "Prep 2" Then
 					End If
 				End If
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
-
-				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
-				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
-
-				'opening the connections and data table
-				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			End If
 
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+			Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'opening the connections and data table
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 		End If
+
 		objRecordSet.MoveNext
 	Loop
     objRecordSet.Close
@@ -3317,7 +3327,7 @@ If ex_parte_function = "Phase 1" Then
 					If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
 						Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-						Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "")
+						Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
 						If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
 					End If
 
@@ -3330,7 +3340,7 @@ If ex_parte_function = "Phase 1" Then
 								rsdi_type = "02"
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 							End If
-							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "")
+							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
 							If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 						End If
 					End If
