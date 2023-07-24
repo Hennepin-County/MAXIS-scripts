@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/24/2023", "NOTICES - VERIFICATIONS STILL NEEDED has been retired as it did not meet state or county procedural guidance.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/05/2023", "NOTICES - MA INMATE APPLICATION WCOM has been retired. Regular eligibility processing can be applied for inmates.", "Mark Riegel, Hennepin County")
 call changelog_update("10/25/2022", "NOTICES - OUT OF STATE has been retired. Please refer to the process in the HSR Manual to support out of state inquiries.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/23/2021", "NOTICES - SNAP E & T LETTER has been temporarily retired. The script will be updated and republished when new E & T Process is ready.", "Ilse Ferris, Hennepin County")
