@@ -307,8 +307,9 @@ email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #"
 vbcr & vbcr & "Member Info: " & member_info & _
 vbcr & vbcr & "Submitted By: " & the_person_running_the_script
 
-'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment,send_email)
-IF send_email = TRUE THEN Call create_outlook_email("HSPH.ES.DEED@Hennepin.us", "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+IF send_email = TRUE THEN Call create_outlook_email("", "HSPH.ES.DEED@Hennepin.us", "", "", "UC Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
+'will create email, will send.
 
 IF MX_region = "TRAINING" then msgbox email_information
 
