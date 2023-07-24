@@ -116,6 +116,9 @@ capitation_QMB      = 164.90'135.50
 capitation_SLMB     = 164.90'135.50
 capitation_QI1      = 164.90'135.50
 
+Const xlSrcRange = 1
+Const xlYes = 1
+
 'Constants
 Const basket_nbr            = 0
 Const case_nbr              = 1
@@ -1355,9 +1358,23 @@ For col_to_autofit = 1 to col_to_use+1
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
+table_range = "A8:S" & excel_row
+table_name = "Table1"
+
+ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table_range, xlYes).Name = table_name
+ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleMedium3"
+
 'setting a freeze row for easy scrolling
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
+
+curr_day = DatePart("d", date)
+curr_mo = DatePart("m", date)
+curr_yr = DatePart("yyyy", date)
+file_friendly_date = curr_mo & "-" & curr_day & "-" & right(2, curr_yr)
+EOMC_report_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\HC Discrepancy\EOMC\"
+file_name = CM_plus_1_mo & "-20" & CM_plus_1_yr & " Change Run - " & file_friendly_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs EOMC_report_folder & file_name
 
 If make_changes = TRUE Then
     ' MsgBox "Starting new functionality"
@@ -1535,6 +1552,17 @@ If make_changes = TRUE Then
         ObjExcel.Cells(6, 1).HorizontalAlignment = -4152       'Aligns text in Excel Cell to the right
         ObjExcel.Range("C6:G6").Merge
         ObjExcel.Cells(6, 3).HorizontalAlignment = -4108       'Aligns text in Excel Cell to the center
+
+		table_range = "A8:U" & excel_row-1
+		If on_loop = 4 Then table_range = "A8:N" & excel_row-1
+
+		If on_loop = 1 Then table_name = "MMISOpenTable"
+		If on_loop = 2 Then table_name = "EndDateErrorTable"
+		If on_loop = 3 Then table_name = "FutureEndDateTable"
+		If on_loop = 4 Then table_name = "BudgetErrorTable"
+
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table_range, xlYes).Name = table_name
+		ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleMedium3"
 
         on_loop = on_loop + 1
         If on_loop = 2 Then ObjExcel.Worksheets.Add().Name = "MMIS Span End Date Error"
