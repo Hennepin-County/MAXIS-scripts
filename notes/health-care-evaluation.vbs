@@ -3097,6 +3097,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	End If
 	review_month_01 = er_month & "/" & er_year
 	review_month_02 = er_month & "/" & er_year
+	If ex_parte_phase = "Phase 2" Then script_end_procedure("This script does not currently support Ex Parte Phase 2 / Ex Parte Approvals.")
 
 	If ex_parte_phase = "Phase 1" Then
 
@@ -3945,6 +3946,37 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					If disa_waiver_code_02 = "_" Then disa_waiver_info_02 = "No Waiver"
 				End If
 			End If
+
+			'TODO - come back to this and finish this update
+			' PDED_info_01
+			' PICKLE_info_01
+			' PICKLE_detail_01
+
+			' call navigate_to_MAXIS_screen("STAT", "PDED")
+			' EMWriteScreen person_01_ref_number, 20, 76
+			' transmit
+			' EMReadScreen check_if_PDED_exists, 2, 2, 78
+			' If trim(check_if_PDED_exists) = 0 Then PDED_info_01 = "No PDED Information Exists"
+			' If trim(check_if_PDED_exists) <> 0 Then
+
+			' 	EMReadScreen pickle_dsrgd_yn, 1, 6, 60
+			' 	If pickle_dsrgd_yn = "Y" Then
+			' 		PICKLE_info_01 = "PICKLE Disregard Exists"
+			' 		Call write_value_and_transmit("X", 6, 40)
+			' 		EMReadScreen pickle_dsrgd_threshold_date, 8, 5, 48
+			' 		EMReadScreen pickle_dsrgd_curr_RSDI, 8, 6, 48
+			' 		EMReadScreen pickle_dsrgd_threshold_RSDI, 8, 7, 48
+			' 		EMReadScreen pickle_dsrgd_disregard_amt, 8, 8, 48
+			' 		PICKLE_detail_01 = "PICKLE Disregard Amount: $ " & pickle_dsrgd_disregard_amt
+			' 		PF3
+			' 	End If
+
+			' 	EMReadScreen dac_dsrgd_yn, 1, 8, 60
+			' 	If dac_dsrgd_yn = "Y" Then DAC_info_01 = "DAC"
+
+			' End If
+
+
 		End If
 
 		Call navigate_to_MAXIS_screen("CASE", "CURR")
