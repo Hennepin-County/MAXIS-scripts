@@ -210,7 +210,7 @@ If case_pending = TRUE Then email_body = email_body & vbCr & "~~The case has bee
 If case_pending = FALSE Then email_body = email_body & vbCr & "~~This case is not pending and has not been APPL'd.~~" & vbCr
 
 email_body = email_body & vbCr & "Thank you, " & vbCr & worker_name
-Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)		'Send the Email
+Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)		'Send the Email
 
 'Add a message with the email information for display
 end_msg = "Success!" & vbNewLine & vbNewLine
