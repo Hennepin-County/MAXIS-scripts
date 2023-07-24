@@ -263,7 +263,8 @@ CALL find_user_name(the_person_running_the_script)' this is for the signature in
 If send_email = False then msgbox "AVS initial run requests case #" & MAXIS_case_number & vbcr & vbcr & "Member Info:" & member_info & vbCR & vbcr & "Submitted By: " & the_person_running_the_script
 
 'Creating the email ---- create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-IF send_email = TRUE THEN Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+IF send_email = TRUE THEN Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", "AVS initial run requests case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
+'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 
