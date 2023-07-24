@@ -380,8 +380,8 @@ If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* 
 email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", True)
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+IF send_email = True THEN CALL create_outlook_email("", "HSPH.EWS.Team." & team_email, "", "", email_header, 1, False, "", "", False, "", body_of_email, False, "", True)
 
 '------------------------------------------------------------------------------------Case Note
 start_a_blank_CASE_NOTE
