@@ -62,7 +62,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 366, 300, "Verifications Still Needed"
   EditBox 55, 5, 40, 15, MAXIS_case_number
-  CheckBox 15, 20, 320, 15, "Check here to case note that 2919 A/B or other DHS approved form was used for initial request.", twentynine_nineteen_requested_CHECKBOX
+  CheckBox 15, 20, 320, 15, "Check here to case note that Verification Form was used for initial request.", twentynine_nineteen_requested_CHECKBOX
   EditBox 30, 40, 150, 15, address_verification
   EditBox 70, 60, 110, 15, schl_stin_stec_verification
   EditBox 30, 80, 150, 15, disa_verification
@@ -108,7 +108,7 @@ DO      'Password DO loop
 		Dialog Dialog1
 		cancel_confirmation
 		IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
-		IF twentynine_nineteen_requested_CHECKBOX = unchecked THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."
+		IF twentynine_nineteen_requested_CHECKBOX = unchecked THEN err_msg = err_msg & vbNewLine & "* If Verification Request form was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 - Verification Request form."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
@@ -242,12 +242,8 @@ CALL write_bullet_and_variable_in_case_note( "SHEL", shel_verification)
 CALL write_bullet_and_variable_in_case_note( "Subsidy", subsidy_verification)
 CALL write_bullet_and_variable_in_case_note( "INSA", insa_verification)
 CALL write_bullet_and_variable_in_case_note( "Other Proofs", other_proof_verification)
-'...checkbox responses
-If twentynine_nineteen_requested_CHECKBOX = checked THEN CALL write_variable_in_case_note( "* DHS-2919 or other DHS approved form was used for initial verification request.")
-'...and a worker signature.
+If twentynine_nineteen_requested_CHECKBOX = checked THEN CALL write_variable_in_case_note( "* Verification Request form was used for initial verification request.")
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-PF3
 
-'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("Success! Your Request for Verification has been generated, please follow up with the next steps to ensure the request is received timely. The verification request must be reflected in ECF.")
+script_end_procedure("Success! Your SPEC/MEMO regarding verification has been generated.")
