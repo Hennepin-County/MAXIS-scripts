@@ -82,7 +82,7 @@ Do
 Loop until err_msg = ""
 
 If elig_or_not = "Needs Standard ER" Then
-	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = '09/23 ER Scheduled' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+	objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_id_to_update & "', ExParteAfterPhase2 = '10/23 ER Scheduled' WHERE CaseNumber = '" & SQL_Case_Number & "'"
 
 	'Creating objects for Access
 	Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -94,10 +94,10 @@ If elig_or_not = "Needs Standard ER" Then
 
 	Call start_a_blank_CASE_NOTE
 
-	Call write_variable_in_CASE_NOTE("09/23 HC ER Scheduled - Ex Parte Could not be Processed")
+	Call write_variable_in_CASE_NOTE("10/23 HC ER Scheduled - Ex Parte Could not be Processed")
 	Call write_variable_in_CASE_NOTE("Unable to complete all necessary Verifications to continue HC.")
-	Call write_variable_in_CASE_NOTE("Health Care Enrollees will need to complete a standard Renewal for 09/23")
-	Call write_variable_in_CASE_NOTE("09/23 is the next available month for and Eligibility Review.")
+	Call write_variable_in_CASE_NOTE("Health Care Enrollees will need to complete a standard Renewal for 10/23")
+	Call write_variable_in_CASE_NOTE("10/23 is the next available month for and Eligibility Review.")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -142,63 +142,65 @@ If elig_or_not = "Yes - HC is Eligibile" Then
 	objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
+	skip_note = False
 
-	Call start_a_blank_CASE_NOTE
+	If skip_note = False Then
+		Call start_a_blank_CASE_NOTE
 
-	Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
-	Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
-	Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
-	Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
-	Call write_variable_in_CASE_NOTE("-------------------------------------------------")
-	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
-	If MSP_approvals_only = True and MSP_memo_success = True Then
-		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
-		Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
+		Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
+		Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
+		Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
+		Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
+		Call write_variable_in_CASE_NOTE("-------------------------------------------------")
+		Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
+		If MSP_approvals_only = True and MSP_memo_success = True Then
+			Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
+			Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
+		End If
+		' Call write_variable_in_CASE_NOTE("")
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+
+		If developer_mode = True Then
+			MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
+			PF10
+			MsgBox "Ex Parte note Gone?"
+		End If
+		PF3
+
+		Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
+		Next_REPT_year = Next_REPT_year*1
+		Next_REPT_year = Next_REPT_year + 1
+		Next_REPT_year = Next_REPT_year & ""
+
+		Call start_a_blank_CASE_NOTE
+
+		Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
+		Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
+		Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
+		Call write_variable_in_CASE_NOTE("**************************************************************************")
+		Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
+		Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
+		Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+		Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
+		Call write_variable_in_CASE_NOTE("**************************************************************************")
+		Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
+		Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
+		Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
+		Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
+		Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+		Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
+		Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+		If developer_mode = True Then
+			MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
+			PF10
+			MsgBox "Standard Policy Note Gone?"
+		End If
+
+		PF3
 	End If
-	' Call write_variable_in_CASE_NOTE("")
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
-
-	If developer_mode = True Then
-		MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
-		PF10
-		MsgBox "Ex Parte note Gone?"
-	End If
-	PF3
-
-	Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
-	Next_REPT_year = Next_REPT_year*1
-	Next_REPT_year = Next_REPT_year + 1
-	Next_REPT_year = Next_REPT_year & ""
-
-	Call start_a_blank_CASE_NOTE
-
-	Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-	Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
-	Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-	Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
-	Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
-	Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
-	Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-	Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
-	If developer_mode = True Then
-		MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
-		PF10
-		MsgBox "Standard Policy Note Gone?"
-	End If
-
-	PF3
-
 
 End If
 
