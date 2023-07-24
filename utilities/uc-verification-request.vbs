@@ -123,6 +123,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("06/23/2022", "Update to uncheck all HH members ", "MiKayla Handley, Hennepin County") '#882
 call changelog_update("05/19/2022", "Update to send all UC verification requests to DEED email at: HSPH.ES.DEED@Hennepin.us", "Ilse Ferris, Hennepin County") '#847
 call changelog_update("11/24/2021", "Updates to the dialog as most teams are now using ES support staff for UC verification request.", "MiKayla Handley") '#644'
