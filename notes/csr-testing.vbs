@@ -5105,7 +5105,7 @@ If functionality_wrong_checkbox = checked Then
     email_msg = email_msg & "Notes: " & functionality_issue_notes & vbCr & vbCR
     email_msg = email_msg & worker_signature & vbCr
 
-    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "NOTES - CSR Completion Functionality Issues", email_msg, "", TRUE)
+    Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "NOTES - CSR Completion Functionality Issues", 1, False, "", "", False, "", email_msg, False, "", True)
 
     If form_completion_status = "Complete" Then form_questions_complete = TRUE
     If form_completion_status = "Incomplete" Then form_questions_complete = FALSE
