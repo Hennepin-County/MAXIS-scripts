@@ -1,6 +1,6 @@
 run_locally = True
 'Required for statistical purposes==========================================================================================
-name_of_script = "BULK - POLI TEMP TO WORD.vbs"
+name_of_script = "ADMIN - BULK POLI TEMP TO WORD.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 390                     'manual run time in seconds
@@ -41,30 +41,51 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("01/21/2023", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("07/24/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+Function select_folder(folder_selected)
+''--- This function opens a "Select Folder" dialog and will return the fully qualified path of the selected folder.
+''~~~~~ folder_selected: variable for the name of the file
+''===== Keywords: MAXIS, MMIS, PRISM, folder
+    Dim objFolder, objItem, objShell
+    ' Create a dialog object
+    Set objShell  = CreateObject( "Shell.Application" )
+    Set objFolder = objShell.BrowseForFolder( 0, "Select Folder", 0, folder_selected)
+    If IsObject(objfolder) Then SelectFolder = objFolder.Self.Path     ' Return the path of the selected folder
+End Function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""        'Connects to BlueZone
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\POLI TEMP List.xlsx"
+get_county_code
+
+If worker_county_code = UCase("X127") then
+    file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\POLI TEMP List.xlsx"
+    root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\" 'KC folder where the DIFF files will be housed
+End if
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 301, 100, ""
+BeginDialog Dialog1, 0, 0, 296, 175, "BULK - POLI TEMP TO WORD"
+  GroupBox 10, 5, 280, 65, "Initial POLI TEMP File Selection"
+  Text 20, 20, 260, 20, "Select the Excel file that contains the POLI TEMP references by selecting the 'Browse' button, and locating the file."
   ButtonGroup ButtonPressed
-    PushButton 15, 40, 60, 15, "Browse...", select_a_file_button
-  EditBox 80, 40, 205, 15, file_selection_path
+    PushButton 15, 45, 60, 15, "Browse...", select_initial_file_button
+  EditBox 80, 45, 205, 15, file_selection_path
+  GroupBox 10, 80, 280, 70, "File Where the POLI TEMP Word Docs Will Be Saved"
+  Text 15, 95, 275, 20, "Select the Excel folder where the script will save the Word Documents by selecting the 'Browse' button, and locating the folder."
   ButtonGroup ButtonPressed
-    OkButton 190, 80, 50, 15
-    CancelButton 245, 80, 50, 15
-  Text 15, 15, 275, 20, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
-  GroupBox 10, 5, 285, 70, "Using this script:"
+    PushButton 15, 120, 60, 15, "Browse...", select_save_folder_button
+  EditBox 80, 120, 205, 15, root_file_path
+  ButtonGroup ButtonPressed
+    OkButton 180, 155, 50, 15
+    CancelButton 235, 155, 50, 15
 EndDialog
 
 'dialog and dialog DO...Loop
@@ -73,17 +94,33 @@ Do
         err_msg = ""
         dialog Dialog1
         cancel_without_confirmation
-        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
-        If err_msg <> "" Then MsgBox err_msg
+        'Initial POLI TEMP List Excel file
+        If ButtonPressed = select_initial_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select the initial POLI TEMP List file to continue."
+        'Folder selection where the Word Docs are going to live
+        If ButtonPressed = select_save_folder_button then call select_folder(root_file_path)
+        If trim(root_file_path) = "" then
+            err_msg = err_msg & vbcr & "* Select the folder where to Word documents will be saved to continue."
+        Else
+            If right(root_file_path, 1) <> "\" or right(root_file_path, 1) <> "/" then root_file_path = root_file_path & "\"
+        End if
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
+    Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Adding Excel column for file creation confirmation
+objExcel.Cells(1, 4).Value = "POLI TEMP File Found in Folder"
+
+FOR i = 1 to 4		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
+
 Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
-
-Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 excel_row = 2
 
 Do
@@ -155,7 +192,6 @@ Do
 
         '----------------------------------------------------------------------------------------------------File information coding
         If right(poli_title, 1) = "." then poli_title = left(poli_title, len(poli_title) - 1) 'sometimes there is an extra period in the title.
-
         'These characters will not allow the file to save. Replacing them based on the character found.
         poli_title = replace(poli_title, ":", " ")
         poli_title = replace(poli_title, "/", " ")
@@ -166,10 +202,10 @@ Do
         temp_code = "TE " & right(total_code, len(total_code) -2) 'saving convention to save POLI TEMP code as TE xx.xx.xx vs. TExx.xx.xx (creating space to make more searchable in SPO)
 
         'folder paths and saving each document
-        root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\" 'KC folder where the DIFF files will be housed
         poli_file_name = root_file_path & temp_code & " " & poli_title & ".docx"
         objDoc.SaveAs(poli_file_name)
         objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
+        objDoc.Final = True 'marking document as final
         objWord.Quit
 
         'blanking out the variables
@@ -181,7 +217,7 @@ Do
         file_name = ""
     End if
 
-    Call File_Exists(poli_file_name, does_file_exist)
+    Call File_Exists(poli_file_name, does_file_exist)   'This bit just makes sure that the file actually exists in the folder.
     objExcel.cells(excel_row, 4).value = does_file_exist
     excel_row = excel_row + 1
     STATS_counter = STATS_counter + 1
