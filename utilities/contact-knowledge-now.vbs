@@ -218,7 +218,7 @@ DO
 Loop until message_confirmed = vbYes
 
 email_body = "~~This email is generated from completion of the 'Contact Knowledge Now' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
+Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", TRUE)
 
 STATS_manualtime = STATS_manualtime + (timer - start_time)
 end_msg = "Thank you!" & vbCr & "The Contact Knowledge Now Script is Complete." & vbCr & vbCr & "Your Report has been submitted to the QI Team. Someone will reach out to you shortly."
