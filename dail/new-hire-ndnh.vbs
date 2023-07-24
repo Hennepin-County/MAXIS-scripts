@@ -322,7 +322,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     CALL write_variable_in_case_note(new_hire_third_line)
     CALL write_variable_in_case_note(new_hire_fourth_line)
     CALL write_variable_in_case_note("---")
-    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B).")
+    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent Verification and Employment verification forms.")
     IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
     IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
     IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
