@@ -225,3 +225,48 @@ Loop until trim(objExcel.cells(excel_row, 2).value) = ""
 
 STATS_counter= STATS_counter - 1
 script_end_procedure("Success!!")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/24/2023
+'--Tab orders reviewed & confirmed----------------------------------------------07/24/2023
+'--Mandatory fields all present & Reviewed--------------------------------------07/24/2023
+'--All variables in dialog match mandatory fields-------------------------------07/24/2023
+'Review dialog names for content and content fit in dialog----------------------07/24/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/24/2023-----------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/24/2023-----------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/24/2023-----------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used--07/24/2023-----------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/24/2023
+'--MAXIS_background_check reviewed (if applicable)-------------------------------07/24/2023-----------------N/A
+'--PRIV Case handling reviewed --------------------------------------------------07/24/2023-----------------N/A
+'--Out-of-County handling reviewed-----------------------------------------------07/24/2023-----------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/24/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------07/24/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/24/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/24/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------07/24/2023
+'--Denomination reviewed -------------------------------------------------------07/24/2023
+'--Script name reviewed---------------------------------------------------------07/24/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/24/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/24/2023
+'--comment Code-----------------------------------------------------------------07/24/2023
+'--Update Changelog for release/update------------------------------------------07/24/2023
+'--Remove testing message boxes-------------------------------------------------07/24/2023
+'--Remove testing code/unnecessary code-----------------------------------------07/24/2023
+'--Review/update SharePoint instructions----------------------------------------Instructions incoming
+'--Other SharePoint sites review (HSR Manual, etc.)------------------------------07/24/2023-----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/24/2023
+'--COMPLETE LIST OF SCRIPTS update policy references-----------------------------07/24/2023-----------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------07/24/2023
+'--Update project team/issue contact (if applicable)----------------------------07/24/2023
