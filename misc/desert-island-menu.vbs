@@ -31,6 +31,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County"
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("04/01/2023", "Added ELIGIBILITY SUMMARY and HEALTH CARE DETERMINATION scripts. Removed other elgibilty noting and health care scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/28/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -43,7 +44,7 @@ on_the_desert_island = TRUE
 
 If git_hub_issue_known = FALSE Then
     email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the respository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
-    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "URGENT! - Reporting a Possible GitHub Issue", email_body, "", TRUE)
+    Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "URGENT! - Reporting a Possible GitHub Issue", 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
 Do
@@ -114,7 +115,7 @@ Do
             run "C:\Program Files\Internet Explorer\iexplore.exe https://www.githubstatus.com/"		'Goes to SIR if button is pressed
         Case email_script_team_btn
             email_body = "I accessed the Desert Island Scripts." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCr & vbCr & worker_signature
-            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "Reporting a Possible GitHub Issue", email_body, "", TRUE)
+            Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "Reporting a Possible GitHub Issue", 1, False, "", "", False, "", email_body, False, "", True)
         Case why_btn
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 446, 295, "Why did I end up on the Desert Island"

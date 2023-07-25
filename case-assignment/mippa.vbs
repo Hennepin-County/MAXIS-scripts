@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 CALL changelog_update("08/02/2019", "Removed error reporting, due to system limitations.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/16/2019", "Added requested language for denial dates and extra help.", "MiKayla Handley, Hennepin County")
@@ -404,7 +405,7 @@ DO
 	END IF
 LOOP UNTIL END_info_confirmation = vbYes
 'to help check on app rcvd'
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'CALL create_outlook_email("pahoua.vang@hennepin.us;", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", "", "", TRUE)
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+' Call create_outlook_email("", "pahoua.vang@hennepin.us;", "", "", maxis_name & maxis_case_number & " MIPPA case need Application sent EOM.", 1, False, "", "", False, "", "", False, "", True)
 'msgbox "where am i ending?"
 script_end_procedure("MIPPA CASE NOTE HAS BEEN UPDATED. PLEASE ENSURE THE CASE IS CLEARED on REPT/MLAR & THE FORMS HAVE BEEN MAILED. ")

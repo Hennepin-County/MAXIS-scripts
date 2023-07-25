@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("12/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -935,7 +936,7 @@ function create_assignment_report()
 	cc_email = qi_worker_email
 
 	''sending the email
-    CALL create_outlook_email(qi_worker_supervisor_email, cc_email, main_email_subject, main_email_body, "", TRUE)
+    Call create_outlook_email("", qi_worker_supervisor_email, cc_email, "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
 
 	' MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
@@ -1226,7 +1227,7 @@ function test_sql_access()
     email_body = email_body & "first_item_date - " & first_item_date & vbCr
     email_body = email_body & "This test is complete and this worker has read access."
 
-    Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", email_subject, email_body, "", True)
+    Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
     end_msg = "The test is complete an an email has been sent to the BlueZone Script Team regarding access to the tables for the new On Demand functionality."
     Call script_end_procedure(end_msg)

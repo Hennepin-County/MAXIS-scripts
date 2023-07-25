@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 Call changelog_update("07/11/2023", "The CAF script will no longer allow for the selection of programs, MAXIS program status will inform which programs are included in the review of the case. ##~## ##~##It is vital that MAXIS is updated entirely before using the CAF script. In particular, the script will not operate if the CAF/Form Dates and Interview Dates have not been entered in the correct fields of MAXIS. ##~## ##~##It is best practice to run the CAF script PRIOR to any 'APP' as MAXIS updates are still possible and the display during the script run can support a secondary review of case details.##~##", "Casey Love, Hennepin County")
 Call changelog_update("04/12/2023", "BUG Update - The Expedited Determination functionality was pulling Gross BUSI income, and we have updated it to pull NET income for the Expedited Determination information.", "Casey Love, Hennepin County")
 call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
@@ -2940,9 +2941,9 @@ function send_support_email_to_KN()
 	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
 	email_body = "~~This email is generated from wihtin the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
-	' call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)
-	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+    'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+    Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+    'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", false)
 end function
 
 'FUNCTIONS =================================================================================================================

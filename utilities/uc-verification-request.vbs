@@ -123,6 +123,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("06/23/2022", "Update to uncheck all HH members ", "MiKayla Handley, Hennepin County") '#882
 call changelog_update("05/19/2022", "Update to send all UC verification requests to DEED email at: HSPH.ES.DEED@Hennepin.us", "Ilse Ferris, Hennepin County") '#847
 call changelog_update("11/24/2021", "Updates to the dialog as most teams are now using ES support staff for UC verification request.", "MiKayla Handley") '#644'
@@ -306,8 +307,9 @@ email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #"
 vbcr & vbcr & "Member Info: " & member_info & _
 vbcr & vbcr & "Submitted By: " & the_person_running_the_script
 
-'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment,send_email)
-IF send_email = TRUE THEN Call create_outlook_email("HSPH.ES.DEED@Hennepin.us", "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+IF send_email = TRUE THEN Call create_outlook_email("", "HSPH.ES.DEED@Hennepin.us", "", "", "UC Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
+'will create email, will send.
 
 IF MX_region = "TRAINING" then msgbox email_information
 

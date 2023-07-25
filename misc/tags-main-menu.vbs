@@ -119,6 +119,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("10/22/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -702,7 +703,7 @@ function send_script_error()
 
 		If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
 
-		Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+        Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, False, "", True)
 
 		MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
 	Else
@@ -977,7 +978,7 @@ Do
 				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
 				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
 
-				Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+                Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject_line, 1, False, "", "", False, "", email_body_lines, False, "", True)
 
 				MsgBox "Email Sent to BZST" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
 			Else
@@ -1045,7 +1046,7 @@ Do
 				If url_line <> "" Then email_body_lines = email_body_lines & vbCr & vbCr & "Referenced Link: " & url_line
 				email_body_lines = email_body_lines & vbCr & vbCr & "---" & vbCr & email_signature
 
-				Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject_line, email_body_lines, "", TRUE)
+				Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject_line, 1, False, "", "", False, "", email_body_lines, False, "", True)
 
 				MsgBox "Email Sent to Quality Improvement Team" & vbNewLine & "----------------------------" & vbNewLine & "Subject: " & email_subject_line & vbNewLine & vbNewLine & email_body_lines
 			Else

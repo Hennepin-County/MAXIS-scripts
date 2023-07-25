@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("02/27/2023", "Added MS Word output of case note to copy/paste in METS case note.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated team emails from 601 to team 603 for retro processing. Added FIAT checkbox for retro determination option.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
@@ -379,8 +380,8 @@ If verifs_checkbox = 1 then additional_content = additional_content & vbcr & "* 
 email_header = initial_option & " for " & MAXIS_case_number & " - Action Required"
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", True)
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+IF send_email = True THEN CALL create_outlook_email("", "HSPH.EWS.Team." & team_email, "", "", email_header, 1, False, "", "", False, "", body_of_email, False, "", True)
 
 '------------------------------------------------------------------------------------Case Note
 start_a_blank_CASE_NOTE
