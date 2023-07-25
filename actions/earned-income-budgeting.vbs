@@ -174,7 +174,7 @@ function create_expected_check_array()
 		list_of_all_paydates_start_to_finish = right(list_of_all_paydates_start_to_finish, len(list_of_all_paydates_start_to_finish) - 1)
 	End If
 
-	MsgBox list_of_all_paydates_start_to_finish
+	' MsgBox list_of_all_paydates_start_to_finish
 	If Instr(list_of_all_paydates_start_to_finish, "~") = 0 Then
 		expected_check_array = array(list_of_all_paydates_start_to_finish)
 	Else
@@ -197,7 +197,7 @@ function find_missing_checks()
 	Do
 		For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
 			date_in_range = ""
-			MsgBox "LIST_OF_INCOME_ARRAY(panel_indct, all_income) - " & LIST_OF_INCOME_ARRAY(panel_indct, all_income) & vbCr & "ei_panel - " & ei_panel & vbCr & vbCr & "LIST_OF_INCOME_ARRAY(check_order, all_income) - " & LIST_OF_INCOME_ARRAY(check_order, all_income) & vbCr & "order_number - " & order_number
+			' MsgBox "LIST_OF_INCOME_ARRAY(panel_indct, all_income) - " & LIST_OF_INCOME_ARRAY(panel_indct, all_income) & vbCr & "ei_panel - " & ei_panel & vbCr & vbCr & "LIST_OF_INCOME_ARRAY(check_order, all_income) - " & LIST_OF_INCOME_ARRAY(check_order, all_income) & vbCr & "order_number - " & order_number
 			'conditional if it is the right panel AND the order matches - then do the thing you need to do
 			If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
 				If LIST_OF_INCOME_ARRAY(bonus_check_checkbox, all_income) = unchecked Then
@@ -1846,8 +1846,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 																LIST_OF_INCOME_ARRAY(hours, pay_item) = missing_hrs_by_rate_of_pay
 															ElseIf missing_hrs_by_rate_of_pay = "" Then
 																LIST_OF_INCOME_ARRAY(hours, pay_item) = missing_hrs_by_ytd
-																LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) = LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) & LIST_OF_INCOME_ARRAY(pay_date, check_after_index) & " check - YTD Hours: $ " & after_check_ytd_hrs & ", Hours:  " & LIST_OF_INCOME_ARRAY(hours, check_after_index) & "; "
-																LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) = LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) & LIST_OF_INCOME_ARRAY(pay_date, check_before_index) & " check - YTD Hours: $ " & before_check_ytd_hrs & "; "
+																LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) = LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) & LIST_OF_INCOME_ARRAY(pay_date, check_after_index) & " check - YTD Hours: " & after_check_ytd_hrs & ", Hours:  " & LIST_OF_INCOME_ARRAY(hours, check_after_index) & "; "
+																LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) = LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) & LIST_OF_INCOME_ARRAY(pay_date, check_before_index) & " check - YTD Hours: " & before_check_ytd_hrs & "; "
 																LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) = LIST_OF_INCOME_ARRAY(ytd_calc_notes, pay_item) & after_check_ytd_hrs & " - " & LIST_OF_INCOME_ARRAY(hours, check_after_index) & " - " & before_check_ytd_hrs & " = " & LIST_OF_INCOME_ARRAY(hours, pay_item) & "; "
 															Else
 																MsgBox "It appears that we have 2 different ways to calculate the number of hours on the missing check and these processes do not match. This script has calcualted the hours in the following ways: " & vbCr & vbCr &_
@@ -2698,7 +2698,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = total_of_gross_income / cash_checks             'average $ per pay check for non-SNAP
                         EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel),2,,0)
 
-                        If total_of_hours <> 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_included_pay_checks / total_of_hours           'the $/hr
+                        If total_of_hours <> 0 Then EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_counted_income / total_of_hours           'the $/hr
                         If total_of_hours = 0 Then
                             EARNED_INCOME_PANELS_ARRAY(hourly_wage, ei_panel) = total_of_gross_income/all_total_hours
                             EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) = total_of_gross_income/all_total_hours
@@ -4898,7 +4898,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
 								If LIST_OF_INCOME_ARRAY(bonus_check_checkbox, all_income) = checked Then Call write_variable_in_CASE_NOTE("  - This is a BONUS CHECK.")
 								If LIST_OF_INCOME_ARRAY(pay_detail_exists, all_income) = True Then
 									Call write_variable_in_CASE_NOTE("  - The pay information for this check is split:")
-									Call write_variable_in_CASE_NOTE("     *Regular Pay: $ " & LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income))
+									Call write_variable_in_CASE_NOTE("    *Regular Pay: $ " & LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income))
 									If LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) <> "" Then Call write_variable_in_CASE_NOTE("    *Bonus Pay: $ " & LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income))
 									If LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) <> "" Then Call write_variable_in_CASE_NOTE("    *OT Pay: $ " & LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income))
 									If LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) <> "" Then Call write_variable_in_CASE_NOTE("    *Shift Differential Pay: $ " & LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income))
