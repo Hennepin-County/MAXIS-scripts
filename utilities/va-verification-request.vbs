@@ -188,8 +188,8 @@ DO   'loop for the HH member does need to re-read jsut need to allow us to chose
     If trim(relationship_veteran) <> "" THEN VA_info = VA_info & "Relationship to Veteran(if applicable): " & relationship_veteran
 
     'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
-    Call create_outlook_email("", "Vetservices@Hennepin.us", "", "", "VA Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", VA_info, False, "", True)   'will create email, will not send.
-
+    Call create_outlook_email("", "Vetservices@Hennepin.us", "", "", "VA Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", VA_info, False, "", True)
+    
     IF MULTIPLE_CHECKBOX = 0 THEN EXIT DO 'need to be done if we are not requesting more than one '
 
     erase client_selection
