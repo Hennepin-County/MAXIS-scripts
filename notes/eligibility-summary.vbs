@@ -3338,6 +3338,18 @@ function define_hc_elig_dialog()
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
 		End If
 
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "HC DENIAL" Then
+			GroupBox 10, y_pos, 440, 60, "Health Care DENIAL Reasons"
+			Text 20, y_pos+15, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_application_withdrawn(memb_ind)
+			Text 60, y_pos+15, 250, 10, "  -  Application Withdrawn"
+			Text 20, y_pos+25, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_application_process_incomplete(memb_ind)
+			Text 60, y_pos+25, 250, 10, "  -  Application Process Not Completed"
+			Text 20, y_pos+35, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_no_new_prog_eligibility(memb_ind)
+			Text 60, y_pos+35, 250, 10, "  -  No New Program Eligibility"
+			Text 20, y_pos+45, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_assistance_unit(memb_ind)
+			Text 60, y_pos+45, 250, 10, "  -  Assistance Unit Member"
+
+		End if
 		' If scnd_elig_ind <> "" Then
 		' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "MA" or HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "EMA" Then
 		' 		GroupBox 10, y_pos, 440, 95, "MEMB " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_ref_numbs(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_full_name(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(scnd_memb_ind) & " for " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind)
@@ -3485,150 +3497,153 @@ function define_hc_elig_dialog()
 		' y_pos = Income_detail_start
 		' y_pos = 175
 
-		GroupBox 5, y_pos, 540, income_box_len, "Income"
-		y_pos = y_pos + 15
 
-		Text 10, y_pos, 155, 10, "GROSS EARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
-		Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) <> "HC DENIAL" Then
+			GroupBox 5, y_pos, 540, income_box_len, "Income"
+			y_pos = y_pos + 15
 
-		y_pos = y_pos + 10
-		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
-		HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
-				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = inc_count_memb Then
-					If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
+			Text 10, y_pos, 155, 10, "GROSS EARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
+			Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
 
-					If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-
-					If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-				End If
-			Next
-		Next
-		If ei_count = 0 Then
-			Text 15, y_pos, 275, 10, "No EARNED Income counted for Health Care."
 			y_pos = y_pos + 10
+			y_pos_2 = y_pos
+			' y_pos = 230
+			' y_pos_2 = 230
+			HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
+					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = inc_count_memb Then
+						If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+
+						If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+
+						If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+					End If
+				Next
+			Next
+			If ei_count = 0 Then
+				Text 15, y_pos, 275, 10, "No EARNED Income counted for Health Care."
+				y_pos = y_pos + 10
+			End If
+			If unea_count = 0 Then
+				Text 305, y_pos_2, 235, 10, "No UNEARNED Income counted for Health Care."
+				y_pos_2 = y_pos_2 + 10
+			End if
 		End If
-		If unea_count = 0 Then
-			Text 305, y_pos_2, 235, 10, "No UNEARNED Income counted for Health Care."
-			y_pos_2 = y_pos_2 + 10
-		End if
 
 		If ex_parte_approval = True Then
 			Text 10, 345, 145, 10, "This case is an EX PARTE APPROVAL"
@@ -17055,6 +17070,12 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_test_medicare_part_a(0)
 
 		call navigate_to_MAXIS_screen("ELIG", "HC  ")
+		EMReadScreen warning_msg, 50, 24, 2
+		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
+			EMWriteScreen CM_mo, 20, 43
+			EMWriteScreen CM_yr, 20, 46
+			transmit
+		End If
 		EMWriteScreen elig_footer_month, 19, 54
 		EMWriteScreen elig_footer_year, 19, 57
 		transmit
@@ -17353,6 +17374,9 @@ class hc_eligibility_detail
 							EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 				6, 16, 22
 
 							EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
+							EMReadScreen hc_ref_numb, 2, 6, 12
+							hc_prog_elig_members_whose_income_counts(hc_prog_count) = Array(hc_ref_numb)
+
 							' MsgBox  "ASSISTANCE UNIT TEST - " &  hc_prog_elig_test_assistance_unit(hc_prog_count)
 						End If
 						' MsgBox "CREATED TODAY"
@@ -19121,6 +19145,14 @@ class stat_detail
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
+		EMReadScreen warning_msg, 50, 24, 2
+		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
+			EMWriteScreen hc_app_mo, 20, 43
+			EMWriteScreen hc_app_yr, 20, 46
+			MAXIS_footer_month = hc_app_mo
+			MAXIS_footer_year = hc_app_yr
+			transmit
+		End If
 
 		EMReadScreen stat_prog_cash_I_appl_date, 		8, 6, 33
 		EMReadScreen stat_prog_cash_I_elig_begin_date, 	8, 6, 44
@@ -23168,6 +23200,15 @@ Do
 Loop until are_we_passworded_out = False
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+row = 1
+col = 1
+EMSearch "HC: ", row, col
+If row <> 0 Then
+	EMReadScreen HC_appl_date, 8, row, col + 24
+	HC_appl_date = DateAdd("d", 0, HC_appl_date)
+	Call convert_date_into_MAXIS_footer_month(HC_appl_date, hc_app_mo, hc_app_yr)
+End If
+
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
