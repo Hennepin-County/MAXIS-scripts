@@ -401,11 +401,17 @@ confirm_snap_budget_tips_and_tricks_btn	= 503
 confirm_cash_budget_tips_and_tricks_btn	= 504
 confirm_hc_budget_tips_and_tricks_btn	= 505
 confirm_grh_budget_tips_and_tricks_btn	= 506
+hc_retro_budget_tips_and_tricks_btn		= 507
 
 open_button								= 601
 plus_button								= 602
 minus_button							= 603
 clear_btn								= 604
+
+calculate_ytd_btn 						= 701
+done_ytd_btn 							= 702
+panel_navigated_to_btn					= 703
+skip_this_month_btn						= 704
 
 '===========================================================================================================================
 
@@ -3967,10 +3973,13 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                     'BUGGY CODE - this might be causing issues as there were a few reports but I cannot get it to confirm
                     EMWriteScreen "JOBS", 20, 71        'go back to the first job for this person
                     EMWriteScreen EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel), 20, 76
+					EMWriteScreen "01", 20, 79
                     transmit
                     try = 1         'we need an exit from the loop
+					employers_read = " "
                     Do
                         EMReadScreen confirm_same_employer, 30, 7, 42      'now we read this on each panel
+						employers_read = employers_read & confirm_same_employer
                         If confirm_same_employer = UCase(EARNED_INCOME_PANELS_ARRAY(employer_with_underscores, ei_panel)) Then               'if the panel has the employer name, then we set the new instance to EARNED_INCOME_PANELS_ARRAY
                             EMReadScreen the_new_instance, 1, 2, 73
                             EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
@@ -3983,8 +3992,55 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                     Loop until last_jobs = "ENTER A"            'This is when you can't transmit any more
 
                     If the_new_instance = "" Then               'If they didn't matcj and we did not find it, this alerts the worker
-                        EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE     'setting this to NOT update
-                        MsgBox "The panel for " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " could not be found in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It may have been deleted. The script will not attempt to update this or any future month for this panel."
+						script_run_lowdown = script_run_lowdown & vbCr & "PANEL NOT FOUND In " & MAXIS_footer_month & "/" & MAXIS_footer_year
+						for each job_read in employers_read
+							script_run_lowdown = script_run_lowdown & vbCr & "panel read - " & job_read
+						Next
+						temp_array = ""
+						employers_read = trim(employers_read)
+						temp_array = split(employers_read)
+
+						Do
+							Dialog1 = ""
+							BeginDialog Dialog1, 0, 0, 196, 235, "Find the Correct Panel"
+								Text 10, 10, 155, 20, "The script has been unable to find the correct JOBS panel for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & "."
+								Text 10, 40, 185, 10, "The JOBS panel selected at the beginning of the script: "
+								Text 30, 50, 150, 10, EARNED_INCOME_PANELS_ARRAY(employer_with_underscores, ei_panel)
+								Text 10, 70, 165, 10, "The script read the following JOBS Employers:"
+								y_pos = 80
+								for each job_read in employers_read
+									Text 30, y_pos, 140, 10, job_read
+									y_pos = y_pos + 1
+								Next
+								Text 10, 140, 175, 10, "You can naviagate directly to the correct panel now. "
+								Text 15, 150, 175, 20, "Leave this dialog up and navigate in this MAXIS session to the panel for this job."
+								ButtonGroup ButtonPressed
+									PushButton 10, 180, 175, 15, "I have navigated to the Correct JOBS panel", panel_navigated_to_btn
+									PushButton 10, 205, 175, 15, "Skip the update of this job for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & , skip_this_month_btn
+							EndDialog
+
+						Loop until ButtonPressed = panel_navigated_to_btn or ButtonPressed = skip_this_month_btn
+
+                        ' MsgBox "The panel for " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " could not be found in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It may have been deleted. The script will not attempt to update this or any future month for this panel."
+                        If ButtonPressed = skip_this_month_btn Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE     'setting this to NOT update
+						If ButtonPressed = panel_navigated_to_btn Then
+                            old_instance = EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)
+							EMReadScreen the_new_instance, 1, 2, 73
+
+                            EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
+
+							confirm_selection = MsgBox("The script will now update this panel:" & vbCr & "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & vbCr & vbCr & "Is this the panel you want updated with the income entered for the job - " & EARNED_INCOME_PANELS_ARRAY(employer_with_underscores, ei_panel) & "?",  vbSystemModal + vbExclamation + vbDefaultButton2 + VBYesNo, "CONFIRM PANEL UPDATE")
+							If confirm_selection = vbNo Then
+								EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = old_instance
+								EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
+							End If
+						End If
+						If ButtonPressed = skip_this_month_btn Then script_run_lowdown = script_run_lowdown & vbCr & "PRESSED BUTTON to Skip This Month"
+						If ButtonPressed = panel_navigated_to_btn Then
+							script_run_lowdown = script_run_lowdown & vbCr & "PRESSED BUTTON to Panel navigated to"
+							If confirm_selection = vbNo Then script_run_lowdown = script_run_lowdown & vbCr & "MsgBox VBNo Pressed"
+							If confirm_selection = vbYes Then script_run_lowdown = script_run_lowdown & vbCr & "MsgBox VBYes Pressed"
+						End If
                     End If
                 End If
                 If EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = TRUE Then              'if this panel should be update in thie month - here is where we do it
@@ -4809,7 +4865,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'each panel will
 				EARNED_INCOME_PANELS_ARRAY(mo_w_more_5_chcks, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(mo_w_more_5_chcks, ei_panel))
 				If EARNED_INCOME_PANELS_ARRAY(mo_w_more_5_chcks, ei_panel) <> "" Then
 					Call write_variable_in_CASE_NOTE("* These months have more than 5 paychecks and were entered into JOBS")
-					Call write_variable_in_CASE_NOTE("  as a a single amount: " & EARNED_INCOME_PANELS_ARRAY(mo_w_more_5_chcks, ei_panel))
+					Call write_variable_in_CASE_NOTE("  as a single amount: " & EARNED_INCOME_PANELS_ARRAY(mo_w_more_5_chcks, ei_panel))
 				End If
                 If EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel) <> "" Then
                     Call write_variable_in_CASE_NOTE("* Anticipated Income Estimate provided to Agency.")
