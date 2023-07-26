@@ -973,19 +973,43 @@ Do
 
                 EMReadScreen appl_date, 8, 8, 29                'this is where the case application date is - NOT program specific
 
-                If DateDiff("m", appl_date, enter_JOBS_start_date) >= 0 Then    'if the application date is before the income start date
-                    beginning_month = DatePart("m", enter_JOBS_start_date)      'we use the income start date as the footer month and year to enter the JOBS panel
-                    beginning_year = DatePart("yyyy", enter_JOBS_start_date)
-                    first_check = enter_JOBS_start_date                             'setting the date of the first check to be entered on JOBS
-                Else                                                            'otherwise, if the job started before the application date
-                    beginning_month = DatePart("m", appl_date)                  'we use the application date as the footer month and year to enter the JOBS panel
-                    beginning_year = DatePart("yyyy", appl_date)
-                    first_check = beginning_month & "/01/" & beginning_year         'setting the date of the first check to be entered on JOBS
-                End If
+				beginning_month = ""
+				beginning_year = ""
+
+				If enter_JOBS_clt_ref_nbr <> "01" Then '326733
+					MAXIS_footer_month = CM_mo
+					MAXIS_footer_year = CM_yr
+
+					Call navigate_to_MAXIS_screen("STAT", "MEMB")
+					Call write_value_and_transmit(enter_JOBS_clt_ref_nbr, 20, 76)
+
+					EMReadScreen memb_arrival_date, 8, 4, 73
+					If memb_arrival_date <> "        " Then
+						memb_arrival_date = replace(memb_arrival_date, " ", "/")
+						memb_arrival_date = DateAdd("d", 0, memb_arrival_date)
+
+						beginning_month = DatePart("m", memb_arrival_date)                  'we use the application date as the footer month and year to enter the JOBS panel
+						beginning_year = DatePart("yyyy", memb_arrival_date)
+						first_check = beginning_month & "/01/" & beginning_year         'setting the date of the first check to be entered on JOBS
+					End If
+				End If
+
+				If beginning_month = "" Then
+					If DateDiff("m", appl_date, enter_JOBS_start_date) >= 0 Then    'if the application date is before the income start date
+						beginning_month = DatePart("m", enter_JOBS_start_date)      'we use the income start date as the footer month and year to enter the JOBS panel
+						beginning_year = DatePart("yyyy", enter_JOBS_start_date)
+						first_check = enter_JOBS_start_date                             'setting the date of the first check to be entered on JOBS
+					Else                                                            'otherwise, if the job started before the application date
+						beginning_month = DatePart("m", appl_date)                  'we use the application date as the footer month and year to enter the JOBS panel
+						beginning_year = DatePart("yyyy", appl_date)
+						first_check = beginning_month & "/01/" & beginning_year         'setting the date of the first check to be entered on JOBS
+					End If
+				End If
 
                 beginning_month = right("00"&beginning_month, 2)                'creating 2 digit month and year variables
                 beginning_year = right(beginning_year, 2)
 
+				MsgBox "beginning_month - " & beginning_month & vbCr & "beginning_year - " & beginning_year & vbCr & "first_check - " & first_check
                 If DateDiff("m", first_check, date) > 12 Then                   'if the first check to be entered on the panel is more that 12 months from the current date
                                                                                 'script will confirm the month and year to add the panel in MAXIS
                     'PROCEDURE CLARIFICATION - allowing workers to adjust the month and year the panel is entered
@@ -4016,7 +4040,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 								Text 15, 150, 175, 20, "Leave this dialog up and navigate in this MAXIS session to the panel for this job."
 								ButtonGroup ButtonPressed
 									PushButton 10, 180, 175, 15, "I have navigated to the Correct JOBS panel", panel_navigated_to_btn
-									PushButton 10, 205, 175, 15, "Skip the update of this job for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & , skip_this_month_btn
+									PushButton 10, 205, 175, 15, "Skip the update of this job for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year, skip_this_month_btn
 							EndDialog
 
 						Loop until ButtonPressed = panel_navigated_to_btn or ButtonPressed = skip_this_month_btn
