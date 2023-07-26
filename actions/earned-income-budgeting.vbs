@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("07/26/2023", "Multiple updates to the script##~####~##ENHANCEMENTS: ##~##-Added 'Save your Work' functionality.##~##-Added an option to identify a check is a 'Bonus Check'.##~##-Option to break out pay amount in different types.##~##-Added a YTD Calculator.##~####~##BUG FIXED: ##~##-If more than 5 unique check dates are entered for a month, they will be entered as a lump payment.##~##-If multiple checks are entered for the same date, JOBS panel will be updated as a single payment.##~##-Better handling for a job for a new HH member by checking the arrival date.##~##-Allow for worker to select the correct JOBS panel to update if the script cannot find it.##~####~##There is a lot of new functionality and this is a fairly complicated script run. Please contact the script team if you have any concerns or questions.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/25/2021", "Added information buttons to the dialogs.##~## ##~##There are a number of new buttons with a '!' on it that will display some tips about the policy and use of these dialogs. Click on them to find out more.##~## ##~##There are also direct links to the instruction documents on SharePoint.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Update to the script to remove the functionality that would LUMP together any income in the month of application on the SNAP PIC.##~## ##~##The income will still update the SNAP PIC with income as a LUMP if for the month a job started.", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "The script will no longer read the Pay Frequency. This will have to be entered when entering the paycheck information.##~## ##~##We made this change because this script relys heavily on the pay frequency being correct at this point and there is not a great way to ensure accuracy otherwise.", "Casey Love, Hennepin County")
@@ -800,6 +801,7 @@ pay_item = ""
 'THE SCRIPT ================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
+Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -811,25 +813,25 @@ future_months_check = checked           'default to having th script update futu
 'INITIAL Dialog - case number, footer month, worker signature
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 190, 235, "Case Number"
-  EditBox 90, 5, 70, 15, MAXIS_case_number
-  EditBox 100, 25, 15, 15, original_month
-  EditBox 120, 25, 15, 15, original_year
-  CheckBox 10, 45, 140, 10, "Check here to have the script update all", future_months_check
-  EditBox 5, 80, 175, 15, worker_signature
-  ButtonGroup ButtonPressed
-  	PushButton 140, 25, 15, 15, "!", tips_and_tricks_button
-	PushButton 15, 192, 85, 13, "FULL INSTRUCTIONS", instructions_btn
-	PushButton 100, 192, 25, 13, "FAQ", faq_btn
-	PushButton 125, 192, 50, 13, "Quick Start", quick_start_btn
-    OkButton 80, 215, 50, 15
-    CancelButton 135, 215, 50, 15
-  Text 5, 10, 85, 10, "Enter your case number:"
-  Text 5, 30, 90, 10, "Starting Footer Month/Year:"
-  Text 20, 55, 120, 10, "future months and send through BG."
-  Text 5, 70, 65, 10, "Worker Signature:"
-  GroupBox 5, 100, 180, 110, "INSTRUCTIONS - PLEASE READ!!!"
-  Text 10, 115, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
-  Text 10, 150, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
+	EditBox 90, 5, 70, 15, MAXIS_case_number
+	EditBox 100, 25, 15, 15, original_month
+	EditBox 120, 25, 15, 15, original_year
+	CheckBox 10, 45, 140, 10, "Check here to have the script update all", future_months_check
+	EditBox 5, 80, 175, 15, worker_signature
+	ButtonGroup ButtonPressed
+		PushButton 140, 25, 15, 15, "!", tips_and_tricks_button
+		PushButton 15, 192, 85, 13, "FULL INSTRUCTIONS", instructions_btn
+		PushButton 100, 192, 25, 13, "FAQ", faq_btn
+		PushButton 125, 192, 50, 13, "Quick Start", quick_start_btn
+		OkButton 80, 215, 50, 15
+		CancelButton 135, 215, 50, 15
+	Text 5, 10, 85, 10, "Enter your case number:"
+	Text 5, 30, 90, 10, "Starting Footer Month/Year:"
+	Text 20, 55, 120, 10, "future months and send through BG."
+	Text 5, 70, 65, 10, "Worker Signature:"
+	GroupBox 5, 100, 180, 110, "INSTRUCTIONS - PLEASE READ!!!"
+	Text 10, 115, 170, 25, "This script is to help in correctly budgeting EARNED income on JOBS, BUSI, or RBIC. It will update MAXIS and CASE/NOTE the information provided. "
+	Text 10, 150, 170, 40, "If a JOBS panel or BUSI panel needs to be added to MAXIS for a client or income source, the script will ask for any panels that need to be added first. Review the case now to ensure that the correct action will be taken in the correct order."
 EndDialog
 
 'calling the dialog
@@ -886,7 +888,8 @@ Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
 If vars_filled = False Then
 
-	Call navigate_to_MAXIS_screen("CASE", "CURR")                           'Going to find the FS Application Date
+	Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)                           'Going to find the FS Application Date
+	If is_this_priv = True Then call script_end_procedure("This script will now end because it appears this case is privileged.")
 	curr_row = 1
 	curr_col = 1
 	EMSearch " FS:", curr_row, curr_col
@@ -1246,12 +1249,12 @@ If vars_filled = False Then
 			'FUTURE FUNCTIONALITY - add BUSI back as an option to select here
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 191, 50, "Panel Type to Add"
-			' DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS"+chr(9)+"BUSI", panel_to_add
-			DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS", panel_to_add
-			ButtonGroup ButtonPressed
-				OkButton 135, 10, 50, 15
-				CancelButton 135, 30, 50, 15
-			Text 15, 10, 85, 20, "Which type of panel would you like to add?"
+				' DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS"+chr(9)+"BUSI", panel_to_add
+				DropListBox 30, 30, 60, 45, "Select one..."+chr(9)+"JOBS", panel_to_add
+				ButtonGroup ButtonPressed
+					OkButton 135, 10, 50, 15
+					CancelButton 135, 30, 50, 15
+				Text 15, 10, 85, 20, "Which type of panel would you like to add?"
 			EndDialog
 
 			cancel_clarify = ""     'resetting this here - this supports canceling the new job add without cancelling the script
@@ -1293,30 +1296,30 @@ If vars_filled = False Then
 				'NEW JOB PANEL Dialog'
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 431, 115, "New JOBS Panel"
-				EditBox 75, 10, 20, 15, enter_JOBS_clt_ref_nbr
-				DropListBox 155, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", enter_JOBS_inc_type_code
-				DropListBox 330, 10, 95, 45, ""+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", enter_JOBS_subsdzd_inc_type
-				DropListBox 155, 30, 90, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - Unknown", enter_JOBS_verif_code
-				EditBox 330, 30, 50, 15, enter_JOBS_hrly_wage
-				EditBox 155, 50, 195, 15, enter_JOBS_employer
-				EditBox 155, 70, 50, 15, enter_JOBS_start_date
-				EditBox 330, 70, 50, 15, enter_JOBS_end_date
-				CheckBox 105, 95, 30, 10, "SNAP", snap_checkbox
-				CheckBox 145, 95, 30, 10, "CASH", cash_checkbox
-				CheckBox 190, 95, 20, 10, "HC", hc_checkbox
-				CheckBox 230, 95, 30, 10, "GRH", grh_checkbox
-				ButtonGroup ButtonPressed
-					OkButton 320, 95, 50, 15
-					CancelButton 375, 95, 50, 15
-				Text 10, 15, 65, 10, "Client Ref Number:"
-				Text 105, 15, 45, 10, "Income Type:"
-				Text 240, 15, 85, 10, "Subsidized Income Type:"
-				Text 110, 35, 40, 10, "Verification:"
-				Text 280, 35, 50, 10, "Hourly Wage:"
-				Text 115, 55, 35, 10, "Employer:"
-				Text 105, 75, 45, 10, "Income Start:"
-				Text 285, 75, 40, 10, "Income End:"
-				Text 10, 95, 90, 10, "Apply Income to Programs:"
+					EditBox 75, 10, 20, 15, enter_JOBS_clt_ref_nbr
+					DropListBox 155, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", enter_JOBS_inc_type_code
+					DropListBox 330, 10, 95, 45, ""+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", enter_JOBS_subsdzd_inc_type
+					DropListBox 155, 30, 90, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - Unknown", enter_JOBS_verif_code
+					EditBox 330, 30, 50, 15, enter_JOBS_hrly_wage
+					EditBox 155, 50, 195, 15, enter_JOBS_employer
+					EditBox 155, 70, 50, 15, enter_JOBS_start_date
+					EditBox 330, 70, 50, 15, enter_JOBS_end_date
+					CheckBox 105, 95, 30, 10, "SNAP", snap_checkbox
+					CheckBox 145, 95, 30, 10, "CASH", cash_checkbox
+					CheckBox 190, 95, 20, 10, "HC", hc_checkbox
+					CheckBox 230, 95, 30, 10, "GRH", grh_checkbox
+					ButtonGroup ButtonPressed
+						OkButton 320, 95, 50, 15
+						CancelButton 375, 95, 50, 15
+					Text 10, 15, 65, 10, "Client Ref Number:"
+					Text 105, 15, 45, 10, "Income Type:"
+					Text 240, 15, 85, 10, "Subsidized Income Type:"
+					Text 110, 35, 40, 10, "Verification:"
+					Text 280, 35, 50, 10, "Hourly Wage:"
+					Text 115, 55, 35, 10, "Employer:"
+					Text 105, 75, 45, 10, "Income Start:"
+					Text 285, 75, 40, 10, "Income End:"
+					Text 10, 95, 90, 10, "Apply Income to Programs:"
 				EndDialog
 
 				cancel_clarify = ""         'blanking this out from previous dialog or another loop
@@ -1363,7 +1366,7 @@ If vars_filled = False Then
 					beginning_month = ""
 					beginning_year = ""
 
-					If enter_JOBS_clt_ref_nbr <> "01" Then '326733
+					If enter_JOBS_clt_ref_nbr <> "01" Then
 						MAXIS_footer_month = CM_mo
 						MAXIS_footer_year = CM_yr
 
@@ -1403,15 +1406,15 @@ If vars_filled = False Then
 						'CONFIRM ADD PANEL MONTH Dialog'
 						Dialog1 = ""
 						BeginDialog Dialog1, 0, 0, 191, 175, "Confirm Update Month"
-						EditBox 140, 60, 15, 15, beginning_month
-						EditBox 160, 60, 15, 15, beginning_year
-						ButtonGroup ButtonPressed
-							OkButton 135, 155, 50, 15
-						Text 10, 10, 165, 10, "** This new job started at least 12 months ago. **"
-						Text 10, 30, 165, 20, "The script will go back to " & beginning_month & "/" & beginning_year & " to add this JOBS panel in the month the job started."
-						Text 10, 60, 120, 15, "If this needs to be adjusted, change the footer month and year here:"
-						GroupBox 10, 85, 170, 65, "Info"
-						Text 20, 100, 150, 40, "Best practice is to add the job information in the footer month and year the income started. An exception may be if the job was currently in STAT and the panel was deleted, only add the information in the first month of deletion."
+							EditBox 140, 60, 15, 15, beginning_month
+							EditBox 160, 60, 15, 15, beginning_year
+							ButtonGroup ButtonPressed
+								OkButton 135, 155, 50, 15
+							Text 10, 10, 165, 10, "** This new job started at least 12 months ago. **"
+							Text 10, 30, 165, 20, "The script will go back to " & beginning_month & "/" & beginning_year & " to add this JOBS panel in the month the job started."
+							Text 10, 60, 120, 15, "If this needs to be adjusted, change the footer month and year here:"
+							GroupBox 10, 85, 170, 65, "Info"
+							Text 20, 100, 150, 40, "Best practice is to add the job information in the footer month and year the income started. An exception may be if the job was currently in STAT and the panel was deleted, only add the information in the first month of deletion."
 						EndDialog
 
 						dialog Dialog1
@@ -2515,15 +2518,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             'CHOOSE CORRECT METHOD Dialog - select which (actual or anticipated) income information to budget and explain
                             Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 196, 165, "Reasonably Expected to Continue"
-                              OptionGroup RadioGroup1
-                                RadioButton 25, 70, 130, 10, "Use the actual check amounts/dates", use_actual_income
-                                RadioButton 25, 85, 130, 10, "Use the anticipated hours/wage", use_anticipated_income
-                              EditBox 10, 125, 180, 15, EARNED_INCOME_PANELS_ARRAY(selection_rsn, ei_panel)
-                              ButtonGroup ButtonPressed
-                                OkButton 140, 145, 50, 15
-                              Text 10, 10, 185, 35, "Both Actual Income and Anticipated Income have been listed for a SNAP case. Since both have been reported, both will be case ntoed. For entering information to the PIC, one option should be selected."
-                              GroupBox 5, 55, 185, 45, "Which is the best estimation of anticipated income?"
-                              Text 10, 110, 185, 10, "Explain why this is the best estimation of future income:"
+                              	OptionGroup RadioGroup1
+									RadioButton 25, 70, 130, 10, "Use the actual check amounts/dates", use_actual_income
+									RadioButton 25, 85, 130, 10, "Use the anticipated hours/wage", use_anticipated_income
+								EditBox 10, 125, 180, 15, EARNED_INCOME_PANELS_ARRAY(selection_rsn, ei_panel)
+								ButtonGroup ButtonPressed
+									OkButton 140, 145, 50, 15
+								Text 10, 10, 185, 35, "Both Actual Income and Anticipated Income have been listed for a SNAP case. Since both have been reported, both will be case ntoed. For entering information to the PIC, one option should be selected."
+								GroupBox 5, 55, 185, 45, "Which is the best estimation of anticipated income?"
+								Text 10, 110, 185, 10, "Explain why this is the best estimation of future income:"
                             EndDialog
 
                             Do
@@ -2650,14 +2653,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     End If
                                     Dialog1 = ""
                                     BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
-                                      EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
-                                      EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
-                                      ButtonGroup ButtonPressed
-                                        OkButton 50, 95, 50, 15
-                                      Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
-                                      Text 10, 40, 35, 10, "First Day"
-                                      Text 10, 60, 45, 10, "Second Day"
-                                      CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
+										EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
+										EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
+										ButtonGroup ButtonPressed
+											OkButton 50, 95, 50, 15
+										Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
+										Text 10, 40, 35, 10, "First Day"
+										Text 10, 60, 45, 10, "Second Day"
+										CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
                                     EndDialog
 
                                     Do
@@ -2776,14 +2779,14 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             End If
                             Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
-                              EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
-                              EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
-                              ButtonGroup ButtonPressed
-                                OkButton 50, 95, 50, 15
-                              Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
-                              Text 10, 40, 35, 10, "First Day"
-                              Text 10, 60, 45, 10, "Second Day"
-                              CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
+								EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
+								EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
+								ButtonGroup ButtonPressed
+									OkButton 50, 95, 50, 15
+								Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
+								Text 10, 40, 35, 10, "First Day"
+								Text 10, 60, 45, 10, "Second Day"
+								CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
                             EndDialog
 
                             Do
@@ -2898,11 +2901,11 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                         If two_paydays = TRUE Then
                             Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 175, 85, "Weekday of Pay"
-                              DropListBox 95, 45, 75, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel)
-                              ButtonGroup ButtonPressed
-                                OkButton 120, 65, 50, 15
-                              Text 10, 10, 125, 10, "This job is paid weekly or biweekly."
-                              Text 10, 25, 165, 10, "Which day of the week is pay typically received?"
+								DropListBox 95, 45, 75, 45, "Sunday"+chr(9)+"Monday"+chr(9)+"Tuesday"+chr(9)+"Wednesday"+chr(9)+"Thursday"+chr(9)+"Friday"+chr(9)+"Saturday", EARNED_INCOME_PANELS_ARRAY(pay_weekday, ei_panel)
+								ButtonGroup ButtonPressed
+									OkButton 120, 65, 50, 15
+								Text 10, 10, 125, 10, "This job is paid weekly or biweekly."
+								Text 10, 25, 165, 10, "Which day of the week is pay typically received?"
                             EndDialog
 
                             Dialog Dialog1
@@ -3031,30 +3034,30 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             'FREQUENCY ISSUE Dialog - the worker can update the view_pay_date to match if appropriate or they can confirm it is correct as is
                             Dialog1 = ""
                             BeginDialog Dialog1, 0, 0, 251, dlg_len, "Review Pay Dates"
-                              Text 10, 10, 240, 10, "It appears one check does not fall in the expected pay schedule dates. "
-                              Text 10, 25, 230, 10, "This job is paid - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
-                              Text 10, 40, 65, 10, "Reported Pay Date"
-                              Text 85, 40, 75, 10, "Expected Pay Date"
+								Text 10, 10, 240, 10, "It appears one check does not fall in the expected pay schedule dates. "
+								Text 10, 25, 230, 10, "This job is paid - " & EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
+								Text 10, 40, 65, 10, "Reported Pay Date"
+								Text 85, 40, 75, 10, "Expected Pay Date"
 
-                              y_pos = 55
-                              For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
-                                  For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
-                                      'conditional if it is the right panel AND the order matches - then do the thing you need to do
-                                      If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
-                                          If LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE Then
-                                              If LIST_OF_INCOME_ARRAY(view_pay_date, all_income) <> "" Then LIST_OF_INCOME_ARRAY(view_pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & ""
-                                              Text 10, y_pos, 10, 10, "**"
-                                              EditBox 25, y_pos, 50, 15, LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
-                                              Text 95, y_pos + 5, 50, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income)            'this cannot be changed here
+								y_pos = 55
+								For order_number = 1 to top_of_order                        'loop through the order number lowest to highest
+									For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
+										'conditional if it is the right panel AND the order matches - then do the thing you need to do
+										If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(check_order, all_income) = order_number Then
+											If LIST_OF_INCOME_ARRAY(frequency_issue, all_income) = TRUE Then
+												If LIST_OF_INCOME_ARRAY(view_pay_date, all_income) <> "" Then LIST_OF_INCOME_ARRAY(view_pay_date, all_income) = LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & ""
+												Text 10, y_pos, 10, 10, "**"
+												EditBox 25, y_pos, 50, 15, LIST_OF_INCOME_ARRAY(view_pay_date, all_income)
+												Text 95, y_pos + 5, 50, 10, LIST_OF_INCOME_ARRAY(pay_date, all_income)            'this cannot be changed here
 
-                                              y_pos = y_pos + 20
-                                          End If
-                                      End If
-                                  Next
-                              Next
-                              CheckBox 10, y_pos, 180, 10, "Check here if these pay dates are what was reported.", pay_dates_correct_checkbox
-                              ButtonGroup ButtonPressed
-                                OkButton 195, y_pos, 50, 15
+												y_pos = y_pos + 20
+											End If
+										End If
+									Next
+								Next
+								CheckBox 10, y_pos, 180, 10, "Check here if these pay dates are what was reported.", pay_dates_correct_checkbox
+								ButtonGroup ButtonPressed
+									OkButton 195, y_pos, 50, 15
                             EndDialog
 
                             Do
@@ -5335,3 +5338,48 @@ Next
 If end_msg = "" Then end_msg = "Script ended with no action taken, panels not updated, no case note created. No new panels were indicated and no income verification was entered to be budgeted."
 
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023 - CLove
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------7/26/2023
+'--Tab orders reviewed & confirmed----------------------------------------------7/26/2023
+'--Mandatory fields all present & Reviewed--------------------------------------7/26/2023
+'--All variables in dialog match mandatory fields-------------------------------7/26/2023					Nearly all information in dialog and CASE/NOTE are in arrays
+'Review dialog names for content and content fit in dialog----------------------7/26/2023					There are dialogs that are not yet functional because we started work on BUSI These likely need more work
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------7/26/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------7/26/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------7/26/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------7/26/2026	These NOTEs are complicated and I think this is all accurate, but there might be pieces missing
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------7/26/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------7/26/2023
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------7/26/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------7/26/2023					Manual Time is incremented
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------7/26/2023
+'--Script name reviewed---------------------------------------------------------7/26/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------7/26/2023
+'--comment Code-----------------------------------------------------------------7/26/2023
+'--Update Changelog for release/update------------------------------------------7/26/2023
+'--Remove testing message boxes-------------------------------------------------7/26/2023					Currently commented out for an easier testing run
+'--Remove testing code/unnecessary code-----------------------------------------7/26/2023					There is a lot of 'dead code' fore the unsupported functionality (BUSI/STWK)
+'--Review/update SharePoint instructions----------------------------------------7/27/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
