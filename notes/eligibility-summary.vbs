@@ -15490,6 +15490,7 @@ class emer_eligibility_detail
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
 				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End if
+			' MsgBox "elig_version_date - " & elig_version_date & vbCr & "approved_today - " & approved_today
 
 			if approved_today = True Then
 				EMReadScreen emer_program, 2, 4, 45
@@ -23258,14 +23259,19 @@ snap_elig_months_count = 0
 hc_elig_months_count = 0
 month_count = 0
 
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
-Call navigate_to_MAXIS_screen("STAT", "PROG")
-EMReadScreen prog_emer_appl_date, 8, 8, 33
-If prog_emer_appl_date = "__ __ __" Then prog_emer_appl_date = ""
-prog_emer_appl_date = replace(prog_emer_appl_date, " ", "/")
-Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
-EMReadScreen numb_EMER_versions, 1, 16, 40
+CM_plus_1 = CM_plus_1_mo & "/" & CM_plus_1_yr
+First_footer = first_footer_month & "/" & first_footer_year
+If First_footer <> CM_plus_1 Then
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	EMReadScreen prog_emer_appl_date, 8, 8, 33
+	If prog_emer_appl_date = "__ __ __" Then prog_emer_appl_date = ""
+	prog_emer_appl_date = replace(prog_emer_appl_date, " ", "/")
+	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
+	EMReadScreen numb_EMER_versions, 1, 16, 40
+	numb_EMER_versions = trim(numb_EMER_versions)
+End If
 
 const month_const 	= 0
 const er_revw_completed_const	= 1
@@ -23321,7 +23327,7 @@ const final_const				= 40
 Dim REPORTING_COMPLETE_ARRAY()
 ReDim REPORTING_COMPLETE_ARRAY(final_const, 0)
 
-If numb_EMER_versions <> " " Then
+If numb_EMER_versions <> "" Then
 	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
 	EMER_ELIG_APPROVAL.elig_footer_month = CM_mo
 	EMER_ELIG_APPROVAL.elig_footer_year = CM_yr
