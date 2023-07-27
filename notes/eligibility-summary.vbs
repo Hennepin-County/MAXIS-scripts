@@ -24449,7 +24449,7 @@ verifs_in_case_note = ""
 ' MsgBox "ineligible_approval_exists - " & ineligible_approval_exists
 If ineligible_approval_exists = True Then
 	Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-	too_old_date = DateAdd("D", -75, date)              'We don't need to read notes from before the CAF date
+	too_old_date = DateAdd("d", -75, date)              'We don't need to read notes from before the CAF date
 
 	note_row = 5
 	in_note_row = 4
@@ -28816,7 +28816,7 @@ If denials_found_on_pnd2 = True Then
 			If progs_denied_for_intv <> "" Then
 
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-				day_before_app = DateAdd("d", -1,pnd2_appl_date) 'will set the date one day prior to app date'
+				day_before_app = DateAdd("d", -1, pnd2_appl_date) 'will set the date one day prior to app date'
 
 				note_row = 5            'resetting the variables on the loop
 				note_date = ""
@@ -28910,7 +28910,7 @@ If denials_found_on_pnd2 = True Then
 			If progs_denied_for_intv <> "" Then
 
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-				day_before_app = DateAdd("d", -1,pnd2_2nd_appl_date) 'will set the date one day prior to app date'
+				day_before_app = DateAdd("d", -1, pnd2_2nd_appl_date) 'will set the date one day prior to app date'
 
 				note_row = 5            'resetting the variables on the loop
 				note_date = ""
