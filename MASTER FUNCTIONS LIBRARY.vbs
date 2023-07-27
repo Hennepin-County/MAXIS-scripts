@@ -5892,6 +5892,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "SNAP, "
         End If
 		If left(fs_status, 4) = "REIN" Then
+			fs_status = "REIN"
 			snap_case = TRUE
 			case_rein = TRUE
 		End If
@@ -5913,6 +5914,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "GRH, "
         ENd If
 		If left(grh_status, 4) = "REIN" Then
+			grh_status = "REIN"
 			grh_case = TRUE
 			case_rein = TRUE
 		End If
@@ -5937,6 +5939,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "MSA, "
         ENd If
 		If left(ms_status, 4) = "REIN" Then
+			ms_status = "REIN"
 			msa_case = TRUE
 			adult_cash_case = TRUE
 			case_rein = TRUE
@@ -5961,6 +5964,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "GA, "
         ENd If
 		If left(ga_status, 4) = "REIN" Then
+			ga_status = "REIN"
 			ga_case = TRUE
 			adult_cash_case = TRUE
 			case_rein = TRUE
@@ -5986,6 +5990,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "DWP, "
         ENd If
 		If left(dw_status, 4) = "REIN" Then
+			dw_status = "REIN"
 			dwp_case = TRUE
 			family_cash_case = TRUE
 			case_rein = TRUE
@@ -6011,6 +6016,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "MFIP, "
         ENd If
 		If left(mf_status, 4) = "REIN" Then
+			mf_status = "REIN"
 			mfip_case = TRUE
 			family_cash_case = TRUE
 			case_rein = TRUE
@@ -6075,6 +6081,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(ma_status, 4) = "REIN" Then
+			ma_status = "REIN"
 			ma_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6097,6 +6104,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qm_status, 4) = "REIN" Then
+			qm_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6118,6 +6126,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(sl_status, 4) = "REIN" Then
+			sl_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6139,6 +6148,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qi_status, 4) = "REIN" Then
+			qi_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6187,6 +6197,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "EGA, "
         ENd If
 		If left(ega_status, 4) = "REIN" Then
+			ega_status = "REIN"
 			emer_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6208,6 +6219,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "EA, "
 		ENd If
 		If left(ea_status, 4) = "REIN" Then
+			ea_status = "REIN"
 			emer_case = TRUE
 			case_rein = TRUE
 		End If
