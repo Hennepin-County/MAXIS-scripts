@@ -5593,7 +5593,7 @@ Function create_outlook_email(email_from, email_recip, email_recip_CC, email_rec
         instr(email_body, "<i>") OR _
         instr(email_body, "&emsp") OR _
         instr(email_body, "&ensp") OR _
-        instr(email_body, "href") Then 
+        instr(email_body, "href") Then
             objMail.HTMLBody = email_body
     End If
 
@@ -11733,12 +11733,12 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     testing_script_url = "C:\MAXIS-scripts\" & file_path
 					If file_branch <> "master" Then
 						run_locally =  False
-						testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+						script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/"
 					End If
                 Else
-                    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
-
+					script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/"
                 End If
+				testing_script_url = script_repository & file_path
                 Call run_from_GitHub(testing_script_url)
             End If
 
