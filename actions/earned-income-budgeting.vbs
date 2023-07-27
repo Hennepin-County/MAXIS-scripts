@@ -38,6 +38,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+' Call select_testing_file(selection_type, 	the_selection, 	file_path, 								file_branch, 								force_error_reporting, 	allow_option)
+Call select_testing_file("ALL", 			"", 			"actions/earned-income-budgeting.vbs", 	"earned-income-budgeting-changes-2023-Q1", 	True, 					False)
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
