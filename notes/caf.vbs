@@ -5522,18 +5522,27 @@ allow_SNAP_untrack = False
 allow_HC_untrack = True
 allow_EMER_untrack = False
 
+form_selection_options = "Select One:"
+form_selection_options = form_selection_options+chr(9)+"CAF (DHS-5223)"
+form_selection_options = form_selection_options+chr(9)+"HUF (DHS-8107)"
+form_selection_options = form_selection_options+chr(9)+"SNAP App for Srs (DHS-5223F)"
+form_selection_options = form_selection_options+chr(9)+"MNbenefits"
+form_selection_options = form_selection_options+chr(9)+"Combined AR for Certain Pops (DHS-3727)"
+form_selection_options = form_selection_options+chr(9)+"Renewal for People with MA LTC (DHS-2128)"
+form_selection_options = form_selection_options+chr(9)+"CAF Addendum (DHS-5223C)"
+
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 281, 135, "CAF Script Case number dialog"
+BeginDialog Dialog1, 0, 0, 300, 135, "CAF Script Case number dialog"
   EditBox 55, 80, 40, 15, MAXIS_case_number
-  DropListBox 10, 115, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 5, 115, 165, 45, form_selection_options, CAF_form
   ButtonGroup ButtonPressed
-    OkButton 170, 115, 50, 15
-    CancelButton 225, 115, 50, 15
+    OkButton 190, 115, 50, 15
+    CancelButton 245, 115, 50, 15
   Text 5, 5, 270, 20, "This script is used to enter additional details about all information used to make eligibility determinations. "
   Text 5, 30, 215, 10, "STAT Panels should all be updated PRIOR to running this script."
   Text 5, 45, 275, 25, "This script should NOT be used to document information about the Interview. The script is set up to be a summary about processing a CAF (or similar) form after the interview. The correct fields to capture interview details are not present in this script."
   Text 5, 85, 50, 10, "Case number:"
-  Text 10, 105, 90, 10, "Form Received in Agency:"
+  Text 5, 105, 90, 10, "Form Received in Agency:"
 EndDialog
 Do
 	DO
@@ -5716,6 +5725,13 @@ If vars_filled = False Then
 		END IF
 
 	Next
+
+	If CAF_form = "Renewal for People with MA LTC (DHS-2128)" and (the_process_for_cash = "Recertification" or the_process_for_snap = "Recertification") Then
+		form_2128_end_msg = "The script 'NOTES - CAF' is created to support CAF based processes, such as Applications and Recertifications for any programs listed on the CAF."
+		form_2128_end_msg = form_2128_end_msg & vbCr & vbCr & "We can use the DHS-2128 (Renewal for People Receiving Medical Assistance for Long Term Care) for recertifications for GRH/Housing Support as well as HC. We do not have direction on what to do when this form is received for a case with recertifications for other CAF Based Programs (Cash and SNAP)."
+		form_2128_end_msg = form_2128_end_msg & vbCr & vbCr & "At this time the CAF script cannot support this form for cases that have recertifications for Cash or SNAP as well."
+		call script_end_procedure_with_error_report(form_2128_end_msg)
+	End If
 
 	If unknown_cash_pending = True Then the_process_for_cash = "Application"
 	If ga_status = "PENDING" Then the_process_for_cash = "Application"
