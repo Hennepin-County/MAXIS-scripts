@@ -163,7 +163,7 @@ query_start_time = timer
 
 'dialog to restrict how many baskets the script is run on AND decide if the script will be run to change or just look up information
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 351, 75, "Workers to check EOMC"
+BeginDialog Dialog1, 0, 0, 351, 75, "Start Resolve HC EOMC in MMIS Run"
   EditBox 90, 10, 255, 15, list_of_workers
   CheckBox 10, 45, 140, 10, "Check here to have script update MMIS", change_checkbox
   CheckBox 10, 60, 130, 10, "Check here if it is after CAPITATION.", after_capitation_checkbox
@@ -402,7 +402,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = age_of_client*1
 	End If
 
-    Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
+    Call navigate_to_MAXIS_screen ("ELIG", "HC  ")						'Goes to ELIG HC
     APPROVAL_NEEDED = FALSE                                             'setting some booleans
     found_elig = FALSE
     client_found = FALSE
@@ -635,16 +635,6 @@ Call back_to_SELF
 Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
 'MsgBox "Pause"
 EMReadScreen check_in_MMIS, 18, 1, 7
-
-' Dialog1 = ""
-' BeginDialog Dialog1, 0, 0, 131, 80, "Dialog"
-'   ButtonGroup ButtonPressed
-'     OkButton 75, 60, 50, 15
-'   Text 15, 15, 65, 10, "What does it say?"
-'   Text 25, 35, 50, 10, check_in_MMIS
-' EndDialog
-'
-' dialog Dialog1
 
 If check_in_MMIS = "SESSION TERMINATED" Then
     EMWriteScreen "MW00",1, 2
@@ -1000,49 +990,6 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                     End If
                 Next
-
-                ' MsgBox "Changes Made"
-
-                '
-                ' 'END OF NEW CODE
-                '
-                ' If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
-                '     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
-                '         PF8
-                '     next
-                ' End If
-                '
-                ' 'determine where the SPAN is
-                ' If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
-                '     PF8                                                         'it is now on the next page
-                '     relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                ' Else                                                            'if it wasn't the last on the page
-                '     relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                ' End If
-                '
-                ' EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
-                ' EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
-                '
-                '
-                ' If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
-                '
-                '
-                '     If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
-                '         for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
-                '             PF8
-                '         next
-                '     End If
-                '
-                '     'determine where the SPAN is
-                '     If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
-                '         PF8                                                         'it is now on the next page
-                '         relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                '     Else                                                            'if it wasn't the last on the page
-                '         relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                '     End If
-                '
-                '     EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
-                '     EMWriteScreen "C", relg_row+1, 62
 
                 PF3                                     'save and check for warning message
                 EMReadScreen warn_msg, 7, 24, 2
@@ -1596,4 +1543,47 @@ Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@h
 
 script_end_procedure("EOMC Automation completed and worklists created. Email sent to QI. Script run is complete.")
 
-'TODO - we need closing project documentation.
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------7/28/2023
+'--Tab orders reviewed & confirmed----------------------------------------------7/28/2023
+'--Mandatory fields all present & Reviewed--------------------------------------7/28/2023
+'--All variables in dialog match mandatory fields-------------------------------7/28/2023
+'Review dialog names for content and content fit in dialog----------------------7/28/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------7/28/2023					This script has the cool - keep MMIS logged in functionality
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------7/28/2023
+'--Out-of-County handling reviewed----------------------------------------------N/A							Out of county not needed because cases are pulled from REPT/EOMC which is county specific
+'--script_end_procedures (w/ or w/o error messaging)----------------------------7/28/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------7/28/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------7/28/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------7/28/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------7/28/2023
+'--Denomination reviewed -------------------------------------------------------7/28/2023
+'--Script name reviewed---------------------------------------------------------7/28/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------7/28/2023					starts with 0 incrementor
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------7/28/2023
+'--comment Code-----------------------------------------------------------------7/28/2023
+'--Update Changelog for release/update------------------------------------------7N/A
+'--Remove testing message boxes-------------------------------------------------7/28/2023
+'--Remove testing code/unnecessary code-----------------------------------------7/28/2023
+'--Review/update SharePoint instructions----------------------------------------7/28/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------7/28/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------7/28/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------7/28/2023
+'--Complete misc. documentation (if applicable)---------------------------------7/28/2023
+'--Update project team/issue contact (if applicable)----------------------------7/28/2023
