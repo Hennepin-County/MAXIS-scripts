@@ -1590,20 +1590,10 @@ email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eli
 email_body = email_body & vbCr & "Please reach out to Tanya with questions about this assignment." & "<br>"
 email_body = email_body & vbCr & vbCr & "Thank you!"
 
-'TODO - this needs to be replaced with the function call when it is updated in the FuncLib
-'Setting up the Outlook application
-Set objOutlook = CreateObject("Outlook.Application")
-Set objMail = objOutlook.CreateItem(0)
 
-objMail.to = "HSPH.EWS.QI@hennepin.us"                        'email recipient
-objMail.cc = "Tanya.Payne@hennepin.us; HSPH.EWS.BlueZoneScripts@hennepin.us"                     'cc recipient
-objMail.Subject = email_subject                 'email subject
-objMail.HTMLBody = email_body                       'email body
+'function labels		  email_from, 							  email_recip, 				 email_recip_CC, 		    email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
+Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Tanya.Payne@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
 
-objMail.Send	                   'Sends the email
-Set objMail =   Nothing
-Set objOutlook = Nothing
-
-script_end_procedure("All Done")
+script_end_procedure("EOMC Automation completed and worklists created. Email sent to QI. Script run is complete.")
 
 'TODO - we need closing project documentation.
