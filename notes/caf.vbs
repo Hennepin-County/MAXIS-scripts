@@ -5889,6 +5889,18 @@ If vars_filled = False Then
 	End If
 
 	If CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked Then
+		'If this is a health care case, we can redirect to HC Evaluation since there is no CAF processing to complete.
+		If (ma_case = True or msp_case = True) and (CAF_form = "Combined AR for Certain Pops (DHS-3727)" or CAF_form = "Renewal for People with MA LTC (DHS-2128)") Then
+			hc_case_redirect_msg = "This case does not appear to be at application or receritification for any Cash or SNAP program."
+			hc_case_redirect_msg = hc_case_redirect_msg & vbCr & vbCr & "It does appear that this is a case with a health care program on it and the form (" & CAF_form & ") can be used to process health care."
+			hc_case_redirect_msg = hc_case_redirect_msg & vbCr & vbCr & "The script 'NOTES - Health Care Evaluation' (also the 'HC' button on the main power pad) can be used to document case information in regards to a health care program."
+			hc_case_redirect_msg = hc_case_redirect_msg & vbCr & vbCr & "The CAF script cannot continue, but we can run the Health Care Evaluation script for you now."
+			hc_case_redirect_msg = hc_case_redirect_msg & vbCr & vbCr & "Would you like to run 'NOTES - Health Care Evaluation'?"
+
+			redirect_to_hc_eval_msg = MsgBox(hc_case_redirect_msg, vbQuestion + vbYesNo, "Redirect to HC Eval?")
+			If redirect_to_hc_eval_msg = vbYes Then Call run_from_GitHub(script_repository & "notes/health-care-evaluation.vbs")
+			If redirect_to_hc_eval_msg = vbNo Then script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Declined redirection to HC Eval"
+		End If
 		end_early_mgs = "This script (NOTES - CAF) could not find a program that was pending or coded as requiring a review."
 		end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the programs being processed. The script checked REVW for the months " & CM_minus_1_mo & "/" & CM_minus_1_yr & " through " & CM_plus_1_mo & "/" & CM_plus_1_yr & " and checked CASE/CURR for pending programs."
 		end_early_mgs = end_early_mgs & vbCr & vbCr & "If a CAF (or similar form) has been received, but an ER is not due and no additional programs are requested, review the case to determine the next processing steps to take."
