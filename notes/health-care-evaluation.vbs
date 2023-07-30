@@ -3046,6 +3046,92 @@ End If
 
 'Add ex parte SQL connections and script
 If HC_form_name = "No Form - Ex Parte Determination" Then
+
+	Const inc_panel_name 	= 0
+	Const inc_ref_numb 		= 1
+	Const inc_inst_numb 	= 2
+	Const inc_type_code 	= 3
+	Const inc_type_info 	= 4
+
+	Const inc_verif 		= 20
+	Const inc_start 		= 21
+	Const inc_end 			= 22
+	Const inc_update_date 	= 23
+	Const inc_prosp_amt 	= 24
+	Const inc_retro_amt 	= 25
+
+	Const last_inc_const 	= 30
+
+	Dim INCOME_ARRAY()
+	ReDim INCOME_ARRAY(last_inc_const, 0)
+
+	Const memb_ref_numb_const 	= 0
+	Const memb_pmi_numb_const 	= 1
+	Const memb_ssn_const 		= 2
+	Const memb_ssn_dash_const	= 3
+	Const memb_age_const 		= 4
+	Const memb_name_const 		= 5
+	Const memb_active_hc_const	= 6
+	Const hc_prog_1				= 7
+	Const hc_type_1				= 8
+	Const hc_prog_2				= 9
+	Const hc_type_2				= 10
+	Const hc_prog_3				= 11
+	Const hc_type_3				= 12
+	Const memb_smi_numb_const	= 13
+
+	Const MEDI_expt_exists_const= 20
+	Const MEDI_update_date		= 21
+	Const MEDI_Part_A_begin		= 22
+	Const MEDI_Part_A_end		= 23
+	Const MEDI_Part_B_begin		= 24
+	Const MEDI_Part_B_end		= 25
+
+	Const FACI_exists_const 	= 30
+	Const Currently_in_FACI		= 31
+	Const FACI_name				= 32
+	Const FACI_date_in 			= 33
+	Const FACI_date_out 		= 34
+	Const FACI_type_code 		= 35
+	Const FACI_type_info 		= 36
+	Const FACI_vendor			= 37
+	Const FACI_Waiver_type_code = 38
+	Const FACI_Waiver_type_info = 39
+	Const FACI_FS_ELIG_YN		= 40
+	Const FACI_FS_Type_code		= 41
+	Const FACI_FS_Type_info		= 42
+	Const FACI_LTC_Inelig_reason_code = 43
+	Const FACI_LTC_Inelig_reason_info = 44
+	Const FACI_LTC_begin_date 	= 45
+	Const FACI_cnty_approval_yn = 46
+	Const FACI_approval_cnty	= 47
+
+	Const DISA_expt_exists_const= 50
+	Const DISA_begin_date 		= 51
+	Const DISA_end_date 		= 52
+	Const DISA_cert_begin_date	= 53
+	Const DISA_cert_end_date	= 54
+	Const DISA_HC_status_code 	= 55
+	Const DISA_HC_status_info 	= 56
+	Const DISA_waiver_code 		= 57
+	Const DISA_waiver_info 		= 58
+
+	Const PDED_exists_const 		= 70
+	Const PDED_PICKLE_exists		= 71
+	Const PDED_PICKLE_info			= 72
+	Const PDED_PICKLE_detail		= 73
+	Const PDED_PICKLE_thrshld_date	= 74
+	Const PDED_PICKLE_curr_RSDI		= 75
+	Const PDED_PICKLE_thrshld_RSDI	= 76
+	Const PDED_PICKLE_dsrgd_amt		= 77
+	Const PDED_DAC_exists 			= 78
+
+
+	Const memb_last_const 		= 90
+
+	Dim MEMBER_INFO_ARRAY()
+	ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
+
 	MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
 	MAXIS_footer_year = CM_plus_1_yr
 	SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
@@ -3091,890 +3177,659 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			ex_parte_phase = "Phase 1"
 		End If
 	Else
+		Call script_end_procedure("TRAINING Support not set up")
 		ex_parte_phase = "Phase 1"
 		review_month_from_SQL = #9/1/2023#
 		Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
 	End If
 	review_month_01 = er_month & "/" & er_year
 	review_month_02 = er_month & "/" & er_year
-	If ex_parte_phase = "Phase 2" Then script_end_procedure("This script does not currently support Ex Parte Phase 2 / Ex Parte Approvals.")
+	' If ex_parte_phase = "Phase 2" Then script_end_procedure("This script does not currently support Ex Parte Phase 2 / Ex Parte Approvals.")
 
 	If ex_parte_phase = "Phase 1" Then
+		start_of_prep_month = DateAdd("m", -4, review_month_from_SQL)
 
+		Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-		NO_HC_EXISTS = False
 
+		NO_HC_EXISTS = False
+		EMReadScreen current_case_pw, 4, 21, 14
+		If current_case_pw <> "X127" Then ex_parte_determination = "Case Transfered Out of County"
 		If ma_case = False and msp_case = False and unknown_hc_pending = False Then
 			NO_HC_EXISTS = True
+		ElseIf is_this_priv = True Then
+
 		Else
+
+			Call navigate_to_MAXIS_screen("STAT", "SUMM")
+			Call write_value_and_transmit("BGTX", 20, 71)
+			Call MAXIS_background_check
+
+			Call navigate_to_MAXIS_screen("ELIG", "HC  ")		'Navigate to ELIG/HC
+			'Here we start at the top of ELIG/HC and read each row to find HC information
+			hc_row = 8
+			Do
+				pers_type = ""		'blanking out variables so they don't carry over from loop to loop
+				std = ""
+				meth = ""
+				waiv = ""
+
+				'reading the main HC Elig information - member, program, status
+				EMReadScreen read_ref_numb, 2, hc_row, 3
+				EMReadScreen clt_hc_prog, 4, hc_row, 28
+				EMReadScreen hc_prog_status, 6, hc_row, 50
+				ref_row = hc_row
+				Do while read_ref_numb = "  "				'this will read for the reference number if there are multiple programs for a single member
+					ref_row = ref_row - 1
+					EMReadScreen read_ref_numb, 2, ref_row, 3
+				Loop
+
+				If hc_prog_status = "ACTIVE" Then			'If HC is currently active, we need to read more details about the program/eligibility
+					clt_hc_prog = trim(clt_hc_prog)			'formatting this to remove whitespace
+					If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then		'these are non-hc persons
+
+						Call write_value_and_transmit("X", hc_row, 26)									'opening the ELIG detail spans
+						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then		'If it is an MSP, we want to read the type only from a specific place
+							elig_msp_prog = clt_hc_prog
+							EMReadScreen pers_type, 2, 6, 56
+						Else																			'These are MA type programs (not MSP)
+							'Now we have to fund the current month in elig to get the current elig type
+							col = 19
+							Do
+								EMReadScreen span_month, 2, 6, col										'reading the month in ELIG
+								EMReadScreen span_year, 2, 6, col+3
+
+								'if the span month matchest current month plus 1, we are going to grab elig from that month
+								If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then
+									EMReadScreen pers_type, 2, 12, col - 2								'reading the ELIG TYPE
+									EMReadScreen std, 1, 12, col + 3
+									EMReadScreen meth, 1, 13, col + 2
+									EMReadScreen waiv, 1, 17, col + 2
+									Exit Do																'leaving once we've found the information for this elig
+								End If
+								col = col + 11			'this goes to the next column
+							Loop until col = 85			'This is off the page - if we hit this, we did NOT find the elig type in this elig result
+
+							'If we hit 85, we did not get the information. So we are going to read it from the last budget month (most current)
+							If col = 85 Then
+								EMReadScreen pers_type, 2, 12, 72										'reading the ELIG TYPE
+								EMReadScreen std, 1, 12, 77
+								EMReadScreen meth, 1, 13, 76
+								EMReadScreen waiv, 1, 17, 76
+							End If
+						End If
+						PF3			'leaving the elig detail information
+
+						'now we need to add the information we just read to the member array
+						memb_known = False										'default that the member know is false
+						For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)								'Looking at all the members known in the array
+							If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then	'if the member reference from ELIG matches the ARRAY, we are going to add more elig details
+								memb_known = True														'look we found a person
+								If MEMBER_INFO_ARRAY(hc_prog_1, known_membs) = "" Then				'finding which area of the array is blank to save the elig information there
+									MEMBER_INFO_ARRAY(hc_prog_1, known_membs) 		= clt_hc_prog
+									MEMBER_INFO_ARRAY(hc_type_1, known_membs) 		= pers_type
+								ElseIf MEMBER_INFO_ARRAY(hc_prog_2, known_membs) = "" Then
+									MEMBER_INFO_ARRAY(hc_prog_2, known_membs) 		= clt_hc_prog
+									MEMBER_INFO_ARRAY(hc_type_2, known_membs) 		= pers_type
+								ElseIf MEMBER_INFO_ARRAY(hc_prog_3, known_membs) = "" Then
+									MEMBER_INFO_ARRAY(hc_prog_3, known_membs) 		= clt_hc_prog
+									MEMBER_INFO_ARRAY(hc_type_3, known_membs) 		= pers_type
+								End If
+							End If
+						Next
+
+						'If this is an unknown member, and has not been added to the array already, we need to add it
+						If memb_known = False Then
+							ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
+
+							'setting personal information to the array
+							MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = read_ref_numb
+							MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+							MEMBER_INFO_ARRAY(hc_prog_1, memb_count) 		= trim(clt_hc_prog)
+							MEMBER_INFO_ARRAY(hc_type_1, memb_count) 		= trim(pers_type)
+
+							memb_count = memb_count + 1 	'incrementing the array counter up for the next loop
+						End If
+
+					End If
+				End If
+				hc_row = hc_row + 1												'now we go to the next row
+				EMReadScreen next_ref_numb, 2, hc_row, 3						'read the next HC information to find when we've reeached the end of the list
+				EMReadScreen next_maj_prog, 4, hc_row, 28
+			Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+			CALL back_to_SELF()													'going to STAT/MEMB - because there is misssing personal information for the members discovered in this way
+			Do
+				CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+				EMReadScreen memb_check, 4, 2, 48
+			Loop until memb_check = "MEMB"
+
+			at_least_one_hc_active = False										'this is a default to identify if HC is active on the case
+			For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
+				Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)		'navigate to the member for this instance of the array
+				EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
+				EMReadscreen first_name, 12, 6, 63
+				last_name = trim(replace(last_name, "_", "")) & " "
+				first_name = trim(replace(first_name, "_", "")) & " "
+				MEMBER_INFO_ARRAY(memb_name_const, known_membs) = first_name & " " & last_name
+				MEMBER_INFO_ARRAY(memb_active_hc_const, known_membs) = False
+				EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
+				PMI_numb = trim(PMI_numb)
+				MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
+				EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42							'catpturing the SSN
+				MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), " ", "")
+				MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), "_", "")
+				If MEMBER_INFO_ARRAY(hc_prog_1, known_membs) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, known_membs) = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
+				If MEMBER_INFO_ARRAY(hc_prog_2, known_membs) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, known_membs) = True
+				If MEMBER_INFO_ARRAY(hc_prog_3, known_membs) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, known_membs) = True
+
+
+			Next
+
 			persons_list = " "
 			CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 			Call write_value_and_transmit("01", 20, 76)
 			Do
-				EMReadScreen read_pmi, 8, 4, 46
-				read_pmi = trim(read_pmi)
-				read_pmi = right("00000000" & read_pmi, 8)
+				EMReadScreen cur_memb_ref_numb, 2, 4, 33
+				use_memb_ref = ""
+				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
+					If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = cur_memb_ref_numb Then use_memb_ref = known_membs
+				Next
+				If use_memb_ref = "" Then
+					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+					MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = cur_memb_ref_numb
+					use_memb_ref = memb_count
+					memb_count = memb_count + 1
+				End If
 
-				persons_list = persons_list & read_pmi & " "
+				EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
+				EMReadscreen first_name, 12, 6, 63
+				last_name = trim(replace(last_name, "_", "")) & " "
+				first_name = trim(replace(first_name, "_", "")) & " "
+				MEMBER_INFO_ARRAY(memb_name_const, use_memb_ref) = first_name & " " & last_name
+				MEMBER_INFO_ARRAY(memb_active_hc_const, use_memb_ref) = False
+				EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
+				PMI_numb = trim(PMI_numb)
+				MEMBER_INFO_ARRAY(memb_pmi_numb_const, use_memb_ref) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
+				EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, use_memb_ref), 11, 7, 42							'catpturing the SSN
+				MEMBER_INFO_ARRAY(memb_ssn_const, use_memb_ref) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, use_memb_ref), " ", "")
+				MEMBER_INFO_ARRAY(memb_ssn_const, use_memb_ref) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, use_memb_ref), "_", "")
+				If MEMBER_INFO_ARRAY(hc_prog_1, use_memb_ref) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, use_memb_ref) = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
+				If MEMBER_INFO_ARRAY(hc_prog_2, use_memb_ref) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, use_memb_ref) = True
+				If MEMBER_INFO_ARRAY(hc_prog_3, use_memb_ref) <> "" Then MEMBER_INFO_ARRAY(memb_active_hc_const, use_memb_ref) = True
+
 
 				transmit
 				EMReadScreen MEMB_end_check, 13, 24, 2
 			LOOP Until MEMB_end_check = "ENTER A VALID"
 
-			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
+			all_update_dates_are_current = True
 
-			'Creating objects for Access
-			Set objELIGConnection = CreateObject("ADODB.Connection")
-			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+			income_count = 0
+			Call navigate_to_MAXIS_screen("STAT", "UNEA")
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76
+				Call write_value_and_transmit("01", 20, 79)
 
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objELIGRecordSet.Open objELIGSQL, objELIGConnection
+				EMReadScreen version_numb, 1, 2, 78
+				If version_numb <> "0" Then
+					Do
+						ReDim Preserve INCOME_ARRAY(last_inc_const, income_count)
+						INCOME_ARRAY(inc_panel_name, income_count) = "UNEA"
+						INCOME_ARRAY(inc_ref_numb, income_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 
-			Do While NOT objELIGRecordSet.Eof
-				If InStr(persons_list, objELIGRecordSet("PMINumber")) <> 0 Then
+						EMReadScreen INCOME_ARRAY(inc_inst_numb, 	income_count), 1, 2, 73
+						EMReadScreen INCOME_ARRAY(inc_type_code, 	income_count), 2, 5, 37
+						EMReadScreen INCOME_ARRAY(inc_type_info, 	income_count), 18, 5, 40
+						EMReadScreen INCOME_ARRAY(inc_verif, 		income_count), 1, 5, 65
+						EMReadScreen INCOME_ARRAY(inc_start, 		income_count), 8, 7, 37
+						EMReadScreen INCOME_ARRAY(inc_end, 			income_count), 8, 7, 68
+						EMReadScreen INCOME_ARRAY(inc_update_date, 	income_count), 8, 21, 55
+						EMReadScreen INCOME_ARRAY(inc_retro_amt, 	income_count), 8, 18, 39
+						EMReadScreen INCOME_ARRAY(inc_prosp_amt, 	income_count), 8, 18, 68
 
-					If name_01 = "" Then
-						name_01 = trim(objELIGRecordSet("Name"))
-						PMI_01 = trim(objELIGRecordSet("PMINumber"))
+						INCOME_ARRAY(inc_inst_numb, income_count) = "0" & INCOME_ARRAY(inc_inst_numb, income_count)
+						INCOME_ARRAY(inc_type_info, income_count) = trim(INCOME_ARRAY(inc_type_info, income_count))
+						INCOME_ARRAY(inc_retro_amt, income_count) = trim(INCOME_ARRAY(inc_retro_amt, income_count))
+						INCOME_ARRAY(inc_prosp_amt, income_count) = trim(INCOME_ARRAY(inc_prosp_amt, income_count))
+						If INCOME_ARRAY(inc_prosp_amt, income_count) = "" Then INCOME_ARRAY(inc_prosp_amt, income_count) = "0.00"
 
-						If objELIGRecordSet("MajorProgram") = "MA" Then
-							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						If INCOME_ARRAY(inc_start, income_count) = "__ __ __" Then INCOME_ARRAY(inc_start, income_count) = ""
+						INCOME_ARRAY(inc_start, income_count) = replace(INCOME_ARRAY(inc_start, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_end, income_count) = "__ __ __" Then INCOME_ARRAY(inc_end, income_count) = ""
+						INCOME_ARRAY(inc_end, income_count) = replace(INCOME_ARRAY(inc_end, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_update_date, income_count) = "" Then INCOME_ARRAY(inc_update_date, income_count) = ""
+						INCOME_ARRAY(inc_update_date, income_count) = replace(INCOME_ARRAY(inc_update_date, income_count), " ", "/")
+
+						If IsDate(INCOME_ARRAY(inc_update_date, income_count)) = False Then
+							all_update_dates_are_current = False
 						Else
-							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+							If DateDiff("d", INCOME_ARRAY(inc_update_date, income_count), start_of_prep_month) > 0 Then all_update_dates_are_current = False
 						End If
-					ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-						If objELIGRecordSet("MajorProgram") = "MA" Then
-							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-						Else
-							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-						End If
-					ElseIf name_02 = "" Then
-						name_02 = trim(objELIGRecordSet("Name"))
-						PMI_02 = trim(objELIGRecordSet("PMINumber"))
-
-						If objELIGRecordSet("MajorProgram") = "MA" Then
-							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-						Else
-							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-						End If
-					ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-						If objELIGRecordSet("MajorProgram") = "MA" Then
-							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-						Else
-							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-						End If
-					End If
+						income_count = income_count + 1
+						transmit
+						Emreadscreen edit_check, 7, 24, 2
+					LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 				End If
-				objELIGRecordSet.MoveNext
-			Loop
+			Next
 
-			objELIGRecordSet.Close
-			objELIGConnection.Close
-			Set objELIGRecordSet=nothing
-			Set objELIGConnection=nothing
+			Call navigate_to_MAXIS_screen("STAT", "JOBS")
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76
+				Call write_value_and_transmit("01", 20, 79)
 
-			'Adding functionality to determine the reference number for each person on the case
-			'TO DO - note, found a case where there were multiple people on case but only 1 person showed up on MEMB so may need to think about these cases
-			If PMI_01 = "" and PMI_02 = "" Then
-				Call navigate_to_MAXIS_screen("ELIG", "HC  ")
-				hc_row = 8
-				Do
-					pers_type = ""
-					std = ""
-					meth = ""
-					' elig_result = ""
-					' results_created = ""
-					waiv = ""
-					EMReadScreen read_ref_numb, 2, hc_row, 3
-					EMReadScreen clt_hc_prog, 4, hc_row, 28
-					clt_hc_prog = trim(clt_hc_prog)
-					If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+				EMReadScreen version_numb, 1, 2, 78
+				If version_numb <> "0" Then
+					Do
+						ReDim Preserve INCOME_ARRAY(last_inc_const, income_count)
+						INCOME_ARRAY(inc_panel_name, income_count) = "JOBS"
+						INCOME_ARRAY(inc_ref_numb, income_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 
+						EMReadScreen INCOME_ARRAY(inc_inst_numb, 	income_count), 1, 2, 73
+						EMReadScreen INCOME_ARRAY(inc_type_code, 	income_count), 1, 5, 34
+						EMReadScreen INCOME_ARRAY(inc_type_info, 	income_count), 13, 5, 36
+						EMReadScreen INCOME_ARRAY(inc_verif, 		income_count), 1, 6, 34
+						EMReadScreen INCOME_ARRAY(inc_start, 		income_count), 8, 9, 35
+						EMReadScreen INCOME_ARRAY(inc_end, 			income_count), 8, 9, 49
+						EMReadScreen INCOME_ARRAY(inc_update_date, 	income_count), 8, 21, 55
+						EMReadScreen INCOME_ARRAY(inc_retro_amt, 	income_count), 8, 17, 38
+						EMReadScreen INCOME_ARRAY(inc_prosp_amt, 	income_count), 8, 17, 67
 
-						Call write_value_and_transmit("X", hc_row, 26)
-						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-							elig_msp_prog = clt_hc_prog
-							EMReadScreen pers_type, 2, 6, 56
+						INCOME_ARRAY(inc_inst_numb, income_count) = "0" & INCOME_ARRAY(inc_inst_numb, income_count)
+						INCOME_ARRAY(inc_type_info, income_count) = trim(INCOME_ARRAY(inc_type_info, 	income_count))
+						INCOME_ARRAY(inc_retro_amt, income_count) = trim(INCOME_ARRAY(inc_retro_amt, income_count))
+						INCOME_ARRAY(inc_prosp_amt, income_count) = trim(INCOME_ARRAY(inc_prosp_amt, income_count))
+						If INCOME_ARRAY(inc_prosp_amt, income_count) = "" Then INCOME_ARRAY(inc_prosp_amt, income_count) = "0.00"
+
+						If INCOME_ARRAY(inc_start, income_count) = "__ __ __" Then INCOME_ARRAY(inc_start, income_count) = ""
+						INCOME_ARRAY(inc_start, income_count) = replace(INCOME_ARRAY(inc_start, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_end, income_count) = "__ __ __" Then INCOME_ARRAY(inc_end, income_count) = ""
+						INCOME_ARRAY(inc_end, income_count) = replace(INCOME_ARRAY(inc_end, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_update_date, income_count) = "" Then INCOME_ARRAY(inc_update_date, income_count) = ""
+						INCOME_ARRAY(inc_update_date, income_count) = replace(INCOME_ARRAY(inc_update_date, income_count), " ", "/")
+
+						If IsDate(INCOME_ARRAY(inc_update_date, income_count)) = False Then
+							all_update_dates_are_current = False
 						Else
-							col = 19
-							Do									'Finding the current month in elig to get the current elig type
-								EMReadScreen span_month, 2, 6, col
-								EMReadScreen span_year, 2, 6, col+3
-
-								If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
-									EMReadScreen pers_type, 2, 12, col - 2
-									EMReadScreen std, 1, 12, col + 3
-									EMReadScreen meth, 1, 13, col + 2
-									EMReadScreen waiv, 1, 17, col + 2
-									Exit Do
-								End If
-								col = col + 11
-							Loop until col = 85
-
+							If DateDiff("d", INCOME_ARRAY(inc_update_date, income_count), start_of_prep_month) > 0 Then all_update_dates_are_current = False
 						End If
+						income_count = income_count + 1
+						transmit
+						Emreadscreen edit_check, 7, 24, 2
+					LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+				End If
+			Next
+
+			Call navigate_to_MAXIS_screen("STAT", "BUSI")
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76
+				Call write_value_and_transmit("01", 20, 79)
+
+				EMReadScreen version_numb, 1, 2, 78
+				If version_numb <> "0" Then
+					Do
+						ReDim Preserve INCOME_ARRAY(last_inc_const, income_count)
+						INCOME_ARRAY(inc_panel_name, income_count) = "BUSI"
+						INCOME_ARRAY(inc_ref_numb, income_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+
+						EMReadScreen INCOME_ARRAY(inc_inst_numb, 	income_count), 1, 2, 73
+						EMReadScreen INCOME_ARRAY(inc_type_code, 	income_count), 2, 5, 37
+						EMReadScreen INCOME_ARRAY(inc_start, 		income_count), 8, 5, 55
+						EMReadScreen INCOME_ARRAY(inc_end, 			income_count), 8, 5, 72
+						EMReadScreen INCOME_ARRAY(inc_update_date, 	income_count), 8, 21, 55
+						EMReadScreen INCOME_ARRAY(inc_prosp_amt, 	income_count), 8, 12, 69
+
+						Call write_value_and_transmit("X", 6, 26)
+						EMReadScreen INCOME_ARRAY(inc_verif, income_count), 1, 13, 73
 						PF3
 
-						If person_01_ref_number = "" Then
-							person_01_ref_number = read_ref_numb
-						ElseIf person_02_ref_number = "" Then
-							person_02_ref_number = read_ref_numb
+						INCOME_ARRAY(inc_inst_numb, income_count) = "0" & INCOME_ARRAY(inc_inst_numb, income_count)
+						INCOME_ARRAY(inc_prosp_amt, income_count) = trim(INCOME_ARRAY(inc_prosp_amt, income_count))
+						If INCOME_ARRAY(inc_prosp_amt, income_count) = "" Then INCOME_ARRAY(inc_prosp_amt, income_count) = "0.00"
+
+						If INCOME_ARRAY(inc_type_code, income_count) = "01" Then INCOME_ARRAY(inc_type_info, income_count) = "Farming"
+						If INCOME_ARRAY(inc_type_code, income_count) = "02" Then INCOME_ARRAY(inc_type_info, income_count) = "Real Estate"
+						If INCOME_ARRAY(inc_type_code, income_count) = "03" Then INCOME_ARRAY(inc_type_info, income_count) = "Home Product Sales"
+						If INCOME_ARRAY(inc_type_code, income_count) = "04" Then INCOME_ARRAY(inc_type_info, income_count) = "Other Sales"
+						If INCOME_ARRAY(inc_type_code, income_count) = "05" Then INCOME_ARRAY(inc_type_info, income_count) = "Personal Services"
+						If INCOME_ARRAY(inc_type_code, income_count) = "06" Then INCOME_ARRAY(inc_type_info, income_count) = "Paper Route"
+						If INCOME_ARRAY(inc_type_code, income_count) = "07" Then INCOME_ARRAY(inc_type_info, income_count) = "In Home Daycare"
+						If INCOME_ARRAY(inc_type_code, income_count) = "08" Then INCOME_ARRAY(inc_type_info, income_count) = "Rental Income"
+						If INCOME_ARRAY(inc_type_code, income_count) = "09" Then INCOME_ARRAY(inc_type_info, income_count) = "Other Self Employment"
+
+						If INCOME_ARRAY(inc_start, income_count) = "__ __ __" Then INCOME_ARRAY(inc_start, income_count) = ""
+						INCOME_ARRAY(inc_start, income_count) = replace(INCOME_ARRAY(inc_start, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_end, income_count) = "__ __ __" Then INCOME_ARRAY(inc_end, income_count) = ""
+						INCOME_ARRAY(inc_end, income_count) = replace(INCOME_ARRAY(inc_end, income_count), " ", "/")
+
+						If INCOME_ARRAY(inc_update_date, income_count) = "" Then INCOME_ARRAY(inc_update_date, income_count) = ""
+						INCOME_ARRAY(inc_update_date, income_count) = replace(INCOME_ARRAY(inc_update_date, income_count), " ", "/")
+
+						If IsDate(INCOME_ARRAY(inc_update_date, income_count)) = False Then
+							all_update_dates_are_current = False
+						Else
+							If DateDiff("d", INCOME_ARRAY(inc_update_date, income_count), start_of_prep_month) > 0 Then all_update_dates_are_current = False
 						End If
-
-
-						If person_01_ref_number = read_ref_numb Then
-							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-								MAXIS_msp_prog_01 = clt_hc_prog
-								MAXIS_msp_basis_01 = pers_type
-							Else
-								MAXIS_MA_basis_01 = pers_type
-							End If
-						ElseIf person_02_ref_number = read_ref_numb Then
-							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-								MAXIS_msp_prog_02 = clt_hc_prog
-								MAXIS_msp_basis_02 = pers_type
-							Else
-								MAXIS_MA_basis_02 = pers_type
-							End If
-						End If
-					End If
-					hc_row = hc_row + 1
-					EMReadScreen next_ref_numb, 2, hc_row, 3
-					EMReadScreen next_maj_prog, 4, hc_row, 28
-				Loop until next_ref_numb = "  " and next_maj_prog = "    "
-
-				CALL back_to_SELF()
-				CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-				Call write_value_and_transmit("01", 20, 76)
-				Do
-					EMReadScreen read_ref_number, 2, 4, 33
-					EMReadscreen last_name, 25, 6, 30
-					EMReadscreen first_name, 12, 6, 63
-					last_name = trim(replace(last_name, "_", "")) & " "
-					first_name = trim(replace(first_name, "_", "")) & " "
-					If read_ref_number = person_01_ref_number Then
-						EMReadScreen PMI_01, 8, 4, 46
-						PMI_01 = trim(PMI_01)
-						PMI_01 = right("00000000" & PMI_01, 8)
-						name_01 = first_name & " " & last_name
-					End If
-					If read_ref_number = person_02_ref_number Then
-						EMReadScreen PMI_02, 8, 4, 46
-						PMI_02 = trim(PMI_02)
-						PMI_02 = right("00000000" & PMI_02, 8)
-						name_02 = first_name & " " & last_name
-					End If
-					transmit
-					EMReadScreen MEMB_end_check, 13, 24, 2
-				LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
-			Else
-				'Find reference numbers if two people on the case
-				If PMI_02 <> "" Then
-					CALL back_to_SELF()
-					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-					Call write_value_and_transmit("01", 20, 76)
-					person_01_ref_number = ""
-					person_02_ref_number = ""
-
-
-					Do
-						EMReadScreen check_PMI, 8, 4, 46
-						EMReadScreen check_ref_number, 2, 4, 33
-						check_PMI = trim(check_PMI)
-						check_PMI_full = right("00000000" & check_PMI, 8)
-						If check_PMI_full = PMI_01 Then person_01_ref_number = check_ref_number
-						If check_PMI_full = PMI_02 Then person_02_ref_number = check_ref_number
-						EMReadScreen MEMB_end_check, 13, 24, 2
+						income_count = income_count + 1
 						transmit
-
-						If check_ref_number = "01" Then
-							If person_02_ref_number = check_ref_number Then
-								hold_01_PMI = PMI_01
-								hold_01_name = name_01
-								hold_01_MA_basis = MAXIS_MA_basis_01
-								hold_msp_prog = MAXIS_msp_prog_01
-								hold_msp_basis = MAXIS_msp_basis_01
-
-								PMI_01 = PMI_02
-								name_01 = name_02
-								MAXIS_MA_basis_01 = MAXIS_MA_basis_02
-								MAXIS_msp_prog_01 = MAXIS_msp_prog_02
-								MAXIS_msp_basis_01 = MAXIS_msp_basis_02
-								person_01_ref_number = check_ref_number
-
-								PMI_02 = hold_01_PMI
-								name_02 = hold_01_name
-								MAXIS_MA_basis_02 = hold_01_MA_basis
-								MAXIS_msp_prog_02 = hold_msp_prog
-								MAXIS_msp_basis_02 = hold_msp_basis
-								person_02_ref_number = ""
-							End If
-						End If
-					LOOP Until person_01_ref_number <> "" AND (person_02_ref_number <> "" OR MEMB_end_check = "ENTER A VALID")
+						Emreadscreen edit_check, 7, 24, 2
+					LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 				End If
-
-				'Find reference numbers if only one person on the case
-				If PMI_02 = "" Then
-					CALL back_to_SELF()
-					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-					Call write_value_and_transmit("01", 20, 76)
-					person_01_ref_number = ""
-
-					Do
-						EMReadScreen check_PMI, 8, 4, 46
-						check_PMI = trim(check_PMI)
-						check_PMI_full = right("00000000" & check_PMI, 8)
-						If check_PMI_full = PMI_01 Then EMReadScreen person_01_ref_number, 2, 4, 33
-						transmit
-					LOOP Until person_01_ref_number <> ""
-				End If
-			End If
-			If PMI_02 <> "" and person_02_ref_number = "" Then
-				PMI_02 = ""
-				name_02 = ""
-			End If
-
-
-			JOBS_01 = "No"
-			JOBS_01_detail = ""
-
-			BUSI_01 = "No"
-			BUSI_01_detail = ""
-
-
-			JOBS_02 = "No"
-			JOBS_02_detail = ""
-
-			BUSI_02 = "No"
-			BUSI_02_detail = ""
-
-			objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
-
-			'Creating objects for Access
-			Set objIncomeConnection = CreateObject("ADODB.Connection")
-			Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-			Do While NOT objIncomeRecordSet.Eof
-				panel_name_from_SQL = objIncomeRecordSet("IncExpTypeCode")
-				income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
-				prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
-				tpqy_net_amt = objIncomeRecordSet("NetAmt")
-				tpqy_gross_amt = objIncomeRecordSet("GrossAmt")
-				income_description_from_SQL = objIncomeRecordSet("Description")
-				If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
-					If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_01 = objIncomeRecordSet("QURY_Sent")
-					If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_01 = objIncomeRecordSet("TPQY_Response")
-					sent_date_01 = sent_date_01 & ""
-					return_date_01 = return_date_01 & ""
-					' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-					income_to_use = ""
-					If tpqy_gross_amt <> "" Then income_to_use = tpqy_gross_amt
-					If tpqy_net_amt <> "" Then income_to_use = tpqy_net_amt
-					If income_to_use = "" Then income_to_use = prosp_amt_from_SQL
-
-					If income_type_code_from_SQL = "01" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-					If income_type_code_from_SQL = "02" Then bndx_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-					If income_type_code_from_SQL = "03" Then sdxs_amount_01 = income_description_from_SQL & " - $ " & income_to_use
-					If panel_name_from_SQL = "JOBS" Then
-						JOBS_01 = "Yes"
-						JOBS_01_detail = JOBS_01_detail & "JOBS - Prosp Amt: $ " & income_to_use & ", "
-					End If
-					If panel_name_from_SQL = "BUSI" Then
-						BUSI_01 = "Yes"
-						BUSI_01_detail = BUSI_01_detail & "BUSI - Prosp Amt: $ " & income_to_use & ", "
-					End If
-					If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_01 = other_UNEA_types_01 & " " & income_type_code_from_SQL
-
-				End If
-
-				If trim(objIncomeRecordSet("PersonID")) = PMI_02 Then
-					If IsDate(objIncomeRecordSet("QURY_Sent")) = True Then sent_date_02 = objIncomeRecordSet("QURY_Sent")
-					If IsDate(objIncomeRecordSet("TPQY_Response")) = True Then return_date_02 = objIncomeRecordSet("TPQY_Response")
-					sent_date_02 = sent_date_02 & ""
-					return_date_02 = return_date_02 & ""
-					' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
-					If income_type_code_from_SQL = "01" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-					If income_type_code_from_SQL = "02" Then bndx_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-					If income_type_code_from_SQL = "03" Then sdxs_amount_02 = income_description_from_SQL & " - $ " & prosp_amt_from_SQL
-					If panel_name_from_SQL = "JOBS" Then
-						JOBS_02 = "Yes"
-						JOBS_02_detail = JOBS_02_detail & "JOBS - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
-					End If
-					If panel_name_from_SQL = "BUSI" Then
-						BUSI_02 = "Yes"
-						BUSI_02_detail = BUSI_02_detail & "BUSI - Prosp Amt: $ " & prosp_amt_from_SQL & ", "
-					End If
-					If income_type_code_from_SQL <> "01" AND income_type_code_from_SQL <> "02" AND income_type_code_from_SQL <> "03" Then other_UNEA_types_02 = other_UNEA_types_02 & " " & income_type_code_from_SQL
-				End If
-
-				objIncomeRecordSet.MoveNext
-			Loop
-
-			objIncomeRecordSet.Close
-			objIncomeConnection.Close
-			Set objIncomeRecordSet=nothing
-			Set objIncomeConnection=nothing
-
-			JOBS_01_detail = trim(BUSI_02_detail)
-			BUSI_01_detail = trim(BUSI_02_detail)
-			JOBS_02_detail = trim(BUSI_02_detail)
-			BUSI_02_detail = trim(BUSI_02_detail)
-			If right(JOBS_01_detail, 1) = "," Then JOBS_01_detail = left(JOBS_01_detail, len(JOBS_01_detail)-1)
-			If right(BUSI_01_detail, 1) = "," Then BUSI_01_detail = left(BUSI_01_detail, len(BUSI_01_detail)-1)
-			If right(JOBS_02_detail, 1) = "," Then JOBS_02_detail = left(JOBS_02_detail, len(JOBS_02_detail)-1)
-			If right(BUSI_02_detail, 1) = "," Then BUSI_02_detail = left(BUSI_02_detail, len(BUSI_02_detail)-1)
-
-			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-			EMReadScreen current_case_pw, 4, 21, 14
-			If current_case_pw <> "X127" Then ex_parte_determination = "Case Transfered Out of County"
+			Next
 
 			'Navigate to MEDI panel for each reference number to determine if MEDI exists and Part A and Part B details
+			Call navigate_to_MAXIS_screen("STAT", "MEDI")
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76)
+					EMReadScreen version_numb, 1, 2, 78
+					If version_numb = "0" Then MEMBER_INFO_ARRAY(MEDI_expt_exists_const, each_memb) = False
+					If version_numb <> "0" Then
+						MEMBER_INFO_ARRAY(MEDI_expt_exists_const, each_memb) = True
+						EMReadScreen MEMBER_INFO_ARRAY(MEDI_update_date, each_memb), 8, 21, 55
+						If MEMBER_INFO_ARRAY(MEDI_update_date, each_memb) = "        " Then MEMBER_INFO_ARRAY(MEDI_update_date, each_memb) = ""
+						MEMBER_INFO_ARRAY(MEDI_update_date, each_memb) = replace(MEMBER_INFO_ARRAY(MEDI_update_date, each_memb), " ", "/")
 
-			'Determine if MEDI exists for Person 1
-			CALL back_to_SELF()
-			CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-			EMWriteScreen person_01_ref_number, 20, 76
-			transmit
-			EMReadScreen check_if_MEDI_exists, 2, 2, 78
-			If trim(check_if_MEDI_exists) = 0 Then MEDI_info_01 = "MEDI Does Not Exist"
-			If trim(check_if_MEDI_exists) <> 0 Then
-				MEDI_info_01 = "MEDI Exists"
+						Do
+							PF20
+							EMReadScreen end_of_list, 9, 24, 14
+						Loop Until end_of_list = "LAST PAGE"
+						row = 17
+						Do
+							EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
+							begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
+							If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
 
+							EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
+							end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
+							If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+							' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
+							If end_dt_a <> "" or begin_dt_a <> "" Then
+								MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) = begin_dt_a
+								MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) = end_dt_a
+								Exit Do
+							End If
 
-				Do
-					PF20
-					EMReadScreen end_of_list, 9, 24, 14
-					' MsgBox end_of_list & " - 1"
-				Loop Until end_of_list = "LAST PAGE"
-				row = 17
-				Do
-					EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
-					begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
-					If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
-
-					EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
-					end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
-					If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
-					' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
-					If end_dt_a <> "" or begin_dt_a <> "" Then
-						If begin_dt_a <> "" Then MEDI_part_a_01 = "Start: " & begin_dt_a
-						If end_dt_a <> "" Then MEDI_part_a_01 = MEDI_part_a_01 & ", End: " & end_dt_a
-						If left(MEDI_part_a_01, 1) = "," Then MEDI_part_a_01 = right(MEDI_part_a_01, len(MEDI_part_a_01)-2)
-						Exit Do
-					End If
-
-					row = row - 1
-					' MsgBox "PART A row - " & rowDosent_date_01
-					If row = 14 Then
-						PF19
-						EMReadScreen begining_of_list, 10, 24, 14
-						' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
-						If begining_of_list = "FIRST PAGE" Then
-							Exit Do
-						Else
-							row = 17
-						End If
-					End If
-				Loop
-				Do
-					PF19
-					EMReadScreen begining_of_list, 10, 24, 14
-					' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
-				Loop Until begining_of_list = "FIRST PAGE"
-
-				Do
-					PF20
-					EMReadScreen end_of_list, 9, 24, 14
-					' MsgBox end_of_list & " - 2"
-				Loop Until end_of_list = "LAST PAGE"
-				row = 17
-				Do
-					EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
-					begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
-					If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
-
-					EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
-					end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
-					If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
-
-					' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
-					If end_dt_b <> "" or begin_dt_b <> "" Then
-						If begin_dt_b <> "" Then MEDI_part_b_01 = "Start: " & begin_dt_b
-						If end_dt_b <> "" Then MEDI_part_b_01 = MEDI_part_b_01 & ", End: " & end_dt_b
-						If left(MEDI_part_b_01, 1) = "," Then MEDI_part_b_01 = right(MEDI_part_b_01, len(MEDI_part_b_01)-2)
-						Exit Do
-					End If
-
-					row = row - 1
-					' MsgBox "PART B row - " & row
-					If row = 14 Then
-						PF19
-						EMReadScreen begining_of_list, 10, 24, 14
-						' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
-						If begining_of_list = "FIRST PAGE" Then
-							Exit Do
-						Else
-							row = 17
-						End If
-					End If
-				Loop
-
-			End If
-			'TO DO - Add functionality to read MEDI info from MEDI panel
-				'Check Part A Info
-			'     row = 17
-			'         Do
-			'         row = row - 1
-			'             Do
-			'                 PF20
-			'                 EMReadScreen last_page_check, 16, 24, 2
-			'             Loop Until last_page_check = "THIS IS THE LAST PAGE"
-
-			'         Loop Until row = 15
-			' End If
-
-			'Determine MEDI for Person 2
-			If person_02_ref_number <> "" Then
-				CALL back_to_SELF()
-				CALL navigate_to_MAXIS_screen("STAT", "MEDI")
-				EMWriteScreen person_02_ref_number, 20, 76
-				transmit
-				EMReadScreen check_if_MEDI_exists, 2, 2, 78
-				If trim(check_if_MEDI_exists) = 0 Then MEDI_info_02 = "MEDI Does Not Exist"
-				If trim(check_if_MEDI_exists) <> 0 Then
-					MEDI_info_02 = "MEDI Exists"
-					Do
-						PF20
-						EMReadScreen end_of_list, 9, 24, 14
-						' MsgBox end_of_list & " - 1"
-					Loop Until end_of_list = "LAST PAGE"
-					row = 17
-					Do
-						EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
-						begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
-						If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
-
-						EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
-						end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
-						If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
-						' MsgBox "end_dt_a - " & end_dt_a & vbCr & "begin_dt_a - " & begin_dt_a
-						If end_dt_a <> "" or begin_dt_a <> "" Then
-							If begin_dt_a <> "" Then MEDI_part_a_02 = "Start: " & begin_dt_a
-							If end_dt_a <> "" Then MEDI_part_a_02 = MEDI_part_a_02 & ", End: " & end_dt_a
-							If left(MEDI_part_a_02, 1) = "," Then MEDI_part_a_02 = right(MEDI_part_a_02, len(MEDI_part_a_02)-2)
-							Exit Do
-						End If
-
-						row = row - 1
-						' MsgBox "PART A row - " & rowDosent_date_01
-						If row = 14 Then
+							row = row - 1
+							' MsgBox "PART A row - " & rowDosent_date_01
+							If row = 14 Then
+								PF19
+								EMReadScreen begining_of_list, 10, 24, 14
+								' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
+								If begining_of_list = "FIRST PAGE" Then
+									Exit Do
+								Else
+									row = 17
+								End If
+							End If
+						Loop
+						Do
 							PF19
 							EMReadScreen begining_of_list, 10, 24, 14
-							' MsgBox "begining_of_list - " & begining_of_list & vbcr & "1"
-							If begining_of_list = "FIRST PAGE" Then
+							' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
+						Loop Until begining_of_list = "FIRST PAGE"
+
+						Do
+							PF20
+							EMReadScreen end_of_list, 9, 24, 14
+							' MsgBox end_of_list & " - 2"
+						Loop Until end_of_list = "LAST PAGE"
+						row = 17
+						Do
+							EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
+							begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
+							If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
+
+							EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
+							end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
+							If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+
+							' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
+							If end_dt_b <> "" or begin_dt_b <> "" Then
+								MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) = begin_dt_b
+								MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) = end_dend_dt_bt_a
 								Exit Do
-							Else
-								row = 17
 							End If
-						End If
-					Loop
-					Do
-						PF19
-						EMReadScreen begining_of_list, 10, 24, 14
-						' MsgBox "begining_of_list - " & begining_of_list & vbcr & "2"
-					Loop Until begining_of_list = "FIRST PAGE"
 
-					Do
-						PF20
-						EMReadScreen end_of_list, 9, 24, 14
-						' MsgBox end_of_list & " - 2"
-					Loop Until end_of_list = "LAST PAGE"
-					row = 17
-					Do
-						EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
-						begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
-						If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
-
-						EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
-						end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
-						If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
-
-						' MsgBox "end_dt_b - " & end_dt_b & vbCr & "begin_dt_b - " & begin_dt_b
-						If end_dt_b <> "" or begin_dt_b <> "" Then
-							If begin_dt_b <> "" Then MEDI_part_b_02 = "Start: " & begin_dt_b
-							If end_dt_b <> "" Then MEDI_part_b_02 = MEDI_part_b_02 & ", End: " & end_dt_b
-							If left(MEDI_part_b_02, 1) = "," Then MEDI_part_b_02 = right(MEDI_part_b_02, len(MEDI_part_b_02)-2)
-							Exit Do
-						End If
-
-						row = row - 1
-						' MsgBox "PART B row - " & row
-						If row = 14 Then
-							PF19
-							EMReadScreen begining_of_list, 10, 24, 14
-							' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
-							If begining_of_list = "FIRST PAGE" Then
-								Exit Do
-							Else
-								row = 17
+							row = row - 1
+							' MsgBox "PART B row - " & row
+							If row = 14 Then
+								PF19
+								EMReadScreen begining_of_list, 10, 24, 14
+								' MsgBox "begining_of_list - " & begining_of_list & vbcr & "3"
+								If begining_of_list = "FIRST PAGE" Then
+									Exit Do
+								Else
+									row = 17
+								End If
 							End If
-						End If
-					Loop
-
+						Loop
+					End If
 				End If
-
-			End If
+			Next
 
 
 			call navigate_to_MAXIS_screen("STAT", "FACI")
-			EMWriteScreen person_01_ref_number, 20, 76
-			transmit
-			EMReadScreen existance_check, 1, 2, 73
-			If existance_check <> "0" Then
-				Do
-					EMReadScreen FACI_current_panel, 1, 2, 73
-					EMReadScreen FACI_total_check, 1, 2, 78
-					EMReadScreen in_year_check_01, 4, 14, 53
-					EMReadScreen in_year_check_02, 4, 15, 53
-					EMReadScreen in_year_check_03, 4, 16, 53
-					EMReadScreen in_year_check_04, 4, 17, 53
-					EMReadScreen in_year_check_05, 4, 18, 53
-					EMReadScreen out_year_check_01, 4, 14, 77
-					EMReadScreen out_year_check_02, 4, 15, 77
-					EMReadScreen out_year_check_03, 4, 16, 77
-					EMReadScreen out_year_check_04, 4, 17, 77
-					EMReadScreen out_year_check_05, 4, 18, 77
-					If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
-					(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-						currently_in_FACI_01 = True
-						If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
-						If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
-						If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
-						If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
-						If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
 
-						EMReadScreen stat_faci_01_date_in, 10, faci_row, 47
-						EMReadScreen stat_faci_01_date_out, 10, faci_row, 	71
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76)
+					EMReadScreen version_numb, 1, 2, 78
+					If version_numb = "0" Then MEMBER_INFO_ARRAY(FACI_exists_const, each_memb) = False
+					If version_numb <> "0" Then
+						MEMBER_INFO_ARRAY(FACI_exists_const, each_memb) = True
+						Do
+							EMReadScreen FACI_current_panel, 1, 2, 73
+							EMReadScreen FACI_total_check, 1, 2, 78
+							EMReadScreen in_year_check_01, 4, 14, 53
+							EMReadScreen in_year_check_02, 4, 15, 53
+							EMReadScreen in_year_check_03, 4, 16, 53
+							EMReadScreen in_year_check_04, 4, 17, 53
+							EMReadScreen in_year_check_05, 4, 18, 53
+							EMReadScreen out_year_check_01, 4, 14, 77
+							EMReadScreen out_year_check_02, 4, 15, 77
+							EMReadScreen out_year_check_03, 4, 16, 77
+							EMReadScreen out_year_check_04, 4, 17, 77
+							EMReadScreen out_year_check_05, 4, 18, 77
+							If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+							(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+								MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = True
+								If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+								If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+								If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+								If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+								If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
 
-						If stat_faci_01_date_in = "__ __ ____" Then stat_faci_01_date_in = ""
-						stat_faci_01_date_in = replace(stat_faci_01_date_in, " ", "/")
-						If stat_faci_01_date_out = "__ __ ____" Then stat_faci_01_date_out = ""
-						stat_faci_01_date_out = replace(stat_faci_01_date_out, " ", "/")
+								EMReadScreen MEMBER_INFO_ARRAY(FACI_date_in, each_memb), 10, faci_row, 47
+								EMReadScreen MEMBER_INFO_ARRAY(FACI_date_out, each_memb), 10, faci_row, 	71
 
-						exit do
-					Elseif FACI_current_panel = FACI_total_check then
-						currently_in_FACI_01 = False
-						exit do
-					Else
-						transmit
-					End if
-				Loop until FACI_current_panel = FACI_total_check
+								If MEMBER_INFO_ARRAY(FACI_date_in, each_memb) = "__ __ ____" Then MEMBER_INFO_ARRAY(FACI_date_in, each_memb) = ""
+								MEMBER_INFO_ARRAY(FACI_date_in, each_memb) = replace(MEMBER_INFO_ARRAY(FACI_date_in, each_memb), " ", "/")
+								If MEMBER_INFO_ARRAY(FACI_date_out, each_memb) = "__ __ ____" Then MEMBER_INFO_ARRAY(FACI_date_out, each_memb) = ""
+								MEMBER_INFO_ARRAY(FACI_date_out, each_memb) = replace(MEMBER_INFO_ARRAY(FACI_date_out, each_memb), " ", "/")
 
-				If currently_in_FACI_01 = True then
-					EMReadScreen faci_name_01, 30, 6, 43
-					EMReadScreen faci_type_code, 2, 7, 43
-					' EmReadscreen stat_faci_vendor, 8, 5, 43
-					'List of FACI types
-					IF faci_type_code = "41" then faci_type_info_01 = "NF-I"
-					IF faci_type_code = "42" then faci_type_info_01 = "NF-II"
-					IF faci_type_code = "43" then faci_type_info_01 = "ICF-DD"
-					IF faci_type_code = "44" then faci_type_info_01 = "Short stay in NF-I"
-					IF faci_type_code = "45" then faci_type_info_01 = "Short stay in NF-II"
-					IF faci_type_code = "46" then faci_type_info_01 = "Short stay in ICF-DD"
-					IF faci_type_code = "47" then faci_type_info_01 = "RTC - Not IMD"
-					IF faci_type_code = "48" then faci_type_info_01 = "Medical Hospital"
-					IF faci_type_code = "49" then faci_type_info_01 = "MSOP"
-					IF faci_type_code = "50" then faci_type_info_01 = "IMD/RTC"
-					IF faci_type_code = "51" then faci_type_info_01 = "Rule 31 CD_IMD"
-					IF faci_type_code = "52" then faci_type_info_01 = "Rule 36 MI-IMD"
-					IF faci_type_code = "53" then faci_type_info_01 = "IMD Hospitals"
-					IF faci_type_code = "55" then faci_type_info_01 = "Adult Foster Care/Rule 203"
-					IF faci_type_code = "56" then faci_type_info_01 = "GRH (Not FC or Rule 36)"
-					IF faci_type_code = "57" then faci_type_info_01 = "Rule 36 MI - Non-IMD"
-					IF faci_type_code = "60" then faci_type_info_01 = "Non-GRH"
-					IF faci_type_code = "61" then faci_type_info_01 = "Rule 31 CD - Non-IMD"
-					IF faci_type_code = "67" then faci_type_info_01 = "Family Violence Shelter"
-					IF faci_type_code = "68" then faci_type_info_01 = "County Correctional Facility"
-					IF faci_type_code = "69" then faci_type_info_01 = "Non-Cty Adult Correctional"
+								exit do
+							Elseif FACI_current_panel = FACI_total_check then
+								MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = False
+								exit do
+							Else
+								transmit
+							End if
+						Loop until FACI_current_panel = FACI_total_check
 
-					faci_name_01 = trim(replace(faci_name_01, "_", ""))
-					' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
+						If MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = True then
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_name, each_memb), 30, 6, 43
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_type_code, each_memb), 2, 7, 43
+							EmReadscreen MEMBER_INFO_ARRAY(FACI_vendor, each_memb), 8, 5, 43
+							'List of FACI types
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "41" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "NF-I"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "42" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "NF-II"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "43" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "ICF-DD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "44" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Short stay in NF-I"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "45" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Short stay in NF-II"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "46" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Short stay in ICF-DD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "47" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "RTC - Not IMD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "48" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Medical Hospital"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "49" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "MSOP"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "50" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "IMD/RTC"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "51" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Rule 31 CD_IMD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "52" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Rule 36 MI-IMD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "53" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "IMD Hospitals"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "55" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Adult Foster Care/Rule 203"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "56" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "GRH (Not FC or Rule 36)"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "57" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Rule 36 MI - Non-IMD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "60" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Non-GRH"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "61" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Rule 31 CD - Non-IMD"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "67" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Family Violence Shelter"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "68" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "County Correctional Facility"
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "69" then MEMBER_INFO_ARRAY(FACI_type_info, each_memb) = "Non-Cty Adult Correctional"
 
-					' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
-					' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
-					' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
-					' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
-					' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
-					' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
-					' EMReadScreen stat_faci_approval_county, 2, 12, 71
+							MEMBER_INFO_ARRAY(FACI_name, each_memb) = trim(replace(MEMBER_INFO_ARRAY(FACI_name, each_memb), "_", ""))
+							MEMBER_INFO_ARRAY(FACI_vendor, each_memb) = trim(replace(MEMBER_INFO_ARRAY(FACI_vendor, each_memb), "_", ""))
 
-					' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
-					' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb), 2, 7, 71
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_FS_ELIG_YN, each_memb), 1, 8, 43
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb), 1, 8, 71
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_code, each_memb), 1, 9, 43
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_LTC_begin_date, each_memb), 10, 10, 52
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_cnty_approval_yn, each_memb), 1, 12, 52
+							EMReadScreen MEMBER_INFO_ARRAY(FACI_approval_cnty, each_memb), 2, 12, 71
 
-					' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
-					' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
-					' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
-					' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
-					' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
-					' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
-					' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
-					' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
-					' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
-					' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
+							If MEMBER_INFO_ARRAY(FACI_LTC_begin_date, each_memb) = "__ __ ____" Then MEMBER_INFO_ARRAY(FACI_LTC_begin_date, each_memb) = ""
+							MEMBER_INFO_ARRAY(FACI_LTC_begin_date, each_memb) = replace(MEMBER_INFO_ARRAY(FACI_LTC_begin_date, each_memb), " ", "/")
 
-					' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
-					' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
-					' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
-					' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
-					' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
-					' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
-					' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "__" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = ""
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "01" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "CADI"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "02" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "CAC"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "03" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "EW Single"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "04" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "EW Married"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "05" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "TBI"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "06" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "DD"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "07" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "ACS"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "08" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "SISEW Single"
+							If MEMBER_INFO_ARRAY(FACI_Waiver_type_code, each_memb) = "09" Then MEMBER_INFO_ARRAY(FACI_Waiver_type_info, each_memb) = "SISEW Married"
 
-					' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
-					' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
-					' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "_" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = ""
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "1" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Federally Subsidized Housing for Elderly"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "2" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Licensed Facility/Treatment Center for Chemical Dependency"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "3" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Blind or Disabled RSDI/SSI Recipient"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "4" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Family Violence Shelter"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "5" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Temporary Shelter for Homeless"
+							If MEMBER_INFO_ARRAY(FACI_FS_Type_code, each_memb) = "6" Then  MEMBER_INFO_ARRAY(FACI_FS_Type_info, each_memb) = "Not a facility by FS Definition"
 
-				End if
-			End If
+							If MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_code, each_memb) = "_" Then MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_info, each_memb) = ""
+							If MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_code, each_memb) = "L" Then MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_info, each_memb) = "This Level of Care Not Required"
+							If MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_code, each_memb) = "N" Then MEMBER_INFO_ARRAY(FACI_LTC_Inelig_reason_info, each_memb) = "Not pre-Screened"
 
-			If person_02_ref_number <> "" Then
-				EMWriteScreen person_02_ref_number, 20, 76
-				transmit
-				EMReadScreen existance_check, 1, 2, 73
-				If existance_check <> "0" Then
-					Do
-						EMReadScreen FACI_current_panel, 1, 2, 73
-						EMReadScreen FACI_total_check, 1, 2, 78
-						EMReadScreen in_year_check_01, 4, 14, 53
-						EMReadScreen in_year_check_02, 4, 15, 53
-						EMReadScreen in_year_check_03, 4, 16, 53
-						EMReadScreen in_year_check_04, 4, 17, 53
-						EMReadScreen in_year_check_05, 4, 18, 53
-						EMReadScreen out_year_check_01, 4, 14, 77
-						EMReadScreen out_year_check_02, 4, 15, 77
-						EMReadScreen out_year_check_03, 4, 16, 77
-						EMReadScreen out_year_check_04, 4, 17, 77
-						EMReadScreen out_year_check_05, 4, 18, 77
-						If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
-						(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-							currently_in_FACI_02 = True
-							If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
-							If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
-							If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
-							If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
-							If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
-
-							EMReadScreen stat_faci_02_date_in, 10, faci_row, 47
-							EMReadScreen stat_faci_02_date_out, 10, faci_row, 	71
-
-							If stat_faci_02_date_in = "__ __ ____" Then stat_faci_02_date_in = ""
-							stat_faci_02_date_in = replace(stat_faci_02_date_in, " ", "/")
-							If stat_faci_02_date_out = "__ __ ____" Then stat_faci_02_date_out = ""
-							stat_faci_02_date_out = replace(stat_faci_02_date_out, " ", "/")
-
-							exit do
-						Elseif FACI_current_panel = FACI_total_check then
-							currently_in_FACI_02 = False
-							exit do
-						Else
-							transmit
 						End if
-					Loop until FACI_current_panel = FACI_total_check
-
-					If currently_in_FACI_02 = True then
-						EMReadScreen faci_name_02, 30, 6, 43
-						EMReadScreen faci_type_code, 2, 7, 43
-						' EmReadscreen stat_faci_vendor, 8, 5, 43
-						'List of FACI types
-						IF faci_type_code = "41" then faci_type_info_02 = "NF-I"
-						IF faci_type_code = "42" then faci_type_info_02 = "NF-II"
-						IF faci_type_code = "43" then faci_type_info_02 = "ICF-DD"
-						IF faci_type_code = "44" then faci_type_info_02 = "Short stay in NF-I"
-						IF faci_type_code = "45" then faci_type_info_02 = "Short stay in NF-II"
-						IF faci_type_code = "46" then faci_type_info_02 = "Short stay in ICF-DD"
-						IF faci_type_code = "47" then faci_type_info_02 = "RTC - Not IMD"
-						IF faci_type_code = "48" then faci_type_info_02 = "Medical Hospital"
-						IF faci_type_code = "49" then faci_type_info_02 = "MSOP"
-						IF faci_type_code = "50" then faci_type_info_02 = "IMD/RTC"
-						IF faci_type_code = "51" then faci_type_info_02 = "Rule 31 CD_IMD"
-						IF faci_type_code = "52" then faci_type_info_02 = "Rule 36 MI-IMD"
-						IF faci_type_code = "53" then faci_type_info_02 = "IMD Hospitals"
-						IF faci_type_code = "55" then faci_type_info_02 = "Adult Foster Care/Rule 203"
-						IF faci_type_code = "56" then faci_type_info_02 = "GRH (Not FC or Rule 36)"
-						IF faci_type_code = "57" then faci_type_info_02 = "Rule 36 MI - Non-IMD"
-						IF faci_type_code = "60" then faci_type_info_02 = "Non-GRH"
-						IF faci_type_code = "61" then faci_type_info_02 = "Rule 31 CD - Non-IMD"
-						IF faci_type_code = "67" then faci_type_info_02 = "Family Violence Shelter"
-						IF faci_type_code = "68" then faci_type_info_02 = "County Correctional Facility"
-						IF faci_type_code = "69" then faci_type_info_02 = "Non-Cty Adult Correctional"
-
-						faci_name_02 = trim(replace(faci_name_02, "_", ""))
-						' stat_faci_vendor = trim(replace(stat_faci_vendor, "_", ""))
-
-						' EMReadScreen stat_faci_waiver_type_code, 2, 7, 71
-						' EMReadScreen stat_faci_FS_elig_yn, 1, 8, 43
-						' EMReadScreen stat_faci_FS_faci_type_code, 1, 8, 71
-						' EMReadScreen stat_faci_LTC_inelig_reason_code, 1, 9, 43
-						' EMReadScreen stat_faci_LTC_begin_date, 10, 10, 52
-						' EMReadScreen stat_faci_county_approval_placement_yn, 1, 12, 52
-						' EMReadScreen stat_faci_approval_county, 2, 12, 71
-
-						' If stat_faci_LTC_begin_date = "__ __ ____" Then stat_faci_LTC_begin_date = ""
-						' stat_faci_LTC_begin_date = replace(stat_faci_LTC_begin_date, " ", "/")
-
-						' If stat_faci_waiver_type_code = "__" Then stat_faci_waiver_type_info = ""
-						' If stat_faci_waiver_type_code = "01" Then stat_faci_waiver_type_info = "CADI"
-						' If stat_faci_waiver_type_code = "02" Then stat_faci_waiver_type_info = "CAC"
-						' If stat_faci_waiver_type_code = "03" Then stat_faci_waiver_type_info = "EW Single"
-						' If stat_faci_waiver_type_code = "04" Then stat_faci_waiver_type_info = "EW Married"
-						' If stat_faci_waiver_type_code = "05" Then stat_faci_waiver_type_info = "TBI"
-						' If stat_faci_waiver_type_code = "06" Then stat_faci_waiver_type_info = "DD"
-						' If stat_faci_waiver_type_code = "07" Then stat_faci_waiver_type_info = "ACS"
-						' If stat_faci_waiver_type_code = "08" Then stat_faci_waiver_type_info = "SISEW Single"
-						' If stat_faci_waiver_type_code = "09" Then stat_faci_waiver_type_info = "SISEW Married"
-
-						' If stat_faci_FS_faci_type_code = "_" Then  stat_faci_FS_faci_type_info = ""
-						' If stat_faci_FS_faci_type_code = "1" Then  stat_faci_FS_faci_type_info = "Federally Subsidized Housing for Elderly"
-						' If stat_faci_FS_faci_type_code = "2" Then  stat_faci_FS_faci_type_info = "Licensed Facility/Treatment Center for Chemical Dependency"
-						' If stat_faci_FS_faci_type_code = "3" Then  stat_faci_FS_faci_type_info = "Blind or Disabled RSDI/SSI Recipient"
-						' If stat_faci_FS_faci_type_code = "4" Then  stat_faci_FS_faci_type_info = "Family Violence Shelter"
-						' If stat_faci_FS_faci_type_code = "5" Then  stat_faci_FS_faci_type_info = "Temporary Shelter for Homeless"
-						' If stat_faci_FS_faci_type_code = "6" Then  stat_faci_FS_faci_type_info = "Not a facility by FS Definition"
-
-						' If stat_faci_LTC_inelig_reason_code = "_" Then stat_faci_LTC_inelig_reason_info = ""
-						' If stat_faci_LTC_inelig_reason_code = "L" Then stat_faci_LTC_inelig_reason_info = "This Level of Care Not Required"
-						' If stat_faci_LTC_inelig_reason_code = "N" Then stat_faci_LTC_inelig_reason_info = "Not pre-Screened"
-
-					End if
+					End If
 				End If
-			End If
+			Next
 
 			CALL navigate_to_MAXIS_screen("STAT", "DISA")
-			EMWriteScreen person_01_ref_number, 20, 76
-			transmit
-			EMReadScreen check_if_DISA_exists, 2, 2, 78
-			If trim(check_if_DISA_exists) = 0 Then DISA_info_01 = "DISA Does Not Exist"
-			If trim(check_if_DISA_exists) <> 0 Then
-				' DISA_info_01 = "MEDI Exists"
-				EMReadScreen disa_end_date_01, 10, 6, 69
-				disa_end_date_01 = replace(disa_end_date_01, " ", "/")
-				If disa_end_date_01 = "__/__/____" Then disa_end_date_01 = ""
-				EMReadScreen HC_disa_status_01, 2, 13, 59
-				If HC_disa_status_01 = "01" Then DISA_info_01 = "RSDI Only Disability"
-				If HC_disa_status_01 = "02" Then DISA_info_01 = "RSDI Only Blindness"
-				If HC_disa_status_01 = "03" Then DISA_info_01 = "SSI, SSI/RSDI Disability"
-				If HC_disa_status_01 = "04" Then DISA_info_01 = "SSI, SSI/RSDI Blindness"
-				If HC_disa_status_01 = "06" Then DISA_info_01 = "SMRT Pend or SSA Pend"
-				If HC_disa_status_01 = "08" Then DISA_info_01 = "Certified Blind"
-				If HC_disa_status_01 = "10" Then DISA_info_01 = "Certified Disabled"
-				If HC_disa_status_01 = "11" Then DISA_info_01 = "Special Category - Disabled Child"
-				If HC_disa_status_01 = "20" Then DISA_info_01 = "TEFRA - Disabled"
-				If HC_disa_status_01 = "21" Then DISA_info_01 = "TEFRA - Blind"
-				If HC_disa_status_01 = "22" Then DISA_info_01 = "MA-EPD"
-				If HC_disa_status_01 = "23" Then DISA_info_01 = "MA/Waiver"
-				If HC_disa_status_01 = "24" Then DISA_info_01 = "SSA/SMRT Appeal Pending"
-				If HC_disa_status_01 = "26" Then DISA_info_01 = "SSA/SMRT Disa Deny"
-				If HC_disa_status_01 = "__" Then DISA_info_01 = "No HC DISA Status"
 
-				EMReadScreen disa_waiver_code_01, 1, 14, 59
-				If disa_waiver_code_01 = "F" Then disa_waiver_info_01 = "LTC CADI Conversion"
-				If disa_waiver_code_01 = "G" Then disa_waiver_info_01 = "LTC CADI DIversion"
-				If disa_waiver_code_01 = "H" Then disa_waiver_info_01 = "LTC CAC Conversion"
-				If disa_waiver_code_01 = "I" Then disa_waiver_info_01 = "LTC CAC Diversion"
-				If disa_waiver_code_01 = "J" Then disa_waiver_info_01 = "LTC EW Conversion"
-				If disa_waiver_code_01 = "K" Then disa_waiver_info_01 = "LTC EW Diversion"
-				If disa_waiver_code_01 = "L" Then disa_waiver_info_01 = "LTC TBI NF Conversion"
-				If disa_waiver_code_01 = "M" Then disa_waiver_info_01 = "LTC TBI NF Diversion"
-				If disa_waiver_code_01 = "P" Then disa_waiver_info_01 = "LTC TBI NB Conversion"
-				If disa_waiver_code_01 = "Q" Then disa_waiver_info_01 = "LTC TBI NB Diversion"
-				If disa_waiver_code_01 = "R" Then disa_waiver_info_01 = "DD Conversion"
-				If disa_waiver_code_01 = "S" Then disa_waiver_info_01 = "DD Conversion"
-				If disa_waiver_code_01 = "Y" Then disa_waiver_info_01 = "CSG Conversion"
-				If disa_waiver_code_01 = "_" Then disa_waiver_info_01 = "No Waiver"
-			End If
-			If person_02_ref_number <> "" Then
-				EMWriteScreen person_02_ref_number, 20, 76
-				transmit
-				EMReadScreen check_if_DISA_exists, 2, 2, 78
-				If trim(check_if_DISA_exists) = 0 Then DISA_info_02 = "DISA Does Not Exist"
-				If trim(check_if_DISA_exists) <> 0 Then
-					DISA_info_02 = "MEDI Exists"
-					EMReadScreen disa_end_date_02, 10, 6, 69
-					disa_end_date_02 = replace(disa_end_date_02, " ", "/")
-					If disa_end_date_02 = "__/__/____" Then disa_end_date_02 = ""
-					EMReadScreen HC_disa_status_02, 2, 13, 59
-					If HC_disa_status_02 = "01" Then DISA_info_02 = "RSDI Only Disability"
-					If HC_disa_status_02 = "02" Then DISA_info_02 = "RSDI Only Blindness"
-					If HC_disa_status_02 = "03" Then DISA_info_02 = "SSI, SSI/RSDI Disability"
-					If HC_disa_status_02 = "04" Then DISA_info_02 = "SSI, SSI/RSDI Blindness"
-					If HC_disa_status_02 = "06" Then DISA_info_02 = "SMRT Pend or SSA Pend"
-					If HC_disa_status_02 = "08" Then DISA_info_02 = "Certified Blind"
-					If HC_disa_status_02 = "10" Then DISA_info_02 = "Certified Disabled"
-					If HC_disa_status_02 = "11" Then DISA_info_02 = "Special Category - Disabled Child"
-					If HC_disa_status_02 = "20" Then DISA_info_02 = "TEFRA - Disabled"
-					If HC_disa_status_02 = "21" Then DISA_info_02 = "TEFRA - Blind"
-					If HC_disa_status_02 = "22" Then DISA_info_02 = "MA-EPD"
-					If HC_disa_status_02 = "23" Then DISA_info_02 = "MA/Waiver"
-					If HC_disa_status_02 = "24" Then DISA_info_02 = "SSA/SMRT Appeal Pending"
-					If HC_disa_status_02 = "26" Then DISA_info_02 = "SSA/SMRT Disa Deny"
-					If HC_disa_status_02 = "__" Then DISA_info_02 = "No HC DISA Status"
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "No HC DISA Coded"
+				MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "No Waiver Coded"
+				If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76)
+					EMReadScreen version_numb, 1, 2, 78
+					If version_numb = "0" Then MEMBER_INFO_ARRAY(DISA_expt_exists_const, each_memb) = False
+					If version_numb <> "0" Then
+						MEMBER_INFO_ARRAY(DISA_expt_exists_const, each_memb) = True
 
-					EMReadScreen disa_waiver_code_02, 1, 14, 59
-					If disa_waiver_code_02 = "F" Then disa_waiver_info_02 = "LTC CADI Conversion"
-					If disa_waiver_code_02 = "G" Then disa_waiver_info_02 = "LTC CADI DIversion"
-					If disa_waiver_code_02 = "H" Then disa_waiver_info_02 = "LTC CAC Conversion"
-					If disa_waiver_code_02 = "I" Then disa_waiver_info_02 = "LTC CAC Diversion"
-					If disa_waiver_code_02 = "J" Then disa_waiver_info_02 = "LTC EW Conversion"
-					If disa_waiver_code_02 = "K" Then disa_waiver_info_02 = "LTC EW Diversion"
-					If disa_waiver_code_02 = "L" Then disa_waiver_info_02 = "LTC TBI NF Conversion"
-					If disa_waiver_code_02 = "M" Then disa_waiver_info_02 = "LTC TBI NF Diversion"
-					If disa_waiver_code_02 = "P" Then disa_waiver_info_02 = "LTC TBI NB Conversion"
-					If disa_waiver_code_02 = "Q" Then disa_waiver_info_02 = "LTC TBI NB Diversion"
-					If disa_waiver_code_02 = "R" Then disa_waiver_info_02 = "DD Conversion"
-					If disa_waiver_code_02 = "S" Then disa_waiver_info_02 = "DD Conversion"
-					If disa_waiver_code_02 = "Y" Then disa_waiver_info_02 = "CSG Conversion"
-					If disa_waiver_code_02 = "_" Then disa_waiver_info_02 = "No Waiver"
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_begin_date, each_memb), 10, 6, 47
+						MEMBER_INFO_ARRAY(DISA_begin_date, each_memb) = replace(MEMBER_INFO_ARRAY(DISA_begin_date, each_memb), " ", "/")
+						If MEMBER_INFO_ARRAY(DISA_begin_date, each_memb) = "__/__/____" Then MEMBER_INFO_ARRAY(DISA_begin_date, each_memb) = ""
+
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_end_date, each_memb), 10, 6, 69
+						MEMBER_INFO_ARRAY(DISA_end_date, each_memb) = replace(MEMBER_INFO_ARRAY(DISA_end_date, each_memb), " ", "/")
+						If MEMBER_INFO_ARRAY(DISA_end_date, each_memb) = "__/__/____" Then MEMBER_INFO_ARRAY(DISA_end_date, each_memb) = ""
+
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_cert_begin_date, each_memb), 10, 7, 47
+						MEMBER_INFO_ARRAY(DISA_cert_begin_date, each_memb) = replace(MEMBER_INFO_ARRAY(DISA_cert_begin_date, each_memb), " ", "/")
+						If MEMBER_INFO_ARRAY(DISA_cert_begin_date, each_memb) = "__/__/____" Then MEMBER_INFO_ARRAY(DISA_cert_begin_date, each_memb) = ""
+
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb), 10, 7, 69
+						MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) = replace(MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb), " ", "/")
+						If MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) = "__/__/____" Then MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) = ""
+
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) , 2, 13, 59
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "01" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "RSDI Only Disability"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "02" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "RSDI Only Blindness"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "03" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "SSI, SSI/RSDI Disability"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "04" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "SSI, SSI/RSDI Blindness"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "06" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "SMRT Pend or SSA Pend"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "08" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "Certified Blind"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "10" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "Certified Disabled"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "11" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "Special Category - Disabled Child"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "20" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "TEFRA - Disabled"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "21" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "TEFRA - Blind"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "22" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "MA-EPD"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "23" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "MA/Waiver"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "24" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "SSA/SMRT Appeal Pending"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "26" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "SSA/SMRT Disa Deny"
+						If MEMBER_INFO_ARRAY(DISA_HC_status_code, each_memb) = "__" Then MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb) = "No HC DISA Status"
+
+						EMReadScreen MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb), 1, 14, 59
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "F" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC CADI Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "G" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC CADI DIversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "H" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC CAC Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "I" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC CAC Diversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "J" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC EW Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "K" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC EW Diversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "L" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC TBI NF Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "M" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC TBI NF Diversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "P" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC TBI NB Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "Q" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "LTC TBI NB Diversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "R" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "DD Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "S" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "DD Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "Y" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "CSG Conversion"
+						If MEMBER_INFO_ARRAY(DISA_waiver_code, each_memb) = "_" Then MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb) = "No Waiver"
+
+					End If
 				End If
-			End If
+			Next
 
-			'TODO - come back to this and finish this update
-			' PDED_info_01
-			' PICKLE_info_01
-			' PICKLE_detail_01
+			call navigate_to_MAXIS_screen("STAT", "PDED")
 
-			' call navigate_to_MAXIS_screen("STAT", "PDED")
-			' EMWriteScreen person_01_ref_number, 20, 76
-			' transmit
-			' EMReadScreen check_if_PDED_exists, 2, 2, 78
-			' If trim(check_if_PDED_exists) = 0 Then PDED_info_01 = "No PDED Information Exists"
-			' If trim(check_if_PDED_exists) <> 0 Then
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76)
+					EMReadScreen version_numb, 1, 2, 78
+					If version_numb = "0" Then MEMBER_INFO_ARRAY(PDED_exists_const, each_memb) = False
+					If version_numb <> "0" Then
+						MEMBER_INFO_ARRAY(PDED_exists_const, each_memb) = True
+						MEMBER_INFO_ARRAY(PDED_PICKLE_exists, each_memb) = False
+						MEMBER_INFO_ARRAY(PDED_DAC_exists , each_memb) = False
 
-			' 	EMReadScreen pickle_dsrgd_yn, 1, 6, 60
-			' 	If pickle_dsrgd_yn = "Y" Then
-			' 		PICKLE_info_01 = "PICKLE Disregard Exists"
-			' 		Call write_value_and_transmit("X", 6, 40)
-			' 		EMReadScreen pickle_dsrgd_threshold_date, 8, 5, 48
-			' 		EMReadScreen pickle_dsrgd_curr_RSDI, 8, 6, 48
-			' 		EMReadScreen pickle_dsrgd_threshold_RSDI, 8, 7, 48
-			' 		EMReadScreen pickle_dsrgd_disregard_amt, 8, 8, 48
-			' 		PICKLE_detail_01 = "PICKLE Disregard Amount: $ " & pickle_dsrgd_disregard_amt
-			' 		PF3
-			' 	End If
+						EMReadScreen pickle_dsrgd_yn, 1, 6, 60
+						If pickle_dsrgd_yn = "Y" Then
+							MEMBER_INFO_ARRAY(PDED_PICKLE_exists, each_memb) = True
+							Call write_value_and_transmit("X", 6, 40)
+							EMReadScreen MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_date, each_memb), 8, 5, 48
+							EMReadScreen MEMBER_INFO_ARRAY(PDED_PICKLE_curr_RSDI, each_memb), 8, 6, 48
+							EMReadScreen MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_RSDI, each_memb), 8, 7, 48
+							EMReadScreen MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb), 8, 8, 48
 
-			' 	EMReadScreen dac_dsrgd_yn, 1, 8, 60
-			' 	If dac_dsrgd_yn = "Y" Then DAC_info_01 = "DAC"
+							MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_date, each_memb) = replace(MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(PDED_PICKLE_curr_RSDI, each_memb) = trim(MEMBER_INFO_ARRAY(PDED_PICKLE_curr_RSDI, each_memb))
+							MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_RSDI, each_memb) = trim(MEMBER_INFO_ARRAY(PDED_PICKLE_thrshld_RSDI, each_memb))
+							MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb) = trim(MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb))
 
-			' End If
+							PF3
+						End If
+
+						EMReadScreen dac_dsrgd_yn, 1, 8, 60
+						If dac_dsrgd_yn = "Y" Then MEMBER_INFO_ARRAY(PDED_DAC_exists , each_memb) = True
+					End If
+				End If
+			Next
 
 
 		End If
@@ -4043,106 +3898,147 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				PushButton 485, 247, 25, 10, "UNEA", unea_button
 
 			If NO_HC_EXISTS = True Then
-				Text 15, 25, 125, 10, "No Health Care Programs Active or Pending."
+				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
 			Else
-				GroupBox 10, 15, 220, 85, "Person 1 - Information"
-				Text 15, 25, 125, 10, "Name: " & name_01
-				Text 140, 25, 65, 10, "PMI: " & PMI_01
-				Text 15, 35, 100, 10, "DISA: " & DISA_info_01
-				Text 120, 35, 100, 10, "Waiver: " & disa_waiver_info_01
-				If MEDI_info_01 = "MEDI Exists" Then
-					Text 15, 45, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_01
-					Text 15, 55, 200, 10, "                  Part B: " & MEDI_part_b_01
+				y_pos = 10
+				If all_update_dates_are_current = False Then
+					Text 15, y_pos, 255, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURRING PREP MONTH * * * *"
+					Text 55, y_pos+10, 185, 10, "* * * * Manual Review of this case is important. * * * *"
+					y_pos = y_pos + 25
 				Else
-					Text 15, 45, 200, 10, MEDI_info_01
+					y_pos = 15
 				End If
+				x_pos = 10
+				memb_with_hc_list = " "
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If y_pos > 35 Then y_pos = 35
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+						memb_with_hc_list = memb_with_hc_list & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " "
+						memb_grp_x = x_pos
+						memb_grp_y = y_pos
+						x_pos = x_pos + 10
+						y_pos = y_pos +10
 
-				If MAXIS_MA_basis_01 <> "" Then Text 15, 65, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_01
-				If MAXIS_MA_basis_01 = "" Then Text 15, 65, 120, 10, "No MA Basis found."
-				If MAXIS_msp_prog_01 <> "" Then Text 15, 75, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_01 & " (" & MAXIS_msp_basis_01 & ")"
-				If MAXIS_msp_prog_01 = "" Then Text 15, 75, 120, 10, "No MSP found."
-				Text 15, 85, 120, 10, "MMIS Detail not Ready"
-				' Text 15, 250, 55, 10, "MMIS MA Basis:"
-				' Text 85, 250, 135, 10, MMIS_ma_basis_01
-				' Text 15, 265, 60, 10, "MMIS MSP Prog:"
-				' Text 85, 265, 135, 10, MMIS_msp_prog_01
-				' Text 15, 280, 60, 10, "MMIS MSP Basis:"
-				' Text 85, 280, 135, 10, MMIS_msp_basis_01
+						Text x_pos+100, y_pos, 65, 10, "PMI: " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+						Text x_pos, y_pos, 150, 10, "Health Care Programs:"
+						y_pos = y_pos + 10
+						If MEMBER_INFO_ARRAY(hc_prog_1, each_memb) <> "" Then
+							Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_1, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_1, each_memb)
+							y_pos = y_pos + 10
+						End If
+						If MEMBER_INFO_ARRAY(hc_prog_2, each_memb) <> "" Then
+							Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_2, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_2, each_memb)
+							y_pos = y_pos + 10
+						End If
+						If MEMBER_INFO_ARRAY(hc_prog_3, each_memb) <> "" Then
+							Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_3, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_3, each_memb)
+							y_pos = y_pos + 10
+						End If
+						y_pos = y_pos + 5
 
+						Text x_pos, y_pos, 200, 10, "DISA:        " & MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb)
+						y_pos = y_pos + 10
+						If MEMBER_INFO_ARRAY(DISA_end_date, each_memb) <> "" Then
+							Text x_pos+35, y_pos, 100, 10, "End Date: " & MEMBER_INFO_ARRAY(DISA_end_date, each_memb)
+							y_pos = y_pos + 10
+						ElseIf MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) <> "" Then
+							Text x_pos+35, y_pos, 100, 10, "CERT End Date: " & MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb)
+							y_pos = y_pos + 10
+						End If
+						y_pos = y_pos + 5
+						Text x_pos, y_pos, 100, 10, "Waiver:     " & MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb)
+						y_pos = y_pos + 15
+						If MEMBER_INFO_ARRAY(MEDI_expt_exists_const, each_memb) = True Then
+							MEDI_part_a = ""
+							If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then
+								If MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then MEDI_part_a = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb)
+								If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" Then MEDI_part_a = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb)
+								If left(MEDI_part_a, 1) = "," Then MEDI_part_a = right(MEDI_part_a, len(MEDI_part_a)-2)
+							End If
+							MEDI_part_b = ""
+							If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then
+								If MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then MEDI_part_b = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb)
+								If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" Then MEDI_part_b = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb)
+								If left(MEDI_part_b, 1) = "," Then MEDI_part_b = right(MEDI_part_b, len(MEDI_part_b)-2)
+							End If
+							Text x_pos, y_pos, 200, 10, "MEDI Info: Part A: " & MEDI_part_a
+							Text x_pos+35, y_pos+10, 200, 10, " Part B: " & MEDI_part_b
+							y_pos = y_pos + 25
+						Else
+							Text x_pos, y_pos, 200, 10, "NO MEDI Panel entered for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+							y_pos = y_pos + 10
+						End If
 
-				GroupBox 10, 105, 220, 85, "Person 1 - Income"
-				'TO DO - determine functionality to add multiple claim numbers
+						If MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = True then
+							Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - currently in a facility"
+							Text x_pos+10, y_pos+10, 200, 10, "Facility Name: " & MEMBER_INFO_ARRAY(FACI_name, each_memb)
+							Text x_pos+20, y_pos+20, 150, 10, "Entry Date: " & MEMBER_INFO_ARRAY(FACI_date_in, each_memb)
+							Text x_pos+14, y_pos+30, 200, 10,"Facility Type: " & MEMBER_INFO_ARRAY(FACI_type_info, each_memb)
+							y_pos = y_pos + 45
+						Else
+							Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - Does not appear to be in a facility"
+							y_pos = y_pos + 10
+						End If
 
-				Text 15, 120, 200, 10, "TPQY - Sent: " & sent_date_01 & ", Return: " & return_date_01
-				Text 15, 130, 150, 10, "BNDX Amount: " & bndx_amount_01
-				Text 15, 140, 150, 10, "SDXS Amount: " & sdxs_amount_01
+						If MEMBER_INFO_ARRAY(PDED_PICKLE_exists, each_memb) = True Then
+							Text x_pos, y_pos, 200, 10, "PICKLE Disregard of $ " & MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb)
+							y_pos = y_pos + 10
+						End If
+						If MEMBER_INFO_ARRAY(PDED_DAC_exists , each_memb) = True Then
+							Text x_pos, y_pos, 200, 10, "DAC Disregard Exists"
+							y_pos = y_pos + 10
+						End If
 
-				If JOBS_01 = "Yes" Then Text 15, 155, 205, 10, "JOBS EXISTS: " & JOBS_01_detail
-				If JOBS_01 = "No" Then Text 15, 155, 50, 10, "No listed JOB."
-				If BUSI_01 = "Yes" Then Text 15, 165, 205, 10, "BUSI EXISTS: " & BUSI_01_detail
-				If BUSI_01 = "No" Then Text 15, 165, 50, 10, "No listed BUSI."
-				Text 15, 175, 65, 10, "Other UNEA Types:"
-				Text 85, 175, 135, 10, other_UNEA_types_01
-
-				If currently_in_FACI_01 = True then
-					Text 10, 195, 200, 10, name_01 & " - currently in a facility"
-					Text 10, 205, 200, 10, "Facility Name: " & faci_name_01
-					Text 20, 215, 150, 10, "Entry Date: " & stat_faci_01_date_in
-					Text 14, 225, 200, 10,"Facility Type: " & faci_type_info_01
-				Else
-					Text 10, 195, 200, 10, name_01 & " - Does not appear to be in a facility"
-				End If
-
-				If name_02 <> "" Then
-					GroupBox 245, 35, 220, 85, "Person 2 - Information"
-					' GroupBox 10, 15, 220, 85, "Person 1 - Information"
-					Text 250, 45, 125, 10, "Name: " & name_02
-					Text 375, 45, 65, 10, "PMI: " & PMI_02
-					Text 250, 55, 100, 10, "DISA: " & DISA_info_02
-					Text 355, 55, 100, 10, "Waiver: " & disa_waiver_info_02
-					If MEDI_info_02 = "MEDI Exists" Then
-						Text 250, 65, 200, 10, "MEDI Info: Part A: " & MEDI_part_a_02
-						Text 250, 75, 200, 10, "                  Part B: " & MEDI_part_b_02
-					Else
-						Text 250, 65, 200, 10, MEDI_info_02
+						' If all_update_dates_are_current = True Then
+							first_income = True
+							For each_income = 0 to UBound(INCOME_ARRAY, 2)
+								If INCOME_ARRAY(inc_ref_numb, each_income) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) Then
+									If first_income = True Then
+										y_pos = y_pos + 10
+										Text x_pos, y_pos, 200, 10, "INCOME for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+										y_pos = y_pos + 10
+										first_income = False
+									End If
+									Text x_pos+5, y_pos, 150, 10, INCOME_ARRAY(inc_panel_name, each_income) & " Income - " & INCOME_ARRAY(inc_type_info, each_income)
+									Text x_pos+160, y_pos, 50, 10, "Verif: " & INCOME_ARRAY(inc_verif, each_income)
+									Text x_pos+10, y_pos+10, 100, 10, "Gross Income $ " & INCOME_ARRAY(inc_prosp_amt, each_income)
+									y_pos = y_pos + 20
+									If INCOME_ARRAY(inc_end, each_income) <> "" Then
+										Text x_pos+10, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+										y_pos = y_pos + 10
+									End If
+								End If
+							Next
+						' End If
+						If last_y_pos = "" Then
+							last_y_pos = y_pos
+						Else
+							If y_pos > last_y_pos Then last_y_pos = y_pos
+						End If
+						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+5, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+						x_pos = x_pos + 230
 					End If
-					If MAXIS_MA_basis_02 <> "" Then Text 250, 85, 120, 10, "MAXIS: MA - " & MAXIS_MA_basis_02
-					If MAXIS_MA_basis_02 = "" Then Text 250, 85, 120, 10, "No MA Basis found."
-					If MAXIS_msp_prog_02 <> "" Then Text 250, 95, 120, 10, "MAXIS MSP: " & MAXIS_msp_prog_02 & " (" & MAXIS_msp_basis_02 & ")"
-					If MAXIS_msp_prog_02 = "" Then Text 250, 95, 120, 10, "No MSP found."
-					Text 250, 105, 120, 10, "MMIS Detail not Ready"
-					' Text 15, 250, 55, 10, "MMIS MA Basis:"
-					' Text 85, 250, 135, 10, MMIS_ma_basis_01
-					' Text 15, 265, 60, 10, "MMIS MSP Prog:"
-					' Text 85, 265, 135, 10, MMIS_msp_prog_01
-					' Text 15, 280, 60, 10, "MMIS MSP Basis:"
-					' Text 85, 280, 135, 10, MMIS_msp_basis_01
+				Next
 
-
-					GroupBox 245, 125, 220, 85, "Person 2 - Income"
-					'TO DO - determine functionality to add multiple claim numbers
-
-					Text 250, 140, 200, 10, "TPQY - Sent: " & sent_date_02 & ", Return: " & return_date_02
-					Text 250, 150, 150, 10, "BNDX Amount: " & bndx_amount_02
-					Text 250, 160, 150, 10, "SDXS Amount: " & sdxs_amount_02
-
-					If JOBS_02 = "Yes" Then Text 250, 175, 205, 10, "JOBS EXISTS: " & JOBS_02_detail
-					If JOBS_02 = "No" Then Text 250, 175, 50, 10, "No listed JOB."
-					If BUSI_02 = "Yes" Then Text 250, 185, 205, 10, "BUSI EXISTS: " & BUSI_02_detail
-					If BUSI_02 = "No" Then Text 250, 185, 50, 10, "No listed BUSI."
-					Text 250, 195, 65, 10, "Other UNEA Types:"
-					Text 320, 195, 135, 10, other_UNEA_types_02
-
-					If currently_in_FACI_02 = True then
-						Text 245, 215, 200, 10, name_02 & " - currently in a facility"
-						Text 245, 225, 200, 10, "Facility Name: " & faci_name_02
-						Text 255, 235, 150, 10, "Entry Date: " & stat_faci_02_date_in
-						Text 249, 245, 200, 10,"Facility Type: " & faci_type_info_02
-					Else
-						Text 245, 215, 200, 10, name_02 & " - Does not appear to be in a facility"
+				first_income = True
+				y_pos = last_y_pos + 20
+				For each_income = 0 to UBound(INCOME_ARRAY, 2)
+					If InStr(memb_with_hc_list, INCOME_ARRAY(inc_ref_numb, each_income)) = 0 Then
+						If first_income = True Then
+							grp_box_start = y_pos
+							y_pos = y_pos + 15
+							first_income = False
+						End If
+						Text 20, y_pos, 200, 10, "MEMB " & INCOME_ARRAY(inc_ref_numb, each_income) & " - " & INCOME_ARRAY(inc_panel_name, each_income) & " Income - Gross Amount $ " & INCOME_ARRAY(inc_prosp_amt, each_income) & " - Verif: " & INCOME_ARRAY(inc_verif, each_income)
+						y_pos = y_pos + 10
+						If INCOME_ARRAY(inc_end, each_income) <> "" Then
+							Text 30, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+							y_pos = y_pos + 10
+						End If
 					End If
+				Next
+				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
 
-				End If
 			End If
 		EndDialog
 
