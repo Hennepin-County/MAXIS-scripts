@@ -628,7 +628,11 @@ DO
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
 			End If
-			If ex_parte_function = "Phase 1" or ex_parte_function = "Check REVW information on Phase 1 Cases" Then
+			If ex_parte_function = "Phase 1" Then
+				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
+				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
+			End If
+			If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 2, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 2, date)), 2)
 			End If
@@ -2898,7 +2902,7 @@ End If
 
 If ex_parte_function = "Phase 1" Then
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
-	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 1 " & ep_revw_mo & "/" & ep_revw_yr & " income update list.txt"
+	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 1 " & ep_revw_mo & "-" & ep_revw_yr & " income update list.txt"
 	If ObjFSO.FileExists(tracking_doc_file) Then
 		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
 	Else
@@ -2957,7 +2961,7 @@ If ex_parte_function = "Phase 1" Then
 		UC_INCOME_ARRAY(uc_case_numb_const, uc_count) 	= ObjExcel.Cells(1, excel_row).Value
 		UC_INCOME_ARRAY(uc_ref_numb_const, uc_count) 	= ObjExcel.Cells(2, excel_row).Value
 		UC_INCOME_ARRAY(uc_pers_name_const, uc_count) 	= ObjExcel.Cells(3, excel_row).Value
-		UC_INCOME_ARRAY(uc_pers_pmi_const, uc_count) 	= right("00000000" & timr(ObjExcel.Cells(4, excel_row).Value), 8)
+		UC_INCOME_ARRAY(uc_pers_pmi_const, uc_count) 	= right("00000000" & trim(ObjExcel.Cells(4, excel_row).Value), 8)
 		UC_INCOME_ARRAY(uc_pers_ssn_const, uc_count) 	= replace(trim(ObjExcel.Cells(5, excel_row).Value), "-", "")  'left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
 		UC_INCOME_ARRAY(uc_inc_type_code_const, uc_count) = "14"
 		UC_INCOME_ARRAY(uc_inc_type_info_const, uc_count) = "Unemployment"
@@ -2977,7 +2981,7 @@ If ex_parte_function = "Phase 1" Then
 	ObjExcel.Quit
 
 	'Open VA verification spreadsheet and save to an array
-	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)
+	Call excel_open(va_excel_file_path, True, True, ObjExcel, objWorkbook)
 
 	va_count = 0
 	excel_row = 2
@@ -3086,8 +3090,12 @@ If ex_parte_function = "Phase 1" Then
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 			case_is_in_henn = False
-			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-			If is_this_priv Then kick_it_off_reason = "PRIV case"
+			Do
+				Call back_to_SELF
+				Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+				EMReadScreen curr_check, 4, 2, 55
+			Loop until curr_check = "CURR" or is_this_priv = True
+			If is_this_priv = True Then kick_it_off_reason = "PRIV case"
 			If is_this_priv = False Then
 				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 				EMReadScreen case_pw, 7, 21, 14
@@ -3111,6 +3119,7 @@ If ex_parte_function = "Phase 1" Then
 
 				ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
 				Do
+					Call back_to_SELF
 					Call navigate_to_MAXIS_screen("STAT", "MEMB")
 					EMReadScreen memb_check, 4, 2, 48
 				Loop until memb_check = "MEMB"
@@ -3368,7 +3377,7 @@ If ex_parte_function = "Phase 1" Then
 
 				Next
 
-				For each_uc = 0 to UBound(UC_INCOME_ARRAY)
+				For each_uc = 0 to UBound(UC_INCOME_ARRAY, 2)
 					If UC_INCOME_ARRAY(uc_case_numb_const, each_uc) = MAXIS_case_number Then
 
 						Call navigate_to_MAXIS_screen("STAT", "UNEA")
@@ -3499,7 +3508,7 @@ If ex_parte_function = "Phase 1" Then
 				Next
 
 
-				For each_va = 0 to UBound(VA_INCOME_ARRAY)
+				For each_va = 0 to UBound(VA_INCOME_ARRAY, 2)
 					If VA_INCOME_ARRAY(va_case_numb_const, eacheach_va_uc) = MAXIS_case_number Then
 
 						Call navigate_to_MAXIS_screen("STAT", "UNEA")
@@ -3634,7 +3643,7 @@ If ex_parte_function = "Phase 1" Then
 								Call write_variable_in_CASE_NOTE("   - MEDI panel updated eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & ".")
 							End If
 						Next
-						For each_va = 0 to UBound(VA_INCOME_ARRAY)
+						For each_va = 0 to UBound(VA_INCOME_ARRAY, 2)
 							If VA_INCOME_ARRAY(uc_case_numb_const, each_va) = MAXIS_case_number Then
 								If VA_INCOME_ARRAY(uc_panel_updated_const, each_va) = "YES"	Then
 									Call write_variable_in_CASE_NOTE("Income from Unemployment for MEMB " & VA_INCOME_ARRAY(va_ref_numb_const, each_va) & " - " & VA_INCOME_ARRAY(uc_pers_name_const, each_va) & ".")
@@ -3643,7 +3652,7 @@ If ex_parte_function = "Phase 1" Then
 								End If
 							End If
 						Next
-						For each_uc = 0 to UBound(UC_INCOME_ARRAY)
+						For each_uc = 0 to UBound(UC_INCOME_ARRAY, 2)
 							If UC_INCOME_ARRAY(uc_case_numb_const, each_uc) = MAXIS_case_number Then
 								If UC_INCOME_ARRAY(uc_panel_updated_const, each_uc) = "YES"	Then
 									Call write_variable_in_CASE_NOTE("Income from Unemployment for MEMB " & UC_INCOME_ARRAY(uc_ref_numb_const, each_uc) & " - " & UC_INCOME_ARRAY(uc_pers_name_const, each_uc) & ".")
