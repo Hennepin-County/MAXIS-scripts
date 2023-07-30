@@ -2080,10 +2080,10 @@ If ex_parte_function = "Prep 2" Then
 	'this is for testing - we want to know
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
 	If ObjFSO.FileExists(user_myDocs_folder & ep_revw_mo & "/" & ep_revw_yr & " - prep 2 sept second tpqy list.txt") Then
-		Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForAppending, true)
+		Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "ExParte Tracking Lists/" & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForAppending, true)
 	Else
 		' MsgBox user_myDocs_folder & ep_revw_mo & "/" & ep_revw_yr & " - prep 2 sept second tpqy list.txt"
-		Set objTextStream = ObjFSO.CreateTextFile(user_myDocs_folder & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForWriting, true)
+		Set objTextStream = ObjFSO.CreateTextFile(user_myDocs_folder & "ExParte Tracking Lists/" & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForWriting, true)
 	End If
 	objTextStream.WriteLine "LIST START"
 
@@ -2962,8 +2962,12 @@ End If
 
 If ex_parte_function = "Phase 1" Then
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
-	Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "phase 1 sept second tpqy list.txt", ForAppending, true)
-	tracking_doc_file = user_myDocs_folder & "Phase 1 " & ep_revw_mo & "/" & ep_revw_yr & " income update list.txt"
+	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 1 " & ep_revw_mo & "/" & ep_revw_yr & " income update list.txt"
+	If ObjFSO.FileExists(tracking_doc_file) Then
+		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
+	Else
+		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)
+	End If
 	objTextStream.WriteLine "LIST START"
 
 	' prep_phase_2_run_date =
@@ -4130,9 +4134,13 @@ If ex_parte_function = "Phase 2" Then
 	' MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
 
 	'TODO - add a check of the Phase 1 reason and information to update 'SelectExparte' if wrong
-
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
-	Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "phase 2 budg issues.txt", ForAppending, true)
+	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 2 " & ep_revw_mo & "/" & ep_revw_yr & " budg issues list.txt"
+	If ObjFSO.FileExists(tracking_doc_file) Then
+		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
+	Else
+		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)
+	End If
 	objTextStream.WriteLine "LIST START"
 
 	MAXIS_footer_month = CM_plus_1_mo
