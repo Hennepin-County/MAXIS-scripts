@@ -6086,6 +6086,28 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			case_rein = TRUE
 		End If
 	End If
+	row = 1                                             'Looking for MA listed as IMD information
+	col = 1
+	EMSearch "IMD:", row, col
+	If row <> 0 Then
+		EMReadScreen imd_status, 9, row, col + 4
+		imd_status = trim(imd_status)
+		If imd_status = "ACTIVE" or imd_status = "APP CLOSE" or imd_status = "APP OPEN" Then
+			ma_case = TRUE
+			case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
+		End If
+		If imd_status = "PENDING" Then
+			ma_case = TRUE
+			case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
+		End If
+		If left(imd_status, 4) = "REIN" Then
+			imd_status = "REIN"
+			ma_case = TRUE
+			case_rein = TRUE
+		End If
+	End If
     'MSA programs have different headers so we need to search for them all seperately'
     row = 1                                             'Looking for QMB information for MSA programs
     col = 1
@@ -6133,9 +6155,14 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     End If
     row = 1                                             'Looking for QI information for MSA programs
     col = 1
-    EMSearch "QI:", row, col
+    EMSearch "Q1:", row, col
+	If row = 0 Then
+		row = 1                                             'Looking for QI information for MSA programs
+		col = 1
+		EMSearch "QI:", row, col
+	End If
     If row <> 0 Then
-        EMReadScreen qi_status, 9, row, col + 5
+        EMReadScreen qi_status, 9, row, col + 4
         qi_status = trim(qi_status)
         If qi_status = "ACTIVE" or qi_status = "APP CLOSE" or qi_status = "APP OPEN" Then
             msp_case = TRUE
