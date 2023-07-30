@@ -6157,7 +6157,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     col = 1
     EMSearch "Q1:", row, col
 	If row = 0 Then
-		row = 1                                             'Looking for QI information for MSA programs
+		row = 1                                             'Maybe sometimes thils looks liek QI??
 		col = 1
 		EMSearch "QI:", row, col
 	End If
