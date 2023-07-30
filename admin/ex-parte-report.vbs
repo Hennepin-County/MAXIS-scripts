@@ -291,59 +291,7 @@ function update_stat_budg()
 			objTextStream.WriteLine "Case: " & MAXIS_case_number & " - BUDG not updated"
 			PF10
 		End If
-		' new_mo_start = budg_begin_mo
-		' new_yr_start = budg_begin_yr
-		' new_mo_end = budg_end_mo
-		' new_yr_end = budg_end_yr
-		' end_of_last_budg_date = budg_end_mo & "/1/" & budg_end_yr
-		' end_of_last_budg_date = DateAdd("d", 0, end_of_last_budg_date)
-
-		' Do while edit_message <> ""
-		' 	' reenter_correct_months = True
-		' 	PF9
-
-		' 	next_budg_pd_start = DateAdd("m", 1, end_of_last_budg_date)
-		' 	next_budg_pd_end = DateAdd("m", 6, end_of_last_budg_date)
-		' 	Call convert_date_into_MAXIS_footer_month(next_budg_pd_start, new_mo_start, new_yr_start)
-		' 	Call convert_date_into_MAXIS_footer_month(next_budg_pd_end, new_mo_end, new_yr_end)
-		' 	MsgBox "next_budg_pd_start - " & next_budg_pd_start & vbCr & "new_mo_start - " & new_mo_start & vbCr & "new_yr_start - " & new_yr_start & vbcr & vbCr &_
-		' 			 "next_budg_pd_end - " & next_budg_pd_end & vbCr & "new_mo_end - " & new_mo_end & vbCr & "new_yr_end - " & new_yr_end & vbcr & vbCr &_
-		' 			""
-
-
-		' 	EMWriteScreen new_mo_start, 5, 64
-		' 	EMWriteScreen new_yr_start, 5, 67
-		' 	EMWriteScreen new_mo_end, 5, 72
-		' 	EMWriteScreen new_yr_end, 5, 75
-		' 	MsgBox "Loop look"
-		' 	transmit
-
-		' 	Call back_to_SELF
-		' 	Call MAXIS_background_check
-		' 	Call navigate_to_MAXIS_screen("STAT", "BUDG")
-		' 	PF9
-		' 	EMWriteScreen ep_revw_mo, 5, 64
-		' 	EMWriteScreen ep_revw_yr, 5, 67
-		' 	EMWriteScreen ep_end_budg_revw_mo, 5, 72
-		' 	EMWriteScreen ep_end_budg_revw_yr, 5, 75
-		' 	transmit
-
-		' 	EMReadScreen edit_message, 56, 24, 2
-		' 	edit_message = trim(edit_message)
-		' 	end_of_last_budg_date = next_budg_pd_end
-		' Loop
-
-		' If reenter_correct_months = True Then
-		' 	PF9
-		' 	EMWriteScreen ep_revw_mo, 5, 64
-		' 	EMWriteScreen ep_revw_yr, 5, 67
-		' 	EMWriteScreen ep_end_budg_revw_mo, 5, 72
-		' 	EMWriteScreen ep_end_budg_revw_yr, 5, 75
-		' 	transmit
-		' End If
 	End If
-	' transmit
-	' MsgBox "look"
 end function
 
 
@@ -627,9 +575,6 @@ MAXIS_footer_year = CM_plus_1_yr
 
 ex_parte_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte"
 
-
-If Day(date) < 1 Then ex_parte_function = "Prep"
-
 'DISPLAYS DIALOG
 
 DO
@@ -644,23 +589,21 @@ DO
 				Text 5, 10, 400, 10, "This script will connect to the SQL Table to pull a list of cases to operate on based on the Ex Parte functionality selected."
 				Text 200, 30, 95, 10, "Selection Ex Parte Function:"
 				Text 10, 45, 35, 10, "Prep"
-				Text 50, 45, 150, 10, "Timing - 4 Days before the BUDGET Month"
-				Text 50, 55, 190, 10, "Collect any Case Criteria not available in Info Store."
-				Text 50, 65, 175, 10, "Send SVES/QURY for all members on all cases."
-				Text 50, 75, 200, 10, "Generate a UC and VA Verif Report for OS Staff completion."
-				Text 10, 90, 35, 10, "Phase 1"
-				Text 50, 90, 135, 10, "Timing - 1st Day of the BUDGET Month"
-				Text 50, 100, 245, 10, "Read SVES/TPQY Response, Update STAT with detail, enter CASE/NOTE."
-				Text 50, 110, 270, 10, "Udate STAT with UC or VA Verifications provided from OS Report and CASE/NOTE."
-				Text 50, 120, 125, 10, "Run each case through Background."
-				Text 50, 130, 200, 10, "Read and Record in the SQL Table the ELIG information."
-				Text 50, 140, 225, 10, "Read and Record in the SQL Table the detail of MMIS Open Spans."
+				Text 50, 45, 150, 10, "PREP requires TWO runs."
+				Text 50, 55, 150, 10, "Timing - prior to the last week of the PREP Month"
+				Text 50, 65, 190, 10, "Review any Case Criteria not available in Info Store."
+				Text 50, 75, 175, 10, "Send SVES/QURY for all members on all cases."
+				Text 50, 85, 200, 10, "Generate a UC and VA Verif Report for OS Staff completion."
+				Text 50, 95, 200, 10, "Makes the initial determination of Ex Parte"
+				Text 10, 110, 35, 10, "Phase 1"
+				Text 50, 110, 200, 10, "Timing - last couple days of the PREP Month"
+				Text 50, 120, 245, 10, "Read SVES/TPQY Response, Update STAT with detail, enter CASE/NOTE."
+				Text 50, 130, 270, 10, "Udate STAT with UC or VA Verifications provided from OS Report and CASE/NOTE."
+				Text 50, 140, 125, 10, "Run each case through Background."
 				Text 10, 155, 35, 10, "Phase 2"
 				Text 50, 155, 160, 10, "Timing - 1st Day of the PROCESSING Month"
-				Text 50, 165, 285, 10, "Check DAIL, CASE/NOTE, STAT for any updates since Phase 1 Ex Parte Determination."
-				Text 50, 175, 145, 10, "Record in SQL Table any Updates found."
-				Text 50, 185, 125, 10, "Run each case through Background."
-				Text 50, 195, 200, 10, "Read and Record in the SQL Table the ELIG information."
+				Text 50, 165, 285, 10, "Update STAT/BUDG to start with the Renewal Month."
+				Text 50, 175, 145, 10, "Run each case through Background."
 				Text 10, 215, 205, 10, "* * * * * THIS SCRIPT MUST BE RUN IN PRODUCTION * * * * *"
 				Text 10, 235, 190, 10, "There is no CASE/NOTE entry by this script at this time."
 			EndDialog
@@ -684,9 +627,6 @@ DO
 			If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" or ex_parte_function = "DHS Data Validation" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
-				' ep_revw_mo = "07"
-				' ep_revw_yr = "23"
-
 			End If
 			If ex_parte_function = "Phase 1" or ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 2, date)), 2)
@@ -759,10 +699,6 @@ DO
 
 			Dialog Dialog1
 			cancel_without_confirmation
-			' If IsDate(prep_phase_2_run_date) = False and ex_parte_function = "Phase 1" then
-			' 	ButtonPressed = "Loop"
-			' 	MsgBox "You must enter a date for the Prep 2 run"
-			' End If
 
 			If ButtonPressed = OK Then ButtonPressed = Confirm_Process_to_Run_btn
 		Else
@@ -3077,10 +3013,6 @@ If ex_parte_function = "Phase 1" Then
 	ObjExcel.Application.Quit
 	ObjExcel.Quit
 
-
-	MAXIS_footer_month = CM_plus_1_mo
-	MAXIS_footer_year = CM_plus_1_yr
-
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr
 	review_date = DateAdd("d", 0, review_date)
 
@@ -3807,9 +3739,6 @@ If ex_parte_function = "Phase 2" Then
 	End If
 	objTextStream.WriteLine "LIST START"
 
-	MAXIS_footer_month = CM_plus_1_mo
-	MAXIS_footer_year = CM_plus_1_yr
-
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr
 	review_date = DateAdd("d", 0, review_date)
 
@@ -4041,9 +3970,6 @@ If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	next
 
-	MAXIS_footer_month = CM_mo
-	MAXIS_footer_year = CM_yr
-
 	'navigate_to STAT to gather REVW information
 	For revs_case = 0 to UBound(EX_PARTE_REVW_INFO_ARRAY, 2)
 		MAXIS_case_number = EX_PARTE_REVW_INFO_ARRAY(case_num_const, revs_case)
@@ -4122,10 +4048,6 @@ End If
 
 If ex_parte_function = "DHS Data Validation" Then
 	data_sheet_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\DHS " & ep_revw_mo & ep_revw_yr & " List.xlsx"
-	'ep_revw_mo
-	'ep_revw_yr
-	MAXIS_footer_month = CM_plus_1_mo
-	MAXIS_footer_year = CM_plus_1_yr
 
 	call excel_open(data_sheet_file_path, True, True, ObjExcel, objWorkbook)
 	list_of_all_the_cases = " "
