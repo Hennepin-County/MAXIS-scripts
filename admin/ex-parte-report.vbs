@@ -357,10 +357,13 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 		panel_in_edit_mode = True
 	End If
 	If panel_in_edit_mode = True Then
-		Call clear_line_of_text(6, 37)
-		EMWriteScreen claim_number, 6, 37
+		If claim_number <> "" Then
+			Call clear_line_of_text(6, 37)
+			EMWriteScreen claim_number, 6, 37
+		End If
 		EMWriteScreen unea_type, 5, 37
 		EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
+		If unea_type = "11" or unea_type = "12" or unea_type = "13" or unea_type = "38" Then EMWriteScreen "6", 5, 65
 		If panel_found = False Then
 			Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
 		Else
@@ -678,7 +681,7 @@ DO
 
 			If allow_bulk_run_use = False Then script_end_procedure("Ex Parte Report functionality for completing Ex Parte actions and list review is locked. The script will now end.")
 
-			If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" Then
+			If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" or ex_parte_function = "DHS Data Validation" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
 				' ep_revw_mo = "07"
@@ -705,13 +708,28 @@ DO
 					PushButton 230, 145, 100, 15, "Incorrect Process/Month", incorrect_process_btn
 				Text 10, 10, 225, 10, "You are running the Ex Parte Function " & ex_parte_function
 				Text 10, 25, 190, 10, "This will run for the Ex Parte Review month of " & ep_revw_mo & "/" & ep_revw_yr
-				If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" Then
-					GroupBox 5, 40, 240, 50, "Tasks to be Completed:"
+
+				If ex_parte_function = "Prep 1" Then
+					GroupBox 5, 40, 240, 60, "Tasks to be Completed:"
 					Text 20, 55, 190, 10, "Collect any Case Criteria not available in Info Store."
 					Text 20, 65, 175, 10, "Send SVES/QURY for all members on all cases."
-					Text 20, 75, 200, 10, "Generate a UC and VA Verif Report for OS Staff completion."
+					Text 20, 75, 200, 10, "Generate a UC, VA, and RR Verif Report for OS Staff completion."
+					Text 20, 85, 200, 10, "Create a list of SMRT ending members."
 				End If
-				If ex_parte_function = "Phase 1" or ex_parte_function = "Check REVW information on Phase 1 Cases" Then
+				If ex_parte_function = "DHS Data Validation" Then
+					GroupBox 5, 40, 240, 60, "Tasks to be Completed:"
+					Text 20, 55, 190, 10, "Compare Hennepin Ex Parte list to the cases from the DHS list."
+				End If
+				If ex_parte_function = "Prep 2" Then
+					GroupBox 5, 40, 240, 50, "Tasks to be Completed:"
+					Text 20, 55, 270, 10, "Read SVES/TPQY and update UNEA with the response information."
+					Text 20, 65, 270, 10, "Send SVES/QURY for all members whose TPQY indicates a second associated RSDI Claim."
+					Text 20, 75, 270, 10, "Generate a list of all members with a Date of Death in TPQY."
+				End If
+				If ex_parte_function = "FIX LIST" Then
+					Text 20, 55, 270, 10, "FIX LIST HAS NO SET FUNCTIONALITY"
+				End If
+				If ex_parte_function = "Phase 1" Then
 					' Text 210, 10, 75, 10, "Date of Prep 2 Run:"
 					' EditBox 280, 5, 50, 15, prep_phase_2_run_date
 					GroupBox 5, 40, 295, 70, "Tasks to be Completed:"
@@ -721,6 +739,13 @@ DO
 					Text 20, 85, 200, 10, "Read and Record in the SQL Table the ELIG information."
 					Text 20, 95, 225, 10, "Read and Record in the SQL Table the detail of MMIS Open Spans."
 				End If
+				If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
+					GroupBox 5, 40, 240, 50, "Tasks to be Completed:"
+					Text 20, 55, 270, 10, "Pull a list of all cases for the Ex Parte month from the SQL Table."
+					Text 20, 65, 270, 10, "Pull all cases from REPT/REVS for the Ex Parte month from MAXIS."
+					Text 20, 75, 270, 10, "Read Ex Parte information from STAT/REVW."
+					Text 20, 85, 270, 10, "COnnect cases on both lists and output everything to Excel"
+				End If
 				If ex_parte_function = "Phase 2" Then
 					GroupBox 5, 40, 305, 60, "Tasks to be Completed:"
 					Text 20, 55, 285, 10, "Check DAIL, CASE/NOTE, STAT for any updates since Phase 1 Ex Parte Determination."
@@ -728,7 +753,7 @@ DO
 					Text 20, 75, 125, 10, "Run each case through Background."
 					Text 20, 85, 200, 10, "Read and Record in the SQL Table the ELIG information."
 				End If
-				' Text 10, 115, 190, 10, "There is no CASE/NOTE entry by this script at this time."
+
 				Text 10, 130, 330, 10, "Review the process datails and ex parte review month to confirm this is the correct run to complete."
 			EndDialog
 
@@ -2938,6 +2963,7 @@ End If
 If ex_parte_function = "Phase 1" Then
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
 	Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "phase 1 sept second tpqy list.txt", ForAppending, true)
+	tracking_doc_file = user_myDocs_folder & "Phase 1 " & ep_revw_mo & "/" & ep_revw_yr & " income update list.txt"
 	objTextStream.WriteLine "LIST START"
 
 	' prep_phase_2_run_date =
@@ -2979,30 +3005,6 @@ If ex_parte_function = "Phase 1" Then
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-	' Call excel_open(va_excel_file_path, True, True, ObjExcel, objWorkbook)
-
-	' va_count = 0
-	' excel_row = 2
-
-	' Do
-
-	' 	ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)
-
-	' 	VA_INCOME_ARRAY(va_case_numb_const, va_count) = MAXIS_case_number
-	' 	VA_INCOME_ARRAY(va_ref_numb_const, va_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
-	' 	VA_INCOME_ARRAY(va_pers_name_const, va_count) = MEMBER_INFO_ARRAY(memb_name_const, each_memb)
-	' 	VA_INCOME_ARRAY(va_pers_ssn_const, va_count) = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
-	' 	VA_INCOME_ARRAY(va_pers_pmi_const, va_count) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
-	' 	VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = ""
-	' 	VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = "VA Income"
-	' 	VA_INCOME_ARRAY(va_claim_numb_const, va_count) = ""
-	' 	VA_INCOME_ARRAY(va_prosp_inc_const, va_count) = "Unknown"
-
-	' 	va_count = va_count + 1
-	' 	excel_row = excel_row + 1
-	' 	MAXIS_case_number = ObjExcel.Cells(excel_row, 1).Value
-	' Loop until MAXIS_case_number = ""
-
 	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)
 
 	uc_count = 0
@@ -3015,15 +3017,53 @@ If ex_parte_function = "Phase 1" Then
 		UC_INCOME_ARRAY(uc_case_numb_const, uc_count) 	= ObjExcel.Cells(1, excel_row).Value
 		UC_INCOME_ARRAY(uc_ref_numb_const, uc_count) 	= ObjExcel.Cells(2, excel_row).Value
 		UC_INCOME_ARRAY(uc_pers_name_const, uc_count) 	= ObjExcel.Cells(3, excel_row).Value
-		UC_INCOME_ARRAY(uc_pers_pmi_const, uc_count) 	= ObjExcel.Cells(4, excel_row).Value
-		UC_INCOME_ARRAY(uc_pers_ssn_const, uc_count) 	= ObjExcel.Cells(5, excel_row).Value  'left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
+		UC_INCOME_ARRAY(uc_pers_pmi_const, uc_count) 	= right("00000000" & timr(ObjExcel.Cells(4, excel_row).Value), 8)
+		UC_INCOME_ARRAY(uc_pers_ssn_const, uc_count) 	= replace(trim(ObjExcel.Cells(5, excel_row).Value), "-", "")  'left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
 		UC_INCOME_ARRAY(uc_inc_type_code_const, uc_count) = "14"
 		UC_INCOME_ARRAY(uc_inc_type_info_const, uc_count) = "Unemployment"
 		UC_INCOME_ARRAY(uc_claim_numb_const, uc_count) 	= ObjExcel.Cells(7, excel_row).Value
 		UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) 	= ObjExcel.Cells(9, excel_row).Value
 		UC_INCOME_ARRAY(uc_end_date_const, uc_count) 	= ObjExcel.Cells(10, excel_row).Value
+		If IsNumeric(UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count)) = True Then UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) * 1
 
 		uc_count = uc_count + 1
+		excel_row = excel_row + 1
+		next_case_numb = ObjExcel.Cells(1, excel_row).Value
+	Loop until next_case_numb = ""
+
+	ObjExcel.ActiveWorkbook.Close
+
+	ObjExcel.Application.Quit
+	ObjExcel.Quit
+
+	'Open VA verification spreadsheet and save to an array
+	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)
+
+	va_count = 0
+	excel_row = 2
+
+	Do
+		ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)
+
+		VA_INCOME_ARRAY(va_case_numb_const, va_count) 	= trim(ObjExcel.Cells(1, excel_row).Value)		'MAXIS_case_number
+		VA_INCOME_ARRAY(va_ref_numb_const, va_count) 	= trim(ObjExcel.Cells(2, excel_row).Value)		'MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+		VA_INCOME_ARRAY(va_pers_name_const, va_count) 	= trim(ObjExcel.Cells(3, excel_row).Value)		'MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+		VA_INCOME_ARRAY(va_pers_pmi_const, va_count) 	= right("00000000" & trim(ObjExcel.Cells(4, excel_row).Value), 8)		'MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+		VA_INCOME_ARRAY(va_pers_ssn_const, va_count) 	= replace(trim(ObjExcel.Cells(5, excel_row).Value), "-", "")		'left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
+		VA_INCOME_ARRAY(va_claim_numb_const, va_count) 	= trim(ObjExcel.Cells(7, excel_row).Value)
+		VA_INCOME_ARRAY(va_prosp_inc_const, va_count) 	= trim(ObjExcel.Cells(9, excel_row).Value)
+		If IsNumeric(VA_INCOME_ARRAY(va_prosp_inc_const, va_count)) = True Then VA_INCOME_ARRAY(va_prosp_inc_const, va_count) = VA_INCOME_ARRAY(va_prosp_inc_const, va_count) * 1
+
+		va_type_from_excel = trim(ObjExcel.Cells(6, excel_row).Value)
+		If InStr(va_type_from_excel, "-") = 0 Then
+			VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = va_type_from_excel
+		Else
+			temp_array = split(va_type_from_excel, "-")
+			VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = trim(temp_array(0))
+			VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = trim(temp_array(1))
+		End If
+
+		va_count = va_count + 1
 		excel_row = excel_row + 1
 		next_case_numb = ObjExcel.Cells(1, excel_row).Value
 	Loop until next_case_numb = ""
@@ -3040,6 +3080,40 @@ If ex_parte_function = "Phase 1" Then
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr
 	review_date = DateAdd("d", 0, review_date)
 
+	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
+	If reset_in_Progress = checked Then
+		'This is opening the Ex Parte Case List data table so we can loop through it.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
+
+		Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'opening the connections and data table
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		'Loop through each item on the CASE LIST Table
+		Do While NOT objRecordSet.Eof
+		If objRecordSet("Phase1Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
+		MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
+
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+
+				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+				'opening the connections and data table
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			End If
+			objRecordSet.MoveNext			'move to the next item in the table
+		Loop
+		objRecordSet.Close			'Closing all the data connections
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+	End If
+
 	'Open The CASE LIST Table
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -3055,38 +3129,47 @@ If ex_parte_function = "Phase 1" Then
 
 	'Loop through each item on the CASE LIST Table
 	Do While NOT objRecordSet.Eof
-		' If objRecordSet("SelectExParte") = True and IsNull(objRecordSet("Phase1Complete")) = True Then
-		process_this_one = False
-		phase_1_complete = objRecordSet("Phase1Complete")
-		If IsDate(phase_1_complete) = False then
-			process_this_one = True
-		Else
-			If DateDiff("d", phase_1_complete, date) <> 0 and DateDiff("d", phase_1_complete, date) <> 1 Then process_this_one = True
-		End If
-		If objRecordSet("SelectExParte") = True and process_this_one = True Then
-		' If objRecordSet("SelectExParte") = True Then
+		If objRecordSet("SelectExParte") = True and (objRecordSet("Phase1Complete") = "" or IsNull(objRecordSet("Phase1Complete")) = True) Then
+			kick_it_off_reason = ""
+			case_active = ""
+			case_is_in_henn = ""
+			is_this_priv = ""
+
 			'For each case that is indicated as Ex parte, we are going to update the case information
 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
 
+			'Here we are setting the Phase1Complete to 'In Progress' to hold the case as being worked.
+			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'opening the connections and data table
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
 			case_is_in_henn = False
-			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-			EMReadScreen case_pw, 7, 21, 14
-			If left(case_pw, 4) = "X127" Then case_is_in_henn = True
-			kick_it_off_reason = ""
-			If case_is_in_henn = False Then kick_it_off_reason = "Case not in 27"
-			If case_active = False Then kick_it_off_reason = "Case not Active"
-			If case_active = False or case_is_in_henn = False Then
-				'WE ARE NOT going to update this here for now
-				' select_ex_parte = False
-				' objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', Phase1Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+			If is_this_priv Then kick_it_off_reason = "PRIV case"
+			If is_this_priv = False Then
+				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+				EMReadScreen case_pw, 7, 21, 14
+				If left(case_pw, 4) = "X127" Then case_is_in_henn = True
+				If case_is_in_henn = False Then kick_it_off_reason = "Case not in 27"
+				If case_active = False Then kick_it_off_reason = "Case not Active"
+			End If
+			If kick_it_off_reason <> "" Then
+				select_ex_parte = False
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', Phase1Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
-				' 'Creating objects for Access
-				' Set objUpdateConnection = CreateObject("ADODB.Connection")
-				' Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+				'Creating objects for Access
+				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-				' 'This is the file path for the statistics Access database.
-				' objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-				' objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+				'This is the file path for the statistics Access database.
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			Else
 
 
@@ -3124,11 +3207,13 @@ If ex_parte_function = "Phase 1" Then
 								EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39
 								EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
 								EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 35
+								EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
+								MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
+								MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
 								MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
 								EMReadScreen sves_response, 8, 7, 22 		'Return Date
 								sves_response = replace(sves_response," ", "/")
 								objTextStream.WriteLine MAXIS_case_number & "| NAME: " & tpqy_name_txt & "|" & "SSN: " &  tpqy_ssn_txt & "|" & "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & "|" & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb)
-
 
 								transmit
 
@@ -3324,12 +3409,12 @@ If ex_parte_function = "Phase 1" Then
 					' 		"MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb)
 
 					'Update MAXIS UNEA panels with information from TPQY
-					If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
-						Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
+					' If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
+					' 	Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-						Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
-						If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
-					End If
+					' 	Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
+					' 	If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
+					' End If
 
 					If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
 						If MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) <> MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then
@@ -3352,6 +3437,7 @@ If ex_parte_function = "Phase 1" Then
 
 						Call navigate_to_MAXIS_screen("STAT", "UNEA")
 						EMWriteScreen UC_INCOME_ARRAY(uc_ref_numb_const, each_uc), 20, 76
+						EMWriteScreen "01", 20, 79
 						transmit
 
 						Do
@@ -3360,10 +3446,10 @@ If ex_parte_function = "Phase 1" Then
 								EMReadScreen unea_claim_number, 15, 6, 37
 								unea_claim_number = replace(unea_claim_number, "_", "")
 
-								If unea_claim_number = UC_INCOME_ARRAY(uc_claim_numb_const, each_uc) Then
+								If unea_claim_number = UC_INCOME_ARRAY(uc_claim_numb_const, each_uc) or UC_INCOME_ARRAY(uc_claim_numb_const, each_uc) = "" Then
 									UC_INCOME_ARRAY(uc_panel_updated_const, each_uc) = "YES"
 									PF9
-									EMWriteScreen "6", 5, 65		'Write Verification Worker Initiated Verfication "7"
+									EMWriteScreen "6", 5, 65		'Write Other Verification Code "6"
 
 									EMReadScreen first_pay_day, 8, 13, 54
 									If first_pay_day <> "__ __ __" Then
@@ -3401,7 +3487,9 @@ If ex_parte_function = "Phase 1" Then
 										row = row + 1
 									Loop until row = 18
 
-									If UC_INCOME_ARRAY(uc_end_date_const, each_uc) <> "" Then
+									If DateDiff("m", UC_INCOME_ARRAY(uc_end_date_const, each_uc), date) >=6 Then
+										Call write_value_and_transmit("DEL", 20, 71)
+									ElseIf UC_INCOME_ARRAY(uc_end_date_const, each_uc) <> "" Then
 										Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
 										Call write_value_and_transmit("X", 6, 56)
 										Call clear_line_of_text(9, 65)
@@ -3467,11 +3555,59 @@ If ex_parte_function = "Phase 1" Then
 									Exit Do
 								End If
 							End If
+							transmit
 							EMReadScreen last_unea, 7, 24, 2
 						Loop until last_unea = "ENTER A"
 
 					End If
 				Next
+
+
+				For each_va = 0 to UBound(VA_INCOME_ARRAY)
+					If VA_INCOME_ARRAY(va_case_numb_const, eacheach_va_uc) = MAXIS_case_number Then
+
+						Call navigate_to_MAXIS_screen("STAT", "UNEA")
+						EMWriteScreen VA_INCOME_ARRAY(va_ref_numb_const, each_va), 20, 76
+						transmit
+
+						Do
+							EMReadScreen unea_inc_type, 2, 5, 37
+							If VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = unea_inc_type or (VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = "" and (unea_inc_type = "11" or unea_inc_type = "12" or unea_inc_type = "13" or unea_inc_type = "38")) Then
+								If IsNumeric(VA_INCOME_ARRAY(va_prosp_inc_const, va_count)) = True Then
+									VA_INCOME_ARRAY(va_panel_updated_const, va_count) = "YES"
+									Call update_unea_pane(True, unea_inc_type, VA_INCOME_ARRAY(va_prosp_inc_const, va_count), VA_INCOME_ARRAY(va_claim_numb_const, va_count), "", "", "")
+									If InStr(verif_types, "VA") = 0 Then verif_types = verif_types & "/VA"
+									Exit Do
+								Else
+									PF9
+									EMWriteScreen "N", 5, 65
+
+									For unea_row = 13 to 17
+										EMReadScreen pay_aount, 8, unea_row, 39
+										If pay_aount <> "________" Then
+											EMWriteScreen CM_minus_1_mo, unea_row, 25
+											EMWriteScreen CM_minus_1_yr, unea_row, 31
+										End If
+									Next
+									For unea_row = 13 to 17
+										EMReadScreen pay_aount, 8, unea_row, 68
+										If pay_aount <> "________" Then
+											EMWriteScreen CM_minus_1_mo, unea_row, 54
+											EMWriteScreen CM_minus_1_yr, unea_row, 60
+										End If
+									Next
+								End If
+
+							End If
+							transmit
+							EMReadScreen last_unea, 7, 24, 2
+						Loop until last_unea = "ENTER A"
+					End If
+				Next
+
+
+
+
 
 				'Send the case through background
 				Call write_value_and_transmit("BGTX", 20, 71)
@@ -3481,77 +3617,6 @@ If ex_parte_function = "Phase 1" Then
 
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 
-					' If ssi_claim_numb <> "" or sves_rsdi_claim_numb <> "" Then
-					If MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) <> "" Then
-						objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
-										"', GrossAmt = '" & MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) &_
-										"', NetAmt = '" & "" &_
-										"', EndDate = '" & NULL &_
-										"' WHERE [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] = '" & MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb) & "'"
-
-
-						'Creating objects for Access
-						Set objIncUpdtConnection = CreateObject("ADODB.Connection")
-						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
-
-						'This is the file path for the statistics Access database.
-						' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
-
-
-						' Set objCheckIncRecordSet = CreateObject("ADODB.Recordset")
-						' Set objCheckIncConnection = CreateObject("ADODB.Connection")
-						' Income_rows = "SELECT COUNT(*) FROM ES.ES_ExParte_IncomeList WHERE [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] = '" & MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb) & "'"
-
-						' objCheckIncConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						' objCheckIncRecordSet.Open Income_rows, objCheckIncConnection
-						' NumbRows = objCheckIncRecordSet(0).Value
-						' objCheckIncRecordSet.close
-
-						' If NumbRows = 0 Then
-						' 	Set objInsertRecordSet = CreateObject("ADODB.Recordset")
-						' 	Set objInsertConnection = CreateObject("ADODB.Connection")
-
-						' 	objInsertConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-						' 	objInsertRecordSet.Open "INSERT INTO ES.ES_ExParte_IncomeList (CaseNumber, PersonID, RefNumb, SocialSecurityNbr, SMI_Nbr, HCProg, IncExpTypeCode, IncomeTypeCode, Description, ClaimNbr, ProspAmount, HCEligReviewDate, WorkerID, PersName, QURY_Sent, RAPList, TPQY_Response, GrossAmt, NetAmt, EndDate, AuditLoadDate, AuditLoadBy, AuditChangeDate, AuditChangeBy, YearMonth) VALUES ('" & MAXIS_case_number &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_smi_numb_const, each_memb) &_
-						' 							"', '" & "HC" &_
-						' 							"', '" & "UNEA" &_
-						' 							"', '" & "03" &_
-						' 							"', '" & "SSI" &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) &_
-						' 							"', '" & review_date &_
-						' 							"', '" & "x127L1S" &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_name_const, each_memb) &_
-						' 							"', '" & #6/12/2023# &_
-						' 							"', '" & NULL &_
-						' 							"', '" & sves_response &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) &_
-						' 							"', '" & "" &_
-						' 							"', '" & NULL &_
-						' 							"', '" & now &_
-						' 							"', '" & windows_user_ID &_
-						' 							"', '" & now &_
-						' 							"', '" & windows_user_ID &_
-						' 							"', '" & "202306" & "')", objInsertConnection, adOpenStatic, adLockOptimistic
-						' 	'Closing the connection
-						' 	objInsertConnection.Close
-						' End If
-						' objCheckInc =
-
-						' 'Creating objects for Access
-
-						' 'This is the file path for the statistics Access database.
-						' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-
-						' If objCheckIncRecordSet("TPQY_Response")
-					End If
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) <> "" Then
 						objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
 										"', GrossAmt = '" & MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) &_
@@ -3568,50 +3633,6 @@ If ex_parte_function = "Phase 1" Then
 						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 
-
-						' Set objCheckIncRecordSet = CreateObject("ADODB.Recordset")
-						' Set objCheckIncConnection = CreateObject("ADODB.Connection")
-						' Income_rows = "SELECT COUNT(*) FROM ES.ES_ExParte_IncomeList WHERE [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] = '" & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) & "'"
-
-						' objCheckIncConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						' objCheckIncRecordSet.Open Income_rows, objCheckIncConnection
-						' NumbRows = objCheckIncRecordSet(0).Value
-						' objCheckIncRecordSet.close
-
-						' If NumbRows = 0 Then
-						' 	Set objInsertRecordSet = CreateObject("ADODB.Recordset")
-						' 	Set objInsertConnection = CreateObject("ADODB.Connection")
-
-						' 	objInsertConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-						' 	objInsertRecordSet.Open "INSERT INTO ES.ES_ExParte_IncomeList (CaseNumber, PersonID, RefNumb, SocialSecurityNbr, SMI_Nbr, HCProg, IncExpTypeCode, IncomeTypeCode, Description, ClaimNbr, ProspAmount, HCEligReviewDate, WorkerID, PersName, QURY_Sent, RAPList, TPQY_Response, GrossAmt, NetAmt, EndDate, AuditLoadDate, AuditLoadBy, AuditChangeDate, AuditChangeBy, YearMonth) VALUES ('" & MAXIS_case_number &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_smi_numb_const, each_memb) &_
-						' 							"', '" & "HC" &_
-						' 							"', '" & "UNEA" &_
-						' 							"', '" & "03" &_
-						' 							"', '" & "SSI" &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) &_
-						' 							"', '" & review_date &_
-						' 							"', '" & "x127L1S" &_
-						' 							"', '" & MEMBER_INFO_ARRAY(memb_name_const, client_count) &_
-						' 							"', '" & #6/12/2023# &_
-						' 							"', '" & NULL &_
-						' 							"', '" & sves_response &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) &_
-						' 							"', '" & MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) &_
-						' 							"', '" & now &_
-						' 							"', '" & windows_user_ID &_
-						' 							"', '" & now &_
-						' 							"', '" & windows_user_ID &_
-						' 							"', '" & "202306" & "')", objInsertConnection, adOpenStatic, adLockOptimistic
-						' 	'Closing the connection
-						' 	objInsertConnection.Close
-						' End If
 					End If
 				Next
 
@@ -3677,6 +3698,15 @@ If ex_parte_function = "Phase 1" Then
 								Call write_variable_in_CASE_NOTE("   - MEDI panel updated eff " & MAXIS_footer_month & "/" & MAXIS_footer_year & ".")
 							End If
 						Next
+						For each_va = 0 to UBound(VA_INCOME_ARRAY)
+							If VA_INCOME_ARRAY(uc_case_numb_const, each_va) = MAXIS_case_number Then
+								If VA_INCOME_ARRAY(uc_panel_updated_const, each_va) = "YES"	Then
+									Call write_variable_in_CASE_NOTE("Income from Unemployment for MEMB " & VA_INCOME_ARRAY(va_ref_numb_const, each_va) & " - " & VA_INCOME_ARRAY(uc_pers_name_const, each_va) & ".")
+									Call write_variable_in_CASE_NOTE(" * Income of $ " & VA_INCOME_ARRAY(va_prosp_inc_const, each_va) & " per month.")
+									objTextStream.WriteLine MAXIS_case_number & "| VA - MEMB: " & VA_INCOME_ARRAY(va_ref_numb_const, each_va)
+								End If
+							End If
+						Next
 						For each_uc = 0 to UBound(UC_INCOME_ARRAY)
 							If UC_INCOME_ARRAY(uc_case_numb_const, each_uc) = MAXIS_case_number Then
 								If UC_INCOME_ARRAY(uc_panel_updated_const, each_uc) = "YES"	Then
@@ -3715,7 +3745,7 @@ If ex_parte_function = "Phase 1" Then
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
+	end_msg = "BULK Phase 1 Run has been completed for " & review_date & "."
 
 
 
@@ -3737,11 +3767,13 @@ If ex_parte_function = "Phase 1" Then
 	ex_parte_count = 0
 	phase_1_done_count = 0
 	today_phase_1_count = 0
+	cases_removed_from_ex_parte_in_phase_1 = 0
 	Do While NOT objRecordSet.Eof
 		case_count = case_count + 1
 		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1
 		If IsNull(objRecordSet("Phase1Complete")) = False Then phase_1_done_count = phase_1_done_count + 1
 		If objRecordSet("Phase1Complete") = date Then today_phase_1_count = today_phase_1_count + 1
+		If objRecordSet("SelectExParte") = False and IsDate("PREP_Complete") = True Then cases_removed_from_ex_parte_in_phase_1 = cases_removed_from_ex_parte_in_phase_1 + 1
 		objRecordSet.MoveNext
 	Loop
     objRecordSet.Close
@@ -3752,349 +3784,347 @@ If ex_parte_function = "Phase 1" Then
 
 	end_msg = end_msg & vbCr & "Cases appear to have a HC ER scheduled for " & ep_revw_mo & "/" & ep_revw_yr & ": " & case_count
 	end_msg = end_msg & vbCr & "Cases that appear to meet Ex Parte Criteria: " & ex_parte_count & vbCr
+	end_msg = end_msg & vbCr & "Cases that completed PREP but are NOT Ex Parte Now: " & cases_removed_from_ex_parte_in_phase_1 & vbCr
+
 	end_msg = end_msg & vbCr & "Cases with Phase 1 Done: " & phase_1_done_count
 	end_msg = end_msg & vbCr & "Cases with Phase 1 Done Today: " & today_phase_1_count
 End If
 
-If ex_parte_function = "Capture ELIG and SVES Info" Then
-	ep_revw_mo = "08"
-	ep_revw_yr = "23"
+' If ex_parte_function = "Capture ELIG and SVES Info" Then
+' 	ep_revw_mo = "08"
+' 	ep_revw_yr = "23"
 
-	MAXIS_footer_month = CM_plus_1_mo
-	MAXIS_footer_year = CM_plus_1_yr
+' 	MAXIS_footer_month = CM_plus_1_mo
+' 	MAXIS_footer_year = CM_plus_1_yr
 
-	review_date = ep_revw_mo & "/1/" & ep_revw_yr
-	review_date = DateAdd("d", 0, review_date)
-
-
-	'Open The CASE LIST Table
-	'declare the SQL statement that will query the database
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open objSQL, objConnection
-
-	'Loop through each item on the CASE LIST Table
-	Do While NOT objRecordSet.Eof
-		If objRecordSet("SelectExParte") = True Then
-
-			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
-
-			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
-			memb_count = 0
-
-			' objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "' and [Phase1ELIG_Created] != 'NULL'"
-			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
-
-			'Creating objects for Access
-			Set objELIGConnection = CreateObject("ADODB.Connection")
-			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
-
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objELIGRecordSet.Open objELIGSQL, objELIGConnection
-
-			Do While NOT objELIGRecordSet.Eof
-
-				memb_known = False
-				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
-						memb_known = True
-						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
-							MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
-							MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
-							If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
-							If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
-
-						ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
-							MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= objELIGRecordSet("MajorProgram")
-							MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= objELIGRecordSet("EligType")
-							If MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
-							If MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
-						ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
-							MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
-							MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
-							If MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
-							If MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
-						End If
-
-					End If
-				Next
-
-				If memb_known = False Then
-					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
-
-					MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
-					MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
-					name_var									 		= trim(objELIGRecordSet("Name"))
-					name_array = split(name_var)
-					MEMBER_INFO_ARRAY(memb_name_const, memb_count) = name_array(UBound(name_array))
-					For name_item = 0 to UBound(name_array)-1
-						MEMBER_INFO_ARRAY(memb_name_const, memb_count) = MEMBER_INFO_ARRAY(memb_name_const, memb_count) & " " & name_array(name_item)
-					Next
-					MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
-					MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))
-					MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
-					If MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "QMB"
-					If MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "SLMB"
-					memb_count = memb_count + 1
-				End if
-				objELIGRecordSet.MoveNext
-			Loop
-			objELIGRecordSet.Close
-			objELIGConnection.Close
-			Set objELIGRecordSet=nothing
-			Set objELIGConnection=nothing
-
-			Call navigate_to_MAXIS_screen("STAT", "MEMB")
-			EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
-			transmit
-			DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-				EMReadScreen client_PMI, 8, 4, 46
-				client_PMI = trim(client_PMI)
-				client_PMI = RIGHT("00000000" & client_PMI, 8)
-
-				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					If client_PMI = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
-						EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 2, 4, 33
-						EMReadScreen clt_age, 3, 8, 76
-						MEMBER_INFO_ARRAY(memb_age_const, known_membs) = trim(clt_age)
-						Exit For
-					End If
-				Next
-				transmit
-				EMReadScreen edit_check, 7, 24, 2
-			LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-
-			Call navigate_to_MAXIS_screen("ELIG", "HC")
-
-			For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-
-				For each_prog = 1 to 3
-					If each_prog = 1 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_1, known_membs)
-					If each_prog = 2 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_2, known_membs)
-					If each_prog = 3 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_3, known_membs)
-
-					If PERS_prog <> "" Then
-						pers_type = ""
-						std = ""
-						meth = ""
-						elig_result = ""
-						results_created = ""
-						waiv = ""
-						info_found = False
-						hc_row = 8
-						Do
-							EMReadScreen read_ref_numb, 2, hc_row, 3
-							EMReadScreen clt_hc_prog, 4, hc_row, 28
-							clt_hc_prog = trim(clt_hc_prog)
-							If read_ref_numb = "  " Then EMReadScreen read_ref_numb, 2, hc_row-1, 3
-							' MsgBox "read_ref_numb - " & read_ref_numb & vbCr & "MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) - " & MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs)
-							If read_ref_numb = MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) Then
-								If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
-									' MsgBox "clt_hc_prog - " & clt_hc_prog & vbCr & "PERS_prog - " & PERS_prog
-									If clt_hc_prog = PERS_prog Then
-										info_found = True
-										results_created = "Yes"
-										EMReadScreen elig_result, 8, hc_row, 41
-										save_hc_code = clt_hc_prog
-
-										Call write_value_and_transmit("X", hc_row, 26)
-										col = 19
-										Do									'Finding the current month in elig to get the current elig type
-											EMReadScreen span_month, 2, 6, col
-											EMReadScreen span_year, 2, 6, col+3
-
-											If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
-												EMReadScreen pers_type, 2, 12, col - 2
-												EMReadScreen std, 1, 12, col + 3
-												EMReadScreen meth, 1, 13, col + 2
-												EMReadScreen waiv, 1, 17, col + 2
-												Exit Do
-											End If
-											col = col + 11
-										Loop until col = 85
+' 	review_date = ep_revw_mo & "/1/" & ep_revw_yr
+' 	review_date = DateAdd("d", 0, review_date)
 
 
-										' EMReadScreen MX_Elig, 2, 12, 72
-										If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" Then EMReadScreen pers_type, 2, 6, 56
-										PF3
-									End If
-								Else
-									info_found = True
-									If clt_hc_prog = "NO V" Then save_hc_code = "NO VERSION"
-									If clt_hc_prog = "NO R" Then save_hc_code = "NO REQUEST"
-									results_created = "No"
-								End If
-							End If
-							hc_row = hc_row + 1
-							EMReadScreen next_ref_numb, 2, hc_row, 3
-							EMReadScreen next_maj_prog, 4, hc_row, 28
-						Loop until next_ref_numb = "  " and next_maj_prog = "    "
-						' MsgBox "info_found - " & info_found
-						If info_found = true Then
-							' objUpdateEligSQL = "UPDATE ES.ES_ExParte_EligList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] != 'NULL'"
-							' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "left(PERS_prog, 2) - " & left(PERS_prog, 2) & vbCr & "clt_hc_prog - " & clt_hc_prog
-							objUpdateEligSQL = "UPDATE ES.ES_ExParte_EligList SET Phase1ELIG_Created = '" & results_created &_
-											"', Phase1ELIG_Result = '" & elig_result &_
-											"', Phase1ELIG_Prog = '" & save_hc_code &_
-											"', Phase1ELIG_Type = '" & pers_type &_
-											"', Phase1ELIG_Method = '" & meth &_
-											"', Phase1ELIG_IncStandard = '" & std &_
-											"', Phase1ELIG_Waiver = '" & waiv &_
-											"' WHERE [PMINumber] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [MajorProgram] = '" & left(PERS_prog, 2) & "'"
+' 	'Open The CASE LIST Table
+' 	'declare the SQL statement that will query the database
+' 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+
+' 	'Creating objects for Access
+' 	Set objConnection = CreateObject("ADODB.Connection")
+' 	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+' 	'This is the file path for the statistics Access database.
+' 	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 	objRecordSet.Open objSQL, objConnection
+
+' 	'Loop through each item on the CASE LIST Table
+' 	Do While NOT objRecordSet.Eof
+' 		If objRecordSet("SelectExParte") = True Then
+
+' 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+
+' 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
+' 			memb_count = 0
+
+' 			' objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "' and [Phase1ELIG_Created] != 'NULL'"
+' 			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
+
+' 			'Creating objects for Access
+' 			Set objELIGConnection = CreateObject("ADODB.Connection")
+' 			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+' 			'This is the file path for the statistics Access database.
+' 			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
+
+' 			Do While NOT objELIGRecordSet.Eof
+
+' 				memb_known = False
+' 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+' 					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
+' 						memb_known = True
+' 						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
+' 							MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
+' 							MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
+' 							If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
+' 							If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
+
+' 						ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
+' 							MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= objELIGRecordSet("MajorProgram")
+' 							MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= objELIGRecordSet("EligType")
+' 							If MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
+' 							If MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
+' 						ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+' 							MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
+' 							MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
+' 							If MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "QMB"
+' 							If MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "SLMB"
+' 						End If
+
+' 					End If
+' 				Next
+
+' 				If memb_known = False Then
+' 					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+
+' 					MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
+' 					MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
+' 					name_var									 		= trim(objELIGRecordSet("Name"))
+' 					name_array = split(name_var)
+' 					MEMBER_INFO_ARRAY(memb_name_const, memb_count) = name_array(UBound(name_array))
+' 					For name_item = 0 to UBound(name_array)-1
+' 						MEMBER_INFO_ARRAY(memb_name_const, memb_count) = MEMBER_INFO_ARRAY(memb_name_const, memb_count) & " " & name_array(name_item)
+' 					Next
+' 					MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+' 					MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))
+' 					MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
+' 					If MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "QM" Then MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "QMB"
+' 					If MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "SL" Then MEMBER_INFO_ARRAY(table_prog_1, memb_count) = "SLMB"
+' 					memb_count = memb_count + 1
+' 				End if
+' 				objELIGRecordSet.MoveNext
+' 			Loop
+' 			objELIGRecordSet.Close
+' 			objELIGConnection.Close
+' 			Set objELIGRecordSet=nothing
+' 			Set objELIGConnection=nothing
+
+' 			Call navigate_to_MAXIS_screen("STAT", "MEMB")
+' 			EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+' 			transmit
+' 			DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+' 				EMReadScreen client_PMI, 8, 4, 46
+' 				client_PMI = trim(client_PMI)
+' 				client_PMI = RIGHT("00000000" & client_PMI, 8)
+
+' 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+' 					If client_PMI = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
+' 						EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 2, 4, 33
+' 						EMReadScreen clt_age, 3, 8, 76
+' 						MEMBER_INFO_ARRAY(memb_age_const, known_membs) = trim(clt_age)
+' 						Exit For
+' 					End If
+' 				Next
+' 				transmit
+' 				EMReadScreen edit_check, 7, 24, 2
+' 			LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+' 			Call navigate_to_MAXIS_screen("ELIG", "HC")
+
+' 			For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+
+' 				For each_prog = 1 to 3
+' 					If each_prog = 1 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_1, known_membs)
+' 					If each_prog = 2 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_2, known_membs)
+' 					If each_prog = 3 Then PERS_prog = MEMBER_INFO_ARRAY(table_prog_3, known_membs)
+
+' 					If PERS_prog <> "" Then
+' 						pers_type = ""
+' 						std = ""
+' 						meth = ""
+' 						elig_result = ""
+' 						results_created = ""
+' 						waiv = ""
+' 						info_found = False
+' 						hc_row = 8
+' 						Do
+' 							EMReadScreen read_ref_numb, 2, hc_row, 3
+' 							EMReadScreen clt_hc_prog, 4, hc_row, 28
+' 							clt_hc_prog = trim(clt_hc_prog)
+' 							If read_ref_numb = "  " Then EMReadScreen read_ref_numb, 2, hc_row-1, 3
+' 							' MsgBox "read_ref_numb - " & read_ref_numb & vbCr & "MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) - " & MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs)
+' 							If read_ref_numb = MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) Then
+' 								If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+' 									' MsgBox "clt_hc_prog - " & clt_hc_prog & vbCr & "PERS_prog - " & PERS_prog
+' 									If clt_hc_prog = PERS_prog Then
+' 										info_found = True
+' 										results_created = "Yes"
+' 										EMReadScreen elig_result, 8, hc_row, 41
+' 										save_hc_code = clt_hc_prog
+
+' 										Call write_value_and_transmit("X", hc_row, 26)
+' 										col = 19
+' 										Do									'Finding the current month in elig to get the current elig type
+' 											EMReadScreen span_month, 2, 6, col
+' 											EMReadScreen span_year, 2, 6, col+3
+
+' 											If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
+' 												EMReadScreen pers_type, 2, 12, col - 2
+' 												EMReadScreen std, 1, 12, col + 3
+' 												EMReadScreen meth, 1, 13, col + 2
+' 												EMReadScreen waiv, 1, 17, col + 2
+' 												Exit Do
+' 											End If
+' 											col = col + 11
+' 										Loop until col = 85
 
 
-							' "', Phase1ELIG_SpenddownType = '" &  &
-							' "', Phase1ELIG_SpenddownAmount = '" &  &
+' 										' EMReadScreen MX_Elig, 2, 12, 72
+' 										If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" Then EMReadScreen pers_type, 2, 6, 56
+' 										PF3
+' 									End If
+' 								Else
+' 									info_found = True
+' 									If clt_hc_prog = "NO V" Then save_hc_code = "NO VERSION"
+' 									If clt_hc_prog = "NO R" Then save_hc_code = "NO REQUEST"
+' 									results_created = "No"
+' 								End If
+' 							End If
+' 							hc_row = hc_row + 1
+' 							EMReadScreen next_ref_numb, 2, hc_row, 3
+' 							EMReadScreen next_maj_prog, 4, hc_row, 28
+' 						Loop until next_ref_numb = "  " and next_maj_prog = "    "
+' 						' MsgBox "info_found - " & info_found
+' 						If info_found = true Then
+' 							' objUpdateEligSQL = "UPDATE ES.ES_ExParte_EligList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] != 'NULL'"
+' 							' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "left(PERS_prog, 2) - " & left(PERS_prog, 2) & vbCr & "clt_hc_prog - " & clt_hc_prog
+' 							objUpdateEligSQL = "UPDATE ES.ES_ExParte_EligList SET Phase1ELIG_Created = '" & results_created &_
+' 											"', Phase1ELIG_Result = '" & elig_result &_
+' 											"', Phase1ELIG_Prog = '" & save_hc_code &_
+' 											"', Phase1ELIG_Type = '" & pers_type &_
+' 											"', Phase1ELIG_Method = '" & meth &_
+' 											"', Phase1ELIG_IncStandard = '" & std &_
+' 											"', Phase1ELIG_Waiver = '" & waiv &_
+' 											"' WHERE [PMINumber] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [MajorProgram] = '" & left(PERS_prog, 2) & "'"
 
-							'Creating objects for Access
-							Set objELIGConnection = CreateObject("ADODB.Connection")
-							Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
-							'This is the file path for the statistics Access database.
-							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-							objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-							objELIGRecordSet.Open objUpdateEligSQL, objELIGConnection
-						End If
-					End If
-				Next
-			Next
+' 							' "', Phase1ELIG_SpenddownType = '" &  &
+' 							' "', Phase1ELIG_SpenddownAmount = '" &  &
+
+' 							'Creating objects for Access
+' 							Set objELIGConnection = CreateObject("ADODB.Connection")
+' 							Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+' 							'This is the file path for the statistics Access database.
+' 							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 							objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 							objELIGRecordSet.Open objUpdateEligSQL, objELIGConnection
+' 						End If
+' 					End If
+' 				Next
+' 			Next
 
 
-			' objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [GrossAmt] != 'NULL'"
-			objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
+' 			' objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [GrossAmt] != 'NULL'"
+' 			objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objIncomeConnection = CreateObject("ADODB.Connection")
-			Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+' 			'Creating objects for Access
+' 			Set objIncomeConnection = CreateObject("ADODB.Connection")
+' 			Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+' 			'This is the file path for the statistics Access database.
+' 			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 			objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 			objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
-			Do While NOT objIncomeRecordSet.Eof
-				sves_rsdi_claim_numb = ""
-				ssi_claim_numb = ""
+' 			Do While NOT objIncomeRecordSet.Eof
+' 				sves_rsdi_claim_numb = ""
+' 				ssi_claim_numb = ""
 
-				' ,[IncExpTypeCode]
-				' ,[IncomeTypeCode]
-				' MsgBox objIncomeRecordSet("IncExpTypeCode")
+' 				' ,[IncExpTypeCode]
+' 				' ,[IncomeTypeCode]
+' 				' MsgBox objIncomeRecordSet("IncExpTypeCode")
 
-				If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
-					PMI_number = objIncomeRecordSet("PersonID")
-					claim_number = objIncomeRecordSet("ClaimNbr")
-					' MsgBox "PMI_number - " & PMI_number
-					If objIncomeRecordSet("IncomeTypeCode") = "01" or objIncomeRecordSet("IncomeTypeCode") = "02" or objIncomeRecordSet("IncomeTypeCode") = "03" Then
-						Call navigate_to_MAXIS_screen("INFC", "SVES")
-						EMWriteScreen PMI_number, 5, 68
-						EMWriteScreen "TPQY", 20, 70
-						transmit
+' 				If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
+' 					PMI_number = objIncomeRecordSet("PersonID")
+' 					claim_number = objIncomeRecordSet("ClaimNbr")
+' 					' MsgBox "PMI_number - " & PMI_number
+' 					If objIncomeRecordSet("IncomeTypeCode") = "01" or objIncomeRecordSet("IncomeTypeCode") = "02" or objIncomeRecordSet("IncomeTypeCode") = "03" Then
+' 						Call navigate_to_MAXIS_screen("INFC", "SVES")
+' 						EMWriteScreen PMI_number, 5, 68
+' 						EMWriteScreen "TPQY", 20, 70
+' 						transmit
 
-						EMReadScreen check_TPQY_panel, 4, 2, 53 		'Reads for TPQY panel
-						If check_TPQY_panel = "TPQY" Then
-							EMReadScreen sves_response, 8, 7, 22 		'Return Date
-							sves_response = replace(sves_response," ", "/")
-						End If
-						transmit
+' 						EMReadScreen check_TPQY_panel, 4, 2, 53 		'Reads for TPQY panel
+' 						If check_TPQY_panel = "TPQY" Then
+' 							EMReadScreen sves_response, 8, 7, 22 		'Return Date
+' 							sves_response = replace(sves_response," ", "/")
+' 						End If
+' 						transmit
 
-						EMReadScreen check_BDXP_panel, 4, 2, 53 		'Reads fro BDXP panel
-						If check_BDXP_panel = "BDXP" Then
-							EMReadScreen sves_rsdi_claim_numb, 	12, 5, 40
-							EMReadScreen sves_dual_entl_nbr, 	10, 5, 69
-							EMReadScreen sves_rsdi_status_code, 2, 6, 19
-							EMReadScreen sves_rsdi_gross_amt, 	8, 8, 16
-							EMReadScreen sves_rsdi_net_amt, 	8, 8, 32
-							EMReadScreen sves_susp_term_date, 	5, 14, 69
+' 						EMReadScreen check_BDXP_panel, 4, 2, 53 		'Reads fro BDXP panel
+' 						If check_BDXP_panel = "BDXP" Then
+' 							EMReadScreen sves_rsdi_claim_numb, 	12, 5, 40
+' 							EMReadScreen sves_dual_entl_nbr, 	10, 5, 69
+' 							EMReadScreen sves_rsdi_status_code, 2, 6, 19
+' 							EMReadScreen sves_rsdi_gross_amt, 	8, 8, 16
+' 							EMReadScreen sves_rsdi_net_amt, 	8, 8, 32
+' 							EMReadScreen sves_susp_term_date, 	5, 14, 69
 
-							sves_rsdi_claim_numb = trim(sves_rsdi_claim_numb)
-							sves_dual_entl_nbr = trim(sves_dual_entl_nbr)
-							sves_rsdi_status_code = trim(sves_rsdi_status_code)
-							sves_rsdi_gross_amt = trim(sves_rsdi_gross_amt)
-							sves_rsdi_net_amt = trim(sves_rsdi_net_amt)
-							sves_susp_term_date = trim(sves_susp_term_date)
-							sves_susp_term_date = replace(sves_susp_term_date, " ", "/1/")
-							If sves_susp_term_date = "" Then sves_susp_term_date = NULL
-						End If
-						transmit
+' 							sves_rsdi_claim_numb = trim(sves_rsdi_claim_numb)
+' 							sves_dual_entl_nbr = trim(sves_dual_entl_nbr)
+' 							sves_rsdi_status_code = trim(sves_rsdi_status_code)
+' 							sves_rsdi_gross_amt = trim(sves_rsdi_gross_amt)
+' 							sves_rsdi_net_amt = trim(sves_rsdi_net_amt)
+' 							sves_susp_term_date = trim(sves_susp_term_date)
+' 							sves_susp_term_date = replace(sves_susp_term_date, " ", "/1/")
+' 							If sves_susp_term_date = "" Then sves_susp_term_date = NULL
+' 						End If
+' 						transmit
 
-						EMReadScreen check_BDXM_panel, 4, 2, 53 		'Reads for BDXM panel
-						If check_BDXM_panel = "BDXM" Then
-						End If
-						transmit
+' 						EMReadScreen check_BDXM_panel, 4, 2, 53 		'Reads for BDXM panel
+' 						If check_BDXM_panel = "BDXM" Then
+' 						End If
+' 						transmit
 
-						EMReadScreen check_SDXE_panel, 4, 2, 53 		'Reads for SDXE panel
-						If check_SDXE_panel = "SDXE" Then
-							EMReadScreen sves_ssi_claim_numb,	12, 5, 36
-							EMReadScreen sves_ssi_recip_code, 	2, 7, 21
-							EMReadScreen sves_ssi_pay_code, 	3, 8, 21
+' 						EMReadScreen check_SDXE_panel, 4, 2, 53 		'Reads for SDXE panel
+' 						If check_SDXE_panel = "SDXE" Then
+' 							EMReadScreen sves_ssi_claim_numb,	12, 5, 36
+' 							EMReadScreen sves_ssi_recip_code, 	2, 7, 21
+' 							EMReadScreen sves_ssi_pay_code, 	3, 8, 21
 
-							sves_ssi_claim_numb = trim(sves_ssi_claim_numb)
-							sves_ssi_recip_code = trim(sves_ssi_recip_code)
-							ssi_claim_numb = sves_ssi_claim_numb & sves_ssi_recip_code
-							sves_ssi_pay_code = trim(sves_ssi_pay_code)
-						End If
-						transmit
+' 							sves_ssi_claim_numb = trim(sves_ssi_claim_numb)
+' 							sves_ssi_recip_code = trim(sves_ssi_recip_code)
+' 							ssi_claim_numb = sves_ssi_claim_numb & sves_ssi_recip_code
+' 							sves_ssi_pay_code = trim(sves_ssi_pay_code)
+' 						End If
+' 						transmit
 
-						EMReadScreen check_SDXP_panel, 4, 2, 50 		'Reads for SDXP panel
-						If check_SDXP_panel = "SDXP" Then
-							EMReadScreen sves_ssi_gross_amt,	7, 4, 42
+' 						EMReadScreen check_SDXP_panel, 4, 2, 50 		'Reads for SDXP panel
+' 						If check_SDXP_panel = "SDXP" Then
+' 							EMReadScreen sves_ssi_gross_amt,	7, 4, 42
 
-							sves_ssi_gross_amt = trim(sves_ssi_gross_amt)
-						End If
-						transmit
+' 							sves_ssi_gross_amt = trim(sves_ssi_gross_amt)
+' 						End If
+' 						transmit
 
-						If ssi_claim_numb <> "" or sves_rsdi_claim_numb <> "" Then
-							If objIncomeRecordSet("IncomeTypeCode") = "03" Then
-								objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
-												"', GrossAmt = '" & sves_ssi_gross_amt &_
-												"', NetAmt = '" & "" &_
-												"', EndDate = '" & NULL &_
-												"' WHERE [PersonID] = '" & PMI_number & "' and [ClaimNbr] = '" & ssi_claim_numb & "'"
-							End If
-							If objIncomeRecordSet("IncomeTypeCode") = "01" or objIncomeRecordSet("IncomeTypeCode") = "02" Then
-								objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
-												"', GrossAmt = '" & sves_rsdi_gross_amt &_
-												"', NetAmt = '" & sves_rsdi_net_amt &_
-												"', EndDate = '" & sves_susp_term_date &_
-												"' WHERE [PersonID] = '" & PMI_number & "' and [ClaimNbr] = '" & sves_rsdi_claim_numb & "'"
-							End If
+' 						If ssi_claim_numb <> "" or sves_rsdi_claim_numb <> "" Then
+' 							If objIncomeRecordSet("IncomeTypeCode") = "03" Then
+' 								objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
+' 												"', GrossAmt = '" & sves_ssi_gross_amt &_
+' 												"', NetAmt = '" & "" &_
+' 												"', EndDate = '" & NULL &_
+' 												"' WHERE [PersonID] = '" & PMI_number & "' and [ClaimNbr] = '" & ssi_claim_numb & "'"
+' 							End If
+' 							If objIncomeRecordSet("IncomeTypeCode") = "01" or objIncomeRecordSet("IncomeTypeCode") = "02" Then
+' 								objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
+' 												"', GrossAmt = '" & sves_rsdi_gross_amt &_
+' 												"', NetAmt = '" & sves_rsdi_net_amt &_
+' 												"', EndDate = '" & sves_susp_term_date &_
+' 												"' WHERE [PersonID] = '" & PMI_number & "' and [ClaimNbr] = '" & sves_rsdi_claim_numb & "'"
+' 							End If
 
-							'Creating objects for Access
-							Set objIncUpdtConnection = CreateObject("ADODB.Connection")
-							Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
+' 							'Creating objects for Access
+' 							Set objIncUpdtConnection = CreateObject("ADODB.Connection")
+' 							Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
-							'This is the file path for the statistics Access database.
-							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-							objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-							objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
-						End If
-					End If
-				End If
-				objIncomeRecordSet.MoveNext
-			Loop
-			objIncomeRecordSet.Close
-			objIncomeConnection.Close
-			Set objIncomeRecordSet=nothing
-			Set objIncomeConnection=nothing
+' 							'This is the file path for the statistics Access database.
+' 							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 							objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 							objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
+' 						End If
+' 					End If
+' 				End If
+' 				objIncomeRecordSet.MoveNext
+' 			Loop
+' 			objIncomeRecordSet.Close
+' 			objIncomeConnection.Close
+' 			Set objIncomeRecordSet=nothing
+' 			Set objIncomeConnection=nothing
 
-		End If
-		objRecordSet.MoveNext
-	Loop
-End If
+' 		End If
+' 		objRecordSet.MoveNext
+' 	Loop
+' End If
 
-'Phase 1 Complete BULK Run
-'Read the WHOLE Case List Table
-'If SelectExParte = 1 And Phase1HSR = NULL - check to see if on REVW and update SelectExParte = 0 and Phase1HSR = DID NOT COMPLETE
-'EMail BI when done
 
 If ex_parte_function = "Phase 2" Then
 	' MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
@@ -4419,9 +4449,11 @@ If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 End If
 
 If ex_parte_function = "DHS Data Validation" Then
-	data_sheet_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\DHS 0823 List.xlsx"
-	MAXIS_footer_month = "07"
-	MAXIS_footer_year = "23"
+	data_sheet_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\DHS " & ep_revw_mo & ep_revw_yr & " List.xlsx"
+	'ep_revw_mo
+	'ep_revw_yr
+	MAXIS_footer_month = CM_plus_1_mo
+	MAXIS_footer_year = CM_plus_1_yr
 
 	call excel_open(data_sheet_file_path, True, True, ObjExcel, objWorkbook)
 	list_of_all_the_cases = " "
