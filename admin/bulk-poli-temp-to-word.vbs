@@ -68,47 +68,53 @@ get_county_code
 If worker_county_code = UCase("X127") then
     file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\POLI TEMP List.xlsx"
     root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\" 'KC folder where the DIFF files will be housed
-End if
-
-'dialog and dialog DO...Loop
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 296, 175, "BULK - POLI TEMP TO WORD"
-  GroupBox 10, 5, 280, 65, "Initial POLI TEMP File Selection"
-  Text 20, 20, 260, 20, "Select the Excel file that contains the POLI TEMP references by selecting the 'Browse' button, and locating the file."
-  ButtonGroup ButtonPressed
-    PushButton 15, 45, 60, 15, "Browse...", select_initial_file_button
-  EditBox 80, 45, 205, 15, file_selection_path
-  GroupBox 10, 80, 280, 70, "File Where the POLI TEMP Word Docs Will Be Saved"
-  Text 15, 95, 275, 20, "Select the Excel folder where the script will save the Word Documents by selecting the 'Browse' button, and locating the folder."
-  ButtonGroup ButtonPressed
-    PushButton 15, 120, 60, 15, "Browse...", select_save_folder_button
-  EditBox 80, 120, 205, 15, root_file_path
-  ButtonGroup ButtonPressed
-    OkButton 180, 155, 50, 15
-    CancelButton 235, 155, 50, 15
-EndDialog
-
-'dialog and dialog DO...Loop
-Do
-    Do
-        err_msg = ""
-        dialog Dialog1
-        cancel_without_confirmation
-        'Initial POLI TEMP List Excel file
-        If ButtonPressed = select_initial_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select the initial POLI TEMP List file to continue."
-        'Folder selection where the Word Docs are going to live
-        If ButtonPressed = select_save_folder_button then call select_folder(root_file_path)
-        If trim(root_file_path) = "" then
-            err_msg = err_msg & vbcr & "* Select the folder where to Word documents will be saved to continue."
-        Else
-            If right(root_file_path, 1) <> "\" or right(root_file_path, 1) <> "/" then root_file_path = root_file_path & "\"
-        End if
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
     Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+Else
+    'dialog and dialog DO...Loop
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 296, 175, "BULK - POLI TEMP TO WORD"
+      GroupBox 10, 5, 280, 65, "Initial POLI TEMP File Selection"
+      Text 20, 20, 260, 20, "Select the Excel file that contains the POLI TEMP references by selecting the 'Browse' button, and locating the file."
+      ButtonGroup ButtonPressed
+        PushButton 15, 45, 60, 15, "Browse...", select_initial_file_button
+      EditBox 80, 45, 205, 15, file_selection_path
+      GroupBox 10, 80, 280, 70, "File Where the POLI TEMP Word Docs Will Be Saved"
+      Text 15, 95, 275, 20, "Select the folder where the script will save the Word Documents by selecting the 'Browse' button, and locating the folder."
+      ButtonGroup ButtonPressed
+        PushButton 15, 120, 60, 15, "Browse...", select_save_folder_button
+      EditBox 80, 120, 205, 15, root_file_path
+      ButtonGroup ButtonPressed
+        OkButton 180, 155, 50, 15
+        CancelButton 235, 155, 50, 15
+    EndDialog
+
+    'dialog and dialog DO...Loop
+    Do
+        Do
+            error_msg = ""
+            Do
+                err_msg = ""
+                dialog Dialog1
+                cancel_without_confirmation
+                'Initial POLI TEMP List Excel file
+                If ButtonPressed = select_initial_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+                If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select the initial POLI TEMP List file to continue."
+
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+            Loop until err_msg = ""
+            'Folder selection where the Word Docs are going to live
+            If ButtonPressed = select_save_folder_button then call select_folder(root_file_path)
+            If trim(root_file_path) = "" then
+                error_msg = error_msg & vbcr & "* Select the folder where to Word documents will be saved to continue."
+            Else
+                If right(root_file_path, 1) <> "\" or right(root_file_path, 1) <> "/" then root_file_path = root_file_path & "\"
+            End if
+            IF error_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & error_msg & vbNewLine
+        Loop until error_msg = ""
+        Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+End If
 
 'Adding Excel column for file creation confirmation
 objExcel.Cells(1, 4).Value = "POLI TEMP File Found in Folder"
