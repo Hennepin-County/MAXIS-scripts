@@ -10131,7 +10131,6 @@ Function non_actionable_dails(actionable_dail)
     'Valuing variables used within the function
     this_month = CM_mo & " " & CM_yr
     next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-    CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
