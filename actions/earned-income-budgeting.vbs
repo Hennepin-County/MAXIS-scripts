@@ -1933,7 +1933,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 													save_your_work
 
 													total_pay_calculation = 0
-													LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) * 1
+													this_check_gross = trim(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) * 1
 													LIST_OF_INCOME_ARRAY(pay_detail_exists, all_income) = False
 
 													LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income))
@@ -1992,7 +1992,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 														If LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* OTHER (" & LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) & ") Pay was entered but does not appear to be a valid number, please review."
 														If LIST_OF_INCOME_ARRAY(pay_excld_other_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude OTHER (" & LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) & ") Pay was checked but amount entered does not appear to be a number."
 													End If
-													If total_pay_calculation <> LIST_OF_INCOME_ARRAY(gross_amount, all_income) Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* The pay entered in the split pay information does not match the gross pay amount entered. Update the numbers on the pay splits, or press the 'Clear' button to cancel the split pay functionality and return to the main Paycheck Received dialog to update the Gross Pay amount."
+													total_pay_calculation = FormatNumber(total_pay_calculation, 2, -1, 0, 0)
+													this_check_gross = FormatNumber(this_check_gross, 2, -1, 0, 0)
+													If total_pay_calculation <> this_check_gross Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* The pay entered in the split pay information does not match the gross pay amount entered. Update the numbers on the pay splits, or press the 'Clear' button to cancel the split pay functionality and return to the main Paycheck Received dialog to update the Gross Pay amount."
 
 													If ButtonPressed = clear_btn Then
 														' split_dlg_err_msg = "SKIP"
