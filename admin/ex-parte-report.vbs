@@ -932,6 +932,9 @@ If ex_parte_function = "ADMIN Review" Then
 	Next
 	If phase_1_factor < 10 Then phase_1_factor = 10
 	If phase_2_factor < 6 Then phase_2_factor = 6
+	If next_month_hsr_phase2_complete_count <> 0 Then
+		If phase_2_factor < 14 Then phase_2_factor = 14
+	End If
 	If phase_1_factor mod 2 = 1 Then phase_1_factor = phase_1_factor + 1
 	If phase_2_factor mod 2 = 1 Then phase_2_factor = phase_2_factor + 1
 	' MsgBox "phase_1_factor - " & phase_1_factor & vbCr & "phase_2_factor - " & phase_2_factor
@@ -1024,7 +1027,8 @@ If ex_parte_function = "ADMIN Review" Then
 			Text 15, y_pos, 205, 10, "Cases to on PROBLEM list: " & next_month_need_more_review & "    ( " & next_problem_pcnt & " % )"
 		End If
 
-		y_pos = set_y_pos + 10
+		y_pos = set_y_pos
+		y_pos = y_pos + 20
 		x_pos = 185
 		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
 			If HSR_WORK_ARRAY(case_complete_p2_count, each_worker) <> 0 Then
@@ -1044,17 +1048,21 @@ If ex_parte_function = "ADMIN Review" Then
 		If x_pos = 350 Then y_pos = y_pos + 10
 		y_pos = y_pos + 5
 		If next_month_need_to_work <> 0 Then
-			Text 180, y_pos+10, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
-			Text 350, y_pos+10, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
+			Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
+			Text 350, y_pos, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
 		Else
-			Text 180, y_pos+10, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
+			Text 180, y_pos, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
 		End If
-		GroupBox 180, set_y_pos+10, 306, y_pos-set_y_pos, "Count"
+		GroupBox 180, set_y_pos+10, 306, y_pos-set_y_pos-10, "Count"
 		Text 210, set_y_pos+10, 20, 10, "Name"
 		Text 350, set_y_pos+10, 20, 10, "Count"
 		Text 375, set_y_pos+10, 20, 10, "Name"
 		y_pos = y_pos + 5
-		If y_pos < start_y_pos+55 Then y_pos = start_y_pos+55
+		If next_month_hsr_phase2_complete_count <> 0 Then
+			If y_pos < start_y_pos+100 Then y_pos = start_y_pos+100
+		Else
+			If y_pos < start_y_pos+55 Then y_pos = start_y_pos+55
+		End If
 		' MsgBox "2 - y_pos - " & y_pos
 
 		' If y_pos < 310 then y_pos = 310
@@ -2024,18 +2032,18 @@ End If
 'This will read the SVES TPQY information that was received from the QURY in PREP 1 and update the STAT panels
 If ex_parte_function = "Prep 2" Then
 	'this is for testing - we want to know
+	'Creating a txt file output of cases in where there is a second TPQY.
 	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
-	If ObjFSO.FileExists(user_myDocs_folder & ep_revw_mo & "/" & ep_revw_yr & " - prep 2 sept second tpqy list.txt") Then
-		Set objTextStream = ObjFSO.OpenTextFile(user_myDocs_folder & "ExParte Tracking Lists/" & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForAppending, true)
-	Else
-		' MsgBox user_myDocs_folder & ep_revw_mo & "/" & ep_revw_yr & " - prep 2 sept second tpqy list.txt"
-		Set objTextStream = ObjFSO.CreateTextFile(user_myDocs_folder & "ExParte Tracking Lists/" & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt", ForWriting, true)
+	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/" & ep_revw_mo & "-" & ep_revw_yr & " - prep 2 sept second tpqy list.txt"
+	If ObjFSO.FileExists(tracking_doc_file) Then		'If the file exists we open it and set to add to it
+		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
+	Else												'If the file does not exists, we create it and set to writing the file
+		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)
 	End If
-	objTextStream.WriteLine "LIST START"
+	objTextStream.WriteLine "LIST START"		'This is going to head each start of the script run.
 
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
-	MsgBox "review_date - " & review_date
 
 	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
 	If reset_in_Progress = checked Then
@@ -2091,7 +2099,7 @@ If ex_parte_function = "Prep 2" Then
 
 	excel_row = 2		'initializing the counter to move through the excel lines
 
-	yesterday = DateAdd("d", -1, date)
+	yesterday = DateAdd("d", -1, date)		'defining yesterday
 
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -2105,7 +2113,22 @@ If ex_parte_function = "Prep 2" Then
 
 	'Loop through each item on the CASE LIST Table
 	Do While NOT objRecordSet.Eof
-		If objRecordSet("SelectExParte") = True and objRecordSet("PREP_Complete") <> date and objRecordSet("PREP_Complete") <> yesterday Then
+		'We are selecting cases that are indicated as Ex Parte
+		'We need to determine if the information in the table necessitates the functionality be run as a separate logic statement
+		work_this_case = True
+		If IsDate(objRecordSet("PREP_Complete")) = True Then
+			prep_complete_date = objRecordSet("PREP_Complete")			'pulling this into a seperate variable allows us to do things with it, like MAKE SURE it is treated as a date
+			prep_complete_date = DateAdd("d", 0, prep_complete_date)	'force it to be a date
+			If prep_complete_date = date Then work_this_case = False	'if this was already completed today or yesterday, we do not need to run the functionality again
+			If prep_complete_date = yesterday Then work_this_case = False
+		Else
+			'if this is not a date, then we only work it if it null or blank
+			If objRecordSet("PREP_Complete") = "In Progress" Then work_this_case = False
+			If IsNull(objRecordSet("PREP_Complete")) = False and objRecordSet("PREP_Complete") <> "" Then work_this_case = False
+		End If
+
+		'determining which case on this list we should work.
+		If objRecordSet("SelectExParte") = True and work_this_case = True Then
 			'For each case that is indicated as Ex parte, we are going to update the case information
 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
 
@@ -2168,7 +2191,6 @@ If ex_parte_function = "Prep 2" Then
 						MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
 						EMReadScreen sves_response, 8, 7, 22 		'Return Date
 						sves_response = replace(sves_response," ", "/")
-						' MsgBox "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & vbCr & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb)
 					End If
 					transmit
 
@@ -2187,8 +2209,6 @@ If ex_parte_function = "Prep 2" Then
 						MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
 						MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
 						MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
-						' MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb))
-						' MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb))
 						MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
 						MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
 						MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
@@ -2271,7 +2291,6 @@ If ex_parte_function = "Prep 2" Then
 						MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
 						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
 						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
-						' MsgBox MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb)
 					End If
 					transmit
 
@@ -2344,8 +2363,6 @@ If ex_parte_function = "Prep 2" Then
 						MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
 						MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb)= False
 						If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True
-
-						' If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then MsgBox "STOP"
 					End If
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
 						If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
@@ -2354,7 +2371,6 @@ If ex_parte_function = "Prep 2" Then
 						End If
 					End If
 
-					' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "MAXIS_case_number - " & MAXIS_case_number & vbCr & "sves_response - " & sves_response
 					objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] != 'NULL'"
 
 					Set objIncomeConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
@@ -2844,6 +2860,7 @@ If ex_parte_function = "Prep 2" Then
 
 			End If
 
+			'here is the update statement. setting the Phase2 BULK run completion date for the case running
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
@@ -2853,21 +2870,20 @@ If ex_parte_function = "Prep 2" Then
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 		End If
-
-		objRecordSet.MoveNext
+		objRecordSet.MoveNext			'now we go to the next case
 	Loop
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
 
+	'Formatting the table created in the list of date of death that is listed
 	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjExcel.Range("A1:H" & excel_row - 1), xlYes).Name = "Table1"
 	ObjExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 	ObjExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 
-
+	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
-
 
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
@@ -2891,37 +2907,43 @@ If ex_parte_function = "Prep 2" Then
 		If objRecordSet("PREP_Complete") = yesterday Then prep_2_count = prep_2_count + 1
 		objRecordSet.MoveNext
 	Loop
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
-	percent_ex_parte = ex_parte_count/case_count
+
+	percent_ex_parte = ex_parte_count/case_count						'formatting some percentages
 	percent_ex_parte = percent_ex_parte * 100
 	percent_ex_parte = FormatNumber(percent_ex_parte, 2, -1, 0, -1)
 
+	'Creating an end message to display the case list counts
 	end_msg = end_msg & vbCr & "Cases appear to have a HC ER scheduled for " & ep_revw_mo & "/" & ep_revw_yr & ": " & case_count
 	end_msg = end_msg & vbCr & "Cases that appear to meet Ex Parte Criteria: " & ex_parte_count
 	end_msg = end_msg & vbCr & "This appears to be " & percent_ex_parte & "% of cases."
 	end_msg = end_msg & vbCr & vbCr & "Cases with PREP completed: " &  prep_done_count
 	end_msg = end_msg & vbCr & "Cases where PREP 2 is completed: " & prep_2_count
+
+	'This is the end of the fucntionality and will just display the end message at the end of this script file.
 End If
 
 If ex_parte_function = "Phase 1" Then
-	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
+	'Creating a txt file output of cases where the income was updated during this run.
+	Set ObjFSO = CreateObject("Scripting.FileSystemObject")			'creating the object to connect with the file
 	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 1 " & ep_revw_mo & "-" & ep_revw_yr & " income update list.txt"
-	If ObjFSO.FileExists(tracking_doc_file) Then
+	If ObjFSO.FileExists(tracking_doc_file) Then					'If the file exists we open it and set to add to it
 		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
-	Else
+	Else															'If the file does not exists, we create it and set to writing the file
 		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)
 	End If
-	objTextStream.WriteLine "LIST START"
+	objTextStream.WriteLine "LIST START"		'This is going to head each start of the script run.
 
-	' prep_phase_2_run_date =
+	'loading the excel file paths into the variables based on the naming ocnventions.
 	va_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	uc_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	rr_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	smrt_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex ParteSMRT Ending\SMRT Ending - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 
+	'this dialog is necessary for Phase 1 to mark what date the second QURYs were sent and the Excel files with other income information
 	Do
 		Do
 			err_msg = ""
@@ -2939,7 +2961,6 @@ If ex_parte_function = "Phase 1" Then
 				EditBox 10, 130, 325, 15, smrt_excel_file_path
 				ButtonGroup ButtonPressed
 					PushButton 185, 150, 210, 15, "Continue, all excel files are accurate.", continue_phase_1_btn
-					' PushButton 230, 145, 100, 15, "Incorrect Process/Month", incorrect_process_btn
 					PushButton 345, 40, 50, 15, "VA BROWSE", va_browse_btn
 					PushButton 345, 70, 50, 15, "UC BROWSE", uc_browse_btn
 					PushButton 345, 100, 50, 15, "RR BROWSE", rr_browse_btn
@@ -2949,21 +2970,23 @@ If ex_parte_function = "Phase 1" Then
 			Dialog Dialog1
 			cancel_without_confirmation
 
-			' If IsDate(prep_phase_2_run_date) = False Then
+			If IsDate(prep_phase_2_run_date) = False Then err_msg = err_msg & vbCr * "* Enter the date the second PREP run was completed. If you are not sure, check the SQL table."
+
+			If err_msg <> "" Then MsgBox "* * * * NOTICE * * * *" & vbCr & err_msg
 
 		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)
+	'Here we load the verifications of income that we receive from the Excel files for UC and VA into arrays
+	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)			'opening the UC excel
 
-	uc_count = 0
+	uc_count = 0			'setting the initial incrementors
 	excel_row = 2
-
 	Do
+		ReDim Preserve UC_INCOME_ARRAY(uc_last_const, uc_count)						'resize the array
 
-		ReDim Preserve UC_INCOME_ARRAY(uc_last_const, uc_count)
-
+		'adding the information from the Excel to the array
 		UC_INCOME_ARRAY(uc_case_numb_const, uc_count) 	= ObjExcel.Cells(1, excel_row).Value
 		UC_INCOME_ARRAY(uc_ref_numb_const, uc_count) 	= ObjExcel.Cells(2, excel_row).Value
 		UC_INCOME_ARRAY(uc_pers_name_const, uc_count) 	= ObjExcel.Cells(3, excel_row).Value
@@ -2976,25 +2999,24 @@ If ex_parte_function = "Phase 1" Then
 		UC_INCOME_ARRAY(uc_end_date_const, uc_count) 	= ObjExcel.Cells(10, excel_row).Value
 		If IsNumeric(UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count)) = True Then UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) * 1
 
-		uc_count = uc_count + 1
+		uc_count = uc_count + 1				'count up
 		excel_row = excel_row + 1
-		next_case_numb = ObjExcel.Cells(1, excel_row).Value
+		next_case_numb = ObjExcel.Cells(1, excel_row).Value		'loop until there are no more cases
 	Loop until next_case_numb = ""
 
-	ObjExcel.ActiveWorkbook.Close
-
+	ObjExcel.ActiveWorkbook.Close		'close the Excel file
 	ObjExcel.Application.Quit
 	ObjExcel.Quit
 
-	'Open VA verification spreadsheet and save to an array
-	Call excel_open(va_excel_file_path, True, True, ObjExcel, objWorkbook)
+	'Now for VA
+	Call excel_open(va_excel_file_path, True, True, ObjExcel, objWorkbook)		'Opening the VA excel
 
-	va_count = 0
+	va_count = 0			'setting the initial inrementors
 	excel_row = 2
-
 	Do
-		ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)
+		ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)					'resize the array
 
+		' adding the information from the Excel to the array
 		VA_INCOME_ARRAY(va_case_numb_const, va_count) 	= trim(ObjExcel.Cells(1, excel_row).Value)		'MAXIS_case_number
 		VA_INCOME_ARRAY(va_ref_numb_const, va_count) 	= trim(ObjExcel.Cells(2, excel_row).Value)		'MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 		VA_INCOME_ARRAY(va_pers_name_const, va_count) 	= trim(ObjExcel.Cells(3, excel_row).Value)		'MEMBER_INFO_ARRAY(memb_name_const, each_memb)
@@ -3004,7 +3026,7 @@ If ex_parte_function = "Phase 1" Then
 		VA_INCOME_ARRAY(va_prosp_inc_const, va_count) 	= trim(ObjExcel.Cells(9, excel_row).Value)
 		If IsNumeric(VA_INCOME_ARRAY(va_prosp_inc_const, va_count)) = True Then VA_INCOME_ARRAY(va_prosp_inc_const, va_count) = VA_INCOME_ARRAY(va_prosp_inc_const, va_count) * 1
 
-		va_type_from_excel = trim(ObjExcel.Cells(6, excel_row).Value)
+		va_type_from_excel = trim(ObjExcel.Cells(6, excel_row).Value)			'splitting UNEA type code and the information detail
 		If InStr(va_type_from_excel, "-") = 0 Then
 			VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = va_type_from_excel
 		Else
@@ -3013,17 +3035,16 @@ If ex_parte_function = "Phase 1" Then
 			VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = trim(temp_array(1))
 		End If
 
-		va_count = va_count + 1
+		va_count = va_count + 1				'count up
 		excel_row = excel_row + 1
-		next_case_numb = ObjExcel.Cells(1, excel_row).Value
+		next_case_numb = ObjExcel.Cells(1, excel_row).Value		'Loop until there are no more cases
 	Loop until next_case_numb = ""
 
-	ObjExcel.ActiveWorkbook.Close
-
+	ObjExcel.ActiveWorkbook.Close		'close the Excel file
 	ObjExcel.Application.Quit
 	ObjExcel.Quit
 
-	review_date = ep_revw_mo & "/1/" & ep_revw_yr
+	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
 
 	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
@@ -3040,8 +3061,8 @@ If ex_parte_function = "Phase 1" Then
 
 		'Loop through each item on the CASE LIST Table
 		Do While NOT objRecordSet.Eof
-		If objRecordSet("Phase1Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
-		MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
+			If objRecordSet("Phase1Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
+				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
 				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
 
@@ -3722,23 +3743,31 @@ If ex_parte_function = "Phase 1" Then
 	Do While NOT objRecordSet.Eof
 		case_count = case_count + 1
 		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1
-		If IsNull(objRecordSet("Phase1Complete")) = False Then phase_1_done_count = phase_1_done_count + 1
-		If objRecordSet("Phase1Complete") = date Then today_phase_1_count = today_phase_1_count + 1
-		If objRecordSet("SelectExParte") = False and IsDate("PREP_Complete") = True Then cases_removed_from_ex_parte_in_phase_1 = cases_removed_from_ex_parte_in_phase_1 + 1
+
+		If IsDate(objRecordSet("Phase1Complete")) = True Then
+			phase_1_done_count = phase_1_done_count + 1
+			phase_1_date = objRecordSet("Phase1Complete")
+			phase_1_date = DateAdd("d", 0, phase_1_date)
+			If phase_1_date = date Then today_phase_1_count = today_phase_1_count + 1
+		End If
+		If objRecordSet("Phase1Complete") = "Case not in 27" Then cases_removed_from_ex_parte_in_phase_1 = cases_removed_from_ex_parte_in_phase_1 + 1
+		If objRecordSet("Phase1Complete") = "Case not Active" Then cases_removed_from_ex_parte_in_phase_1 = cases_removed_from_ex_parte_in_phase_1 + 1
 		objRecordSet.MoveNext
 	Loop
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-
+	'Creating an end message to display the case list counts
 	end_msg = end_msg & vbCr & "Cases appear to have a HC ER scheduled for " & ep_revw_mo & "/" & ep_revw_yr & ": " & case_count
 	end_msg = end_msg & vbCr & "Cases that appear to meet Ex Parte Criteria: " & ex_parte_count & vbCr
 	end_msg = end_msg & vbCr & "Cases that completed PREP but are NOT Ex Parte Now: " & cases_removed_from_ex_parte_in_phase_1 & vbCr
 
 	end_msg = end_msg & vbCr & "Cases with Phase 1 Done: " & phase_1_done_count
 	end_msg = end_msg & vbCr & "Cases with Phase 1 Done Today: " & today_phase_1_count
+
+	'This is the end of the fucntionality and will just display the end message at the end of this script file.
 End If
 
 'This functionality is run on the 1st of the Processing Month.
