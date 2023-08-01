@@ -269,25 +269,28 @@ function send_sves_qury(ssn_or_claim, qury_finish)
 end function
 
 function update_stat_budg()
-	Call navigate_to_MAXIS_screen("STAT", "BUDG")
-	EMReadScreen budg_begin_mo, 2, 10, 35
+'function purpose is to update STAT/BUDG to align with the Ex Parte Renewal month
+'This is a necessary step because Ex Parte process in MAXIS will only correctly message IF the ELIG Budget starts with the Ex parte month
+	Call navigate_to_MAXIS_screen("STAT", "BUDG")		'get to STAT/BUDG
+	EMReadScreen budg_begin_mo, 2, 10, 35				'Read the current budget month and year
 	EMReadScreen budg_begin_yr, 2, 10, 38
 	EMReadScreen budg_end_mo, 2, 10, 46
 	EMReadScreen budg_end_yr, 2, 10, 49
 
-	If budg_begin_mo <> ep_revw_mo Then
-		PF9 		'put the panel in update mode.
-		EMWriteScreen ep_revw_mo, 5, 64
+	'this version of the functionality only gives one attempt
+	'BUDG is fussy and won't allow for any gaps in buget months, and also doesn't allow for multiple changes very easily.
+	If budg_begin_mo <> ep_revw_mo Then					'If it does not already match we are going to try to change it
+		PF9 											'put the panel in update mode.
+		EMWriteScreen ep_revw_mo, 5, 64					'Entering the
 		EMWriteScreen ep_revw_yr, 5, 67
-		EMWriteScreen ep_end_budg_revw_mo, 5, 72
+		EMWriteScreen ep_end_budg_revw_mo, 5, 72		'We have to enter in the last budget month and year as well
 		EMWriteScreen ep_end_budg_revw_yr, 5, 75
-		' reenter_correct_months = False
-		transmit
+		transmit										'save the updates
 
-		EMReadScreen edit_message, 56, 24, 2
-		edit_message = trim(edit_message)
+		EMReadScreen edit_message, 56, 24, 2			'check to see if there is an edit in the panel
+		edit_message = trim(edit_message)				'trim the edit message
 
-		If edit_message <> "" Then
+		If edit_message <> "" Then						'If there is an edit message - we will save the case and undo the changes
 			objTextStream.WriteLine "Case: " & MAXIS_case_number & " - BUDG not updated"
 			PF10
 		End If
@@ -636,10 +639,10 @@ DO
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 2, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 2, date)), 2)
 			End If
-			If ex_parte_function = "Phase 2" Then
-				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 1, date)), 2)
+			If ex_parte_function = "Phase 2" Then											'setting the dates for a Phase 2 BULK run
+				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 1, date)), 2)			'This is the ex parte renewal month when running Phase 2 BULK
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 1, date)), 2)
-				ep_end_budg_revw_mo = right("00" & DatePart("m",	DateAdd("m", 6, date)), 2)
+				ep_end_budg_revw_mo = right("00" & DatePart("m",	DateAdd("m", 6, date)), 2)	'this sets the last month of the budget period. We need this to update STAT/BUDG
 				ep_end_budg_revw_yr = right(DatePart("yyyy",	DateAdd("m", 6, date)), 2)
 			End If
 
@@ -692,10 +695,8 @@ DO
 				End If
 				If ex_parte_function = "Phase 2" Then
 					GroupBox 5, 40, 305, 60, "Tasks to be Completed:"
-					Text 20, 55, 285, 10, "Check DAIL, CASE/NOTE, STAT for any updates since Phase 1 Ex Parte Determination."
-					Text 20, 65, 145, 10, "Record in SQL Table any Updates found."
-					Text 20, 75, 125, 10, "Run each case through Background."
-					Text 20, 85, 200, 10, "Read and Record in the SQL Table the ELIG information."
+					Text 20, 55, 285, 10, "Update STAT/BUDG to align with the Ex Parte Renewal Month"
+					Text 20, 65, 145, 10, "Run each case through Background."
 				End If
 
 				Text 10, 130, 330, 10, "Review the process datails and ex parte review month to confirm this is the correct run to complete."
@@ -3735,28 +3736,64 @@ If ex_parte_function = "Phase 1" Then
 	end_msg = end_msg & vbCr & "Cases with Phase 1 Done Today: " & today_phase_1_count
 End If
 
+'This functionality is run on the 1st of the Processing Month.
+'Currently it ONLY updates STAT/BUDG to align the budget to the processing requirements and send the case through background
 If ex_parte_function = "Phase 2" Then
-	' MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
+	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
+	review_date = DateAdd("d", 0, review_date)
 
-	'TODO - add a check of the Phase 1 reason and information to update 'SelectExparte' if wrong
-	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
-	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 2 " & ep_revw_mo & "/" & ep_revw_yr & " budg issues list.txt"
-	If ObjFSO.FileExists(tracking_doc_file) Then
-		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)
-	Else
-		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)
+	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails (Unset In Progress)
+	If reset_in_Progress = checked Then
+		'This is opening the Ex Parte Case List data table so we can loop through it.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
+
+		Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'opening the connections and data table
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		'Loop through each item on the CASE LIST Table
+		Do While NOT objRecordSet.Eof
+			If objRecordSet("Phase2Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
+				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
+
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+
+				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+				'opening the connections and data table
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			End If
+			objRecordSet.MoveNext			'move to the next item in the table
+		Loop
+		objRecordSet.Close			'Closing all the data connections
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
 	End If
-	objTextStream.WriteLine "LIST START"
 
-	review_date = ep_revw_mo & "/1/" & ep_revw_yr
+	'Creating a txt file output of cases in which the BUDG update did not work or there was another problem.
+	Set ObjFSO = CreateObject("Scripting.FileSystemObject")			'creating the object to connect with the file
+	tracking_doc_file = user_myDocs_folder & "ExParte Tracking Lists/Phase 2 " & ep_revw_mo & "-" & ep_revw_yr & " budg issues list.txt"		'this is the file path
+	If ObjFSO.FileExists(tracking_doc_file) Then
+		Set objTextStream = ObjFSO.OpenTextFile(tracking_doc_file, ForAppending, true)		'If the file exists we open it and set to add to it
+	Else
+		Set objTextStream = ObjFSO.CreateTextFile(tracking_doc_file, ForWriting, true)		'If the file does not exists, we create it and set to writing the file
+	End If
+	objTextStream.WriteLine "LIST START"		'This is going to head each start of the script run.
+
+	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
 
 	'Open The CASE LIST Table
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'This is the file path for the statistics Access database.
@@ -3766,62 +3803,71 @@ If ex_parte_function = "Phase 2" Then
 
 	'Loop through each item on the CASE LIST Table
 	Do While NOT objRecordSet.Eof
-		' If objRecordSet("SelectExParte") = True and IsNull(objRecordSet("Phase1Complete")) = True Then
-		process_this_one = False
-		phase_2_complete = objRecordSet("Phase2Complete")
-		If IsDate(phase_2_complete) = False then
-			process_this_one = True
-		Else
-			If DateDiff("d", phase_2_complete, date) <> 0 and DateDiff("d", phase_2_complete, date) <> 1 Then process_this_one = True
-		End If
-		If objRecordSet("SelectExParte") = True and process_this_one = True Then
+		'Only select cases that are Ex Parte and where Phase 2 Complete has not been updated
+		'NOTE - we have to use NULL and "" because if the 'unset' and In Progress case, it appears as a "" instead of a NULL
+		If objRecordSet("SelectExParte") = True and (IsNull(objRecordSet("Phase2Complete")) = True or objRecordSet("Phase2Complete") = "") Then
+			'For each case that is indicated as Ex parte, we are going to update the case information
 			MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
 
+			'Here we are setting the Phase1Complete to 'In Progress' to hold the case as being worked.
+			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'opening the connections and data table
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
+			'Need to make sure we get to SUMM
 			Do
 				Call navigate_to_MAXIS_screen("STAT", "SUMM")
 				EMReadScreen summ_check, 4, 2, 46
 			Loop until summ_check = "SUMM"
-			verif_types = ""
 
+			'Calls the function to update the budget panel
 			Call update_stat_budg
 
 			'Send the case through background
-			Call write_value_and_transmit("BGTX", 20, 71)
-			EMReadScreen wrap_check, 4, 2, 46
-			If wrap_check = "WRAP" Then transmit
-			Call back_to_SELF
+			Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
+			EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
+			If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
+			EMWaitReady 0, 0												'give a pause here
+			EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
+			If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
+			'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
+			Call back_to_SELF												'Need to get to SELF
 
+			'here is the update statement. setting the Phase2 BULK run completion date for the case running
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
-			'Creating objects for Access
-			Set objUpdateConnection = CreateObject("ADODB.Connection")
+
+			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
+			'opening the connections and data table
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 		End If
-		objRecordSet.MoveNext
+		objRecordSet.MoveNext			'now we go to the next case
 	Loop
 
-	objRecordSet.Close
+	objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
 
+	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Phase 2 Run has been completed for " & review_date & "."
-
-
 
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open objSQL, objConnection
 
@@ -3838,17 +3884,18 @@ If ex_parte_function = "Phase 2" Then
 		If objRecordSet("Phase2Complete") = date Then today_phase_2_count = today_phase_2_count + 1
 		objRecordSet.MoveNext
 	Loop
-    objRecordSet.Close
+    objRecordSet.Close			'Closing all the data connections
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-
+	'Creating an end message to display the case list counts
 	end_msg = end_msg & vbCr & "Cases appear to have a HC ER scheduled for " & ep_revw_mo & "/" & ep_revw_yr & ": " & case_count
 	end_msg = end_msg & vbCr & "Cases that appear to meet Ex Parte Criteria: " & ex_parte_count & vbCr
 	end_msg = end_msg & vbCr & "Cases with Phase 2 Done: " & phase_2_done_count
 	end_msg = end_msg & vbCr & "Cases with Phase 2 Done Today: " & today_phase_2_count
 
+	'This is the end of the fucntionality and will just display the end message at the end of this script file.
 End If
 
 If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
