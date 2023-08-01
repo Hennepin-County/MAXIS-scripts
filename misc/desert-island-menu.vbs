@@ -1,11 +1,10 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "DESERT ISLAND MAIN MENU.vbs"
 start_time = timer
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
+
+desert_island_respository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
+on_the_desert_island = TRUE
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -39,16 +38,12 @@ call changelog_update("04/28/2020", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-desert_island_respository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
-on_the_desert_island = TRUE
-
 If git_hub_issue_known = FALSE Then
     email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the respository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
     Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "URGENT! - Reporting a Possible GitHub Issue", 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
 Do
-
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 585, 350, "You are on the Desert Island - Essential Scripts during Outage"
       ButtonGroup ButtonPressed
