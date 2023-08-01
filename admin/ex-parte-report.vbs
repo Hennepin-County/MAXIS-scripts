@@ -930,10 +930,11 @@ If ex_parte_function = "ADMIN Review" Then
 		If HSR_WORK_ARRAY(case_complete_p1_count, each_worker) <> 0 Then phase_1_factor = phase_1_factor + 1
 		If HSR_WORK_ARRAY(case_complete_p2_count, each_worker) <> 0 Then phase_2_factor = phase_2_factor + 1
 	Next
-	If phase_1_factor < 6 Then phase_1_factor = 6
+	If phase_1_factor < 10 Then phase_1_factor = 10
 	If phase_2_factor < 6 Then phase_2_factor = 6
 	If phase_1_factor mod 2 = 1 Then phase_1_factor = phase_1_factor + 1
 	If phase_2_factor mod 2 = 1 Then phase_2_factor = phase_2_factor + 1
+	' MsgBox "phase_1_factor - " & phase_1_factor & vbCr & "phase_2_factor - " & phase_2_factor
 	dlg_len = 180 + (phase_1_factor/2)*10 + (phase_2_factor/2)*10
 
 	If dlg_len < 180 Then dlg_len = 185
@@ -953,14 +954,14 @@ If ex_parte_function = "ADMIN Review" Then
 		End If
 
 		'PHASE 1
-		Text 15, 85, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
-		Text 15, 100, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
-		Text 115, 110, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
-		Text 15, 125, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
-		Text 115, 135, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
-		Text 15, 150, 205, 10, "Cases processed and passed: " & month_after_next_complete_and_expt & "    ( " & month_after_next_complete_and_expt_pcnt & " % )"
+		Text 15, 75, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
+		Text 15, 90, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
+		Text 115, 100, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
+		Text 15, 115, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
+		Text 115, 125, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
+		Text 15, 140, 205, 10, "Cases processed and passed: " & month_after_next_complete_and_expt & "    ( " & month_after_next_complete_and_expt_pcnt & " % )"
 		' Text 145, 150, 75, 10, "( " & month_after_next_complete_and_expt_pcnt & " % )"
-		If Phase_one_hard_stop_passed = True Then Text 15, 165, 165, 10, "Phase One Processing has stopped."
+		If Phase_one_hard_stop_passed = True Then Text 15, 155, 165, 10, "Phase One Processing has stopped."
 
 		y_pos = 85
 		x_pos = 185
@@ -993,13 +994,15 @@ If ex_parte_function = "ADMIN Review" Then
 		Text 375, 75, 20, 10, "Name"
 
 		y_pos = y_pos + 15
-		' MsgBox "y_pos - " & y_pos
-		If y_pos = 125 Then y_pos = 165
+		If y_pos < 155 Then y_pos = 155
+		' MsgBox "1 - y_pos - " & y_pos
+		' If y_pos = 125 Then y_pos = 165
 		GroupBox 5, 65, 485, y_pos-65, "PHASE ONE - " & PHASE_ONE_MO
 
-		y_pos = y_pos + 25
+		y_pos = y_pos + 15
 
 		'PHASE 2
+		start_y_pos = y_pos
 		set_y_pos = y_pos - 10
 		Text 15, y_pos, 155, 10, "Total Cases with HC ER in " & PHASE_TWO_MO & ": " & next_month_er_count
 		y_pos = y_pos + 15
@@ -1041,23 +1044,25 @@ If ex_parte_function = "ADMIN Review" Then
 		If x_pos = 350 Then y_pos = y_pos + 10
 		y_pos = y_pos + 5
 		If next_month_need_to_work <> 0 Then
-			Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
-			Text 350, y_pos, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
+			Text 180, y_pos+10, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
+			Text 350, y_pos+10, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
 		Else
-			Text 180, y_pos, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
+			Text 180, y_pos+10, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
 		End If
-		GroupBox 180, set_y_pos, 306, y_pos-set_y_pos, "Count"
-		Text 210, set_y_pos, 20, 10, "Name"
-		Text 350, set_y_pos, 20, 10, "Count"
-		Text 375, set_y_pos, 20, 10, "Name"
-		y_pos = y_pos + 15
-		' MsgBox "y_pos - " & y_pos
-		If y_pos < 310 then y_pos = 310
-		If y_pos = 125 Then y_pos = 165
-		GroupBox 5, set_y_pos-10, 485, y_pos-set_y_pos+10, "PHASE TWO - " & PHASE_TWO_MO
+		GroupBox 180, set_y_pos+10, 306, y_pos-set_y_pos, "Count"
+		Text 210, set_y_pos+10, 20, 10, "Name"
+		Text 350, set_y_pos+10, 20, 10, "Count"
+		Text 375, set_y_pos+10, 20, 10, "Name"
+		y_pos = y_pos + 5
+		If y_pos < start_y_pos+55 Then y_pos = start_y_pos+55
+		' MsgBox "2 - y_pos - " & y_pos
+
+		' If y_pos < 310 then y_pos = 310
+		' If y_pos = 125 Then y_pos = 165
+		GroupBox 5, set_y_pos, 485, y_pos-set_y_pos+10, "PHASE TWO - " & PHASE_TWO_MO
 
 		ButtonGroup ButtonPressed
-			OkButton 440, y_pos+5, 50, 15
+			OkButton 440, y_pos+15, 50, 15
 	EndDialog
 
 	Dialog Dialog1		'There is no looping and the dialog shows until the user presses OK or Cancel
@@ -3880,8 +3885,12 @@ If ex_parte_function = "Phase 2" Then
 	Do While NOT objRecordSet.Eof
 		case_count = case_count + 1
 		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1
-		If IsNull(objRecordSet("Phase2Complete")) = False Then phase_2_done_count = phase_2_done_count + 1
-		If objRecordSet("Phase2Complete") = date Then today_phase_2_count = today_phase_2_count + 1
+		If IsDate(objRecordSet("Phase2Complete")) = True Then
+			phase_2_done_count = phase_2_done_count + 1
+			phase_2_date = objRecordSet("Phase2Complete")
+			phase_2_date = DateAdd("d", 0, phase_2_date)
+			If phase_2_date = date Then today_phase_2_count = today_phase_2_count + 1
+		End If
 		objRecordSet.MoveNext
 	Loop
     objRecordSet.Close			'Closing all the data connections
