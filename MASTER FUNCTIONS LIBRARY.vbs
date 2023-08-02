@@ -10131,7 +10131,6 @@ Function non_actionable_dails(actionable_dail)
     'Valuing variables used within the function
     this_month = CM_mo & " " & CM_yr
     next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-    CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
@@ -10292,6 +10291,14 @@ Function non_actionable_dails(actionable_dail)
     Elseif dail_type = "TIKL" then
         if instr(dail_msg, "VENDOR") OR instr(dail_msg, "VND") then
             actionable_dail = True        'Will not delete TIKL's with vendor information
+        ElseIf instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then
+            TIKL_date = cdate(TIKL_date)
+            TIKL_month = right("0" & DatePart("m",dail_month), 2)
+            If TIKL_month = CM_mo then
+                actionable_dail = True
+            Else
+                actionable_dail = False 'Deletes all Ex Parte TIKL's then that are not from the current month. Ex 07/01/2023 TIKLS start deleting on 08/01/2023.
+            End if
         Else
             six_months = DateAdd("M", -6, date)
             If cdate(six_months) => cdate(dail_month) then
