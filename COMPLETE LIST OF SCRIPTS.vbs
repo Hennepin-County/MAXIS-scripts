@@ -3379,6 +3379,7 @@ script_array(script_num).tags                   = array("")
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/07/2023#
+script_array(script_num).retirement_date		= #08/03/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
