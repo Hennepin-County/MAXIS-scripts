@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN - NEW HIRE DISCOVERY.vbs"
+name_of_script = "ADMIN - DAIL UNCLEAR INFORMATION.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_manualtime = 30
