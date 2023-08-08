@@ -55,8 +55,48 @@ EMConnect ""
 all_workers_check = 1   'checked
 'get_county_code
 worker_county_code = "X127"
+'Set current month and year
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+
+'Initial dialog
+BeginDialog Dialog1, 0, 0, 266, 190, "DAIL Unclear Information"
+  GroupBox 10, 5, 250, 80, "Using the DAIL Unclear Information Script"
+  Text 20, 20, 235, 60, "A BULK script that gathers then processes selected (HIRE and CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. The script will then review the Excel file for 6-month reporters on SNAP-only and process the DAIL messages accordingly by adding a CASE/NOTE and then removing the message."
+  Text 15, 95, 175, 10, "Indicate if creating Excel list or processing Excel list:"
+  DropListBox 15, 105, 245, 20, "Select an option..."+chr(9)+"Create new Excel list"+chr(9)+"Process existing Excel list", script_action
+  Text 15, 130, 175, 10, "If processing list, navigate to the file below:"
+  EditBox 15, 140, 200, 15, file_selection_path
+  ButtonGroup ButtonPressed
+    PushButton 220, 140, 40, 15, "Browse...", select_a_file_button
+  Text 5, 175, 60, 10, "Worker Signature:"
+  EditBox 65, 170, 110, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 180, 170, 40, 15
+    CancelButton 220, 170, 40, 15
+EndDialog
+
+DO
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation
+
+        'Dialog field validation
+        'Add handling for Browse button to allow the user to select the Excel file when processing an existing list
+        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx") 
+        'Ensures user selects script action - create or process list
+        If script_action = "Select an option..." THEN err_msg = err_msg & vbCr & "* Please indicate if you are creating or processing an Excel list."
+        'Ensures that if a new Excel list is to be created that the file path is blank
+        If script_action = "Create new Excel list" AND trim(file_selection_path) <> "" Then err_msg = err_msg & vbCr & "* The browse field must be blank if you are creating a new Excel list."
+        'Ensures that if processing an existing Excel list, the user has selected an .xlsx file path
+        If script_action = "Process existing Excel list" AND trim(file_selection_path) = "" Then err_msg = err_msg & vbCr & "* To process an existing list, you must navigate to and select the Excel file."
+        'Ensures worker signature is not blank
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please enter your worker signature."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = "" and ButtonPressed = OK
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
 
 report_month = CM_mo & "-20" & CM_yr
 file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Six Month Discovery.xlsx"
@@ -66,33 +106,7 @@ file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvemen
 'decimator_folder = CM_mo & "-" & CM_yr & " DAIL Decimator"
 'report_date = replace(date, "/", "-")
 
-'Dialog1 = ""
-'BeginDialog Dialog1, 0, 0, 266, 115, "DAIL 12 Month Contact"
-'  GroupBox 10, 5, 250, 45, "Using the DAIL 12 Month Contact Script"
-'  Text 20, 20, 235, 25, "This script should be used to evaluate 12 Month TIKL messages for action. It will remove the TIKL messages and will send a SPEC/MEMO and CASE/NOTE actions taken if only open on the SNAP Program."
-'  Text 15, 60, 60, 10, "Worker number(s):"
-'  EditBox 80, 55, 180, 15, worker_number
-'  CheckBox 80, 75, 135, 10, "Check here to process for all workers.", all_workers_check
-'  Text 5, 95, 60, 10, "Worker Signature:"
-'  EditBox 65, 90, 110, 15, worker_signature
-'  ButtonGroup ButtonPressed
-'    OkButton 180, 90, 40, 15
-'    CancelButton 220, 90, 40, 15
-'EndDialog
-'
-''the dialog
-'Do
-'	Do
-'  		err_msg = ""
-'  		dialog Dialog1
-'  		cancel_without_confirmation
-'  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
-'  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
-'        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-'  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-'  	LOOP until err_msg = ""
-'  	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-'Loop until are_we_passworded_out = false					'loops until user passwords back in
+				'loops until user passwords back in
 
 Call check_for_MAXIS(False)
 
