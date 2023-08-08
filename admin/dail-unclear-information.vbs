@@ -52,6 +52,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+'To DO - determine if necessary
 all_workers_check = 1   'checked
 'get_county_code
 worker_county_code = "X127"
@@ -98,8 +99,113 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
 
-report_month = CM_mo & "-20" & CM_yr
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Six Month Discovery.xlsx"
+
+
+
+'Script actions if creating a new Excel list option is selected
+If script_action = "Create new Excel list" Then
+    Call check_for_MAXIS(False)
+    report_month = CM_mo & "-20" & CM_yr
+
+    'Utilize function to pull workers into array.
+    ' Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+    
+    'TO DO - update after testing
+    worker_array = "X127MR7"
+
+    'Opening the Excel file
+    Set objExcel = CreateObject("Excel.Application")
+    objExcel.Visible = True
+    Set objWorkbook = objExcel.Workbooks.Add()
+    objExcel.DisplayAlerts = True
+
+    'Changes name of Excel sheet to "DAIL List"
+    ObjExcel.ActiveSheet.Name = "DAIL Messages"
+
+    'Excel headers and formatting the columns
+    objExcel.Cells(1, 1).Value = "X Number"
+    objExcel.Cells(1, 2).Value = "Case Number"
+    objExcel.Cells(1, 3).Value = "DAIL Type"
+    objExcel.Cells(1, 4).Value = "DAIL Month"
+    objExcel.Cells(1, 5).Value = "DAIL Message"
+    objExcel.Cells(1, 6).Value = "SNAP Status"
+    objExcel.Cells(1, 7).Value = "Other Programs Present"
+    objExcel.Cells(1, 8).Value = "Reporting Status"
+    objExcel.Cells(1, 9).Value = "SR Report Date"
+    objExcel.Cells(1, 10).Value = "Recertification Date"
+    objExcel.Cells(1, 11).Value = "Renewal Next Month?"
+    objExcel.Cells(1, 12).Value = "Action Required?"
+    objExcel.Cells(1, 13).Value = "Processing Notes"
+
+    FOR i = 1 to 13		'formatting the cells'
+        objExcel.Cells(1, i).Font.Bold = True		'bold font'
+        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+        objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+
+    DIM DAIL_array()
+    ReDim DAIL_array(excel_row_const, 0)
+    Dail_count = 0              'Incrementor for the array
+
+    'constants for array
+    const worker_const	                = 0
+    const maxis_case_number_const       = 1
+    const dail_type_const               = 2
+    const dail_month_const		        = 3
+    const dail_msg_const		        = 4
+    const snap_status_const             = 6
+    const other_programs_present_const  = 7
+    const reporting_status_const        = 8
+    const sr_report_date_const          = 9
+    const recertification_date_const    = 10
+    const renewal_next_month_const      = 11
+    const action_req_const              = 12
+    const processing_notes_const        = 13
+    const excel_row_const               = 14
+
+    'Sets variable for all of the Excel stuff
+    excel_row = 2
+    'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
+    Do
+        'TO DO - is this necessary?     
+        'Reading information from the BOBI report in Excel
+        MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+        MAXIS_case_number = trim(MAXIS_case_number)
+        If MAXIS_case_number = "" then exit do
+
+        ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+        DAIL_array(worker_const,	           DAIL_count) = trim(objExcel.cells(excel_row, 1).Value)
+        DAIL_array(maxis_case_number_const,    DAIL_count) = Maxis_case_number
+        DAIL_array(dail_type_const, 	       DAIL_count) = trim(objExcel.cells(excel_row, 3).Value)
+        DAIL_array(dail_month_const, 		   DAIL_count) = trim(objExcel.cells(excel_row, 4).Value)
+        DAIL_array(dail_msg_const, 		       DAIL_count) = trim(objExcel.cells(excel_row, 5).Value)
+        DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+        DAIL_count = DAIL_count + 1
+        stats_counter = stats_counter + 1       'Increment for stats counter
+        excel_row = excel_row + 1
+    Loop
+
+    ' 'To DO - confirm file path and title is correct
+    ' ' file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
+    file_selection_path = "C:\Users\MARI001\OneDrive - Hennepin County\Documents " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
+    ' Set objExcel = CreateObject("Excel.Application")
+	' 	Set objWorkbook = objExcel.Workbooks.Open(file_selection_path)
+	' 	objExcel.Visible = True
+	' 	objExcel.DisplayAlerts = True
+    ' Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
+
+    ' Set objExcel = CreateObject("Excel.Application")
+    ' objExcel.Visible = True
+
+    ' Set objWorkbook = objExcel.Workbooks.Add()
+    ' objWorkbook.SaveAs (file_selection_path)
+
+    ' objExcel.Quit
+
+    
+End If
+
+msgbox "Did excel open?"
 
 ''Finding the right folder to automatically save the file
 'month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
@@ -112,89 +218,7 @@ Call check_for_MAXIS(False)
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
-''If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
-'If all_workers_check = checked then
-'	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
-'Else
-'	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
-'
-'	'Need to add the worker_county_code to each one
-'	For each x1_number in x1s_from_dialog
-'		If worker_array = "" then
-'			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
-'		Else
-'			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-'		End if
-'	Next
-'	'Split worker_array
-'	worker_array = split(worker_array, ",")
-'End if
-'
-''Opening the Excel file
-'Set objExcel = CreateObject("Excel.Application")
-'objExcel.Visible = True
-'Set objWorkbook = objExcel.Workbooks.Add()
-'objExcel.DisplayAlerts = True
-'
-''Changes name of Excel sheet to "DAIL List"
-'ObjExcel.ActiveSheet.Name = "New Hire Discovery"
-'
-''Excel headers and formatting the columns
-'objExcel.Cells(1, 1).Value = "X Number"
-'objExcel.Cells(1, 2).Value = "Case #"
-'objExcel.Cells(1, 3).Value = "DAIL Type"
-'objExcel.Cells(1, 4).Value = "DAIL Mo."
-'objExcel.Cells(1, 5).Value = "DAIL Message"
-'objExcel.Cells(1, 9).Value = "Case Status"
-'objExcel.Cells(1, 6).Value = "SNAP Status"
-'objExcel.Cells(1, 7).Value = "Other Progs Present"
-'objExcel.Cells(1, 8).Value = "Reporting Type"
-'objExcel.Cells(1, 9).Value = "No Action Required"
-'objExcel.Cells(1, 10).Value = "Notes"
-'
-'FOR i = 1 to 10		'formatting the cells'
-'	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-'	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-'	objExcel.Columns(i).AutoFit()				'sizing the columns'
-'NEXT
-'
-DIM DAIL_array()
-ReDim DAIL_array(excel_row_const, 0)
-Dail_count = 0              'Incrementor for the array
 
-'constants for array
-const worker_const	                = 0
-const maxis_case_number_const       = 1
-const dail_type_const               = 2
-const dail_month_const		        = 3
-const dail_msg_const		        = 4
-const notes_const                   = 5
-const snap_status_const             = 6
-const other_programs_present_const  = 7
-const reporting_status_const        = 8
-const action_req_const              = 9
-const excel_row_const               = 10
-
-'Sets variable for all of the Excel stuff
-excel_row = 2
-'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
-Do
-    'Reading information from the BOBI report in Excel
-    MAXIS_case_number = objExcel.cells(excel_row, 2).Value
-    MAXIS_case_number = trim(MAXIS_case_number)
-    If MAXIS_case_number = "" then exit do
-
-    ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-    DAIL_array(worker_const,	           DAIL_count) = trim(objExcel.cells(excel_row, 1).Value)
-    DAIL_array(maxis_case_number_const,    DAIL_count) = Maxis_case_number
-    DAIL_array(dail_type_const, 	       DAIL_count) = trim(objExcel.cells(excel_row, 3).Value)
-    DAIL_array(dail_month_const, 		   DAIL_count) = trim(objExcel.cells(excel_row, 4).Value)
-    DAIL_array(dail_msg_const, 		       DAIL_count) = trim(objExcel.cells(excel_row, 5).Value)
-    DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-    DAIL_count = DAIL_count + 1
-    stats_counter = stats_counter + 1       'Increment for stats counter
-    excel_row = excel_row + 1
-Loop
 
 'MAXIS_case_number = ""
 'CALL navigate_to_MAXIS_screen("DAIL", "PICK")
