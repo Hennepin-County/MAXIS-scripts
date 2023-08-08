@@ -208,12 +208,13 @@ Do
         temp_code = "TE " & right(total_code, len(total_code) -2) 'saving convention to save POLI TEMP code as TE xx.xx.xx vs. TExx.xx.xx (creating space to make more searchable in SPO)
 
         'folder paths and saving each document
-        poli_file_name = root_file_path & temp_code & " " & poli_title & ".docx"
-        objDoc.SaveAs(poli_file_name)
+        poli_file_name = root_file_path & temp_code & " " & poli_title & ".pdf"
+        'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
         objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
-        objDoc.Final = True 'marking document as final
-        objWord.Quit
-
+        objDoc.SaveAs poli_file_name, 17
+        objDoc.Close wdDoNotSaveChanges     'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
+        objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
+        
         'blanking out the variables
         total_code = ""
         poli_title = ""
