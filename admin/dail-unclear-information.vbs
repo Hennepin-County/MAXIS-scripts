@@ -52,6 +52,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Call Check_for_MAXIS(False)
 'To DO - determine if necessary
 all_workers_check = 1   'checked
 'get_county_code
@@ -99,28 +100,34 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
 
+'TO DO - confirm functionality for this script
+'determining if this is a restart or not in function below when gathering the x numbers.
+' If trim(restart_worker_number) = "" then
+'     restart_status = False
+' Else 
+' 	restart_status = True
+' End if 
 
-
+Call check_for_MAXIS(False)
 
 'Script actions if creating a new Excel list option is selected
 If script_action = "Create new Excel list" Then
-    Call check_for_MAXIS(False)
-    report_month = CM_mo & "-20" & CM_yr
-
-    'Utilize function to pull workers into array.
+    'To Do - Utilize function to pull workers into array, uncomment once final
     ' Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+    'To Do - check, Use restart worker functionality?
+    'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
     
     'TO DO - update after testing
-    worker_array = "X127MR7"
+    worker_array = array("X127MR7")
 
-    'Opening the Excel file
+    'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
     objExcel.Visible = True
     Set objWorkbook = objExcel.Workbooks.Add()
     objExcel.DisplayAlerts = True
 
-    'Changes name of Excel sheet to "DAIL List"
-    ObjExcel.ActiveSheet.Name = "DAIL Messages"
+    'Changes name of Excel sheet to HIRE for compiling HIRE messages
+    ObjExcel.ActiveSheet.Name = "INFO"
 
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "X Number"
@@ -143,9 +150,40 @@ If script_action = "Create new Excel list" Then
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
 
+    'Creating second Excel sheet for compiling CSES messages
+    ObjExcel.Worksheets.Add().Name = "CSES"
+
+    'Excel headers and formatting the columns
+    objExcel.Cells(1, 1).Value = "X Number"
+    objExcel.Cells(1, 2).Value = "Case Number"
+    objExcel.Cells(1, 3).Value = "DAIL Type"
+    objExcel.Cells(1, 4).Value = "DAIL Month"
+    objExcel.Cells(1, 5).Value = "DAIL Message"
+    objExcel.Cells(1, 6).Value = "SNAP Status"
+    objExcel.Cells(1, 7).Value = "Other Programs Present"
+    objExcel.Cells(1, 8).Value = "Reporting Status"
+    objExcel.Cells(1, 9).Value = "SR Report Date"
+    objExcel.Cells(1, 10).Value = "Recertification Date"
+    objExcel.Cells(1, 11).Value = "Renewal Next Month?"
+    objExcel.Cells(1, 12).Value = "Action Required?"
+    objExcel.Cells(1, 13).Value = "Processing Notes"
+
+    FOR i = 1 to 13		'formatting the cells'
+        objExcel.Cells(1, i).Font.Bold = True		'bold font'
+        ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+        objExcel.Columns(i).AutoFit()				'sizing the columns'
+    NEXT
+
+    MsgBox "Excel sheets created"
+
     DIM DAIL_array()
-    ReDim DAIL_array(excel_row_const, 0)
+    'TO DO - verify why we use excel_row_const instead of 12 for number of constants - 12 because of 0-index so actually 13 items
+    ' To Do - switch back to original?
+    ' ReDim DAIL_array(excel_row_const, 0)
+    ReDim DAIL_array(13, 0)
     Dail_count = 0              'Incrementor for the array
+
+    'To do - add handling for duplicate DAIL messages? See Task based dail capture handling - lines 268 and false count
 
     'constants for array
     const worker_const	                = 0
@@ -153,57 +191,342 @@ If script_action = "Create new Excel list" Then
     const dail_type_const               = 2
     const dail_month_const		        = 3
     const dail_msg_const		        = 4
-    const snap_status_const             = 6
-    const other_programs_present_const  = 7
-    const reporting_status_const        = 8
-    const sr_report_date_const          = 9
-    const recertification_date_const    = 10
-    const renewal_next_month_const      = 11
-    const action_req_const              = 12
-    const processing_notes_const        = 13
-    const excel_row_const               = 14
-
-    'Sets variable for all of the Excel stuff
-    excel_row = 2
-    'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
-    Do
-        'TO DO - is this necessary?     
-        'Reading information from the BOBI report in Excel
-        MAXIS_case_number = objExcel.cells(excel_row, 2).Value
-        MAXIS_case_number = trim(MAXIS_case_number)
-        If MAXIS_case_number = "" then exit do
-
-        ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-        DAIL_array(worker_const,	           DAIL_count) = trim(objExcel.cells(excel_row, 1).Value)
-        DAIL_array(maxis_case_number_const,    DAIL_count) = Maxis_case_number
-        DAIL_array(dail_type_const, 	       DAIL_count) = trim(objExcel.cells(excel_row, 3).Value)
-        DAIL_array(dail_month_const, 		   DAIL_count) = trim(objExcel.cells(excel_row, 4).Value)
-        DAIL_array(dail_msg_const, 		       DAIL_count) = trim(objExcel.cells(excel_row, 5).Value)
-        DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-        DAIL_count = DAIL_count + 1
-        stats_counter = stats_counter + 1       'Increment for stats counter
-        excel_row = excel_row + 1
-    Loop
-
-    ' 'To DO - confirm file path and title is correct
-    ' ' file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
-    file_selection_path = "C:\Users\MARI001\OneDrive - Hennepin County\Documents " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
-    ' Set objExcel = CreateObject("Excel.Application")
-	' 	Set objWorkbook = objExcel.Workbooks.Open(file_selection_path)
-	' 	objExcel.Visible = True
-	' 	objExcel.DisplayAlerts = True
-    ' Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-
-    ' Set objExcel = CreateObject("Excel.Application")
-    ' objExcel.Visible = True
-
-    ' Set objWorkbook = objExcel.Workbooks.Add()
-    ' objWorkbook.SaveAs (file_selection_path)
-
-    ' objExcel.Quit
+    const snap_status_const             = 5
+    const other_programs_present_const  = 6
+    const reporting_status_const        = 7
+    const sr_report_date_const          = 8
+    const recertification_date_const    = 9
+    const renewal_next_month_const      = 10
+    const action_req_const              = 11
+    const processing_notes_const        = 12
+    ' To Do - is the excel row constant needed?
+    const excel_row_const               = 13
 
     
+    'Sets variable for all of the Excel stuff
+    excel_row = 2
+    'To Do - do we need to track deleted dails?
+    'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
+    ' Do
+    '     'TO DO - is this necessary? I don't think so so commented out for now     
+    '     'Reading information from the BOBI report in Excel
+    '     MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+    '     MAXIS_case_number = trim(MAXIS_case_number)
+    '     If MAXIS_case_number = "" then exit do
+
+    '     ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+    '     DAIL_array(worker_const,	           DAIL_count) = trim(objExcel.cells(excel_row, 1).Value)
+    '     DAIL_array(maxis_case_number_const,    DAIL_count) = Maxis_case_number
+    '     DAIL_array(dail_type_const, 	       DAIL_count) = trim(objExcel.cells(excel_row, 3).Value)
+    '     DAIL_array(dail_month_const, 		   DAIL_count) = trim(objExcel.cells(excel_row, 4).Value)
+    '     DAIL_array(dail_msg_const, 		       DAIL_count) = trim(objExcel.cells(excel_row, 5).Value)
+    '     DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+    '     DAIL_count = DAIL_count + 1
+    '     stats_counter = stats_counter + 1       'Increment for stats counter
+    '     excel_row = excel_row + 1
+    ' Loop
+
+    MsgBox "Array created"
+
+    'Navigates to DAIL to pull DAIL messages
+    MAXIS_case_number = ""
+    CALL navigate_to_MAXIS_screen("DAIL", "PICK")
+    MsgBox "Navigated to DAIL/PICK"
+    EMWriteScreen "_", 7, 39    'blank out ALL selection
+    EMWriteScreen "X", 10, 39    'Select CSES DAIL Type
+    Call write_value_and_transmit("X", 13, 39)   'Select INFO DAIL type
+    
+    MsgBox "Navigate to DAIL INFO & CSES"
+
+    'To do - do we need something to indicate that only HIRE and CSES type DAIL messages should get added
+    For each worker in worker_array
+    	Call write_value_and_transmit(worker, 21, 6)
+    	transmit 'transmits past not your dail message'
+    
+    	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
+    
+    	DO
+    		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
+    		dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+    		DO
+    			dail_type = ""
+    			dail_msg = ""
+    
+    		    'Determining if there is a new case number...
+    		    EMReadScreen new_case, 8, dail_row, 63
+    		    new_case = trim(new_case)
+                IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				    Call write_value_and_transmit("T", dail_row, 3)
+                ELSEIF new_case = "CASE NBR" THEN
+                    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                    Call write_value_and_transmit("T", dail_row + 1, 3)
+                End if
+
+                'TO DO - is this necessary?
+                dail_row = 6  'resetting the DAIL row '
+    
+                EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
+                MAXIS_case_number = trim(MAXIS_case_number)
+                
+                EMReadScreen dail_type, 4, dail_row, 6
+
+                EMReadScreen dail_month, 8, dail_row, 11
+
+    		    EMReadScreen dail_msg, 61, dail_row, 20
+
+                'Increment the stats counter
+    			stats_counter = stats_counter + 1
+                
+                'TO do - should we have handled earlier to only capture HIRE and CSES? And if so, do we need to specify HIRE since it should only be CSES messages?
+                'To do - add determination to only add HIRE and CSES messages to array
+                'To do - change dail type to HIRE, not INFO after done testing
+                If instr(dail_type,"INFO") or instr(dail_type, "CSES") Then 
+                    'To do - do we use excel_row_const or actual count?
+                    ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                    ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
+                    DAIL_array(worker_const,	           DAIL_count) = trim(worker)
+                    DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
+                    DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                    DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
+                    DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
+                    DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+                    DAIL_count = DAIL_count + 1
+
+
+                    'TO DO - ensure that switching active sheet works
+                    'add the data from DAIL to Excel
+                    If instr(dail_type,"INFO") Then
+                        objExcel.Worksheets("INFO").Activate
+                        objExcel.Cells(excel_row, 1).Value = trim(worker)
+                        objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
+                        objExcel.Cells(excel_row, 3).Value = dail_type
+                        objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+                        objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+                        excel_row = excel_row + 1
+                        'Adding MAXIS case number to case number string
+                        'TO DO - verify functionality
+                        all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+                    End If
+
+                    If instr(dail_type,"CSES") Then
+                        objExcel.Worksheets("CSES").Activate
+                        objExcel.Cells(excel_row, 1).Value = trim(worker)
+                        objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
+                        objExcel.Cells(excel_row, 3).Value = dail_type
+                        objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+                        objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+                        excel_row = excel_row + 1
+                        'Adding MAXIS case number to case number string
+                        'TO DO - verify if this is correct, necessary
+                        all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+                    End If
+                
+
+                    ' If dail_type = "HIRE" or dail_type = "CSES" then
+                    '     If instr(dail_msg, "COMPLETE INFC PANELS") then
+                    '        add_to_array = False
+                    '   Else
+                    '--------------------------------------------------------------------...and add to the array/put that in Excel.
+                    ' ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                    'TO DO - Only adding data from DAIL message to array, that is why not all constants are included
+                    ' DAIL_array(worker_const,	           DAIL_count) = trim(worker)
+                    ' DAIL_array(maxis_case_number_const,    DAIL_count) = trim(MAXIS_case_number)
+                    ' DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                    ' DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
+                    ' DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
+                    ' DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+                    ' DAIL_count = DAIL_count + 1
+
+
+                    ' 'TO DO - review and make sure this works properly 
+                    ' 'add the data from DAIL to Excel
+                    ' objExcel.Cells(excel_row, 1).Value = trim(worker)
+                    ' objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
+                    ' objExcel.Cells(excel_row, 3).Value = dail_type
+                    ' objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+                    ' objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+                    ' excel_row = excel_row + 1
+                    ' 'Adding MAXIS case number to case number string
+                    ' 'TO DO - verify if this is correct, necessary
+                    ' all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+                End if
+    
+               dail_row = dail_row + 1
+               
+                'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
+                'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+                'If message_error = "NO MESSAGES" then exit do
+    
+    			'...going to the next page if necessary
+    			EMReadScreen next_dail_check, 4, dail_row, 4
+    			If trim(next_dail_check) = "" then
+    				PF8
+    				EMReadScreen last_page_check, 21, 24, 2
+    				'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+                  If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
+    					all_done = true
+    					exit do
+    				Else
+    					dail_row = 6
+    				End if
+    			End if
+    		LOOP
+    		IF all_done = true THEN exit do
+    	LOOP
+    Next
+
+    MsgBox "DAIL messages added to array"
+
+    Call back_to_SELF
+    Call MAXIS_footer_month_confirmation
+
+    For item = 0 to Ubound(DAIL_array, 2)
+        MAXIS_case_number = DAIL_array(MAXIS_case_number_const, item)
+        Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+        If is_this_priv = True then
+            DAIL_array(processing_notes_const, item) = DAIL_array(processing_notes_const, item) & "Privileged Case"
+        Else
+            EmReadscreen worker_county, 4, 21, 14
+            If worker_county <> worker_county_code then
+                DAIL_array(processing_notes_const, item) = DAIL_array(processing_notes_const, item) & "Out-of-County Case"
+            Else
+                Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+                'SNAP Information
+                'To Do - would there be instances when we would consider a case with Snap status other than active?
+                If snap_status <> "ACTIVE" then 
+                    DAIL_array(action_req_const, item) = True
+                    DAIL_array(reporting_status_const, item) = "N/A"
+                    DAIL_array(recertification_date_const, item) = "N/A"
+                    DAIL_array(sr_report_date_const, item) = "N/A"
+                    DAIL_array(renewal_next_month_const, item) = "N/A"
+
+                End If
+
+                'If other programs are active/pending then no notice is necessary
+                If  ga_case = True OR _
+                    msa_case = True OR _
+                    mfip_case = True OR _
+                    dwp_case = True OR _
+                    grh_case = True OR _
+                    ma_case = True OR _
+                    msp_case = True then
+                        DAIL_array(other_programs_present_const, item) = True
+                        DAIL_array(action_req_const, item) = True
+                Else
+                    DAIL_array(other_programs_present_const, item) = False
+                End if
+
+                DAIL_array(snap_status_const, item) = snap_status
+
+
+                If snap_status = "ACTIVE" then
+                    'TO DO - should this be call MAXIS_background_check
+                    Call MAXIS_background_check
+                    Call navigate_to_MAXIS_screen("ELIG", "FS  ")
+                    EMReadScreen no_SNAP, 10, 24, 2
+                    If no_SNAP = "NO VERSION" then						'NO SNAP version means no determination
+                        DAIL_array(processing_notes_const, item) = DAIL_array(processing_notes_const, item) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                        DAIL_array(action_req_const, item) = True
+                    Else
+
+                        EMWriteScreen "99", 19, 78
+                        transmit
+                        'This brings up the FS versions of eligibility results to search for approved versions
+                        status_row = 7
+                        Do
+                            EMReadScreen app_status, 8, status_row, 50
+                            app_status = trim(app_status)
+                            If app_status = "" then
+                                PF3
+                                exit do 	'if end of the list is reached then exits the do loop
+                            End if
+                            If app_status = "UNAPPROV" Then status_row = status_row + 1
+                        Loop until app_status = "APPROVED" or app_status = ""
+
+                        If app_status = "" or app_status <> "APPROVED" then
+                            DAIL_array(processing_notes_const, item) = DAIL_array(processing_notes_const, item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
+                            DAIL_array(action_req_const, item) = True
+                        Elseif app_status = "APPROVED" then
+                            EMReadScreen vers_number, 1, status_row, 23
+                            Call write_value_and_transmit(vers_number, 18, 54)
+                            Call write_value_and_transmit("FSSM", 19, 70)
+                        End if
+                        EmReadscreen reporting_status, 12, 8, 31
+                        EmReadscreen recertification_date, 8, 11, 31
+                        'Converts date from string to date
+                        recertification_date = DateAdd("m", 0, recertification_date)
+                        If reporting_status = "SIX MONTH" Then 
+                            sr_report_date = DateAdd("m", -6, recertification_date)
+                        Else
+                            sr_report_date = "N/A"
+                        End If
+                        'To Do - verify that this is working properly
+                        'TO do - check on how to handle if SR or recertification is in CM
+                        If DateDiff("m", Date, recertification_date) = 1 Then renewal_next_month = True
+                        
+                        If sr_report_date <> "N/A" Then
+                            If DateDiff("m", Date, sr_report_date) = 1 Then renewal_next_month = True
+                        Else
+                            renewal_next_month = False
+                        End If
+                        DAIL_array(reporting_status_const, item) = trim(reporting_status)
+                        DAIL_array(recertification_date_const, item) = trim(recertification_date)
+                        DAIL_array(sr_report_date_const, item) = trim(sr_report_date)
+                        DAIL_array(renewal_next_month_const, item) = trim(renewal_next_month)
+                        'TO DO - ADD reading for 6-month and annual certification dates
+                    End if
+                Else
+                    DAIL_array(reporting_status_const, item) = "N/A"
+                End if
+                If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then
+                    DAIL_array(action_req_const, item) = False
+                Else
+                    DAIL_array(action_req_const, item) = True
+                End if
+                reporting_status = ""   'blanking out variable
+            End if
+        End if
+
+        'TO do - update Excel with data, update to reflect additional variables
+        'To do - verify that switching sheets to save data to correct spot is working correctly
+        If instr(dail_type,"INFO") Then
+            objExcel.Worksheets("INFO").Activate
+            objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(recertification_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 12).Value = DAIL_array(action_req_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 13).Value = DAIL_array(processing_notes_const, item)
+        End If
+
+        If instr(dail_type,"CSES") Then
+            objExcel.Worksheets("CSES").Activate
+            objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(recertification_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 12).Value = DAIL_array(action_req_const, item)
+            objExcel.Cells(DAIL_array(excel_row_const, item), 13).Value = DAIL_array(processing_notes_const, item)
+        End If
+    Next
+
+    report_month = CM_mo & "-20" & CM_yr
+    'To DO - confirm file path and title is correct
+    ' file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
+    objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Unclear Information\" & report_month & " Unclear Information.xlsx" 
+    objExcel.ActiveWorkbook.Close
+    objExcel.Application.Quit
+    objExcel.Quit
+
+    script_end_procedure("Success! Please review the list created for accuracy.")
+    
 End If
+
+script_end_procedure("Success! Please review the list created for accuracy.")
 
 msgbox "Did excel open?"
 
@@ -220,171 +543,7 @@ Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens 
 
 
 
-'MAXIS_case_number = ""
-'CALL navigate_to_MAXIS_screen("DAIL", "PICK")
-'EMWriteScreen "_", 7, 39    'blank out ALL selection
-'Call write_value_and_transmit("X", 13, 39)   'Select INFO DAIL type
-'
-'For each worker in worker_array
-'	EMWriteScreen worker, 21, 6
-'	transmit
-'	transmit 'transmit past 'not your dail message'
-'
-'	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
-'
-'	DO
-'		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
-'		dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
-'		DO
-'			dail_type = ""
-'			dail_msg = ""
-'
-'		    'Determining if there is a new case number...
-'		    EMReadScreen new_case, 8, dail_row, 63
-'		    new_case = trim(new_case)
-'            IF new_case = "CASE NBR" THEN
-'			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
-'			    Call write_value_and_transmit("T", dail_row + 1, 3)
-'				dail_row = 6
-'			End if
-'
-'            EMReadScreen maxis_case_number, 8, dail_row - 1, 73
-'            EMReadScreen dail_month, 8, dail_row, 11
-'            EmReadscreen dail_type, 4, dail_row, 6
-'			EMReadScreen dail_msg, 61, dail_row, 20
-'            dail_msg = trim(dail_msg)
-'			stats_counter = stats_counter + 1
-'
-'            If dail_type = "HIRE" or dail_type = "CSES" then
-                'If instr(dail_msg, "COMPLETE INFC PANELS") then
-                '    add_to_array = False
-'               Else
-'				    '--------------------------------------------------------------------...and add to the array/put that in Excel.
-'                    ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-'            	    DAIL_array(worker_const,	           DAIL_count) = trim(worker)
-'            	    DAIL_array(maxis_case_number_const,    DAIL_count) = trim(maxis_case_number)
-'            	    DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-'            	    DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
-'            	    DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-'                    DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-'                    DAIL_count = DAIL_count + 1
-'
-'                    objExcel.Cells(excel_row, 1).Value = trim(worker)
-'                    objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
-'                    objExcel.Cells(excel_row, 3).Value = dail_type
-'                    objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-'                    objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-'                    excel_row = excel_row + 1
-'                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 'Adding MAXIS case number to case number string
-'                End if
-'            End if
-'
-'            dail_row = dail_row + 1
-'
-'			'...going to the next page if necessary
-'			EMReadScreen next_dail_check, 4, dail_row, 4
-'			If trim(next_dail_check) = "" then
-'				PF8
-'				EMReadScreen last_page_check, 21, 24, 2
-'				'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
-'               If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
-'					all_done = true
-'					exit do
-'				Else
-'					dail_row = 6
-'				End if
-'			End if
-'		LOOP
-'		IF all_done = true THEN exit do
-'	LOOP
-'Next
 
-Call back_to_SELF
-Call MAXIS_footer_month_confirmation
-
-For item = 0 to Ubound(DAIL_array, 2)
-    MAXIS_case_number = DAIL_array(maxis_case_number_const, item)
-    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-    If is_this_priv = True then
-        DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "Privilged Case. "
-    Else
-        EmReadscreen worker_county, 4, 21, 14
-        If worker_county <> worker_county_code then
-            DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "Out-of-County Case. "
-        Else
-            Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-            'SNAP Information
-            If snap_status <> "ACTIVE" then DAIL_array(action_req_const, item) = True
-
-            'If other programs are active/pending then no notice is necessary
-            If  ga_case = True OR _
-                msa_case = True OR _
-                mfip_case = True OR _
-                dwp_case = True OR _
-                grh_case = True OR _
-                ma_case = True OR _
-                msp_case = True then
-                    DAIL_array(other_programs_present_const, item) = True
-                    DAIL_array(action_req_const, item) = True
-            Else
-                DAIL_array(other_programs_present_const, item) = False
-            End if
-
-            DAIL_array(snap_status_const, item) = snap_status
-
-
-            If snap_status = "ACTIVE" then
-                MAXIS_background_check
-                Call navigate_to_MAXIS_screen("ELIG", "FS  ")
-                EMReadScreen no_SNAP, 10, 24, 2
-	        	If no_SNAP = "NO VERSION" then						'NO SNAP version means no determiation
-	        		DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                    DAIL_array(action_req_const, item) = True
-	        	Else
-
-	        	    EMWriteScreen "99", 19, 78
-	        	    transmit
-	        	    'This brings up the FS versions of eligibilty results to search for approved versions
-	        	    status_row = 7
-	        	    Do
-	        	    	EMReadScreen app_status, 8, status_row, 50
-                        app_status = trim(app_status)
-	        	    	If app_status = "" then
-	        	    		PF3
-	        	    		exit do 	'if end of the list is reached then exits the do loop
-	        	    	End if
-	        	    	If app_status = "UNAPPROV" Then status_row = status_row + 1
-	        	    Loop until app_status = "APPROVED" or app_status = ""
-
-	        		If app_status = "" or app_status <> "APPROVED" then
-	        		   	DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                        DAIL_array(action_req_const, item) = True
-	        		Elseif app_status = "APPROVED" then
-	        		   	EMReadScreen vers_number, 1, status_row, 23
-	        		   	Call write_value_and_transmit(vers_number, 18, 54)
-                        Call write_value_and_transmit("FSSM", 19, 70)
-                    End if
-                    EmReadscreen reporting_status, 12, 8, 31
-                    DAIL_array(reporting_status_const, item) = trim(reporting_status)
-                End if
-            Else
-                DAIL_array(reporting_status_const, item) = "N/A"
-            End if
-            If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then
-                DAIL_array(action_req_const, item) = False
-            Else
-                DAIL_array(action_req_const, item) = True
-            End if
-            reporting_status = ""   'blanking out variable
-        End if
-    End if
-
-    objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(action_req_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(notes_const, item)
-Next
 
 STATS_counter = STATS_counter - 1
 'Enters info about runtime for the benefit of folks using the script
