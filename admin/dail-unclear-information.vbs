@@ -276,7 +276,6 @@ If script_action = "Create new Excel list" Then
                         'Adding MAXIS case number to case number string
                         'TO DO - verify functionality/need
                         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                        ' MsgBox dail_type
                     End If
 
                     If instr(dail_type,"CSES") Then
@@ -290,7 +289,6 @@ If script_action = "Create new Excel list" Then
                         'Adding MAXIS case number to case number string
                         'TO DO - verify if this is correct, necessary
                         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                        ' MsgBox dail_type
                     End If
                 End if
     
@@ -317,8 +315,6 @@ If script_action = "Create new Excel list" Then
     		IF all_done = true THEN exit do
     	LOOP
     Next
-
-    ' MsgBox "DAIL messages added to array"
 
     Call back_to_SELF
     Call MAXIS_footer_month_confirmation
@@ -447,7 +443,6 @@ If script_action = "Create new Excel list" Then
 
         If instr(dail_type,"CSES") Then
             objExcel.Worksheets("CSES").Activate
-            MsgBox "CSES case, it's working?"
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 6).Value = DAIL_array(snap_status_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 8).Value = DAIL_array(reporting_status_const, item)
@@ -493,8 +488,6 @@ If script_action = "Create new Excel list" Then
 End If
 
 script_end_procedure("Success! Please review the list created for accuracy.")
-
-' msgbox "Did excel open?"
 
 ''Finding the right folder to automatically save the file
 'month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
