@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("11/18/2021", "Initial version.", "Ilse Ferris, Hennepin County")
+call changelog_update("08/21/2023", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -53,15 +53,15 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 Call Check_for_MAXIS(False)
-'To DO - determine if necessary
-all_workers_check = 1   'checked
-'get_county_code
+'To DO - determine if necessary, likely remove since pulling all worker numbers
+' all_workers_check = 1   'checked
+'Sets the county code for Hennepin County as X127
 worker_county_code = "X127"
 'Set current month and year
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
-'Initial dialog
+'Initial dialog - select whether to create a list or process a list
 BeginDialog Dialog1, 0, 0, 266, 190, "DAIL Unclear Information"
   GroupBox 10, 5, 250, 80, "Using the DAIL Unclear Information Script"
   Text 20, 20, 235, 60, "A BULK script that gathers then processes selected (HIRE and CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. The script will then review the Excel file for 6-month reporters on SNAP-only and process the DAIL messages accordingly by adding a CASE/NOTE and then removing the message."
@@ -100,8 +100,8 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
 
-'TO DO - confirm functionality for this script
-'determining if this is a restart or not in function below when gathering the x numbers.
+'TO DO - confirm if restart functionality is needed
+'Determining if this is a restart or not in function below when gathering the x numbers.
 ' If trim(restart_worker_number) = "" then
 '     restart_status = False
 ' Else 
@@ -118,7 +118,7 @@ If script_action = "Create new Excel list" Then
     'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
     
     'TO DO - update after testing
-    worker_array = array("X127MR7")
+    worker_array = array("X127ED8")
 
     'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
@@ -127,7 +127,7 @@ If script_action = "Create new Excel list" Then
     objExcel.DisplayAlerts = True
 
     'Changes name of Excel sheet to HIRE for compiling HIRE messages
-    ObjExcel.ActiveSheet.Name = "INFO"
+    ObjExcel.ActiveSheet.Name = "HIRE"
 
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "X Number"
@@ -174,16 +174,13 @@ If script_action = "Create new Excel list" Then
         objExcel.Columns(i).AutoFit()				'sizing the columns'
     NEXT
 
-    MsgBox "Excel sheets created"
-
     DIM DAIL_array()
     'TO DO - verify why we use excel_row_const instead of 12 for number of constants - 12 because of 0-index so actually 13 items
-    ' To Do - switch back to original?
+    ' To Do - confirm use of actual number (14) vs excel_row_const
     ' ReDim DAIL_array(excel_row_const, 0)
-    ReDim DAIL_array(13, 0)
-    Dail_count = 0              'Incrementor for the array
-
-    'To do - add handling for duplicate DAIL messages? See Task based dail capture handling - lines 268 and false count
+    ReDim DAIL_array(14, 0)
+    'Incrementor for the array
+    Dail_count = 0
 
     'constants for array
     const worker_const	                = 0
@@ -200,45 +197,23 @@ If script_action = "Create new Excel list" Then
     const action_req_const              = 11
     const processing_notes_const        = 12
     ' To Do - is the excel row constant needed?
-    const excel_row_const               = 13
+    const excel_row_hire_const          = 13
+    const excel_row_cses_const          = 14
 
     
-    'Sets variable for all of the Excel stuff
-    excel_row = 2
-    'To Do - do we need to track deleted dails?
+    'Sets variable for the Excel rows to export data to Excel sheet
+    excel_row_hire = 2
+    excel_row_cses = 2
+    'To Do - add tracking of deleted dails once processing the list
     'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
-    ' Do
-    '     'TO DO - is this necessary? I don't think so so commented out for now     
-    '     'Reading information from the BOBI report in Excel
-    '     MAXIS_case_number = objExcel.cells(excel_row, 2).Value
-    '     MAXIS_case_number = trim(MAXIS_case_number)
-    '     If MAXIS_case_number = "" then exit do
-
-    '     ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-    '     DAIL_array(worker_const,	           DAIL_count) = trim(objExcel.cells(excel_row, 1).Value)
-    '     DAIL_array(maxis_case_number_const,    DAIL_count) = Maxis_case_number
-    '     DAIL_array(dail_type_const, 	       DAIL_count) = trim(objExcel.cells(excel_row, 3).Value)
-    '     DAIL_array(dail_month_const, 		   DAIL_count) = trim(objExcel.cells(excel_row, 4).Value)
-    '     DAIL_array(dail_msg_const, 		       DAIL_count) = trim(objExcel.cells(excel_row, 5).Value)
-    '     DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-    '     DAIL_count = DAIL_count + 1
-    '     stats_counter = stats_counter + 1       'Increment for stats counter
-    '     excel_row = excel_row + 1
-    ' Loop
-
-    MsgBox "Array created"
 
     'Navigates to DAIL to pull DAIL messages
     MAXIS_case_number = ""
     CALL navigate_to_MAXIS_screen("DAIL", "PICK")
-    MsgBox "Navigated to DAIL/PICK"
     EMWriteScreen "_", 7, 39    'blank out ALL selection
     EMWriteScreen "X", 10, 39    'Select CSES DAIL Type
     Call write_value_and_transmit("X", 13, 39)   'Select INFO DAIL type
     
-    MsgBox "Navigate to DAIL INFO & CSES"
-
-    'To do - do we need something to indicate that only HIRE and CSES type DAIL messages should get added
     For each worker in worker_array
     	Call write_value_and_transmit(worker, 21, 6)
     	transmit 'transmits past not your dail message'
@@ -262,7 +237,6 @@ If script_action = "Create new Excel list" Then
                     Call write_value_and_transmit("T", dail_row + 1, 3)
                 End if
 
-                'TO DO - is this necessary?
                 dail_row = 6  'resetting the DAIL row '
     
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -277,78 +251,47 @@ If script_action = "Create new Excel list" Then
                 'Increment the stats counter
     			stats_counter = stats_counter + 1
                 
-                'TO do - should we have handled earlier to only capture HIRE and CSES? And if so, do we need to specify HIRE since it should only be CSES messages?
-                'To do - add determination to only add HIRE and CSES messages to array
-                'To do - change dail type to HIRE, not INFO after done testing
-                If instr(dail_type,"INFO") or instr(dail_type, "CSES") Then 
-                    'To do - do we use excel_row_const or actual count?
-                    ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                If instr(dail_type,"HIRE") or instr(dail_type, "CSES") Then  
+                    'To do - any issues with using actual count instead of excel_row_const
+                    ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
                     ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
                     DAIL_array(worker_const,	           DAIL_count) = trim(worker)
                     DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
-                    DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                    DAIL_array(dail_type_const, 	       DAIL_count) = trim(dail_type)
                     DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
                     DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-                    DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+                    DAIL_array(excel_row_hire_const,       DAIL_count) = excel_row_hire
+                    DAIL_array(excel_row_cses_const, 	   DAIL_count) = excel_row_cses
                     DAIL_count = DAIL_count + 1
 
-
-                    'TO DO - ensure that switching active sheet works
                     'add the data from DAIL to Excel
-                    If instr(dail_type,"INFO") Then
-                        objExcel.Worksheets("INFO").Activate
-                        objExcel.Cells(excel_row, 1).Value = trim(worker)
-                        objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
-                        objExcel.Cells(excel_row, 3).Value = dail_type
-                        objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-                        objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-                        excel_row = excel_row + 1
+                    If instr(dail_type,"HIRE") Then
+                        objExcel.Worksheets("HIRE").Activate
+                        objExcel.Cells(excel_row_hire, 1).Value = trim(worker)
+                        objExcel.Cells(excel_row_hire, 2).Value = trim(MAXIS_case_number)
+                        objExcel.Cells(excel_row_hire, 3).Value = trim(dail_type)
+                        objExcel.Cells(excel_row_hire, 4).Value = trim(dail_month)
+                        objExcel.Cells(excel_row_hire, 5).Value = trim(dail_msg)
+                        excel_row_hire = excel_row_hire + 1
                         'Adding MAXIS case number to case number string
-                        'TO DO - verify functionality
+                        'TO DO - verify functionality/need
                         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+                        ' MsgBox dail_type
                     End If
 
                     If instr(dail_type,"CSES") Then
                         objExcel.Worksheets("CSES").Activate
-                        objExcel.Cells(excel_row, 1).Value = trim(worker)
-                        objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
-                        objExcel.Cells(excel_row, 3).Value = dail_type
-                        objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-                        objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-                        excel_row = excel_row + 1
+                        objExcel.Cells(excel_row_cses, 1).Value = trim(worker)
+                        objExcel.Cells(excel_row_cses, 2).Value = trim(MAXIS_case_number)
+                        objExcel.Cells(excel_row_cses, 3).Value = trim(dail_type)
+                        objExcel.Cells(excel_row_cses, 4).Value = trim(dail_month)
+                        objExcel.Cells(excel_row_cses, 5).Value = trim(dail_msg)
+                        excel_row_cses = excel_row_cses + 1
                         'Adding MAXIS case number to case number string
                         'TO DO - verify if this is correct, necessary
                         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+                        ' MsgBox dail_type
                     End If
-                
-
-                    ' If dail_type = "HIRE" or dail_type = "CSES" then
-                    '     If instr(dail_msg, "COMPLETE INFC PANELS") then
-                    '        add_to_array = False
-                    '   Else
-                    '--------------------------------------------------------------------...and add to the array/put that in Excel.
-                    ' ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-                    'TO DO - Only adding data from DAIL message to array, that is why not all constants are included
-                    ' DAIL_array(worker_const,	           DAIL_count) = trim(worker)
-                    ' DAIL_array(maxis_case_number_const,    DAIL_count) = trim(MAXIS_case_number)
-                    ' DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-                    ' DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
-                    ' DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-                    ' DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-                    ' DAIL_count = DAIL_count + 1
-
-
-                    ' 'TO DO - review and make sure this works properly 
-                    ' 'add the data from DAIL to Excel
-                    ' objExcel.Cells(excel_row, 1).Value = trim(worker)
-                    ' objExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
-                    ' objExcel.Cells(excel_row, 3).Value = dail_type
-                    ' objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-                    ' objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-                    ' excel_row = excel_row + 1
-                    ' 'Adding MAXIS case number to case number string
-                    ' 'TO DO - verify if this is correct, necessary
-                    ' all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
                 End if
     
                dail_row = dail_row + 1
@@ -375,12 +318,14 @@ If script_action = "Create new Excel list" Then
     	LOOP
     Next
 
-    MsgBox "DAIL messages added to array"
+    ' MsgBox "DAIL messages added to array"
 
     Call back_to_SELF
     Call MAXIS_footer_month_confirmation
 
     For item = 0 to Ubound(DAIL_array, 2)
+        'Resets the dail_type so that it can switch between CSES and HIRE messages
+        dail_type = DAIL_array(dail_type_const, item)
         MAXIS_case_number = DAIL_array(MAXIS_case_number_const, item)
         Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
         If is_this_priv = True then
@@ -420,7 +365,6 @@ If script_action = "Create new Excel list" Then
 
 
                 If snap_status = "ACTIVE" then
-                    'TO DO - should this be call MAXIS_background_check
                     Call MAXIS_background_check
                     Call navigate_to_MAXIS_screen("ELIG", "FS  ")
                     EMReadScreen no_SNAP, 10, 24, 2
@@ -478,6 +422,7 @@ If script_action = "Create new Excel list" Then
                 Else
                     DAIL_array(reporting_status_const, item) = "N/A"
                 End if
+
                 If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then
                     DAIL_array(action_req_const, item) = False
                 Else
@@ -487,36 +432,57 @@ If script_action = "Create new Excel list" Then
             End if
         End if
 
-        'TO do - update Excel with data, update to reflect additional variables
-        'To do - verify that switching sheets to save data to correct spot is working correctly
-        If instr(dail_type,"INFO") Then
-            objExcel.Worksheets("INFO").Activate
-            objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(recertification_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 12).Value = DAIL_array(action_req_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 13).Value = DAIL_array(processing_notes_const, item)
+        'Updates the corresponding Excel sheet (HIRE or CSES) with data about each case
+        If instr(dail_type,"HIRE") Then
+            objExcel.Worksheets("HIRE").Activate
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 6).Value = DAIL_array(snap_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 8).Value = DAIL_array(reporting_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 10).Value = DAIL_array(recertification_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 12).Value = DAIL_array(action_req_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 13).Value = DAIL_array(processing_notes_const, item)
         End If
 
         If instr(dail_type,"CSES") Then
             objExcel.Worksheets("CSES").Activate
-            objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(recertification_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 12).Value = DAIL_array(action_req_const, item)
-            objExcel.Cells(DAIL_array(excel_row_const, item), 13).Value = DAIL_array(processing_notes_const, item)
+            MsgBox "CSES case, it's working?"
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 6).Value = DAIL_array(snap_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 8).Value = DAIL_array(reporting_status_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 10).Value = DAIL_array(recertification_date_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 12).Value = DAIL_array(action_req_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 13).Value = DAIL_array(processing_notes_const, item)
         End If
     Next
 
+    'Creates sheet to track stats for the script
+    ObjExcel.Worksheets.Add().Name = "Stats"
+
+    STATS_counter = STATS_counter - 1
+    'Enters info about runtime for the benefit of folks using the script
+    objExcel.Cells(1, 1).Value = "Number of DAIL Messages Added to List:"
+    objExcel.Cells(2, 1).Value = "Average time to find/select/copy/paste one line (in seconds):"
+    objExcel.Cells(3, 1).Value = "Estimated manual processing time (lines x average):"
+    objExcel.Cells(4, 1).Value = "Script run time (in seconds):"
+    objExcel.Cells(5, 1).Value = "Estimated time savings by using script (in minutes):"
+    objExcel.Cells(1, 2).Value = STATS_counter
+    objExcel.Cells(2, 2).Value = STATS_manualtime
+    objExcel.Cells(3, 2).Value = STATS_counter * STATS_manualtime
+    objExcel.Cells(4, 2).Value = timer - start_time
+    objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+
+    FOR i = 1 to 5		'formatting the cells'
+        objExcel.Cells(i, 1).Font.Bold = True		'bold font'
+        ObjExcel.rows(i).NumberFormat = "@" 		'formatting as text
+        objExcel.columns(1).AutoFit()				'sizing the columns'
+    NEXT
+
     report_month = CM_mo & "-20" & CM_yr
     'To DO - confirm file path and title is correct
-    ' file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Unclear Information.xlsx"
     objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Unclear Information\" & report_month & " Unclear Information.xlsx" 
     objExcel.ActiveWorkbook.Close
     objExcel.Application.Quit
@@ -528,7 +494,7 @@ End If
 
 script_end_procedure("Success! Please review the list created for accuracy.")
 
-msgbox "Did excel open?"
+' msgbox "Did excel open?"
 
 ''Finding the right folder to automatically save the file
 'month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
