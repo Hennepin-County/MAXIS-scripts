@@ -23211,6 +23211,7 @@ If row <> 0 Then
 End If
 
 Call back_to_SELF
+Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
 If MX_region = "INQUIRY DB" Then
