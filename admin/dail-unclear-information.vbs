@@ -118,7 +118,7 @@ If script_action = "Create new Excel list" Then
     'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
     
     'TO DO - update after testing
-    worker_array = array("X127ED8")
+    worker_array = array("X127ES1")
 
     'Opening the Excel file for list of DAIL messages
     Set objExcel = CreateObject("Excel.Application")
@@ -243,15 +243,16 @@ If script_action = "Create new Excel list" Then
                 MAXIS_case_number = trim(MAXIS_case_number)
                 
                 EMReadScreen dail_type, 4, dail_row, 6
-
+                
                 EMReadScreen dail_month, 8, dail_row, 11
-
+                
     		    EMReadScreen dail_msg, 61, dail_row, 20
+                INFC_dail_msg = InStr(dail_msg, "INFC")
 
                 'Increment the stats counter
     			stats_counter = stats_counter + 1
                 
-                If instr(dail_type,"HIRE") or instr(dail_type, "CSES") Then  
+                If instr(dail_type,"HIRE") or (instr(dail_type, "CSES") and INFC_dail_msg = 0) Then  
                     'To do - any issues with using actual count instead of excel_row_const
                     ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
                     ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
@@ -487,7 +488,21 @@ If script_action = "Create new Excel list" Then
     
 End If
 
-script_end_procedure("Success! Please review the list created for accuracy.")
+'Script actions if creating a new Excel list option is selected
+If script_action = "Process existing Excel list" Then
+    'To Do - Utilize function to pull workers into array, uncomment once final
+    ' Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+    'To Do - check, Use restart worker functionality?
+    'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
+    
+    'TO DO - update after testing
+    worker_array = array("X127ED8")
+
+    Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+
+
+    script_end_procedure("Success! Please review the list created for accuracy.")
+End If
 
 ''Finding the right folder to automatically save the file
 'month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
