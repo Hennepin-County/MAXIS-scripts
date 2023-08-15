@@ -4587,7 +4587,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
 							For each this_date in this_month_checks_array       'now using the list we made of all the checks for THIS month
 								If IsDate(this_date) = TRUE Then
-									If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'checking to make sure the paydate is not before the income start date - that causes a red line
+									the_start_date_to_use = EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
+									If IsDate(the_start_date_to_use) = False Then the_start_date_to_use = #1/1/1900#
+									If DateDiff("d", this_date, the_start_date_to_use) < 1 Then     'checking to make sure the paydate is not before the income start date - that causes a red line
 
 										date_found = FALSE          'default for each loop
 										checks_found = 0
@@ -4721,7 +4723,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
                                     If IsDate(this_date) = TRUE Then
-                                        If DateDiff("d", this_date, EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
+                                    	the_start_date_to_use = EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
+										If IsDate(the_start_date_to_use) = False Then the_start_date_to_use = #1/1/1900#
+										If DateDiff("d", this_date, the_start_date_to_use) < 1 Then     'if the pay date we are looking at is on or after the income start date we will add it in to the lump
 
                                             date_found = FALSE      'default for before we look at the checks
                                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)   'then loop through all of the income information
