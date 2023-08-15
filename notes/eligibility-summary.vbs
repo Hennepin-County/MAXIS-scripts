@@ -2863,7 +2863,7 @@ function define_hc_elig_dialog()
 
 	  ButtonGroup ButtonPressed
 
-		GroupBox 455, 10, 95, 105, "HC Approvals"
+		GroupBox 455, 10, 95, 110, "HC Approvals"
 		If HC_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or HC_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & HC_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & HC_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
@@ -3473,7 +3473,7 @@ function define_hc_elig_dialog()
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
-		apprvs_y_pos = 25
+		apprvs_y_pos = 20
 		for each_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
 			If HC_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
 				month_display = HC_UNIQUE_APPROVALS(first_mo_const, each_app)
@@ -3485,14 +3485,14 @@ function define_hc_elig_dialog()
 			month_display = "M" & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_app) & " - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_app) & ": " & month_display
 			' If each_app = approval_selected Then display_detail = month_display
 			If each_app = approval_selected Then
-				Text 465, apprvs_y_pos+2, 85, 13, month_display
+				Text 475, apprvs_y_pos+2, 85, 13, month_display
 			Else
 				PushButton 460, apprvs_y_pos, 85, 13, month_display, HC_UNIQUE_APPROVALS(btn_one, each_app)
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 460, 80, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
-		PushButton 460, 95, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
+		PushButton 460, 85, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 460, 100, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = Income_detail_start
 		' y_pos = 175
@@ -27166,7 +27166,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		If start_capturing_approvals = True Then
 			For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
 				If HC_ELIG_APPROVALS(approval).hc_prog_elig_appd(member) = True and HC_ELIG_APPROVALS(approval).hc_prog_elig_approved_today(member) = True Then
-					If InStr(list_of_ref_numbers_approved, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 or InStr(list_of_ref_numbers_approved, HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)) = 0 Then list_of_ref_numbers_approved = list_of_ref_numbers_approved & "~" & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "::" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					memb_prog_couple = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "::" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					If InStr(list_of_ref_numbers_approved, memb_prog_couple) = 0 Then list_of_ref_numbers_approved = list_of_ref_numbers_approved & "~" & memb_prog_couple
 				End If
 			Next
 		End If
