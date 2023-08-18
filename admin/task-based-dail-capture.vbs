@@ -219,10 +219,7 @@ For each worker in worker_array
 		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
 		dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
 		DO
-			dail_type = ""
-			dail_msg = ""
-
-		    'Determining if there is a new case number...
+			'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
 		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
