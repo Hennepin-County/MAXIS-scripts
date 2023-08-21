@@ -3827,7 +3827,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
 			Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
 			Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
-			ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis.", ex_parte_denial_select
+			ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
 			Text 20, 335, 80, 10, "Not Ex Parte Notes:"
 			EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
 			Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
@@ -4315,7 +4315,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
 			CALL write_variable_in_case_note(TIKL_note_text)
-			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided. The case meets one of the criteria below.")
+			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the current case information.")
 			CALL write_variable_in_case_note("MA-ABD enrollees will be Ex Parte renewed if their income can be verified electronically without the need for residents to provide verifications.")
 		End If
 
