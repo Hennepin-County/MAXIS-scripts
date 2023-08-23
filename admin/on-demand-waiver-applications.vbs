@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Added checkbox option in the main dialog to select if user wants Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/01/2022", "Added Excel output warning message.", "Ilse Ferris, Hennepin County")
@@ -75,6 +76,33 @@ CALL changelog_update("02/05/2018", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'Creating objects for Access
+Set objConnection = CreateObject("ADODB.Connection")
+Set objRecordSet = CreateObject("ADODB.Recordset")
+
+' Connection_String = "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+SQL_Rows = "SELECT Count (*) from ES.ES_OnDemandCashAndSnap"
+
+'This is the file path for the statistics Access database.
+' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objRecordSet.Open SQL_Rows, objConnection
+number_of_rows = objRecordSet(0).value
+
+objRecordSet.Close
+objConnection.Close
+Set objRecordSet=nothing
+Set objConnection=nothing
+
+If number_of_rows = 0 Then
+	script_info_for_email = "The On Demand BULK Run cannot be completed as the required data does not appear to exist."
+	script_info_for_email = script_info_for_email & vbCr & "The BlueZone Script Team will need to connect with the BI Team to review the data issues and will provide additional information as it becomes available."
+	script_info_for_email = script_info_for_email & vbCr & vbCr & "There is no workaround for this issue and was not caused by any individual, it was caused by a data upload/connection issue that is scheduled to happen automatically and failed for some reason. The BlueZone Script Team will provide addtional information once we have it from the BI Team."
+	script_info_for_email = script_info_for_email & vbCr & vbCR & "EMAIL AUTOMATED BY THE ON DEMAND DASHBOARD SCRIPT"
+	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "", "URGENT - On Demand Pending Table Empty", 1, False, "", "", False, "", script_info_for_email, False, "", True)
+	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Tanya and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
+End if
 
 'FUNCTIONS =================================================================================================================
 function confirm_memo_waiting(confirmation_var)
@@ -1090,7 +1118,7 @@ If first_item_date <> date Then
 							  "VALUES ('" & ALL_PENDING_CASES_ARRAY(case_number, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(client_name, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(application_date, case_entry) &  "', '" & _
-											ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) &  "', '" & _
+											ALL_PENDING_CASES_ARRAY(interview_date, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(data_day_30, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(data_days_pend, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) &  "', '" & _
@@ -1444,9 +1472,11 @@ Do While NOT objWorkRecordSet.Eof
 			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 
 			case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
-		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
-		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
-		    ' "DenialNeeded"
+			If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> NULL Then
+				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
+				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
+			End If
+			' "DenialNeeded"
 		    ' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
 		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
 		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
@@ -1475,7 +1505,6 @@ objWorkConnection.Close
 Set objWorkRecordSet=nothing
 Set objWorkConnection=nothing
 Set objWorkSQL=nothing
-
 
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
@@ -2598,8 +2627,8 @@ ObjStatsExcel.Quit
 
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
-cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
-cc_email = "hsph.ews.bluezonescripts@hennepin.us"
+' cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+cc_email = "tanya.payne@hennepin.us"
 If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; tanya.payne@hennepin.us"
 
 email_subject = "On Demand List is Ready"
@@ -2613,7 +2642,7 @@ email_body = email_body & "The cases to review are now available to access on th
 email_body = email_body & "Please contact Tanya if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
-Call create_outlook_email(qi_member_email, cc_email, email_subject, email_body, "", True)
+Call create_outlook_email("", qi_member_email, cc_email, "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 If list_of_baskets_at_display_limit <> "" Then
 	If left(list_of_baskets_at_display_limit, 1) = "," Then list_of_baskets_at_display_limit = right(list_of_baskets_at_display_limit, len(list_of_baskets_at_display_limit)-1)
@@ -2625,13 +2654,13 @@ If list_of_baskets_at_display_limit <> "" Then
 	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
 	' basket_email_body = basket_email_body & "" & vbCr
 	basket_email_body = basket_email_body & "Thank you!" & vbCr
-	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "hsph.ews.bluezonescripts@hennepin.us", basket_email_subject, basket_email_body, "", True)
+	Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", "", basket_email_subject, 1, False, "", "", False, "", basket_email_body, False, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
 	If left(cases_to_alert_BZST, 1) = "," Then cases_to_alert_BZST = right(cases_to_alert_BZST, len(cases_to_alert_BZST)-1)
 	cases_to_alert_BZST = trim(cases_to_alert_BZST)
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
+	Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", "ON DEMAND Could not determine next action needed", 1, False, "", "", False, "", "These cases have an unknown issue... " & cases_to_alert_BZST, False, "", True)
 End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file

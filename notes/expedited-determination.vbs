@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
 Call changelog_update("09/01/2021", "Expedited Determination Functionality has been completely enhanced.##~####~##The functionality to guide through the assesment of a case meeting expedited criteria has been updated. This new functionality adds a series of 3 new dialogs to support this process.##~####~##This new functionality matches the scripts NOTES - Expedited Determination and the new script NOTES - Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/05/2020", "Added enhanced handling for the month the script will use to look at information. The best informaiton is provided in the month of application.", "Casey Love, Hennepin County")
@@ -1345,9 +1346,9 @@ function send_support_email_to_KN()
 	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
 	email_body = "~~This email is generated from within the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
-	' call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)
-	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+	'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+	'create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 end function
 '---------------------------------------------------------------------------------------------------------------------------
 
@@ -2483,7 +2484,7 @@ End if
 ' 	email_body = email_body & vbCr & delay_explanation
 '
 ' 	email_body = "~~This email is generated from within the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-' 	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
+'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 ' End If
 
 
@@ -2730,7 +2731,7 @@ If snap_status = "ACTIVE" Then revw_pending_table = False
 
 'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
 If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
-
+	MAXIS_case_number = trim(MAXIS_case_number)
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
     If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry

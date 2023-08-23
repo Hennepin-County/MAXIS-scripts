@@ -90,8 +90,8 @@ Do
     	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
     	IF err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Out of county and PRIV handling
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
@@ -129,8 +129,8 @@ IF PF11_actions = "Non-Actionable DAIL Removal" THEN
 			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
-     Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END If
 
 IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case note'
@@ -160,8 +160,8 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
 			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Enter enter a request reason."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
-     Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END If
 
 IF PF11_actions = "Other" THEN
@@ -188,8 +188,8 @@ IF PF11_actions = "Other" THEN
             If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your actions taken on the case."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
-     Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END If
 
 IF PF11_actions = "Unable to update HC REVW dates" THEN
@@ -217,8 +217,8 @@ IF PF11_actions = "Unable to update HC REVW dates" THEN
 			IF last_review_date_edit = "" THEN err_msg = err_msg & vbNewLine & "* Enter the edit you recieved when trying to change the REVW date. This can be done via copy and paste."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
-     Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END If
 
 '----------------------------------------------------------------------------------------------------Sending the PF11

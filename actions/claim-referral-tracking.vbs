@@ -93,7 +93,7 @@ function claim_referral_tracking(action_taken, action_date)
                 cancel_without_confirmation
                 If ButtonPressed = claims_procedures_btn then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Overpayments.aspx")
             Loop until ButtonPressed = -1
-    	    IF buttonpressed = 0 then stopscript
+    	    cancel_without_confirmation
     	    IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
     	    IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid action date."
     	    IF action_taken = "Select One:" then err_msg = err_msg & vbnewline & "* Please select the action taken for next step in overpayment."

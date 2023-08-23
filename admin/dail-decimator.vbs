@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/05/2023", "Added option for removing SVES/TPQY responses sent for Ex Parte cases.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/10/2022", "Added restart functionality when using all workers option.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/01/2021", "Updated boolean variable name for clarity.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2020", "Added TIKL DAIL selection.", "Ilse Ferris, Hennepin County")
@@ -71,22 +72,26 @@ call changelog_update("10/28/2017", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
-Function dail_selection
-	'selecting the type of DAIl message
-	EMWriteScreen "X", 4, 12		'transmits to the PICK screen
-	transmit
-	EMWriteScreen "_", 7, 39		'clears the all selection
+'local function for DAIL/PICK selection
+Function dail_pick_selection()
+    CALL navigate_to_MAXIS_screen("DAIL", "PICK")
+    EMReadscreen pick_confirmation, 26, 4, 29
 
-    IF dail_to_decimate = "ALL" then selection_row = 7
-    IF dail_to_decimate = "CSES" then selection_row = 10
-	IF dail_to_decimate = "COLA" then selection_row = 8
-	IF dail_to_decimate = "ELIG" then selection_row = 11
-	IF dail_to_decimate = "INFO" then selection_row = 13
-    IF dail_to_decimate = "PEPR" then selection_row = 18
-    IF dail_to_decimate = "TIKL" then selection_row = 19
-
-	Call write_value_and_transmit("X", selection_row, 39)
+    If pick_confirmation = "View/Pick Selection (PICK)" then
+        'selecting the type of DAIl message
+        If dail_to_decimate = "ALL"   then EMWriteScreen "X", 7, 39
+    	If dail_to_decimate = "COLA"  then EMWriteScreen "X", 8, 39
+    	If dail_to_decimate = "CSES"  then EMWriteScreen "X", 10, 39
+    	If dail_to_decimate = "ELIG"  then EMWriteScreen "X", 11, 39
+    	If dail_to_decimate = "INFO"  then EMWriteScreen "X", 13, 39
+    	If dail_to_decimate = "PEPR"  then EMWriteScreen "X", 18, 39
+    	If dail_to_decimate = "TIKL"  then EMWriteScreen "X", 19, 39
+    	transmit
+    Else
+        script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
+    End if
 End Function
 
 Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name, two_digit_county_code, restart_status, restart_worker_number)
@@ -130,11 +135,9 @@ Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name,
     array_name = split(array_name)
 End function
 
-'END CHANGELOG BLOCK =======================================================================================================
-
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-Call check_for_MAXIS(False)
+Call Check_for_MAXIS(False)
 dail_to_decimate = "ALL"
 all_workers_check = 1
 
@@ -148,19 +151,20 @@ decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 140, "Dail Decimator dialog"
-  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
-  EditBox 80, 70, 180, 15, worker_number
-  CheckBox 15, 90, 135, 10, "Check here to process for all workers.", all_workers_check
-  EditBox 210, 100, 50, 15, restart_worker_number
-  ButtonGroup ButtonPressed
-    OkButton 155, 120, 50, 15
-    CancelButton 210, 120, 50, 15
+BeginDialog Dialog1, 0, 0, 266, 150, "Dail Decimator Dialog"
   GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
   Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
   Text 40, 55, 35, 10, "Dail type:"
+  DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
   Text 15, 75, 60, 10, "Worker number(s):"
-  Text 25, 105, 170, 10, "If restarting, what x number are you restarting from?"
+  EditBox 80, 70, 180, 15, worker_number
+  CheckBox 15, 90, 135, 10, "Check here to process for all workers.", all_workers_check
+  CheckBox 15, 100, 145, 10, "Check to remove SVES/QURY messages.", TPQY_checkbox
+  Text 25, 115, 170, 10, "If restarting, what x number are you restarting from?"
+  EditBox 210, 110, 50, 15, restart_worker_number
+  ButtonGroup ButtonPressed
+    OkButton 155, 130, 50, 15
+    CancelButton 210, 130, 50, 15
 EndDialog
 
 Do
@@ -171,7 +175,7 @@ Do
   		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
-        If trim(restart_worker_number) <> "" then
+		 If trim(restart_worker_number) <> "" then
             If all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* The restart option only works with the all workers option. Please update your selections."
             If len(trim(restart_worker_number)) <> 7 then err_msg = err_msg & vbNewLine & "* Enter one 7-digit worker number to restart."
         End if
@@ -182,12 +186,20 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
-'determining if this is a restart or not  in function below when gathering the x numbers.
+'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
+If dail_to_decimate = "ALL" then
+    dail_end_msg = "NO MESSAGES WORK"
+Else
+    'all specified selection(s) will get this ending user message.
+    dail_end_msg = "NO MESSAGES TYPE"
+End if
+
+'determining if this is a restart or not in function below when gathering the x numbers.
 If trim(restart_worker_number) = "" then
     restart_status = False
-Else
-    restart_status = True
-End if
+Else 
+	restart_status = True
+End if 
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -244,28 +256,19 @@ const dail_msg_const		    = 4
 excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
-CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-
 'This for...next contains each worker indicated above
 For each worker in worker_array
-    MAXIS_case_number = ""
-	DO
-		EMReadScreen dail_check, 4, 2, 48
-		If next_dail_check <> "DAIL" then
-			MAXIS_case_number = ""
-			CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-		End if
-	Loop until dail_check = "DAIL"
+    DO
+        EMReadScreen dail_check, 4, 2, 48
+        If dail_check <> "DAIL" then Call dail_pick_selection
+    Loop until dail_check = "DAIL"
 
 	Call write_value_and_transmit(worker, 21, 6)
-	transmit 'transmit past 'not your dail message'
-
-	Call dail_selection
+	transmit  'transmits past 'not your dail message
     EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 
 	DO
 		If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
-
 		dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
 		DO
 			dail_type = ""
@@ -276,26 +279,31 @@ For each worker in worker_array
 		    new_case = trim(new_case)
 		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
 				Call write_value_and_transmit("T", dail_row, 3)
-				dail_row = 6
 			ELSEIF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
-				dail_row = 6
 			End if
+
+            dail_row = 6  'resestting the DAIL row '
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
             MAXIS_case_number = trim(MAXIS_case_number)
-            MAXIS_case_number = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
 
             EMReadScreen dail_type, 4, dail_row, 6
+
             EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
+
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
 
             stats_counter = stats_counter + 1   'I increment thee
-            Call non_actionable_dails(actionable_dail) 'Function to evaluate the DAIL messages
+            Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+
+            If TPQY_checkbox = 1 then
+                If instr(dail_msg, "TPQY RESPONSE RECEIVED FROM SSA") then actionable_dail = False  'cleaning up TPQY messages after BULK SVES/QURY for SSI/RSDI RAP project.
+            End if
 
             IF actionable_dail = False then
 				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
@@ -322,21 +330,16 @@ For each worker in worker_array
                 Dail_count = DAIL_count + 1
 			End if
 
-			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-			If message_error = "NO MESSAGES" then
-				CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
-				Call write_value_and_transmit(worker, 21, 6)
-				transmit   'transmit past 'not your dail message'
-				Call dail_selection
-				exit do
-			End if
+            EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+            If message_error = "NO MESSAGES" then exit do
 
 			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
 				PF8
-				EMReadScreen last_page_check, 21, 24, 2
-				If last_page_check = "THIS IS THE LAST PAGE" then
+				EMReadScreen last_page_check, 16, 24, 2
+                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
+                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
 					all_done = true
 					exit do
 				Else
@@ -415,46 +418,3 @@ objExcel.Application.Quit
 objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
-
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
-'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
-'
-'------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------10/10/2022
-'--Tab orders reviewed & confirmed----------------------------------------------10/10/2022
-'--Mandatory fields all present & Reviewed--------------------------------------10/10/2022
-'--All variables in dialog match mandatory fields-------------------------------10/10/2022
-'
-'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------10/10/2022------------------N/A
-'--CASE:NOTE Header doesn't look funky------------------------------------------10/10/2022------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/10/2022------------------N/A
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/10/2022------------------N/A
-'
-'-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/10/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------10/10/2022------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------10/10/2022------------------N/A
-'--Out-of-County handling reviewed----------------------------------------------10/10/2022------------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------10/10/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------10/10/2022------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/10/2022
-'
-'-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
-
-'-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------

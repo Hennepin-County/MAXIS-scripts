@@ -4842,7 +4842,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                             End If
                             transmit            'saving the PIC
                             transmit
-                            PF3
+							PF3
 
                         End If          'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen'
 
@@ -5083,7 +5083,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                     End If          'If EARNED_INCOME_PANELS_ARRAY(panel_type, ei_panel) = "JOBS" Then
                 End If          'If confirm_same_employer <> UCase(EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)) Then
                 If updates_to_display <> "" AND developer_mode = TRUE Then MsgBox updates_to_display            'this shows the information that WOULD have been updated if we were not in INQUIRY
-                script_run_lowdown = script_run_lowdown & vbCr & updates_to_display
+				script_run_lowdown = script_run_lowdown & vbCr & updates_to_display
                 'If this panel is should to update months after the initial month, this is saved for the next loop to have it updated
                 'FUTURE FUNCTIONALITY - if we need to change how we handle the future month updates thing or dealing with STWK - this would be here
                 If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
@@ -5097,7 +5097,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
             End If
         Next            'For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)
 
-        transmit        'after all of the panels have been reviewed we are going to STAT/WRAP to get to the next month without sending through background if possible
+		transmit        'after all of the panels have been reviewed we are going to STAT/WRAP to get to the next month without sending through background if possible
 
         EmWriteScreen "BGTX", 20, 71
         transmit

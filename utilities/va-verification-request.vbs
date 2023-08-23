@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("11/25/2020", "Inital Version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -92,6 +93,7 @@ DO		'reads the reference number, last name, first name, and THEN puts it into a 
     'MsgBox access_denied_check
     If access_denied_check = "ACCESS DENIED" Then
         PF10
+        EMWaitReady 0, 0
         last_name = "UNABLE TO FIND"
         first_name = " - Access Denied"
         mid_initial = ""
@@ -185,9 +187,9 @@ DO   'loop for the HH member does need to re-read jsut need to allow us to chose
     If trim(spouse_child_ssn) <> "" THEN VA_info = VA_info & "SSN of Spouse/Child receiving VA benefit(if applicable): " & trim(spouse_child_ssn) & vbcr
     If trim(relationship_veteran) <> "" THEN VA_info = VA_info & "Relationship to Veteran(if applicable): " & relationship_veteran
 
-    'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-    Call create_outlook_email("Vetservices@Hennepin.us", "", "VA Request for Case #" & MAXIS_case_number, VA_info, "", TRUE)   'will create email, will not send.
-
+    'Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+    Call create_outlook_email("", "Vetservices@Hennepin.us", "", "", "VA Request for Case #" & MAXIS_case_number, 1, False, "", "", False, "", VA_info, False, "", True)
+    
     IF MULTIPLE_CHECKBOX = 0 THEN EXIT DO 'need to be done if we are not requesting more than one '
 
     erase client_selection

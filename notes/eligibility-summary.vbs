@@ -42,6 +42,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/18/2023", "BUG FIX for for EGA ineligble results. Case note was reflecting incorrect 200% FPG. This is now resolved.", "Ilse Ferris, Hennepin County")
+call changelog_update("12/21/2022", "Additional Program Support Added: ELIG/DWP - for DWP Approvals.##~####~##The script can now support determinations made in: ##~##ELIG/DWP ##~##ELIG/HC ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##All programs are now supported by Eligibility Summary. Please continue to provide feedback and report any concerns.", "Casey Love, Hennepin County")
 call changelog_update("03/09/2023", "BUG FIX for GRH in adding a WCOM if GRH is closed using PACT. The WCOm was not being added when it should have been and it is now functioning.", "Casey Love, Hennepin County")
 call changelog_update("12/21/2022", "Additional Program Support Added: ELIG/HC - for Health Care Approvals - MA and MSP based programs.##~####~##The script can now support determinations made in: ##~##ELIG/HC ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("10/04/2022", "The script will now provide instruction on interacting with the dialog if there is more than one approval package. This is an informative message only.##~##", "Casey Love, Hennepin County")
@@ -61,18 +63,6 @@ call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function HCRE_panel_bypass()
-    'handling for cases that do not have a completed HCRE panel
-    PF3		'exits PROG to prompt HCRE if HCRE insn't complete
-    Do
-        EMReadscreen HCRE_panel_check, 4, 2, 50
-        If HCRE_panel_check = "HCRE" then
-            PF10	'exists edit mode in cases where HCRE isn't complete for a member
-            PF3
-        END IF
-    Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
 	If variable = "" Then variable = 0
@@ -91,41 +81,106 @@ function enter_verif_missing_header(verif_header)
 	End If
 end function
 
-function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
-	Call write_value_and_transmit("99", cmd_row, cmd_col)
-	approval_found = True
+' function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
+' 	Call write_value_and_transmit("99", cmd_row, cmd_col)
+' 	approval_found = True
 
-	row = 7
-	Do
-		EMReadScreen elig_version, 2, row, 22
-		EMReadScreen elig_date, 8, row, 26
-		EMReadScreen elig_result, 10, row, 37
-		EMReadScreen approval_status, 10, row, 50
+' 	row = 7
+' 	Do
+' 		EMReadScreen elig_version, 2, row, 22
+' 		EMReadScreen elig_date, 8, row, 26
+' 		EMReadScreen elig_result, 10, row, 37
+' 		EMReadScreen approval_status, 10, row, 50
 
-		elig_version = trim(elig_version)
-		elig_result = trim(elig_result)
-		approval_status = trim(approval_status)
+' 		elig_version = trim(elig_version)
+' 		elig_result = trim(elig_result)
+' 		approval_status = trim(approval_status)
 
-		If approval_status = "APPROVED" Then Exit Do
+' 		If approval_status = "APPROVED" Then Exit Do
 
-		row = row + 1
-	Loop until approval_status = ""
+' 		row = row + 1
+' 	Loop until approval_status = ""
 
-	Call clear_line_of_text(18, 54)
-	If approval_status = "" Then
-		approval_found = false
-		PF3
-	Else
-		Call write_value_and_transmit(elig_version, 18, 54)
-		version_number = "0" & elig_version
-		version_date = elig_date
-		version_result = elig_result
-	End If
+' 	Call clear_line_of_text(18, 54)
+' 	If approval_status = "" Then
+' 		approval_found = false
+' 		PF3
+' 	Else
+' 		Call write_value_and_transmit(elig_version, 18, 54)
+' 		version_number = "0" & elig_version
+' 		version_date = elig_date
+' 		version_result = elig_result
+
+' 		row = 1
+' 		col = 1
+' 		EMSearch "Auto-Closed", row, col
+' 		If row <> 0 Then
+' 			approval_found = false
+' 			version_date = ""
+' 			version_result = ""
+' 			PF3
+' 		End If
+' 	End If
+' end function
+
+function detail_action_that_led_to_approval(current_prog, process_completed, changes_string)
+	process_completed = ""
+	changes_string = ""
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 351, 235, "What triggered the need for an Approval"
+	DropListBox 115, 85, 230, 45, "Select One..."+chr(9)+"Application (new program request)"+chr(9)+"Renewal or Review"+chr(9)+"Monthly Report"+chr(9)+"Change Reported"+chr(9)+"Policy Change"+chr(9)+"Appeal"+chr(9)+"Correction", process_being_completed
+	CheckBox 20, 150, 50, 10, "Income", income_change_checkbox
+	CheckBox 20, 160, 50, 10, "Assets", assets_change_checkbox
+	CheckBox 20, 170, 50, 10, "Expenses", expense_change_checkbox
+	CheckBox 20, 180, 50, 10, "Housing", housing_change_checkbox
+	CheckBox 95, 150, 50, 10, "Address", address_change_checkbox
+	CheckBox 95, 160, 70, 10, "HH Composition", hh_comp_change_checkbox
+	CheckBox 95, 170, 50, 10, "Relationship", relationship_change_checkbox
+	CheckBox 95, 180, 90, 10, "Required Participation", participation_change_checkbox
+	CheckBox 200, 150, 85, 10, "Time Limit Reached", time_limit_change_checkbox
+	CheckBox 200, 160, 65, 10, "Policy Change", policy_change_checkbox
+	CheckBox 200, 170, 85, 10, "Correction or Review", correction_change_checkbox
+	CheckBox 200, 180, 50, 10, "Appeal", appeal_change_checkbox
+	ButtonGroup ButtonPressed
+		PushButton 230, 215, 115, 15, "Return to Approval Detail", return_btn
+	Text 10, 10, 180, 10, "You have completed an approval for " & current_prog & " today."
+	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a seperate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
+	Text 10, 60, 210, 20, "To create cohesiveness with previous CASE/NOTEs, you can indicate why you are processing the approval today."
+	Text 10, 90, 105, 10, "Reason Approval was needed:"
+	GroupBox 10, 110, 335, 85, "Information Changed"
+	Text 20, 125, 245, 10, "A previous detailed CASE/NOTE exists explaining the following changes:"
+	Text 20, 135, 105, 10, "(Check all changes that apply)"
+	Text 15, 200, 320, 10, "REMINDER - The information from these details are insufficient to document changes in a case."
+	EndDialog
+
+	dialog Dialog1
+
+	If process_being_completed <> "Select One..." Then process_completed = "Process Completed: " & process_being_completed
+	changes_string = "Information updated in processing: "
+
+	If income_change_checkbox = checked Then changes_string = changes_string & "Income, "
+	If assets_change_checkbox = checked Then changes_string = changes_string & "Assets, "
+	If expense_change_checkbox = checked Then changes_string = changes_string & "Expenses, "
+	If housing_change_checkbox = checked Then changes_string = changes_string & "Housing Information, "
+	If address_change_checkbox = checked Then changes_string = changes_string & "Address, "
+	If hh_comp_change_checkbox = checked Then changes_string = changes_string & "Household Composition, "
+	If relationship_change_checkbox = checked Then changes_string = changes_string & "Relationship, "
+	If participation_change_checkbox = checked Then changes_string = changes_string & "Participation in a Required Program, "
+	If time_limit_change_checkbox = checked Then changes_string = changes_string & "Time Limit Reached, "
+	If policy_change_checkbox = checked Then changes_string = changes_string & "Policy has Changed, "
+	If correction_change_checkbox = checked Then changes_string = changes_string & "Correcting the Case, "
+	If appeal_change_checkbox = checked Then changes_string = changes_string & "Appeal"
+
+	If changes_string = "Information updated in processing: " Then changes_string = ""
+	changes_string = trim(changes_string)
+	If right(changes_string, 1) = "," Then changes_string = left(changes_string, len(changes_string)-1)
 end function
 
 function determine_mfip_counted_amount(gross_amount, counted_amount)
 	counted_amount = gross_amount
 	If counted_amount = "" Then counted_amount = 0
+	If gross_amount = "" Then gross_amount = 0
 	counted_amount = counted_amount*1
 
 	counted_amount = counted_amount - 65
@@ -133,6 +188,7 @@ function determine_mfip_counted_amount(gross_amount, counted_amount)
 
 	If counted_amount < 0 Then counted_amount = 0
 	counted_amount = FormatNumber(counted_amount, 2, -1, 0, -1)
+	gross_amount = FormatNumber(gross_amount, 2, -1, 0, -1)
 	' MsgBox "gross_amount - " & gross_amount & vbCr & "counted_amount - " & counted_amount
 end function
 
@@ -361,40 +417,117 @@ function define_dwp_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 140, "DWP Approvals"
-		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		If DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
-		If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
+			GroupBox 5, 10, 450, 45, "DWP Closed "
+			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
+			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
 
-			GroupBox 5, 10, 425, 140, "Budget Detail"
-			Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
-		    Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
-		    Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
-		    Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
-		    Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
-		    Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
-		    Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
-		    Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
-		    GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
-		    Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-		    GroupBox 150, 20, 135, 100, "DWP Countable Income"
-		    Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
-		    Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-		    Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
-		    Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
-		    Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
-		    Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
-		    Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-		    GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
-		    Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-		    Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
-		    Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
-		    Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-		    Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
-		    Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
-		    Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
-		    Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
-		    Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
+		Else
+			If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+
+				GroupBox 5, 10, 425, 140, "Budget Detail"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
+					Text 250, 10, 200, 10, "Income Exceeds the Income Limit of $ " &  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level
+				End If
+				Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
+				Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
+				Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
+				Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
+				Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
+				Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
+				Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
+				Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
+				GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
+				Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+				GroupBox 150, 20, 135, 100, "DWP Countable Income"
+				Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
+				Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+				Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
+				Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
+				Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
+				Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
+				Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+				GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
+				Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+				Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
+				Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
+				Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+				Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
+				Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
+				Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
+				Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
+				Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
+			End If
+
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
+				y_pos = 10
+				If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then y_pos = 150
+				GroupBox 5, y_pos, 450, 80, "Approval Detail"
+				y_pos = y_pos + 10
+				Text 15, y_pos, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
+				' y_pos = y_pos + 10
+				Text 100, y_pos, 300, 10, "Months in Approval: " & replace(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+				y_pos = y_pos + 15
+
+				Text 15, y_pos, 110, 10, "APPL Withdrawn:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn
+				Text 125, y_pos, 110, 10, "Eligible Child:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child
+				Text 235, y_pos, 110, 10, "MFIP Conversion:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion
+				Text 345, y_pos, 100, 10, "Asset Transfer:     " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Asset:                      " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets
+				Text 125, y_pos, 110, 10, "ES Disqual:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification
+				Text 235, y_pos, 110, 10, "Residence:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence
+				Text 345, y_pos, 100, 10, "Verification:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "CS Disqual:              " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification
+				Text 125, y_pos, 110, 10, "Fail Cooperation:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop
+				Text 235, y_pos, 110, 10, "Strike:                    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike
+				Text 345, y_pos, 100, 10, "New Spouse Income: " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Death of Applicant:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant
+				Text 125, y_pos, 110, 10, "Four Month Limit:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit
+				Text 235, y_pos, 110, 10, "TANF Time Limit:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Duplicate Assist:       " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance
+				Text 125, y_pos, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
+				y_pos = y_pos + 15
+
+				' "Fail to File:               " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
+				' "Minor Lvg Arrang.:   " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
+
+				' Text 125, 85, 110, 10, "Monthly Income:      " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
+
+				' "Post 60 DISQ:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
+				' "Sanction Limit:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
+
+				' Text 345, 75, 100, 10, "Fail QC Coop:       " & DWP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
+
+				GroupBox 5, y_pos, 450, 40, "Ineligible Details"
+				y_pos = y_pos + 15
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
+					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
+					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
+					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+					y_pos = y_pos + 20
+
+					If show_pact = True Then
+						Text 15, y_pos, 120, 10, "List PACT reason(s) for ineligibility: "
+						Editbox 130, y_pos-5, 310, 15, DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
+						y_pos = y_pos + 10
+						Text 130, y_pos, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+					End If
+
+				Else
+					Text 15, y_pos, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
+				End if
+				end_of_y_pos = y_pos + 5
+			End If
 		End If
 
 
@@ -428,11 +561,15 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 			Next
+			'PRORATED REASON FUNCTIONALITY
+			' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "DWP Prorated (" & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, dwp_prorate_reason
+			' End If
 		End If
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		PushButton 490, 155, 50, 10, "View ELIG", nav_stat_elig_btn
-
 
 		y_pos = 25
 		for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
@@ -451,136 +588,139 @@ function define_dwp_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 125, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 110, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 130, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
+			y_pos = 220
+			If end_of_y_pos <> "" Then y_pos = end_of_y_pos
+			GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
+			y_pos = y_pos + 10
 
-		y_pos = 220
-		GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
-		y_pos = y_pos + 10
+			Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
+			Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+			y_pos = y_pos + 15
+			y_pos_2 = y_pos
+			' y_pos = 230
+			' y_pos_2 = 230
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
 
-		Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
-		Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-		y_pos = y_pos + 15
-		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
-				End If
-				y_pos = y_pos + 20
-			End If
 
-			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-
-			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
 
-		Next
+			Next
+		End If
 
 	EndDialog
 
@@ -590,8 +730,11 @@ function define_mfip_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 165, "MFIP Approvals"
-		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		If MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
@@ -701,7 +844,8 @@ function define_mfip_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		y_pos = 135
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_counted_memb_allocation_exists = True or MFIP_ELIG_APPROVALS(elig_ind).mfip_deemer_allocation_exists = True Then
@@ -729,6 +873,11 @@ function define_mfip_elig_dialog()
 				End If
 			Next
 			y_pos = y_pos + 70
+			'PRORATED REASON FUNCTIONALITY
+			' If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_prorate_date <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "MFIP Prorated (" & DWP_ELIG_APPMFIP_ELIG_APPROVALSROVALS(elig_ind).mfip_case_budg_prorate_date & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, mfip_prorate_reason
+			' End If
 		Else
 			y_pos = y_pos + 15
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
@@ -873,8 +1022,11 @@ end function
 function define_msa_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "MSA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "MSA Approvals"
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		Text 10, 350, 550, 10, "NOTES: " & MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	' MsgBox MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
@@ -1017,8 +1169,8 @@ function define_msa_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 			' GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
@@ -1042,7 +1194,7 @@ function define_msa_elig_dialog()
 						app_x_pos = app_x_pos + 150
 					End If
 				End If
-			Next
+			Next			'NOTE that MSA is not prorated
 		Else
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
@@ -1186,8 +1338,11 @@ end function
 function define_ga_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "GA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "GA Approvals"
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If GA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		  Text 10, 350, 550, 10, "NOTES: " & GA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If GA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	  If GA_ELIG_APPROVALS(elig_ind).ga_elig_faci_file_unit_type_code = " " Then 				'If this is _, it means the budget is INDVIDUAL based'
@@ -1303,7 +1458,8 @@ function define_ga_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 			GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
@@ -1328,6 +1484,16 @@ function define_ga_elig_dialog()
 					End If
 				End If
 			Next
+			'PRORATED REASON FUNCTIONALITY
+			' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
+			' End If
+			' ElseIf GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
+			' End If
+
 		Else
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
@@ -1467,7 +1633,11 @@ end function
 function define_deny_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "CASH Denial Approval Packages"
 	  ButtonGroup ButtonPressed
-		y_pos = 25
+		If DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+
+	    y_pos = 25
 
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then dwp_grp_len = 25
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = True Then
@@ -2019,8 +2189,8 @@ function define_deny_elig_dialog()
 		DropListBox 215, 5, 50, 15, "Family"+chr(9)+"Adult", TEMP_VAR_cash_family_or_adult
 		PushButton 275, 10, 50, 10, "Reload", reload_btn
 		PushButton 400, 10, 50, 10, "View ELIG", nav_stat_elig_btn
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = y_pos + 5
 		GroupBox 5, y_pos, 540, income_box_len, "Income"
@@ -2158,6 +2328,9 @@ function define_grh_elig_dialog()
 	  ButtonGroup ButtonPressed
 
 		GroupBox 460, 10, 85, 105, "HS/GRH Approvals"
+		If GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -2531,8 +2704,8 @@ function define_grh_elig_dialog()
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 465, 95, 75, 15, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 80, 75, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 100, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = Income_detail_start
 
@@ -2690,12 +2863,15 @@ function define_hc_elig_dialog()
 
 	  ButtonGroup ButtonPressed
 
-		GroupBox 455, 10, 95, 105, "HC Approvals"
+		GroupBox 455, 10, 95, 110, "HC Approvals"
+		If HC_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or HC_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & HC_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & HC_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		y_pos = 10
-		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
@@ -2902,7 +3078,7 @@ function define_hc_elig_dialog()
 						Text 175, y_pos+10, 135, 10, "Earned Inc .  .  .  .  .  .  .  . $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_gross_earned(memb_ind)
 						Text 175, y_pos+20, 135, 10, "Excld Earned .  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_excluded_earned(memb_ind) ''& "(-)"
 						Text 175, y_pos+30, 135, 10, "Wrk Exp Deduct .  .  .   (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_work_exp_deduction(memb_ind)
-						Text 175, y_pos+40, 135, 10, "EI Disregard .  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregarrd(memb_ind)
+						Text 175, y_pos+40, 135, 10, "EI Disregard .  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregard(memb_ind)
 						Text 175, y_pos+50, 135, 10, "Dpdnt Care  .  .  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_dependent_care(memb_ind)
 						Text 175, y_pos+60, 135, 10, "Earned Deduct  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_deduction(memb_ind) ''& "(-)"
 						Text 175, y_pos+75, 135, 10, "Net Earned Inc  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_net_earned_income(memb_ind)
@@ -3025,7 +3201,6 @@ function define_hc_elig_dialog()
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) = "DP" Then grp_hgt = grp_hgt + 55
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then grp_hgt = grp_hgt + 55
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-
 		End If
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QI1" Then
@@ -3161,9 +3336,20 @@ function define_hc_elig_dialog()
 			' GroupBox 10, 245, 440, 30, "Spenddown Exists"
 
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-
 		End If
 
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "HC DENIAL" Then
+			GroupBox 10, y_pos, 440, 60, "Health Care DENIAL Reasons"
+			Text 20, y_pos+15, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_application_withdrawn(memb_ind)
+			Text 60, y_pos+15, 250, 10, "  -  Application Withdrawn"
+			Text 20, y_pos+25, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_application_process_incomplete(memb_ind)
+			Text 60, y_pos+25, 250, 10, "  -  Application Process Not Completed"
+			Text 20, y_pos+35, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_no_new_prog_eligibility(memb_ind)
+			Text 60, y_pos+35, 250, 10, "  -  No New Program Eligibility"
+			Text 20, y_pos+45, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_assistance_unit(memb_ind)
+			Text 60, y_pos+45, 250, 10, "  -  Assistance Unit Member"
+
+		End if
 		' If scnd_elig_ind <> "" Then
 		' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "MA" or HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "EMA" Then
 		' 		GroupBox 10, y_pos, 440, 95, "MEMB " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_ref_numbs(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_full_name(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(scnd_memb_ind) & " for " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind)
@@ -3287,7 +3473,7 @@ function define_hc_elig_dialog()
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
-		apprvs_y_pos = 25
+		apprvs_y_pos = 20
 		for each_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
 			If HC_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
 				month_display = HC_UNIQUE_APPROVALS(first_mo_const, each_app)
@@ -3299,163 +3485,171 @@ function define_hc_elig_dialog()
 			month_display = "M" & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_app) & " - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_app) & ": " & month_display
 			' If each_app = approval_selected Then display_detail = month_display
 			If each_app = approval_selected Then
-				Text 465, apprvs_y_pos+2, 85, 13, month_display
+				Text 475, apprvs_y_pos+2, 85, 13, month_display
 			Else
 				PushButton 460, apprvs_y_pos, 85, 13, month_display, HC_UNIQUE_APPROVALS(btn_one, each_app)
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 460, 95, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 460, 85, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 460, 100, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = Income_detail_start
 		' y_pos = 175
 
-		GroupBox 5, y_pos, 540, income_box_len, "Income"
-		y_pos = y_pos + 15
 
-		Text 10, y_pos, 155, 10, "GROSS EARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
-		Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) <> "HC DENIAL" Then
+			GroupBox 5, y_pos, 540, income_box_len, "Income"
+			y_pos = y_pos + 15
 
-		y_pos = y_pos + 10
-		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
-		HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
-				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = inc_count_memb Then
-					If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
-						If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
-							y_pos = y_pos - 10
-						End If
-						y_pos = y_pos + 20
-					End If
+			Text 10, y_pos, 155, 10, "GROSS EARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
+			Text 300, y_pos, 155, 10, "GROSS UNEARNED Income: "'' & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
 
-					If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-					If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-						Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
-						If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-							Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-						Else
-							Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
-						End If
-						y_pos = y_pos + 20
-					End If
-
-					If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-					If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-						Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
-						y_pos_2 = y_pos_2 + 10
-						If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-							Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-							y_pos_2 = y_pos_2 + 10
-						End If
-					End If
-				End If
-			Next
-		Next
-		If ei_count = 0 Then
-			Text 15, y_pos, 275, 10, "No EARNED Income counted for Health Care."
 			y_pos = y_pos + 10
-		End If
-		If unea_count = 0 Then
-			Text 305, y_pos_2, 235, 10, "No UNEARNED Income counted for Health Care."
-			y_pos_2 = y_pos_2 + 10
-		End if
+			y_pos_2 = y_pos
+			' y_pos = 230
+			' y_pos_2 = 230
+			HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
+					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = inc_count_memb Then
+						If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+							If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
+								y_pos = y_pos - 10
+							End If
+							y_pos = y_pos + 20
+						End If
 
+						If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+							Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+							If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+							Else
+								Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+							End If
+							y_pos = y_pos + 20
+						End If
+
+						If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+							Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+							y_pos_2 = y_pos_2 + 10
+							If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+								Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+								y_pos_2 = y_pos_2 + 10
+							End If
+						End If
+					End If
+				Next
+			Next
+			If ei_count = 0 Then
+				Text 15, y_pos, 275, 10, "No EARNED Income counted for Health Care."
+				y_pos = y_pos + 10
+			End If
+			If unea_count = 0 Then
+				Text 305, y_pos_2, 235, 10, "No UNEARNED Income counted for Health Care."
+				y_pos_2 = y_pos_2 + 10
+			End if
+		End If
+
+		If ex_parte_approval = True Then
+			Text 10, 345, 145, 10, "This case is an EX PARTE APPROVAL"
+			CheckBox 155, 345, 300, 10, "Check here to stop the script from processing as Ex Parte.", stop_ex_parte_checkbox
+		End If
+	EndDialog
 end function
 
 function define_emer_elig_dialog()
@@ -3530,6 +3724,7 @@ function define_emer_elig_dialog()
 			If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Text 20, 310, 145, 10, "NET Income in the application month:   $"
 			If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, 310, 150, 10, "GROSS Income in 30 Days before Application:   $"
 			EditBox 175, 305, 75, 15, emer_past_30_days_income
+			Text 300, 300, 100, 10, "Applicaiton Date: " & EMER_ELIG_APPROVAL.emer_appl_date
 			Text 300, 310, 100, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit
 			' End If
 		End if
@@ -3695,9 +3890,11 @@ function define_snap_elig_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
 	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
-
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	GroupBox 5, 10, 285, 105, "Approval Detail"
@@ -3812,7 +4009,8 @@ function define_snap_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 	  If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
@@ -4175,72 +4373,23 @@ function dwp_elig_case_note()
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE("DWP INELIGIBLE because initial income exceeds Family Wage Level of " & trim(DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level))
 
-		Call write_variable_in_CASE_NOTE("DWP Assistance Unit: Caregivers: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_caregivers & ", Children: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_children)
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income <> "FAILED" Then Call write_variable_in_CASE_NOTE("DWP Assistance Unit: Caregivers: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_caregivers & ", Children: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_children)
 
-		' Call write_variable_in_CASE_NOTE("------- PROPSPECTIVE BUDGET --------|------ MFIP BENEFIT CALCULATION --------")
 		Call write_variable_in_CASE_NOTE("------- Income and Expenses --------|------- DWP BENEFIT CALCULATION --------")
-
-		' Call write_variable_in_CASE_NOTE("                                    |                 Difference: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference, 8))
-		' Call write_variable_in_CASE_NOTE("                                    |                 Difference: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference, 8))
-		' Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-		' Call write_variable_in_CASE_NOTE("                               |       FWL Difference: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference, 8) & "|")
-		' Call write_variable_in_CASE_NOTE("                               |Transitional Standard: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_transitional_standard, 8) & "|")
-		' Call write_variable_in_CASE_NOTE("                               |         Monthly Need: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_need, 8) & "|")
-		' Call write_variable_in_CASE_NOTE("Other Income:                  |---------------------------------|")
-
-		'DWP Budget plan
-		'DWP Housing Expense
-		'Rent/Mortgage
 		Call write_variable_in_CASE_NOTE("Housing and Utility Expenses:       |        Total Shelter Costs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs, 8))
-		' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE("                                    |        Total Shelter Costs: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference, 8))
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage	& " - Rent/Mortgage         |")
-		' Call write_variable_in_CASE_NOTE("   Rent/Mortgage: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 8) 		 & "          |")
-		'Property Tax
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax		& " - Property Tax          |")
-		' Call write_variable_in_CASE_NOTE("    Property Tax: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 8) 		 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
-		'House Insurance
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance	& " - House Insurance       |")
-		' Call write_variable_in_CASE_NOTE(" House Insurance: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 8) 	 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
-		'Electricity
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity		& " - Electricity           |")
-		' Call write_variable_in_CASE_NOTE("     Electricity: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 8) 		 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
-		'Heat/Air
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air			& " - Heat/AC               |")
-		' Call write_variable_in_CASE_NOTE("         Heat/AC: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 8) 			 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
-		'Water/Sewer?Garbage
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage& " - Water/Garbage         |")
-		' Call write_variable_in_CASE_NOTE("   Water/Garbage: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 8) & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
-
-		'Telephone
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone			& " - Phone                 |")
-		' Call write_variable_in_CASE_NOTE("           Phone: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 8) 				 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
-		'Other
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other			& " - Other                 |")
-		' Call write_variable_in_CASE_NOTE("           Other: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 8) 				 & "          |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
-		'Total Shelter Costs
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-
-
-		'Personal Needs
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 7) & 				" - Rent/Mortgage          |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 7)  & 				" - Property Tax           |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 7)  & 			" - House Insurance        |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 7)  & 					" - Electricity            |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 7)  & 						" - Heat/AC                |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 7) & 	" - Water/Garbage          |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 7)  & 								" - Phone                  |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 7)  & 								" - Other                  |")
 		Call write_variable_in_CASE_NOTE("Personal Needs:                     | (+)         Personal Needs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs, 8))
 		Call write_variable_in_CASE_NOTE(" $ 70.00 per eligible DWP member    |")
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
-		'total DWP Need
 		Call write_variable_in_CASE_NOTE("                                    | (=)         Total DWP Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need, 8))
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
+		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 
-		'Earned Income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
-		' Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-
-		' earned_info = "|          (-) Earned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income, 8)
 		ei_found = False
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
@@ -4250,7 +4399,7 @@ function dwp_elig_case_note()
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
@@ -4259,7 +4408,7 @@ function dwp_elig_case_note()
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
@@ -4268,7 +4417,7 @@ function dwp_elig_case_note()
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
@@ -4277,7 +4426,7 @@ function dwp_elig_case_note()
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
 				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
@@ -4286,59 +4435,40 @@ function dwp_elig_case_note()
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 
 
 			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 27)
 				If ei_found = False then
 					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 27)
 				If ei_found = False then
 					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
-				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+				busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 27)
 				If ei_found = False then
 					Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
 					ei_found = True
 				End If
 				Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & "|")
-				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36))
+				Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
 			End If
-			' For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
-			' 	If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) Then
-			' 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_deduction(mf_memb) <> "0.00" AND MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_deduction(mf_memb) <> "" Then
-			' 			Call write_variable_in_CASE_NOTE(left("  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_deduction(mf_memb) & " ALLOCATION" & spaces_30, 36) & "|")
-			' 			Call write_variable_in_CASE_NOTE(left("    from MEMB " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) & " Earned Income" & spaces_30, 36) & "|")
-			' 		End If
-			' 	End If
-			' Next
 		Next
 		If ei_found = False then Call write_variable_in_CASE_NOTE("NO Earned Income                    |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-		' If earned_info = "|          (-) Earned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO EARNED Income                  " & earned_info)
 
-
-		' 'Unearned Income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-
-
-
-		unearned_info = "| (-)        Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8)
-		' Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
-		Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
-		' If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = True Then
 		unea_found = False
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
@@ -4386,47 +4516,340 @@ function dwp_elig_case_note()
 				End If
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
 			End If
-			' For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
-			' 	If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) Then
-			' 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) <> "0.00" AND MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) <> "" Then
-			' 			Call write_variable_in_CASE_NOTE(left("  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) & " ALLOCATION" & spaces_30, 36) & "|")
-			' 			Call write_variable_in_CASE_NOTE(left("    from MEMB " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) & " Unearned Income" & spaces_30, 36) & "|")
-			' 		End If
-			' 	End If
-			' Next
 		Next
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = False Then Call write_variable_in_CASE_NOTE(" NO UNEARNED Income                 | (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8))
 		If unea_found = False then Call write_variable_in_CASE_NOTE("NO Unearned Income                  |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
 
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income = "0.00" Then
+			Call write_variable_in_CASE_NOTE("NO Deemed Income                    |              Deemed Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income, 8))
+
+		Else
+			Call write_variable_in_CASE_NOTE("Deemed Income:                      |              Deemed Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income, 8))
+
+			right_side_lines = "|--DEEMED Income Calculation---|"
+
+			For each_deem = 0 to UBound(DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp)
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) & " - Wages" & spaces_30, 30) & "|"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) & " - Self Emp" & spaces_30, 30) & "|"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_wages(each_deem) <> "0.00" OR DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_self_emp(each_deem) <> "0.00" Then
+					disregard = DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_earned_disregard(each_deem)
+					disregard = disregard * 1
+					disregard = disregard + 65
+					right_side_lines = right_side_lines & "~|" & left("  (-) $ " & disregard & " - Disregards" & spaces_30, 30) & "|"
+				End If
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_unearned_income(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_unearned_income(each_deem) & " - Unearned" & spaces_30, 30) & "|"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_deemer_unmet_need(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_deemer_unmet_need(each_deem) & " - Unmet Need" & spaces_30, 30) & "|"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_allocation(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_allocation(each_deem) & " - Allocation" & spaces_30, 30) & "|"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_child_support(each_deem) <> "0.00" Then right_side_lines = right_side_lines & "~|" & left("  (-) $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_child_support(each_deem) & " - Chld Sprt" & spaces_30, 30) & "|"
+				right_side_lines = right_side_lines & "~|" & left("= $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_membs_budg_deemed_counted_income(each_deem) & " Cntd Deemed Inc" & spaces_30, 30) & "|"
+			Next
+			right_side_lines = right_side_lines & "~|------------------------------|"
+			right_side_lines_array = split(right_side_lines, "~")
+			calc_lines_count = 0
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
 
 
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_deemed_for_mfip(each_memb) = True Then
+					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_deemed_for_mfip(each_memb) = True Then
+					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_deemed_for_mfip(each_memb) = True Then
+					busi_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					If calc_lines_count+1 <= UBound(right_side_lines_array) Then right_side_info_2 = right_side_lines_array(calc_lines_count+1)
+					calc_lines_count = calc_lines_count + 2
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & busi_detail & right_side_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36) & right_side_info_2)
+					right_side_info = "|"
+					right_side_info_2 = "|"
+				End If
+			Next
 
-		' 'Deemed Income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
-		' 'CSES Exclusion
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count
-		' 'Budget Month total
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
-		' 'Prior Low
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
-		' 'DWP Countable Income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-
-		' 'Unmet Need
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
-		' 'DWP Max Grant
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
-		' 'DWP Grant
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
-
-
-
-
-
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_deemed_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					calc_lines_count = calc_lines_count + 1
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
+					right_side_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_deemed_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					calc_lines_count = calc_lines_count + 1
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
+					right_side_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_deemed_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					calc_lines_count = calc_lines_count + 1
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
+					right_side_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_deemed_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					calc_lines_count = calc_lines_count + 1
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
+					right_side_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_deemed_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+					If calc_lines_count <= UBound(right_side_lines_array) Then right_side_info = right_side_lines_array(calc_lines_count)
+					calc_lines_count = calc_lines_count + 1
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & right_side_info)
+					right_side_info = "|"
+				End If
+			Next
+			If calc_lines_count <= UBound(right_side_lines_array) Then
+				Do
+					Call write_variable_in_CASE_NOTE(spaces_36& right_side_lines_array(calc_lines_count))
+					calc_lines_count = calc_lines_count + 1
+				Loop until calc_lines_count > UBound(right_side_lines_array)
+			End If
+		End If
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion <> "0.00" Then
+			Call write_variable_in_CASE_NOTE("Child Support Exclusion:            | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
+			Call write_variable_in_CASE_NOTE(left("  Child Support Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income & spaces_30, 36) & "|")
+			Call write_variable_in_CASE_NOTE(left("           Child Count:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count & spaces_30, 36) & "|")
+		End if
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion = "0.00" Then Call write_variable_in_CASE_NOTE("NO Child Support Exclusion          | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
+		Call write_variable_in_CASE_NOTE("                                    | (=)     Budget Month Total: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total, 8))
+		Call write_variable_in_CASE_NOTE("                                    |                  Prior Low: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low, 8))
+		Call write_variable_in_CASE_NOTE("                                    | (=)   DWP Countable Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income, 8))
+		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
+			Call write_variable_in_CASE_NOTE("DWP Countable Income Exceeds FWL    | *  *  *  Family Wage Level: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level, 8))
+		Else
+			Call write_variable_in_CASE_NOTE("                                    | (=)             Unmet Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need, 8))
+			Call write_variable_in_CASE_NOTE("                                    |              DWP Max Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant, 8))
+			Call write_variable_in_CASE_NOTE("                                    | (=)              DWP Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant, 8))
+		End If
+		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 	End If
-	MsgBox "WAIT HERE"
+
+
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("* DWP has reached the 4 Month Time Limit.")
+		Call write_variable_in_CASE_NOTE("* DWP Eligibliity has ended as of " & first_month & ".")
+	ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+		Call write_variable_in_CASE_NOTE("* DWP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
+
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for DWP benefits was withdrawn. (APPLICATION WITHDRAWN)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limits. (ASSET)")
+		'TODO add details about assets'
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with CS Requirements. (CS DISQUALIFICATION)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died. (DEATH OF APPLICANT)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Benefits already received for this unit on another case/state. (DUPICATE ASSISTANCE)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case. (ELIGIBLE CHILD)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with ES Requirements. (E DISQUALIFICATION)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
+			show_pact = False
+			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
+			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
+			If show_pact = True Then
+				Call write_variable_in_CASE_NOTE("   - Case ineligible due to: " & DWP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ". ")
+				Call write_variable_in_CASE_NOTE("     INELIG created using PACT.")
+				If DWP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("     WCOM added to Notice with PACT reason.")
+
+			End If
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Did not verify application for other benefits.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Did provide reuested information.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Has not cooperated with IEVS requirements.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Has not provided mandatory Vendor Information.")
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+			Next
+		End If
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has used all 4 DWP months. (FOUR MONTH LIMIT)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Initial Income Test. (INITIAL INCOME)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is converting to MFIP. (MFIP CONVERSION)")
+
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the TANF Time Limit. (TANF TIME LIMIT)")
+
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is not qualified due to improper trransfer of assets. (TRANSFER OF ASSETS)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DWP_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Bank account not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_BUSI = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Self Employment not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+				Next
+			End If
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_CARS = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Vehicle not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_JOBS = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Job not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+					End if
+				Next
+			End if
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_MEMB_dob = "FAILED" Then Call write_variable_in_CASE_NOTE("   - HH Memb date of birth not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_MEMB_id = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Adult Memb ID not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_PARE = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Parental relationship not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_PREG = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Pregnancy not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_RBIC = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Self Employment - Roomer/Boarder Income not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_ADDR = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Address not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SCHL = "FAILED" Then Call write_variable_in_CASE_NOTE("   - School information not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SECU = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Securities asset not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_SPON = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Sponsor Income/Assets not verified.")
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_test_verif_UNEA = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+					End if
+				Next
+			End if
+
+		End If
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
+	End If
+
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
+		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+		Call write_variable_in_CASE_NOTE("DWP Status:           " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_current_prog_status)
+		Call write_variable_in_CASE_NOTE("Budget Cycle:         PROSP")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
+			Call write_variable_in_CASE_NOTE("4th Month of ELIG:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_4th_month_of_elig)
+			Call write_variable_in_CASE_NOTE("Crgvers have ES Plan: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_caregivers_have_es_plan)
+		End If
+	End If
+	If DWP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If DWP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(changes_for_note, unique_app))
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
 
 end function
 
@@ -4855,6 +5278,8 @@ function mfip_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_review_date)
 	End If
+	If MFIP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app))
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -5329,6 +5754,8 @@ function msa_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_recertification_date)
 	End If
+	If MSA_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MSA_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If MSA_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MSA_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -5868,6 +6295,9 @@ function ga_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_hrf_reporting)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligiblity_review_date)
 	End If
+	If GA_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GA_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If GA_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GA_UNIQUE_APPROVALS(changes_for_note, unique_app))
+
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
@@ -5896,7 +6326,21 @@ function grh_elig_case_note()
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
 					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
 					' Call write_variable_in_CASE_NOTE(GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year & " - " & left(GRH_ELIG_APPROVALS(elig_ind).grh_vendor_one_name & spaces_23, 23) & ". . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_one, 8))
-					stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days                 ", 45)
+					whole_month = False
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "28" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "29")Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "06" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "09" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "11" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "01" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "03" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "05" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "07" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "08" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "10" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days (whole month)     ", 45)
+					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days                 ", 45)
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one <> "" Then
 						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one, 8))
 						stay_info = "                                             "
@@ -5917,7 +6361,21 @@ function grh_elig_case_note()
 					len_needed_of_grh_info = 77 - len(month_and_name)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
 					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
-					stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days                 ", 45)
+					whole_month = False
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "28" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "29")Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "06" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "09" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "11" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "01" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "03" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "05" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "07" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "08" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "10" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days (whole month)     ", 45)
+					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days                 ", 45)
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two <> "" Then
 						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two, 8))
 						stay_info = "                                             "
@@ -6295,6 +6753,9 @@ function grh_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_elig_review_date)
 	End If
+	If GRH_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GRH_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If GRH_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GRH_UNIQUE_APPROVALS(changes_for_note, unique_app))
+
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -6308,8 +6769,6 @@ function hc_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-
-
 
 
 	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
@@ -6666,7 +7125,7 @@ function hc_elig_case_note()
 
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    Excld Earned: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_excluded_earned(memb_ind), 8)) ''& "(-)"
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)  Wrk Exp Deduct: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_work_exp_deduction(memb_ind), 8))
-					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    EI Disregard: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregarrd(memb_ind), 8))
+					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)    EI Disregard: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_disregard(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)      Dpdnt Care: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_dependent_care(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(-)   Earned Deduct: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_earned_deduction(memb_ind), 8)) ''& "(-)"
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|     Net Earned Inc: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_net_earned_income(memb_ind), 8))
@@ -6867,6 +7326,8 @@ function hc_elig_case_note()
 			Call write_variable_in_CASE_NOTE("6 mo Renewal:  " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_SR_date(memb_ind))
 		End If
 	End If
+	If HC_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(HC_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If HC_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(HC_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -6925,7 +7386,7 @@ function emer_elig_case_note()
 			End If
 			If income_limit_details = True Then
 				Call write_variable_in_CASE_NOTE("Within 200%:")
-				Call write_variable_in_CASE_NOTE("  Household Size: " & EMER_ELIG_APPROVAL.houshold_size)
+				Call write_variable_in_CASE_NOTE("  Household Size: " & EMER_ELIG_APPROVAL.household_size)
 				Call write_variable_in_CASE_NOTE("  200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit)
 				Call write_variable_in_CASE_NOTE("  Houshold income: $ " & emer_past_30_days_income)
 			End If
@@ -7378,6 +7839,8 @@ function deny_elig_case_note()
 		End If
 	End if
 	Call write_variable_in_CASE_NOTE("=============================================================================")
+	If DENY_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If DENY_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(changes_for_note, unique_app))
 
 	' Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -8086,6 +8549,8 @@ function snap_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
 	End If
+	If SNAP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(SNAP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If SNAP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(SNAP_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
@@ -8106,6 +8571,8 @@ class dwp_eligibility_detail
 	public dwp_elig_membs_full_name()
 	public dwp_elig_membs_request_yn()
 	public dwp_elig_membs_member_code()
+	public dwp_memb_is_counted()
+	public dwp_memb_is_deemer()
 	public dwp_elig_membs_member_info()
 	public dwp_elig_membs_funding_source_code()
 	public dwp_elig_membs_funding_source_info()
@@ -8318,7 +8785,19 @@ class dwp_eligibility_detail
 	public dwp_check_vendor_blocked_county_numbers_list()
 
 
+	public dwp_elig_membs_budg_deemed_self_emp()
+	public dwp_elig_membs_budg_deemed_wages()
+	public dwp_elig_membs_budg_deemed_counted_earned()
+	public dwp_elig_membs_budg_deemed_standard_EI_disregard()
+	public dwp_elig_membs_budg_deemed_earned_subtotal()
+	public dwp_elig_membs_budg_deemed_earned_disregard()
+	public dwp_elig_membs_budg_deemed_unearned_income()
+	public dwp_elig_membs_budg_deemed_subtotal_counted_income()
 
+	public dwp_elig_membs_budg_deemed_deemer_unmet_need()
+	public dwp_elig_membs_budg_deemed_allocation()
+	public dwp_elig_membs_budg_deemed_child_support()
+	public dwp_elig_membs_budg_deemed_counted_income()
 
 	public sub read_elig()
 		call navigate_to_MAXIS_screen("ELIG", "DWP ")
@@ -8329,7 +8808,8 @@ class dwp_eligibility_detail
 		dwp_autoclosed_for_time_limit = False
 		dwp_mony_check_found = False
 		dwp_vnda_found = False
-		' MsgBox "Pause"
+		deem_count = 0
+
 		dwp_row = 1
 		dwp_col = 1
 		EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
@@ -8337,9 +8817,23 @@ class dwp_eligibility_detail
 			EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
 			dwp_autoclosed_for_time_limit = True
 		Else
+			elig_version_number = ""
 			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 			If approved_version_found = True Then
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			ElseIf elig_version_number <> "" Then
+				call navigate_to_MAXIS_screen("ELIG", "DWP ")
+				EMWriteScreen elig_footer_month, 20, 56
+				EMWriteScreen elig_footer_year, 20, 59
+				Call write_value_and_transmit(elig_version_number, 20, 79)
+				dwp_row = 1
+				dwp_col = 1
+				EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
+				If dwp_row <> 0 Then
+					EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
+					dwp_autoclosed_for_time_limit = True
+					PF3
+				End If
 			End If
 			If developer_mode = True Then approved_today = True		'TESTING OPTION'
 		End If
@@ -8348,6 +8842,8 @@ class dwp_eligibility_detail
 			ReDim dwp_elig_membs_full_name(0)
 			ReDim dwp_elig_membs_request_yn(0)
 			ReDim dwp_elig_membs_member_code(0)
+			ReDim dwp_memb_is_counted(0)
+			ReDim dwp_memb_is_deemer(0)
 			ReDim dwp_elig_membs_member_info(0)
 			ReDim dwp_elig_membs_funding_source_code(0)
 			ReDim dwp_elig_membs_funding_source_info(0)
@@ -8443,6 +8939,19 @@ class dwp_eligibility_detail
 			ReDim dwp_vnda_expense_type_info(0)
 			ReDim dwp_vnda_payment_amount(0)
 
+			ReDim dwp_elig_membs_budg_deemed_self_emp(0)
+			ReDim dwp_elig_membs_budg_deemed_wages(0)
+			ReDim dwp_elig_membs_budg_deemed_counted_earned(0)
+			ReDim dwp_elig_membs_budg_deemed_standard_EI_disregard(0)
+			ReDim dwp_elig_membs_budg_deemed_earned_subtotal(0)
+			ReDim dwp_elig_membs_budg_deemed_earned_disregard(0)
+			ReDim dwp_elig_membs_budg_deemed_unearned_income(0)
+			ReDim dwp_elig_membs_budg_deemed_subtotal_counted_income(0)
+			ReDim dwp_elig_membs_budg_deemed_deemer_unmet_need(0)
+			ReDim dwp_elig_membs_budg_deemed_allocation(0)
+			ReDim dwp_elig_membs_budg_deemed_child_support(0)
+			ReDim dwp_elig_membs_budg_deemed_counted_income(0)
+
 			row = 7
 			elig_memb_count = 0
 			Do
@@ -8452,6 +8961,8 @@ class dwp_eligibility_detail
 				ReDim preserve dwp_elig_membs_full_name(elig_memb_count)
 				ReDim preserve dwp_elig_membs_request_yn(elig_memb_count)
 				ReDim preserve dwp_elig_membs_member_code(elig_memb_count)
+				ReDim preserve dwp_memb_is_counted(elig_memb_count)
+				ReDim preserve dwp_memb_is_deemer(elig_memb_count)
 				ReDim preserve dwp_elig_membs_member_info(elig_memb_count)
 				ReDim preserve dwp_elig_membs_funding_source_code(elig_memb_count)
 				ReDim preserve dwp_elig_membs_funding_source_info(elig_memb_count)
@@ -8491,6 +9002,8 @@ class dwp_eligibility_detail
 
 				dwp_elig_membs_elig_status(elig_memb_count) = trim(dwp_elig_membs_elig_status(elig_memb_count))
 
+				dwp_memb_is_counted(elig_memb_count) = False
+				dwp_memb_is_deemer(elig_memb_count) = False
 				If dwp_elig_membs_member_code(elig_memb_count) = "A" Then dwp_elig_membs_member_info(elig_memb_count) = "Eligible"
 				If dwp_elig_membs_member_code(elig_memb_count) = "D" Then dwp_elig_membs_member_info(elig_memb_count) = "SSI/IVE/Adoption Assistance Recipient"
 				If dwp_elig_membs_member_code(elig_memb_count) = "F" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
@@ -8499,6 +9012,13 @@ class dwp_eligibility_detail
 				If dwp_elig_membs_member_code(elig_memb_count) = "I" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Pare of Unit"
 				If dwp_elig_membs_member_code(elig_memb_count) = "J" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
 				If dwp_elig_membs_member_code(elig_memb_count) = "N" Then dwp_elig_membs_member_info(elig_memb_count) = "Not Counted"
+
+				If dwp_elig_membs_member_code(elig_memb_count) = "A" Then dwp_memb_is_counted(elig_memb_count) = True
+				If dwp_elig_membs_member_code(elig_memb_count) = "F" Then dwp_memb_is_deemer(elig_memb_count) = True
+				If dwp_elig_membs_member_code(elig_memb_count) = "G" Then dwp_memb_is_deemer(elig_memb_count) = True
+				If dwp_elig_membs_member_code(elig_memb_count) = "H" Then dwp_memb_is_deemer(elig_memb_count) = True
+				If dwp_elig_membs_member_code(elig_memb_count) = "I" Then dwp_memb_is_deemer(elig_memb_count) = True
+				If dwp_elig_membs_member_code(elig_memb_count) = "J" Then dwp_memb_is_deemer(elig_memb_count) = True
 
 				If dwp_elig_membs_funding_source_code(elig_memb_count) = "F" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Federal Funds (TANF Cash)"
 				If dwp_elig_membs_funding_source_code(elig_memb_count) = "S" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "State Funds (Cash)"
@@ -8777,24 +9297,55 @@ class dwp_eligibility_detail
 			End If
 
 			Call write_value_and_transmit("X", 9, 41)
-			EmReadScreen pop_up_menu_title, 13, 3, 36
-			If pop_up_menu_title = "Deemed Income" Then
-				'TODO - read member specific unearned income
-				' EMReadScreen dwp_elig_membs_budg_deemed_self_emp(member_sel), 				9, 8, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_wages(member_sel), 					9, 9, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_counted_earned(member_sel), 		9, 10, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_standard_EI_disregard(member_sel), 	9, 11, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_earned_subtotal(member_sel), 		9, 12, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_earned_disregard(member_sel), 		9, 13, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_unearned_income(member_sel), 		9, 14, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_subtotal_counted_income(member_sel), 9, 15, 56
-				'
-				' EMReadScreen dwp_elig_membs_budg_deemed_deemer_unmet_need(member_sel), 		9, 18, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_allocation(member_sel), 			9, 19, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_child_support(member_sel), 			9, 20, 56
-				' EMReadScreen dwp_elig_membs_budg_deemed_counted_income(member_sel), 		9, 21, 56
-				transmit
-			End If
+			Do
+				EmReadScreen pop_up_menu_title, 13, 3, 36
+				If pop_up_menu_title = "Deemed Income" Then
+					ReDim Preserve dwp_elig_membs_budg_deemed_self_emp(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_wages(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_counted_earned(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_earned_subtotal(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_earned_disregard(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_unearned_income(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_allocation(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_child_support(deem_count)
+					ReDim Preserve dwp_elig_membs_budg_deemed_counted_income(deem_count)
+
+
+					'TODO - read member specific unearned income
+					EMReadScreen dwp_elig_membs_budg_deemed_self_emp(deem_count), 				9, 8, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_wages(deem_count), 					9, 9, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_counted_earned(deem_count), 		9, 10, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count), 	9, 11, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_earned_subtotal(deem_count), 		9, 12, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_earned_disregard(deem_count), 		9, 13, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_unearned_income(deem_count), 		9, 14, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count), 9, 15, 56
+
+					EMReadScreen dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count), 		9, 18, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_allocation(deem_count), 			9, 19, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_child_support(deem_count), 			9, 20, 56
+					EMReadScreen dwp_elig_membs_budg_deemed_counted_income(deem_count), 		9, 21, 56
+
+					dwp_elig_membs_budg_deemed_self_emp(deem_count) = trim(dwp_elig_membs_budg_deemed_self_emp(deem_count))
+					dwp_elig_membs_budg_deemed_wages(deem_count) = trim(dwp_elig_membs_budg_deemed_wages(deem_count))
+					dwp_elig_membs_budg_deemed_counted_earned(deem_count) = trim(dwp_elig_membs_budg_deemed_counted_earned(deem_count))
+					dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count) = trim(dwp_elig_membs_budg_deemed_standard_EI_disregard(deem_count))
+					dwp_elig_membs_budg_deemed_earned_subtotal(deem_count) = trim(dwp_elig_membs_budg_deemed_earned_subtotal(deem_count))
+					dwp_elig_membs_budg_deemed_earned_disregard(deem_count) = trim(dwp_elig_membs_budg_deemed_earned_disregard(deem_count))
+					dwp_elig_membs_budg_deemed_unearned_income(deem_count) = trim(dwp_elig_membs_budg_deemed_unearned_income(deem_count))
+					dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count) = trim(dwp_elig_membs_budg_deemed_subtotal_counted_income(deem_count))
+					dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count) = trim(dwp_elig_membs_budg_deemed_deemer_unmet_need(deem_count))
+					dwp_elig_membs_budg_deemed_allocation(deem_count) = trim(dwp_elig_membs_budg_deemed_allocation(deem_count))
+					dwp_elig_membs_budg_deemed_child_support(deem_count) = trim(dwp_elig_membs_budg_deemed_child_support(deem_count))
+					dwp_elig_membs_budg_deemed_counted_income(deem_count) = trim(dwp_elig_membs_budg_deemed_counted_income(deem_count))
+
+					deem_count = deem_count + 1
+					transmit
+				End If
+			Loop until pop_up_menu_title <> "Deemed Income"
 
 			Call write_value_and_transmit("X", 10, 41)
 			EMReadScreen dwp_elig_cses_income, 9, 10, 54
@@ -8896,10 +9447,14 @@ class dwp_eligibility_detail
 			dwp_case_summary_personal_needs_portion = trim(dwp_case_summary_personal_needs_portion)
 
 			Call navigate_to_MAXIS_screen("MONY", "INQX")
-			EMWriteScreen initial_search_month, 6, 38
-			EMWriteScreen initial_search_year, 6, 41
+			start_of_info = first_footer_month & "/1/" & first_footer_year
+			start_of_info = DateAdd("m", -1, start_of_info)
+			Call convert_date_into_MAXIS_footer_month(start_of_info, start_search_month, start_search_year)
+			EMWriteScreen start_search_month, 6, 38
+			EMWriteScreen start_search_year, 6, 41
 			EMWriteScreen CM_plus_1_mo, 6, 53
 			EMWriteScreen CM_plus_1_yr, 6, 56
+			' MsgBox "What are the months?!"
 			EMWriteScreen "X", 17, 50
 			transmit
 
@@ -8921,14 +9476,19 @@ class dwp_eligibility_detail
 				check_benefit_month = right("00"&check_benefit_month, 2)
 				check_benefit_year = DatePart("yyyy", check_from_date)
 				check_benefit_year = right(check_benefit_year, 2)
+
+				Call write_value_and_transmit("I", inqd_row, 4)
+				EMReadScreen payment_reason, 14, 7, 17
+				PF3
 				' elig_footer_month
 				' elig_footer_year
+				' MsgBox "check_benefit_month - " & check_benefit_month & vbCr & "elig_footer_year - " & elig_footer_year & vbCr & "payment_reason - " & payment_reason
 
-				If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year Then
+				If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
 					' If dwp_mony_check_found = False Then
 
 					' End If
-
+					' MsgBox "tx_count - " & tx_count
 					ReDim preserve dwp_check_issue_date(tx_count)
 					ReDim preserve dwp_check_program(tx_count)
 					ReDim preserve dwp_check_status_code(tx_count)
@@ -8993,6 +9553,7 @@ class dwp_eligibility_detail
 					ReDim preserve dwp_check_vendor_acct_number_required_yn(tx_count)
 					ReDim preserve dwp_check_vendor_blocked_county_numbers_list(tx_count)
 
+					dwp_mony_check_found = True
 
 					dwp_check_program(tx_count) = chck_prog
 					EMReadScreen dwp_check_issue_date(tx_count), 8, inqd_row, 7
@@ -9025,63 +9586,60 @@ class dwp_eligibility_detail
 					EMReadScreen dwp_check_transaction_number(tx_count), 9, inqd_row, 51
 					EMReadScreen dwp_check_from_date(tx_count), 8, inqd_row, 62
 					EMReadScreen dwp_check_to_date(tx_count), 8, inqd_row, 73
-					If trim(dwp_check_warrant_number(tx_count)) <> "" Then
-						dwp_mony_check_found = True
 
-						Call write_value_and_transmit("I", inqd_row, 4)
+					Call write_value_and_transmit("I", inqd_row, 4)
 
-						EMReadScreen dwp_check_payment_reason(tx_count), 	30, 7, 17
-						EMReadScreen dwp_check_payment_to_name(tx_count), 	30, 8, 17
-						EMReadScreen addr_one, 								30, 9, 17
-						EMReadScreen addr_two, 								30, 10, 17
-						dwp_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
-						EMReadScreen dwp_check_mail_method(tx_count), 			15, 4, 63
-						EMReadScreen dwp_check_payment_method(tx_count), 		15, 5, 63
-						EMReadScreen dwp_check_vendor_number(tx_count), 		15, 6, 63
-						' MsgBox "vendor Number  " & dwp_check_vendor_number(tx_count)
-						EMReadScreen dwp_check_fiche_number(tx_count), 		15, 7, 63
-						EMReadScreen dwp_check_payment_amount(tx_count), 		10, 13, 16
-						EMReadScreen dwp_check_entitement_amount(tx_count), 	10, 14, 16
-						EMReadScreen dwp_check_recoupment_amount(tx_count), 	10, 15, 16
-						EMReadScreen dwp_check_replacement_amount(tx_count), 	10, 16, 16
-						EMReadScreen dwp_check_cacnel_amount(tx_count), 		10, 17, 16
-						EMReadScreen dwp_check_food_portion_amount(tx_count), 	10, 18, 16
-						EMReadScreen dwp_check_reconciliation_date(tx_count), 	8, 6, 43
-						EMReadScreen dwp_check_cancel_reason(tx_count), 		30, 17, 41
-						EMReadScreen dwp_check_replacement_reason(tx_count), 	30, 18, 46
-						EMReadScreen dwp_check_picup_status(tx_count), 		10, 10, 70
-						EMReadScreen dwp_check_pickup_date(tx_count), 			8, 11, 70
-						EMReadScreen dwp_check_servicing_county(tx_count), 	2, 13, 70
-						EMReadScreen dwp_check_responsibility_county(tx_count), 2, 14, 70
-						EMReadScreen dwp_check_adjusting_transaction(tx_count), 10, 15, 70
-						EMReadScreen dwp_check_original_transaction(tx_count), 10, 16, 70
+					EMReadScreen dwp_check_payment_reason(tx_count), 	30, 7, 17
+					EMReadScreen dwp_check_payment_to_name(tx_count), 	30, 8, 17
+					EMReadScreen addr_one, 								30, 9, 17
+					EMReadScreen addr_two, 								30, 10, 17
+					dwp_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
+					EMReadScreen dwp_check_mail_method(tx_count), 			15, 4, 63
+					EMReadScreen dwp_check_payment_method(tx_count), 		15, 5, 63
+					EMReadScreen dwp_check_vendor_number(tx_count), 		15, 6, 63
+					' MsgBox "vendor Number  " & dwp_check_vendor_number(tx_count)
+					EMReadScreen dwp_check_fiche_number(tx_count), 		15, 7, 63
+					EMReadScreen dwp_check_payment_amount(tx_count), 		10, 13, 16
+					EMReadScreen dwp_check_entitement_amount(tx_count), 	10, 14, 16
+					EMReadScreen dwp_check_recoupment_amount(tx_count), 	10, 15, 16
+					EMReadScreen dwp_check_replacement_amount(tx_count), 	10, 16, 16
+					EMReadScreen dwp_check_cacnel_amount(tx_count), 		10, 17, 16
+					EMReadScreen dwp_check_food_portion_amount(tx_count), 	10, 18, 16
+					EMReadScreen dwp_check_reconciliation_date(tx_count), 	8, 6, 43
+					EMReadScreen dwp_check_cancel_reason(tx_count), 		30, 17, 41
+					EMReadScreen dwp_check_replacement_reason(tx_count), 	30, 18, 46
+					EMReadScreen dwp_check_picup_status(tx_count), 		10, 10, 70
+					EMReadScreen dwp_check_pickup_date(tx_count), 			8, 11, 70
+					EMReadScreen dwp_check_servicing_county(tx_count), 	2, 13, 70
+					EMReadScreen dwp_check_responsibility_county(tx_count), 2, 14, 70
+					EMReadScreen dwp_check_adjusting_transaction(tx_count), 10, 15, 70
+					EMReadScreen dwp_check_original_transaction(tx_count), 10, 16, 70
 
-						dwp_check_payment_reason(tx_count) = trim(dwp_check_payment_reason(tx_count))
-						dwp_check_payment_to_name(tx_count) = trim(dwp_check_payment_to_name(tx_count))
-						dwp_check_payment_to_address(tx_count) = trim(dwp_check_payment_to_address(tx_count))
-						dwp_check_mail_method(tx_count) = trim(dwp_check_mail_method(tx_count))
-						dwp_check_payment_method(tx_count) = trim(dwp_check_payment_method(tx_count))
-						dwp_check_vendor_number(tx_count) = trim(dwp_check_vendor_number(tx_count))
-						dwp_check_fiche_number(tx_count) = trim(dwp_check_fiche_number(tx_count))
-						dwp_check_payment_amount(tx_count) = trim(dwp_check_payment_amount(tx_count))
-						dwp_check_entitement_amount(tx_count) = trim(dwp_check_entitement_amount(tx_count))
-						dwp_check_recoupment_amount(tx_count) = trim(dwp_check_recoupment_amount(tx_count))
-						dwp_check_replacement_amount(tx_count) = trim(dwp_check_replacement_amount(tx_count))
-						dwp_check_cacnel_amount(tx_count) = trim(dwp_check_cacnel_amount(tx_count))
-						dwp_check_food_portion_amount(tx_count) = trim(dwp_check_food_portion_amount(tx_count))
-						dwp_check_reconciliation_date(tx_count) = trim(dwp_check_reconciliation_date(tx_count))
-						dwp_check_cancel_reason(tx_count) = trim(dwp_check_cancel_reason(tx_count))
-						dwp_check_replacement_reason(tx_count) = trim(dwp_check_replacement_reason(tx_count))
-						dwp_check_picup_status(tx_count) = trim(dwp_check_picup_status(tx_count))
-						dwp_check_pickup_date(tx_count) = trim(dwp_check_pickup_date(tx_count))
-						dwp_check_servicing_county(tx_count) = trim(dwp_check_servicing_county(tx_count))
-						dwp_check_responsibility_county(tx_count) = trim(dwp_check_responsibility_county(tx_count))
-						dwp_check_adjusting_transaction(tx_count) = trim(dwp_check_adjusting_transaction(tx_count))
-						dwp_check_original_transaction(tx_count) = trim(dwp_check_original_transaction(tx_count))
+					dwp_check_payment_reason(tx_count) = trim(dwp_check_payment_reason(tx_count))
+					dwp_check_payment_to_name(tx_count) = trim(dwp_check_payment_to_name(tx_count))
+					dwp_check_payment_to_address(tx_count) = trim(dwp_check_payment_to_address(tx_count))
+					dwp_check_mail_method(tx_count) = trim(dwp_check_mail_method(tx_count))
+					dwp_check_payment_method(tx_count) = trim(dwp_check_payment_method(tx_count))
+					dwp_check_vendor_number(tx_count) = trim(dwp_check_vendor_number(tx_count))
+					dwp_check_fiche_number(tx_count) = trim(dwp_check_fiche_number(tx_count))
+					dwp_check_payment_amount(tx_count) = trim(dwp_check_payment_amount(tx_count))
+					dwp_check_entitement_amount(tx_count) = trim(dwp_check_entitement_amount(tx_count))
+					dwp_check_recoupment_amount(tx_count) = trim(dwp_check_recoupment_amount(tx_count))
+					dwp_check_replacement_amount(tx_count) = trim(dwp_check_replacement_amount(tx_count))
+					dwp_check_cacnel_amount(tx_count) = trim(dwp_check_cacnel_amount(tx_count))
+					dwp_check_food_portion_amount(tx_count) = trim(dwp_check_food_portion_amount(tx_count))
+					dwp_check_reconciliation_date(tx_count) = trim(dwp_check_reconciliation_date(tx_count))
+					dwp_check_cancel_reason(tx_count) = trim(dwp_check_cancel_reason(tx_count))
+					dwp_check_replacement_reason(tx_count) = trim(dwp_check_replacement_reason(tx_count))
+					dwp_check_picup_status(tx_count) = trim(dwp_check_picup_status(tx_count))
+					dwp_check_pickup_date(tx_count) = trim(dwp_check_pickup_date(tx_count))
+					dwp_check_servicing_county(tx_count) = trim(dwp_check_servicing_county(tx_count))
+					dwp_check_responsibility_county(tx_count) = trim(dwp_check_responsibility_county(tx_count))
+					dwp_check_adjusting_transaction(tx_count) = trim(dwp_check_adjusting_transaction(tx_count))
+					dwp_check_original_transaction(tx_count) = trim(dwp_check_original_transaction(tx_count))
 
-						tx_count = tx_count + 1
-						PF3
-					End If
+					PF3
+					tx_count = tx_count + 1
 				End If
 
 				inqd_row = inqd_row + 1
@@ -9093,13 +9651,15 @@ class dwp_eligibility_detail
 		Call back_to_SELF
 
 		If dwp_mony_check_found = True Then
+
+			' MsgBox "UBOUND: " & UBound(dwp_check_program)
 			for each_trans = 0 to UBound(dwp_check_program)
 
 				Call navigate_to_MAXIS_screen("MONY", "VNDS")
 
 				Call write_value_and_transmit(dwp_check_vendor_number(each_trans), 4, 59)
 				EMReadScreen dwp_check_vendor_name(each_trans), 					30, 3, 15
-				' MsgBox "VENDOR NAME" &  dwp_check_vendor_name(each_trans)
+				' MsgBox "VENDOR NAME - " &  dwp_check_vendor_name(each_trans)
 				EMReadScreen dwp_check_vendor_c_o(each_trans), 					30, 4, 15
 				EMReadScreen dwp_check_vendor_street_one(each_trans), 				22, 5, 15
 				EMReadScreen dwp_check_vendor_street_two(each_trans), 				22, 6, 15
@@ -10332,6 +10892,7 @@ class mfip_eligibility_detail
 			Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
 			EMReadScreen still_in_menu, 12, 5, 32
 
+			' MsgBox "EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			Do while still_in_menu = "Maxis Person"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
@@ -10381,10 +10942,13 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen still_in_menu, 12, 5, 32
+				' MsgBox "LEVAING???  EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
+
 			Loop
 
 			Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
 			EMReadScreen still_in_menu, 15, 6, 34
+			' MsgBox "UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			If still_in_menu = "Unearned Income" Then
 				' EMReadScreen pop_up_name, 25, 8, 34
 				' pop_up_name = trim(pop_up_name)
@@ -10410,42 +10974,58 @@ class mfip_eligibility_detail
 						If still_in_menu <> "Unearned Income" Then Exit For
 					End If
 				Next
-			' 		' If mfip_elig_membs_last_name_complete(case_memb) = False Then
-			' 		' 	pop_up_last_name = left(pop_up_name, 10)
-			' 		' 	pop_up_first_name = trim(left(pop_up_name_array(1), 10))
-			' 		' 	compare_pop_up_name = pop_up_last_name & " " & pop_up_first_name
-			' 		' End If
-			' 		' If mfip_elig_membs_last_name_complete(case_memb) = True Then
-			' 		' 	pop_up_last_name = trim(pop_up_name_array(0))
-			' 		' 	pop_up_first_name = left(trim(pop_up_name_array(1)), len(mfip_elig_membs_partial_first_name(case_memb)))
-			' 		' 	compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
-			' 		' End If
-			' 		MsgBox compare_pop_up_name & " - compare_pop_up_name" & vbCr & mfip_elig_membs_full_name(case_memb) & " - mfip_elig_membs_full_name(case_memb)" & vbCr & "Length of COMPARE NAME - " & len(compare_pop_up_name)
-			' 		If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-			'
-			' 			EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
-			' 			EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
-			' 			EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
-			' 			EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
-			'
-			' 			mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
-			' 			mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
-			' 			mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
-			' 			mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
-			'
-			' 			If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
-			'
-			' 		End If
-			' 	Next
-			' 	transmit
-			' 	EMReadScreen still_in_menu, 15, 6, 34
-			' Loop
+				' 		' If mfip_elig_membs_last_name_complete(case_memb) = False Then
+				' 		' 	pop_up_last_name = left(pop_up_name, 10)
+				' 		' 	pop_up_first_name = trim(left(pop_up_name_array(1), 10))
+				' 		' 	compare_pop_up_name = pop_up_last_name & " " & pop_up_first_name
+				' 		' End If
+				' 		' If mfip_elig_membs_last_name_complete(case_memb) = True Then
+				' 		' 	pop_up_last_name = trim(pop_up_name_array(0))
+				' 		' 	pop_up_first_name = left(trim(pop_up_name_array(1)), len(mfip_elig_membs_partial_first_name(case_memb)))
+				' 		' 	compare_pop_up_name = pop_up_last_name & ", " & pop_up_first_name
+				' 		' End If
+				' 		MsgBox compare_pop_up_name & " - compare_pop_up_name" & vbCr & mfip_elig_membs_full_name(case_memb) & " - mfip_elig_membs_full_name(case_memb)" & vbCr & "Length of COMPARE NAME - " & len(compare_pop_up_name)
+				' 		If compare_pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+				'
+				' 			EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
+				' 			EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
+				' 			EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
+				' 			EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
+				'
+				' 			mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
+				' 			mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
+				' 			mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
+				' 			mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
+				'
+				' 			If mfip_elig_membs_total_unearned_income(case_memb) <> "0.00" Then mfip_unearned_income_exists = True
+				'
+				' 		End If
+				' 	Next
+				' 	transmit
+				' 	EMReadScreen still_in_menu, 15, 6, 34
+				' Loop
+				' MsgBox "LEAVE ???   UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			End if
 
 			Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
-			EMReadScreen still_in_menu, 20, 4, 34
-			Do while still_in_menu = "Deemer Income Budget"
-				EMReadScreen pop_up_name, 40, 6, 27
+			dm_row = 1
+			dm_col = 1
+			EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
+			If dm_row = 0 Then
+				dm_row = 1
+				dm_col = 1
+				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+			End If
+			' EMReadScreen still_in_menu, 20, 2, 34
+			' MsgBox"still_in_menu - " & still_in_menu
+			' MsgBox "DEEMED INCOME POP-UP - dm_row: " & dm_row
+			Do while dm_row <> 0
+			' Do while still_in_menu = "Deemer Income Budget"
+				' MsgBox"still_in_menu - " & still_in_menu & " - in loop - DEEMER INCOME"
+				pers_row = 1
+				pers_col = 1
+				EMSearch "Mbrsp Code", pers_row, pers_col
+				EMReadScreen pop_up_name, 40, pers_row-1, pers_col+5
 				pop_up_name = trim(pop_up_name)
 				pop_up_name_array = split(pop_up_name, ",")
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -10499,10 +11079,16 @@ class mfip_eligibility_detail
 					End If
 				Next
 				transmit
-				EMReadScreen still_in_menu, 20, 4, 34
+				dm_row = 1
+				dm_col = 1
+				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
+				' EMReadScreen still_in_menu, 20, 4, 34
+				' MsgBox "LEAVING ??   DEEMED INCOME POP-UP - dm_row: " & dm_row
 			Loop
+			' MsgBox "We should be at main"
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
+			' MsgBox "In CSES Excl"
 			EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
 			EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
 			EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
@@ -10510,10 +11096,11 @@ class mfip_eligibility_detail
 			mfip_budg_cses_excln_cses_income = trim(mfip_budg_cses_excln_cses_income)
 			mfip_budg_cses_excln_child_count = trim(mfip_budg_cses_excln_child_count)
 			mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
-
 			transmit
+			' MsgBox "Left the CSES Excl - back to main"
 
 			Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
+			' MsgBox "IN memb SPECIFIC Tribal income"
 			EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
 			EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
 			EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
@@ -10522,6 +11109,7 @@ class mfip_eligibility_detail
 			mfip_budg_total_tribal_income_fs_portion_deduction = trim(mfip_budg_total_tribal_income_fs_portion_deduction)
 
 			Call write_value_and_transmit("X", 6, 12)		' member specific Tribal Child Support Income
+			' MsgBox "IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			EMReadScreen back_to_menu, 21, 4, 31
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 25, 8, 34
@@ -10536,10 +11124,12 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
+				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			Loop
 
 			Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
 			EMReadScreen back_to_menu, 21, 4, 31
+			' MsgBox "IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 30, 7, 37
 				pop_up_name = trim(pop_up_name)
@@ -10563,10 +11153,13 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
+				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Loop
 			transmit                  ''back to MFB1
+			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
+			' MsgBox "Memb specific SUBSIDY"
 			EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
 			EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
 			EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
@@ -10575,6 +11168,8 @@ class mfip_eligibility_detail
 			mfip_budg_total_subsidy_tribal_cash_portion_deduction = trim(mfip_budg_total_subsidy_tribal_cash_portion_deduction)
 
 			Call write_value_and_transmit("X", 8, 13)		' member specific subsidy Income
+			' MsgBox "Memb specific SUBSIDY"
+
 			EMReadScreen mfip_elig_budg_total_countable_housing_subsidy, 10, 19, 48
 			EMReadScreen mfip_elig_budg_housing_subsidy_exempt, 1, 21, 47
 
@@ -10598,8 +11193,10 @@ class mfip_eligibility_detail
 				EMReadScreen next_memb_ref_numb, 2, row, 6
 			Loop until next_memb_ref_numb = "  "
 			transmit 					'back to pop-up
+			' MsgBox "Back to SUBSIDY POP UP"
 
 			transmit                 	'back to MFB1
+			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
 			EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
@@ -11440,9 +12037,13 @@ class msa_eligibility_detail
 
 						EMReadScreen msa_elig_budg_spec_standard_amount(spec_needs_count), 8, msa_row, msa_col+26
 						msa_elig_budg_spec_standard_amount(spec_needs_count) = trim(msa_elig_budg_spec_standard_amount(spec_needs_count))
-
 						msa_row = msa_row + 1
-						If msa_row = 14 Then MsgBox "MORE THAN SIX?"
+						If msa_row = 14 Then
+							PF20
+							msa_row = 8
+							EMReadScreen list_end, 21, 19, 4
+							If list_end = "THIS IS THE LAST PAGE" Then Exit Do
+						End If
 						spec_needs_count = spec_needs_count + 1
 						EMReadScreen info_code, 2, msa_row, msa_col
 					Loop
@@ -14400,12 +15001,13 @@ class emer_eligibility_detail
 	public approved_today
 	public approved_version_found
 	public approval_date
+	public emer_appl_date
 
 	public initial_search_month
 	public initial_search_year
 
 	public emer_program
-	public houshold_size
+	public household_size
 	public manual_hh_count
 	public emer_fpg_limit
 	public emer_inelig_fpg_limit
@@ -14888,6 +15490,7 @@ class emer_eligibility_detail
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
 				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End if
+			' MsgBox "elig_version_date - " & elig_version_date & vbCr & "approved_today - " & approved_today
 
 			if approved_today = True Then
 				EMReadScreen emer_program, 2, 4, 45
@@ -15132,50 +15735,109 @@ class emer_eligibility_detail
 				emer_elig_summ_adults_in_unit = emer_elig_summ_adults_in_unit * 1
 				emer_elig_summ_children_in_unit = emer_elig_summ_children_in_unit * 1
 
-				houshold_size = emer_elig_summ_adults_in_unit + emer_elig_summ_children_in_unit
+				household_size = emer_elig_summ_adults_in_unit + emer_elig_summ_children_in_unit
 				emer_fpg_limit = 0
 				emer_inelig_fpg_limit = 0
 
 				If emer_program = "EGA" Then
-					If houshold_size = 1 Then emer_fpg_limit = 2147
-					If houshold_size = 2 Then emer_fpg_limit = 2903
-					If houshold_size = 3 Then emer_fpg_limit = 3660
-					If houshold_size = 4 Then emer_fpg_limit = 4417
-					If houshold_size = 5 Then emer_fpg_limit = 5173
-					If houshold_size = 6 Then emer_fpg_limit = 5930
-					If houshold_size = 7 Then emer_fpg_limit = 6687
-					If houshold_size = 8 Then emer_fpg_limit = 7443
-					If houshold_size = 9 Then emer_fpg_limit = 8200
-					If houshold_size = 10 Then emer_fpg_limit = 8957
-					If houshold_size > 10 Then emer_fpg_limit = 8957 + ((houshold_size-10) * 757)
+					If IsDate(emer_appl_date) = True Then
+						If DateDiff("d", emer_appl_date, #4/1/2023#) > 0 Then
+							If household_size = 1 Then emer_fpg_limit = 2147
+							If household_size = 2 Then emer_fpg_limit = 2903
+							If household_size = 3 Then emer_fpg_limit = 3660
+							If household_size = 4 Then emer_fpg_limit = 4417
+							If household_size = 5 Then emer_fpg_limit = 5173
+							If household_size = 6 Then emer_fpg_limit = 5930
+							If household_size = 7 Then emer_fpg_limit = 6687
+							If household_size = 8 Then emer_fpg_limit = 7443
+							If household_size = 9 Then emer_fpg_limit = 8200
+							If household_size = 10 Then emer_fpg_limit = 8957
+							If household_size > 10 Then emer_fpg_limit = 8957 + ((household_size-10) * 757)
+						Else
+                            If household_size = 1 Then emer_fpg_limit = 2265
+                            If household_size = 2 Then emer_fpg_limit = 3052
+                            If household_size = 3 Then emer_fpg_limit = 3838
+                            If household_size = 4 Then emer_fpg_limit = 4625
+                            If household_size = 5 Then emer_fpg_limit = 5412
+                            If household_size = 6 Then emer_fpg_limit = 6198
+                            If household_size = 7 Then emer_fpg_limit = 6985
+                            If household_size = 8 Then emer_fpg_limit = 7772
+                            If household_size = 9 Then emer_fpg_limit = 8558
+                            If household_size = 10 Then emer_fpg_limit = 9345
+                            If household_size > 10 Then emer_fpg_limit = 9345 + ((household_size-10) * 787)
+                        End if
+                    Else
+                        'Defaulting to last year's FPG if no appl date.
+                        If household_size = 1 Then emer_fpg_limit = 2265
+                        If household_size = 2 Then emer_fpg_limit = 3052
+                        If household_size = 3 Then emer_fpg_limit = 3838
+                        If household_size = 4 Then emer_fpg_limit = 4625
+                        If household_size = 5 Then emer_fpg_limit = 5412
+                        If household_size = 6 Then emer_fpg_limit = 6198
+                        If household_size = 7 Then emer_fpg_limit = 6985
+                        If household_size = 8 Then emer_fpg_limit = 7772
+                        If household_size = 9 Then emer_fpg_limit = 8558
+                        If household_size = 10 Then emer_fpg_limit = 9345
+                        If household_size > 10 Then emer_fpg_limit = 9345 + ((household_size-10) * 787)
+					End If
+
 					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
 
-					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2147
-					If manual_hh_count = 2 Then emer_inelig_fpg_limit = 2903
-					If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3660
-					If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4417
-					If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5173
-					If manual_hh_count = 6 Then emer_inelig_fpg_limit = 5930
-					If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6687
-					If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7443
-					If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8200
-					If manual_hh_count = 10 Then emer_inelig_fpg_limit = 8957
-					If manual_hh_count > 10 Then emer_inelig_fpg_limit = 8957 + ((manual_hh_count-10) * 757)
-					emer_inelig_fpg_limit = FormatNumber(emer_inelig_fpg_limit, 2, -1, 0, -1)
+                    If IsDate(emer_appl_date) = True Then
+						If DateDiff("d", emer_appl_date, #4/1/2023#) > 0 Then
+					        If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2147
+					        If manual_hh_count = 2 Then emer_inelig_fpg_limit = 2903
+					        If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3660
+					        If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4417
+					        If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5173
+					        If manual_hh_count = 6 Then emer_inelig_fpg_limit = 5930
+					        If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6687
+					        If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7443
+					        If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8200
+					        If manual_hh_count = 10 Then emer_inelig_fpg_limit = 8957
+					        If manual_hh_count > 10 Then emer_inelig_fpg_limit = 8957 + ((manual_hh_count-10) * 757)
+                        Else
+                            If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2265
+                            If manual_hh_count = 2 Then emer_inelig_fpg_limit = 3052
+                            If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3838
+                            If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4625
+                            If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5412
+                            If manual_hh_count = 6 Then emer_inelig_fpg_limit = 6198
+                            If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6985
+                            If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7772
+                            If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8558
+                            If manual_hh_count = 10 Then emer_inelig_fpg_limit = 9345
+                            If manual_hh_count > 10 Then emer_inelig_fpg_limit = 9345 + ((manual_hh_count-10) * 787)
+					    End if
+                    Else
+                        If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2265
+                        If manual_hh_count = 2 Then emer_inelig_fpg_limit = 3052
+                        If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3838
+                        If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4625
+                        If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5412
+                        If manual_hh_count = 6 Then emer_inelig_fpg_limit = 6198
+                        If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6985
+                        If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7772
+                        If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8558
+                        If manual_hh_count = 10 Then emer_inelig_fpg_limit = 9345
+                        If manual_hh_count > 10 Then emer_inelig_fpg_limit = 9345 + ((manual_hh_count-10) * 787)
+                    End if
+
+                    emer_inelig_fpg_limit = FormatNumber(emer_inelig_fpg_limit, 2, -1, 0, -1)
 				End If
 
 				If emer_program = "EA" Then
-					If houshold_size = 1 Then emer_fpg_limit = 2265
-					If houshold_size = 2 Then emer_fpg_limit = 3052
-					If houshold_size = 3 Then emer_fpg_limit = 3838
-					If houshold_size = 4 Then emer_fpg_limit = 4625
-					If houshold_size = 5 Then emer_fpg_limit = 5412
-					If houshold_size = 6 Then emer_fpg_limit = 6198
-					If houshold_size = 7 Then emer_fpg_limit = 6985
-					If houshold_size = 8 Then emer_fpg_limit = 7772
-					If houshold_size = 9 Then emer_fpg_limit = 8558
-					If houshold_size = 10 Then emer_fpg_limit = 9345
-					If houshold_size > 10 Then emer_fpg_limit = 9345 + ((houshold_size-10) * 787)
+					If household_size = 1 Then emer_fpg_limit = 2265
+					If household_size = 2 Then emer_fpg_limit = 3052
+					If household_size = 3 Then emer_fpg_limit = 3838
+					If household_size = 4 Then emer_fpg_limit = 4625
+					If household_size = 5 Then emer_fpg_limit = 5412
+					If household_size = 6 Then emer_fpg_limit = 6198
+					If household_size = 7 Then emer_fpg_limit = 6985
+					If household_size = 8 Then emer_fpg_limit = 7772
+					If household_size = 9 Then emer_fpg_limit = 8558
+					If household_size = 10 Then emer_fpg_limit = 9345
+					If household_size > 10 Then emer_fpg_limit = 9345 + ((household_size-10) * 787)
 					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
 
 					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2265
@@ -16094,12 +16756,13 @@ class hc_eligibility_detail
 	public hc_budget_type()
 	public hc_prog_elig_budg_gross_unearned()
 	public hc_prog_elig_budg_excluded_unearned()
+	public hc_prog_list_all_income()
 	public hc_prog_elig_budg_unearned_deduction()
 	public hc_prog_elig_budg_net_unearned_income()
 	public hc_prog_elig_budg_gross_earned()
 	public hc_prog_elig_budg_excluded_earned()
 	public hc_prog_elig_budg_work_exp_deduction()
-	public hc_prog_elig_budg_earned_disregarrd()
+	public hc_prog_elig_budg_earned_disregard()
 	public hc_prog_elig_budg_dependent_care()
 	public hc_prog_elig_budg_earned_deduction()
 	public hc_prog_elig_budg_net_earned_income()
@@ -16295,12 +16958,13 @@ class hc_eligibility_detail
 		ReDim hc_budget_type(0)
 		ReDim hc_prog_elig_budg_gross_unearned(0)
 		ReDim hc_prog_elig_budg_excluded_unearned(0)
+		ReDim hc_prog_list_all_income(0)
 		ReDim hc_prog_elig_budg_unearned_deduction(0)
 		ReDim hc_prog_elig_budg_net_unearned_income(0)
 		ReDim hc_prog_elig_budg_gross_earned(0)
 		ReDim hc_prog_elig_budg_excluded_earned(0)
 		ReDim hc_prog_elig_budg_work_exp_deduction(0)
-		ReDim hc_prog_elig_budg_earned_disregarrd(0)
+		ReDim hc_prog_elig_budg_earned_disregard(0)
 		ReDim hc_prog_elig_budg_dependent_care(0)
 		ReDim hc_prog_elig_budg_earned_deduction(0)
 		ReDim hc_prog_elig_budg_net_earned_income(0)
@@ -16407,9 +17071,16 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_test_medicare_part_a(0)
 
 		call navigate_to_MAXIS_screen("ELIG", "HC  ")
+		EMReadScreen warning_msg, 50, 24, 2
+		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
+			EMWriteScreen CM_mo, 20, 43
+			EMWriteScreen CM_yr, 20, 46
+			transmit
+		End If
 		EMWriteScreen elig_footer_month, 19, 54
 		EMWriteScreen elig_footer_year, 19, 57
 		transmit
+		' approval_date 'TODO - figure out how to read approval date
 
 		hc_row = 8
 		hc_prog_count = 0
@@ -16499,12 +17170,13 @@ class hc_eligibility_detail
 			ReDim preserve hc_budget_type(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_gross_unearned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_excluded_unearned(hc_prog_count)
+			ReDim preserve hc_prog_list_all_income(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_unearned_deduction(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_net_unearned_income(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_gross_earned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_excluded_earned(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_work_exp_deduction(hc_prog_count)
-			ReDim preserve hc_prog_elig_budg_earned_disregarrd(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_earned_disregard(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_dependent_care(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_earned_deduction(hc_prog_count)
 			ReDim preserve hc_prog_elig_budg_net_earned_income(hc_prog_count)
@@ -16658,933 +17330,1043 @@ class hc_eligibility_detail
 				If hc_prog_elig_eligibility_result(hc_prog_count) = "ELIG" Then hc_prog_elig_eligibility_result(hc_prog_count) = "ELIGIBLE"
 				If hc_prog_elig_eligibility_result(hc_prog_count) = "INEL" Then hc_prog_elig_eligibility_result(hc_prog_count) = "INELIGIBLE"
 				Call write_value_and_transmit("X", hc_row, 26)
-				' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
-				EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
-				hc_prog_elig_process_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_process_date(hc_prog_count))
 
-				created_today = False
-				If DateDiff("d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then created_today = True
-				If developer_mode = True Then created_today = True 												'TESTING OPTION'
+				the_row = 1
+				the_col = 1
+				EMSearch "Auto-Closed", the_row, the_col
+				If the_row = 0 Then
+					' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
+					EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
+					hc_prog_elig_process_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_process_date(hc_prog_count))
 
-				If created_today = False Then
-					If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
-					If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" or hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
-						transmit
-						EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
-					End If
-				End If
+					created_today = False
+					If DateDiff("d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then created_today = True
+					If developer_mode = True Then created_today = True 												'TESTING OPTION'
 
-				If created_today = True Then
-					If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then
-						hc_prog_elig_major_program(hc_prog_count) = "HC DENIAL"
-						EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
-						If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then
-							If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
-								approved_today = True
-								hc_prog_elig_approved_today(hc_prog_count) = True
-							End If
-							If developer_mode = True Then
-								approved_today = True										'TESTING OPTION'
-								hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
-							End If
+					If created_today = False Then
+						If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
+						If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" or hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
+							transmit
+							EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
 						End If
-						EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 9, 33
-						EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
-						EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 		2, 9, 78
-
-						EMReadScreen hc_prog_elig_test_application_withdrawn(hc_prog_count), 		6, 13, 22
-						EMReadScreen hc_prog_elig_test_application_process_incomplete(hc_prog_count), 6, 14, 22
-						EMReadScreen hc_prog_elig_test_no_new_prog_eligibility(hc_prog_count), 		6, 15, 22
-						EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 				6, 16, 22
-
-						EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
-						' MsgBox  "ASSISTANCE UNIT TEST - " &  hc_prog_elig_test_assistance_unit(hc_prog_count)
 					End If
 
-					If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+					If created_today = True Then
+						If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then
+							hc_prog_elig_major_program(hc_prog_count) = "HC DENIAL"
+							EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
+							If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then
+								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
+									approved_today = True
+									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If developer_mode = True Then
+									approved_today = True										'TESTING OPTION'
+									hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
+								End If
+							End If
+							EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 9, 33
+							EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
+							EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 		2, 9, 78
 
-						' MsgBox "At Budget"
-						transmit
-						' MsgBox "At Summary"
-						EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
-						' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "1"
-						If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then 'hc_prog_elig_app_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_app_date(hc_prog_count))
-						' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
-							If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
-								approved_today = True
-								hc_prog_elig_approved_today(hc_prog_count) = True
-							End If
-							If developer_mode = True Then
-								approved_today = True										'TESTING OPTION'
-								hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
-							End If
+							EMReadScreen hc_prog_elig_test_application_withdrawn(hc_prog_count), 		6, 13, 22
+							EMReadScreen hc_prog_elig_test_application_process_incomplete(hc_prog_count), 6, 14, 22
+							EMReadScreen hc_prog_elig_test_no_new_prog_eligibility(hc_prog_count), 		6, 15, 22
+							EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 				6, 16, 22
+
+							EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
+							EMReadScreen hc_ref_numb, 2, 6, 12
+							hc_prog_elig_members_whose_income_counts(hc_prog_count) = Array(hc_ref_numb)
+
+							' MsgBox  "ASSISTANCE UNIT TEST - " &  hc_prog_elig_test_assistance_unit(hc_prog_count)
 						End If
-						' MsgBox "hc_prog_elig_approved_today(hc_prog_count) - " & hc_prog_elig_approved_today(hc_prog_count)
-						PF3
-						' MsgBox "At Budget"
-						' MsgBox "hc_prog_elig_major_program(hc_prog_count) - " & hc_prog_elig_major_program(hc_prog_count)
-						If hc_prog_elig_approved_today(hc_prog_count) = True Then
-							hc_col = 17
-							Do
-								EMReadScreen budg_mo, 2, 6, hc_col + 2
-								EMReadScreen budg_yr, 2, 6, hc_col + 5
-								' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
-								If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
-									EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 12, hc_col
-									EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 12, hc_col + 5
-									EMReadScreen hc_prog_elig_method(hc_prog_count), 			1, 13, hc_col + 4
-									EMReadScreen hc_prog_elig_waiver(hc_prog_count), 			1, 14, hc_col + 4
+						' MsgBox "CREATED TODAY"
 
-									EMReadScreen hc_prog_elig_total_net_income(hc_prog_count), 9, 15, hc_col
-									EMReadScreen hc_prog_elig_standard(hc_prog_count), 		9, 16, hc_col
-									EMReadScreen hc_prog_elig_excess_income(hc_prog_count), 	9, 17, hc_col
+						If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" or hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
 
-									If hc_prog_elig_waiver(hc_prog_count) = "F" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CADI Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "G" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CADI Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "H" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CAC Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "I" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CAC Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "J" Then hc_prog_elig_waiver_detail(hc_prog_count) = "EW Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "K" Then hc_prog_elig_waiver_detail(hc_prog_count) = "EW Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "L" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NF Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "M" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NF Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "P" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NB Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "Q" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NB Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "R" Then hc_prog_elig_waiver_detail(hc_prog_count) = "DD Converstion"
-									If hc_prog_elig_waiver(hc_prog_count) = "S" Then hc_prog_elig_waiver_detail(hc_prog_count) = "DD Diversion"
-									If hc_prog_elig_waiver(hc_prog_count) = "Y" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CSG Converstion"
+							' MsgBox "At Budget"
+							transmit
+							' MsgBox "At Summary"
+							EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
+							' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "1"
+							If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then 'hc_prog_elig_app_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_app_date(hc_prog_count))
+							' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
+								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
+									approved_today = True
+									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If developer_mode = True Then
+									approved_today = True										'TESTING OPTION'
+									hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
+								End If
+							End If
+							' MsgBox "hc_prog_elig_approved_today(hc_prog_count) - " & hc_prog_elig_approved_today(hc_prog_count)
+							PF3
+							' MsgBox "At Budget"
+							' MsgBox "hc_prog_elig_major_program(hc_prog_count) - " & hc_prog_elig_major_program(hc_prog_count)
+							If hc_prog_elig_approved_today(hc_prog_count) = True Then
+								hc_col = 17
+								Do
+									EMReadScreen budg_mo, 2, 6, hc_col + 2
+									EMReadScreen budg_yr, 2, 6, hc_col + 5
+									' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
+									If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+										EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 12, hc_col
+										EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 12, hc_col + 5
+										EMReadScreen hc_prog_elig_method(hc_prog_count), 			1, 13, hc_col + 4
+										EMReadScreen hc_prog_elig_waiver(hc_prog_count), 			1, 14, hc_col + 4
 
-									Call write_value_and_transmit("X", 7, hc_col)						'Opening the HC Span
-									' MsgBox "MOVING - 2"
-									If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
-										EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 6, 5
-										EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 7, 5
-										EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 8, 5
-										EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 9, 5
-										EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 10, 5
-										EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 11, 5
-										EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 12, 5
-										EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
-										EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 14, 5
-										EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 15, 5
+										EMReadScreen hc_prog_elig_total_net_income(hc_prog_count), 9, 15, hc_col
+										EMReadScreen hc_prog_elig_standard(hc_prog_count), 		9, 16, hc_col
+										EMReadScreen hc_prog_elig_excess_income(hc_prog_count), 	9, 17, hc_col
 
-										EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 18, 5
+										If hc_prog_elig_waiver(hc_prog_count) = "F" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CADI Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "G" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CADI Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "H" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CAC Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "I" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CAC Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "J" Then hc_prog_elig_waiver_detail(hc_prog_count) = "EW Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "K" Then hc_prog_elig_waiver_detail(hc_prog_count) = "EW Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "L" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NF Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "M" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NF Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "P" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NB Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "Q" Then hc_prog_elig_waiver_detail(hc_prog_count) = "TBI NB Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "R" Then hc_prog_elig_waiver_detail(hc_prog_count) = "DD Converstion"
+										If hc_prog_elig_waiver(hc_prog_count) = "S" Then hc_prog_elig_waiver_detail(hc_prog_count) = "DD Diversion"
+										If hc_prog_elig_waiver(hc_prog_count) = "Y" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CSG Converstion"
 
-										EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 6, 46
-										EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 		6, 7, 46
-										EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 		6, 8, 46
-										EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count), 	6, 9, 46
-										EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 	6, 10, 46
-										If hc_prog_elig_major_program(hc_prog_count) = "MA" Then
-											EMReadScreen hc_prog_elig_test_other_health_ins(hc_prog_count), 6, 11, 46
-											EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 			6, 12, 46
-											EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 		6, 13, 46
-											EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 			6, 14, 46
-											EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 		6, 15, 46
-										ElseIf hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
-											EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 		6, 11, 46
-											EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 	6, 12, 46
-											EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 		6, 13, 46
-											EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 	6, 14, 46
+										Call write_value_and_transmit("X", 7, hc_col)						'Opening the HC Span
+										' MsgBox "MOVING - 2"
+										If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+											EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 6, 5
+											EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 7, 5
+											EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 8, 5
+											EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 9, 5
+											EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 10, 5
+											EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 11, 5
+											EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 12, 5
+											EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+											EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 14, 5
+											EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 15, 5
+
+											EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 18, 5
+
+											EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 6, 46
+											EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 		6, 7, 46
+											EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 		6, 8, 46
+											EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count), 	6, 9, 46
+											EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 	6, 10, 46
+											If hc_prog_elig_major_program(hc_prog_count) = "MA" Then
+												EMReadScreen hc_prog_elig_test_other_health_ins(hc_prog_count), 6, 11, 46
+												EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 			6, 12, 46
+												EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 		6, 13, 46
+												EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 			6, 14, 46
+												EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 		6, 15, 46
+											ElseIf hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+												EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 		6, 11, 46
+												EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 	6, 12, 46
+												EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 		6, 13, 46
+												EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 	6, 14, 46
+											End If
+
+											Call write_value_and_transmit("X", 7, 3)				'Assets'
+											' MsgBox "MOVING - 3"
+											EMReadScreen assets_pop_up_check, 6, 6, 35
+											If assets_pop_up_check = "Assets" Then
+												'TODO read asset information'
+												transmit
+											Else
+												EMWriteScreen " ", 7, 3
+											End If
+											' MsgBox "MOVING - 4"
+
+											Call write_value_and_transmit("X", 10, 3)				'Cooperration'
+											' MsgBox "MOVING - 5"
+											Call write_value_and_transmit("X", 10, 26)				'Cooperration'
+											' MsgBox "MOVING - 6"
+											EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
+											EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
+											transmit
+											' MsgBox "MOVING - 7"
+											EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
+											EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
+											EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
+											EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
+											EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
+											EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
+											EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+											transmit
+											' MsgBox "MOVING - 8"
+
+											Call write_value_and_transmit("X", 14, 3)				'Fail to File'
+											' MsgBox "MOVING - 9"
+											EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
+											EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
+											EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
+											EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
+											EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
+											transmit
+											' MsgBox "MOVING - 10"
+											EMReadScreen ema_person_test_check, 3, 3, 27
+											If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
+											If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
+											' MsgBox "MOVING - 11"
+											EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
+											EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
+											EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
+											EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
+											EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
+											EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
+											EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
+											EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
+											EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
+											EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
+											EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
+											EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
+											EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
+											EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
+											EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
+											EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
+											transmit
+											' MsgBox "MOVING - 12"
+
+											Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
+											' MsgBox "MOVING - 13"
+											transmit
+											' MsgBox "MOVING - 14"
+
+											' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
+											' transmit
 										End If
-									End If
 
-									If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
-										EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 7, 5
-										EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 8, 5
-										EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 9, 5
-										EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 10, 5
-										EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 			6, 11, 5
-										EMReadScreen hc_prog_elig_test_death(hc_prog_count), 			6, 12, 5
-										EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 		6, 13, 5
-										EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 14, 5
-										EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 15, 5
+										If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
+											' MsgBox "Reading IMD Info"
+											EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 7, 5
+											EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 8, 5
+											EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 9, 5
+											EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 10, 5
+											EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 			6, 11, 5
+											EMReadScreen hc_prog_elig_test_death(hc_prog_count), 			6, 12, 5
+											EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 		6, 13, 5
+											EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 14, 5
+											EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 15, 5
 
-										EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 			6, 7, 44
-										EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 			6, 8, 44
-										EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count),		6, 9, 44
-										EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 		6, 10, 44
-										EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 					6, 11, 44
-										EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 				6, 12, 44
-										EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 	6, 13, 44
-										EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 					6, 14, 44
-										EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
-									End If
+											EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 			6, 7, 44
+											EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 			6, 8, 44
+											EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count),		6, 9, 44
+											EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 		6, 10, 44
+											EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 					6, 11, 44
+											EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 				6, 12, 44
+											EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 	6, 13, 44
+											EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 					6, 14, 44
+											EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
+										End If
 
-									Call write_value_and_transmit("X", 7, 3)				'Assets'
-									' MsgBox "MOVING - 3"
-									EMReadScreen assets_pop_up_check, 6, 6, 35
-									If assets_pop_up_check = "Assets" Then
-										'TODO read asset information'
+
+
 										transmit
-									Else
-										EMWriteScreen " ", 7, 3
-									End If
-									' MsgBox "MOVING - 4"
+										' MsgBox "MOVING - 15"
 
-									Call write_value_and_transmit("X", 10, 3)				'Cooperration'
-									' MsgBox "MOVING - 5"
-									Call write_value_and_transmit("X", 10, 26)				'Cooperration'
-									' MsgBox "MOVING - 6"
-									EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
-									EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
-									transmit
-									' MsgBox "MOVING - 7"
-									EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-									EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-									EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-									EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-									EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-									EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-									EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
-									transmit
-									' MsgBox "MOVING - 8"
+										Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
+										' MsgBox "MOVING - 16"
+										EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+										hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
+										hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
 
-									Call write_value_and_transmit("X", 14, 3)				'Fail to File'
-									' MsgBox "MOVING - 9"
-									EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
-									EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
-									EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
-									EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
-									EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
-									transmit
-									' MsgBox "MOVING - 10"
-									EMReadScreen ema_person_test_check, 3, 3, 27
-									If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
-									If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
-									' MsgBox "MOVING - 11"
-									EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
-									EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
-									EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
-									EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
-									EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
-									EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
-									EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
-									EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
-									EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
-									EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
-									EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
-									EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
-									EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
-									EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
-									EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
-									EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
-									transmit
-									' MsgBox "MOVING - 12"
+										hh_row = 12
+										Do
+											EMReadScreen inc_count_ind, 1, hh_row, 61
+											If inc_count_ind = "Y" Then
+												EMReadScreen memb_numb_income_count, 2, hh_row, 13
+												hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
+											End If
+											hh_row = hh_row + 1
+											EMReadScreen next_inc_count_ind, 1, hh_row, 61
+										Loop until next_inc_count_ind = " "
+										hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
+										hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
+										hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
+										transmit
+										' MsgBox "MOVING - 17"
 
-									Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
-									' MsgBox "MOVING - 13"
-									transmit
-									' MsgBox "MOVING - 14"
-
-									' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
-									' transmit
-
-									transmit
-									' MsgBox "MOVING - 15"
-
-									Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
-									' MsgBox "MOVING - 16"
-									EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
-									hh_row = 12
-									Do
-										EMReadScreen inc_count_ind, 1, hh_row, 61
-										If inc_count_ind = "Y" Then
-											EMReadScreen memb_numb_income_count, 2, hh_row, 13
-											hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
+										If hc_prog_elig_method(hc_prog_count) <> "X" Then
+											Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
+											EMReadScreen budget_exist, 22, 24, 15
+											If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
+											' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
 										End If
-										hh_row = hh_row + 1
-										EMReadScreen next_inc_count_ind, 1, hh_row, 61
-									Loop until next_inc_count_ind = " "
-									hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
-									hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
-									hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
-									transmit
-									' MsgBox "MOVING - 17"
+										' MsgBox "hc_prog_elig_method(hc_prog_count) - " & hc_prog_elig_method(hc_prog_count)
+										If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
 
-									If hc_prog_elig_method(hc_prog_count) <> "X" Then
-										Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
-										EMReadScreen budget_exist, 22, 24, 15
-										If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
-										' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
-									End If
-									If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
-
-										' MsgBox "MOVING - 18"
-										EMReadScreen hc_prog_elig_PTMA(hc_prog_count), 1, 5, 63
-										EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
-										EMReadScreen hc_prog_elig_basis(hc_prog_count), 20, 6, 24
-										hc_prog_elig_basis(hc_prog_count) = trim(hc_prog_elig_basis(hc_prog_count))
-
-										EMReadScreen budg_panel, 70, 3, 2
-										' SBUD
-										' CBUD
-										' BBUD
-										' LBUD
-										' ABUD
-										budget_found = False
-										' MsgBox "budg_panel - " & budg_panel
-
-										If InStr(budg_panel, "ABUD") <> 0 Then
-											' MsgBox "ABUD"
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "ABUD"
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
-											EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
-											EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
-											EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
-
-											EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 14, 31
-											EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 31
-											EMReadScreen hc_prog_elig_budg_work_exp_deduction(hc_prog_count), 	10, 16, 31
-											EMReadScreen hc_prog_elig_budg_earned_disregarrd(hc_prog_count), 	10, 17, 31
-											EMReadScreen hc_prog_elig_budg_dependent_care(hc_prog_count), 		10, 18, 31
-
-											EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 9, 71
-											EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
-
-											EMReadScreen hc_prog_elig_budg_child_sup_deduction(hc_prog_count),	10, 12, 71
-											EMReadScreen hc_prog_elig_budg_deemed_income(hc_prog_count), 		10, 13, 71
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
-											EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
-											EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
-											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
-											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
-										End If
-
-										If InStr(budg_panel, "BBUD") <> 0 Then
-										' If hc_prog_elig_method(hc_prog_count) = "B" Then
-											' MsgBox "BBUD"
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "BBUD"
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
-											EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
-											EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
-											EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
-											EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
-
-											EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
-											EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 9, 71
-											EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 10, 71
-											EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 11, 71
-											EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 12, 71
-
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
-											EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
-											EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
-											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
-											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
-										End If
-
-										If InStr(budg_panel, "CBUD") <> 0 Then
-											' MsgBox "CBUD"
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "CBUD"
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
-											EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
-											EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
-											EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 11, 31
-
-											EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
-											EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 9, 71
-											EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
-
-											EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 13, 71
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
-											EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
-											EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 16, 71
-										End If
-
-										If InStr(budg_panel, "EBUD") <> 0 Then
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "EBUD"
-
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 32
-											EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 10, 32
-											EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 11, 32
-											EMReadScreen hc_prog_elig_budg_cola(hc_prog_count),					10, 12, 32
-											EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 13, 32
-											EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 14, 32
-											EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 32
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 16, 32
-											EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 17, 32
-											EMReadScreen hc_prog_elig_budg_percent_of_fpg(hc_prog_count),		5, 18, 37
-
-											EMReadScreen hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count), 10, 9, 69
-											EMReadScreen hc_prog_elig_budg_premium_percent(hc_prog_count),		8, 10, 71
-											EMReadScreen hc_prog_elig_budg_sliding_fee_premium(hc_prog_count),	10, 11, 69
-											EMReadScreen hc_prog_elig_budg_ui_obligation(hc_prog_count),		10, 12, 69
-											EMReadScreen hc_prog_elig_budg_total_premium(hc_prog_count),		10, 13, 69
-
-											EMReadScreen hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count),10,  16, 69
-											EMReadScreen hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count), 1, 17, 68
-
-											EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 11, 71
-											EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 12, 71
-
-											EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
-											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
-											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
-										End If
-
-										If InStr(budg_panel, "LBUD") <> 0 Then
-											' MsgBox "LBUD"
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "LBUD"
-
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 8, 32
-											EMReadScreen hc_prog_elig_budg_countable_earned_income(hc_prog_count),	10, 9, 32
-											EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 10, 32
-											EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 11, 32
-											EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 12, 32
-
-											EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 14, 32
-											EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 15, 32
-											EMReadScreen hc_prog_elig_budg_person_clothing_needs(hc_prog_count), 	10, 16, 32
-											EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 32
-											EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 32
-
-											EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 8, 70
-											EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 9, 70
-											EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 10, 70
-											EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 11, 70
-											EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 12, 70
-											EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 13, 70
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 14, 70
-											EMReadScreen hc_prog_elig_budg_LTC_spenddown(hc_prog_count), 			10, 15, 70
-											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 16, 70
-											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 17, 70
-											EMReadScreen hc_prog_elig_budg_medical_spenddown(hc_prog_count), 		10, 18, 70
-										End If
-
-										If InStr(budg_panel, "SBUD") <> 0 Then
-											' MsgBox "SBUD"
-											budget_found = true
-											hc_budget_type(hc_prog_count) = "SBUD"
-											EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 9, 32
-											EMReadScreen hc_prog_elig_budg_countable_earned_income(hc_prog_count),	10, 10, 32
-											EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 11, 32
-											EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 12, 32
-											EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 13, 32
-
-											EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 15, 32
-											EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 16, 32
-											EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 32
-											EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 32
-
-											EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 9, 71
-											EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 10, 71
-											EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 11, 71
-											EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 12, 71
-											EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 13, 71
-											EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 14, 71
-											EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 15, 71
-											EMReadScreen hc_prog_elig_budg_waiver_obligation(hc_prog_count),	 	10, 16, 71
-											EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 17, 71
-											EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 18, 71
-										End If
-										If hc_budget_type(hc_prog_count) = "EBUD" or hc_budget_type(hc_prog_count) = "LBUD" or hc_budget_type(hc_prog_count) = "SBUD" Then
-											EMReadScreen hc_prog_elig_basis(hc_prog_count), 18, 6, 27
+											' MsgBox "MOVING - 18"
+											EMReadScreen hc_prog_elig_PTMA(hc_prog_count), 1, 5, 63
+											EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
+											EMReadScreen hc_prog_elig_basis(hc_prog_count), 20, 6, 24
 											hc_prog_elig_basis(hc_prog_count) = trim(hc_prog_elig_basis(hc_prog_count))
+
+											EMReadScreen budg_panel, 70, 3, 2
+											' SBUD
+											' CBUD
+											' BBUD
+											' LBUD
+											' ABUD
+											budget_found = False
+											' MsgBox "budg_panel - " & budg_panel
+
+											If InStr(budg_panel, "ABUD") <> 0 Then
+												' MsgBox "ABUD"
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "ABUD"
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
+												EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+												EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
+												EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
+
+												EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 14, 31
+												EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 31
+												EMReadScreen hc_prog_elig_budg_work_exp_deduction(hc_prog_count), 	10, 16, 31
+												EMReadScreen hc_prog_elig_budg_earned_disregard(hc_prog_count), 	10, 17, 31
+												EMReadScreen hc_prog_elig_budg_dependent_care(hc_prog_count), 		10, 18, 31
+
+												EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 9, 71
+												EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
+
+												EMReadScreen hc_prog_elig_budg_child_sup_deduction(hc_prog_count),	10, 12, 71
+												EMReadScreen hc_prog_elig_budg_deemed_income(hc_prog_count), 		10, 13, 71
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+												EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+												EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
+												EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
+												EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+
+											End If
+
+											If InStr(budg_panel, "BBUD") <> 0 Then
+											' If hc_prog_elig_method(hc_prog_count) = "B" Then
+												' MsgBox "BBUD"
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "BBUD"
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
+												EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
+												EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+												EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
+												EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
+
+												EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
+												EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 9, 71
+												EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 10, 71
+												EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 11, 71
+												EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 12, 71
+
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+												EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+												EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
+												EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
+												EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+											End If
+
+											If InStr(budg_panel, "CBUD") <> 0 Then
+												' MsgBox "CBUD"
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "CBUD"
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
+												EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
+												EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+												EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 11, 31
+
+												EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
+												EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 9, 71
+												EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
+
+												EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 13, 71
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+												EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+												EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 16, 71
+											End If
+
+											If InStr(budg_panel, "EBUD") <> 0 Then
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "EBUD"
+
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 32
+												EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 10, 32
+												EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 11, 32
+												EMReadScreen hc_prog_elig_budg_cola(hc_prog_count),					10, 12, 32
+												EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 13, 32
+												EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 14, 32
+												EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 32
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 16, 32
+												EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 17, 32
+												EMReadScreen hc_prog_elig_budg_percent_of_fpg(hc_prog_count),		5, 18, 37
+
+												EMReadScreen hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count), 10, 9, 69
+												EMReadScreen hc_prog_elig_budg_premium_percent(hc_prog_count),		8, 10, 71
+												EMReadScreen hc_prog_elig_budg_sliding_fee_premium(hc_prog_count),	10, 11, 69
+												EMReadScreen hc_prog_elig_budg_ui_obligation(hc_prog_count),		10, 12, 69
+												EMReadScreen hc_prog_elig_budg_total_premium(hc_prog_count),		10, 13, 69
+
+												EMReadScreen hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count),10,  16, 69
+												EMReadScreen hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count), 1, 17, 68
+
+												EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 11, 71
+												EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 12, 71
+
+												EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
+												EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
+												EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+											End If
+
+											If InStr(budg_panel, "LBUD") <> 0 Then
+												' MsgBox "LBUD"
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "LBUD"
+
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 8, 32
+												EMReadScreen hc_prog_elig_budg_countable_earned_income(hc_prog_count),	10, 9, 32
+												EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 10, 32
+												EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 11, 32
+												EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 12, 32
+
+												EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 14, 32
+												EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 15, 32
+												EMReadScreen hc_prog_elig_budg_person_clothing_needs(hc_prog_count), 	10, 16, 32
+												EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 32
+												EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 32
+
+												EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 8, 70
+												EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 9, 70
+												EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 10, 70
+												EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 11, 70
+												EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 12, 70
+												EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 13, 70
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 14, 70
+												EMReadScreen hc_prog_elig_budg_LTC_spenddown(hc_prog_count), 			10, 15, 70
+												EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 16, 70
+												EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 17, 70
+												EMReadScreen hc_prog_elig_budg_medical_spenddown(hc_prog_count), 		10, 18, 70
+											End If
+
+											If InStr(budg_panel, "SBUD") <> 0 Then
+												' MsgBox "SBUD"
+												budget_found = true
+												hc_budget_type(hc_prog_count) = "SBUD"
+												EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 9, 32
+												EMReadScreen hc_prog_elig_budg_countable_earned_income(hc_prog_count),	10, 10, 32
+												EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 11, 32
+												EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 12, 32
+												EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 13, 32
+
+												EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 15, 32
+												EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 16, 32
+												EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 32
+												EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 32
+
+												EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 9, 71
+												EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 10, 71
+												EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 11, 71
+												EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 12, 71
+												EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 13, 71
+												EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 14, 71
+												EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 15, 71
+												EMReadScreen hc_prog_elig_budg_waiver_obligation(hc_prog_count),	 	10, 16, 71
+												EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 17, 71
+												EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 18, 71
+											End If
+											If hc_budget_type(hc_prog_count) = "EBUD" or hc_budget_type(hc_prog_count) = "LBUD" or hc_budget_type(hc_prog_count) = "SBUD" Then
+												EMReadScreen hc_prog_elig_basis(hc_prog_count), 18, 6, 27
+												hc_prog_elig_basis(hc_prog_count) = trim(hc_prog_elig_basis(hc_prog_count))
+											End If
+
+											hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
+											hc_prog_elig_budg_countable_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_countable_earned_income(hc_prog_count))
+											hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = trim(hc_prog_elig_budg_subtotal_countable_income(hc_prog_count))
+											hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = trim(hc_prog_elig_budg_va_aid_attendincome(hc_prog_count))
+											hc_prog_elig_budg_total_countable_income(hc_prog_count) = trim(hc_prog_elig_budg_total_countable_income(hc_prog_count))
+											hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
+											hc_prog_elig_budg_excluded_unearned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_unearned(hc_prog_count))
+											hc_prog_elig_budg_unearned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_unearned_deduction(hc_prog_count))
+											hc_prog_elig_budg_net_unearned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_unearned_income(hc_prog_count))
+
+											hc_prog_elig_budg_gross_earned(hc_prog_count) = trim(hc_prog_elig_budg_gross_earned(hc_prog_count))
+											hc_prog_elig_budg_deemed_earned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_earned(hc_prog_count))
+											hc_prog_elig_budg_excluded_earned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_earned(hc_prog_count))
+											hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = trim(hc_prog_elig_budg_work_exp_deduction(hc_prog_count))
+											hc_prog_elig_budg_earned_disregard(hc_prog_count) = trim(hc_prog_elig_budg_earned_disregard(hc_prog_count))
+											hc_prog_elig_budg_dependent_care(hc_prog_count) = trim(hc_prog_elig_budg_dependent_care(hc_prog_count))
+
+											hc_prog_elig_budg_earned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_earned_deduction(hc_prog_count))
+											hc_prog_elig_budg_net_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_earned_income(hc_prog_count))
+
+											hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = trim(hc_prog_elig_budg_child_sup_deduction(hc_prog_count))
+											hc_prog_elig_budg_deemed_income(hc_prog_count) = trim(hc_prog_elig_budg_deemed_income(hc_prog_count))
+											hc_prog_elig_budg_total_net_income(hc_prog_count) = trim(hc_prog_elig_budg_total_net_income(hc_prog_count))
+											hc_prog_elig_budg_income_standard(hc_prog_count) = trim(hc_prog_elig_budg_income_standard(hc_prog_count))
+											hc_prog_elig_budg_excess_income(hc_prog_count) = trim(hc_prog_elig_budg_excess_income(hc_prog_count))
+											hc_prog_elig_budg_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_spenddown(hc_prog_count))
+											hc_prog_elig_budg_transfer_penalty(hc_prog_count) = trim(hc_prog_elig_budg_transfer_penalty(hc_prog_count))
+											hc_prog_elig_budg_total_liability(hc_prog_count) = trim(hc_prog_elig_budg_total_liability(hc_prog_count))
+
+											hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = trim(hc_prog_elig_budg_LTC_exclusions(hc_prog_count))
+											hc_prog_elig_budg_medicare_premium(hc_prog_count) = trim(hc_prog_elig_budg_medicare_premium(hc_prog_count))
+											hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = trim(hc_prog_elig_budg_person_clothing_needs(hc_prog_count))
+											hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = trim(hc_prog_elig_budg_maint_needs_allowance(hc_prog_count))
+											hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = trim(hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count))
+											hc_prog_elig_budg_spousal_allocation(hc_prog_count) = trim(hc_prog_elig_budg_spousal_allocation(hc_prog_count))
+											hc_prog_elig_budg_family_allocation(hc_prog_count) = trim(hc_prog_elig_budg_family_allocation(hc_prog_count))
+											hc_prog_elig_budg_health_ins_premium(hc_prog_count) = trim(hc_prog_elig_budg_health_ins_premium(hc_prog_count))
+											hc_prog_elig_budg_other_medical_expense(hc_prog_count) = trim(hc_prog_elig_budg_other_medical_expense(hc_prog_count))
+											hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = trim(hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count))
+											hc_prog_elig_budg_other_deductions(hc_prog_count) = trim(hc_prog_elig_budg_other_deductions(hc_prog_count))
+											hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_LTC_spenddown(hc_prog_count))
+											hc_prog_elig_budg_medical_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_medical_spenddown(hc_prog_count))
+											hc_prog_elig_budg_waiver_obligation(hc_prog_count) = trim(hc_prog_elig_budg_waiver_obligation(hc_prog_count))
+
+											hc_prog_elig_budg_cola(hc_prog_count) = trim(hc_prog_elig_budg_cola(hc_prog_count))
+											hc_prog_elig_budg_percent_of_fpg(hc_prog_count) = trim(hc_prog_elig_budg_percent_of_fpg(hc_prog_count))
+											hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = trim(hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count))
+											hc_prog_elig_budg_premium_percent(hc_prog_count) = trim(hc_prog_elig_budg_premium_percent(hc_prog_count))
+											hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = trim(hc_prog_elig_budg_sliding_fee_premium(hc_prog_count))
+											hc_prog_elig_budg_ui_obligation(hc_prog_count) = trim(hc_prog_elig_budg_ui_obligation(hc_prog_count))
+											hc_prog_elig_budg_total_premium(hc_prog_count) = trim(hc_prog_elig_budg_total_premium(hc_prog_count))
+											hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = trim(hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count))
+											hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count) = trim(hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count))
+
+											hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = replace(hc_prog_elig_budg_LTC_exclusions(hc_prog_count), "_", "")
+											hc_prog_elig_budg_medicare_premium(hc_prog_count) = replace(hc_prog_elig_budg_medicare_premium(hc_prog_count), "_", "")
+											hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = replace(hc_prog_elig_budg_person_clothing_needs(hc_prog_count), "_", "")
+											hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = replace(hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), "_", "")
+											hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = replace(hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), "_", "")
+											hc_prog_elig_budg_family_allocation(hc_prog_count) = replace(hc_prog_elig_budg_family_allocation(hc_prog_count), "_", "")
+											hc_prog_elig_budg_health_ins_premium(hc_prog_count) = replace(hc_prog_elig_budg_health_ins_premium(hc_prog_count), "_", "")
+											hc_prog_elig_budg_other_medical_expense(hc_prog_count) = replace(hc_prog_elig_budg_other_medical_expense(hc_prog_count), "_", "")
+											hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = replace(hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), "_", "")
+											hc_prog_elig_budg_other_deductions(hc_prog_count) = replace(hc_prog_elig_budg_other_deductions(hc_prog_count), "_", "")
+
+											If hc_prog_elig_budg_cola(hc_prog_count) = "__________" Then  hc_prog_elig_budg_cola(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = "" Then  hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = "" Then  hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_ui_obligation(hc_prog_count) = "" Then  hc_prog_elig_budg_ui_obligation(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_total_premium(hc_prog_count) = "" Then  hc_prog_elig_budg_total_premium(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = "" Then  hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = "0.00"
+
+											If hc_prog_elig_budg_gross_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_unearned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_countable_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_countable_earned_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = "" Then hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = "__________" Then hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_total_countable_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_countable_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "0.00"
+
+											If hc_prog_elig_budg_gross_earned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_earned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_deemed_earned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_earned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_excluded_earned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_earned(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_earned_disregard(hc_prog_count) = "" Then hc_prog_elig_budg_earned_disregard(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_dependent_care(hc_prog_count) = "" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_dependent_care(hc_prog_count) = "__________" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
+
+											If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_net_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_earned_income(hc_prog_count) = "0.00"
+
+											If hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_deemed_income(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_total_net_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_net_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_income_standard(hc_prog_count) = "" Then hc_prog_elig_budg_income_standard(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_excess_income(hc_prog_count) = "" Then hc_prog_elig_budg_excess_income(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_spenddown(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "" Then hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "__________" Then hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_total_liability(hc_prog_count) = "" Then hc_prog_elig_budg_total_liability(hc_prog_count) = "0.00"
+
+											If hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = "" Then hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_medicare_premium(hc_prog_count) = "" Then hc_prog_elig_budg_medicare_premium(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = "" Then hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = "" Then hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = "" Then hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_spousal_allocation(hc_prog_count) = "" Then hc_prog_elig_budg_spousal_allocation(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_family_allocation(hc_prog_count) = "" Then hc_prog_elig_budg_family_allocation(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_health_ins_premium(hc_prog_count) = "" Then hc_prog_elig_budg_health_ins_premium(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_other_medical_expense(hc_prog_count) = "" Then hc_prog_elig_budg_other_medical_expense(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = "" Then hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_other_deductions(hc_prog_count) = "" Then hc_prog_elig_budg_other_deductions(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_medical_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_medical_spenddown(hc_prog_count) = "0.00"
+											If hc_prog_elig_budg_waiver_obligation(hc_prog_count) = "" Then hc_prog_elig_budg_waiver_obligation(hc_prog_count) = "0.00"
+
+											If budget_found = false Then MsgBox "Budget not coded:" & vbCr & budg_panel & vbCr & vbCr & elig_footer_month & "/" & elig_footer_year
+
+											transmit
+											' MsgBox "MOVING - 19"
 										End If
 
-										hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
-										hc_prog_elig_budg_countable_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_countable_earned_income(hc_prog_count))
-										hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = trim(hc_prog_elig_budg_subtotal_countable_income(hc_prog_count))
-										hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = trim(hc_prog_elig_budg_va_aid_attendincome(hc_prog_count))
-										hc_prog_elig_budg_total_countable_income(hc_prog_count) = trim(hc_prog_elig_budg_total_countable_income(hc_prog_count))
-										hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
-										hc_prog_elig_budg_excluded_unearned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_unearned(hc_prog_count))
-										hc_prog_elig_budg_unearned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_unearned_deduction(hc_prog_count))
-										hc_prog_elig_budg_net_unearned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_unearned_income(hc_prog_count))
+										Call write_value_and_transmit("X", 18, 3)				'MOBL
+										' MsgBox "MOVING - 20"
 
-										hc_prog_elig_budg_gross_earned(hc_prog_count) = trim(hc_prog_elig_budg_gross_earned(hc_prog_count))
-										hc_prog_elig_budg_deemed_earned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_earned(hc_prog_count))
-										hc_prog_elig_budg_excluded_earned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_earned(hc_prog_count))
-										hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = trim(hc_prog_elig_budg_work_exp_deduction(hc_prog_count))
-										hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = trim(hc_prog_elig_budg_earned_disregarrd(hc_prog_count))
-										hc_prog_elig_budg_dependent_care(hc_prog_count) = trim(hc_prog_elig_budg_dependent_care(hc_prog_count))
+										community_spenddown_exists(hc_prog_count) = False
+										EW_spenddown_exists(hc_prog_count) = False
+										LTC_spenddown_exists(hc_prog_count) = False
+										EMReadScreen hc_prog_elig_mobl_result(hc_prog_count), 4, 6, 32
+										EMReadScreen hc_prog_elig_mobl_type(hc_prog_count), 	18, 6, 39
+										EMReadScreen hc_prog_elig_mobl_period(hc_prog_count), 13, 6, 61
+										mobl_row = 6
+										Do
+											EMReadScreen mobl_ref_numb, 2, mobl_row, 6
+											If mobl_ref_numb = hc_elig_ref_numbs(hc_prog_count) Then Exit Do
+											mobl_row = mobl_row + 1
+										Loop until mobl_ref_numb = "  "
+										Call write_value_and_transmit("X", mobl_row, 3)				'MOBL
+										Do
+											' MsgBox "MOVING - 21"
+											EMReadScreen spenddown_header, 75, 3, 2
+											spenddown_header = trim(spenddown_header)
+											If spenddown_header = "Community Spenddown Results (SPDN)" Then
+												EMReadScreen hc_prog_elig_spdn_option(hc_prog_count), 	2, 4, 59
+												EMReadScreen hc_prog_elig_spdn_type(hc_prog_count), 		1, 5, 14
+												EMReadScreen hc_prog_elig_spdn_method(hc_prog_count), 	1, 5, 45
+												EMReadScreen hc_prog_elig_spdn_covered_pop(hc_prog_count), 1, 5, 68
 
-										hc_prog_elig_budg_earned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_earned_deduction(hc_prog_count))
-										hc_prog_elig_budg_net_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_earned_income(hc_prog_count))
+												If hc_prog_elig_spdn_type(hc_prog_count) <> "_" Then
+													mobl_col = 21
+													Do
+														EMReadScreen mobl_mo, 2, 7, mobl_col
+														EMReadScreen mobl_yr, 2, 7, mobl_col
+														If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+															community_spenddown_exists(hc_prog_count) = True
 
-										hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = trim(hc_prog_elig_budg_child_sup_deduction(hc_prog_count))
-										hc_prog_elig_budg_deemed_income(hc_prog_count) = trim(hc_prog_elig_budg_deemed_income(hc_prog_count))
-										hc_prog_elig_budg_total_net_income(hc_prog_count) = trim(hc_prog_elig_budg_total_net_income(hc_prog_count))
-										hc_prog_elig_budg_income_standard(hc_prog_count) = trim(hc_prog_elig_budg_income_standard(hc_prog_count))
-										hc_prog_elig_budg_excess_income(hc_prog_count) = trim(hc_prog_elig_budg_excess_income(hc_prog_count))
-										hc_prog_elig_budg_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_spenddown(hc_prog_count))
-										hc_prog_elig_budg_transfer_penalty(hc_prog_count) = trim(hc_prog_elig_budg_transfer_penalty(hc_prog_count))
-										hc_prog_elig_budg_total_liability(hc_prog_count) = trim(hc_prog_elig_budg_total_liability(hc_prog_count))
+															EMReadScreen hc_prog_elig_original_monthly_spdn(hc_prog_count), 			10, 8, mobl_col-5
+															EMReadScreen hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count), 		10, 9, mobl_col-5
+															EMReadScreen hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count),	5, 10, mobl_col
+															EMReadScreen hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count), 	10, 11, mobl_col-5
+															EMReadScreen hc_prog_elig_monthly_spdn_balance(hc_prog_count), 				10, 12, mobl_col-5
 
-										hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = trim(hc_prog_elig_budg_LTC_exclusions(hc_prog_count))
-										hc_prog_elig_budg_medicare_premium(hc_prog_count) = trim(hc_prog_elig_budg_medicare_premium(hc_prog_count))
-										hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = trim(hc_prog_elig_budg_person_clothing_needs(hc_prog_count))
-										hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = trim(hc_prog_elig_budg_maint_needs_allowance(hc_prog_count))
-										hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = trim(hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count))
-										hc_prog_elig_budg_spousal_allocation(hc_prog_count) = trim(hc_prog_elig_budg_spousal_allocation(hc_prog_count))
-										hc_prog_elig_budg_family_allocation(hc_prog_count) = trim(hc_prog_elig_budg_family_allocation(hc_prog_count))
-										hc_prog_elig_budg_health_ins_premium(hc_prog_count) = trim(hc_prog_elig_budg_health_ins_premium(hc_prog_count))
-										hc_prog_elig_budg_other_medical_expense(hc_prog_count) = trim(hc_prog_elig_budg_other_medical_expense(hc_prog_count))
-										hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = trim(hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count))
-										hc_prog_elig_budg_other_deductions(hc_prog_count) = trim(hc_prog_elig_budg_other_deductions(hc_prog_count))
-										hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_LTC_spenddown(hc_prog_count))
-										hc_prog_elig_budg_medical_spenddown(hc_prog_count) = trim(hc_prog_elig_budg_medical_spenddown(hc_prog_count))
-										hc_prog_elig_budg_waiver_obligation(hc_prog_count) = trim(hc_prog_elig_budg_waiver_obligation(hc_prog_count))
-
-										hc_prog_elig_budg_cola(hc_prog_count) = trim(hc_prog_elig_budg_cola(hc_prog_count))
-										hc_prog_elig_budg_percent_of_fpg(hc_prog_count) = trim(hc_prog_elig_budg_percent_of_fpg(hc_prog_count))
-										hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = trim(hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count))
-										hc_prog_elig_budg_premium_percent(hc_prog_count) = trim(hc_prog_elig_budg_premium_percent(hc_prog_count))
-										hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = trim(hc_prog_elig_budg_sliding_fee_premium(hc_prog_count))
-										hc_prog_elig_budg_ui_obligation(hc_prog_count) = trim(hc_prog_elig_budg_ui_obligation(hc_prog_count))
-										hc_prog_elig_budg_total_premium(hc_prog_count) = trim(hc_prog_elig_budg_total_premium(hc_prog_count))
-										hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = trim(hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count))
-										hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count) = trim(hc_prog_elig_budg_medi_part_b_reimb_yn(hc_prog_count))
-
-										hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = replace(hc_prog_elig_budg_LTC_exclusions(hc_prog_count), "_", "")
-										hc_prog_elig_budg_medicare_premium(hc_prog_count) = replace(hc_prog_elig_budg_medicare_premium(hc_prog_count), "_", "")
-										hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = replace(hc_prog_elig_budg_person_clothing_needs(hc_prog_count), "_", "")
-										hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = replace(hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), "_", "")
-										hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = replace(hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), "_", "")
-										hc_prog_elig_budg_family_allocation(hc_prog_count) = replace(hc_prog_elig_budg_family_allocation(hc_prog_count), "_", "")
-										hc_prog_elig_budg_health_ins_premium(hc_prog_count) = replace(hc_prog_elig_budg_health_ins_premium(hc_prog_count), "_", "")
-										hc_prog_elig_budg_other_medical_expense(hc_prog_count) = replace(hc_prog_elig_budg_other_medical_expense(hc_prog_count), "_", "")
-										hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = replace(hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), "_", "")
-										hc_prog_elig_budg_other_deductions(hc_prog_count) = replace(hc_prog_elig_budg_other_deductions(hc_prog_count), "_", "")
-
-										If hc_prog_elig_budg_cola(hc_prog_count) = "__________" Then  hc_prog_elig_budg_cola(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = "" Then  hc_prog_elig_budg_counted_income_for_prem_calc(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = "" Then  hc_prog_elig_budg_sliding_fee_premium(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_ui_obligation(hc_prog_count) = "" Then  hc_prog_elig_budg_ui_obligation(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_total_premium(hc_prog_count) = "" Then  hc_prog_elig_budg_total_premium(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = "" Then  hc_prog_elig_budg_medi_part_b_reimb_std(hc_prog_count) = "0.00"
-
-										If hc_prog_elig_budg_gross_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_unearned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_countable_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_countable_earned_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = "" Then hc_prog_elig_budg_subtotal_countable_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = "__________" Then hc_prog_elig_budg_va_aid_attendincome(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_total_countable_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_countable_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "0.00"
-
-										If hc_prog_elig_budg_gross_earned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_earned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_deemed_earned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_earned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_excluded_earned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_earned(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_work_exp_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = "" Then hc_prog_elig_budg_earned_disregarrd(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_dependent_care(hc_prog_count) = "" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_dependent_care(hc_prog_count) = "__________" Then hc_prog_elig_budg_dependent_care(hc_prog_count) = "0.00"
-
-										If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_net_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_earned_income(hc_prog_count) = "0.00"
-
-										If hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "__________" Then hc_prog_elig_budg_child_sup_deduction(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_deemed_income(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_total_net_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_net_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_income_standard(hc_prog_count) = "" Then hc_prog_elig_budg_income_standard(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_excess_income(hc_prog_count) = "" Then hc_prog_elig_budg_excess_income(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_spenddown(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "" Then hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "__________" Then hc_prog_elig_budg_transfer_penalty(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_total_liability(hc_prog_count) = "" Then hc_prog_elig_budg_total_liability(hc_prog_count) = "0.00"
-
-										If hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = "" Then hc_prog_elig_budg_LTC_exclusions(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_medicare_premium(hc_prog_count) = "" Then hc_prog_elig_budg_medicare_premium(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = "" Then hc_prog_elig_budg_person_clothing_needs(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = "" Then hc_prog_elig_budg_maint_needs_allowance(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = "" Then hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_spousal_allocation(hc_prog_count) = "" Then hc_prog_elig_budg_spousal_allocation(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_family_allocation(hc_prog_count) = "" Then hc_prog_elig_budg_family_allocation(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_health_ins_premium(hc_prog_count) = "" Then hc_prog_elig_budg_health_ins_premium(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_other_medical_expense(hc_prog_count) = "" Then hc_prog_elig_budg_other_medical_expense(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = "" Then hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_other_deductions(hc_prog_count) = "" Then hc_prog_elig_budg_other_deductions(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_LTC_spenddown(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_medical_spenddown(hc_prog_count) = "" Then hc_prog_elig_budg_medical_spenddown(hc_prog_count) = "0.00"
-										If hc_prog_elig_budg_waiver_obligation(hc_prog_count) = "" Then hc_prog_elig_budg_waiver_obligation(hc_prog_count) = "0.00"
-
-										If budget_found = false Then MsgBox "Budget not coded:" & vbCr & budg_panel & vbCr & vbCr & elig_footer_month & "/" & elig_footer_year
-
-										transmit
-										' MsgBox "MOVING - 19"
-									End If
-
-									Call write_value_and_transmit("X", 18, 3)				'MOBL
-									' MsgBox "MOVING - 20"
-
-									community_spenddown_exists(hc_prog_count) = False
-									EW_spenddown_exists(hc_prog_count) = False
-									LTC_spenddown_exists(hc_prog_count) = False
-									EMReadScreen hc_prog_elig_mobl_result(hc_prog_count), 4, 6, 32
-									EMReadScreen hc_prog_elig_mobl_type(hc_prog_count), 	18, 6, 39
-									EMReadScreen hc_prog_elig_mobl_period(hc_prog_count), 13, 6, 61
-									mobl_row = 6
-									Do
-										EMReadScreen mobl_ref_numb, 2, mobl_row, 6
-										If mobl_ref_numb = hc_elig_ref_numbs(hc_prog_count) Then Exit Do
-										mobl_row = mobl_row + 1
-									Loop until mobl_ref_numb = "  "
-									Call write_value_and_transmit("X", mobl_row, 3)				'MOBL
-									Do
-										' MsgBox "MOVING - 21"
-										EMReadScreen spenddown_header, 75, 3, 2
-										spenddown_header = trim(spenddown_header)
-										If spenddown_header = "Community Spenddown Results (SPDN)" Then
-											EMReadScreen hc_prog_elig_spdn_option(hc_prog_count), 	2, 4, 59
-											EMReadScreen hc_prog_elig_spdn_type(hc_prog_count), 		1, 5, 14
-											EMReadScreen hc_prog_elig_spdn_method(hc_prog_count), 	1, 5, 45
-											EMReadScreen hc_prog_elig_spdn_covered_pop(hc_prog_count), 1, 5, 68
-
-											If hc_prog_elig_spdn_type(hc_prog_count) <> "_" Then
+															If hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) <> "__ __" Then
+																hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = replace(hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count), " ", "/")
+																hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) & "/" & elig_footer_year
+															Else
+																hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = ""
+															End If
+														End If
+														mobl_col = mobl_col + 11
+													Loop until mobl_col = 87
+													EMReadScreen hc_prog_elig_oiginal_six_mo_spdn(hc_prog_count), 			10, 15, 45
+													EMReadScreen hc_prog_elig_six_mo_spdn_counted_bills(hc_prog_count), 		10, 16, 45
+													EMReadScreen hc_prog_elig_six_mo_spnd_satisfaction_date(hc_prog_count), 	8, 17, 45
+													EMReadScreen hc_prog_elig_six_mo_spdn_recipient_amount(hc_prog_count), 	10, 18, 45
+													EMReadScreen hc_prog_elig_six_mo_spdn_unused_balance(hc_prog_count), 		10, 19, 45
+												End if
+											ElseIf spenddown_header = "SIS-EW Waiver Obligation Results (EWWO)" Then
+												'2506494
 												mobl_col = 21
+												Do
+													EMReadScreen mobl_mo, 2, 11, mobl_col
+													EMReadScreen mobl_yr, 2, 11, mobl_col
+													If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+														EW_spenddown_exists(hc_prog_count) = True
+
+														EMReadScreen hc_prog_elig_ew_spdn_type_code(hc_prog_count), 		1, 9, 18
+														EMReadScreen hc_prog_elig_ew_spdn_type_info(hc_prog_count), 		11, 9, 20
+														EMReadScreen hc_prog_elig_ew_spdn_method_code(hc_prog_count), 	1, 9, 40
+														EMReadScreen hc_prog_elig_ew_spdn_method_info(hc_prog_count), 	13, 9, 42
+														EMReadScreen hc_prog_elig_ew_spdn_covered_pop_code(hc_prog_count), 1, 9, 71
+														EMReadScreen hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count), 7, 9, 73
+
+														hc_prog_elig_ew_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_type_info(hc_prog_count))
+														hc_prog_elig_ew_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_method_info(hc_prog_count))
+														hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count))
+
+														EMReadScreen hc_prog_elig_ew_spdn_income(hc_prog_count), 9, 12, mobl_col-4
+														EMReadScreen hc_prog_elig_ew_spdn_obligation(hc_prog_count), 9, 12, mobl_col-4
+														EMReadScreen hc_prog_elig_ew_spdn_liability(hc_prog_count), 9, 12, mobl_col-4
+														hc_prog_elig_ew_spdn_obligation(hc_prog_count) = trim(hc_prog_elig_ew_spdn_obligation(hc_prog_count))
+														hc_prog_elig_ew_spdn_liability(hc_prog_count) = trim(hc_prog_elig_ew_spdn_liability(hc_prog_count))
+													End If
+													mobl_col = mobl_col + 11
+												Loop until mobl_col = 87
+
+											ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
+												'804476
+												LTC_spenddown_exists(hc_prog_count) = True
+
+												EMReadScreen spenddown_to_read, 1, 6, 21
+												EMReadScreen second_spenddown_to_read, 1, 6, 21
+												If spenddown_to_read <> "_" Then
+													EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 6, 21
+													EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 6, 23
+													EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 6, 43
+													EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 6, 45
+													EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 6, 69
+													EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 6, 71
+
+													hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
+													hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
+													hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
+												End If
+												' If second_spenddown_to_read <> "_" Then
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 14, 21
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 14, 23
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 14, 42
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 14, 44
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 14, 68
+												' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 14, 70
+												'
+												' 	hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
+												' 	hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
+												' 	hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
+												' End If
+
+
+
+												mobl_col = 19
 												Do
 													EMReadScreen mobl_mo, 2, 7, mobl_col
 													EMReadScreen mobl_yr, 2, 7, mobl_col
 													If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
-														community_spenddown_exists(hc_prog_count) = True
-
-														EMReadScreen hc_prog_elig_original_monthly_spdn(hc_prog_count), 			10, 8, mobl_col-5
-														EMReadScreen hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count), 		10, 9, mobl_col-5
-														EMReadScreen hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count),	5, 10, mobl_col
-														EMReadScreen hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count), 	10, 11, mobl_col-5
-														EMReadScreen hc_prog_elig_monthly_spdn_balance(hc_prog_count), 				10, 12, mobl_col-5
-
-														If hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) <> "__ __" Then
-															hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = replace(hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count), " ", "/")
-															hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) & "/" & elig_footer_year
-														Else
-															hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = ""
+														LTC_spenddown_exists(hc_prog_count) = True
+														If spenddown_to_read <> "_" Then
+															EMReadScreen hc_prog_elig_ltc_spdn_amount(hc_prog_count), 9, 8, mobl_col-2
+															EMReadScreen hc_prog_elig_ltc_spdn_total_liability(hc_prog_count), 9, 9, mobl_col-2
+															EMReadScreen hc_prog_elig_ltc_spdn_charges(hc_prog_count), 9, 10, mobl_col-2
+															EMReadScreen hc_prog_elig_ltc_spdn_medical_spdn(hc_prog_count), 9, 11, mobl_col-2
+														' ElseIf second_spenddown_to_read <> "_" Then
+														' 	EMReadScreen hc_prog_elig_ltc_spdn_original(hc_prog_count), 9, 15, mobl_col-2
+														' 	EMReadScreen hc_prog_elig_ltc_spdn_counted_bills(hc_prog_count), 9, 16, mobl_col-2
+														' 	EMReadScreen hc_prog_elig_ltc_spdn_satisfy_date(hc_prog_count), 5, 17, mobl_col-3
+														' 	EMReadScreen hc_prog_elig_ltc_spdn_recipient_amount(hc_prog_count), 9, 18, mobl_col-2
+														' 	EMReadScreen hc_prog_elig_ltc_spdn_balance(hc_prog_count), 9, 19, mobl_col-2
 														End If
 													End If
 													mobl_col = mobl_col + 11
-												Loop until mobl_col = 87
-												EMReadScreen hc_prog_elig_oiginal_six_mo_spdn(hc_prog_count), 			10, 15, 45
-												EMReadScreen hc_prog_elig_six_mo_spdn_counted_bills(hc_prog_count), 		10, 16, 45
-												EMReadScreen hc_prog_elig_six_mo_spnd_satisfaction_date(hc_prog_count), 	8, 17, 45
-												EMReadScreen hc_prog_elig_six_mo_spdn_recipient_amount(hc_prog_count), 	10, 18, 45
-												EMReadScreen hc_prog_elig_six_mo_spdn_unused_balance(hc_prog_count), 		10, 19, 45
-											End if
-										ElseIf spenddown_header = "SIS-EW Waiver Obligation Results (EWWO)" Then
-											'2506494
-											mobl_col = 21
-											Do
-												EMReadScreen mobl_mo, 2, 11, mobl_col
-												EMReadScreen mobl_yr, 2, 11, mobl_col
-												If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
-													EW_spenddown_exists(hc_prog_count) = True
+												Loop until mobl_col = 85
 
-													EMReadScreen hc_prog_elig_ew_spdn_type_code(hc_prog_count), 		1, 9, 18
-													EMReadScreen hc_prog_elig_ew_spdn_type_info(hc_prog_count), 		11, 9, 20
-													EMReadScreen hc_prog_elig_ew_spdn_method_code(hc_prog_count), 	1, 9, 40
-													EMReadScreen hc_prog_elig_ew_spdn_method_info(hc_prog_count), 	13, 9, 42
-													EMReadScreen hc_prog_elig_ew_spdn_covered_pop_code(hc_prog_count), 1, 9, 71
-													EMReadScreen hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count), 7, 9, 73
-
-													hc_prog_elig_ew_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_type_info(hc_prog_count))
-													hc_prog_elig_ew_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_method_info(hc_prog_count))
-													hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ew_spdn_covered_pop_info(hc_prog_count))
-
-													EMReadScreen hc_prog_elig_ew_spdn_income(hc_prog_count), 9, 12, mobl_col-4
-													EMReadScreen hc_prog_elig_ew_spdn_obligation(hc_prog_count), 9, 12, mobl_col-4
-													EMReadScreen hc_prog_elig_ew_spdn_liability(hc_prog_count), 9, 12, mobl_col-4
-													hc_prog_elig_ew_spdn_obligation(hc_prog_count) = trim(hc_prog_elig_ew_spdn_obligation(hc_prog_count))
-													hc_prog_elig_ew_spdn_liability(hc_prog_count) = trim(hc_prog_elig_ew_spdn_liability(hc_prog_count))
-												End If
-												mobl_col = mobl_col + 11
-											Loop until mobl_col = 87
-
-										ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
-											'804476
-											LTC_spenddown_exists(hc_prog_count) = True
-
-											EMReadScreen spenddown_to_read, 1, 6, 21
-											EMReadScreen second_spenddown_to_read, 1, 6, 21
-											If spenddown_to_read <> "_" Then
-												EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 6, 21
-												EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 6, 23
-												EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 6, 43
-												EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 6, 45
-												EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 6, 69
-												EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 6, 71
-
-												hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
-												hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
-												hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
+											Else
+												' MsgBox spenddown_header
 											End If
-											' If second_spenddown_to_read <> "_" Then
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 14, 21
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 14, 23
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 14, 42
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 14, 44
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 14, 68
-											' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 14, 70
-											'
-											' 	hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
-											' 	hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
-											' 	hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
-											' End If
+											transmit
+											EMReadScreen back_to_MOBL_check, 4,	 3, 49
+										Loop until back_to_MOBL_check = "MOBL"
+										' MsgBox "MOVING - 22"
+										PF3
 
-
-
-											mobl_col = 19
-											Do
-												EMReadScreen mobl_mo, 2, 7, mobl_col
-												EMReadScreen mobl_yr, 2, 7, mobl_col
-												If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
-													LTC_spenddown_exists(hc_prog_count) = True
-													If spenddown_to_read <> "_" Then
-														EMReadScreen hc_prog_elig_ltc_spdn_amount(hc_prog_count), 9, 8, mobl_col-2
-														EMReadScreen hc_prog_elig_ltc_spdn_total_liability(hc_prog_count), 9, 9, mobl_col-2
-														EMReadScreen hc_prog_elig_ltc_spdn_charges(hc_prog_count), 9, 10, mobl_col-2
-														EMReadScreen hc_prog_elig_ltc_spdn_medical_spdn(hc_prog_count), 9, 11, mobl_col-2
-													' ElseIf second_spenddown_to_read <> "_" Then
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_original(hc_prog_count), 9, 15, mobl_col-2
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_counted_bills(hc_prog_count), 9, 16, mobl_col-2
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_satisfy_date(hc_prog_count), 5, 17, mobl_col-3
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_recipient_amount(hc_prog_count), 9, 18, mobl_col-2
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_balance(hc_prog_count), 9, 19, mobl_col-2
-													End If
-												End If
-												mobl_col = mobl_col + 11
-											Loop until mobl_col = 85
-
-										Else
-											' MsgBox spenddown_header
+										Call write_value_and_transmit("X", 18, 34)				'Cert Period Amount'
+										' MsgBox "MOVING - 22.5"
+										EMReadScreen cert_pd_pop_up_check, 27, 5, 13
+										If cert_pd_pop_up_check = "Certification Period Amount" Then
+											EMReadScreen hc_prog_elig_cert_prd_total_net_income(hc_prog_count), 	10, 7, 34
+											EMReadScreen hc_prog_elig_cert_prd_total_standard(hc_prog_count), 		10, 8, 34
+											EMReadScreen hc_prog_elig_cert_prd_total_excess_income(hc_prog_count), 	10, 9, 34
+											transmit
 										End If
-										transmit
-										EMReadScreen back_to_MOBL_check, 4,	 3, 49
-									Loop until back_to_MOBL_check = "MOBL"
-									' MsgBox "MOVING - 22"
-									PF3
+										EMWriteScreen " ", 18, 34
+										' MsgBox "MOVING - 23"
 
-									Call write_value_and_transmit("X", 18, 34)				'Cert Period Amount'
-									' MsgBox "MOVING - 22.5"
-									EMReadScreen cert_pd_pop_up_check, 27, 5, 13
-									If cert_pd_pop_up_check = "Certification Period Amount" Then
-										EMReadScreen hc_prog_elig_cert_prd_total_net_income(hc_prog_count), 	10, 7, 34
-										EMReadScreen hc_prog_elig_cert_prd_total_standard(hc_prog_count), 		10, 8, 34
-										EMReadScreen hc_prog_elig_cert_prd_total_excess_income(hc_prog_count), 	10, 9, 34
 										transmit
+										' MsgBox "MOVING - 24"
+
+										EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
+										EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
+										EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
+										EMReadScreen hc_prog_elig_HRF_reporting(hc_prog_count), 	10, 11, 34
+										EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 12, 34
+										row_for_6 = 1
+										col_for_6 = 1
+										EMSearch "6 Month", row_for_6, col_for_6
+										EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, row_for_6, 34
+										If hc_prog_elig_SR_date(hc_prog_count) = "__ __ __" Then hc_prog_elig_SR_date(hc_prog_count) = ""
+										EMReadScreen hc_prog_elig_TYMA_begin_date(hc_prog_count), 8, 15, 34
+
+										EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 76
+										EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 76
+										EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 10, 76
+
+										EMReadScreen hc_prog_elig_TYMA_type(hc_prog_count), 2, 15, 76
+
+										EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
+										EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
+
+										transmit
+										' MsgBox "MOVING - 25"
+
+										Exit Do
 									End If
-									EMWriteScreen " ", 18, 34
-									' MsgBox "MOVING - 23"
+									hc_col = hc_col + 11
+									' MsgBox "hc_col - " & hc_col
+									If hc_col = 83 Then hc_prog_elig_appd(hc_prog_count) = False
+								Loop until hc_col = 83
+							End If
+						End If
 
-									transmit
-									' MsgBox "MOVING - 24"
+						If hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
+							' MsgBox hc_prog_elig_major_program(hc_prog_count)
+							' EmReadScreen hc_elig_membs_prog_one
+							hc_budget_type(hc_prog_count) = "MBUD"
+							EMReadScreen hc_elig_full_name(hc_prog_count), 40, 5, 15
+							hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
+							EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 6, 56
+							EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 6, 64
+							EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
+							EMReadScreen hc_prog_elig_basis(hc_prog_count), 			15, 6, 27
 
-									EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
-									EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
-									EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
-									EMReadScreen hc_prog_elig_HRF_reporting(hc_prog_count), 	10, 11, 34
-									EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 12, 34
-									row_for_6 = 1
-									col_for_6 = 1
-									EMSearch "6 Month", row_for_6, col_for_6
-									EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, row_for_6, 34
-									If hc_prog_elig_SR_date(hc_prog_count) = "__ __ __" Then hc_prog_elig_SR_date(hc_prog_count) = ""
-									EMReadScreen hc_prog_elig_TYMA_begin_date(hc_prog_count), 8, 15, 34
+							EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
+							EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 10, 31
+							EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 		10, 11, 31
+							EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 12, 31
+							EMReadScreen hc_prog_elig_budg_standard_disregard(hc_prog_count), 	10, 13, 31
+							EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 14, 31
 
-									EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 76
-									EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 76
-									EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 10, 76
+							EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 9, 71
+							EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 10, 71
+							EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 	10, 11, 71
+							EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 12, 71
+							EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 13, 71
 
-									EMReadScreen hc_prog_elig_TYMA_type(hc_prog_count), 2, 15, 76
+							EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 15, 71
+							EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 	10, 16, 71
+							EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 17, 71
 
-									EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
-									EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
+							income_string = ""
+							Call write_value_and_transmit("X", 9, 3)	'Unearned Income
+							EMReadScreen in_menu_check, 15, 2, 33
+							If in_menu_check = "Unearned Income" Then
+								EMReadScreen income_name, 40, 4, 20
+								income_name = trim(income_name)
+								menu_row = 8
+								Do
+									EMReadScreen income_type, 25, menu_row, 12
+									EMReadScreen income_amt, 10, menu_row, 43
 
-									transmit
-									' MsgBox "MOVING - 25"
+									income_type = trim(income_type)
+									income_amt = replace(income_amt, "_", "")
+									If income_amt <> "" Then
+										income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+									End If
+									menu_row = menu_row + 1
+								Loop until income_amt = ""
+								transmit
+							End If
 
-									Exit Do
+							Call write_value_and_transmit("X", 10, 3)	'Unearned Income - Deemed
+							EMReadScreen in_menu_check, 15, 2, 33
+							If in_menu_check = "Unearned Income" Then
+								EMReadScreen income_name, 40, 4, 20
+								income_name = trim(income_name)
+								menu_row = 8
+								Do
+									EMReadScreen income_type, 25, menu_row, 12
+									EMReadScreen income_amt, 10, menu_row, 43
+
+									income_type = trim(income_type)
+									income_amt = replace(income_amt, "_", "")
+									If income_amt <> "" Then
+										income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+									End If
+									menu_row = menu_row + 1
+								Loop until income_amt = ""
+								transmit
+							End If
+
+
+							Call write_value_and_transmit("X", 9, 43)	'Earned Income
+							EMReadScreen in_menu_check, 13, 2, 38
+							If in_menu_check = "Earned Income" Then
+								EMReadScreen income_name, 40, 4, 19
+								income_name = trim(income_name)
+								menu_row = 8
+								Do
+									EMReadScreen income_type, 25, menu_row, 11
+									EMReadScreen income_amt, 10, menu_row, 43
+
+									income_type = trim(income_type)
+									income_amt = replace(income_amt, "_", "")
+									If income_amt <> "" Then
+										income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+									End If
+									menu_row = menu_row + 1
+								Loop until income_amt = ""
+								transmit
+							End If
+
+
+							Call write_value_and_transmit("X", 10, 43)	'Earned Income - Deemed
+							EMReadScreen in_menu_check, 13, 2, 38
+							If in_menu_check = "Earned Income" Then
+								EMReadScreen income_name, 40, 4, 19
+								income_name = trim(income_name)
+								menu_row = 8
+								Do
+									EMReadScreen income_type, 25, menu_row, 11
+									EMReadScreen income_amt, 10, menu_row, 43
+
+									income_type = trim(income_type)
+									income_amt = replace(income_amt, "_", "")
+									If income_amt <> "" Then
+										income_string = income_string & income_name & " from " & income_type & ": $ " & income_amt & "~"
+									End If
+									menu_row = menu_row + 1
+								Loop until income_amt = ""
+								transmit
+							End If
+							hc_prog_list_all_income(hc_prog_count) = income_string
+							If right(hc_prog_list_all_income(hc_prog_count), 1) = "~" and len(hc_prog_list_all_income(hc_prog_count)) <> 1 Then hc_prog_list_all_income(hc_prog_count) = left(hc_prog_list_all_income(hc_prog_count), len(hc_prog_list_all_income(hc_prog_count))-1)
+							If len(hc_prog_list_all_income(hc_prog_count)) = 1 Then hc_prog_list_all_income(hc_prog_count) = ""
+							' MsgBox hc_prog_list_all_income(hc_prog_count)
+
+
+							hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
+							hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
+							hc_prog_elig_budg_excluded_unearned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_unearned(hc_prog_count))
+							hc_prog_elig_budg_unearned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_unearned_deduction(hc_prog_count))
+							hc_prog_elig_budg_standard_disregard(hc_prog_count) = trim(hc_prog_elig_budg_standard_disregard(hc_prog_count))
+							hc_prog_elig_budg_net_unearned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_unearned_income(hc_prog_count))
+
+							hc_prog_elig_budg_gross_earned(hc_prog_count) = trim(hc_prog_elig_budg_gross_earned(hc_prog_count))
+							hc_prog_elig_budg_deemed_earned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_earned(hc_prog_count))
+							hc_prog_elig_budg_excluded_earned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_earned(hc_prog_count))
+							hc_prog_elig_budg_earned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_earned_deduction(hc_prog_count))
+							hc_prog_elig_budg_net_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_earned_income(hc_prog_count))
+
+							hc_prog_elig_budg_total_net_income(hc_prog_count) = trim(hc_prog_elig_budg_total_net_income(hc_prog_count))
+							hc_prog_elig_budg_income_standard(hc_prog_count) = trim(hc_prog_elig_budg_income_standard(hc_prog_count))
+							hc_prog_elig_budg_excess_income(hc_prog_count) = trim(hc_prog_elig_budg_excess_income(hc_prog_count))
+
+							If hc_prog_elig_budg_gross_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_unearned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_standard_disregard(hc_prog_count) = "" Then hc_prog_elig_budg_standard_disregard(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "0.00"
+
+							If hc_prog_elig_budg_gross_earned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_earned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_deemed_earned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_earned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_excluded_earned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_earned(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_net_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_earned_income(hc_prog_count) = "0.00"
+
+							If hc_prog_elig_budg_total_net_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_net_income(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_income_standard(hc_prog_count) = "" Then hc_prog_elig_budg_income_standard(hc_prog_count) = "0.00"
+							If hc_prog_elig_budg_excess_income(hc_prog_count) = "" Then hc_prog_elig_budg_excess_income(hc_prog_count) = "0.00"
+
+							Call write_value_and_transmit("X", 5, 66)			'Household Count'
+							' MsgBox "MOVING - 26"
+							EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+							hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
+							hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
+							hh_row = 12
+							Do
+								EMReadScreen inc_count_ind, 1, hh_row, 61
+								If inc_count_ind = "Y" Then
+									EMReadScreen memb_numb_income_count, 2, hh_row, 13
+									hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
 								End If
-								hc_col = hc_col + 11
-								' MsgBox "hc_col - " & hc_col
-								If hc_col = 83 Then hc_prog_elig_appd(hc_prog_count) = False
-							Loop until hc_col = 83
+								hh_row = hh_row + 1
+								EMReadScreen next_inc_count_ind, 1, hh_row, 61
+							Loop until next_inc_count_ind = " "
+							hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
+							hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
+							hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
+							transmit
+							' MsgBox "MOVING - 27"
+
+							transmit
+							' MsgBox "MOVING - 28"
+
+							EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 				6, 6, 5
+							EMReadScreen hc_prog_elig_test_after_processing_month(hc_prog_count),	6, 7, 5
+							EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 				6, 8, 5
+							EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 		6, 9, 5
+							EMReadScreen hc_prog_elig_test_basis_for_other_prog(hc_prog_count), 6, 10, 5
+							EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 			6, 11, 5
+							EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 12, 5
+							EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 13, 5
+
+							EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 6, 45
+							EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 7, 45
+							EMReadScreen hc_prog_elig_test_income(hc_prog_count), 				6, 8, 45
+							EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 9, 45
+							EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 10, 45
+							EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 11, 45
+							EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 12, 45
+
+							EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
+
+							transmit
+							' MsgBox "MOVING - 29"
+
+							EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
+							' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "2"
+							' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
+							If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then
+								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
+									approved_today = True
+									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If developer_mode = True Then
+									approved_today = True										'TESTING OPTION'
+									hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
+								End If
+							End If
+
+							EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
+							EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
+							EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
+							EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 11, 34
+							row_for_6 = 1
+							col_for_6 = 1
+							EMSearch "6 Month", row_for_6, col_for_6
+							EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, row_for_6, 34
+							If hc_prog_elig_SR_date(hc_prog_count) = "__ __ __" Then hc_prog_elig_SR_date(hc_prog_count) = ""
+							EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 	4, 14, 34
+
+							EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
+							EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 78
+
+							EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
+							EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
+
+							transmit
+							' MsgBox "MOVING - 30"
+
 						End If
-					End If
+						If trim(hc_prog_elig_elig_type(hc_prog_count)) = "" Then
+							If hc_prog_elig_elig_type(hc_prog_count) = "" Then hc_prog_elig_basis(hc_prog_count) = ""
 
-					If hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
-						' MsgBox hc_prog_elig_major_program(hc_prog_count)
-						' EmReadScreen hc_elig_membs_prog_one
-						hc_budget_type(hc_prog_count) = "MBUD"
-						EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 6, 56
-						EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 6, 64
-						EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
-						EMReadScreen hc_prog_elig_basis(hc_prog_count), 			15, 6, 27
+							If hc_prog_elig_elig_type(hc_prog_count) = "1A" Then hc_prog_elig_basis(hc_prog_count) = "MFIP Eligble End 06/30/02"
+							If hc_prog_elig_elig_type(hc_prog_count) = "13" Then hc_prog_elig_basis(hc_prog_count) = "Transitional MA"
+							If hc_prog_elig_elig_type(hc_prog_count) = "14" Then hc_prog_elig_basis(hc_prog_count) = "Transitional Year MA"
+							If hc_prog_elig_elig_type(hc_prog_count) = "11" Then hc_prog_elig_basis(hc_prog_count) = "Auto Newborn"
+							If hc_prog_elig_elig_type(hc_prog_count) = "09" Then hc_prog_elig_basis(hc_prog_count) = "IV-E Adoption Assistance"
+							If hc_prog_elig_elig_type(hc_prog_count) = "PX" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Woman"
+							If hc_prog_elig_elig_type(hc_prog_count) = "PC" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Women - CHIP"
+							If hc_prog_elig_elig_type(hc_prog_count) = "CB" Then hc_prog_elig_basis(hc_prog_count) = "Child 0-2, Not Auto Newborn"
+							If hc_prog_elig_elig_type(hc_prog_count) = "CK" Then hc_prog_elig_basis(hc_prog_count) = " Child 2-18"
+							If hc_prog_elig_elig_type(hc_prog_count) = "CX" Then hc_prog_elig_basis(hc_prog_count) = "Child 19-20"
+							If hc_prog_elig_elig_type(hc_prog_count) = "CM" Then hc_prog_elig_basis(hc_prog_count) = "21, In An IMD"
+							If hc_prog_elig_elig_type(hc_prog_count) = "AA" Then hc_prog_elig_basis(hc_prog_count) = "AFDC-Related"
+							If hc_prog_elig_elig_type(hc_prog_count) = "AX" Then hc_prog_elig_basis(hc_prog_count) = "Adult Without Child"
+							If hc_prog_elig_elig_type(hc_prog_count) = "BT" Then hc_prog_elig_basis(hc_prog_count) = "Blind TEFRA"
+							If hc_prog_elig_elig_type(hc_prog_count) = "DT" Then hc_prog_elig_basis(hc_prog_count) = "Disabled TEFRA"
+							If hc_prog_elig_elig_type(hc_prog_count) = "15" Then hc_prog_elig_basis(hc_prog_count) = "1619A"
+							If hc_prog_elig_elig_type(hc_prog_count) = "16" Then hc_prog_elig_basis(hc_prog_count) = "1619B"
+							If hc_prog_elig_elig_type(hc_prog_count) = "DC" Then hc_prog_elig_basis(hc_prog_count) = "Disabled Child 18-20"
+							If hc_prog_elig_elig_type(hc_prog_count) = "EX" Then hc_prog_elig_basis(hc_prog_count) = "Elderly"
+							If hc_prog_elig_elig_type(hc_prog_count) = "BX" Then hc_prog_elig_basis(hc_prog_count) = "Blind"
+							If hc_prog_elig_elig_type(hc_prog_count) = "DX" Then hc_prog_elig_basis(hc_prog_count) = "Disabled"
+							If hc_prog_elig_elig_type(hc_prog_count) = "DP" Then hc_prog_elig_basis(hc_prog_count) = "EPD, With A Premium"
+							If hc_prog_elig_elig_type(hc_prog_count) = "BC" Then hc_prog_elig_basis(hc_prog_count) = "MA - BCC Eff 07/01/02"
+							If hc_prog_elig_elig_type(hc_prog_count) = "02" Then hc_prog_elig_basis(hc_prog_count) = "RCA Eligible"
+							If hc_prog_elig_elig_type(hc_prog_count) = "06" Then hc_prog_elig_basis(hc_prog_count) = "GA Eligible"
+							If hc_prog_elig_elig_type(hc_prog_count) = "GS" Then hc_prog_elig_basis(hc_prog_count) = "Adult Without Child"
+							If hc_prog_elig_elig_type(hc_prog_count) = "RM" Then hc_prog_elig_basis(hc_prog_count) = "Refugee Med, No MA Basis"
+							If hc_prog_elig_elig_type(hc_prog_count) = "10" Then hc_prog_elig_basis(hc_prog_count) = "MN Adoption Asssistance"
+							If hc_prog_elig_elig_type(hc_prog_count) = "25" Then hc_prog_elig_basis(hc_prog_count) = "IV-E Foster Care"
 
-						EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
-						EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 10, 31
-						EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 		10, 11, 31
-						EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 12, 31
-						EMReadScreen hc_prog_elig_budg_standard_disregard(hc_prog_count), 	10, 13, 31
-						EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 14, 31
-
-						EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 9, 71
-						EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 10, 71
-						EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 	10, 11, 71
-						EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 12, 71
-						EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 13, 71
-
-						EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 15, 71
-						EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 	10, 16, 71
-						EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 17, 71
-
-						hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
-						hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
-						hc_prog_elig_budg_excluded_unearned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_unearned(hc_prog_count))
-						hc_prog_elig_budg_unearned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_unearned_deduction(hc_prog_count))
-						hc_prog_elig_budg_standard_disregard(hc_prog_count) = trim(hc_prog_elig_budg_standard_disregard(hc_prog_count))
-						hc_prog_elig_budg_net_unearned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_unearned_income(hc_prog_count))
-
-						hc_prog_elig_budg_gross_earned(hc_prog_count) = trim(hc_prog_elig_budg_gross_earned(hc_prog_count))
-						hc_prog_elig_budg_deemed_earned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_earned(hc_prog_count))
-						hc_prog_elig_budg_excluded_earned(hc_prog_count) = trim(hc_prog_elig_budg_excluded_earned(hc_prog_count))
-						hc_prog_elig_budg_earned_deduction(hc_prog_count) = trim(hc_prog_elig_budg_earned_deduction(hc_prog_count))
-						hc_prog_elig_budg_net_earned_income(hc_prog_count) = trim(hc_prog_elig_budg_net_earned_income(hc_prog_count))
-
-						hc_prog_elig_budg_total_net_income(hc_prog_count) = trim(hc_prog_elig_budg_total_net_income(hc_prog_count))
-						hc_prog_elig_budg_income_standard(hc_prog_count) = trim(hc_prog_elig_budg_income_standard(hc_prog_count))
-						hc_prog_elig_budg_excess_income(hc_prog_count) = trim(hc_prog_elig_budg_excess_income(hc_prog_count))
-
-						If hc_prog_elig_budg_gross_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_unearned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_unearned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_unearned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_unearned_deduction(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_standard_disregard(hc_prog_count) = "" Then hc_prog_elig_budg_standard_disregard(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_unearned_income(hc_prog_count) = "0.00"
-
-						If hc_prog_elig_budg_gross_earned(hc_prog_count) = "" Then hc_prog_elig_budg_gross_earned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_deemed_earned(hc_prog_count) = "" Then hc_prog_elig_budg_deemed_earned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_excluded_earned(hc_prog_count) = "" Then hc_prog_elig_budg_excluded_earned(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_earned_deduction(hc_prog_count) = "" Then hc_prog_elig_budg_earned_deduction(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_net_earned_income(hc_prog_count) = "" Then hc_prog_elig_budg_net_earned_income(hc_prog_count) = "0.00"
-
-						If hc_prog_elig_budg_total_net_income(hc_prog_count) = "" Then hc_prog_elig_budg_total_net_income(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_income_standard(hc_prog_count) = "" Then hc_prog_elig_budg_income_standard(hc_prog_count) = "0.00"
-						If hc_prog_elig_budg_excess_income(hc_prog_count) = "" Then hc_prog_elig_budg_excess_income(hc_prog_count) = "0.00"
-
-						Call write_value_and_transmit("X", 5, 66)			'Household Count'
-						' MsgBox "MOVING - 26"
-						EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
-						hh_row = 12
-						Do
-							EMReadScreen inc_count_ind, 1, hh_row, 61
-							If inc_count_ind = "Y" Then
-								EMReadScreen memb_numb_income_count, 2, hh_row, 13
-								hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
-							End If
-							hh_row = hh_row + 1
-							EMReadScreen next_inc_count_ind, 1, hh_row, 61
-						Loop until next_inc_count_ind = " "
-						hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
-						hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
-						hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
-						transmit
-						' MsgBox "MOVING - 27"
-
-						transmit
-						' MsgBox "MOVING - 28"
-
-						EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 				6, 6, 5
-						EMReadScreen hc_prog_elig_test_after_processing_month(hc_prog_count),	6, 7, 5
-						EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 				6, 8, 5
-						EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 		6, 9, 5
-						EMReadScreen hc_prog_elig_test_basis_for_other_prog(hc_prog_count), 6, 10, 5
-						EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 			6, 11, 5
-						EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 12, 5
-						EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 13, 5
-
-						EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 6, 45
-						EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 7, 45
-						EMReadScreen hc_prog_elig_test_income(hc_prog_count), 				6, 8, 45
-						EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 9, 45
-						EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 			6, 10, 45
-						EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 				6, 11, 45
-						EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 			6, 12, 45
-
-						EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
-
-						transmit
-						' MsgBox "MOVING - 29"
-
-						EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
-						' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "2"
-						' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
-						If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then
-							If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
-								approved_today = True
-								hc_prog_elig_approved_today(hc_prog_count) = True
-							End If
-							If developer_mode = True Then
-								approved_today = True										'TESTING OPTION'
-								hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
-							End If
 						End If
-
-						EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
-						EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
-						EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
-						EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 11, 34
-						row_for_6 = 1
-						col_for_6 = 1
-						EMSearch "6 Month", row_for_6, col_for_6
-						EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, row_for_6, 34
-						If hc_prog_elig_SR_date(hc_prog_count) = "__ __ __" Then hc_prog_elig_SR_date(hc_prog_count) = ""
-						EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 	4, 14, 34
-
-						EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
-						EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 78
-
-						EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
-						EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
-
-						transmit
-						' MsgBox "MOVING - 30"
-
+					' Else
+					' 	hc_prog_elig_appd(hc_prog_count) = False
 					End If
-					If trim(hc_prog_elig_elig_type(hc_prog_count)) = "" Then
-						If hc_prog_elig_elig_type(hc_prog_count) = "" Then hc_prog_elig_basis(hc_prog_count) = ""
-
-						If hc_prog_elig_elig_type(hc_prog_count) = "1A" Then hc_prog_elig_basis(hc_prog_count) = "MFIP Eligble End 06/30/02"
-						If hc_prog_elig_elig_type(hc_prog_count) = "13" Then hc_prog_elig_basis(hc_prog_count) = "Transitional MA"
-						If hc_prog_elig_elig_type(hc_prog_count) = "14" Then hc_prog_elig_basis(hc_prog_count) = "Transitional Year MA"
-						If hc_prog_elig_elig_type(hc_prog_count) = "11" Then hc_prog_elig_basis(hc_prog_count) = "Auto Newborn"
-						If hc_prog_elig_elig_type(hc_prog_count) = "09" Then hc_prog_elig_basis(hc_prog_count) = "IV-E Adoption Assistance"
-						If hc_prog_elig_elig_type(hc_prog_count) = "PX" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Woman"
-						If hc_prog_elig_elig_type(hc_prog_count) = "PC" Then hc_prog_elig_basis(hc_prog_count) = "Pregnant Women - CHIP"
-						If hc_prog_elig_elig_type(hc_prog_count) = "CB" Then hc_prog_elig_basis(hc_prog_count) = "Child 0-2, Not Auto Newborn"
-						If hc_prog_elig_elig_type(hc_prog_count) = "CK" Then hc_prog_elig_basis(hc_prog_count) = " Child 2-18"
-						If hc_prog_elig_elig_type(hc_prog_count) = "CX" Then hc_prog_elig_basis(hc_prog_count) = "Child 19-20"
-						If hc_prog_elig_elig_type(hc_prog_count) = "CM" Then hc_prog_elig_basis(hc_prog_count) = "21, In An IMD"
-						If hc_prog_elig_elig_type(hc_prog_count) = "AA" Then hc_prog_elig_basis(hc_prog_count) = "AFDC-Related"
-						If hc_prog_elig_elig_type(hc_prog_count) = "AX" Then hc_prog_elig_basis(hc_prog_count) = "Adult Without Child"
-						If hc_prog_elig_elig_type(hc_prog_count) = "BT" Then hc_prog_elig_basis(hc_prog_count) = "Blind TEFRA"
-						If hc_prog_elig_elig_type(hc_prog_count) = "DT" Then hc_prog_elig_basis(hc_prog_count) = "Disabled TEFRA"
-						If hc_prog_elig_elig_type(hc_prog_count) = "15" Then hc_prog_elig_basis(hc_prog_count) = "1619A"
-						If hc_prog_elig_elig_type(hc_prog_count) = "16" Then hc_prog_elig_basis(hc_prog_count) = "1619B"
-						If hc_prog_elig_elig_type(hc_prog_count) = "DC" Then hc_prog_elig_basis(hc_prog_count) = "Disabled Child 18-20"
-						If hc_prog_elig_elig_type(hc_prog_count) = "EX" Then hc_prog_elig_basis(hc_prog_count) = "Elderly"
-						If hc_prog_elig_elig_type(hc_prog_count) = "BX" Then hc_prog_elig_basis(hc_prog_count) = "Blind"
-						If hc_prog_elig_elig_type(hc_prog_count) = "DX" Then hc_prog_elig_basis(hc_prog_count) = "Disabled"
-						If hc_prog_elig_elig_type(hc_prog_count) = "DP" Then hc_prog_elig_basis(hc_prog_count) = "EPD, With A Premium"
-						If hc_prog_elig_elig_type(hc_prog_count) = "BC" Then hc_prog_elig_basis(hc_prog_count) = "MA - BCC Eff 07/01/02"
-						If hc_prog_elig_elig_type(hc_prog_count) = "02" Then hc_prog_elig_basis(hc_prog_count) = "RCA Eligible"
-						If hc_prog_elig_elig_type(hc_prog_count) = "06" Then hc_prog_elig_basis(hc_prog_count) = "GA Eligible"
-						If hc_prog_elig_elig_type(hc_prog_count) = "GS" Then hc_prog_elig_basis(hc_prog_count) = "Adult Without Child"
-						If hc_prog_elig_elig_type(hc_prog_count) = "RM" Then hc_prog_elig_basis(hc_prog_count) = "Refugee Med, No MA Basis"
-						If hc_prog_elig_elig_type(hc_prog_count) = "10" Then hc_prog_elig_basis(hc_prog_count) = "MN Adoption Asssistance"
-						If hc_prog_elig_elig_type(hc_prog_count) = "25" Then hc_prog_elig_basis(hc_prog_count) = "IV-E Foster Care"
-
-					End If
-				' Else
-				' 	hc_prog_elig_appd(hc_prog_count) = False
 				End If
 			End If
 
@@ -18364,6 +19146,14 @@ class stat_detail
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
+		EMReadScreen warning_msg, 50, 24, 2
+		If Instr(warning_msg, "INVALID FOR PERIOD") <> 0 Then
+			EMWriteScreen hc_app_mo, 20, 43
+			EMWriteScreen hc_app_yr, 20, 46
+			MAXIS_footer_month = hc_app_mo
+			MAXIS_footer_year = hc_app_yr
+			transmit
+		End If
 
 		EMReadScreen stat_prog_cash_I_appl_date, 		8, 6, 33
 		EMReadScreen stat_prog_cash_I_elig_begin_date, 	8, 6, 44
@@ -22340,13 +23130,20 @@ ReDim HC_ELIG_APPROVALS(0)
 Dim STAT_INFORMATION()
 ReDim STAT_INFORMATION(0)
 
-spaces_18 = "                  "
-spaces_23 = "                       "
-spaces_30 = "                              "
-spaces_45 = "                                             "
-spaces_55 = "                                                       "
-spaces_58 = "                                                          "
-spaces_78 = "                                                                              "
+spaces_18 = space(18)
+spaces_23 = space(23)
+spaces_30 = space(30)
+spaces_36 = space(36)
+spaces_45 = space(45)
+spaces_55 = space(55)
+spaces_58 = space(58)
+spaces_78 = space(78)
+
+Dim process_being_completed, income_change_checkbox, assets_change_checkbox, expense_change_checkbox, housing_change_checkbox
+Dim address_change_checkbox, hh_comp_change_checkbox, relationship_change_checkbox, participation_change_checkbox
+Dim time_limit_change_checkbox, policy_change_checkbox, correction_change_checkbox, appeal_change_checkbox
+Dim snap_prorate_reason, dwp_prorate_reason, mfip_prorate_reason, ga_prorate_reason, msa_prorate_reason, grh_prorate_reason
+
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
@@ -22404,7 +23201,17 @@ Do
 Loop until are_we_passworded_out = False
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+row = 1
+col = 1
+EMSearch "HC: ", row, col
+If row <> 0 Then
+	EMReadScreen HC_appl_date, 8, row, col + 24
+	HC_appl_date = DateAdd("d", 0, HC_appl_date)
+	Call convert_date_into_MAXIS_footer_month(HC_appl_date, hc_app_mo, hc_app_yr)
+End If
+
 Call back_to_SELF
+Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
 If MX_region = "INQUIRY DB" Then
@@ -22415,6 +23222,12 @@ End If
 developer_mode = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
+
+ex_parte_approval = False
+complete_ex_parte_as_closed = False
+stop_ex_parte_checkbox = unchecked
+MSP_approvals_only = True
+MSP_memo_success = False
 
 first_DWP_approval = ""
 first_MFIP_approval = ""
@@ -22447,10 +23260,19 @@ snap_elig_months_count = 0
 hc_elig_months_count = 0
 month_count = 0
 
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
-Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
-EMReadScreen numb_EMER_versions, 1, 16, 40
+CM_plus_1 = CM_plus_1_mo & "/" & CM_plus_1_yr
+First_footer = first_footer_month & "/" & first_footer_year
+If First_footer <> CM_plus_1 Then
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+	Call navigate_to_MAXIS_screen("STAT", "PROG")
+	EMReadScreen prog_emer_appl_date, 8, 8, 33
+	If prog_emer_appl_date = "__ __ __" Then prog_emer_appl_date = ""
+	prog_emer_appl_date = replace(prog_emer_appl_date, " ", "/")
+	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
+	EMReadScreen numb_EMER_versions, 1, 16, 40
+	numb_EMER_versions = trim(numb_EMER_versions)
+End If
 
 const month_const 	= 0
 const er_revw_completed_const	= 1
@@ -22506,13 +23328,14 @@ const final_const				= 40
 Dim REPORTING_COMPLETE_ARRAY()
 ReDim REPORTING_COMPLETE_ARRAY(final_const, 0)
 
-If numb_EMER_versions <> " " Then
+If numb_EMER_versions <> "" Then
 	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
 	EMER_ELIG_APPROVAL.elig_footer_month = CM_mo
 	EMER_ELIG_APPROVAL.elig_footer_year = CM_yr
 
 	EMER_ELIG_APPROVAL.initial_search_month = first_footer_month
 	EMER_ELIG_APPROVAL.initial_search_year = first_footer_year
+	EMER_ELIG_APPROVAL.emer_appl_date = prog_emer_appl_date
 
 	EMER_ELIG_APPROVAL.read_elig
 
@@ -22815,6 +23638,37 @@ For each footer_month in MONTHS_ARRAY
 
    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+
+			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
+			sql_revw_date = "20"&CM_plus_1_yr&"-"&CM_plus_1_mo&"-01"
+
+			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_revw_date & "' and [SelectExParte] = '1'"
+
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+			number_of_rows = objRecordSet(0).value
+			number_of_rows = number_of_rows*1
+
+			objRecordSet.Close
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
+
+
+			If number_of_rows = 1 Then
+				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then ex_parte_approval = True
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then complete_ex_parte_as_closed = True
+				next
+			End If
+		End If
    		approval_found_for_this_month = True
 		for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 			If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then ineligible_approval_exists = True
@@ -22836,7 +23690,63 @@ For each footer_month in MONTHS_ARRAY
 			For each_elig_memb = 0 to UBound(DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs)
 				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+						If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_memb_is_deemer(each_elig_memb) = True Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_two_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_three_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_four_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_five_job_deemed_for_mfip(each_stat_memb) = True
+
+							STAT_INFORMATION(month_count).stat_busi_one_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_busi_two_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_busi_three_deemed_for_mfip(each_stat_memb) = True
+
+							STAT_INFORMATION(month_count).stat_unea_one_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_two_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_three_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_four_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_five_deemed_for_mfip(each_stat_memb) = True
+
+
+
+							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
+						' End If
+						ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_memb_is_counted(each_elig_memb) = False Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
+
+						End If
+
 					End If
+
+
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
 						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
 						the_counted_amount = ""
@@ -23546,7 +24456,7 @@ verifs_in_case_note = ""
 ' MsgBox "ineligible_approval_exists - " & ineligible_approval_exists
 If ineligible_approval_exists = True Then
 	Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-	too_old_date = DateAdd("D", -75, date)              'We don't need to read notes from before the CAF date
+	too_old_date = DateAdd("d", -75, date)              'We don't need to read notes from before the CAF date
 
 	note_row = 5
 	in_note_row = 4
@@ -23884,9 +24794,9 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_GRH = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_HC = False
-If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DWP = False
+' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DWP = False
 
-If enter_CNOTE_for_DWP = True Then testing_run = True
+' If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_DENY = True Then testing_run = True
 ' If enter_CNOTE_for_GRH = True Then testing_run = True
 ' If enter_CNOTE_for_HC = True Then testing_run = True
@@ -23902,6 +24812,7 @@ reload_btn				= 1060
 app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
+explain_why_we_are_processing_btn = 130
 
 const months_in_approval			= 0
 
@@ -23935,7 +24846,9 @@ const wcom_details_two				= 30
 const wcom_details_three			= 31
 const ref_numb_for_hc_app			= 32
 const major_prog_for_hc_app			= 33
-const approval_confirmed			= 34
+const process_for_note 				= 34
+const changes_for_note				= 35
+const approval_confirmed			= 36
 
 Dim DWP_UNIQUE_APPROVALS()
 ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -24001,6 +24914,10 @@ Do
 		If InStr(note_title, " EA ") <> 0 Then approval_note_found_for_EMER = True
 		If InStr(note_title, " EGA ") <> 0 Then approval_note_found_for_EMER = True
 		If InStr(note_title, "EMER") <> 0 Then approval_note_found_for_EMER = True
+	End If
+	If mid(note_title, 7, 25) = "Ex Parte Renewal Complete" Then
+		ex_parte_approval = False
+		complete_ex_parte_as_closed = False
 	End If
 
 	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
@@ -24320,7 +25237,7 @@ If enter_CNOTE_for_DWP = True Then
 		dialog Dialog1
 	End If
 
-	all_mfip_approvals_confirmed = False
+	all_dwp_approvals_confirmed = False
 	approval_selected = 0
 
 	Do
@@ -24399,7 +25316,7 @@ If enter_CNOTE_for_DWP = True Then
 
 			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
 				If Isdate(DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
-					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible DWP approval."
 				Else
 					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
@@ -24434,6 +25351,7 @@ If enter_CNOTE_for_DWP = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("DWP", DWP_UNIQUE_APPROVALS(process_for_note, approval_selected), DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -24487,7 +25405,7 @@ If enter_CNOTE_for_DWP = True Then
 
 	If dwp_approval_is_incorrect = True Then
 		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for DWP Approvals from " & first_DWP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
 End If
 
@@ -24887,6 +25805,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MFIP", MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected), MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -25168,6 +26087,7 @@ If enter_CNOTE_for_MSA = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MSA", MSA_UNIQUE_APPROVALS(process_for_note, approval_selected), MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -25484,6 +26404,7 @@ If enter_CNOTE_for_GA = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GA", GA_UNIQUE_APPROVALS(process_for_note, approval_selected), GA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -26175,6 +27096,7 @@ If enter_CNOTE_for_GRH = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GRH", GRH_UNIQUE_APPROVALS(process_for_note, approval_selected), GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -26245,7 +27167,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		If start_capturing_approvals = True Then
 			For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
 				If HC_ELIG_APPROVALS(approval).hc_prog_elig_appd(member) = True and HC_ELIG_APPROVALS(approval).hc_prog_elig_approved_today(member) = True Then
-					If InStr(list_of_ref_numbers_approved, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 or InStr(list_of_ref_numbers_approved, HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)) = 0 Then list_of_ref_numbers_approved = list_of_ref_numbers_approved & "~" & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "::" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					memb_prog_couple = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "::" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					If InStr(list_of_ref_numbers_approved, memb_prog_couple) = 0 Then list_of_ref_numbers_approved = list_of_ref_numbers_approved & "~" & memb_prog_couple
 				End If
 			Next
 		End If
@@ -26254,6 +27177,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	If left(list_of_ref_numbers_approved, 1) = "~" Then list_of_ref_numbers_approved = right(list_of_ref_numbers_approved, len(list_of_ref_numbers_approved)-1)
 	apprvd_ref_numbs_array = split(list_of_ref_numbers_approved, "~")
 	unique_app_count = 0
+	If trim(list_of_ref_numbers_approved) = "" Then enter_CNOTE_for_HC = False
+End If
+' MsgBox "list_of_ref_numbers_approved - " & list_of_ref_numbers_approved & vbCr & "enter_CNOTE_for_HC - " & enter_CNOTE_for_HC
+If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 
 	for each every_hc_member in apprvd_ref_numbs_array
@@ -26279,9 +27206,14 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 		For approval = 0 to UBound(HC_ELIG_APPROVALS)
 			If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_HC_approval Then start_capturing_approvals = True
+
 			' MsgBox "HC ELIG Month" & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "first_HC_approval - " & first_HC_approval & vbCr & "start_capturing_approvals - " & start_capturing_approvals
 			If start_capturing_approvals = True Then
 				For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "MA" Then MSP_approvals_only = False
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "EMA" Then MSP_approvals_only = False
+					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "IMD" Then MSP_approvals_only = False
+
 					' MsgBox "start_capturing_approvals - " & start_capturing_approvals & vbCr & "approval - " & approval & vbCr & "unique_app_count - " & unique_app_count & vbCr & "HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
 
 					' MsgBox "HC ELIG Ref Numb - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "every_hc_member - " & every_hc_member & vbCr & "member - " & member
@@ -26390,7 +27322,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	' 	MsgBox "REF NUMB - " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_approval_pkkg) & vbCr & "MAJ PRGM - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_approval_pkkg) & vbCr & "each_approval_pkkg - " & each_approval_pkkg
 	' next
 
-	all_ga_approvals_confirmed = False
+	all_hc_approvals_confirmed = False
 	approval_selected = 0
 
 	Do
@@ -26414,6 +27346,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 			Next
 
+			' MsgBox "elig_ind - " & elig_ind
 			' MsgBox "approval_selected - " & approval_selected & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
 
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
@@ -26490,6 +27423,9 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			err_msg = ""
 			move_from_dialog = False
 
+			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+
 			If err_msg = "" Then
 
 				all_hc_approvals_confirmed = True
@@ -26542,10 +27478,57 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
+	If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
+
 	If hc_approval_is_incorrect = True Then
 		enter_CNOTE_for_HC = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
+End If
+
+If ex_parte_approval = True and MSP_approvals_only = True Then
+	For approval = 0 to UBound(HC_ELIG_APPROVALS)
+		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+			If  HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" Then
+				MSP_memo_success = True		'TODO - add a way to make sure the memo was created
+				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+					temp_array = ""
+					If InStr(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~") <> 0 Then
+						temp_array = split(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~")
+					Else
+						temp_array = Array(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member))
+					End If
+				End If
+				'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-15010315'
+				Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
+
+				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following Medicare Savings Program:")
+				' Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member))
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("Your Income was verified using electronic sources.")
+				Call write_variable_in_SPEC_MEMO("Household size: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member))
+				Call write_variable_in_SPEC_MEMO("")
+				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
+					Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
+					For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
+						Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+					Next
+				Else
+					Call write_variable_in_SPEC_MEMO("No Income known that Counts for your HC Program.")
+				End If
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
+				Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
+				' MsgBox "See the MEMO?"
+				PF4 'Exits the MEMO
+			End If
+		Next
+	Next
 End If
 
 If enter_CNOTE_for_EMER = True Then
@@ -26930,7 +27913,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			' If ButtonPressed = hh_comp_detail then MsgBox "HH COMP EXPLANATION TO GO HERE"
 			If ButtonPressed = shel_exp_detail_btn then Call display_snap_shelter_expenses
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
-
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("SNAP", SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected), SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			' If ButtonPressed = app_confirmed_btn
 
@@ -27024,6 +28007,8 @@ If enter_CNOTE_for_DWP = True Then
 
 		program_detail = "- DWP"
 		header_end = ""
+		If len(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app)) = 5 Then one_month_is_elig = True
+
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
 				header_end = " - Ongoing"
@@ -27033,7 +28018,9 @@ If enter_CNOTE_for_DWP = True Then
 				header_end = " only"
 			End If
 			elig_info = "ELIGIBLE"
-			one_month_is_elig = True
+		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
+			DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE"
+			elig_info = "TIME LIMIT REACHED - Closed"
 		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "SUSPENDED" Then
 			elig_info = "SUSPENDED"
 		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
@@ -27493,6 +28480,104 @@ If enter_CNOTE_for_GRH = True Then
 	Next
 End If
 
+If complete_ex_parte_as_closed = True Then
+	If developer_mode = True Then
+		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+	Else
+		end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
+		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objUpdateConnection = CreateObject("ADODB.Connection")
+		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
+	End If
+End If
+
+If ex_parte_approval = True Then
+
+	If developer_mode = True Then
+		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+	Else
+		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+
+		'Creating objects for Access
+		Set objUpdateConnection = CreateObject("ADODB.Connection")
+		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+	End If
+
+
+	Call start_a_blank_CASE_NOTE
+
+	Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
+	Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
+	Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
+	Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
+	Call write_variable_in_CASE_NOTE("-------------------------------------------------")
+	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
+	If MSP_approvals_only = True and MSP_memo_success = True Then
+		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
+		Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
+	End If
+	' Call write_variable_in_CASE_NOTE("")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+	If developer_mode = True Then
+		MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
+		PF10
+		MsgBox "Ex Parte note Gone?"
+	End If
+	PF3
+
+	Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
+	Next_REPT_year = Next_REPT_year*1
+	Next_REPT_year = Next_REPT_year + 1
+	Next_REPT_year = Next_REPT_year & ""
+
+	Call start_a_blank_CASE_NOTE
+
+	Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
+	Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
+	Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
+	Call write_variable_in_CASE_NOTE("**************************************************************************")
+	Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
+	Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
+	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+	Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
+	Call write_variable_in_CASE_NOTE("**************************************************************************")
+	Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
+	Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
+	Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
+	Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
+	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+	Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
+	Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+	If developer_mode = True Then
+		MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
+		PF10
+		MsgBox "Standard Policy Note Gone?"
+	End If
+
+	PF3
+
+
+End If
+
 If enter_CNOTE_for_HC = True Then
 	For unique_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
 		first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
@@ -27739,7 +28824,7 @@ If denials_found_on_pnd2 = True Then
 			If progs_denied_for_intv <> "" Then
 
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-				day_before_app = DateAdd("d", -1,pnd2_appl_date) 'will set the date one day prior to app date'
+				day_before_app = DateAdd("d", -1, pnd2_appl_date) 'will set the date one day prior to app date'
 
 				note_row = 5            'resetting the variables on the loop
 				note_date = ""
@@ -27833,7 +28918,7 @@ If denials_found_on_pnd2 = True Then
 			If progs_denied_for_intv <> "" Then
 
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-				day_before_app = DateAdd("d", -1,pnd2_2nd_appl_date) 'will set the date one day prior to app date'
+				day_before_app = DateAdd("d", -1, pnd2_2nd_appl_date) 'will set the date one day prior to app date'
 
 				note_row = 5            'resetting the variables on the loop
 				note_date = ""
@@ -28052,7 +29137,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 		If developer_mode = True Then
 			MsgBox "ER NOTE REVIEW"			'TESTING OPTION'
 			PF10
-			MsgBox "SNAP Gone?"
+			MsgBox "ER Note Gone?"
 		End If
 	End If
 
@@ -28084,12 +29169,15 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 		Call write_variable_in_CASE_NOTE(worker_signature)
 
 		If developer_mode = True Then
-			MsgBox "ER NOTE REVIEW"			'TESTING OPTION'
+			MsgBox "SR NOTE REVIEW"			'TESTING OPTION'
 			PF10
-			MsgBox "SNAP Gone?"
+			MsgBox "SR NOTE Gone?"
 		End If
 	End If
+
 Next
+
+
 
 
 ' "- 04/22 . . . Entitlement:    $ "250
@@ -28127,10 +29215,10 @@ If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Active 
 If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pending programs: " & list_pending_programs
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
-end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "Given testing status information from the following programs will NOT work in this script yet:"
+end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "All programs are currently functioning, but we are eager to hear any feedback of the script operation."
 ' end_msg_info = end_msg_info & vbCr & " - ELIG/GRH"
 ' end_msg_info = end_msg_info & vbCr & " - ELIG/HC"
-end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
+' end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
 end_msg_info = end_msg_info & vbCr & "Stay tuned! More functionality is in development."
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("01/12/2023", "BUG FIX to handle for New Jobs that started prior to the initial application for the case. The script would get stuck trying to go too far in the past. The script will now initially try to update only starting in the application month.", "Casey Love, Hennepin County")
 call changelog_update("05/28/2020", "Added virtual drop box information to SPEC/MEMO.", "MiKayla Handley, Hennepin County")
 call changelog_update("04/24/2020", "Initial version.", "Casey Love, Hennepin County")
@@ -1294,8 +1295,8 @@ Else            'If we are in developer mode, we will go here to allow for some 
             email_body = email_body & vbCr
             email_body = email_body & worker_signature & vbCr
         End If
+        Call create_outlook_email("", all_email_recipients, "", "", "Job Change Reported for MX Case", 1, False, "", "", False, "", email_body, False, "", True)
 
-        Call create_outlook_email(all_email_recipients, "", "Job Change Reported for MX Case", email_body, "", TRUE)
     End If
 End If
 If refused_empl_yn = "?" Then refused_empl_yn = "N/A"

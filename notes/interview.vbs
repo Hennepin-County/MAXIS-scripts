@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Created button to link to the interpreter service request.", "Casey Love, Hennepin County")
 call changelog_update("10/17/2022", "Update messaging on Agency Signature on Application Forms. Hennepin County does not require an Agency Signature on any application form. ##~## ##~##See the HSR Manual for more Information - on the Applications Page. ##~##", "Casey Love, Hennepin County")
@@ -3506,18 +3507,6 @@ function guide_through_app_month_income()
 
 end function
 
-Function HCRE_panel_bypass()
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
     phone_variable = trim(phone_variable)
@@ -3560,23 +3549,23 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
-	With objFSO
+	With (CreateObject("Scripting.FileSystemObject"))
 
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
-		If .FileExists(local_changelog_path) = True then
-			.DeleteFile(local_changelog_path)
+		If .FileExists(save_your_work_path) = True then
+			.DeleteFile(save_your_work_path)
 		End If
 
 		'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
 
-		If .FileExists(local_changelog_path) = False then
+		If .FileExists(save_your_work_path) = False then
 			'Setting the object to open the text file for appending the new data
-			Set objTextStream = .OpenTextFile(local_changelog_path, ForWriting, true)
+			Set objTextStream = .OpenTextFile(save_your_work_path, ForWriting, true)
 
 			'Write the contents of the text file
 			If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
@@ -4646,20 +4635,20 @@ function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
-	local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
-	With objFSO
+	With (CreateObject("Scripting.FileSystemObject"))
 
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
-		If .FileExists(local_changelog_path) = True then
+		If .FileExists(save_your_work_path) = True then
 
 			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
 
 			If pull_variables = vbYes Then
 				'Setting the object to open the text file for reading the data already in the file
-				Set objTextStream = .OpenTextFile(local_changelog_path, ForReading)
+				Set objTextStream = .OpenTextFile(save_your_work_path, ForReading)
 
 				'Reading the entire text file into a string
 				every_line_in_text_file = objTextStream.ReadAll
@@ -8498,9 +8487,9 @@ function send_support_email_to_KN()
 	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
 	email_body = "~~This email is generated from wihtin the 'Expedited Determination' Script.~~" & vbCr & vbCr & email_body
-	call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)
-	' call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)
-	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+	'Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", False)
+	'create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 end function
 '---------------------------------------------------------------------------------------------------------------------------
 
@@ -8520,6 +8509,7 @@ const jobs_notes 					= 8
 Const end_of_doc = 6			'This is for word document ennumeration
 
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
+' worker_name = user_ID_for_validation
 Dim TABLE_ARRAY
 Dim ALL_CLIENTS_ARRAY
 Dim JOBS_ARRAY
@@ -8611,6 +8601,9 @@ id_droplist_info = id_droplist_info+chr(9)+"Found in SOLQ/SMI"
 id_droplist_info = id_droplist_info+chr(9)+"Requested"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
+
+Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
@@ -9167,22 +9160,24 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
 	intvw_msg_file = user_myDocs_folder & "interview message.txt"
 
-	If objFSO.FileExists(intvw_msg_file) = False then
-		Set objTextStream = objFSO.OpenTextFile(intvw_msg_file, 2, true)
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(intvw_msg_file) = False then
+			Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
 
-		'Write the contents of the text file
-		objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
-		objTextStream.WriteLine ""
-		objTextStream.WriteLine "- We are going to complete your required interview now."
-		objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
-		objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
-		objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
-		objTextStream.WriteLine ""
-		objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
-		objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
+			'Write the contents of the text file
+			objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "- We are going to complete your required interview now."
+			objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
+			objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
+			objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
+			objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
 
-		objTextStream.Close
-	End If
+			objTextStream.Close
+		End If
+	End With
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
@@ -9203,6 +9198,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 		End If
 		If client_array <> "" Then client_array = client_array & "|" & ref_nbr
 		If client_array = "" Then client_array = client_array & ref_nbr
@@ -9230,6 +9226,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			HH_MEMB_ARRAY(last_name_const, clt_count) = "UNABLE TO FIND"
 			HH_MEMB_ARRAY(first_name_const, clt_count) = "Access Denied"
 			HH_MEMB_ARRAY(mid_initial, clt_count) = ""
@@ -11497,28 +11494,30 @@ interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
 
 intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
-If objFSO.FileExists(intvw_done_msg_file) = True then objFSO.DeleteFile(intvw_done_msg_file)
+With (CreateObject("Scripting.FileSystemObject"))
+	If .FileExists(intvw_done_msg_file) = True then .DeleteFile(intvw_done_msg_file)
 
-If objFSO.FileExists(intvw_done_msg_file) = False then
-	Set objTextStream = objFSO.OpenTextFile(intvw_done_msg_file, 2, true)
+	If .FileExists(intvw_done_msg_file) = False then
+		Set objTextStream = .OpenTextFile(intvw_done_msg_file, 2, true)
 
-	'Write the contents of the text file
-	objTextStream.WriteLine "This interview has been COMPLETED!"
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "The interview took " & interview_time & " minutes."
-	objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
-	objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "This is a great time to talk to the resident about: "
-	objTextStream.WriteLine "  - The interview is complete."
-	objTextStream.WriteLine "  - Advise of Next Steps."
-	objTextStream.WriteLine "  - Ask if the resident has any final questions."
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "(This message will close once the script actions are finished.)"
+		'Write the contents of the text file
+		objTextStream.WriteLine "This interview has been COMPLETED!"
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "The interview took " & interview_time & " minutes."
+		objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
+		objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "This is a great time to talk to the resident about: "
+		objTextStream.WriteLine "  - The interview is complete."
+		objTextStream.WriteLine "  - Advise of Next Steps."
+		objTextStream.WriteLine "  - Ask if the resident has any final questions."
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "(This message will close once the script actions are finished.)"
 
-	objTextStream.Close
-End If
+		objTextStream.Close
+	End If
+End With
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 
 
@@ -12988,7 +12987,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 
 	CALL write_variable_in_SPEC_MEMO("You have completed your interview on " & interview_date)
-	CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submiteed.")
+	CALL write_variable_in_SPEC_MEMO("This is for the " & CAF_form_name & " you submitted.")
 	' Call write_variable_in_SPEC_MEMO("THERE ARE VERIFS")
 	Call write_variable_in_SPEC_MEMO("In the interview, we reviewed a number of forms:")
 	Call write_variable_in_SPEC_MEMO("  -Client Rights and Responsibilities (DHS 4163)")
@@ -13123,7 +13122,8 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 			exp_info_file_path = t_drive &"\Eligibility Support\Assignments\Expedited Information\"  & txt_file_name
 			' MsgBox exp_info_file_path
 
-			With objFSO
+			With (CreateObject("Scripting.FileSystemObject"))
+
 				'Creating an object for the stream of text which we'll use frequently
 				Dim objTextStream
 
@@ -13519,13 +13519,16 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
 	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
-        If objFSO.FileExists(pdf_doc_path) = TRUE Then
-    		run_path = chr(34) & pdf_doc_path & chr(34)
-    		wshshell.Run run_path
-    		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
-        Else
-            end_msg = end_msg & vbCr & vbCr & "The script could not open the PDF document because the file could not be found." & vbCr & "This may be because the file is already being worked on by ES Support Team, or there could be a slight network connection slowdown. If you still need the PDF opened, you can try UTILITIES - Open Interview PDF to attempt to open the file, or check ECF to see if the document has already been added."
-        End If
+		With (CreateObject("Scripting.FileSystemObject"))
+
+			If .FileExists(pdf_doc_path) = TRUE Then
+				run_path = chr(34) & pdf_doc_path & chr(34)
+				wshshell.Run run_path
+				end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
+			Else
+				end_msg = end_msg & vbCr & vbCr & "The script could not open the PDF document because the file could not be found." & vbCr & "This may be because the file is already being worked on by ES Support Team, or there could be a slight network connection slowdown. If you still need the PDF opened, you can try UTILITIES - Open Interview PDF to attempt to open the file, or check ECF to see if the document has already been added."
+			End If
+		End With
 	End If
 Else
 	o2Exec.Terminate()
@@ -13534,7 +13537,9 @@ End If
 
 end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
-objFSO.DeleteFile(intvw_done_msg_file)
+With (CreateObject("Scripting.FileSystemObject"))
+	.DeleteFile(intvw_done_msg_file)
+End With
 
 revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
 If unknown_cash_pending = True Then revw_pending_table = True                   'case should be pending cash or snap and NOT have SNAP active
@@ -13548,7 +13553,7 @@ If snap_status = "ACTIVE" Then revw_pending_table = False
 
 'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
 If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
-
+	MAXIS_case_number = trim(MAXIS_case_number)
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
     If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry

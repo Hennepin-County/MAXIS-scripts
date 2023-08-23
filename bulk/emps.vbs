@@ -70,14 +70,14 @@ EndDialog
 Do
 	Do
 		err_msg = ""
-		Dialog Dialog1 
+		Dialog Dialog1
 		Cancel_without_confirmation
-		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""					
-		If (all_workers_check = 1 AND trim(worker_number) <> "") then err_msg = err_msg & vbNewLine & "* Please enter x numbers OR the county-wide query." 			
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine										
+		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbNewLine & "* Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
+		If (all_workers_check = 1 AND trim(worker_number) <> "") then err_msg = err_msg & vbNewLine & "* Please enter x numbers OR the county-wide query."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
   	LOOP until err_msg = ""
-	Call check_for_password(are_we_passworded_out)
-Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -98,7 +98,7 @@ ObjExcel.Cells(1, 4).Value = "REF #"
 ObjExcel.Cells(1, 5).Value = "Fin Orient Date"
 ObjExcel.Cells(1, 6).Value = "Attended (Y/N)"
 objExcel.cells(1, 7).Value = "Good Cause"
-objExcel.cells(1, 8).Value = "Fin Orient Sanc Dt" 
+objExcel.cells(1, 8).Value = "Fin Orient Sanc Dt"
 objExcel.cells(1, 9).Value = "Fin Orient Sanc Dt"
 objExcel.cells(1, 10).Value = "Special Med Criteria"
 objExcel.cells(1, 11).Value = "Ill/Incap Family Mbr"
@@ -122,7 +122,7 @@ FOR i = 1 to 26		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 	'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
-	
+
 NEXT
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
@@ -162,11 +162,11 @@ For each worker in worker_array
 				                'if more than one HH member is on the list then non-MEMB 01's don't have a case number listed, this fixes that
 				If trim(MAXIS_case_number) = "" AND trim(client_name) <> "" then 			'if there's a name and no case number
 					EMReadScreen alt_case_number, 8, MAXIS_row - 1, 6				'then it reads the row above
-                    MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'    
+                    MAXIS_case_number = alt_case_number									'restablishes that in this instance, alt case number = case number'
                 END IF
-                
+
                 If trim(MAXIS_case_number) = "" and trim(client_name) = "" then exit do			'Exits do if we reach the end
-				
+
 				'add case/case information to Excel
         		ObjExcel.Cells(excel_row, 1).Value = worker
         		ObjExcel.Cells(excel_row, 2).Value = trim(MAXIS_case_number)
@@ -190,15 +190,15 @@ Do
 	client_name = trim(client_name)
 	If MAXIS_case_number = "" then exit do						'exits do if the case number is ""
 	Call navigate_to_MAXIS_screen("REPT", "MFCM")
-	
+
 	EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
 	If PRIV_check = "PRIV" then
 		priv_case_list = priv_case_list & "|" & MAXIS_case_number
 		SET objRange = objExcel.Cells(excel_row, 1).EntireRow
-		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script 
-		IF excel_row = 3 then 
+		objRange.Delete				'row gets deleted since it will get added to the priv case list at end of script
+		IF excel_row = 3 then
 			excel_row = excel_row
-		Else 
+		Else
 			excel_row = excel_row - 1
 		End if
 		'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
@@ -209,45 +209,45 @@ Do
 		LOOP until SELF_screen_check = "SELF"
 		EMWriteScreen "________", 18, 43		'clears the case number
 		transmit
-	Else 
+	Else
         EMReadScreen case_content, 7, 8, 7
-	    If trim(case_content) = "" then 
-	       	'making sure we are getting the right person for cases where there are more than one case. 
+	    If trim(case_content) = "" then
+	       	'making sure we are getting the right person for cases where there are more than one case.
         	row = 7
-        	Do 
+        	Do
             	EMReadScreen case_name, 18, row, 16
 	    		'msgbox case_name & vbcr & row
 	       		case_name = trim(case_name)
             	If case_name <> client_name then row = row + 1
-        	LOOP until case_name = client_name  	
+        	LOOP until case_name = client_name
 	    	EMWriteScreen "x", row, 50
 	    Else
 	    	EMWriteScreen "x", 7, 50
-	    End if 
-	    	
+	    End if
+
 	    transmit
-	    
-	    Do 
+
+	    Do
 	    	EMReadScreen EMPS_screen, 4, 2, 50
 	    	If EMPS_screen <> "EMPS" then Transmit
 	    Loop until EMPS_screen = "EMPS"
-	    
+
 	    EMReadScreen memb_number, 2, 4, 33
-	      
-	    'Attended Financial orientation code	
+
+	    'Attended Financial orientation code
 	    EMReadScreen attended_orient, 1, 5, 65
 	    If attended_orient = "_" then attended_orient = ""
 	    'msgbox attended_orient
-	    
+
 	    'Financial orientation date
 	    EMReadScreen orient_date, 8, 5, 39
-	    If orient_date = "__ __ __" then 
-	    	orient_date = "" 
-	    Else 
+	    If orient_date = "__ __ __" then
+	    	orient_date = ""
+	    Else
 	    	orient_date = replace(orient_date, " ", "/")
-	    End if 
+	    End if
 	    'msgbox orient_date
-	    
+
 	    'Good cause (EMPS_info variable)
 	    EMReadScreen EMPS_good_cause, 2, 5, 79
 	    IF 	EMPS_good_cause <> "__" then
@@ -265,29 +265,29 @@ Do
 	    	If EMPS_good_cause = "21" then EMPS_good_cause = "21-Exempt--2nd Caregiver Employed 20+ Hours"
 	    	If EMPS_good_cause = "22" then EMPS_good_cause = "22-Exempt--Preg/Parenting Caregiver < Age 20"
 	    	If EMPS_good_cause = "23" then EMPS_good_cause = "23-Exempt--Special Medical Criteria"
-	    ELSE 
+	    ELSE
 	    	EMPS_good_cause = replace(EMPS_good_cause, "__", "")
 	    END IF
 	    'msgbox EMPS_good_cause
 
 	    'sanction dates (EMPS_info variable)
 	    EMReadScreen EMPS_sanc_begin_date, 8, 18, 51
-        If EMPS_sanc_begin_date = "__ 01 __" then 
-	    	EMPS_sanc_begin_date = "" 
-	    Else 
+        If EMPS_sanc_begin_date = "__ 01 __" then
+	    	EMPS_sanc_begin_date = ""
+	    Else
 	    	EMPS_sanc_begin_date = replace(EMPS_sanc_begin_date, " ", "/")
 	    End if
 	    'msgbox EMPS_sanc_begin_date
-	    
-	    'sanction end date 
+
+	    'sanction end date
 	    EMReadScreen EMPS_sanc_end_date, 8, 18, 70
-        If EMPS_sanc_end_date = "__ 01 __" then 
+        If EMPS_sanc_end_date = "__ 01 __" then
 	    	EMPS_sanc_end_date = ""
-	    Else 
+	    Else
 	    	EMPS_sanc_end_date = replace(EMPS_sanc_end_date, " ", "/")
-	    End if 
+	    End if
 	    'msgbox EMPS_sanc_end_date
-	    
+
 	    'other sanction dates (ES_exemptions variable)--------------------------------------------------------------------------------
 	    'special medical criteria
 	    EMReadScreen EMPS_memb_at_home, 1, 8, 76
@@ -296,10 +296,10 @@ Do
 	    	IF EMPS_memb_at_home = "2" then EMPS_memb_at_home = "Child w/ severe emotional dist"
 	    	IF EMPS_memb_at_home = "3" then EMPS_memb_at_home = "Adult/Serious Persistent MI"
 	    END IF
-	    
+
 	    EMReadScreen EMPS_care_family, 1, 9, 76
 	    EMReadScreen EMPS_crisis, 1, 10, 76
-	    
+
 	    'hard to employ
 	    EMReadScreen EMPS_hard_employ, 2, 11, 76
 	    IF EMPS_hard_employ <> "NO" then
@@ -309,7 +309,7 @@ Do
 	    	IF EMPS_hard_employ = "DD" then EMPS_hard_employ = "Dev Disabled"
 	    	IF EMPS_hard_employ = "UN" then EMPS_hard_employ = "Unemployable"
 	    END IF
-	    
+
 	    'EMPS under 1 coding and dates used(ES_exemptions variable)
 	    EMReadScreen EMPS_under1, 1, 12, 76
 	    IF EMPS_under1 = "Y" then
@@ -333,57 +333,57 @@ Do
 	      	If right(child_under1_dates,  2) = ", " then child_under1_dates = left(child_under1_dates, len(child_under1_dates) - 2)
 	      	If trim(child_under1_dates) = "" then child_under1_dates = " N/A"
 	    END IF
-	      
+
 	    'Reading ES Information (for ES_info variable)
 	    EMReadScreen ES_status, 40, 15, 40
 	    ES_status = trim(ES_status)
-	    
+
 	    EMReadScreen ES_referral_date, 8, 16, 40
-	    If ES_referral_date = "__ __ __" then 
+	    If ES_referral_date = "__ __ __" then
 	    	ES_referral_date = ""
-	    Else 
+	    Else
 	    	ES_referral_date = replace(ES_referral_date, " ", "/")
-	    End if 
-	    
+	    End if
+
 	    EMReadScreen DWP_plan_date, 8, 17, 40
-	    If DWP_plan_date = "__ __ __" then 
+	    If DWP_plan_date = "__ __ __" then
 	    	DWP_plan_date = ""
-	    Else 
+	    Else
 	    	DWP_plan_date = replace(DWP_plan_date, " ", "/")
-	    End if 
-	    
+	    End if
+
 	    EMReadScreen minor_ES_option, 2, 16, 76
 	    IF minor_ES_option <> "__" then
 	    		IF minor_ES_option = "SC" then minor_ES_option = "Secondary Education"
 	    		IF minor_ES_option = "EM" then minor_ES_option = "Employment"
-	    ELSE 
+	    ELSE
 	    		IF minor_ES_option = "__" then minor_ES_option = ""
 	    END if
-	    
+
 	    EMReadScreen Tribal_Code, 2, 19, 70
-	    If Tribal_Code = "__" then 
+	    If Tribal_Code = "__" then
 	    	Tribal_Code = ""
-	    Else 
+	    Else
 	    	Tribal_Code = replace(Tribal_Code, " ", "/")
-	    End if 
+	    End if
 	    'reading for Provider'
-	    Do 
+	    Do
 	    	EMWriteScreen "x", 19, 25
-	    	Transmit 	
+	    	Transmit
 	    	EMReadScreen OT_screen, 5, 4, 30
 	    	If OT_screen = "Other" then exit do
 	    Loop until OT_screen = "Other"
-	    
-	    EMReadScreen Other_Prov_Info, 35, 6, 37 
+
+	    EMReadScreen Other_Prov_Info, 35, 6, 37
 	    Other_Prov_Info = replace(Other_Prov_Info, "_", "")
 	    If trim(Other_Prov_Info) = ""  then Other_Prov_Info = ""
-	    PF3 
-	    
-	    ObjExcel.Cells(excel_row, 4).Value = trim(memb_number)		
+	    PF3
+
+	    ObjExcel.Cells(excel_row, 4).Value = trim(memb_number)
 	    ObjExcel.Cells(excel_row, 5).Value = trim(orient_date)
 	    ObjExcel.Cells(excel_row, 6).Value = trim(attended_orient)
 	    objExcel.cells(excel_row, 7).Value = trim(EMPS_good_cause)
-	    objExcel.cells(excel_row, 8).Value = trim(EMPS_sanc_begin_date) 
+	    objExcel.cells(excel_row, 8).Value = trim(EMPS_sanc_begin_date)
 	    objExcel.cells(excel_row, 9).Value = trim(EMPS_sanc_end)
 	    objExcel.cells(excel_row, 10).Value = trim(EMPS_memb_at_home)
 	    objExcel.cells(excel_row, 11).Value = trim(EMPS_care_family)
@@ -402,24 +402,24 @@ Do
 	    objExcel.cells(excel_row, 24).Value = trim(Sanc_End_Date)
 	    objExcel.cells(excel_row, 25).Value = trim(Other_Prov_Info)
 	    objExcel.cells(excel_row, 26).Value = trim(Tribal_Code)
-	    
+
 	    excel_row = excel_row + 1
 	    STATS_counter = STATS_counter + 1
-	End if 
+	End if
 LOOP UNTIL objExcel.Cells(excel_row, 1).Value = ""	'Loops until there are no more cases in the Excel list
 
-IF priv_case_list <> "" then 
+IF priv_case_list <> "" then
 	'Creating the list of privileged cases and adding to the spreadsheet
 	excel_row = 2				'establishes the row to start writing the PRIV cases to
 	objExcel.cells(1, 27).Value = "PRIV cases"
-	
+
 	prived_case_array = split(priv_case_list, "|")
-	
+
 	FOR EACH MAXIS_case_number in prived_case_array
-		If trim(MAXIS_case_number) <> "" then 
+		If trim(MAXIS_case_number) <> "" then
 			objExcel.cells(excel_row, 8).value = MAXIS_case_number		'inputs cases into Excel
 			excel_row = excel_row + 1								'increases the row
-		End if 
+		End if
 	NEXT
 End if
 

@@ -40,6 +40,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/16/2023", "NOTES - ABAWD TRACKING RECORD is back! NOTES - ABAWD WAIVED APPROVAL is now retired.", "Ilse Ferris, Hennepin County")
+call changelog_update("05/11/2023", "Retired the scripts:##~## NOTES - HCAPP##~## NOTES - IMIG - EMA##~## NOTES - LTC - Application Received##~## ##~## The functionality of this script is supported by NOTES - Health Care Evaluation.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Retired HC Renewal and LTC-Rennewal scripts. These scripts will be enhanced prior to renewals starting again. Health Care renewals remain paused during the PHE.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/09/2022", "****** NEW SCRIPT ******##~####~##NOTES - MFIP Orientation is now available.##~## ##~##The same functionality you find in NOTES - Interview can also be accessed in a stand-alone script. This functionality is also available through the DAIL Scrubber.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/01/2021", "The script NOTES - Interview Completed has been retired as the interview process is now supported with the script NOTES - Interview.##~##", "Casey Love, Hennepin County")
@@ -106,13 +108,11 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "C" Then script_array(current_script).show_script = TRUE
 				show_0_c_btn = False
             ElseIf ButtonPressed = menu_D_to_F_button Then
-                If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "D" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "E" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "F" Then script_array(current_script).show_script = TRUE
 				show_d_f_btn = False
             ElseIf ButtonPressed = menu_G_to_L_button Then
-                If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "G" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "H" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "I" Then script_array(current_script).show_script = TRUE
@@ -123,7 +123,6 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = FALSE
 				show_g_l_btn = False
             ElseIf ButtonPressed = menu_M_to_Q_button Then
-                If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "M" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "N" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "O" Then script_array(current_script).show_script = TRUE
@@ -131,7 +130,6 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "Q" Then script_array(current_script).show_script = TRUE
 				show_m_q_btn = False
             ElseIf ButtonPressed = menu_R_to_Z_button Then
-                If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "R" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "S" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "T" Then script_array(current_script).show_script = TRUE
@@ -154,7 +152,7 @@ Function declare_main_menu_dialog(script_category)
     next
 	If ButtonPressed = menu_imig_button Then dlg_len = dlg_len + 10
 
-	BeginDialog dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
+	BeginDialog Dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 		EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
 	  	ButtonGroup ButtonPressed
@@ -256,7 +254,7 @@ subcategory_selected = "# - D"
 
 'Displays the dialog
 ' dialog1 = 1
-dialog1 = ""
+Dialog1 = ""
 ButtonPressed = menu_0_to_c_button
 Do
     last_button = ButtonPressed
@@ -269,7 +267,7 @@ Do
 	ready_to_exit_loop = false
 
 	'Displays dialog, if cancel is pressed then stopscript
-	dialog
+	dialog Dialog1
 	If ButtonPressed = 0 then stopscript
 
 	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions

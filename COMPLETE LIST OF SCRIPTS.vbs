@@ -63,6 +63,7 @@ class script_bowie
 									'ONESOURCE Section_Name URL
 									'EPM Section_Name URL
 									'BULLETIN Section_Name URL
+	public specialty_redirect
     ' public stats_denomination_type
     ' public stats_manual_time_listed
     ' public stats_increments
@@ -84,19 +85,27 @@ class script_bowie
             header = left(script_name, header_len)
             name_to_use = right(script_name, len(script_name) - (header_len+3))
         End If
+
+		url_category = category
+		If url_category = "CA" Then url_category = "case-assignment"
+		If url_category = "MHC" Then url_category = "managed-care"
 		If run_locally = true then
 			script_repository = "C:\MAXIS-Scripts\"
             If header_exists = TRUE Then
-                script_URL = script_repository & lcase(category) & "\" & lcase(header) & "-" & lcase(replace(name_to_use, " ", "-") & ".vbs")
+                script_URL = script_repository & lcase(url_category) & "\" & lcase(header) & "-" & lcase(replace(name_to_use, " ", "-") & ".vbs")
             Else
-			    script_URL = script_repository & lcase(category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
+			    script_URL = script_repository & lcase(url_category) & "\" & lcase(replace(script_name, " ", "-") & ".vbs")
             End If
 		Else
-        	If script_repository = "" then script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
+        	If script_repository = "" then
+				script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"    'Assumes we're scriptwriters
+				IF on_the_desert_island = TRUE Then script_repository = desert_island_respository
+			End If
+
             If header_exists = TRUE Then
-                script_URL = script_repository & lcase(category) & "/" & lcase(header) & "-" & replace(lcase(name_to_use) & ".vbs", " ", "-")
+                script_URL = script_repository & lcase(url_category) & "/" & lcase(header) & "-" & replace(lcase(name_to_use) & ".vbs", " ", "-")
             Else
-                script_URL = script_repository & lcase(category) & "/" & replace(lcase(script_name) & ".vbs", " ", "-")
+                script_URL = script_repository & lcase(url_category) & "/" & replace(lcase(script_name) & ".vbs", " ", "-")
             End If
 		End if
     end property
@@ -111,6 +120,10 @@ class script_bowie
 			SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx"
 		ElseIf left(script_name, 4) = "REPT" OR script_name = "DAIL Report" OR script_name = "EMPS" OR script_name = "LTC-GRH List Generator" Then
 			SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/BULK/BULK%20-%20REPT%20LISTS.docx"
+		ElseIf category = "CA" Then
+            SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/CASE%20ASSIGNMENT/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
+		ElseIf category = "MHC" Then
+            SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/MMIS/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
 		Else
             SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/" & UCase(category) & "/" & UCase(category) & "%20-%20" & replace(ucase(script_name) & ".docx", " ", "%20")
         End If
@@ -235,6 +248,7 @@ class script_bowie
 		If script_name = "Delete DAIL Tasks" Then description = description & " --- USE WITH CAUTION! Deletes info from SQL Database."
 		If script_name = "Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
 		If script_name = "Search CASE NOTE" Then description = description & " --- Searches all CASE:NOTEs for a particular case for word(s) or a phrase."
+		If script_name = "Hot Topics" Then description = description & " --- Displays a list of BlueZone Script related Hot Topics with links to the articles and related scripts."
 	end property
 
     public sub show_button(see_the_button)
@@ -348,6 +362,35 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).keywords               = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_date 		= #04/19/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Maxis-IEVS-DAIL-Messages-Changes.aspx"
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "2 PM Return"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/20/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "311"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/20/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -394,7 +437,8 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #09/25/2017#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -425,8 +469,9 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("ABAWD")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).retirement_date		= #01/12/2023#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).retirement_date		= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -473,8 +518,9 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
-script_array(script_num).retirement_date		= #01/12/2023#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).retirement_date		= ""
+script_array(script_num).hot_topic_date         = #06/20/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/TLRs.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -490,6 +536,49 @@ script_array(script_num).tags                   = array("ABAWD", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
+script_array(script_num).retirement_date		= #06/19/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Accounting Refund"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Utility", "Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/20/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "ACF Request Pend"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/20/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "ACF Used"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/20/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -520,6 +609,34 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Sw")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/27/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ADH Info and Hearing"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Oe")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/07/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Adoption Assistance"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -565,8 +682,10 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Oa", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #12/12/2016#
-script_array(script_num).hot_topic_date			= #1/19/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/NOTES-%E2%80%93-APPLICATION-CHECK-enhancement.aspx"
+' script_array(script_num).hot_topic_date			= #04/18/2023#
+' script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/power-pad-and-health-care-script-updates.aspx"
+script_array(script_num).hot_topic_date			= #11/15/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Notes-%e2%80%93-Application-Check-Updated-to-Support-Day-30-Processing.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -599,6 +718,7 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -630,6 +750,20 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ATR Received"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/07/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
@@ -656,7 +790,8 @@ script_array(script_num).tags                   = array("Application", "Health C
 script_array(script_num).dlg_keys               = array("Cn", "Tk", "Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/27/2021#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date			= #07/06/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Script--NOTES---AVS.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("SHAREPOINT AVS https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/AVS.aspx", "ONESOURCE Account_Validation_Service_(AVS) https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=onesource-17031", "EPM 2.3.1.2_MA-ABD_Account_Validation_Service_(AVS) http://hcopub.dhs.state.mn.us/epm/2_3_1_2.htm?rhhlterm=avs&rhsearch=avs")
 
@@ -748,6 +883,20 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "BULK Match Cleared"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Ex")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #03/20/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Burial Assets"
 ' script_array(script_num).description 			= "Template for burial assets."
 script_array(script_num).category               = "NOTES"
@@ -756,6 +905,20 @@ script_array(script_num).tags                   = array("Application", "Assets",
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Bus Ticket Issued"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #08/01/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -771,8 +934,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_date			= #12/13/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/CAF-Script-No-Longer-Supports-Interview-Details.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -832,6 +995,20 @@ script_array(script_num).tags                   = array("Reports", "Utility", "D
 script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn", "Sm")
 script_array(script_num).subcategory            = array("BULK ACTIONS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "CES Screening Appt"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/23/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -937,6 +1114,20 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("TE CASE_NOTE_I_INTRO_HH_COMP 02.08.093", "SHAREPOINT CASE_NOTE_GUIDELINES_AND_FORMAT https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Casenote_Guidelines_and_Format.aspx")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Client Sheltered By Window A"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/23/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -1269,6 +1460,35 @@ script_array(script_num).tags                   = array("Support", "Utility", "S
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("TOOL", "MAXIS")
 script_array(script_num).release_date           = #11/17/2020#
+script_array(script_num).hot_topic_date			= #12/06/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Script-%e2%80%93-Display-Benefits.aspx"
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Diversion Program Referral"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Diversion Program Referral Results"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -1334,6 +1554,34 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "EA Approved"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "EMER")
+script_array(script_num).dlg_keys               = array("Cn", "Sm")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "EA Extension"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -1385,14 +1633,27 @@ Set script_array(script_num) = new script_bowie	'Set this array element to be a 
 script_array(script_num).script_name 			= "Eligibility Summary"																		'Script name
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
-' script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "Reviews", "SNAP")
-script_array(script_num).tags                   = array("Application", "Communication", "Reviews", "SNAP", "MFIP")
+script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/26/2022#
-script_array(script_num).hot_topic_date 		= #07/26/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Script-NOTES-%E2%80%93-Eligibility-Summary.aspx"
+script_array(script_num).hot_topic_date 		= #08/23/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES---Eligibility-Summary-(BlueZone-Script)-Programs-Added.aspx"
 script_array(script_num).used_for_elig			= True
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Elig Review"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
@@ -1459,6 +1720,49 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Enrollment"
+script_array(script_num).category               = "MHC"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Up")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #04/02/2019#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Enrollment Note"
+script_array(script_num).category               = "MHC"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Health Care")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #04/28/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)   'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name 			= "Ex Parte Report"											'Script name
+' script_array(script_num).description 			= "BULK script that gathers reivew (ER, SR, etc.) cases and information."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex", "Ev", "Cn", "Up")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #05/25/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Expedited Determination"
 ' script_array(script_num).description 			= "Template for noting detail about how expedited was determined for a case."
 script_array(script_num).category               = "NOTES"
@@ -1468,7 +1772,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Scripts-Available-September-1-for-Interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1721,21 +2025,6 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Health Care Budget Report"
-' script_array(script_num).description 			= "Pulls a list of active SNAP/MFIP cases with identified info into an Excel spreadsheet."
-script_array(script_num).category               = "BULK"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Reports", "Health Care")
-script_array(script_num).dlg_keys               = array("Ex", "Ev")
-script_array(script_num).subcategory            = array("ENHANCED LISTS")
-script_array(script_num).release_date           = #01/31/2023#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "HC Renewal"
 ' script_array(script_num).description 			= "Template for HC renewals.*"
 script_array(script_num).category               = "NOTES"
@@ -1760,7 +2049,38 @@ script_array(script_num).tags                   = array("Assets", "Application",
 script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #05/11/2023#
 script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Budget Report"
+' script_array(script_num).description 			= "Pulls a list of active SNAP/MFIP cases with identified info into an Excel spreadsheet."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Reports", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex", "Ev")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
+script_array(script_num).release_date           = #01/31/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Evaluation"
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Assets", "Application", "Deductions", "Health Care", "Income")
+script_array(script_num).dlg_keys               = array("Cn", "Tk")
+script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #4/10/2023#
+script_array(script_num).hot_topic_date         = #04/18/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/A-New-Script-Experience-for-Health-Care.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1795,6 +2115,35 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Homelessness Verified"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Hot Topics"
+' script_array(script_num).description 			= "Update STAT/MEDI with MBI number from RMCR in MMIS."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation", "Utility")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("POLICY")
+script_array(script_num).release_date           = #05/08/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -1821,6 +2170,7 @@ script_array(script_num).tags                   = array("Application", "Assets",
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("IMIG")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #05/11/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -1941,8 +2291,8 @@ script_array(script_num).tags                   = array("Communication", "Applic
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/01/2021#								'Testing - #07/01/2021#
-script_array(script_num).hot_topic_date         = #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_date         = #03/29/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES-%e2%80%93-Interview-Script-Updates.aspx"
 script_array(script_num).retirement_date        = ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -1975,6 +2325,20 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date        = #05/12/2020#					'script removed during the COVID-19 PEACETIME STATE OF EMERGENCY
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "IV-E"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2052,6 +2416,7 @@ script_array(script_num).tags                   = array("Application", "Assets",
 script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #05/11/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2160,7 +2525,7 @@ script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("EPM Lookback_Period_and_Transfer_Date http://hcopub.dhs.state.mn.us/epm/2_4_1_3_1.htm?rhhlterm=baseline%20date&rhsearch=baseline%20date", "EPM Transfer_Penalty http://hcopub.dhs.state.mn.us/epm/2_4_1_3_2.htm?rhhlterm=ltc&rhsearch=LTC", "TE Uncompensated_Asset/Income_Transfers-MA-Poli/Temp 02.14.27")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2175,7 +2540,7 @@ script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("EPM Community_Spouse_Asset_Allowance http://hcopub.dhs.state.mn.us/epm/2_4_2_1_2.htm?rhhlterm=12%20community%20spouse&rhsearch=12%20months%20community%20spouse", "ONESOURCE Processing_an_Asset_or_Income_Transfer_for_MA-LTC https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170126")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2248,6 +2613,21 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Cn", "Sw")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #05/05/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "MA Needy Child"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2278,6 +2658,48 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Sw")
 script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Match Cleared"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Up")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/14/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Mandatory Vendor Approved"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn", "Sm")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Mandatory Vendor MEMO"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Sm")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2437,6 +2859,35 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "MHC Client Contact"
+script_array(script_num).category               = "MHC"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Health Care")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "MIPPA"
+' script_array(script_num).description 			= "Template for noting Medical Service Questionaires (MSQ)."
+script_array(script_num).category               = "CA"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "MONT Report"
 ' script_array(script_num).description 			= "Template for noting Medical Service Questionaires (MSQ)."
 script_array(script_num).category               = "ADMIN"
@@ -2477,6 +2928,20 @@ script_array(script_num).dlg_keys               = array("Cn", "Ti", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #09/25/2020#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "NSPOW Checked"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/05/2018#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2555,7 +3020,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #09/01/2021#					'Testing - '#07/29/2021#
 script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Scripts-Available-September-1-for-Interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -2604,6 +3069,21 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).specialty_redirect 	= "DEU"
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "P Note"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/17/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2617,7 +3097,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Wrd", "Sm", "Sw")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #06/14/2021#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date			= #06/29/2021#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTICES-%e2%80%93-PA-Verif-Request-has-Returned!.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -2632,6 +3113,90 @@ script_array(script_num).tags                   = array("BZ", "Health Care")
 script_array(script_num).dlg_keys               = array("Ex", "Up", "Ev", "Tk")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "PARIS Match Cleared"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Up")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #05/17/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "PARIS Match CC Claim Entered"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Cn", "Up", "Oe")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #12/11/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Partner Calls"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Permanency Review"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #12/18/2019#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Permanent Housing Found"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Personal Needs"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Income", "Deductions")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/14/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2774,6 +3339,20 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "REIMB Shelter ACCT"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -2785,6 +3364,22 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Repair Ex Parte Phase 2"
+' script_array(script_num).description 			= "Send an idea, error report, or other kind of request to the blueZone Script Team"
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #07/07/2023#
+script_array(script_num).retirement_date		= #08/03/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2837,6 +3432,20 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-IEVC List"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/28/2016#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "REPT-INAC List"
 ' script_array(script_num).description 			= "Pulls a list of cases in REPT/INAC into an Excel spreadsheet."
 script_array(script_num).category               = "BULK"
@@ -2845,6 +3454,20 @@ script_array(script_num).tags                   = array("Reports", "DWP", "EMER"
 script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "REPT-INTR List"																		'Script name
+script_array(script_num).category               = "DEU"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/28/2016#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3059,6 +3682,20 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Revoucher"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Reviews", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #12/11/2016#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
@@ -3139,6 +3776,34 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Shelter Alternative"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Shelter Change Reported"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Communication", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/28/2016#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "Shelter Expense Verif Received"
 ' script_array(script_num).description 			= "Enter shelter expense/address information in a dialog and the script updates SHEL, HEST, and ADDR and case notes."
 script_array(script_num).category               = "ACTIONS"
@@ -3147,6 +3812,34 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Cn", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Shelter Interview"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Sheriff Foreclosure"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3170,7 +3863,6 @@ script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "SMRT"
-' script_array(script_num).description 			= "Template for case noting the SMRT process and information."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "Health Care", "MFIP", "Reviews")
@@ -3180,6 +3872,7 @@ script_array(script_num).release_date           = #01/19/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("SHAREPOINT State_Medical_Review_Team_(SMRT) https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/State_Medical_Review_Team_(SMRT).aspx")						'SEE Line 58 for format'
+script_array(script_num).specialty_redirect		= "MHC"
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3197,6 +3890,20 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Special EA"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -3210,6 +3917,7 @@ script_array(script_num).release_date           = #1/31/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3222,6 +3930,21 @@ script_array(script_num).tags                   = array("Application", "Communic
 script_array(script_num).dlg_keys               = array("Cn", "Up", "Sm")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).specialty_redirect		= "CA"
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Trial Home Visit"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3253,6 +3976,37 @@ script_array(script_num).tags                   = array("BZ", "DWP", "EMER", "He
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #02/11/2021#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Test Ex Parte Data Access"													'Script name
+' script_array(script_num).description		    = "BULK script that captures specified DAILS for identified populations, and outputs them into a SQL Database."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Ev")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #05/26/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Test Staff Info"													'Script name
+' script_array(script_num).description		    = "BULK script that captures specified DAILS for identified populations, and outputs them into a SQL Database."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Utility")
+script_array(script_num).dlg_keys               = array("Ev")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #05/01/2023#
+script_array(script_num).retirement_date		= #05/19/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3314,7 +4068,8 @@ script_array(script_num).tags                   = array("Income", "Applications"
 script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #09/16/2021#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date 		= #05/24/2022#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/All-ES-Staff-Can-Email-hsph.es.deed-for-Unemployment-Verification.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -3359,6 +4114,21 @@ script_array(script_num).tags                   = array("Utility")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_date			= #10/13/2020#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/UTILITIES-%e2%80%93-Update-Worker-Signature.aspx"
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Utility Information"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3419,6 +4189,7 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date			= #04/25/2016#
+script_array(script_num).retirement_date		= #07/24/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3434,6 +4205,20 @@ script_array(script_num).tags                   = array("Utility", "SNAP", "MFIP
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("MAXIS")
 script_array(script_num).release_date           = #04/17/2019#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Voucher Extended"
+script_array(script_num).category               = "SHELTER"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Reviews", "MFIP", "EMER")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/19/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3515,7 +4300,6 @@ script_array(script_num).tags                   = array("ABAWD", "Communication"
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 

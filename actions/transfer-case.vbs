@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/24/2023", "Updated date validation and error messages for dialog to ensure consistent entry.", "Mark Riegel, Hennepin County.")
 call changelog_update("10/26/2022", "Updated several functionalities to support enhanced experience for both inner and inter county transfer.", "Ilse Ferris, Hennepin County.")
 call changelog_update("04/01/2022", "There is no longer a case note for in-county transfers based on guidance provided by CASE NOTE III: CLAIMS/SYSTEMS/TRANSFERS TE02.08.095.", "MiKayla Handley, Hennepin County.")
 call changelog_update("03/28/2022", "Multiple updates made ensuring that the transfer is complete and removing the case from in-county transfers.", "MiKayla Handley, Hennepin County.")
@@ -73,16 +74,16 @@ Call Check_for_MAXIS(false)                         'Ensuring we are in MAXIS
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 191, 85, "Transfer Case"
+  Text 20, 10, 50, 10, "Case Number:"
   EditBox 70, 5, 45, 15, MAXIS_case_number
+  Text 30, 30, 110, 10, "Servicing Worker (transferring to):"
   EditBox 140, 25, 45, 15, transfer_to_worker
+  Text 10, 50, 60, 10, "Worker Signature:"
   EditBox 70, 45, 115, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 90, 65, 45, 15
     CancelButton 140, 65, 45, 15
     PushButton 120, 5, 65, 15, "HSR - Transfers", HSR_manual_button
-  Text 20, 10, 50, 10, "Case Number:"
-  Text 30, 30, 110, 10, "Servicing Worker (transferring to):"
-  Text 10, 50, 60, 10, "Worker Signature:"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -221,37 +222,39 @@ Do
         Text 5, 140, 45, 10, "Other Notes:"
         EditBox 50, 135, 290, 15, other_notes
         GroupBox 5, 155, 335, 60, "County of Financial Responsibility(CFR) - Complete if not excluded time."
-        ButtonGroup ButtonPressed
-        PushButton 290, 175, 40, 25, "Calculate", calculate_button
-        Text 85, 285, 75, 10, "Change Date (MM YY)"
-        ButtonGroup ButtonPressed
-        OkButton 235, 235, 50, 15
-        CancelButton 290, 235, 50, 15
-        PushButton 15, 235, 60, 15, "TE02.08.133", POLI_TEMP_button
-        PushButton 85, 235, 60, 15, "SPEC/XFER", XFER_button
-        PushButton 155, 235, 60, 15, "Use Form", useform_xfer_button
         Text 15, 175, 100, 10, "Cash Programs  - Current CFR:"
         EditBox 115, 170, 20, 15, cash_cfr
+        Text 25, 195, 85, 10, "Health Care - Current CFR:"
+        EditBox 115, 190, 20, 15, hc_cfr
         Text 160, 175, 75, 10, "Change Date (MM YY):"
         EditBox 235, 170, 20, 15, cash_cfr_month
         EditBox 260, 170, 20, 15, cash_cfr_year
-        Text 25, 195, 85, 10, "Health Care - Current CFR:"
-        EditBox 115, 190, 20, 15, hc_cfr
         Text 160, 195, 75, 10, "Change Date (MM YY):"
         EditBox 235, 190, 20, 15, hc_cfr_month
         EditBox 260, 190, 20, 15, hc_cfr_year
-        Text 10, 285, 45, 10, "Current CFR:"
+        ButtonGroup ButtonPressed
+            PushButton 290, 175, 40, 25, "Calculate", calculate_button
+            OkButton 235, 235, 50, 15
+            CancelButton 290, 235, 50, 15
         GroupBox 5, 220, 220, 35, "Navigation:"
+        ButtonGroup ButtonPressed
+            PushButton 15, 235, 60, 15, "TE02.08.133", POLI_TEMP_button
+            PushButton 85, 235, 60, 15, "SPEC/XFER", XFER_button
+            PushButton 155, 235, 60, 15, "Use Form", useform_xfer_button
+        Text 10, 285, 45, 10, "Current CFR:"
+        Text 85, 285, 75, 10, "Change Date (MM YY)"
         EndDialog
 
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-        IF isdate(resident_move_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for resident move."
-        If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Is this an excluded time case?."
-        IF excluded_time_dropdown = "Yes" and isdate(excluded_time_begin_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the resident's absense is due to excluded time."
-        IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
-            IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Suppports is always an exluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
+        IF IsDate(resident_move_date) = False OR Len(resident_move_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for resident move."
+        If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Indicate if this is an excluded time case."
+        IF excluded_time_dropdown = "Yes" then 
+            If IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absence is due to excluded time."
+        End if      
+            IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
+            IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Supports is always an excluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
         END IF
         If mets_status_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Select a METS status."
 		IF mets_status_dropdown = "active" or mets_status_dropdown = "pending" then
@@ -264,12 +267,12 @@ Do
             IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE) THEN
                 If isnumeric(cash_cfr) = False or len(cash_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for cash."
                 If isnumeric(cash_cfr_month) = False or len(cash_cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
-                If isnumeric(cash_cfr_year) = False or len(cash_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
+                If isnumeric(cash_cfr_year) = False or len(cash_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit year for the Current Financial Responsibility County (CFR) code for cash."
             End if
             If ma_case = True THEN
                 If isnumeric(hc_cfr) = False or len(hc_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for Health Care."
                 If isnumeric(hc_cfr_month) = False or len(hc_cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for Health Care."
-                If isnumeric(hc_cfr_year) = False or len(hc_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for Health Care."
+                If isnumeric(hc_cfr_year) = False or len(hc_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit year for the Current Financial Responsibility County (CFR) code for Health Care."
             End if
         End if
 
@@ -446,7 +449,7 @@ End if
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------10/26/2022
-'--Tab orders reviewed & confirmed----------------------------------------------10/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/23/2022
 '--Mandatory fields all present & Reviewed--------------------------------------10/26/2022
 '--All variables in dialog match mandatory fields-------------------------------10/26/2022
 'Review dialog names for content and content fit in dialog----------------------01/12/2023

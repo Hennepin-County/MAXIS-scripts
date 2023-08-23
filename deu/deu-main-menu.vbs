@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = " DEU-MAIN-MENU.vbs"
+name_of_script = "DEU - MAIN MENU.vbs"
 start_time = timer
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/24/2023", "MENU format has been updated to align with the menu displays for the primary categories.", "Casey Love, Hennepin County")
 call changelog_update("02/28/2023", "Removed APPEALS button. This was a redirect to the NOTES - APPEALS script. Please use the APPEALS script from the NOTES Main Menu. Thank you!", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2023", "Retired script EBT OUT OF STATE due to state correction action plan. A new automation tool may be created in the future based on DHS and FNS/USDA guidance.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/19/2021", "GitHub #569 Retire BULK MATCH script to reduce redundancies in our automation supports for future conversion.", "MiKayla Handley, Hennepin County")
@@ -52,124 +53,67 @@ call changelog_update("09/22/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'CUSTOM FUNCTIONS===========================================================================================================
-Function declare_DEU_menu_dialog(script_array)
-	BeginDialog DEU_dialog, 0, 0, 481, 195, "DEU Scripts"
-	 	Text 5, 5, 435, 10, "DEU scripts main menu: select the script to run from the choices below."
-	  	EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
-		ButtonGroup ButtonPressed
-		 	'PushButton 015, 35, 40, 15, "CA", 				DEU_main_button
-		 	'PushButton 445, 10, 65, 10, "SIR instructions", 	SIR_instructions_button
+
+class subcat
+	public subcat_name
+	public subcat_button
+End class
+
+Function declare_main_menu_dialog(script_category)
+
+    dlg_len = 60
+    For current_script = 0 to ubound(script_array)
+        script_array(current_script).show_script = FALSE
+		' If script_array(current_script).category = "DEU" Then
+        If ucase(script_array(current_script).category) = ucase(script_category) OR ucase(script_array(current_script).specialty_redirect) = ucase(script_category) then
+	        script_array(current_script).show_script = TRUE
+            If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+            End If
+			Call script_array(current_script).show_button(see_the_button)
+			If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
+
+            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
+			' MsgBox script_array(current_script).script_name & vbCr & "see_the_button - " & see_the_button & vbCr & "Show_sript - " & script_array(current_script).show_script
+        End if
+    next
+
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
+	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
+		EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
+	  	ButtonGroup ButtonPressed
+
+		'SCRIPT LIST HANDLING--------------------------------------------
 
 		'This starts here, but it shouldn't end here :)
-		vert_button_position = 25
+		vert_button_position = 30
+
 		For current_script = 0 to ubound(script_array)
-			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
-			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
-			'----------
-			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-			'----------
-			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-			button_placeholder = button_placeholder + 1
+
+
+            If script_array(current_script).show_script = TRUE Then
+
+				SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
+
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+				' PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
+				'----------
+				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+				'----------
+				script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				button_placeholder = button_placeholder + 2
+			End if
+
 		next
-		CancelButton 425, 175, 50, 15
-		'GroupBox 5, 20, 205, 35, "DEU Sub-Menus"
+
+		CancelButton 540, dlg_len - 20, 50, 15
 	EndDialog
 End function
-'END CUSTOM FUNCTIONS=======================================================================================================
-
-'VARIABLES TO DECLARE=======================================================================================================
-
-'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
-DIM ButtonPressed
-'DIM SIR_instructions_button
-dim DEU_dialog
-
-script_array_DEU_main = array()
-'script_array_DEU_list = array()
-
-
-'END VARIABLES TO DECLARE===================================================================================================
-
-'LIST OF SCRIPTS================================================================================================================
-
-'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
-
-'-------------------------------------------------------------------------------------------------------------------------DEU MAIN MENU
-
-'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_DEU_main(script_num)
-Set script_array_DEU_main(script_num) = new script
-script_array_DEU_main(script_num).script_name 			= "ADH Info and Hearing"																'Script name
-script_array_DEU_main(script_num).file_name 			= "adh-info-and-hearing.vbs"													'Script URL
-script_array_DEU_main(script_num).description 			= "Administrative Disqualification Hearing process."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "ATR Received"																'Script name
-script_array_DEU_main(script_num).file_name 			= "atr-received.vbs"												'Script URL
-script_array_DEU_main(script_num).description 			= "Documenting the ATR received. Also updates IULB."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "BULK Match Cleared"
-script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "BULK script that assists in clearing matches including sending the Diff Notice and noting claims."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "EBT out of state"																'Script name
-script_array_DEU_main(script_num).file_name 			= "ebt-out-of-state.vbs"														'Script URL
-script_array_DEU_main(script_num).description 			= "Script to case note out of state matches after being reviewed."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "Match Cleared"
-script_array_DEU_main(script_num).file_name 			= "match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing matches including sending the Diff Notice and noting claims."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "Overpayment Claim Entered"
-script_array_DEU_main(script_num).file_name				= "overpayment-claim-entered.vbs"
-script_array_DEU_main(script_num).description			= "Notes script that assists in case noting overpayments."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared"
-script_array_DEU_main(script_num).file_name				= "paris-match-cleared.vbs"
-script_array_DEU_main(script_num).description			= "Action script that assists in clearing PARIS matches."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name			= "PARIS Match Cleared-CC Claim Entered"
-script_array_DEU_main(script_num).file_name				= "paris-match-cleared-CC-claim-entered.vbs"
-script_array_DEU_main(script_num).description			= "Notes script that assists in entering a case note for claims entered on PARIS matches."
-
-script_num = script_num + 1									'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 		    = "REPT IEVC List"
-script_array_DEU_main(script_num).file_name			    = "rept-ievc-list.vbs"
-script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/IEVC into an Excel spreadsheet."
-
-script_num = script_num + 1							    'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)	    'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script	    'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 		    = "REPT INTR List"
-script_array_DEU_main(script_num).file_name			    = "rept-intr-list.vbs"
-script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in REPT/INTR into an Excel spreadsheet."
-
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -177,30 +121,40 @@ script_array_DEU_main(script_num).description 		    = "Pulls a list of cases in 
 '	property for each script item. This allows it to both escape the Function and resize
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
-
-button_placeholder 	= 24601
-'DEU_main_button		= 1000
-'SNAP_WCOMS_button	= 2000
-
+button_placeholder 			    = 24601
 
 'Displays the dialog
 Do
-	If ButtonPressed = "" or ButtonPressed = DEU_main_button then declare_DEU_menu_dialog(script_array_DEU_main)
-	dialog DEU_dialog
+	'Creates the dialog
+	call declare_main_menu_dialog("DEU")
+
+	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
+	ready_to_exit_loop = false
+
+	'Displays dialog, if cancel is pressed then stopscript
+	dialog Dialog1
 	If ButtonPressed = 0 then stopscript
 
-    'Opening the SIR Instructions
-	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notices%20scripts.aspx")
-Loop until 	ButtonPressed <> DEU_main_button
-'MsgBox buttonpressed = script_array_DEU_main(0).button
+	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).SIR_instructions_button then
+            ' MsgBox script_array(i).SharePoint_instructions_URL
+            call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
+        End If
+	Next
 
-'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
-For i = 0 to ubound(script_array_DEU_main)
-	If ButtonPressed = script_array_DEU_main(i).button then call run_from_GitHub(script_repository & "deu/" & script_array_DEU_main(i).file_name)
-Next
+	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).button then
+			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
+			script_to_run = script_array(i).script_URL
+			Exit for
+		End if
+	Next
 
-'For i = 0 to ubound(script_array_DEU_list)
-'	If ButtonPressed = script_array_DEU_list(i).button then call run_from_GitHub(script_repository & "deu/" & script_array_DEU_list(i).file_name)
-'Next
+    ' MsgBox script_to_run
+Loop until ready_to_exit_loop = true
+
+call run_from_GitHub(script_to_run)
 
 stopscript

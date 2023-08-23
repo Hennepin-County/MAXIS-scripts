@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/08/2023", "Fixed bug when entering a job that starting the same month as the HIRE message was generated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
@@ -233,7 +234,7 @@ If create_JOBS_checkbox = checked then
     Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
     IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-        Call create_MAXIS_friendly_date(date_hired, 0, 12, 57) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+        Call create_MAXIS_friendly_date(date_hired, 0, 12, 54) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
     ELSE
         EmWriteScreen MAXIS_footer_month, 12, 54
         EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
@@ -284,7 +285,7 @@ CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
 CALL write_variable_in_case_note(new_hire_fourth_line)
 CALL write_variable_in_case_note("---")
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) to resident.")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent Verification and Employment verification forms.")
 IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
 IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
 IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")

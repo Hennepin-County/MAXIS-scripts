@@ -17,6 +17,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/13/2023", "Enhanced supports for BlueZone Script Hot Topics. Check it out on the power pad (HOT TOPICS - BZ Scripts) or in the UTILITIES Main Menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/02/2022", "Retired Script - UTILITIES - LOST APPLYMN. This has been replaced by UTILITIES - APPLICATION INQUIRY. Power pad also updated to reflect this change.", "Ilse Ferris, Hennepin County")
 Call changelog_update("03/15/2022", "DHS is reporting the MAXIS Background slowdown has been resolved. Cases should be coming through BGTX in a typical amount of time.##~## ##~##If you have any issues with MAXIS Background going forward, please contack MAXIS Help Desk.", "Casey Love, Hennepin County")
 Call changelog_update("03/15/2022", "************** ATTENTION *************##~## ##~##There appears to be slowdown in MAXIS Background Transaction (BGTX) and cases are getting stuck for an extended amount of time.##~## ##~##This is not an issue with any script but could become apparant during a script run where the script seems 'stuck' or could error out. As the issue is with MAXIS - we cannot handle for this with any script updates or fixes.##~## ##~##DHS is repporting they are aware of the problem.##~## ##~##If possible, ensure your case is through background before running any scripts to reduce the impact on your script runs.", "Casey Love, Hennepin County")
@@ -43,25 +44,34 @@ name_of_script = actual_script_name
 
 'LOADING LIST OF SCRIPTS FROM GITHUB REPOSITORY===========================================================================
 IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-	IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-		script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
-	Else											'Everyone else should use the release branch.
-		script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
-	End if
+	IF on_the_desert_island = TRUE Then
+		script_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\COMPLETE LIST OF SCRIPTS.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(script_list_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	Else
+		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
+			script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+		Else											'Everyone else should use the release branch.
+			script_list_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/COMPLETE%20LIST%20OF%20SCRIPTS.vbs"
+		End if
 
-	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_list_URL
-	req.open "GET", script_list_URL, FALSE							'Attempts to open the script_list_URL
-	req.send													'Sends request
-	IF req.Status = 200 THEN									'200 means great success
-		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-		Execute req.responseText								'Executes the script code
-	ELSE														'Error message
-		critical_error_msgbox = MsgBox ("Something has gone wrong. The script list code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                        "Script list URL: " & script_list_URL & vbNewLine & vbNewLine &_
-                                        "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                        vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-        StopScript
-	END IF
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_list_URL
+		req.open "GET", script_list_URL, FALSE							'Attempts to open the script_list_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The script list code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+											"Script list URL: " & script_list_URL & vbNewLine & vbNewLine &_
+											"The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+											vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+			StopScript
+		END IF
+	End If
 ELSE
 	script_list_URL = "C:\MAXIS-scripts\COMPLETE LIST OF SCRIPTS.vbs"
 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
@@ -99,7 +109,7 @@ time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM",
 HOLIDAYS_ARRAY = Array(#11/11/22#, #11/24/22#, #11/25/22#, #12/26/22#, #01/2/23#, #1/16/23#, #2/20/23#, #5/29/23#, #6/19/23#, #7/4/23#, #9/4/23#, #11/10/23#, #11/23/23#, #11/24/23#, #12/25/23#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
-Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr
+Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr, CM_plus_3_mo, CM_plus_3_yr, CM_minus_1_mo, CM_minus_1_yr, CM_minus_2_mo, CM_minus_2_yr, CM_minus_3_mo, CM_minus_3_yr
 'var equals...  the right part of...    the specific part...    of either today or next month... just the right 2 chars!
 CM_mo =         right("0" &             DatePart("m",           date                             ), 2)
 CM_yr =         right(                  DatePart("yyyy",        date                             ), 2)
@@ -109,6 +119,18 @@ CM_plus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", 1, 
 
 CM_plus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", 2, date)            ), 2)
 CM_plus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", 2, date)            ), 2)
+
+CM_plus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", 3, date)            ), 2)
+CM_plus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", 3, date)            ), 2)
+
+CM_minus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
+CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+
+CM_minus_2_mo =  right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
+CM_minus_2_yr =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
+
+CM_minus_3_mo =  right("0" &             DatePart("m",           DateAdd("m", -3, date)            ), 2)
+CM_minus_3_yr =  right(                  DatePart("yyyy",        DateAdd("m", -3, date)            ), 2)
 
 If worker_county_code   = "" then worker_county_code = "MULTICOUNTY"
 IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...THEN CONDITION BECAUSE PRISM IS STILL USING THIS VARIABLE IN ALL SCRIPTS.vbs. IT WILL BE REMOVED AND THIS CAN BE RESTORED.
@@ -459,6 +481,7 @@ For Each objFile in colFiles																'looping through each file
 
 	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
 Next
+
 
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
@@ -1147,11 +1170,11 @@ Function ABAWD_FSET_exemption_finder()
         END IF
     NEXT
 
-    '>>>>>>>>>>PROG
-    CALL navigate_to_MAXIS_screen("STAT", "PROG")
-    EMReadScreen cash1_status, 4, 6, 74
-    EMReadScreen cash2_status, 4, 7, 74
-    IF cash1_status = "ACTV" OR cash2_status = "ACTV" THEN closing_message = closing_message & vbCr & "* Case is active on CASH programs. Please review for ABAWD and SNAP E&T exemption."
+    '>>>>>>>>>>Program based
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+	If mfip_case = True then closing_message = closing_message & vbCr & "* This is a MFIP case. Review for ABAWD and SNAP E&T exemption."
+	If RCA_case = True then closing_message = closing_message & vbCr & "* This is a RCA case. Review for ABAWD and SNAP E&T exemption."
+	If DWP_case = True then closing_message = closing_message & vbCr & "* This is a DWP case. Review for ABAWD and SNAP E&T exemption."
 
     '>>>>>>>>>>ADDR
     CALL navigate_to_MAXIS_screen("STAT", "ADDR")
@@ -5524,13 +5547,22 @@ FUNCTION create_outlook_appointment(appt_date, appt_start_time, appt_end_time, a
 	objAppointment.Save												'Saves the appointment
 END FUNCTION
 
-Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'--- This function creates a an outlook appointment
-'~~~~~ (email_recip): email address for recipeint - seperated by semicolon
-'~~~~~ (email_recip_CC): email address for recipeints to cc - seperated by semicolon
+Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+'--- This function creates an outlook email
+'~~~~~ (email_from): email address for sender
+'~~~~~ (email_recip): email address for recipient - separated by semicolon
+'~~~~~ (email_recip_CC): email address for recipients to cc - separated by semicolon
+'~~~~~ (email_recip_bcc): email address for recipients to bcc - separated by semicolon
 '~~~~~ (email_subject): subject of email in quotations or a variable
-'~~~~~ (email_body): body of email in quotations or a variable
-'~~~~~ (email_attachment): set as "" if no email or file location
+'~~~~~ (email_importance): set importance of email - 0 (low), 1 (normal), or 2 (high)
+'~~~~~ (include_flag): indicate whether to include follow-up flag on email - true or false
+'~~~~~ (email_flag_text): set the text of the follow-up flag, if no follow-up flag needed then use ""
+'~~~~~ (email_flag_days): set the number of days from today that the flag is due
+'~~~~~ (email_flag_reminder): set whether a flag reminder should be set - true or false
+'~~~~~ (email_flag_reminder_days): set the number of days from today that a reminder for the flag should be set
+'~~~~~ (email_body): body of email in quotations or a variable, function will determine whether HTMLbody is needed based on email_body content
+'~~~~~ (include_email_attachment): indicate if any (1 or more) attachments should be included - indicate true to include attachments or false to not include attachments
+'~~~~~ (email_attachment_array): if including 1 or more attachments, then enter the array name here to add these attachments to the email or enter the list of attachment file paths within a single string with each file path separated by a comma
 '~~~~~ (send_email): set as TRUE or FALSE
 '===== Keywords: MAXIS, PRISM, create, outlook, email
 
@@ -5540,11 +5572,45 @@ Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_
     If send_email = False then objMail.Display      'To display message only if the script is NOT sending the email for the user.
 
     'Adds the information to the email
+    objMail.SentOnBehalfOfName = email_from         'email sender
     objMail.to = email_recip                        'email recipient
     objMail.cc = email_recip_CC                     'cc recipient
+    objMail.Bcc = email_recip_bcc                   'bcc recipient
     objMail.Subject = email_subject                 'email subject
-    objMail.Body = email_body                       'email body
-    If email_attachment <> "" then objMail.Attachments.Add(email_attachment)       'email attachement (can only support one for now)
+    objMail.Importance = email_importance           'email importance - 0 (low), 1 (normal), or high (2)
+
+    'Set email follow-up flag
+    If include_flag = True Then
+        objMail.FlagRequest = email_flag_text
+        objMail.FlagDueBy = DateAdd("d", email_flag_days, Date())
+        objMail.ReminderSet = email_flag_reminder
+        objMail.ReminderTime = DateAdd("d", email_flag_reminder_days, Date()) & " 12:00:00 PM"
+    End If
+    objMail.Body = email_body                       'Default email body
+    'Determines if HTML body is needed based on email_body content
+    If instr(email_body, "<p>") OR _
+        instr(email_body, "<br>") OR _
+        instr(email_body, "<i>") OR _
+        instr(email_body, "&emsp") OR _
+        instr(email_body, "&ensp") OR _
+        instr(email_body, "href") Then
+            objMail.HTMLBody = email_body
+    End If
+
+    'Iterates through array or list of email attachments if indicated
+    If include_email_attachment = True Then
+      If TypeName(email_attachment_array) = "String" Then
+        email_attachment_array = Split(email_attachment_array, ",")
+        For Each attachment In email_attachment_array
+          objMail.Attachments.Add(trim(attachment))
+      Next
+        Else
+          For Each attachment In email_attachment_array
+          objMail.Attachments.Add(attachment)
+      Next
+      End If
+    End If
+
     'Sends email
     If send_email = true then objMail.Send	                   'Sends the email
     Set objMail =   Nothing
@@ -5826,6 +5892,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "SNAP, "
         End If
 		If left(fs_status, 4) = "REIN" Then
+			fs_status = "REIN"
 			snap_case = TRUE
 			case_rein = TRUE
 		End If
@@ -5847,6 +5914,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "GRH, "
         ENd If
 		If left(grh_status, 4) = "REIN" Then
+			grh_status = "REIN"
 			grh_case = TRUE
 			case_rein = TRUE
 		End If
@@ -5871,6 +5939,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "MSA, "
         ENd If
 		If left(ms_status, 4) = "REIN" Then
+			ms_status = "REIN"
 			msa_case = TRUE
 			adult_cash_case = TRUE
 			case_rein = TRUE
@@ -5895,6 +5964,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "GA, "
         ENd If
 		If left(ga_status, 4) = "REIN" Then
+			ga_status = "REIN"
 			ga_case = TRUE
 			adult_cash_case = TRUE
 			case_rein = TRUE
@@ -5920,6 +5990,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "DWP, "
         ENd If
 		If left(dw_status, 4) = "REIN" Then
+			dw_status = "REIN"
 			dwp_case = TRUE
 			family_cash_case = TRUE
 			case_rein = TRUE
@@ -5945,6 +6016,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "MFIP, "
         ENd If
 		If left(mf_status, 4) = "REIN" Then
+			mf_status = "REIN"
 			mfip_case = TRUE
 			family_cash_case = TRUE
 			case_rein = TRUE
@@ -6009,6 +6081,29 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(ma_status, 4) = "REIN" Then
+			ma_status = "REIN"
+			ma_case = TRUE
+			case_rein = TRUE
+		End If
+	End If
+	row = 1                                             'Looking for MA listed as IMD information
+	col = 1
+	EMSearch "IMD:", row, col
+	If row <> 0 Then
+		EMReadScreen imd_status, 9, row, col + 4
+		imd_status = trim(imd_status)
+		If imd_status = "ACTIVE" or imd_status = "APP CLOSE" or imd_status = "APP OPEN" Then
+			ma_case = TRUE
+			case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
+		End If
+		If imd_status = "PENDING" Then
+			ma_case = TRUE
+			case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
+		End If
+		If left(imd_status, 4) = "REIN" Then
+			imd_status = "REIN"
 			ma_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6031,6 +6126,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qm_status, 4) = "REIN" Then
+			qm_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6052,15 +6148,21 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(sl_status, 4) = "REIN" Then
+			sl_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
     End If
-    row = 1                                             'Looking for QI information for MSA programs
+    row = 1                                             'Looking for QI1 information for MSA programs
     col = 1
-    EMSearch "QI:", row, col
+    EMSearch "Q1:", row, col
+	If row = 0 Then
+		row = 1                                             'Maybe sometimes thils looks like QI??
+		col = 1
+		EMSearch "QI:", row, col
+	End If
     If row <> 0 Then
-        EMReadScreen qi_status, 9, row, col + 5
+        EMReadScreen qi_status, 9, row, col + 4
         qi_status = trim(qi_status)
         If qi_status = "ACTIVE" or qi_status = "APP CLOSE" or qi_status = "APP OPEN" Then
             msp_case = TRUE
@@ -6073,6 +6175,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qi_status, 4) = "REIN" Then
+			qi_status = "REIN"
 			msp_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6121,6 +6224,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "EGA, "
         ENd If
 		If left(ega_status, 4) = "REIN" Then
+			ega_status = "REIN"
 			emer_case = TRUE
 			case_rein = TRUE
 		End If
@@ -6142,6 +6246,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_pending_programs = list_pending_programs & "EA, "
 		ENd If
 		If left(ea_status, 4) = "REIN" Then
+			ea_status = "REIN"
 			emer_case = TRUE
 			case_rein = TRUE
 		End If
@@ -7338,6 +7443,16 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 		version_number = "0" & elig_version
 		version_date = elig_date
 		version_result = elig_result
+
+		row = 1
+		col = 1
+		EMSearch "Auto-Closed", row, col
+		If row <> 0 Then
+			approval_found = false
+			version_date = ""
+			version_result = ""
+			PF3
+		End If
 	End If
 end function
 
@@ -7360,10 +7475,40 @@ function find_user_name(the_person_running_the_script)
 '--- This function finds the outlook name of the person using the script
 '~~~~~ the_person_running_the_script:the variable for the person's name to output
 '===== Keywords: MAXIS, worker name, email signature
-	Set objOutlook = CreateObject("Outlook.Application")
-	Set the_person_running_the_script = objOutlook.GetNamespace("MAPI").CurrentUser
-	the_person_running_the_script = the_person_running_the_script & ""
-	Set objOutlook = Nothing
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	SQL_table = "SELECT * from ES.V_ESAllStaff"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		table_user_id = objRecordSet("EmpLogOnID")						'setting the user ID from table data
+		If table_user_id = windows_user_ID Then							'If the ID on thils loop of the data information matches the ID of the person running the script, we have found the staff person
+			current_user_name = objRecordSet("EmpFullName")				'Save the user name
+			current_user_email = objRecordSet("EmployeeEmail")			'save the email for the user - NOT currently output
+			Current_user_x_number = objRecordSet("EmpStateLogOnID")		'save the MAXIS X-Number for the user - NOT currently output
+			Exit Do														'if we have found the person, we stop looping
+		End If
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+	If InStr(current_user_name, ",") <> 0 Then
+		Name_array = split(current_user_name, ",")
+		current_user_name = trim(Name_array(1)) & " " & trim(Name_array(0))
+	End If
+
+	If windows_user_ID = "KESE001" Then current_user_name = "Audrey Hazel"		'specific handling for a user who does not have up to date information in the data table
+
+	the_person_running_the_script = current_user_name							'saving the user name to the output variable.
 end function
 
 'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson".
@@ -8421,6 +8566,21 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
     End if
 End Function
 
+Function HCRE_panel_bypass()
+'--- This function should be called when done with going to PROG (after reading/updating) to make sure we don't get stuck on HCRE because it will put it in edit mode automatically.
+'--- USE AFTER GOING TO PROG WHEN NEEDING TO LEAVE THE PANEL
+'===== Keywords: MAXIS, Navigate
+	'this functionality is especially for handling for cases that do not have a completed HCRE panel
+	PF3													'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50			'read to see if MAXIS brought us to HCRE
+		If HCRE_panel_check = "HCRE" then				'If it IS on HCRE, we need to bypass it by oopsing and navigating away
+			PF10										'OOPS - exists edit mode in cases where HCRE isn't complete for a member
+			PF3											'Navigate away from HCRE
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"				'Sometimes there are warning messages, so we keep going until we actually leave HCRE
+End Function
+
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
@@ -8435,6 +8595,7 @@ function HH_member_custom_dialog(HH_member_array)
         'MsgBox access_denied_check
         If access_denied_check = "ACCESS DENIED" Then
             PF10
+			EMWaitReady 0, 0
             last_name = "UNABLE TO FIND"
             first_name = " - Access Denied"
             mid_initial = ""
@@ -8476,7 +8637,7 @@ function HH_member_custom_dialog(HH_member_array)
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Dialog HH_memb_dialog
-	If buttonpressed = 0 then stopscript
+	Cancel_without_confirmation
 	check_for_maxis(True)
 
 	HH_member_array = ""
@@ -9970,7 +10131,6 @@ Function non_actionable_dails(actionable_dail)
     'Valuing variables used within the function
     this_month = CM_mo & " " & CM_yr
     next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-    CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
     actionable_dail = True    'Defaulting to True
     If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
@@ -10131,6 +10291,14 @@ Function non_actionable_dails(actionable_dail)
     Elseif dail_type = "TIKL" then
         if instr(dail_msg, "VENDOR") OR instr(dail_msg, "VND") then
             actionable_dail = True        'Will not delete TIKL's with vendor information
+        ElseIf instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then
+            TIKL_date = cdate(TIKL_date)
+            TIKL_month = right("0" & DatePart("m",dail_month), 2)
+            If TIKL_month = CM_mo then
+                actionable_dail = True
+            Else
+                actionable_dail = False 'Deletes all Ex Parte TIKL's then that are not from the current month. Ex 07/01/2023 TIKLS start deleting on 08/01/2023.
+            End if
         Else
             six_months = DateAdd("M", -6, date)
             If cdate(six_months) => cdate(dail_month) then
@@ -10960,6 +11128,7 @@ function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent
 		'MsgBox access_denied_check
 		If access_denied_check = "ACCESS DENIED" Then
 			PF10
+			EMWaitReady 0, 0
 			last_name = "UNABLE TO FIND"
 			first_name = " - Access Denied"
 			mid_initial = ""
@@ -11269,6 +11438,8 @@ function script_end_procedure(closing_message)
 '~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
 '===== Keywords: MAXIS, MMIS, PRISM, end, script, statistics, stopscript
 	stop_time = timer
+	script_run_end_time = time
+	script_run_end_date = date
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then MsgBox closing_message '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
 	script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
@@ -11304,15 +11475,15 @@ function script_end_procedure(closing_message)
         If STATS_enhanced_db = false or STATS_enhanced_db = "" then     'For users of the old db
     		'Opening usage_log and adding a record
     		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
-    		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & closing_message & "')", objConnection, adOpenStatic, adLockOptimistic
+    		"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & script_run_time & ", '" & closing_message & "')", objConnection, adOpenStatic, adLockOptimistic
 		'collecting case numbers counties
 		Elseif collect_MAXIS_case_number = true then
 			objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
-			"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+			"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
 		 'for users of the new db
 		Else
             objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS)" &  _
-            "VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ")", objConnection, adOpenStatic, adLockOptimistic
+            "VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ")", objConnection, adOpenStatic, adLockOptimistic
         End if
 
 		'Closing the connection
@@ -11326,6 +11497,8 @@ function script_end_procedure_with_error_report(closing_message)
 '~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
 '===== Keywords: MAXIS, MMIS, PRISM, end, script, statistics, stopscript
 	stop_time = timer
+	script_run_end_time = time
+	script_run_end_date = date
     send_error_message = ""
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then        '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
         If testing_run = TRUE Then
@@ -11369,15 +11542,15 @@ function script_end_procedure_with_error_report(closing_message)
         If STATS_enhanced_db = false or STATS_enhanced_db = "" then     'For users of the old db
     		'Opening usage_log and adding a record
     		objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX)" &  _
-    		"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & script_run_time & ", '" & closing_message & "')", objConnection, adOpenStatic, adLockOptimistic
+    		"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & script_run_time & ", '" & closing_message & "')", objConnection, adOpenStatic, adLockOptimistic
 		'collecting case numbers counties
 		Elseif collect_MAXIS_case_number = true then
 			objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
-			"VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+			"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
 		 'for users of the new db
 		Else
             objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS)" &  _
-            "VALUES ('" & user_ID & "', '" & date & "', '" & time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ")", objConnection, adOpenStatic, adLockOptimistic
+            "VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ")", objConnection, adOpenStatic, adLockOptimistic
         End if
 
 		'Closing the connection
@@ -11511,8 +11684,7 @@ function script_end_procedure_with_error_report(closing_message)
 					End if
 				End With
 			End If
-
-            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, attachment_here, true)
+			Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
         Else
@@ -11589,7 +11761,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
                     body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, PROGRAM, POPULATION, or REGION"
                     body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
-                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & testing_script_name, body_text, "", TRUE)
+					Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "FUNCTION ERROR - select_testing_file for " & testing_script_name, 1, False, "", "", False, "", body_text, False, "", True)
             End Select
 
             If tester.tester_population = "BZ" Then
@@ -11611,12 +11783,12 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     testing_script_url = "C:\MAXIS-scripts\" & file_path
 					If file_branch <> "master" Then
 						run_locally =  False
-						testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
+						script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/"
 					End If
                 Else
-                    testing_script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/" & file_path
-
+					script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/" & file_branch & "/"
                 End If
+				testing_script_url = script_repository & file_path
                 Call run_from_GitHub(testing_script_url)
             End If
 

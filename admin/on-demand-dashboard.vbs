@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("12/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -598,6 +599,7 @@ function complete_admin_functions()
                 If tester_array(tester).tester_id_number = worker_number_to_resolve Then
                     worker_full_name_to_resolve = tester_array(tester).tester_full_name
                     qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
+					qi_worker_email = tester_array(tester).tester_email
                     qi_worker_first_name = tester_array(tester).tester_first_name
                     If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
                     If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
@@ -787,7 +789,7 @@ function create_assignment_report()
 	'opening task log
     file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
     Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
-
+	' MsgBox "Script has gathered cases from the TABLE and saved them to an array." & vbCr & "Total Count:" & cases_completed_by_me & vbCr & vbCr & "NOW an excel file should have opened. If one did NOT open, contact Casey right away." & vbCr & "Excel file url: " & file_url
 	''finding the first empty row in the log
     excel_row = 2
     Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
@@ -892,6 +894,7 @@ function create_assignment_report()
     ObjExcel.Application.Quit
     ObjExcel.Quit
 
+	' MsgBox "All case details should now be saved in the Excel and the file should be closed." & vbCr & "Excel last line: " & excel_row & vbCr & vbCr & "TABLE information should also be updated."
 	'creating the email to report completion of work
 	main_email_subject = "On Demand Daily Case Review Completed"
 
@@ -929,9 +932,13 @@ function create_assignment_report()
     ' End If
     main_email_body = main_email_body & vbCr & vbCr & "------"
     main_email_body = main_email_body & vbCr & qi_worker_first_name
+	' cc_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+	cc_email = qi_worker_email
 
 	''sending the email
-    CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+    Call create_outlook_email("", qi_worker_supervisor_email, cc_email, "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
+
+	' MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
 	'this part will review the cookie folder to remove any that are more than a week old. This is a clean up effort
 	Set objFolder = objFSO.GetFolder(current_day_work_tracking_folder)							'Creates an oject of the whole my documents folder
@@ -968,22 +975,29 @@ end function
 
 'this is a cleanup functionality to move the previous worklist into SQL
 function merge_worklist_to_SQL()
+	continue_msg = MSGBOX ("THIS WILL DELETE THE SQL TABLE", vbYesNo + 48 + 256, "DELETE?")
+	If continue_msg = vbNo then StopScript
+	'Creating objects for Access
+	Set objWorkConnection = CreateObject("ADODB.Connection")
+	Set objWorkRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objWorkRecordSet.Open objWorkSQL, objWorkConnection
+
+	objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed", objWorkConnection, 3, 3
+
+	' objWorkRecordSet.Close
+	objWorkConnection.Close
+
+	Set objWorkRecordSet=nothing
+	Set objWorkConnection=nothing
+	Set objWorkSQL=nothing
+
     'setting up information and variables for accessing yesterday's worklist
-    previous_date = dateadd("d", -1, date)
-    Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
-    archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
-
-    previous_date_month = DatePart("m", previous_date)
-    previous_date_day = DatePart("d", previous_date)
-    previous_date_year = DatePart("yyyy", previous_date)
-    previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-    'setting up file paths for accessing yesterday's worklist
-    archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
-
-    previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
+	previous_list_file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\Old QI Worklist.xlsx"
     Call File_Exists(previous_list_file_selection_path, does_file_exist)
-    previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+    previous_worksheet_header = "Work List"
 
 	yesterday_case_list = 0
 
@@ -997,17 +1011,12 @@ function merge_worklist_to_SQL()
 		xl_row = 2
 		Do
 			this_case = trim(ObjYestExcel.Cells(xl_row, 2).Value)
+			the_name =  trim(ObjYestExcel.Cells(xl_row, 3).Value)
+			the_snap_status =  trim(ObjYestExcel.Cells(xl_row, 4).Value)
+			the_cash_status =  trim(ObjYestExcel.Cells(xl_row, 5).Value)
+			the_pnd2_days =  trim(ObjYestExcel.Cells(xl_row, 6).Value)
+			the_app_date =  trim(ObjYestExcel.Cells(xl_row, 7).Value)
 			If this_case <> "" Then
-                worklist_notes = ""
-                yesterday_list_case_number = trim(ObjYestExcel.Cells(xl_row, 2).Value)
-                yesterday_notes = replace(ObjYestExcel.Cells(xl_row, 23).Value, "FOLLOW UP NEEDED", "")
-                yesterday_notes = replace(yesterday_notes, "  ", " ")
-                yesterday_notes = replace(yesterday_notes, "'", "")
-                yesterday_notes = trim(yesterday_notes)
-                yesterday_action = ObjYestExcel.Cells(xl_row, 22).Value
-                yesterday_action = trim(yesterday_action)
-                If yesterday_action = "FOLLOW UP NEEDED" Then worklist_notes = trim(yesterday_action) & " - " & yesterday_notes
-                If yesterday_action <> "FOLLOW UP NEEDED" Then worklist_notes = yesterday_notes
 
                 'Creating objects for Access
                 Set objConnection = CreateObject("ADODB.Connection")
@@ -1017,7 +1026,15 @@ function merge_worklist_to_SQL()
                 objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
                 'delete a record if the case number matches
-                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
+                ' objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
+				objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, SnapStatus, CashStatus, REPT_PND2Days)" & _
+								  "VALUES ('" & this_case &  "', '" & _
+										the_name &  "', '" & _
+										the_app_date &  "', '" & _
+										the_snap_status &  "', '" & _
+										the_cash_status &  "', '" & _
+										the_pnd2_days & "')", objConnection, 3, 3
+
 
                 'close the connection and recordset objects to free up resources
                 objConnection.Close
@@ -1210,7 +1227,7 @@ function test_sql_access()
     email_body = email_body & "first_item_date - " & first_item_date & vbCr
     email_body = email_body & "This test is complete and this worker has read access."
 
-    Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", email_subject, email_body, "", True)
+    Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
     end_msg = "The test is complete an an email has been sent to the BlueZone Script Team regarding access to the tables for the new On Demand functionality."
     Call script_end_procedure(end_msg)
@@ -1296,7 +1313,10 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     dialog Dialog1
 
     If run_demo = "Yes" Then local_demo = True
-    If clean_up_list = "Yes" Then Call merge_worklist_to_SQL
+    If clean_up_list = "Yes" Then
+		MsgBox "THIS WILL CLEAN THE SQL TABLE AND DELETE IT."
+		Call merge_worklist_to_SQL
+	End If
 
     If local_demo = False Then ADMIN_run = True
 End If
@@ -1323,6 +1343,7 @@ For tester = 0 to UBound(tester_array)                         'looping through 
     If tester_array(tester).tester_id_number = user_ID_for_validation Then
         qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
         qi_worker_first_name = tester_array(tester).tester_first_name
+		qi_worker_email = tester_array(tester).tester_email
         If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
@@ -1420,7 +1441,7 @@ If local_demo = False Then
 		'identifying if the worker has already pulled a case for review or not
 		If cases_on_hold = 0 and cases_completed_by_current_worker = 0 and worker_on_task = False Then workers_first_task_pulled_for_review = True
 		'using the counts to determine if work has been started
-		If cases_with_review_completed <> 0 Then review_work_started = True
+		If cases_completed_by_current_worker <> 0 Then review_work_started = True
 		If all_cases_on_hold <> 0 Then review_work_started = True
 		If all_cases_in_progress <> 0 Then review_work_started = True
 	Else 'BULK run has not been completed for the day
@@ -1803,6 +1824,8 @@ If worker_on_task = False Then			'if the worker is currently NOT on a task, the 
 				Call assess_worklist_to_finish_day
 				If case_on_hold = False and case_in_progress = False Then
 					Call create_assignment_report
+					end_msg = "Tracking log has been updated with work completed by " & assigned_worker & "."
+                    call script_end_procedure(end_msg)
 				Else
 					loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
 					loop_dlg_msg = loop_dlg_msg & "The dialog will reappear, finish all reviews that have been started first." & vbCr & vbCr

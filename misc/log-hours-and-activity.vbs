@@ -109,20 +109,33 @@ the_year = DatePart("yyyy", date)
 'Defining the excel files for when running the script
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
 
-If user_ID_for_validation = "CALO001" Then
-	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking.xlsx"
-	bz_member = "Casey Love"
-	leave_request_type = "Vacation"
-End If
 If user_ID_for_validation = "ILFE001" Then
 	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking.xlsx"
 	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking.xlsx"
 	bz_member = "Ilse Ferris"
-	leave_request_type = "PTO"
+	' leave_request_type = "PTO"
 End If
-If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Trackking Worksheet yet!")
-If objFSO.FileExists(my_docs_excel_file_path) = False Then Call script_end_procedure("We have not set up your Time Trackking Worksheet yet!")
+If user_ID_for_validation = "MEGE001" Then
+	t_drive_excel_file_path = excel_file_path & "\Megan Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Megan Time Tracking.xlsx"
+	bz_member = "Megan Geissler"
+	' leave_request_type = "PTO"
+End If
+If user_ID_for_validation = "CALO001" Then
+	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking.xlsx"
+	bz_member = "Casey Love"
+	' leave_request_type = "Vacation"
+End If
+If user_ID_for_validation = "MARI001" Then
+	t_drive_excel_file_path = excel_file_path & "\Mark Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Mark Time Tracking.xlsx"
+	bz_member = "Mark Riegel"
+	' leave_request_type = "PTO"
+End If
+
+If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
+If objFSO.FileExists(my_docs_excel_file_path) = False Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
 
 view_excel = True		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file

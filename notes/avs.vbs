@@ -44,6 +44,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/26/2023", "Disabled renewal option due to asset diregard through 05/31/2024.", "Ilse Ferris, Hennepin County")
+call changelog_update("05/01/2023", "Updated AVS Portal Case Review reminder for 11th day after submitting an Ad-Hoc request.", "Mark Riegel, Hennepin County")
+call changelog_update("03/20/2023", "Added Change in Basis option, and enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -55,7 +58,6 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-HC_process = "Application"  'Defaulting - This is only viable option currently
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected.
 get_county_code
 Call Check_for_MAXIS(False)
@@ -80,7 +82,7 @@ End if
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
-"If a resident is already on a MHCP with an asset test or a MHCP with an asset test isn't being applied for then the AVS should not be run. This verification is not meant for any other public assitance programs besides health care."
+"If a resident is already on a MHCP with an asset test or a MHCP with an asset test isn't being applied for then the AVS should not be run. This verification is not meant for any other public assistance programs besides health care."
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
@@ -88,7 +90,8 @@ BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
   ButtonGroup ButtonPressed
   PushButton 135, 10, 10, 15, "!", initial_help_button
   DropListBox 75, 30, 105, 15, "Select one..."+chr(9)+"AVS Forms"+chr(9)+"AVS Submission/Results", initial_option
-  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Renewal", HC_process
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis", HC_process
+  'DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   ButtonGroup ButtonPressed
     OkButton 75, 65, 40, 15
     CancelButton 120, 65, 40, 15
@@ -107,15 +110,13 @@ DO
             tips_tricks_msg = MsgBox(initial_help_text, vbInformation, "Tips and Tricks") 'see initial_help_text above for details of the text
             err_msg = "LOOP" & err_msg
         End if
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid MAXIS Case Number."
+    	Call validate_MAXIS_case_number(err_msg, "*")
         If initial_option = "Select one..." then err_msg = err_msg & vbcr & "* Select the AVS process."
         If HC_process = "Select one..." then err_msg = err_msg & vbcr & "* Select the health care process."
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.") 'Issue #311 will address this
 
 MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
@@ -559,7 +560,7 @@ Do
 
     'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 10, date, False, TIKL_note_text)
+    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 11, date, False, TIKL_note_text)
     If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
     If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
 

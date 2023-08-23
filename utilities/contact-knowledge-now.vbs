@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("08/19/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -217,7 +218,7 @@ DO
 Loop until message_confirmed = vbYes
 
 email_body = "~~This email is generated from completion of the 'Contact Knowledge Now' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
+Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", TRUE)
 
 STATS_manualtime = STATS_manualtime + (timer - start_time)
 end_msg = "Thank you!" & vbCr & "The Contact Knowledge Now Script is Complete." & vbCr & vbCr & "Your Report has been submitted to the QI Team. Someone will reach out to you shortly."

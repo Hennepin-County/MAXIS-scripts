@@ -158,7 +158,7 @@ const notes_const                   = 5
 const snap_status_const             = 6
 const other_programs_present_const  = 7
 const reporting_status_const        = 8
-const no_action_req_const           = 9
+const action_req_const              = 9
 const excel_row_const               = 10
 
 'Sets variable for all of the Excel stuff
@@ -217,8 +217,10 @@ Loop
 '            dail_msg = trim(dail_msg)
 '			stats_counter = stats_counter + 1
 '
-'            If dail_type = "HIRE" then
-'                If instr(dail_msg, "JOB DETAILS") then
+'            If dail_type = "HIRE" or dail_type = "CSES" then
+                'If instr(dail_msg, "COMPLETE INFC PANELS") then
+                '    add_to_array = False
+'               Else
 '				    '--------------------------------------------------------------------...and add to the array/put that in Excel.
 '                    ReDim Preserve DAIL_array(excel_row_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
 '            	    DAIL_array(worker_const,	           DAIL_count) = trim(worker)
@@ -246,7 +248,8 @@ Loop
 '			If trim(next_dail_check) = "" then
 '				PF8
 '				EMReadScreen last_page_check, 21, 24, 2
-'				If last_page_check = "THIS IS THE LAST PAGE" then
+'				'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+'               If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
 '					all_done = true
 '					exit do
 '				Else
@@ -273,7 +276,7 @@ For item = 0 to Ubound(DAIL_array, 2)
         Else
             Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
             'SNAP Information
-            If snap_status <> "ACTIVE" then DAIL_array(no_action_req_const, item) = False
+            If snap_status <> "ACTIVE" then DAIL_array(action_req_const, item) = True
 
             'If other programs are active/pending then no notice is necessary
             If  ga_case = True OR _
@@ -284,7 +287,7 @@ For item = 0 to Ubound(DAIL_array, 2)
                 ma_case = True OR _
                 msp_case = True then
                     DAIL_array(other_programs_present_const, item) = True
-                    DAIL_array(no_action_req_const, item) = False
+                    DAIL_array(action_req_const, item) = True
             Else
                 DAIL_array(other_programs_present_const, item) = False
             End if
@@ -298,7 +301,7 @@ For item = 0 to Ubound(DAIL_array, 2)
                 EMReadScreen no_SNAP, 10, 24, 2
 	        	If no_SNAP = "NO VERSION" then						'NO SNAP version means no determiation
 	        		DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "No version of SNAP exists for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                    DAIL_array(no_action_req_const, item) = False
+                    DAIL_array(action_req_const, item) = True
 	        	Else
 
 	        	    EMWriteScreen "99", 19, 78
@@ -309,17 +312,15 @@ For item = 0 to Ubound(DAIL_array, 2)
 	        	    	EMReadScreen app_status, 8, status_row, 50
                         app_status = trim(app_status)
 	        	    	If app_status = "" then
-	        	    		DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                            DAIL_array(no_action_req_const, item) = False
 	        	    		PF3
 	        	    		exit do 	'if end of the list is reached then exits the do loop
 	        	    	End if
 	        	    	If app_status = "UNAPPROV" Then status_row = status_row + 1
-	        	    Loop until  app_status = "APPROVED" or app_status = ""
+	        	    Loop until app_status = "APPROVED" or app_status = ""
 
-	        		If app_status <> "APPROVED" then
+	        		If app_status = "" or app_status <> "APPROVED" then
 	        		   	DAIL_array(notes_const, item) = DAIL_array(notes_const, item) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
-                        DAIL_array(no_action_req_const, item) = False
+                        DAIL_array(action_req_const, item) = True
 	        		Elseif app_status = "APPROVED" then
 	        		   	EMReadScreen vers_number, 1, status_row, 23
 	        		   	Call write_value_and_transmit(vers_number, 18, 54)
@@ -331,7 +332,11 @@ For item = 0 to Ubound(DAIL_array, 2)
             Else
                 DAIL_array(reporting_status_const, item) = "N/A"
             End if
-            If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then DAIL_array(no_action_req_const, item) = True
+            If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then
+                DAIL_array(action_req_const, item) = False
+            Else
+                DAIL_array(action_req_const, item) = True
+            End if
             reporting_status = ""   'blanking out variable
         End if
     End if
@@ -339,7 +344,7 @@ For item = 0 to Ubound(DAIL_array, 2)
     objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
     objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
     objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(reporting_status_const, item)
-    objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(no_action_req_const, item)
+    objExcel.Cells(DAIL_array(excel_row_const, item), 9).Value = DAIL_array(action_req_const, item)
     objExcel.Cells(DAIL_array(excel_row_const, item), 10).Value = DAIL_array(notes_const, item)
 Next
 

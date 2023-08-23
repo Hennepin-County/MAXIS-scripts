@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/02/2023", "Changed 'PHA (Public Housing form)' dropdown option to 'Request from third party (including Public Housing Agencies)' and updated instructions for this option to align with HSR manual.", "Mark Riegel, Hennepin County")
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("02/24/2022", "Two updates to PA Verif Request:##~## ##~## - Bug fix to prevent the 'start month' from being after the 'end month'. ##~## ##~## - Added functionality to specifically resend the Tax Refund Notice from any of the past 7 years.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/12/2021", "Fixed some BUGS on PA Verif Request when creating Word Documents. These have been updated and the script should now be correctly creating word documents for residents in person or requesting a FAX.##~##", "Casey Love, Hennepin County")
@@ -607,7 +608,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 301, 130, "Verification of Public Assistance"
 		  EditBox 85, 50, 60, 15, MAXIS_case_number
-		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
+		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"Request from third party (including Public Housing Agencies)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
 		  EditBox 85, 90, 210, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 195, 110, 50, 15
@@ -637,12 +638,12 @@ Loop until are_we_passworded_out = False
 script_run_lowdown = script_run_lowdown & vbCr & "Contact Type Selected - " & contact_type			'saving information for error output email
 
 'Opening procedural references and ending the script for options that work outside of MAXIS.
-If contact_type = "PHA (Public Housing form)" Then
-	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
-	end_msg = "Requests from PHA (Public Housing Agency) of a residents Cash Assistance have a special process." & vbCr & vbCr &_
-			  "THESE ARE HANDLED BY Hazel Haynes and Tammy Richert." & vbCr & "---------------------------------------" & vbCr &_
-			  "The script has opened the correct HSR Manual page in Edge and you can view the specific procedure under the header 'Cash (requested by Public Housing Agency)'." & vbCr & vbCr &_
-			  "You should not use WCOM or MEMO to provide Cash Benefit Verification to PHA." & vbCr &_
+If contact_type = "Request from third party (including Public Housing Agencies)" Then
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx#requests-from-third-parties"
+	end_msg = "Requests for verification of public assistance by third parties (including Public Housing Agencies) should be directed to the Open Government Hennepin.us page where they can use the data request portal (under 'data practices requests')." & vbCr & vbCr &_
+			  "Public Assistance Verification forms received in ECF should be completed by the HSR. If you need assistance with this contact the Compliance Coordinator, Remy Huerta-Stemper." & vbCr & "---------------------------------------" & vbCr &_
+			  "The script has opened the correct HSR Manual page in Edge and you can view the specific procedure under the header 'Requests from Third Parties'." & vbCr & vbCr &_
+			  "You should not use WCOM or MEMO to provide Cash Benefit Verification to PHA." & vbCr & vbCr &_
 			  "For additional questions or clarification, contact Knowledge Now."
 	 script_end_procedure(end_msg)
 End If

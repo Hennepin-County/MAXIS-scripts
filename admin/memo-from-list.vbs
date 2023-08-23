@@ -78,20 +78,23 @@ FUNCTION build_manual_entry_dlg(case_number_array, memo_text)
 	EndDialog
 
 	'Calling the dlg within the function
-	DO
-		'err_msg handling
-		err_msg = ""
-		DIALOG Dialog1
-			cancel_confirmation
-			FOR i = 1 TO 50
-				all_cases_array(i, 0) = replace(all_cases_array(i, 0), " ", "")
-				IF all_cases_array(i, 0) <> "" THEN
-					IF len(all_cases_array(i, 0)) > 8 THEN err_msg = err_msg & vbCr & "* Case number " & all_cases_array(i, 0) & " is too long to be a valid MAXIS case number."
-					IF isnumeric(all_cases_array(i, 0)) = FALSE THEN err_msg = err_msg & vbCr & "* Case number " & all_cases_array(i, 0) & " contains alphabetic characters. These are not valid."
-				END IF
-			NEXT
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+    Do
+        DO
+	    	'err_msg handling
+	    	err_msg = ""
+	    	DIALOG Dialog1
+	    		cancel_confirmation
+	    		FOR i = 1 TO 50
+	    			all_cases_array(i, 0) = replace(all_cases_array(i, 0), " ", "")
+	    			IF all_cases_array(i, 0) <> "" THEN
+	    				IF len(all_cases_array(i, 0)) > 8 THEN err_msg = err_msg & vbCr & "* Case number " & all_cases_array(i, 0) & " is too long to be a valid MAXIS case number."
+	    				IF isnumeric(all_cases_array(i, 0)) = FALSE THEN err_msg = err_msg & vbCr & "* Case number " & all_cases_array(i, 0) & " contains alphabetic characters. These are not valid."
+	    			END IF
+	    		NEXT
+	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'building the array
 	case_number_array = ""
@@ -125,21 +128,28 @@ END FUNCTION
 
 'The script===========================
 EMConnect ""
-
 CALL check_for_MAXIS(true)
 
 '>>>>> loading the main dialog <<<<<
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 201, 65, "MEMO from List"
-  DropListBox 5, 40, 80, 10, "Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
+  DropListBox 5, 40, 80, 10, "Select One..."+chr(9)+"Manual Entry"+chr(9)+"REPT/ACTV"+chr(9)+"Excel File", run_mode
   ButtonGroup ButtonPressed
     OkButton 90, 40, 50, 15
     CancelButton 140, 40, 50, 15
   Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
 EndDialog
 
-DIALOG Dialog1
-cancel_without_confirmation
+Do
+    Do
+        err_msg = ""
+        DIALOG Dialog1
+        cancel_without_confirmation
+        IF run_mode = "Select One..." then err_msg = err_msg & "* Select an 'run mode' to create the MEMO's."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '>>>>> the script has different ways of building case_number_array
 IF run_mode = "Manual Entry" THEN
@@ -159,14 +169,16 @@ ELSEIF run_mode = "REPT/ACTV" THEN
       Text 10, 35, 95, 10, "Enter your memo text..."
     EndDialog
 	DO
-		err_msg = ""
-		DIALOG Dialog1
+        Do
+		    err_msg = ""
+		    DIALOG Dialog1
 			cancel_confirmation
 			worker_number = trim(worker_number)
-			IF worker_number = "" THEN err_msg = err_msg & vbCr & "* You must enter a worker number."
-			IF len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* Your worker number must be 7 characters long."
+			IF worker_number = "" or len(worker_number) <> 7 THEN err_msg = err_msg & vbCr & "* You must enter a valid 7 character worker number."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+	    LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	CALL check_for_MAXIS(false)
 
@@ -247,24 +259,28 @@ ELSEIF run_mode = "Excel File" THEN
     EndDialog
 	'Gathering the information from the user about the fields in Excel to look for.
 	DO
-		err_msg = ""
-		DIALOG Dialog1
-			IF ButtonPressed = 0 THEN stopscript
-			IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
-				err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
-			ELSE
-				IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
-					err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
-				ELSE
-					call convert_excel_letter_to_excel_number(excel_col)
-					IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
-					IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
-				END IF
-			END IF
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+        Do
+		    err_msg = ""
+		    DIALOG Dialog1
+		    cancel_confirmation
+		    IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
+		    	err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
+		    ELSE
+		    	IF (isnumeric(right(excel_col, 1)) = TRUE AND isnumeric(left(excel_col, 1)) = FALSE) OR (isnumeric(right(excel_col, 1)) = FALSE AND isnumeric(left(excel_col, 1)) = TRUE) THEN
+		    		err_msg = err_msg & vbCr & "* Please use a valid Column indicator. " & excel_col & " contains BOTH a letter and a number."
+		    	ELSE
+		    		call convert_excel_letter_to_excel_number(excel_col)
+		    		IF isnumeric(excel_row) = false or isnumeric(end_row) = false THEN err_msg = err_msg & vbCr & "* Please enter the Excel rows as numeric characters."
+		    		IF end_row = "" THEN err_msg = err_msg & vbCr & "* Please enter an end to the search. The script needs to know when to stop searching."
+		    	END IF
+		    END IF
+		    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	    LOOP UNTIL err_msg = ""
+        Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	CALL check_for_MAXIS(false)
+
 	'Generating a MEMO for each case.
 	FOR i = excel_row TO end_row
 		IF objExcel.Cells(i, excel_col).Value <> "" THEN
@@ -272,8 +288,6 @@ ELSEIF run_mode = "Excel File" THEN
 		END IF
 	NEXT
 END IF
-
-CALL check_for_MAXIS(false)
 
 'The business of sending memos
 case_number_array = trim(case_number_array)

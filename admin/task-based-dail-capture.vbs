@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("10/05/2022", "Ensured correct baskets are pulled for each population. Changed population verbiage (ADAD to adults, etc.)", "Ilse Ferris, Hennepin County")
 call changelog_update("07/25/2022", "Removed Laurie's email, added Mary McGuinness.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/02/2022", "Updated string for checking to see if no DAILs exist based on options selected (all vs. specified DAIL's).", "Ilse Ferris, Hennepin County")
@@ -247,6 +248,8 @@ For each worker in worker_array
 
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+            'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties. 
+            If instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then actionable_dail = False
 
             IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
                 If len(dail_month) = 5 then
@@ -348,8 +351,8 @@ Next
 'Closing the connection
 objConnection.Close
 
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-Call create_outlook_email("Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", "", "", True)
+'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+Call create_outlook_email("", "Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
 stats_counter = stats_counter -1
 script_end_procedure("Success! Actionable DAIL's have been added to the database.")
 

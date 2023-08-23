@@ -45,14 +45,13 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/06/2023", "Updated 200% FPG for April 2023 updates to reflect previous year's FPG results based on the date of application. Small updates to enhance user experience.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "The display of the EGA Screening result has been updated to repeat the information provided and have buttons to indicate what next action the script should take.", "Casey Love, Hennepin County")
 call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~####~##EGA screening was not correctly identifying if EGA was available/had already been used in the past 12 months.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/02/2022", "Updated 200% FPG for 2022.", "Ilse Ferris, Hennepin County")
@@ -73,59 +72,69 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-'creating month variable 13 months prior to current footer month/year to search for EMER programs issued (for EMER SCREENING portion of the script)
-begin_search_month = dateadd("m", -13, date)
-begin_search_year = datepart("yyyy", begin_search_month)
-begin_search_year = right(begin_search_year, 2)
-begin_search_month = datepart("m", begin_search_month)
-If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_month
-'End of date calculations----------------------------------------------------------------------------------------------
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'THE  SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number & footer month/year
 EMConnect ""
+Call check_for_MAXIS(false)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 141, 115, "Case number dialog"
-  EditBox 75, 5, 55, 15, MAXIS_case_number
-  EditBox 75, 25, 25, 15, MAXIS_footer_month
-  EditBox 105, 25, 25, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_check
-  CheckBox 55, 60, 30, 10, "HC", HC_check
-  CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
+BeginDialog Dialog1, 0, 0, 141, 80, "Case number dialog"
+  EditBox 75, 5, 50, 15, MAXIS_case_number
+  EditBox 75, 25, 20, 15, MAXIS_footer_month
+  EditBox 105, 25, 20, 15, MAXIS_footer_year
+  CheckBox 20, 45, 120, 10, "Check here if program is EGA?", EGA_screening_check
   ButtonGroup ButtonPressed
-	OkButton 15, 95, 50, 15
-	CancelButton 75, 95, 50, 15
+    OkButton 30, 60, 45, 15
+    CancelButton 80, 60, 45, 15
   Text 10, 30, 65, 10, "Footer month/year:"
-  GroupBox 5, 45, 130, 30, "Other programs open or applied for:"
   Text 25, 10, 45, 10, "Case number:"
 EndDialog
+
 'Showing the case number dialog
 DO
 	Do
-	    err_msg = ""
+        err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
         Call validate_MAXIS_case_number(err_msg, "*")
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'EMER screnning code----------------------------------------------------------------------------------------------------
+Call check_for_MAXIS(false)
+Call MAXIS_footer_month_confirmation
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
 
+EMReadscreen application_date, 8, 8, 33
+If application_date = "__ __ __" then
+    application_date = ""
+Else
+    application_date = replace(application_date, " ", "/")
+End If
+
+EMReadScreen interview_date, 8, 8, 55
+If interview_date = "__ __ __" then
+    interview_date = ""
+Else
+    interview_date = replace(interview_date, " ", "/")
+End if
+
+Call HCRE_panel_bypass
+
+'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
+    STATS_counter = STATS_counter + 1               'Adding stats counter for EGA screening as well
     'EGA screening dialog
-    '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening dialog"
-      ComboBox 255, 5, 25, 15, "1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20", HH_members
+    BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening #" & MAXIS_case_number
+      EditBox 80, 5, 60, 15, application_date
+      EditBox 260, 5, 20, 15, Household_size
       CheckBox 15, 45, 40, 10, "Eviction", eviction_check
       CheckBox 65, 45, 70, 10, "Utility disconnect", utility_disconnect_check
       CheckBox 140, 45, 60, 10, "Homelessness", homelessness_check
@@ -135,54 +144,69 @@ If EGA_screening_check = 1 then
       EditBox 230, 105, 50, 15, net_income
       EditBox 155, 125, 125, 15, worker_signature
       ButtonGroup ButtonPressed
-    	PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
-    	OkButton 180, 145, 50, 15
-    	CancelButton 230, 145, 50, 15
-    	PushButton 10, 95, 30, 10, "ADDR", ADDR_button
-    	PushButton 40, 95, 30, 10, "BUSI", BUSI_button
-    	PushButton 10, 105, 30, 10, "JOBS", JOBS_button
-    	PushButton 40, 105, 30, 10, "MEMB", MEMB_button
-    	PushButton 10, 115, 30, 10, "PROG", PROG_button
-    	PushButton 40, 115, 30, 10, "SHEL", SHEL_button
-    	PushButton 10, 125, 30, 10, "TYPE", TYPE_button
-    	PushButton 40, 125, 30, 10, "UNEA", UNEA_button
-    	PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
-    	PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
-      Text 145, 10, 105, 10, "Number of EMER HH members:"
-      Text 100, 110, 125, 10, "What is the household's NET income?"
-      Text 10, 10, 120, 10, "Case number: " & MAXIS_case_number
+        PushButton 85, 145, 90, 15, "HSR Manual EMER page ", EMER_HSR_manual_button
+        OkButton 180, 145, 50, 15
+        CancelButton 230, 145, 50, 15
+        PushButton 10, 95, 30, 10, "ADDR", ADDR_button
+        PushButton 40, 95, 30, 10, "BUSI", BUSI_button
+        PushButton 10, 105, 30, 10, "JOBS", JOBS_button
+        PushButton 40, 105, 30, 10, "MEMB", MEMB_button
+        PushButton 10, 115, 30, 10, "PROG", PROG_button
+        PushButton 40, 115, 30, 10, "SHEL", SHEL_button
+        PushButton 10, 125, 30, 10, "TYPE", TYPE_button
+        PushButton 40, 125, 30, 10, "UNEA", UNEA_button
+        PushButton 15, 135, 50, 10, "CASE/CURR", CURR_button
+        PushButton 15, 145, 50, 10, "MONY/INQX", MONY_button
       GroupBox 5, 30, 275, 30, "Crisis (Check all that apply. If none, do not check any):"
       Text 5, 70, 220, 10, "Has anyone in the HH been residing in MN for more than 30 days?"
       Text 100, 90, 125, 10, "What is the household's shelter cost?"
       Text 90, 130, 60, 10, "Worker signature:"
       GroupBox 0, 85, 80, 75, "STAT navigation"
+      Text 100, 110, 125, 10, "What is the household's NET income?"
+      Text 150, 10, 105, 10, "Number of EMER HH members:"
+      Text 10, 10, 65, 10, "Date of Application:"
     EndDialog
+
     DO
     	DO
 		    err_msg = ""
     		DO
-    			Dialog Dialog1
-    			cancel_without_confirmation
-				MAXIS_dialog_navigation
+    		    Dialog Dialog1
+    		    cancel_without_confirmation
+			    MAXIS_dialog_navigation
                 IF buttonpressed = EMER_HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx") 'HSR manual policy page
             LOOP until ButtonPressed = -1
-    		If HH_members = "" or IsNumeric(HH_members) = False then err_msg = err_msg & vbNewLine & "* Enter the number of household members."
+    		If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date of application."
+            If IsNumeric(Household_size) = False then
+                err_msg = err_msg & vbNewLine & "* Enter the number of household members."
+            Else
+                If trim(Household_size) > 2 then err_msg = err_msg & vbNewLine & "* Enter a household comp or 1 or 2."
+            End if
     		If meets_residency = "Select one..." then err_msg = err_msg & vbNewLine & "* Answer the MN residency question."
-    		If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			If IsNumeric(shelter_costs) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric shelter cost amount."
-    		If net_income = "" or IsNumeric(net_income) = False then err_msg = err_msg & vbNewLine & "* Enter the household's net income."
+            If trim(shelter_costs) = "" or IsNumeric(shelter_costs) = false then err_msg = err_msg & vbNewLine & "* Enter a numeric shelter cost amount."
+            If trim(net_income) = "" or IsNumeric(net_income) = False then err_msg = err_msg & vbNewLine & "* Enter the household's net income."
+    		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+    'DATE CALCULATIONS for EGA Screening ---------------------------------------------------------------------------------------------------
+    'creating month variable 13 months prior to current footer month/year to search for EMER programs issued (for EMER SCREENING portion of the script)
+    application_date = dateadd("d", 0, application_date)    'ensuring the date is reading as a date
+    begin_search_month = dateadd("m", -13, application_date)   'using appilcation date since we're measuring for the last approval within 13 months.
+    begin_search_year = datepart("yyyy", begin_search_month)
+    begin_search_year = right(begin_search_year, 2)
+    begin_search_month = datepart("m", begin_search_month)
+    If len(begin_search_month) = 1 then begin_search_month = "0" & begin_search_month
 
     Call navigate_to_MAXIS_screen("MONY", "INQX")
     EMWriteScreen begin_search_month, 6, 38		'entering footer month/year 13 months prior to current footer month/year'
     EMWriteScreen begin_search_year, 6, 41
     EMWriteScreen CM_mo, 6, 53		'entering current footer month/year
     EMWriteScreen CM_yr, 6, 56
-    EMWriteScreen "x", 9, 50		'selecting EA
-    EMWriteScreen "x", 11, 50		'selecting EGA
+    EMWriteScreen "X", 9, 50		'selecting EA
+    EMWriteScreen "X", 11, 50		'selecting EGA
     transmit
 
     'searching for EA/EG issued on the INQD screen
@@ -228,38 +252,36 @@ If EGA_screening_check = 1 then
     If homelessness_check = 1 then crisis = crisis & "homelessness, "
     If security_deposit_check = 1 then crisis = crisis & "security deposit, "
     If eviction_check = 0 and utility_disconnect_check = 0 and homelessness_check = 0 and security_deposit_check = 0 then
-      crisis = "no crisis given"
+        crisis = "no crisis given"
     Else
-      crisis = trim(crisis)
-      crisis = left(crisis, len(crisis) - 1)
+        crisis = trim(crisis)
+        crisis = left(crisis, len(crisis) - 1)
+    End if
+
+    'ensuring that HH size is single digit
+    If len(household_size) > 1  then
+        Do
+		    household_size= trim(household_size)
+		    If left(household_size, 1) = "0" then household_size = right(household_size, len(household_size) - 1)
+	    Loop until left(household_size, 1) <> "0"
     End if
 
     'determining  200% FPG per HH member---handles up to 20 members. Changes April 1 every year. CM0016.18.01 - 200 Percent of FPG
-	If HH_members = "1"  then monthly_standard = "2265"
-    If HH_members = "2"  then monthly_standard = "3052"
-    If HH_members = "3"  then monthly_standard = "3838"
-    If HH_members = "4"  then monthly_standard = "4625"
-    If HH_members = "5"  then monthly_standard = "5412"
-    If HH_members = "6"  then monthly_standard = "6198"
-    If HH_members = "7"  then monthly_standard = "6985"
-    If HH_members = "8"  then monthly_standard = "7772"
-    If HH_members = "9"  then monthly_standard = "8558"
-    If HH_members = "10" then monthly_standard = "9345"
-    If HH_members = "11" then monthly_standard = "10132"
-    If HH_members = "12" then monthly_standard = "10918"
-    If HH_members = "13" then monthly_standard = "11705"
-    If HH_members = "14" then monthly_standard = "12492"
-    If HH_members = "15" then monthly_standard = "13278"
-    If HH_members = "16" then monthly_standard = "14065"
-    If HH_members = "17" then monthly_standard = "14852"
-    If HH_members = "18" then monthly_standard = "15638"
-    If HH_members = "19" then monthly_standard = "16425"
-    If HH_members = "20" then monthly_standard = "17211"
+    'state statute listed here: 'https://www.revisor.mn.gov/statutes/cite/256D.06
+    If DateDiff("d", application_date, #4/1/2023#) < 0 Then
+        'April 2022 Amounts
+        If household_size = 1 Then monthly_standard = 2265
+        If household_size = 2 Then monthly_standard = 3052
+    Else
+        'April 2021 Amounts
+        If household_size = 1 Then monthly_standard = 2147
+	    If household_size = 2 Then monthly_standard = 2903
+    End if
 
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
     'determining if client is potentially elig for EMER or not'
-	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
+    If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
         ega_results_dlg_len = 220
 	Else
         screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
@@ -271,37 +293,35 @@ If EGA_screening_check = 1 then
         If abs(net_income) > abs(monthly_standard) then ega_results_dlg_len = ega_results_dlg_len + 10'"* Net income exceeds program guidelines."
         IF net_income = "0" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Household does not have current/ongoing income."
         If EMER_last_used_dates <> "n/a" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Emergency funds were used within the last year from the eligibility period."
-		'If EMER_available_date = > Cdate then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
     End if
 
     ega_screening_note_made = False
     Do
         Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 301, ega_results_dlg_len, "EGA Screening Results"
-          ButtonGroup ButtonPressed
-            If ega_screening_note_made = False Then
-                PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
-                PushButton 80, ega_results_dlg_len-40, 215, 15, "Do NOT CASE/NOTE Screening - Continue to Emergency Script", continue_to_emer_script_btn
-                PushButton 140, ega_results_dlg_len-20, 155, 15, "Do NOT CASE/NOTE Screening - End Script", end_script_btn
-            End If
-            If ega_screening_note_made = True Then
-                ' PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
-                PushButton 80, ega_results_dlg_len-40, 215, 15, "CASE/NOTE Created - Continue to Emergency Script", continue_to_emer_script_btn
-                PushButton 140, ega_results_dlg_len-20, 155, 15, "CASE/NOTE Created - End Script", end_script_btn
-            End If
+        ButtonGroup ButtonPressed
+          If ega_screening_note_made = False Then
+              PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
+              PushButton 80, ega_results_dlg_len-40, 215, 15, "Do NOT CASE/NOTE Screening - Continue to Emergency Script", continue_to_emer_script_btn
+              PushButton 140, ega_results_dlg_len-20, 155, 15, "Do NOT CASE/NOTE Screening - End Script", end_script_btn
+          End If
+          If ega_screening_note_made = True Then
+              ' PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
+              PushButton 80, ega_results_dlg_len-40, 215, 15, "CASE/NOTE Created - Continue to Emergency Script", continue_to_emer_script_btn
+              PushButton 140, ega_results_dlg_len-20, 155, 15, "CASE/NOTE Created - End Script", end_script_btn
+          End If
           GroupBox 10, 10, 285, 110, "EGA Screening Details"
           Text 20, 25, 270, 10, "Crisis: " & crisis
           Text 30, 40, 125, 10, "Shelter Expense: $ " & shelter_costs
           Text 25, 50, 125, 10, "Household Income: $ " & net_income & "  (net)"
           Text 140, 50, 115, 10, " 70% of HH Income: $ " & seventy_percent_income
-          Text 25, 60, 75, 10, "  # of HH Members: " & HH_members
+          Text 25, 60, 75, 10, "  # of HH Members: " & Household_size
           Text 130, 60, 115, 10, "EGA Monthly Standard: $ " & monthly_standard
           Text 30, 70, 120, 10, " State Residency: " & meets_residency
           Text 35, 90, 130, 10, "  EMER Last Used: " & EMER_last_used_dates
           Text 25, 100, 130, 10, "EMER Available Date: " & EMER_available_date
           Text 10, 130, 75, 10, "Case " & MAXIS_case_number & " is:"
           If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
-
             Text 20, 140, 125, 10, "POTENTIALLY ELIGIBLE FOR EGA"
           Else
             y_pos = 140
@@ -331,30 +351,27 @@ If EGA_screening_check = 1 then
                 Text 25, y_pos, 250, 10, "* Emergency funds were used within the last year from the eligibility period."
                 y_pos = y_pos + 10
             End If
+        End If
 
-          End If
         EndDialog
-
         dialog Dialog1
         cancel_without_confirmation
-
         If ButtonPressed = end_script_btn Then Call script_end_procedure("EGA Screening completed, script ended per your request.")
-
         If ButtonPressed = enter_screening_note_btn Then
             'The case note
             ega_screening_note_made = True
         	Call start_a_blank_CASE_NOTE
         	Call write_variable_in_CASE_NOTE("--//--Emergency Programs Screening--//--")
-        	Call write_bullet_and_variable_in_CASE_NOTE("Number of HH members", HH_members)
+        	Call write_bullet_and_variable_in_CASE_NOTE("Number of HH members", Household_size)
         	Call  write_bullet_and_variable_in_CASE_NOTE("Crisis/Type of Emergency", crisis)
         	Call write_bullet_and_variable_in_CASE_NOTE("Living situation is", affordbable_housing)
         	Call write_bullet_and_variable_in_CASE_NOTE("Does any member of the HH meet 30 day residency requirements", meets_residency)
         	Call write_bullet_and_variable_in_CASE_NOTE("Shelter cost for HH", shelter_costs)
     		Call write_bullet_and_variable_in_CASE_NOTE("Net income for HH", net_income)
-        	IF screening_determination = "potentially eligible for emergency programs." then
-        		Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
-        	Else
-        		Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
+        	IF screening_determination = "NOT eligible for EGA for the following reasons:" then
+                Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
+            Else
+                Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
         	END IF
         	Call write_variable_in_CASE_NOTE("---")
         	Call write_bullet_and_variable_in_CASE_NOTE("Last date EMER programs were used", EMER_last_used_dates)
@@ -366,10 +383,8 @@ If EGA_screening_check = 1 then
 END IF
 'End of EMER screening code----------------------------------------------------------------------------------------------------
 
-'Jumping into STAT
-call navigate_to_MAXIS_screen("stat", "hcre")
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
+Call navigate_to_MAXIS_screen("STAT", "MEMB")   'nav to STAT, choose STAT/MEMB since HH_member_dialog is next
+Call HH_member_custom_dialog(HH_member_array)   'Creating a custom dialog for determining who the HH members are
 
 'Autofilling
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
@@ -379,7 +394,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", income)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", Household_size)
 call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
@@ -395,7 +410,7 @@ DO
         'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
         BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
         EditBox 60, 45, 65, 15, interview_date
-        EditBox 170, 45, 150, 15, HH_comp
+        EditBox 170, 45, 150, 15, Household_size
         CheckBox 25, 75, 40, 10, "Eviction", eviction_check
         CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
         CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
@@ -478,7 +493,6 @@ DO
               Text 10, 5, 125, 10, "Are you sure you want to case note?"
             EndDialog
             dialog Dialog1
-
             If ButtonPressed = no_case_note_button Then err_msg = "LOOP"
         END IF
     LOOP until err_msg = ""
@@ -492,17 +506,17 @@ If utility_disconnect_check = 1 then crisis = crisis & "utility disconnect, "
 If homelessness_check = 1 then crisis = crisis & "homelessness, "
 If security_deposit_check = 1 then crisis = crisis & "security deposit, "
 If eviction_check = 0 and utility_disconnect_check = 0 and homelessness_check = 0 and security_deposit_check = 0 then
-  crisis = "no crisis given."
+    crisis = "no crisis given."
 Else
-  crisis = trim(crisis)
-  crisis = left(crisis, len(crisis) - 1) & "."
+    crisis = trim(crisis)
+    crisis = left(crisis, len(crisis) - 1) & "."
 End if
 
 'Writing the case note
 call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***Emergency app: "& replace(crisis, ".", "") & "***")
 call write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
-call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
+call write_bullet_and_variable_in_CASE_NOTE("HH comp", household_size)
 call write_bullet_and_variable_in_CASE_NOTE("Crisis", crisis)
 call write_bullet_and_variable_in_CASE_NOTE("Cause of crisis", cause_of_crisis)
 call write_bullet_and_variable_in_CASE_NOTE("Income, past " & emer_number_of_income_days & " days", income)
@@ -520,3 +534,54 @@ call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("")
+
+'policy and procedural info - CLOS is checked out currenlty.
+'https://www.revisor.mn.gov/statutes/cite/256D.06
+'https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx
+'https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx
+'https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=lp_cm_0004
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/24/2023
+'--Tab orders reviewed & confirmed----------------------------------------------04/24/2023
+'--Mandatory fields all present & Reviewed--------------------------------------04/24/2023
+'--All variables in dialog match mandatory fields-------------------------------04/24/2023
+'Review dialog names for content and content fit in dialog----------------------04/24/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/24/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/24/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/24/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-04/24/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/24/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/24/2023-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/24/2023
+'--Out-of-County handling reviewed----------------------------------------------04/24/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/24/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------04/24/2023-----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------04/24/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/24/2023
+'--Incrementors reviewed (if necessary)----------------------------------------04/24/2023-
+'--Denomination reviewed -------------------------------------------------------04/24/2023
+'--Script name reviewed---------------------------------------------------------04/24/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/24/2023-----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------04/24/2023
+'--comment Code-----------------------------------------------------------------04/24/2023
+'--Update Changelog for release/update------------------------------------------04/24/2023
+'--Remove testing message boxes-------------------------------------------------04/24/2023
+'--Remove testing code/unnecessary code-----------------------------------------04/24/2023
+'--Review/update SharePoint instructions----------------------------------------04/24/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/24/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/24/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------04/24/2023
+'--Complete misc. documentation (if applicable)---------------------------------04/24/2023
+'--Update project team/issue contact (if applicable)----------------------------04/24/2023

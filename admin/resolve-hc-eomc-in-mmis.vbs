@@ -101,20 +101,23 @@ mmis_last_day_after_cap = last_day_mo & "/" & last_day_day & "/" & last_day_yr
 
 'Setting amounts
 total_savings = 0                   'setting this at zero so that we can add up what we save
-capitation_11x      = 938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
-capitation_PW       = 1241.53
-capitation_1        = 235.68
-capitation_2_15     = 236.03
-capitation_16_20    = 261.67
-capitation_21_49    = 808.96
-capitation_21_49_ax = 800.89
-capitation_50_64    = 1118.34
-capitation_50_64_ax = 801.27
-capitation_65       = 2681.89
+capitation_11x      = 1051.66'938.14        'capitation amounts set annually by DHS - eventually we need to move this to FuncLib
+capitation_PW       = 791.45'1241.53
+capitation_1        = 256.59'235.68
+capitation_2_15     = 256.57'236.03
+capitation_16_20    = 282.16'261.67
+capitation_21_49    = 932.53'808.96
+capitation_21_49_ax = 996.84'800.89
+capitation_50_64    = 1260.16'1118.34
+capitation_50_64_ax = 988.53'801.27
+capitation_65       = 3094.54'2681.89
 
-capitation_QMB      = 135.50
-capitation_SLMB     = 135.50
-capitation_QI1      = 135.50
+capitation_QMB      = 164.90'135.50
+capitation_SLMB     = 164.90'135.50
+capitation_QI1      = 164.90'135.50
+
+Const xlSrcRange = 1
+Const xlYes = 1
 
 'Constants
 Const basket_nbr            = 0
@@ -160,7 +163,7 @@ query_start_time = timer
 
 'dialog to restrict how many baskets the script is run on AND decide if the script will be run to change or just look up information
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 351, 75, "Workers to check EOMC"
+BeginDialog Dialog1, 0, 0, 351, 75, "Start Resolve HC EOMC in MMIS Run"
   EditBox 90, 10, 255, 15, list_of_workers
   CheckBox 10, 45, 140, 10, "Check here to have script update MMIS", change_checkbox
   CheckBox 10, 60, 130, 10, "Check here if it is after CAPITATION.", after_capitation_checkbox
@@ -204,7 +207,7 @@ list_of_cases = 0                       'array incrementer
 For each worker in worker_array         'going through each worker in the list of workers
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
     worker = trim(worker)               'making sure there aren't any spaces around the basket number
-	Call navigate_to_MAXIS_screen("rept", "eomc")      'go to EOMC for the correct worker number
+	Call navigate_to_MAXIS_screen("REPT", "EOMC")      'go to EOMC for the correct worker number
 	EMWriteScreen worker, 21, 16
 	transmit
 
@@ -385,13 +388,21 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     ' If MAXIS_case_number = "" Then MsgBox "Case number: " & EOMC_CLIENT_ARRAY(case_nbr, hc_case) & vbNewLine & "Client: " & EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) & vbNewLines & "PMI: " & EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
 
     Call navigate_to_MAXIS_screen("STAT", "MEMB")                       'going to MEMB to get age for identifying correct capitation
-    EMWriteScreen CLIENT_reference_number, 20, 76
-    EMReadScreen age_of_client, 3, 8, 76
-    age_of_client = trim(age_of_client)
-    If age_of_client = "" Then age_of_client = 0
-    EOMC_CLIENT_ARRAY(clt_age, hc_clt) = age_of_client*1
+    Call write_value_and_transmit(CLIENT_reference_number, 20, 76)
+	EMWaitReady 0, 0
+	EMReadScreen access_denied_check, 13, 24, 2
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+        EMWaitReady 0, 0
+		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = 2 'TODO - decide what 'age' we want to assign when a MEMB panel is access denied
+	Else
+		EMReadScreen age_of_client, 3, 8, 76
+		age_of_client = trim(age_of_client)
+		If age_of_client = "" Then age_of_client = 0
+		EOMC_CLIENT_ARRAY(clt_age, hc_clt) = age_of_client*1
+	End If
 
-    Call navigate_to_MAXIS_screen ("ELIG", "HC")						'Goes to ELIG HC
+    Call navigate_to_MAXIS_screen ("ELIG", "HC  ")						'Goes to ELIG HC
     APPROVAL_NEEDED = FALSE                                             'setting some booleans
     found_elig = FALSE
     client_found = FALSE
@@ -625,16 +636,6 @@ Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")      'Going to MMIS'
 'MsgBox "Pause"
 EMReadScreen check_in_MMIS, 18, 1, 7
 
-' Dialog1 = ""
-' BeginDialog Dialog1, 0, 0, 131, 80, "Dialog"
-'   ButtonGroup ButtonPressed
-'     OkButton 75, 60, 50, 15
-'   Text 15, 15, 65, 10, "What does it say?"
-'   Text 25, 35, 50, 10, check_in_MMIS
-' EndDialog
-'
-' dialog Dialog1
-
 If check_in_MMIS = "SESSION TERMINATED" Then
     EMWriteScreen "MW00",1, 2
     transmit
@@ -747,7 +748,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     PMI_Number = right("00000000" & EOMC_CLIENT_ARRAY(clt_pmi, hc_clt), 8)    'making this 8 charactes because MMIS
     MAXIS_case_number = right("00000000" & EOMC_CLIENT_ARRAY(case_nbr, hc_clt), 8)
 
-    If EOMC_CLIENT_ARRAY(err_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
+	If EOMC_CLIENT_ARRAY(err_notes, hc_clt) <> "PRIV" Then                  'Can't look at priv case information so we will ignore them
         EMWriteScreen "I", 2, 19                                                    'read only
         EMWriteScreen PMI_Number, 4, 19                                             'enter through the PMI so it isn't case specific
         transmit
@@ -989,49 +990,6 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 
                     End If
                 Next
-
-                ' MsgBox "Changes Made"
-
-                '
-                ' 'END OF NEW CODE
-                '
-                ' If EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt) > 1 Then                        'we saved the RELG page so going back to it
-                '     for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_one, hc_clt)
-                '         PF8
-                '     next
-                ' End If
-                '
-                ' 'determine where the SPAN is
-                ' If EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) = 18 Then            'if the span is the last on the page
-                '     PF8                                                         'it is now on the next page
-                '     relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                ' Else                                                            'if it wasn't the last on the page
-                '     relg_row = EOMC_CLIENT_ARRAY(RELG_row_one, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                ' End If
-                '
-                ' EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month to the end date on the span
-                ' EMWriteScreen "C", relg_row+1, 62                               'updating status to 'closed'
-                '
-                '
-                ' If EOMC_CLIENT_ARRAY(MMIS_curr_end_two, hc_clt) = "99/99/99" Then               'if program 2 is open ended
-                '
-                '
-                '     If EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt) > 1 Then            'we saved the row the span was found at - going back there
-                '         for forward = 2 to EOMC_CLIENT_ARRAY(RELG_page_two, hc_clt)
-                '             PF8
-                '         next
-                '     End If
-                '
-                '     'determine where the SPAN is
-                '     If EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) = 18 Then            'if the span is the last on the page
-                '         PF8                                                         'it is now on the next page
-                '         relg_row = 10                                               'the top span is empty in change so the known spans start at 10
-                '     Else                                                            'if it wasn't the last on the page
-                '         relg_row = EOMC_CLIENT_ARRAY(RELG_row_two, hc_clt) + 4      'since the top row is empty, the row is 4 down from where it was in inquiry
-                '     End If
-                '
-                '     EMWriteScreen mmis_last_day_date, relg_row+1, 36                'entering the last day of the current month and changing status to closed
-                '     EMWriteScreen "C", relg_row+1, 62
 
                 PF3                                     'save and check for warning message
                 EMReadScreen warn_msg, 7, 24, 2
@@ -1347,9 +1305,23 @@ For col_to_autofit = 1 to col_to_use+1
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
+table_range = "A8:S" & excel_row
+table_name = "Table1"
+
+ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table_range, xlYes).Name = table_name
+ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleMedium3"
+
 'setting a freeze row for easy scrolling
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
+
+curr_day = DatePart("d", date)
+curr_mo = DatePart("m", date)
+curr_yr = DatePart("yyyy", date)
+file_friendly_date = curr_mo & "-" & curr_day & "-" & right(2, curr_yr)
+EOMC_report_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\HC Discrepancy\EOMC\"
+file_name = CM_plus_1_mo & "-20" & CM_plus_1_yr & " Change Run - " & file_friendly_date & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs EOMC_report_folder & file_name
 
 If make_changes = TRUE Then
     ' MsgBox "Starting new functionality"
@@ -1528,6 +1500,17 @@ If make_changes = TRUE Then
         ObjExcel.Range("C6:G6").Merge
         ObjExcel.Cells(6, 3).HorizontalAlignment = -4108       'Aligns text in Excel Cell to the center
 
+		table_range = "A8:U" & excel_row-1
+		If on_loop = 4 Then table_range = "A8:N" & excel_row-1
+
+		If on_loop = 1 Then table_name = "MMISOpenTable"
+		If on_loop = 2 Then table_name = "EndDateErrorTable"
+		If on_loop = 3 Then table_name = "FutureEndDateTable"
+		If on_loop = 4 Then table_name = "BudgetErrorTable"
+
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table_range, xlYes).Name = table_name
+		ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleMedium3"
+
         on_loop = on_loop + 1
         If on_loop = 2 Then ObjExcel.Worksheets.Add().Name = "MMIS Span End Date Error"
         If on_loop = 3 Then ObjExcel.Worksheets.Add().Name = "MMIS Span Future End Date"
@@ -1536,4 +1519,71 @@ If make_changes = TRUE Then
     Loop until on_loop = 5
 End If
 
-script_end_procedure("All Done")
+EOMC_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\"
+file_name = CM_plus_1_mo & "-" & CM_plus_1_yr & " Closures - EOMC workslist.xlsx"
+objExcel.ActiveWorkbook.SaveAs EOMC_folder & file_name
+
+email_subject = "HC End of Month Closures list is Ready"
+
+email_body = "Hello QI!" & "<br>" & "<br>"
+email_body = email_body & vbCr & "The Excel file has been created to review HC cases that are set to close for " & CM_plus_1_mo & "/" & CM_plus_1_yr & "." & "<br>"
+email_body = email_body & vbCr & "This list is here:" & "<br>"
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & file_name & chr(34) & ">" & file_name & "</a><br>" & "<br>"
+
+email_body = email_body & vbCr & vbCr & "This script has attempted to align MMIS to the MAXIS HC eligibility, but some cases need manual review/action." & "<br>"
+email_body = email_body & vbCr & "There is an instruction document here:" & "<br>"
+email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Discrepancy HC\End of Month Closures\" & "EOMC Work List Instructions.docx" & chr(34) & ">" & "EOMC Work List Instructions.docx" & "</a><br>" & "<br>"
+
+email_body = email_body & vbCr & "Please reach out to Tanya with questions about this assignment." & "<br>"
+email_body = email_body & vbCr & vbCr & "Thank you!"
+
+
+'function labels		  email_from, 							  email_recip, 				 email_recip_CC, 		    email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
+Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Tanya.Payne@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
+
+script_end_procedure("EOMC Automation completed and worklists created. Email sent to QI. Script run is complete.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------7/28/2023
+'--Tab orders reviewed & confirmed----------------------------------------------7/28/2023
+'--Mandatory fields all present & Reviewed--------------------------------------7/28/2023
+'--All variables in dialog match mandatory fields-------------------------------7/28/2023
+'Review dialog names for content and content fit in dialog----------------------7/28/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------7/28/2023					This script has the cool - keep MMIS logged in functionality
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------7/28/2023
+'--Out-of-County handling reviewed----------------------------------------------N/A							Out of county not needed because cases are pulled from REPT/EOMC which is county specific
+'--script_end_procedures (w/ or w/o error messaging)----------------------------7/28/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------7/28/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------7/28/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------7/28/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------7/28/2023
+'--Denomination reviewed -------------------------------------------------------7/28/2023
+'--Script name reviewed---------------------------------------------------------7/28/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------7/28/2023					starts with 0 incrementor
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------7/28/2023
+'--comment Code-----------------------------------------------------------------7/28/2023
+'--Update Changelog for release/update------------------------------------------7N/A
+'--Remove testing message boxes-------------------------------------------------7/28/2023
+'--Remove testing code/unnecessary code-----------------------------------------7/28/2023
+'--Review/update SharePoint instructions----------------------------------------7/28/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------7/28/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------7/28/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------7/28/2023
+'--Complete misc. documentation (if applicable)---------------------------------7/28/2023
+'--Update project team/issue contact (if applicable)----------------------------7/28/2023

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("08/16/2022", "Added supports to read case note headers created by the ELIGIBLITY SUMMARY script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/08/2020", "Added message reminding you to let the script work without trying to multitask. This can cause the script to error.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin County")
@@ -876,7 +877,7 @@ main_email_body = main_email_body & vbCr & email_signature
 'send the new ideas of things to count to the BZST email
 ' If assignment_new_ideas <> "" Then CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", ideas_email_subject, ideas_email_body, "", TRUE)
 'email all the people that this is done
-CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+Call create_outlook_email("", qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
 ' CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, main_email_body, "", TRUE)
 
 Call script_end_procedure_with_error_report("Great work! Thank you for completing your assignment report.")

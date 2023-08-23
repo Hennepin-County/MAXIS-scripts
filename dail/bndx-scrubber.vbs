@@ -61,6 +61,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/20/2023", "Fixed bug in the deleting the DAIL option.", "Ilse Ferris, Hennepin County") '#1422
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -79,6 +80,9 @@ MAXIS_case_number = replace(MAXIS_case_number, "_", "")
 
 EmReadscreen MAXIS_footer_month, 2, 6, 11   'reading footer month in case there are more DAIL's then just the one for INFC.
 EmReadscreen MAXIS_footer_year, 2, 6, 14
+
+EmReadscreen original_bndx_dail, 40, 6, 20
+original_bndx_dail = trim(original_bndx_dail)
 
 EMReadScreen MEMB_check, 7, 6, 20
 If left(MEMB_check, 4) = "MEMB" then
@@ -315,10 +319,12 @@ DIALOG Dialog1
 			DO
 				dail_read_row = 6
 				DO
-					EMReadScreen double_check, 30, dail_read_row, 6
+					EMReadScreen double_check, 40, dail_read_row, 20
+                    double_check = trim(double_check)
 					IF double_check = original_bndx_dail THEN
-						EMWriteScreen "D", dail_read_row, 3
-						transmit
+						Call write_value_and_transmit("D", dail_read_row, 3)
+                        EmReadscreen warning_message, 13, 24, 2
+                        If warning_message = "** WARNING **" then transmit
 						EXIT DO
 					ELSE
 						dail_read_row = dail_read_row + 1

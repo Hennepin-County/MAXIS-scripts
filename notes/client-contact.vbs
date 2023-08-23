@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("05/15/2023", "Added phone # & name autofilling in 'who was contacted' drop list AREP's and/or SWKR's, & added name for MEMB 01. Removed text opt out option (retired process), updated the Q-flow verbiage from N/A to NO Q-FLOW POPULATION.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Added button to view issuance details for a case from the main dialog. This will support providing information to the resident while talking to them. This functionality does not interrupt the script run.##~####~##Look for the button that says 'Display Benefits'.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Added button to link to the interpreter service request. Removed 'Used Interpreter' checkbox that was inactive.", "Casey Love, Hennepin County")
 call changelog_update("10/07/2022", "Removed adults and families baskets that are no longer supported through Q-Flow. Any population not supported by Q-flow will now be 'N/A'.", "Ilse Ferris, Hennepin County")
@@ -90,14 +91,76 @@ If trim(MAXIS_case_number) <> "" then
     If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
     If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
     If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
-    phone_number_array = split(phone_number_list, "|")
 
-    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
+    '----------------------------------------------------------------------------------------------------MEMB 01 Name Collection
+    Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")       'navigating to STAT/MEMB. No other handling for member selection since M 01 is the default.
+    EMReadScreen memb_01_check, 2, 4, 33                'ensuring it's M 01 we're reading.
+    If memb_01_check = "01" then 
+        EMReadScreen first_name, 12, 6, 63
+        Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable 
+    End if
+    
+    '----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
+    case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "AREP")
+    EmReadscreen arep_exists, 1, 2, 73                  
+    If arep_exists = "1" then
+        EmReadscreen arep_name, 37, 4, 32               'If an arep panel exists read the name
+        case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable 
+
+        EmReadscreen arep_phone_one, 16, 8, 32
+            If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
+                arep_phone_one = ""
+            ELSE
+                arep_phone_one = replace(arep_phone_one, "(", "")   'If not blank update the formatting
+                arep_phone_one = replace(arep_phone_one, ")", "")
+                arep_phone_one = trim(arep_phone_one)
+                arep_phone_one = replace(arep_phone_one, " ", "-")
+                phone_number_list = phone_number_list & trim(arep_phone_one) & "|" 'add to the phone_number_list that staff can choose from
+            End if
+
+        EmReadscreen arep_phone_two, 16, 9, 32
+        If arep_phone_two = "( ___ ) ___ ____" then         'If an arep phone number #2 is not present, then establish as ""
+            arep_phone_two = ""
+        ELSE
+            arep_phone_two = replace(arep_phone_two, "(", "")   'If not blank update the formatting
+            arep_phone_two = replace(arep_phone_two, ")", "")
+            arep_phone_two = trim(arep_phone_two)
+            arep_phone_two = replace(arep_phone_two, " ", "-")
+            phone_number_list = phone_number_list & trim(arep_phone_two) & "|" 'add to the phone_number_list that staff can choose from
+        End if
+    End if
+
+    '----------------------------------------------------------------------------------------------------SWKR Name/Phone Number Collection
+    case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "SWKR")
+    EmReadscreen SWKR_exists, 1, 2, 73                  
+    If SWKR_exists = "1" then
+        EmReadscreen SWKR_name, 35, 6, 32               'If an SWKR panel exists read the name
+        case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable 
+
+        EmReadscreen SWKR_phone, 16, 12, 32
+        If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
+            SWKR_phone = ""
+        ELSE
+            SWKR_phone = replace(SWKR_phone, "(", "")   'If not blank update the formatting
+            SWKR_phone = replace(SWKR_phone, ")", "")
+            SWKR_phone = trim(SWKR_phone)
+            SWKR_phone = replace(SWKR_phone, " ", "-")
+            phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
+        End if
+    End if     
+
+    phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
+
+    Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")   'navigating back to STAT/ADDR for staff to verify resident information
 End if
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
-suggested_population = "N/A"                'Blanking this out. Will default to no suggestions if x number is not in this this.
+suggested_population = "No Q-Flow Process"                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
 If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
 
@@ -129,11 +192,11 @@ Do
     Do
         err_msg = ""
         Do
-            BeginDialog Dialog1, 0, 0, 391, 345, "Client contact"
+            BeginDialog Dialog1, 0, 0, 391, 345, "Client Contact"
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
+                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+Memb_01+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+case_swkr+chr(9)+who_contacted, who_contacted
                 EditBox 245, 65, 135, 15, regarding
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
@@ -147,8 +210,7 @@ Do
                 EditBox 60, 235, 320, 15, other_notes
                 CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
                 CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-                CheckBox 5, 290, 255, 10, "TEXT OPT OUT: Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
-                CheckBox 5, 305, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
+                CheckBox 5, 290, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
                 CheckBox 270, 260, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
                 EditBox 340, 275, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 EditBox 70, 325, 205, 15, worker_signature
@@ -180,7 +242,7 @@ Do
                 Text 230, 70, 15, 10, "Re:"
                 GroupBox 145, 5, 240, 25, "CASE Navigation"
                 Text 15, 90, 50, 10, "Phone Number:"
-                Text 20, 245, 40, 10, "Other notes:"
+                Text 15, 240, 40, 10, "Other notes:"
                 GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 280, 305, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
@@ -206,7 +268,7 @@ Do
                 End If
                 ButtonPressed = 100
             End If
-        Loop until ButtonPressed = -1
+        Loop until ButtonPressed = -1 
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
@@ -248,63 +310,59 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
 'checkbox results
 IF caf_1_check = checked THEN CALL write_variable_in_CASE_NOTE("* Reminded client about the importance of submitting the CAF 1.")
 IF Sent_arep_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent form(s) to AREP.")
-IF Opt_out_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Case has opted out of recert text message notifications.")
 IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Follow up/hand off is required. Q-Flow ticket #" & ticket_number & " created.")         'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-If Opt_out_checkbox = checked then Call create_outlook_email("xlab@maxwell.syr.edu","","Renewal text message opt out for case #" & MAXIS_case_number,"","",true)
-
-IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only
+IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("DAIL", "WRIT")      'Navigating to TIKL only
 
 end_msg = ""
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
 If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow-up is needed for case number " & MAXIS_case_number & ". Q-Flow Ticket #: " & ticket_number & vbcr
-If Opt_out_checkbox = checked then end_msg = end_msg & "The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number & vbcr
 
 script_end_procedure_with_error_report(end_msg)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------10/07/2021
-'--Tab orders reviewed & confirmed----------------------------------------------10/07/2021
-'--Mandatory fields all present & Reviewed--------------------------------------10/07/2021
-'--All variables in dialog match mandatory fields-------------------------------10/07/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/13/2023
+'--Tab orders reviewed & confirmed----------------------------------------------05/13/2023
+'--Mandatory fields all present & Reviewed--------------------------------------05/13/2023
+'--All variables in dialog match mandatory fields-------------------------------05/13/2023
+'Review dialog names for content and content fit in dialog----------------------05/13/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------10/07/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------10/07/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/07/2021
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/07/2022 -----------------------------------
-
+'--All variables are CASE:NOTEing (if required)---------------------------------05/13/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/13/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/13/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-05/13/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/07/2021
-'--MAXIS_background_check reviewed (if applicable)------------------------------10/07/2021
-'--PRIV Case handling reviewed -------------------------------------------------10/07/2021
-'--Out-of-County handling reviewed----------------------------------------------10/07/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------10/07/2021
-'--BULK - review output of statistics and run time/count (if applicable)--------10/07/2021------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/20/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/13/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/13/2023--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/13/2023
+'--Out-of-County handling reviewed----------------------------------------------05/13/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/13/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------05/13/2023--------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/13/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------10/07/2021
-'--Incrementors reviewed (if necessary)-----------------------------------------10/07/2021
-'--Denomination reviewed -------------------------------------------------------10/07/2021
-'--Script name reviewed---------------------------------------------------------10/07/2021
-'--BULK - remove 1 incrementor at end of script reviewed---------------------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------05/13/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------05/13/2023
+'--Denomination reviewed -------------------------------------------------------05/13/2023
+'--Script name reviewed---------------------------------------------------------05/13/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/13/2023--------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------10/07/2021
-'--comment Code-----------------------------------------------------------------10/07/2021
-'--Update Changelog for release/update------------------------------------------10/07/2021
-'--Remove testing message boxes-------------------------------------------------10/07/2021
-'--Remove testing code/unnecessary code-----------------------------------------10/07/2021
-'--Review/update SharePoint instructions----------------------------------------10/07/2021
-'--Review Best Practices using BZS page ----------------------------------------10/07/2021
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/07/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/07/2021
-'--Complete misc. documentation (if applicable)---------------------------------10/07/2021
-'--Update project team/issue contact (if applicable)----------------------------10/07/2021
+'--Confirm all GitHub tasks are complete----------------------------------------05/13/2023
+'--comment Code-----------------------------------------------------------------05/13/2023
+'--Update Changelog for release/update------------------------------------------05/13/2023
+'--Remove testing message boxes-------------------------------------------------05/13/2023
+'--Remove testing code/unnecessary code-----------------------------------------05/13/2023
+'--Review/update SharePoint instructions----------------------------------------05/13/2023---------------Updated with new dialog & removed Text out option
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/13/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/13/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/13/2023----------------direct committing to Master branch
+'--Complete misc. documentation (if applicable)---------------------------------05/13/2023
+'--Update project team/issue contact (if applicable)----------------------------05/13/2023
