@@ -896,7 +896,7 @@ If vars_filled = False Then
 	If curr_row <> 0 Then
 		EMReadScreen fs_prog_status, 7, curr_row, curr_col + 5
 		fs_prog_status = trim(fs_prog_status)
-		If fs_prog_status = "ACTIVE" OR fs_prog_status = "PENDING" OR fs_prog_status = "APP CLO"Then
+		If fs_prog_status = "ACTIVE" OR fs_prog_status = "PENDING" OR fs_prog_status = "APP CLO" or left(fs_prog_status, 4) = "REIN" Then
 			EMReadScreen fs_appl_date, 8, curr_row, curr_col + 25
 		End If
 	End If
