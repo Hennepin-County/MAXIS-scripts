@@ -1305,7 +1305,7 @@ For col_to_autofit = 1 to col_to_use+1
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-table_range = "A8:S" & excel_row
+table_range = "A1:S" & excel_row
 table_name = "Table1"
 
 ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table_range, xlYes).Name = table_name
