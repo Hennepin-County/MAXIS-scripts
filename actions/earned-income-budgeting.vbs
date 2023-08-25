@@ -1061,7 +1061,7 @@ If vars_filled = False Then
 	'FUTURE FUNCTIONALITY - this will remove panels if ended long enough ago.
 	'TESTING NEEDED
 	If panels_to_delete <> "" Then                              'at this time panels_to_delete wil ALWAYS = "" so no need to comment out
-		array_of_ended_panels = split(panels_to_delete, "~")    'NEED COMMENTS
+		array_of_ended_panels = split(panels_to_delete, "~")
 		For each panel in array_of_ended_panels
 			Call back_to_SELF
 
@@ -2362,7 +2362,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = unchecked Then sm_err_msg = sm_err_msg & vbNewLine & "* No programs have been selected that this icnome applies to. Chose at least one program that this income is budgeted for."
                                     EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel))
                                     If EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the date the pay information was received in the agency."
-									If split_pay_btn_pressed = True and Left(sm_err_msg, 4) <> "LOOP" Then sm_err_msg = sm_err_msg & vbNewLine & "* Button was pressed to enter Split Pay information, but suffiencent detail was not entered into the paycheck to enter split pay information."
+									If split_pay_btn_pressed = True and Left(sm_err_msg, 4) <> "LOOP" Then sm_err_msg = sm_err_msg & vbNewLine & "* Button was pressed to enter Split Pay information, but sufficient detail was not entered into the paycheck to enter split pay information."
 
                                     If ButtonPressed = add_another_check Then       'functionality to add another check to the dialog using the '+' button
                                         pay_item = pay_item + 1     'incrementing the counter
@@ -2499,15 +2499,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                             total_hours = 0
                             total_checks = 0
 
-                            'I guess we do this again - maybe we can REMOVE CODE
-							'TESTING TO SEE IF THIS CAN BE REMOVED
-                            ' actual_checks_provided = FALSE
+							'Making sure to update if pay is entered for a specific check and if it should be displayed.
                             For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
                                 If LIST_OF_INCOME_ARRAY(pay_date, all_income) = "" AND LIST_OF_INCOME_ARRAY(gross_amount, all_income) = "" AND LIST_OF_INCOME_ARRAY(hours, all_income) = "" Then LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ""
-                            '     If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                            '         'ADD ERROR HANDLING HERE
-                            '         actual_checks_provided = TRUE
-                            '     End If
                             Next
 							save_your_work
                         End If
@@ -2526,7 +2520,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 								EditBox 10, 125, 180, 15, EARNED_INCOME_PANELS_ARRAY(selection_rsn, ei_panel)
 								ButtonGroup ButtonPressed
 									OkButton 140, 145, 50, 15
-								Text 10, 10, 185, 35, "Both Actual Income and Anticipated Income have been listed for a SNAP case. Since both have been reported, both will be case ntoed. For entering information to the PIC, one option should be selected."
+								Text 10, 10, 185, 35, "Both Actual Income and Anticipated Income have been listed for a SNAP case. Since both have been reported, both will be case noted. For entering information to the PIC, one option should be selected."
 								GroupBox 5, 55, 185, 45, "Which is the best estimation of anticipated income?"
 								Text 10, 110, 185, 10, "Explain why this is the best estimation of future income:"
                             EndDialog
@@ -5022,6 +5016,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 											End If
 											'there is no functionality for if pay was not found as we don't use averages on the retro side
 										Else
+											'This is an output for an error report if something went wrong with date understanding
 											testing_run = TRUE
 											script_run_lowdown = script_run_lowdown & vbCR & vbCR & "******* THIS_DATE IS NOT A DATE ********"
 											script_run_lowdown = script_run_lowdown & vbCR & "'this_date' variable is: ~" & this_date & "~"
