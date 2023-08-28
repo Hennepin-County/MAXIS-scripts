@@ -104,8 +104,9 @@ DO
 		Dialog Dialog1
 		cancel_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-		IF verifs_needed = "" THEN err_msg = err_msg & vbCr & "* Please enter the postponed verifications requested."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF trim(verifs_needed) = "" THEN err_msg = err_msg & vbCr & "* Please enter the postponed verifications requested."
+		IF len(trim(verifs_needed)) > 30 THEN err_msg = err_msg & vbCr & "* The list of verifications must be less than 30 characters long. Please shorten."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
