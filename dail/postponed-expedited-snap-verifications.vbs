@@ -80,6 +80,109 @@ END IF
 'Navigates back to DAIL
 PF3 						
 
+'To do - review functionality to confirm it works properly
+'HERE WE SEARCH CASE:NOTES
+write_value_and_transmit("N", 6, 3)
+
+'We are looking for notes that multiple scripts complete to keep from making duplicate notes
+'To do - likely unnecessary, can delete
+' look_for_expedited_determination_case_note = False
+' If SNAP_checkbox = checked and the_process_for_snap = "Application" Then look_for_expedited_determination_case_note = True
+' Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+'Using SNAP application date to set too old date, no need to read for dates prior to SNAP application
+too_old_date = DateAdd("D", -1, SNAP_application_date)
+
+note_row = 5
+Do
+	EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+	EMReadScreen note_title, 55, note_row, 25               'reading the note header
+	note_title = trim(note_title)
+
+	'VERIFICATIONS NOTES
+	If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
+		verifications_requested_case_note_found = True
+		verifs_needed = "Verifications Needed:"
+
+		EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
+		transmit
+
+		EMReadScreen in_correct_note, 23, 4, 3                  'making sure we are in the right note
+		EMReadScreen note_list_header, 23, 4, 25
+
+		'Here we find the right row to start reading
+		If in_correct_note = "VERIFICATIONS REQUESTED" Then                     'making sure we're in the right note
+			in_note_row = 5
+			Do
+				EMReadScreen whole_note_line, 77, in_note_row, 3                'reading the whole line of the note'
+				whole_note_line = trim(whole_note_line)
+
+				in_note_row = in_note_row + 1
+				If whole_note_line = "" then Exit Do
+			Loop until whole_note_line = "List of all verifications requested:" 'This is the header within the note - the NEXT line starts the list of verifs
+
+			If whole_note_line = "List of all verifications requested:" Then    'If we actually found the header.
+				verif_note_lines = ""                                           'defaulting a variable to save all the lines of the note
+				Do
+					EMReadScreen verif_line, 77, in_note_row, 3                 'reading the line of the note
+					verif_line = trim(verif_line)
+					If verif_line = "" then Exit Do                             'If they are blank - we stop'
+					verif_note_lines = verif_note_lines & "~|~" & verif_line    'Adding it to a string of all the lines
+
+					in_note_row = in_note_row + 1                               'next line'
+
+					EMReadScreen next_line, 77, in_note_row, 3                  'Looking to see if the next line is the divider line
+					next_line = trim(next_line)
+				Loop until next_line = "---"                                    'stop at the dividing line
+				'if there were lines saved
+				If verif_note_lines <> "" Then
+					verif_counter = 1                                           'setting a counter to find verifs that have been numbered
+					If left(verif_note_lines, 3) = "~|~" Then verif_note_lines = right(verif_note_lines, len(verif_note_lines) - 3)             'making an array of all of the lines
+					If InStr(verif_note_lines, "~|~") = 0 Then
+						verif_lines_array = Array(verif_note_lines)
+					Else
+						verif_lines_array = split(verif_note_lines, "~|~")
+					End If
+
+					verifs_to_add = ""                                          'blanking a string for adding all the lines together
+					For each line in verif_lines_array
+						counter_string = verif_counter & ". "                   'using the counter - which is a number to make a string that looks like what is in the note
+						If left(line, 2) = "- " OR left(line, 3) = counter_string Then                          'If the string starts with a dash or the counter
+							If left(line, 2) = "- " Then line = "; " & right(line, len(line) - 2)               'Removes the list delimiter and adds the editbox delimiter
+							If left(line, 3) = counter_string Then line = "; " & right(line, len(line) - 3)
+							verif_counter = verif_counter + 1                                                   'incrementing the counter
+						Else
+							line = " " & line                                                                   'adding a space to the sting so there is a space between words if we are at a 'same line'
+						End If
+
+						verifs_to_add = verifs_to_add & line                    'adding the verif information all together
+					Next
+					If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'trimming the string
+					If verifs_to_add <> "" Then verifs_needed = verifs_needed & verifs_to_add 'adding the information to the variable used in this script 
+				End If
+			End If
+			PF3         'leaving the note
+		Else
+			If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+		End If
+	End If
+
+	if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+	note_row = note_row + 1
+	if note_row = 19 then
+		note_row = 5
+		PF8
+		EMReadScreen check_for_last_page, 9, 24, 14
+		If check_for_last_page = "LAST PAGE" Then Exit Do
+	End If
+	EMReadScreen next_note_date, 8, note_row, 6
+	if next_note_date = "        " then Exit Do
+Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+'Navigate back to DAIL
+PF3
+
 'Navigates to SPEC/MEMO through DAIL to maintain tie to list
 write_value_and_transmit("P", 6, 3)
 write_value_and_transmit("MEMO", 20, 70)
