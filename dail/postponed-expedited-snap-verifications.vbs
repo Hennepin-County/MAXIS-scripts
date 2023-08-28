@@ -90,25 +90,22 @@ PF5
 'Creates new MEMO
 write_value_and_transmit("X", 5, 12)
 
-'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
-EMWriteScreen "N", 6, 3
-transmit
-
 'Dialog is defined here so the case number and application date are listed on it
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 401, 70, "Verifications Needed"
-  EditBox 90, 5, 305, 15, verifs_needed
-  EditBox 305, 30, 90, 15, worker_signature
-  Text 95, 50, 75, 10, MAXIS_case_number
-  Text 95, 35, 90, 10, SNAP_application_date
-  ButtonGroup ButtonPressed
-    OkButton 295, 50, 50, 15
-    CancelButton 345, 50, 50, 15
-  Text 235, 35, 65, 10, "Sign your case note"
-  Text 10, 10, 70, 10, "Verifications Needed:"
-  Text 10, 35, 65, 10, "Date of application"
-  Text 10, 50, 50, 10, "Case Number"
-  EndDialog
+BeginDialog Dialog1, 0, 0, 401, 120, "Verifications Needed"
+	Text 5, 5, 390, 20, "Please review and confirm the required verifications below. Utilize plain language for the verifications as this will be used to create a MEMO and CASE/NOTE."
+	Text 10, 35, 70, 10, "Verifications Needed:"
+  	EditBox 85, 30, 305, 15, verifs_needed
+  	Text 10, 50, 65, 10, "Date of application:"
+  	Text 85, 50, 90, 10, SNAP_application_date
+  	Text 10, 65, 50, 10, "Case Number:"
+  	Text 85, 65, 75, 10, MAXIS_case_number
+	Text 10, 85, 65, 10, "Worker Signature:"
+  	EditBox 85, 80, 90, 15, worker_signature
+  	ButtonGroup ButtonPressed
+    	OkButton 290, 100, 50, 15
+    	CancelButton 345, 100, 50, 15
+EndDialog
 
 'Runs the dialog to allow workers to sign and to list verifications needed
 DO
@@ -124,6 +121,11 @@ DO
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+'To do - update navigation back to/from DAIL to CASE/NOTE
+'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
+EMWriteScreen "N", 6, 3
+transmit
 
 'The script checks to make sure it is on the NOTES main list
 EMReadScreen notes_check, 9, 2, 33
