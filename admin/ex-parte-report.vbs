@@ -142,52 +142,99 @@ function find_unea_information()
 end function
 
 function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, UNEA_claim_number, panel_found)
-	panel_found = False
-	UNEA_claim_number = replace(UNEA_claim_number, " ", "")
+'function used to find the correct UNEA panel that matches member, UNEA type and specific claim number.
+'This is currently only tested and vetted on SSA income panels, particularly Type 01, 02, 03
+	ReDim unea_panel_array(last_panel_const, 0)					'Reset the array that will gather the information of all the unea panels for the given member
+	unea_panel_counter = 0										'this array will need to iterate, this will set the counter to 0
+	array_index = ""											'blanking out the variable that will capture the array index that the correct panel is at
+
+	panel_found = False											'defaulting the boolean variables
+	type_code_found = False
+	UNEA_claim_number = replace(UNEA_claim_number, " ", "")		'formatting the claim number
+	SSN_UNEA_claim_portion = left(UNEA_claim_number, 9)			'creating an array of the SSN portion of the claim number
+
+	'here we navigate to the UNEA panel
 	EMWriteScreen "UNEA", 20, 71
 	transmit
 	EMReadScreen unea_check, 4, 2, 48
-	Do While unea_check <> "UNEA"
+	Do While unea_check <> "UNEA"								'making sure we've made it.
 		Call navigate_to_MAXIS_screen("STAT", "UNEA")
 		EMReadScreen unea_check, 4, 2, 48
 	Loop
-	EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
-	EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+	EMWriteScreen MEMB_reference_number, 20, 76 				'Navigating to the right member of unea
+	EMWriteScreen "01", 20, 79 									'to ensure we're on the 1st instance of UNEA panels for the appropriate member
 	transmit
 
-	EMReadScreen vers_count, 1, 2, 78
-	If vers_count <> "0" Then
+	EMReadScreen vers_count, 1, 2, 78							'reading the number of versions of UNEA for this member
+	If vers_count <> "0" Then									'if there are none, the rest of the functionality will be skipped, if there are any, we have to read them
 		Do
+			ReDim Preserve unea_panel_array(last_panel_const, unea_panel_counter)		'resizing the array of panels
+			EMReadScreen panel_instance, 1, 2, 73										'reading the specific panel information
 			EMReadScreen panel_type_code, 2, 5, 37
 			EMReadScreen panel_claim_number, 15, 6, 37
-
-			panel_claim_number = replace(panel_claim_number, "_", "")
+			panel_claim_number = replace(panel_claim_number, "_", "")					'formatting the claim number
 			panel_claim_number = replace(panel_claim_number, " ", "")
+			If panel_type_code = UNEA_type_code Then type_code_found = True				'if the type code on the panel matches the type code as a parameter, we identify that we've found a panel
 
+			unea_panel_array(panel_type_const, unea_panel_counter) = panel_type_code	'adding the information we have read to the array
+			unea_panel_array(panel_claim_const, unea_panel_counter) = panel_claim_number
+			unea_panel_array(panel_claim_left_9_const, unea_panel_counter) = left(panel_claim_number, 9)
+			unea_panel_array(panel_instance_const, unea_panel_counter) = "0" & panel_instance
 
-			If panel_type_code = UNEA_type_code and (UNEA_type_code = "01" or UNEA_type_code = "02") Then
-				If len(UNEA_claim_number) = len(panel_claim_number) Then
-					If UNEA_claim_number = panel_claim_number Then panel_found = True
-				ElseIf len(UNEA_claim_number) < len(panel_claim_number) Then
-					If UNEA_claim_number = left(panel_claim_number, len(UNEA_claim_number)) Then panel_found = True
-				ElseIf len(UNEA_claim_number) > len(panel_claim_number) Then
-					If left(UNEA_claim_number, len(panel_claim_number)) = panel_claim_number Then panel_found = True
-				End If
-			Else
-				If panel_type_code = UNEA_type_code Then panel_found = True
-			End If
-			' MsgBox "panel_type_code - " & panel_type_code & vbcr & "UNEA_type_code - " & UNEA_type_code & vbCr & vbCr &_
-			' 		"panel_claim_number - " & panel_claim_number & vbCr & "UNEA_claim_number - " & UNEA_claim_number & vbCr & vbCr &_
-			' 		"panel_found - " & panel_found
-			If panel_found = True Then
-				EMReadScreen UNEA_instance, 1, 2, 73
-				UNEA_instance = "0" & UNEA_instance
-				Exit Do
-			End If
+			unea_panel_counter = unea_panel_counter + 1			'incrementing the array counter
 
-			transmit
-			EMReadScreen end_of_UNEA_panels, 7, 24, 2
+			transmit											'go to the next UNEA panel
+			EMReadScreen end_of_UNEA_panels, 7, 24, 2			'read the warning/error message to see if we could not move to the next panel
 		Loop Until end_of_UNEA_panels = "ENTER A"
+	End If
+
+	'THIS IS TESTING FUNCTIONALITY TO CHECK THE FUNCTION
+	' For known_panel = 0 to UBound(unea_panel_array, 2)
+	' 	claim_match = False
+	' 	If unea_panel_array(panel_claim_const, known_panel) = UNEA_claim_number Then claim_match = True
+	' 	ssn_match = False
+	' 	If unea_panel_array(panel_claim_const, known_panel) = UNEA_claim_number Then ssn_match = True
+	' 	MsgBox 	"unea_panel_array(panel_type_const, known_panel) - " & unea_panel_array(panel_type_const, known_panel) & vbCr &_
+	' 	 		"unea_panel_array(panel_claim_const, known_panel) - " & unea_panel_array(panel_claim_const, known_panel) & vbCr &_
+	' 	 		"unea_panel_array(panel_claim_left_9_const, known_panel) - " & unea_panel_array(panel_claim_left_9_const, known_panel) & vbCr &_
+	' 	 		"unea_panel_array(panel_instance_const, known_panel) - " & unea_panel_array(panel_instance_const, known_panel) & vbCr & vbCr &_
+	' 			"panel_type_code - " & panel_type_code & vbCr &_
+	' 			"UNEA_type_code - " & UNEA_type_code & vbCr &_
+	' 			"UNEA_claim_number - " & UNEA_claim_number & vbCr & vbCr &_
+	' 			"claim numb match? " & claim_match & vbCr &_
+	' 			"claim ssn numb match? " & ssn_match
+	' Next
+
+	'This part of the function will only trigger if the reading of the panels found a panel type that matches the parameter passed through
+	If type_code_found = True Then
+		For known_panel = 0 to UBound(unea_panel_array, 2)				'Loop through all the known panels
+			If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then				'If the panel matches the type code passed through in the function call - check the claim number
+				If unea_panel_array(panel_claim_const, known_panel) = UNEA_claim_number Then		'If the claim number on the panel matches the claim number passed through, WE FOUND A MATCH
+					panel_found = True					'setting the parameter to true
+					array_index = known_panel			'defining which instance of the array matched the provided criteria
+				End If
+			End If
+		Next
+		'This functionality will only run if the correct panel was not found in the above loop
+		If panel_found = False Then
+			For known_panel = 0 to UBound(unea_panel_array, 2)			'Loop through all the known panels
+				If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then						'If the panel matches the type code passed through in the function call - check the claim number
+					If unea_panel_array(panel_claim_left_9_const, known_panel) = SSN_UNEA_claim_portion Then	'If the SSN portion of the panel claim number matches the SSN portion of the claim passed through the function parameter
+						panel_found = True				'setting the parameter to true
+						array_index = known_panel		'defining which instance of the array matched the provided criteria
+					End If
+				End If
+			Next
+		End If
+
+		'If the panel was found (either by exact match OR by SSN match)
+		If panel_found = True Then
+			EMWriteScreen MEMB_reference_number, 20, 76 									'Navigating to the right member
+			EMWriteScreen unea_panel_array(panel_instance_const, array_index), 20, 79 		'enter the instance number from the panel
+			transmit																		'navigating to the panel information entered
+
+			UNEA_instance = unea_panel_array(panel_instance_const, array_index)				'passing the correct instance through the parameter
+		End If
 	End If
 end function
 
@@ -554,6 +601,13 @@ Const rr_last_const 			= 11
 Dim RR_INCOME_ARRAY()
 ReDim RR_INCOME_ARRAY(rr_last_const, 0)
 
+const panel_type_const			= 0
+const panel_claim_const			= 1
+const panel_claim_left_9_const	= 2
+const panel_instance_const 		= 3
+const last_panel_const			= 4
+
+dim unea_panel_array()
 
 'Setting constants
 Const adOpenStatic = 3
@@ -584,16 +638,16 @@ DO
 	DO
 		DO
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 401, 255, "Ex Parte Report"
-				DropListBox 300, 25, 90, 15, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Check REVW information on Phase 1 Cases"+chr(9)+"DHS Data Validation", ex_parte_function
+			BeginDialog Dialog1, 0, 0, 401, 300, "Ex Parte Report"
+				DropListBox 200, 25, 190, 45, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Check REVW information on Phase 1 Cases"+chr(9)+"DHS Data Validation"+chr(9)+"Ex Parte Eval Case Review", ex_parte_function
 				ButtonGroup ButtonPressed
-					OkButton 290, 235, 50, 15
-					CancelButton 345, 235, 50, 15
+					OkButton 290, 280, 50, 15
+					CancelButton 345, 280, 50, 15
 				Text 5, 10, 400, 10, "This script will connect to the SQL Table to pull a list of cases to operate on based on the Ex Parte functionality selected."
-				Text 200, 30, 95, 10, "Selection Ex Parte Function:"
+				Text 100, 30, 95, 10, "Selection Ex Parte Function:"
 				Text 10, 45, 35, 10, "Prep"
 				Text 50, 45, 150, 10, "PREP requires TWO runs."
-				Text 50, 55, 150, 10, "Timing - prior to the last week of the PREP Month"
+				Text 50, 55, 200, 10, "Timing - prior to the last week of the PREP Month"
 				Text 50, 65, 190, 10, "Review any Case Criteria not available in Info Store."
 				Text 50, 75, 175, 10, "Send SVES/QURY for all members on all cases."
 				Text 50, 85, 200, 10, "Generate a UC and VA Verif Report for OS Staff completion."
@@ -607,8 +661,14 @@ DO
 				Text 50, 155, 160, 10, "Timing - 1st Day of the PROCESSING Month"
 				Text 50, 165, 285, 10, "Update STAT/BUDG to start with the Renewal Month."
 				Text 50, 175, 145, 10, "Run each case through Background."
-				Text 10, 215, 205, 10, "* * * * * THIS SCRIPT MUST BE RUN IN PRODUCTION * * * * *"
-				Text 10, 235, 190, 10, "There is no CASE/NOTE entry by this script at this time."
+				Text 50, 190, 150, 10, "--- Additional Administrative Runs ---"
+				Text 10, 205, 270, 10, "ADMIN Review  -  Display of current Ex Parte progress counts."
+				Text 10, 220, 270, 10, "FIX LIST  -  MANAU CODE UPDATE REQUIRED. Used to resolve the SQL Table."
+				Text 10, 235, 270, 10, "Check REVW information on Phase 1 Cases  -  Report on Ex Parte and REVW."
+				Text 10, 250, 270, 10, "DHS Data Validation  -  Compare SQL Ex Parte list to the DHS Ex Parte List."
+				Text 10, 265, 350, 10, "Ex Parte Eval Case Review  -  Displays the evaluation of Ex Parte details for a single case."
+				Text 10, 280, 205, 10, "* * * * * THIS SCRIPT MUST BE RUN IN PRODUCTION * * * * *"
+				' Text 10, 235, 190, 10, "There is no CASE/NOTE entry by this script at this time."
 			EndDialog
 
 			err_msg = ""
@@ -618,7 +678,7 @@ DO
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""
 
-		If ex_parte_function <> "ADMIN Review" Then
+		If ex_parte_function <> "ADMIN Review" and ex_parte_function <> "Ex Parte Eval Case Review" Then
 			allow_bulk_run_use = False
 			If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
@@ -653,7 +713,7 @@ DO
 				ButtonGroup ButtonPressed
 					PushButton 10, 145, 210, 15, "CONFIRMED! This is the correct Process and Review Month", Confirm_Process_to_Run_btn
 					PushButton 230, 145, 100, 15, "Incorrect Process/Month", incorrect_process_btn
-				Text 10, 10, 225, 10, "You are running the Ex Parte Function " & ex_parte_function
+				Text 10, 10, 275, 10, "You are running the Ex Parte Function " & ex_parte_function
 				Text 10, 25, 190, 10, "This will run for the Ex Parte Review month of " & ep_revw_mo & "/" & ep_revw_yr
 
 				If ex_parte_function = "Prep 1" Then
@@ -668,17 +728,15 @@ DO
 					Text 20, 55, 190, 10, "Compare Hennepin Ex Parte list to the cases from the DHS list."
 				End If
 				If ex_parte_function = "Prep 2" Then
-					GroupBox 5, 40, 240, 50, "Tasks to be Completed:"
+					GroupBox 5, 40, 320, 50, "Tasks to be Completed:"
 					Text 20, 55, 270, 10, "Read SVES/TPQY and update UNEA with the response information."
-					Text 20, 65, 270, 10, "Send SVES/QURY for all members whose TPQY indicates a second associated RSDI Claim."
+					Text 20, 65, 300, 20, "Send SVES/QURY for all members whose TPQY indicates a second associated RSDI Claim."
 					Text 20, 75, 270, 10, "Generate a list of all members with a Date of Death in TPQY."
 				End If
 				If ex_parte_function = "FIX LIST" Then
 					Text 20, 55, 270, 10, "FIX LIST HAS NO SET FUNCTIONALITY"
 				End If
 				If ex_parte_function = "Phase 1" Then
-					' Text 210, 10, 75, 10, "Date of Prep 2 Run:"
-					' EditBox 280, 5, 50, 15, prep_phase_2_run_date
 					GroupBox 5, 40, 295, 70, "Tasks to be Completed:"
 					Text 20, 55, 245, 10, "Read SVES/TPQY Response, Update STAT with detail, enter CASE/NOTE."
 					Text 20, 65, 270, 10, "Udate STAT with UC or VA Verifications provided from OS Report and CASE/NOTE."
@@ -691,7 +749,7 @@ DO
 					Text 20, 55, 270, 10, "Pull a list of all cases for the Ex Parte month from the SQL Table."
 					Text 20, 65, 270, 10, "Pull all cases from REPT/REVS for the Ex Parte month from MAXIS."
 					Text 20, 75, 270, 10, "Read Ex Parte information from STAT/REVW."
-					Text 20, 85, 270, 10, "COnnect cases on both lists and output everything to Excel"
+					Text 20, 85, 270, 10, "Connect cases on both lists and output everything to Excel"
 				End If
 				If ex_parte_function = "Phase 2" Then
 					GroupBox 5, 40, 305, 60, "Tasks to be Completed:"
@@ -714,6 +772,526 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+If ex_parte_function = "Ex Parte Eval Case Review" Then
+	'This functionality is locked down and only available for use by certain staff.
+	allow_admin_use = False
+	If user_ID_for_validation = "CALO001" Then allow_admin_use = True
+	If user_ID_for_validation = "ILFE001" Then allow_admin_use = True
+	If user_ID_for_validation = "MARI001" Then allow_admin_use = True
+	If user_ID_for_validation = "MEGE001" Then allow_admin_use = True
+	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
+	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
+	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
+
+	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
+	Call MAXIS_case_number_finder(MAXIS_case_number)
+	Do
+		Do
+			err_msg = ""
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 261, 100, "Case Number Selection"
+				ButtonGroup ButtonPressed
+					OkButton 150, 75, 50, 15
+					CancelButton 200, 75, 50, 15
+				Text 10, 10, 245, 20, "This functionality will review a single case to display the evaluation used in the initial PREP run to identify why it was selected or Ex Parte or not."
+				Text 15, 40, 50, 10, "Case Number:"
+				EditBox 70, 35, 50, 15, MAXIS_case_number
+				Text 15, 60, 200, 10, "Ente the CASE NUMBER you want to have the script check."
+			EndDialog
+
+			dialog Dialog1
+			cancel_without_confirmation
+
+			Call validate_MAXIS_case_number(err_msg, "*")
+
+			iF ERR_MSG <> "" Then MsgBox "* * * * NOTICE * * * *" & vbCr & err_msg
+
+		Loop until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
+	MAXIS_case_number = right("00000000"&MAXIS_case_number, 8)
+	ex_parte_renewal_date = ""
+	SQL_case_status = ""
+	SQL_select_ex_parte = ""
+	SQL_prep_complete = ""
+	SQL_phase1_complete = ""
+	SQL_ex_parte_after_phase1 = ""
+	SQL_phase1_cancel_reason = ""
+	SQL_phase2_complete = ""
+	SQL_ex_parte_after_phase2 = ""
+	SQL_phase2_cancel_reason = ""
+	SQL_all_HC_is_ABD = ""
+	SQL_ssa_income_exists = ""
+	SQL_wages_exist = ""
+	SQL_va_inc_exists = ""
+	SQL_self_emp_exists = ""
+	SQL_no_income = ""
+	SQL_EPD_on_case = ""
+	SQL_year_month = ""
+	SQL_eval_year_month = ""
+	SQL_app_year_month = ""
+
+
+
+	'This is opening the Ex Parte Case List data table so we can loop through it.
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE CaseNumber = '" & MAXIS_case_number & "'"		'we only need to look at the cases for the specific review month
+
+	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'opening the connections and data table
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
+
+	Do While NOT objRecordSet.Eof 					'Loop through each item on the CASE LIST Table
+
+		ex_parte_renewal_date 		= objRecordSet("HCEligReviewDate")
+		SQL_case_status 			= objRecordSet("CaseStatus")
+		SQL_select_ex_parte 		= objRecordSet("SelectExParte")
+		SQL_prep_complete 			= objRecordSet("PREP_Complete")
+		SQL_phase1_complete 		= objRecordSet("Phase1Complete")
+		SQL_ex_parte_after_phase1 	= objRecordSet("ExParteAfterPhase1")
+		SQL_phase1_cancel_reason 	= objRecordSet("Phase1ExParteCancelReason")
+		SQL_phase2_complete 		= objRecordSet("Phase2Complete")
+		SQL_ex_parte_after_phase2 	= objRecordSet("ExParteAfterPhase2")
+		SQL_phase2_cancel_reason 	= objRecordSet("Phase2ExParteCancelReason")
+		SQL_all_HC_is_ABD 			= objRecordSet("AllHCisABD")
+		SQL_ssa_income_exists 		= objRecordSet("SSAIncomExist")
+		SQL_wages_exist 			= objRecordSet("VAIncomeExist")
+		SQL_va_inc_exists 		= objRecordSet("VAIncomeExist")
+		SQL_self_emp_exists 		= objRecordSet("SelfEmpExists")
+		SQL_no_income 				= objRecordSet("NoIncome")
+		SQL_EPD_on_case 			= objRecordSet("EPDonCase")
+		SQL_year_month 				= objRecordSet("YearMonth")
+		SQL_eval_year_month 		= objRecordSet("EvaluationYearMonth")
+		SQL_app_year_month 			= objRecordSet("ApprovalYearMonth")
+
+
+
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+		EMReadScreen case_pw, 7, 21, 14
+
+		Call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)
+		If is_this_priv = True Then appears_ex_parte = False						'excluding cases that are privileged
+		If is_this_priv = False Then
+			Call write_value_and_transmit("X", 5, 71)
+			EMReadScreen STAT_HC_ER_mo, 2, 8, 27
+			EMReadScreen STAT_HC_ER_yr, 2, 8, 33
+			If ep_revw_mo <> STAT_HC_ER_mo or ep_revw_yr <> STAT_HC_ER_yr Then  appears_ex_parte = False		'if this does not have the correct renewal month, we will exclude it from Ex Parte
+		End If
+
+
+		ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
+		memb_count = 0										'resetting the counting variable to size the member array
+		list_of_membs_on_hc = " "							'we need to keep a list members by pmi to know if a person is already accounted for as we find all the members and programs
+
+		'We need to pull all of the instances from the ELIG table for the currently defined case number
+		'This will list the HH member and eligibility program for HC. We will use this to start to determine if the case can be processed as Ex Parte
+		objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
+
+		Set objELIGConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+		Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+		'opening the connections and data table
+		objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objELIGRecordSet.Open objELIGSQL, objELIGConnection
+
+		person_found = False		'setting the default of if we have found a person in the list
+		Do While NOT objELIGRecordSet.Eof
+			list_of_membs_on_hc = list_of_membs_on_hc & objELIGRecordSet("PMINumber") & " "		'adding the PMI to the list of all PMIs known on the case
+			person_found = True																	'indicating that there was a person in the list for this case
+			memb_known = False																	'sets that we don't know if we have already looked at this person
+			'now we loop through all of the people we have already found for this case - we only want 1 array instance per person.
+			For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'If the PMI matches one in the array, we are going to set the information to that array instance
+					memb_known = True															'identifies that we know about this person and they are already in the array
+
+					'figuring out which program type location the information should be saved in for this table data
+					'each person on a case may have up to three different lines for different programs
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
+						MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
+						MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
+					ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
+						MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= objELIGRecordSet("MajorProgram")
+						MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= objELIGRecordSet("EligType")
+					ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+						MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
+						MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
+					End If
+				End If
+			Next
+
+			'If this is an unknown member, and has not been added to the array already, we need to add it
+			If memb_known = False Then
+				ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
+
+				'setting personal information to the array
+				MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
+				MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
+				name_var									 		= trim(objELIGRecordSet("Name"))		'we want to format the name corectly.
+				name_array = split(name_var)
+				MEMBER_INFO_ARRAY(memb_name_const, memb_count) = name_array(UBound(name_array))
+				For name_item = 0 to UBound(name_array)-1
+					MEMBER_INFO_ARRAY(memb_name_const, memb_count) = MEMBER_INFO_ARRAY(memb_name_const, memb_count) & " " & name_array(name_item)
+				Next
+				MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+				MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))	'setting the program information
+				MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
+
+				memb_count = memb_count + 1		'incrementing the array counter up for the next loop
+			End if
+			objELIGRecordSet.MoveNext			'going to the next record
+		Loop
+		objELIGRecordSet.Close			'Closing all the data connections
+		objELIGConnection.Close
+		Set objELIGRecordSet=nothing
+		Set objELIGConnection=nothing
+
+
+
+		'If the case still appears Ex Parte, we are going to check if we are missing people, and check income for further determination of Ex Parte
+		If appears_ex_parte = True Then
+			'If we did not find people in the ELIG list, we are going to check ELIG/HC
+			If person_found = False Then
+				Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Creating new ELIG results
+				Call write_value_and_transmit("BGTX", 20, 71)
+				Call MAXIS_background_check
+
+				Call navigate_to_MAXIS_screen("ELIG", "HC  ")		'Navigate to ELIG/HC
+				'Here we start at the top of ELIG/HC and read each row to find HC information
+				hc_row = 8
+				Do
+					pers_type = ""		'blanking out variables so they don't carry over from loop to loop
+					std = ""
+					meth = ""
+					waiv = ""
+
+					'reading the main HC Elig information - member, program, status
+					EMReadScreen read_ref_numb, 2, hc_row, 3
+					EMReadScreen clt_hc_prog, 4, hc_row, 28
+					EMReadScreen hc_prog_status, 6, hc_row, 50
+					ref_row = hc_row
+					Do while read_ref_numb = "  "				'this will read for the reference number if there are multiple programs for a single member
+						ref_row = ref_row - 1
+						EMReadScreen read_ref_numb, 2, ref_row, 3
+					Loop
+
+					If hc_prog_status = "ACTIVE" Then			'If HC is currently active, we need to read more details about the program/eligibility
+						clt_hc_prog = trim(clt_hc_prog)			'formatting this to remove whitespace
+						If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then		'these are non-hc persons
+
+							Call write_value_and_transmit("X", hc_row, 26)									'opening the ELIG detail spans
+							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then		'If it is an MSP, we want to read the type only from a specific place
+								elig_msp_prog = clt_hc_prog
+								EMReadScreen pers_type, 2, 6, 56
+							Else																			'These are MA type programs (not MSP)
+								'Now we have to fund the current month in elig to get the current elig type
+								col = 19
+								Do
+									EMReadScreen span_month, 2, 6, col										'reading the month in ELIG
+									EMReadScreen span_year, 2, 6, col+3
+
+									'if the span month matchest current month plus 1, we are going to grab elig from that month
+									If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then
+										EMReadScreen pers_type, 2, 12, col - 2								'reading the ELIG TYPE
+										EMReadScreen std, 1, 12, col + 3
+										EMReadScreen meth, 1, 13, col + 2
+										EMReadScreen waiv, 1, 17, col + 2
+										Exit Do																'leaving once we've found the information for this elig
+									End If
+									col = col + 11			'this goes to the next column
+								Loop until col = 85			'This is off the page - if we hit this, we did NOT find the elig type in this elig result
+
+								'If we hit 85, we did not get the information. So we are going to read it from the last budget month (most current)
+								If col = 85 Then
+									EMReadScreen pers_type, 2, 12, 72										'reading the ELIG TYPE
+									EMReadScreen std, 1, 12, 77
+									EMReadScreen meth, 1, 13, 76
+									EMReadScreen waiv, 1, 17, 76
+								End If
+							End If
+							PF3			'leaving the elig detail information
+
+							'now we need to add the information we just read to the member array
+							memb_known = False										'default that the member know is false
+							For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)								'Looking at all the members known in the array
+								If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then	'if the member reference from ELIG matches the ARRAY, we are going to add more elig details
+									memb_known = True														'look we found a person
+									If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then				'finding which area of the array is blank to save the elig information there
+										MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= pers_type
+									ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
+										MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= pers_type
+									ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+										MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= pers_type
+									End If
+								End If
+							Next
+
+							'If this is an unknown member, and has not been added to the array already, we need to add it
+							If memb_known = False Then
+								ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
+
+								'setting personal information to the array
+								MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = read_ref_numb
+								MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+								MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(clt_hc_prog)
+								MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(pers_type)
+
+								memb_count = memb_count + 1 	'incrementing the array counter up for the next loop
+							End If
+
+						End If
+					End If
+					hc_row = hc_row + 1												'now we go to the next row
+					EMReadScreen next_ref_numb, 2, hc_row, 3						'read the next HC information to find when we've reeached the end of the list
+					EMReadScreen next_maj_prog, 4, hc_row, 28
+				Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+				CALL back_to_SELF()													'going to STAT/MEMB - because there is misssing personal information for the members discovered in this way
+				Do
+					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+					EMReadScreen memb_check, 4, 2, 48
+				Loop until memb_check = "MEMB"
+
+				at_least_one_hc_active = False										'this is a default to identify if HC is active on the case
+				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)		'navigate to the member for this instance of the array
+					EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
+					EMReadscreen first_name, 12, 6, 63
+					last_name = trim(replace(last_name, "_", "")) & " "
+					first_name = trim(replace(first_name, "_", "")) & " "
+					MEMBER_INFO_ARRAY(memb_name_const, known_membs) = first_name & " " & last_name
+					EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
+					PMI_numb = trim(PMI_numb)
+					MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
+					EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42							'catpturing the SSN
+					MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), " ", "")
+					MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), "_", "")
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
+					If MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" Then at_least_one_hc_active = True
+					If MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then at_least_one_hc_active = True
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then
+						list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "		'adding individuals to our list of members on HC
+					End If
+
+				Next
+				If at_least_one_hc_active = False Then appears_ex_parte = False			'if no one is on HC, this cannot be Ex Parte
+			End If
+		End If
+
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
+		Call get_list_of_members
+
+		'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
+		SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
+		RR_income_exists = False
+		VA_income_exists = False
+		UC_income_exists = False
+		PRISM_income_exists = False
+		Other_UNEA_income_exists = False
+		JOBS_income_exists = False
+		BUSI_income_exists = False
+
+		'Pulling all rows from the INCOME list for the case number we are currently processing
+		objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
+
+		Set objIncomeConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+		Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+
+		'opening the connections and data table
+		objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+
+		Const sql_pers_name 	= 0
+		Const sql_pers_pmi 		= 1
+		Const sql_ref_numb 		= 2
+		Const sql_inc_panel 	= 3
+		Const sql_inc_type 		= 4
+		Const sql_inc_desc 		= 5
+		Const sql_clm_numb 		= 6
+		Const sql_prosp_amt 	= 7
+		Const sql_qury_sent 	= 8
+		Const sql_tpqy_resp		= 9
+		Const sql_tpqy_grs_amt	= 10
+		Const sql_tpqy_net_amt 	= 11
+		Const sql_tpqy_end_dt	= 12
+		Const last_sql_const 	= 30
+
+
+
+		Dim SQL_INCOME_ARRAY()
+		ReDim SQL_INCOME_ARRAY(last_sql_const, 0)
+		inc_count = 0
+
+		'looping through each row in this case
+		Do While NOT objIncomeRecordSet.Eof
+			ReDim Preserve SQL_INCOME_ARRAY(last_sql_const, inc_count)
+
+			SQL_INCOME_ARRAY(sql_pers_name, 	inc_count) = objIncomeRecordSet("PersName")
+			SQL_INCOME_ARRAY(sql_pers_pmi,  	inc_count) = objIncomeRecordSet("PersonID")
+			SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count) = trim(objIncomeRecordSet("RefNumb"))
+			SQL_INCOME_ARRAY(sql_inc_panel,  	inc_count) = objIncomeRecordSet("IncExpTypeCode")
+			SQL_INCOME_ARRAY(sql_inc_type,  	inc_count) = objIncomeRecordSet("IncomeTypeCode")
+			SQL_INCOME_ARRAY(sql_inc_desc,  	inc_count) = objIncomeRecordSet("Description")
+			SQL_INCOME_ARRAY(sql_clm_numb,  	inc_count) = objIncomeRecordSet("ClaimNbr")
+			SQL_INCOME_ARRAY(sql_prosp_amt,  	inc_count) = objIncomeRecordSet("ProspAmount")
+			SQL_INCOME_ARRAY(sql_qury_sent,  	inc_count) = objIncomeRecordSet("QURY_Sent")
+			SQL_INCOME_ARRAY(sql_tpqy_resp, 	inc_count) = objIncomeRecordSet("TPQY_Response")
+			SQL_INCOME_ARRAY(sql_tpqy_grs_amt,	inc_count) = objIncomeRecordSet("GrossAmt")
+			SQL_INCOME_ARRAY(sql_tpqy_net_amt,	inc_count) = objIncomeRecordSet("NetAmt")
+			SQL_INCOME_ARRAY(sql_tpqy_end_dt,	inc_count) = objIncomeRecordSet("EndDate")
+
+			SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count) = right(SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count), 2)
+
+			' income_for_person_is_on_HC = False			'default this variable to false, indicating if the income is for a person on HC
+			' If InStr(list_of_membs_on_hc, objIncomeRecordSet("PersonID")) <> 0 Then income_for_person_is_on_HC = True		'this compares the PMI for the income to the list of PMIS discovered in finding HC elig information
+
+			' 'If this income is for someone on HC, we are going to assess the income detail to determine if the case should still be Ex Parte
+			' If income_for_person_is_on_HC = True Then
+			' 	If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then									'UNEA income exists each type code will set the boolean about that income typr for this case
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
+
+					If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
+
+					If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
+					If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
+			' 	End If
+			' 	If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True					'we do not need to clarify further for JOBS or BUSI income, just indicate if these incomes exist.
+			' 	If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
+			' End If
+
+			' 'Here we set if there is certain types of income on the case for any member. This will information the creation of verification lists
+			' For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)			'loop through all the members
+			' 	If trim(objIncomeRecordSet("PersonID")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then						'if the PMI matches
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "16" Then MEMBER_INFO_ARRAY(sql_rr_income_exists, known_membs) = True		'if the income type is any of the specified, identify that the income exists
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "11" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "12" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "13" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "38" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
+			' 		If objIncomeRecordSet("IncomeTypeCode") = "14" Then MEMBER_INFO_ARRAY(sql_uc_income_exists, known_membs) = True
+			' 	End If
+			' Next
+
+			inc_count = inc_count + 1
+			objIncomeRecordSet.MoveNext		'move to the next Income row
+		Loop
+		objIncomeRecordSet.Close			'Closing all the data connections
+		objIncomeConnection.Close
+		Set objIncomeRecordSet=nothing
+		Set objIncomeConnection=nothing
+
+		' 'This part is for logic to help us determine if the income impacts the Ex parte option
+		' case_has_no_income = False			'start at false for 'no income' basically false here means the case has income
+		' 'If every income type is false, then the case has no income and the variable, 'case_has_no_income' is set to True, because it is true that there is no income.
+		' If SSA_income_exists = False and RR_income_exists = False and VA_income_exists = False and UC_income_exists = False and PRISM_income_exists = False and Other_UNEA_income_exists = False and JOBS_income_exists = False and BUSI_income_exists = False Then case_has_no_income = True
+
+
+
+
+		objRecordSet.MoveNext			'now we go to the next case
+	Loop
+
+	If ex_parte_renewal_date = "" Then call script_end_procedure("The case " & MAXIS_case_number & " is not listed on the SQL Ex Parte Data Table.")
+
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 450, 350, "Case Detials"
+		Text 10, 10, 130, 10, "Case Number: " & MAXIS_case_number
+		Text 20, 20, 130, 10, "CASE/CURR X Numb: " & case_pw
+		Text 10, 35, 120, 10, "Appears Ex Parte: " & SQL_select_ex_parte
+		Text 25, 45, 105, 10, "All HC is ABD: " & SQL_all_HC_is_ABD
+		Text 25, 55, 105, 10, "Case has EPD: " & SQL_EPD_on_case
+		Text 10, 70, 105, 10, "SQL HC ER: " & ex_parte_renewal_date
+		Text 25, 80, 105, 10, "STAT HC ER: " & STAT_HC_ER_mo & "/" & STAT_HC_ER_yr
+		Text 10, 95, 90, 10, "Case Active: " & case_active
+		Text 10, 105, 90, 10, "MA Status: " & ma_status
+		Text 10, 115, 90, 10, "MSP Status: " & msp_status
+		Text 10, 125, 90, 10, "MFIP Status: " & mfip_status
+		Text 10, 135, 90, 10, "SNAP Status: " & snap_status
+		Text 120, 95, 90, 10, "SSA Income: " & SQL_ssa_income_exists
+		Text 120, 105, 90, 10, "RR Income: " & RR_income_exists
+		Text 120, 115, 90, 10, "VA Income: " & SQL_va_inc_exists
+		Text 120, 125, 90, 10, "UC Income: " & UC_income_exists
+		Text 230, 95, 90, 10, "PRISM Income: " & PRISM_income_exists
+		Text 230, 105, 90, 10, "Other UNEA: " & Other_UNEA_income_exists
+		Text 230, 115, 90, 10, "JOBS Income: " & SQL_wages_exist
+		Text 230, 125, 90, 10, "BUSI Income: " & SQL_self_emp_exists
+		Text 150, 10, 50, 10, "Persons"
+		y_pos = 25
+		For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+			If MEMBER_INFO_ARRAY(table_prog_1, each_memb) <> "" Then
+				Text 150, y_pos, 105, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+				Text 255, y_pos, 35, 10, MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+				Text 310, y_pos, 30, 10, MEMBER_INFO_ARRAY(table_prog_1, each_memb) & "-" & MEMBER_INFO_ARRAY(table_type_1, each_memb)
+				y_pos = y_pos + 10
+				If MEMBER_INFO_ARRAY(table_prog_2, each_memb) <> "" Then
+					Text 310, y_pos, 30, 10, MEMBER_INFO_ARRAY(table_prog_2, each_memb) & "-" & MEMBER_INFO_ARRAY(table_type_2, each_memb)
+					y_pos = y_pos + 10
+				End If
+				If MEMBER_INFO_ARRAY(table_prog_3, each_memb) <> "" Then
+					Text 310, y_pos, 30, 10, MEMBER_INFO_ARRAY(table_prog_3, each_memb) & "-" & MEMBER_INFO_ARRAY(table_type_3, each_memb)
+					y_pos = y_pos + 10
+				End If
+			End If
+		Next
+		y_pos = y_pos + 10
+
+		y_pos = 150
+		Text 155, y_pos, 50, 10, "SQL Income"
+		y_pos = y_pos + 10
+		for each_inc = 0 to UBound(SQL_INCOME_ARRAY, 2)
+			Text 15, y_pos, 105, 10, "MEMB " & SQL_INCOME_ARRAY(sql_ref_numb, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_panel, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_type, each_inc) & " (" & SQL_INCOME_ARRAY(uc_inc_type_code_const, each_inc) &")"
+			Text 120, y_pos, 120, 10, "SQL amount $ " & SQL_INCOME_ARRAY(sql_prosp_amt, each_inc)
+			If SQL_INCOME_ARRAY(sql_clm_numb, each_inc) <> "" Then Text 250, y_pos, 120, 10, "Claim Number: " &  SQL_INCOME_ARRAY(sql_clm_numb, each_inc)
+			y_pos = y_pos + 10
+			If SQL_INCOME_ARRAY(sql_qury_sent, each_inc) <> "" or SQL_INCOME_ARRAY(sql_tpqy_resp, each_inc) <> "" Then
+				Text 15, y_pos, 185, 10, "QURY Date: " & SQL_INCOME_ARRAY(sql_qury_sent, each_inc) & " - TPQY Date: " & SQL_INCOME_ARRAY(sql_tpqy_resp, each_inc)
+				Text 200, y_pos, 140, 10, "TPQY Gross: $ " & SQL_INCOME_ARRAY(sql_tpqy_grs_amt, each_inc) & ", Net: $ " & SQL_INCOME_ARRAY(sql_tpqy_net_amt, each_inc)
+				If SQL_INCOME_ARRAY(sql_tpqy_end_dt, each_inc) <> "" Then Text 340, y_pos, 120, 10, "TPQY End Date: " & SQL_INCOME_ARRAY(sql_tpqy_end_dt, each_inc)
+				y_pos = y_pos + 10
+			End If
+		next
+		ButtonGroup ButtonPressed
+			OkButton 390, 330, 50, 15
+	EndDialog
+
+	Dialog Dialog1
+
+	Call script_end_procedure("")
+End If
 
 If ex_parte_function = "ADMIN Review" Then
 	'this functionality is meant to review the status of cases on the SQL data list. This can help track the progress on Ex Parte cases.
@@ -1084,8 +1662,530 @@ If user_ID_for_validation = "ILFE001" Then bz_user = True
 If bz_user = False Then script_end_procedure("This script functionality can only be operated by the BlueZone Script Team. The script will now end.")
 
 If ex_parte_function = "FIX LIST" Then
-	Call script_end_procedure("There is no fix currently established.")
+	' Call script_end_procedure("There is no fix currently established.")
 	fix_report_out = ""
+
+	review_date = "2023-11-01"
+	'This is opening the Ex Parte Case List data table so we can loop through it.
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "' and [SelectExParte] = '1'"
+
+	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'opening the connections and data table
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
+
+	'Loop through each item on the CASE LIST Table
+	Do While NOT objRecordSet.Eof
+		'For each case that is indicated as Ex parte, we are going to update the case information
+		MAXIS_case_number = objRecordSet("CaseNumber") 		'SET THE MAXIS CASE NUMBER
+
+		'Here is functionality to be sure the case is able to be updated
+		case_is_in_henn = False					'default this to false
+
+		'reading case program information and PW
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+		EMReadScreen case_pw, 7, 21, 14									'reading the curent PW for the case
+		If left(case_pw, 4) = "X127" Then case_is_in_henn = True		'identifying if the case is not in HENN
+		kick_it_off_reason = ""											'create an explanation of why the case is being removed form the Ex Parte list
+		If case_is_in_henn = False Then kick_it_off_reason = "Case not in 27"
+		If case_active = False Then kick_it_off_reason = "Case not Active"
+		If (case_active = False and case_pending = False and case_rein = False) or case_is_in_henn = False Then
+			'WE ARE NOT going to update this here for now
+			' select_ex_parte = False
+			' objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', PREP_Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+
+			' Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+			' Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			' 'opening the connections and data table
+			' objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			' objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+		Else
+			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)							'Reset this array to blank at the beginning of each loop for each case.
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "MEMB")					'making suyre we get to STAT MEMB
+				EMReadScreen memb_check, 4, 2, 48
+			Loop until memb_check = "MEMB"
+			Call get_list_of_members											'get a list of all the HH memebers on the case
+
+			'Read SVES/TPQY for all persons on a case
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False			'defaulting these to false
+				MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = False
+				MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = False
+
+				Call navigate_to_MAXIS_screen("INFC", "SVES")					'navigate to SVES
+				EMWriteScreen MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb), 5, 68				'Enter the PMI for the current member and open the TPQY
+				Call write_value_and_transmit("TPQY", 20, 70)
+
+				Do
+					EMReadScreen check_TPQY_panel, 4, 2, 53 						'Reads for TPQY panel
+					If check_TPQY_panel <> "TPQY" Then Call write_value_and_transmit("TPQY", 20, 70)
+				Loop until check_TPQY_panel = "TPQY"
+
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39		'saving all tpqy information into the member array
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
+				MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
+				EMReadScreen sves_response, 8, 7, 22 		'Return Date
+				sves_response = replace(sves_response," ", "/")
+
+				transmit
+
+				Do
+					EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel\
+					If check_BDXP_panel <> "BDXP" Then
+						row = 1
+						col = 1
+						EMSearch "Command:", row, col
+						Call write_value_and_transmit("BDXP", row, col++9)
+					End If
+				Loop until check_BDXP_panel = "BDXP"
+
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 40		'saving all tpqy information into the member array
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb), 		1, 8, 69
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), 	5, 11, 69
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), 	5, 14, 69
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), 	10, 15, 69
+				MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
+				MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
+				MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
+				MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
+
+				transmit
+
+				Do
+					EMReadScreen check_BDXM_panel, 4, 2, 53 						'Reads for BDXM panel
+					If check_BDXM_panel <> "BDXM" Then
+						row = 1
+						col = 1
+						EMSearch "Command:", row, col
+						Call write_value_and_transmit("BDXM", row, col++9)
+					End If
+				Loop until check_BDXM_panel = "BDXM"
+
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 			13, 4, 29		'saving all tpqy information into the member array
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb), 			7, 6, 64
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 				5, 7, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 				5, 7, 63
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_ind, each_memb), 			1, 8, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb), 			3, 8, 63
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), 	5, 9, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), 	5, 9, 63
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb), 			7, 12, 64
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 				5, 13, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 				5, 13, 63
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_ind, each_memb), 			1, 14, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb), 			3, 14, 63
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), 	5, 15, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), 	5, 15, 63
+				MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), " ", "/01/")
+
+				transmit
+
+				Do
+					EMReadScreen check_SDXE_panel, 4, 2, 53 						'Reads for SDXE panel
+					If check_SDXE_panel <> "SDXE" Then
+						row = 1
+						col = 1
+						EMSearch "Command:", row, col
+						Call write_value_and_transmit("SDXE", row, col++9)
+					End If
+				Loop until check_SDXE_panel = "SDXE"
+
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb), 		12, 5, 36		'saving all tpqy information into the member array
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), 		2, 7, 21
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb), 		22, 7, 24
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_fed_living, each_memb), 			1, 6, 70
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 			3, 8, 21
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb), 			30, 8, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_cit_ind_code, each_memb), 			1, 7, 70
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_code, each_memb), 		3, 10, 26
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb), 		40, 10, 30
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), 		8, 11, 26
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), 			8, 12, 26
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), 		8, 13, 26
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_code, each_memb), 		1, 11, 65
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), 		8, 12, 65
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_code, each_memb), 	2, 13, 65
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), 	8, 14, 65
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_pay_code, each_memb), 		1, 15, 65
+				MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
+
+				transmit
+
+				Do
+					EMReadScreen check_SDXP_panel, 4, 2, 50 							'Reads for SDXP panel
+					If check_SDXP_panel <> "SDXP" Then
+						row = 1
+						col = 1
+						EMSearch "Command:", row, col
+						Call write_value_and_transmit("SDXP", row, col++9)
+					End If
+				Loop until check_SDXP_panel = "SDXP"
+
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), 			5, 4, 16		'saving all tpqy information into the member array
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), 			7, 4, 42
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_over_under_code, each_memb), 	1, 4, 73
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), 	5, 8, 3
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb), 	6, 8, 13
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_type, each_memb), 	1, 8, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), 	5, 9, 3
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb), 	6, 9, 13
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_type, each_memb), 	1, 9, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), 	5, 10, 3
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb), 	6, 10, 13
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_type, each_memb), 	1, 10, 25
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb), 				8, 5, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb), 				8, 6, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb), 		8, 7, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb), 		8, 8, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), 		8, 9, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), 		8, 10, 66
+				EMReadScreen MEMBER_INFO_ARRAY(tpqy_rep_payee, each_memb), 				1, 11, 66
+
+				If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then
+					last_payment_date = ""
+					sdx_row = 8
+					Do
+						EMReadScreen sdx_payment_type, 1, sdx_row, 25
+						If sdx_payment_type <> "0" and sdx_payment_type <> " " Then
+							EMReadScreen last_payment_date, 5, sdx_row, 3
+							EMReadScreen last_payment_amt, 9, sdx_row, 13
+							Exit Do
+						End If
+						sdx_row = sdx_row + 1
+					Loop until sdx_payment_type = " "
+					If last_payment_date <> "" Then
+						MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = replace(last_payment_date, " ", "/1/")
+						MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = DateAdd("d", 0, MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb))
+						MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb) = trim(last_payment_amt)
+					End If
+				End If
+
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb))
+				If MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "0"
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb))
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), " ", "/01/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
+				MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
+
+				transmit
+
+				If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
+					MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
+					MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb)= False
+					If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True
+					If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "E" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+					If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "H" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+					If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "M" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+					If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "P" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+					If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "S" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+				End If
+				If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
+					If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
+						MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True
+						If IsDate(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb)) = True Then MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True
+					End If
+				End If
+
+				Call back_to_SELF
+			Next
+
+			'navigating into STAT
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "SUMM")
+				EMReadScreen summ_check, 4, 2, 46
+			Loop until summ_check = "SUMM"
+			verif_types = ""						'blanking out the list of verifications for the CASE/NOTE
+
+			'here we attempt to go update STAT with the information gathered from TPQY
+			For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)									'looping thorugh each HH Member
+				If IsDate(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb)) = True Then 		'If there is a date of dealth listed, for now we are just going to add them to a list
+					' ObjExcel.Cells(excel_row, 1).Value = MAXIS_case_number
+					' ObjExcel.Cells(excel_row, 2).Value = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+					' ObjExcel.Cells(excel_row, 3).Value = MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+					' ObjExcel.Cells(excel_row, 4).Value = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+					' ObjExcel.Cells(excel_row, 5).Value = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
+					' ObjExcel.Cells(excel_row, 6).Value = MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb)
+					' excel_row = excel_row + 1													'counting to increment to the next excel row
+				Else 	'If there is no date of death, we are going to try to update UNEA for SSI/RSDI
+					'Update MAXIS UNEA panels with information from TPQY
+					If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then				'Member with SSI
+						If MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True Then		'If SSI appears to be ongoing (Current Pay)
+							MEMB_reference_number = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+							UNEA_type_code = "03"
+							UNEA_claim_number = MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb)&MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb)
+
+							ReDim unea_panel_array(last_panel_const, 0)
+							unea_panel_counter = 0
+
+							EMWriteScreen "UNEA", 20, 71
+							transmit
+							EMReadScreen unea_check, 4, 2, 48
+							Do While unea_check <> "UNEA"
+								Call navigate_to_MAXIS_screen("STAT", "UNEA")
+								EMReadScreen unea_check, 4, 2, 48
+							Loop
+							EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+							EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+							transmit
+
+							list_of_panels_that_match = " "
+							EMReadScreen vers_count, 1, 2, 78
+							If vers_count <> "0" Then
+								Do
+									ReDim Preserve unea_panel_array(last_panel_const, unea_panel_counter)
+									EMReadScreen panel_instance, 1, 2, 73
+									EMReadScreen panel_type_code, 2, 5, 37
+									EMReadScreen panel_claim_number, 15, 6, 37
+									panel_claim_number = replace(panel_claim_number, "_", "")
+									panel_claim_number = replace(panel_claim_number, " ", "")
+									If panel_type_code = UNEA_type_code Then type_code_found = True
+									' MsgBox "panel_type_code - " & panel_type_code & vbCr & "UNEA_type_code - " & UNEA_type_code & vbCr & "type_code_found - " & type_code_found
+									If panel_type_code = UNEA_type_code and panel_claim_number = UNEA_claim_number Then list_of_panels_that_match = list_of_panels_that_match & "0"&panel_instance & " "
+
+									unea_panel_array(panel_type_const, unea_panel_counter) = panel_type_code
+									unea_panel_array(panel_claim_const, unea_panel_counter) = panel_claim_number
+									unea_panel_array(panel_claim_left_9_const, unea_panel_counter) = left(panel_claim_number, 9)
+									unea_panel_array(panel_instance_const, unea_panel_counter) = "0" & panel_instance
+
+									unea_panel_counter = unea_panel_counter + 1
+
+									transmit
+									EMReadScreen end_of_UNEA_panels, 7, 24, 2
+								Loop Until end_of_UNEA_panels = "ENTER A"
+							End If
+
+							' MsgBox "All panels that have the same detail: " & list_of_panels_that_match
+							list_of_panels_that_match = trim(list_of_panels_that_match)
+							If len(list_of_panels_that_match) > 2 Then
+								matching_panels_array = split(list_of_panels_that_match)
+
+								for the_matched_panel = 0 to UBound(matching_panels_array)-1
+									EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+									EMWriteScreen matching_panels_array(the_matched_panel), 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+									transmit
+
+									EMWriteScreen "DEL", 20, 71
+									PF9
+									transmit
+
+									EMWaitReady 0, 0
+									transmit
+								next
+								' MsgBox "Did we delete?"
+							End If
+
+						ElseIf isDate(MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb)) = True Then	'If SSI has an end date listed
+							MEMB_reference_number = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+							UNEA_type_code = "03"
+							UNEA_claim_number = MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb)&MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb)
+
+							ReDim unea_panel_array(last_panel_const, 0)
+							unea_panel_counter = 0
+
+							EMWriteScreen "UNEA", 20, 71
+							transmit
+							EMReadScreen unea_check, 4, 2, 48
+							Do While unea_check <> "UNEA"
+								Call navigate_to_MAXIS_screen("STAT", "UNEA")
+								EMReadScreen unea_check, 4, 2, 48
+							Loop
+							EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+							EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+							transmit
+
+							list_of_panels_that_match = " "
+							EMReadScreen vers_count, 1, 2, 78
+							If vers_count <> "0" Then
+								Do
+									ReDim Preserve unea_panel_array(last_panel_const, unea_panel_counter)
+									EMReadScreen panel_instance, 1, 2, 73
+									EMReadScreen panel_type_code, 2, 5, 37
+									EMReadScreen panel_claim_number, 15, 6, 37
+									panel_claim_number = replace(panel_claim_number, "_", "")
+									panel_claim_number = replace(panel_claim_number, " ", "")
+									If panel_type_code = UNEA_type_code Then type_code_found = True
+									' MsgBox "panel_type_code - " & panel_type_code & vbCr & "UNEA_type_code - " & UNEA_type_code & vbCr & "type_code_found - " & type_code_found
+									If panel_type_code = UNEA_type_code and panel_claim_number = UNEA_claim_number Then list_of_panels_that_match = list_of_panels_that_match & "0"&panel_instance & " "
+
+									unea_panel_array(panel_type_const, unea_panel_counter) = panel_type_code
+									unea_panel_array(panel_claim_const, unea_panel_counter) = panel_claim_number
+									unea_panel_array(panel_claim_left_9_const, unea_panel_counter) = left(panel_claim_number, 9)
+									unea_panel_array(panel_instance_const, unea_panel_counter) = "0" & panel_instance
+
+									unea_panel_counter = unea_panel_counter + 1
+
+									transmit
+									EMReadScreen end_of_UNEA_panels, 7, 24, 2
+								Loop Until end_of_UNEA_panels = "ENTER A"
+							End If
+
+							' MsgBox "All panels that have the same detail: " & list_of_panels_that_match
+							list_of_panels_that_match = trim(list_of_panels_that_match)
+							If len(list_of_panels_that_match) > 2 Then
+								matching_panels_array = split(list_of_panels_that_match)
+
+								for the_matched_panel = 0 to UBound(matching_panels_array)-1
+									EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+									EMWriteScreen matching_panels_array(the_matched_panel), 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+									transmit
+
+									EMWriteScreen "DEL", 20, 71
+									PF9
+									transmit
+
+									EMWaitReady 0, 0
+									transmit
+								next
+								' MsgBox "Did we delete?"
+							End If
+
+						End If
+					End If
+
+					If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then				'Member with RSDI
+						'TODO - this functionality might need revision - not sure if the amount matching is the way to go
+						If MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) <> MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then
+							rsdi_type = "02"
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then rsdi_type = "01"
+
+							MEMB_reference_number = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+							UNEA_type_code = rsdi_type
+							UNEA_claim_number = MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb)
+
+							ReDim unea_panel_array(last_panel_const, 0)
+							unea_panel_counter = 0
+
+							EMWriteScreen "UNEA", 20, 71
+							transmit
+							EMReadScreen unea_check, 4, 2, 48
+							Do While unea_check <> "UNEA"
+								Call navigate_to_MAXIS_screen("STAT", "UNEA")
+								EMReadScreen unea_check, 4, 2, 48
+							Loop
+							EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+							EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+							transmit
+
+							list_of_panels_that_match = " "
+							EMReadScreen vers_count, 1, 2, 78
+							If vers_count <> "0" Then
+								Do
+									ReDim Preserve unea_panel_array(last_panel_const, unea_panel_counter)
+									EMReadScreen panel_instance, 1, 2, 73
+									EMReadScreen panel_type_code, 2, 5, 37
+									EMReadScreen panel_claim_number, 15, 6, 37
+									panel_claim_number = replace(panel_claim_number, "_", "")
+									panel_claim_number = replace(panel_claim_number, " ", "")
+									If panel_type_code = UNEA_type_code Then type_code_found = True
+									' MsgBox "panel_type_code - " & panel_type_code & vbCr & "UNEA_type_code - " & UNEA_type_code & vbCr & "type_code_found - " & type_code_found
+									If panel_type_code = UNEA_type_code and panel_claim_number = UNEA_claim_number Then list_of_panels_that_match = list_of_panels_that_match & "0"&panel_instance & " "
+
+									unea_panel_array(panel_type_const, unea_panel_counter) = panel_type_code
+									unea_panel_array(panel_claim_const, unea_panel_counter) = panel_claim_number
+									unea_panel_array(panel_claim_left_9_const, unea_panel_counter) = left(panel_claim_number, 9)
+									unea_panel_array(panel_instance_const, unea_panel_counter) = "0" & panel_instance
+
+									unea_panel_counter = unea_panel_counter + 1
+
+									transmit
+									EMReadScreen end_of_UNEA_panels, 7, 24, 2
+								Loop Until end_of_UNEA_panels = "ENTER A"
+							End If
+
+							list_of_panels_that_match = trim(list_of_panels_that_match)
+							If len(list_of_panels_that_match) > 2 Then
+								' MsgBox "RSDI - All panels that have the same detail: " & list_of_panels_that_match
+								matching_panels_array = split(list_of_panels_that_match)
+
+								for the_matched_panel = 0 to UBound(matching_panels_array)-1
+									EMWriteScreen MEMB_reference_number, 20, 76 		'Navigating to STAT/UNEA
+									EMWriteScreen matching_panels_array(the_matched_panel), 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+									transmit
+
+									EMWriteScreen "DEL", 20, 71
+									PF9
+									transmit
+
+									EMWaitReady 0, 0
+									transmit
+								next
+								' MsgBox "Did we delete?"
+							End If
+
+						End If
+					End If
+				End If
+			Next
+		End If
+		objRecordSet.MoveNext			'now we go to the next case
+	Loop
+    objRecordSet.Close			'Closing all the data connections
+    objConnection.Close
+    Set objRecordSet=nothing
+    Set objConnection=nothing
 
 	' 'THIS IS FOR CREATING A LIST OF CASES APPROVED FOR THE REVIEW MONTH THAT HAVE MSA and/or GRH
 	' review_date = "8/1/2023"			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
@@ -1271,6 +2371,7 @@ If ex_parte_function = "Prep 1" Then
 			'opening the connections and data table
 			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objELIGRecordSet.Open objELIGSQL, objELIGConnection
+			' MsgBox "We are at 1"
 
 			person_found = False		'setting the default of if we have found a person in the list
 			Do While NOT objELIGRecordSet.Eof
@@ -1369,10 +2470,11 @@ If ex_parte_function = "Prep 1" Then
 			objELIGConnection.Close
 			Set objELIGRecordSet=nothing
 			Set objELIGConnection=nothing
-
+			' MsgBox "We are at 2"
 			'If the ELIG types still indicate that the case is Ex Parte, we are going to check REVW to make sure the case meets renewal requirements
 			If appears_ex_parte = True Then
 				'check HC ER date in STAT/REVW
+				' MsgBox "We are at 3"
 				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)
 				If is_this_priv = True Then appears_ex_parte = False						'excluding cases that are privileged
 				If is_this_priv = False Then
@@ -1383,9 +2485,11 @@ If ex_parte_function = "Prep 1" Then
 				End If
 			End If
 
+			' MsgBox "We are at 4"
 			'If the case still appears Ex Parte, we are going to check if we are missing people, and check income for further determination of Ex Parte
 			If appears_ex_parte = True Then
 				'If we did not find people in the ELIG list, we are going to check ELIG/HC
+				' MsgBox "We are at 5"
 				If person_found = False Then
 					Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Creating new ELIG results
 					Call write_value_and_transmit("BGTX", 20, 71)
@@ -1564,8 +2668,11 @@ If ex_parte_function = "Prep 1" Then
 				End If
 			End If
 
-			Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
-			Call get_list_of_members
+			' MsgBox "We are at 6"
+			If is_this_priv = False and appears_ex_parte = True Then
+				Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
+				Call get_list_of_members
+			End if
 
 			'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
 			SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
@@ -2182,187 +3289,227 @@ If ex_parte_function = "Prep 2" Then
 					EMWriteScreen MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb), 5, 68				'Enter the PMI for the current member and open the TPQY
 					Call write_value_and_transmit("TPQY", 20, 70)
 
-					EMReadScreen check_TPQY_panel, 4, 2, 53 						'Reads for TPQY panel
-					If check_TPQY_panel = "TPQY" Then
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39		'saving all tpqy information into the member array
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
-						MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
-						EMReadScreen sves_response, 8, 7, 22 		'Return Date
-						sves_response = replace(sves_response," ", "/")
-					End If
+					Do
+						EMReadScreen check_TPQY_panel, 4, 2, 53 						'Reads for TPQY panel
+						If check_TPQY_panel <> "TPQY" Then Call write_value_and_transmit("TPQY", 20, 70)
+					Loop until check_TPQY_panel = "TPQY"
+
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39		'saving all tpqy information into the member array
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
+					MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
+					EMReadScreen sves_response, 8, 7, 22 		'Return Date
+					sves_response = replace(sves_response," ", "/")
+
 					transmit
 
-					EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel
-					If check_BDXP_panel = "BDXP" Then
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 40		'saving all tpqy information into the member array
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb), 		1, 8, 69
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), 	5, 11, 69
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), 	5, 14, 69
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), 	10, 15, 69
-						MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
-						MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
-						MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
-						MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
-					End If
-					transmit
-
-					EMReadScreen check_BDXM_panel, 4, 2, 53 						'Reads for BDXM panel
-					If check_BDXM_panel = "BDXM" Then
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 			13, 4, 29		'saving all tpqy information into the member array
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb), 			7, 6, 64
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 				5, 7, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 				5, 7, 63
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_ind, each_memb), 			1, 8, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb), 			3, 8, 63
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), 	5, 9, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), 	5, 9, 63
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb), 			7, 12, 64
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 				5, 13, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 				5, 13, 63
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_ind, each_memb), 			1, 14, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb), 			3, 14, 63
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), 	5, 15, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), 	5, 15, 63
-						MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), " ", "/01/")
-					End If
-					transmit
-
-					EMReadScreen check_SDXE_panel, 4, 2, 53 						'Reads for SDXE panel
-					If check_SDXE_panel = "SDXE" Then
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb), 		12, 5, 36		'saving all tpqy information into the member array
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), 		2, 7, 21
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb), 		22, 7, 24
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_fed_living, each_memb), 			1, 6, 70
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 			3, 8, 21
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb), 			30, 8, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_cit_ind_code, each_memb), 			1, 7, 70
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_code, each_memb), 		3, 10, 26
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb), 		40, 10, 30
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), 		8, 11, 26
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), 			8, 12, 26
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), 		8, 13, 26
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_code, each_memb), 		1, 11, 65
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), 		8, 12, 65
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_code, each_memb), 	2, 13, 65
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), 	8, 14, 65
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_pay_code, each_memb), 		1, 15, 65
-						MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
-					End If
-					transmit
-
-					EMReadScreen check_SDXP_panel, 4, 2, 50 							'Reads for SDXP panel
-					If check_SDXP_panel = "SDXP" Then
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), 			5, 4, 16		'saving all tpqy information into the member array
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), 			7, 4, 42
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_over_under_code, each_memb), 	1, 4, 73
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), 	5, 8, 3
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb), 	6, 8, 13
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_type, each_memb), 	1, 8, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), 	5, 9, 3
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb), 	6, 9, 13
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_type, each_memb), 	1, 9, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), 	5, 10, 3
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb), 	6, 10, 13
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_type, each_memb), 	1, 10, 25
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb), 				8, 5, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb), 				8, 6, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb), 		8, 7, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb), 		8, 8, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), 		8, 9, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), 		8, 10, 66
-						EMReadScreen MEMBER_INFO_ARRAY(tpqy_rep_payee, each_memb), 				1, 11, 66
-
-						If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then
-							last_payment_date = ""
-							sdx_row = 8
-							Do
-								EMReadScreen sdx_payment_type, 1, sdx_row, 25
-								If sdx_payment_type <> "0" and sdx_payment_type <> " " Then
-									EMReadScreen last_payment_date, 5, sdx_row, 3
-									EMReadScreen last_payment_amt, 9, sdx_row, 13
-									Exit Do
-								End If
-								sdx_row = sdx_row + 1
-							Loop until sdx_payment_type = " "
-							If last_payment_date <> "" Then
-								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = replace(last_payment_date, " ", "/1/")
-								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = DateAdd("d", 0, MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb))
-								MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb) = trim(last_payment_amt)
-							End If
+					Do
+						EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel\
+						If check_BDXP_panel <> "BDXP" Then
+							row = 1
+							col = 1
+							EMSearch "Command:", row, col
+							Call write_value_and_transmit("BDXP", row, col++9)
 						End If
+					Loop until check_BDXP_panel = "BDXP"
 
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb))
-						If MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "0"
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb))
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), " ", "/01/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
-						MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 40		'saving all tpqy information into the member array
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb), 		1, 8, 69
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), 	5, 11, 69
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), 	5, 14, 69
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), 	10, 15, 69
+					MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
+					MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
+					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
+					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
+
+					transmit
+
+					Do
+						EMReadScreen check_BDXM_panel, 4, 2, 53 						'Reads for BDXM panel
+						If check_BDXM_panel <> "BDXM" Then
+							row = 1
+							col = 1
+							EMSearch "Command:", row, col
+							Call write_value_and_transmit("BDXM", row, col++9)
+						End If
+					Loop until check_BDXM_panel = "BDXM"
+
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 			13, 4, 29		'saving all tpqy information into the member array
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb), 			7, 6, 64
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 				5, 7, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 				5, 7, 63
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_ind, each_memb), 			1, 8, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb), 			3, 8, 63
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), 	5, 9, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), 	5, 9, 63
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb), 			7, 12, 64
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 				5, 13, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 				5, 13, 63
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_ind, each_memb), 			1, 14, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb), 			3, 14, 63
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), 	5, 15, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), 	5, 15, 63
+					MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), " ", "/01/")
+
+					transmit
+
+					Do
+						EMReadScreen check_SDXE_panel, 4, 2, 53 						'Reads for SDXE panel
+						If check_SDXE_panel <> "SDXE" Then
+							row = 1
+							col = 1
+							EMSearch "Command:", row, col
+							Call write_value_and_transmit("SDXE", row, col++9)
+						End If
+					Loop until check_SDXE_panel = "SDXE"
+
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb), 		12, 5, 36		'saving all tpqy information into the member array
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), 		2, 7, 21
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb), 		22, 7, 24
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_fed_living, each_memb), 			1, 6, 70
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 			3, 8, 21
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb), 			30, 8, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_cit_ind_code, each_memb), 			1, 7, 70
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_code, each_memb), 		3, 10, 26
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb), 		40, 10, 30
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), 		8, 11, 26
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), 			8, 12, 26
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), 		8, 13, 26
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_code, each_memb), 		1, 11, 65
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), 		8, 12, 65
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_code, each_memb), 	2, 13, 65
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), 	8, 14, 65
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_pay_code, each_memb), 		1, 15, 65
+					MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
+
+					transmit
+
+					Do
+						EMReadScreen check_SDXP_panel, 4, 2, 50 							'Reads for SDXP panel
+						If check_SDXP_panel <> "SDXP" Then
+							row = 1
+							col = 1
+							EMSearch "Command:", row, col
+							Call write_value_and_transmit("SDXP", row, col++9)
+						End If
+					Loop until check_SDXP_panel = "SDXP"
+
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), 			5, 4, 16		'saving all tpqy information into the member array
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), 			7, 4, 42
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_over_under_code, each_memb), 	1, 4, 73
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), 	5, 8, 3
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb), 	6, 8, 13
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_type, each_memb), 	1, 8, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), 	5, 9, 3
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb), 	6, 9, 13
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_type, each_memb), 	1, 9, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), 	5, 10, 3
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb), 	6, 10, 13
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_type, each_memb), 	1, 10, 25
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb), 				8, 5, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb), 				8, 6, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb), 		8, 7, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb), 		8, 8, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), 		8, 9, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), 		8, 10, 66
+					EMReadScreen MEMBER_INFO_ARRAY(tpqy_rep_payee, each_memb), 				1, 11, 66
+
+					If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then
+						last_payment_date = ""
+						sdx_row = 8
+						Do
+							EMReadScreen sdx_payment_type, 1, sdx_row, 25
+							If sdx_payment_type <> "0" and sdx_payment_type <> " " Then
+								EMReadScreen last_payment_date, 5, sdx_row, 3
+								EMReadScreen last_payment_amt, 9, sdx_row, 13
+								Exit Do
+							End If
+							sdx_row = sdx_row + 1
+						Loop until sdx_payment_type = " "
+						If last_payment_date <> "" Then
+							MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = replace(last_payment_date, " ", "/1/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb) = DateAdd("d", 0, MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb) = trim(last_payment_amt)
+						End If
 					End If
+
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb))
+					If MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "0"
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb))
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), " ", "/01/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
+					MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
+
 					transmit
 
 					If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
 						MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
 						MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb)= False
 						If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True
+						If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "E" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+						If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "H" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+						If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "M" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+						If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "P" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+						If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "S" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
 					End If
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
 						If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
@@ -2418,18 +3565,15 @@ If ex_parte_function = "Prep 2" Then
 						End If
 
 						If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then				'Member with RSDI
-							'TODO - this functionality might need revision - not sure if the amount matching is the way to go
-							If MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) <> MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then
-								If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then
-									rsdi_type = "01"
-									Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
-								Else
-									rsdi_type = "02"
-									Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
-								End If
-								Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
-								If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then
+								rsdi_type = "01"
+								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
+							Else
+								rsdi_type = "02"
+								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 							End If
+							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
+							If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 						End If
 
 						'Update MAXIS MEDI panels with information from TPQY
@@ -2728,6 +3872,8 @@ If ex_parte_function = "Prep 2" Then
 				Call write_value_and_transmit("BGTX", 20, 71)
 				EMReadScreen wrap_check, 4, 2, 46
 				If wrap_check = "WRAP" Then transmit
+				EMReadScreen wrap_error, 30, 24, 2
+				If wrap_error = "THE COMMAND 'BGTX' NOT ALLOWED" Then transmit
 				Call back_to_SELF
 
 				'here we are trying to update the INCOME List with the information found in TPQY
@@ -3161,211 +4307,248 @@ If ex_parte_function = "Phase 1" Then
 
 					Call navigate_to_MAXIS_screen("INFC", "SVES")
 					EMWriteScreen MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb), 5, 68
-					EMWriteScreen "TPQY", 20, 70
-					transmit
+					Call write_value_and_transmit("TPQY", 20, 70)
 
-					EMReadScreen check_TPQY_panel, 4, 2, 53 		'Reads for TPQY panel
-					If check_TPQY_panel = "TPQY" Then
-						EMReadScreen tpqy_response_date, 8, 7, 22
-						tpqy_response_date = trim(tpqy_response_date)
-						If tpqy_response_date <> "" Then
-							tpqy_response_date = replace(tpqy_response_date, " ", "/")
-							tpqy_response_date = DateAdd("d", 0, tpqy_response_date)
+					Do
+						EMReadScreen check_TPQY_panel, 4, 2, 53 						'Reads for TPQY panel
+						If check_TPQY_panel <> "TPQY" Then Call write_value_and_transmit("TPQY", 20, 70)
+					Loop until check_TPQY_panel = "TPQY"
 
-							If DateDiff("d", prep_phase_2_run_date, tpqy_response_date) > 0 Then
+					EMReadScreen tpqy_response_date, 8, 7, 22
+					tpqy_response_date = trim(tpqy_response_date)
+					If tpqy_response_date <> "" Then
+						tpqy_response_date = replace(tpqy_response_date, " ", "/")
+						tpqy_response_date = DateAdd("d", 0, tpqy_response_date)
 
-								EMReadScreen tpqy_name_txt, 40, 4, 10
-								EMReadScreen tpqy_ssn_txt, 11, 5, 9
-								EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39
-								EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
-								EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 35
-								EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
-								MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
-								MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
-								MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
-								EMReadScreen sves_response, 8, 7, 22 		'Return Date
-								sves_response = replace(sves_response," ", "/")
-								objTextStream.WriteLine MAXIS_case_number & "| NAME: " & tpqy_name_txt & "|" & "SSN: " &  tpqy_ssn_txt & "|" & "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & "|" & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb)
+						If DateDiff("d", prep_phase_2_run_date, tpqy_response_date) > 0 Then
 
-								transmit
+							EMReadScreen tpqy_name_txt, 40, 4, 10
+							EMReadScreen tpqy_ssn_txt, 11, 5, 9
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 	12, 5, 35
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), 		10, 6, 61
+							MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
+							EMReadScreen sves_response, 8, 7, 22 		'Return Date
+							sves_response = replace(sves_response," ", "/")
+							objTextStream.WriteLine MAXIS_case_number & "| NAME: " & tpqy_name_txt & "|" & "SSN: " &  tpqy_ssn_txt & "|" & "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & "|" & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb)
 
-								EMReadScreen check_BDXP_panel, 4, 2, 53 		'Reads fro BDXP panel
-								If check_BDXP_panel = "BDXP" Then
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb), 		1, 8, 69
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), 	5, 11, 69
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), 	5, 14, 69
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), 	10, 15, 69
-									MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
-									MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
-									' MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb))
-									' MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
-									MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
-									MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
+							transmit
+
+
+							Do
+								EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel\
+								If check_BDXP_panel <> "BDXP" Then
+									row = 1
+									col = 1
+									EMSearch "Command:", row, col
+									Call write_value_and_transmit("BDXP", row, col++9)
 								End If
-								transmit
+							Loop until check_BDXP_panel = "BDXP"
 
-								EMReadScreen check_BDXM_panel, 4, 2, 53 		'Reads for BDXM panel
-								If check_BDXM_panel = "BDXM" Then
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 			13, 4, 29
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb), 			7, 6, 64
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 				5, 7, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 				5, 7, 63
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_ind, each_memb), 			1, 8, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb), 			3, 8, 63
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), 	5, 9, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), 	5, 9, 63
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb), 			7, 12, 64
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 				5, 13, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 				5, 13, 63
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_ind, each_memb), 			1, 14, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb), 			3, 14, 63
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), 	5, 15, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), 	5, 15, 63
-									MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), " ", "/01/")
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb), 		1, 8, 69
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), 	5, 11, 69
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), 	5, 14, 69
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), 	10, 15, 69
+							MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), " ", "")
+							MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb))
+							' MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_staus_desc, each_memb))
+							' MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_paydate, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = Trim (MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
+							MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
+							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
+
+							transmit
+
+							Do
+								EMReadScreen check_BDXM_panel, 4, 2, 53 						'Reads for BDXM panel
+								If check_BDXM_panel <> "BDXM" Then
+									row = 1
+									col = 1
+									EMSearch "Command:", row, col
+									Call write_value_and_transmit("BDXM", row, col++9)
 								End If
-								transmit
+							Loop until check_BDXM_panel = "BDXM"
 
-								EMReadScreen check_SDXE_panel, 4, 2, 53 		'Reads for SDXE panel
-								If check_SDXE_panel = "SDXE" Then
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb), 		12, 5, 36
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), 		2, 7, 21
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb), 		22, 7, 24
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_fed_living, each_memb), 			1, 6, 70
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 			3, 8, 21
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb), 			30, 8, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_cit_ind_code, each_memb), 			1, 7, 70
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_code, each_memb), 		3, 10, 26
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb), 		40, 10, 30
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), 		8, 11, 26
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), 			8, 12, 26
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), 		8, 13, 26
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_code, each_memb), 		1, 11, 65
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), 		8, 12, 65
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_code, each_memb), 	2, 13, 65
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), 	8, 14, 65
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_pay_code, each_memb), 		1, 15, 65
-									MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
-									' MsgBox MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb)
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb), 			13, 4, 29
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb), 			7, 6, 64
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 				5, 7, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 				5, 7, 63
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_ind, each_memb), 			1, 8, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb), 			3, 8, 63
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), 	5, 9, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), 	5, 9, 63
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb), 			7, 12, 64
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 				5, 13, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 				5, 13, 63
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_ind, each_memb), 			1, 14, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb), 			3, 14, 63
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), 	5, 15, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), 	5, 15, 63
+							MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_premium, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = trim(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_b_premium, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_code, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_Part_b_buyin_code, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_start_date, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_a_buyin_stop_date, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_start_date, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_part_b_buyin_stop_date, each_memb), " ", "/01/")
+
+							transmit
+
+							Do
+								EMReadScreen check_SDXE_panel, 4, 2, 53 						'Reads for SDXE panel
+								If check_SDXE_panel <> "SDXE" Then
+									row = 1
+									col = 1
+									EMSearch "Command:", row, col
+									Call write_value_and_transmit("SDXE", row, col++9)
 								End If
-								transmit
+							Loop until check_SDXE_panel = "SDXE"
 
-								EMReadScreen check_SDXP_panel, 4, 2, 50 		'Reads for SDXP panel
-								If check_SDXP_panel = "SDXP" Then
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), 			5, 4, 16
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), 			7, 4, 42
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_over_under_code, each_memb), 	1, 4, 73
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), 	5, 8, 3
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb), 	6, 8, 13
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_type, each_memb), 	1, 8, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), 	5, 9, 3
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb), 	6, 9, 13
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_type, each_memb), 	1, 9, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), 	5, 10, 3
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb), 	6, 10, 13
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_type, each_memb), 	1, 10, 25
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb), 				8, 5, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb), 				8, 6, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb), 		8, 7, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb), 		8, 8, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), 		8, 9, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), 		8, 10, 66
-									EMReadScreen MEMBER_INFO_ARRAY(tpqy_rep_payee, each_memb), 				1, 11, 66
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb))
-									If MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "0"
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb))
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), " ", "/01/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
-									MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb), 		12, 5, 36
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), 		2, 7, 21
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb), 		22, 7, 24
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_fed_living, each_memb), 			1, 6, 70
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 			3, 8, 21
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb), 			30, 8, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_cit_ind_code, each_memb), 			1, 7, 70
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_code, each_memb), 		3, 10, 26
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb), 		40, 10, 30
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), 		8, 11, 26
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), 			8, 12, 26
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), 		8, 13, 26
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_code, each_memb), 		1, 11, 65
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), 		8, 12, 65
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_code, each_memb), 	2, 13, 65
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), 	8, 14, 65
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_disa_pay_code, each_memb), 		1, 15, 65
+							MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_recip_desc, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_desc, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_desc, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_denial_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_disa_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_appeals_dec_date, each_memb), " ", "/")
+							' MsgBox MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb)
+
+							transmit
+
+							Do
+								EMReadScreen check_SDXP_panel, 4, 2, 50 							'Reads for SDXP panel
+								If check_SDXP_panel <> "SDXP" Then
+									row = 1
+									col = 1
+									EMSearch "Command:", row, col
+									Call write_value_and_transmit("SDXP", row, col++9)
 								End If
-								transmit
+							Loop until check_SDXP_panel = "SDXP"
 
-								If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
-									If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
-									' If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) <> "C01" Then MsgBox "STOP"
-								End If
-								If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
-									If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
-										MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True
-										If IsDate(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb)) = True Then MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True
-									' If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
-									' 	If MEMBER_INFO_ARRAY(tpqy_railroad_ind, each_memb) = "A" Then memb_has_railroad = True
-									End If
-								End If
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), 			5, 4, 16
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), 			7, 4, 42
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_over_under_code, each_memb), 	1, 4, 73
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), 	5, 8, 3
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb), 	6, 8, 13
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_type, each_memb), 	1, 8, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), 	5, 9, 3
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb), 	6, 9, 13
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_type, each_memb), 	1, 9, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), 	5, 10, 3
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb), 	6, 10, 13
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_type, each_memb), 	1, 10, 25
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb), 				8, 5, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb), 				8, 6, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb), 		8, 7, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb), 		8, 8, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), 		8, 9, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), 		8, 10, 66
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rep_payee, each_memb), 				1, 11, 66
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb))
+							If MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb) = "0"
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_gross_EI, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_net_EI, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_income_amt, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_pass_exclusion, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb))
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_date, each_memb), " ", "/01/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_1_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_2_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_ssi_pay_hist_3_date, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
+							MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
 
-								' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "MAXIS_case_number - " & MAXIS_case_number & vbCr & "sves_response - " & sves_response
-								objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] = '" & prep_phase_2_run_date & "'"
+							transmit
 
-								'Creating objects for Access
-								Set objIncomeConnection = CreateObject("ADODB.Connection")
-								Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-								'This is the file path for the statistics Access database.
-								' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-								objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-								objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-
+							If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
+								MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True
+								MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb)= False
+								If MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb) = "C01" Then MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True
+								If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "E" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+								If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "H" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+								If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "M" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+								If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "P" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+								If left(MEMBER_INFO_ARRAY(tpqy_ssi_pay_code, each_memb), 1) = "S" Then MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
 							End If
-						End If
-						Call back_to_SELF
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) = "Y" Then
+								If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "C" or MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "E" Then
+									MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True
+									If IsDate(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb)) = True Then MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True
+								End If
+							End If
 
+							' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "MAXIS_case_number - " & MAXIS_case_number & vbCr & "sves_response - " & sves_response
+							objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] = '" & prep_phase_2_run_date & "'"
+
+							'Creating objects for Access
+							Set objIncomeConnection = CreateObject("ADODB.Connection")
+							Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+
+							'This is the file path for the statistics Access database.
+							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+							objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+							objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+
+
+						End If
 					End If
+					Call back_to_SELF
 				Next
 
 				Do
@@ -3376,17 +4559,7 @@ If ex_parte_function = "Phase 1" Then
 
 
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					' MsgBox "MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) & vbCr &_
-					' 		"MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) & vbCr &_
-					' 		"MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) - " & MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb)
-
-					'Update MAXIS UNEA panels with information from TPQY
-					' If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then
-					' 	Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
-
-					' 	Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
-					' 	If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
-					' End If
+					'NOTE that there is no SSI information that should be on a secondary claim so it should not be updated during the Phase 1 run (it was updated during the Prep 2 run.)
 
 					If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
 						If MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) <> MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then
@@ -3402,6 +4575,7 @@ If ex_parte_function = "Phase 1" Then
 						End If
 					End If
 
+					'Additional NOTE that there is no need to update MEDI from a secondary claim number either.
 				Next
 
 				For each_uc = 0 to UBound(UC_INCOME_ARRAY, 2)
@@ -3585,6 +4759,8 @@ If ex_parte_function = "Phase 1" Then
 				Call write_value_and_transmit("BGTX", 20, 71)
 				EMReadScreen wrap_check, 4, 2, 46
 				If wrap_check = "WRAP" Then transmit
+				EMReadScreen wrap_error, 30, 24, 2
+				If wrap_error = "THE COMMAND 'BGTX' NOT ALLOWED" Then transmit
 				Call back_to_SELF
 
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
