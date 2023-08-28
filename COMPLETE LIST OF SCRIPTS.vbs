@@ -1101,7 +1101,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/25/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE CLAIM_REFERRAL_TRACKING 02.09.47")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
