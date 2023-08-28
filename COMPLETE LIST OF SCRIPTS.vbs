@@ -1595,7 +1595,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/05/2019#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Determining_Gross_Income 17", "TE Student_Income 02.08.087", "TE AmeriaCorps 02.05.34", "TE SNAP_Benefits_-_2nd_30_Days_Applicant_Delay 02.05.107", "TE CASE_NOTE_II_Assets_Income 02.08.094", "TE Determining MFIP_Initial/Ongoing_Eligibilty 02.05.80", "TE Budget_Cycle/Monthly_Reporting_Changes 02.080.32", "SHAREPOINT Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Income.aspx", "SHAREPOINT Earned_Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Earned_Income.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
