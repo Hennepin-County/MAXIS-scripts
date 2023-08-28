@@ -1327,7 +1327,7 @@ script_array(script_num).release_date           = #11/02/2021#
 script_array(script_num).retirement_date        = ""
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM LENGTH_OF_RECERTIFICATION_PERIODS 09.03", "TE SNAP_AGED/DISABLED_12_MONTH_CONTACTS 02.08.165", "SHAREPOINT SNAP_Recertification https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Recertification.aspx")				
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
