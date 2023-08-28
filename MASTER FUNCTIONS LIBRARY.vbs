@@ -5447,6 +5447,35 @@ function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	array_name = split(array_name)
 end function
 
+function create_NOMI (application_date, appt_date, last_contact_day)
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview)
+'~~~~~ application_date: Date of applicattion, must be in date format
+'~~~~~ appt_date: Date of appointment, must be in date format
+'~~~~~ last_contact_day: Date of last contact with resident, must be in date format
+	Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
+	Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
+	Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL function digital_experience ()
+	PF4
+end function
+
 function create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type)
 '--- This function creates a mainframe friendly date. This can be used for both year formats and input spacing.
 '~~~~~ date_variable: the name of the variable to output
