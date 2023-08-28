@@ -717,7 +717,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04","CM Applications 05","CM Application_-_Pending Cases 05.09.12","TE Notice_of_Interview/Missed_Interview_(NOMI) 02.05.15","TE Expedited_Food_Support_Tip_Sheet 13.031", "SHAREPOINT Applications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx")						'SEE Line 58 for format')						'SEE Line 58 for format'
 script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
@@ -3916,7 +3916,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #1/31/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Application_-_Pending Cases 05.09.12")						'SEE Line 58 for format'
 script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
