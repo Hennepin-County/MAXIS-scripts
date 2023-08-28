@@ -4598,7 +4598,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_Food_Support_Tip_Sheet 13.031", "TE Expedited_SNAP_W_Pending_Verif's 02.10..01", "TE WREG_Expedited_SNAP_Postponed_Verifs 02.05.70.01")
 
 
 script_num = script_num + 1						'Increment by one
