@@ -5340,6 +5340,35 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 235 then script_end_procedure("This script is only able to assign excel columns to 234 distinct digits. You've exceeded this number, and this script cannot continue.")
 end function
 
+function create_appointment_letter_notice(application_date, interview_date, last_contact_day)
+'--- This function standardizes the creation and content for an appointment letter notice. 
+'~~~~~ application_date: Date of applicattion, must be in date format
+'~~~~~ interview_date: Date interview was conducted, must be in date format
+'~~~~~ last_contact_day: Date of last contact with resident, must be in date format
+'===== Keywords: MAXIS, ADMIN, NOTICE, Appointment
+	Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
+	Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	CALL function digital_experience()
+	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+	PF4
+end function
+
 Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
