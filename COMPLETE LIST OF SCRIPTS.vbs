@@ -1086,7 +1086,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_and_Immg_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -4361,7 +4361,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_and_Immg_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
