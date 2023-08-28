@@ -13140,6 +13140,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 				Call write_bullet_and_variable_in_CASE_NOTE("AREP AUTHORIZATION", arep_authorization)
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
+				PF3
 			End If
 		End If
 	End If
