@@ -6281,6 +6281,18 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 	If right(list_pending_programs, 1) = "," THEN list_pending_programs = left(list_pending_programs, len(list_pending_programs) - 1)
 End Function
 
+
+function digital_experience()
+'--- This function standardizes the digital experience coding information so that we only have to update it in one location. 
+'===== Keywords: MAXIS, MEMO, WCOM
+	CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+	CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+	CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+	CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
+	Call write_variable_in_SPEC_MEMO(" ")
+end function
+
+
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 '--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
 '~~~~~ update_addr: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
