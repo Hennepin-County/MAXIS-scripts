@@ -77,7 +77,20 @@ Else
 	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
 END IF
 
-PF3 						'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
+'Navigates back to DAIL
+PF3 						
+
+'Navigates to SPEC/MEMO through DAIL to maintain tie to list
+write_value_and_transmit("P", 6, 3)
+write_value_and_transmit("MEMO", 20, 70)
+'To do - double-check function(ality), ran into issues leaving the DAIL
+' Call start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
+'Opens new MEMO
+PF5
+'Creates new MEMO
+write_value_and_transmit("X", 5, 12)
+
+'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
 EMWriteScreen "N", 6, 3
 transmit
 
