@@ -2065,6 +2065,7 @@ function dialog_movement()
 	End If
 	If ButtonPressed = expedited_determination_btn Then
 		' page_display = expedited_determination
+		STATS_manualtime = STATS_manualtime + 150
 		call display_expedited_dialog
 	End If
 
@@ -2253,7 +2254,8 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 End Function
 
 function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_name_const, memb_age_const, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
-'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE
+'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE -
+'OOPS I MADE A CHANGE - adding manual time - go find it - it is commented
 '*************IMPORTANT - when pulling for FuncLic use the version in DAIL as there are slight changes'
 
 	'first - assess if caregiver meets an exemption
@@ -2522,8 +2524,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 		' all_mfip_orientation_info_viewed = False
 		For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
-
 			If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then
+				STATS_manualtime = STATS_manualtime + 300							'THIS IS A CHANGE!!!! just for time savings calculation
                 Call Navigate_to_MAXIS_screen("STAT", "EMPS")
     			If CAREGIVER_ARRAY(memb_ref_numb_const, caregiver) <> "" Then
     				EMWriteScreen CAREGIVER_ARRAY(memb_ref_numb_const, caregiver), 20, 76
@@ -3326,7 +3328,10 @@ function display_expedited_dialog()
 		If ButtonPressed = case_previously_had_postponed_verifs_btn Then Call previous_postponed_verifs_detail(case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done, delay_explanation, previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn)
 		If ButtonPressed = household_in_a_facility_btn Then Call household_in_a_facility_detail(delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, delay_explanation, snap_denial_explain, snap_denial_date, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn)
 
-		If ButtonPressed = knowledge_now_support_btn Then Call send_support_email_to_KN
+		If ButtonPressed = knowledge_now_support_btn Then
+			Call send_support_email_to_KN
+			STATS_manualtime = STATS_manualtime + 300
+		End If
 		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp("02", "10", "01", "")
 
 		' MsgBox "2 - ButtonPressed is " & ButtonPressed
@@ -6449,6 +6454,7 @@ end function
 
 function write_interview_CASE_NOTE()
 	' 'Now we case note!
+	STATS_manualtime = STATS_manualtime + 600
 	Call start_a_blank_case_note
 	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
 	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
@@ -7170,6 +7176,7 @@ function write_verification_CASE_NOTE(create_verif_note)
 		        If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
 		        verif_counter = verif_counter + 1
 		        Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+				STATS_manualtime = STATS_manualtime + 25
 		    Next
 		End If
         If programs_verifs_apply_to <> "" Then
@@ -8752,7 +8759,10 @@ EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
 If MX_region = "INQUIRY DB" Then
 	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
-	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+	If continue_in_inquiry = vbNo Then
+		STATS_manualtime = STATS_manualtime + (timer - start_time)
+		Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+	End If
 End If
 If MX_region = "TRAINING" Then developer_mode = True
 
@@ -9664,6 +9674,7 @@ If ButtonPressed = incomplete_interview_btn Then
 	If create_incomplete_doc_checkbox = checked Then end_msg = end_msg & vbCr & " - Doc created to add to ECF."
 	If create_incomplete_note_checkbox = checked Then end_msg = end_msg & vbCr & " - NOTE with gathered information created."
 
+	STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
 	Call script_end_procedure(end_msg)
 End If
 'Navigate back to self and to EDRS
@@ -9671,7 +9682,10 @@ Back_to_self
 CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 EMReadScreen agreement_check, 9, 2, 24
-IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+IF agreement_check = "Automated" THEN
+	STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
+	script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+End If
 
 edrs_match_found = False
 For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -9701,6 +9715,7 @@ For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
     		HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE
     		edrs_match_found = True
     	END IF
+		STATS_manualtime = STATS_manualtime + 49
     End If
 Next
 
@@ -10973,6 +10988,17 @@ End If
 
 ' Call provide_resources_information(case_number_known, create_case_note, note_detail_array, allow_cancel)
 Call provide_resources_information(True, False, note_detail_array, False)
+If IsArray(note_detail_array) = True Then
+    If IsArray(note_detail_array) = True Then
+		all_items_are_blank = True
+    	For each note_line in note_detail_array
+    		IF note_line <> "" Then	all_items_are_blank = False
+		Next
+	End If
+	If all_items_are_blank = True Then STATS_manualtime = STATS_manualtime + 150
+Else
+	STATS_manualtime = STATS_manualtime + 150
+End If
 
 If left(confirm_recap_read, 4) <> "YES!" Then
 	Do
@@ -12976,6 +13002,7 @@ If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Ass
 'the file path must be PDF
 'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
 objDoc.SaveAs pdf_doc_path, 17
+STATS_manualtime = STATS_manualtime + 60
 
 'This looks to see if the PDF file has been correctly saved. If it has the file will exists in the pdf file path
 If objFSO.FileExists(pdf_doc_path) = TRUE Then
@@ -12984,6 +13011,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
 
 	'Now we MEMO'
+	STATS_manualtime = STATS_manualtime + 195
 	Call start_a_new_spec_memo(memo_opened, False, "N", "N", "N", other_name, other_street, other_city, other_state, other_zip, False)
 
 	CALL write_variable_in_SPEC_MEMO("You have completed your interview on " & interview_date)
@@ -13496,6 +13524,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	If qual_question_five = "Yes" Then qual_questions_yes = TRUE
 
 	If qual_questions_yes = TRUE Then
+		STATS_manualtime = STATS_manualtime + 60
 	    Call start_a_blank_CASE_NOTE
 
 	    Call write_variable_in_CASE_NOTE("CAF Qualifying Questions had an answer of 'YES' for at least one question")
@@ -13624,6 +13653,8 @@ If developer_mode = False AND revw_pending_table = True Then                    
     Set objConnection=nothing
 End If
 
+STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
+MsgBox "STATS_manualtime - " & STATS_manualtime
 Call script_end_procedure_with_error_report(end_msg)
 
 
