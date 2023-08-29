@@ -3159,7 +3159,7 @@ function display_expedited_dialog()
 				' 	Text 10, 30, 350, 10, "Review Application for screening answers"
 				' End If
 				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
-				GroupBox 5, 105, 390, 125, "Information about Income, Resources, and Expenses"
+				GroupBox 5, 105, 390, 110, "Information about Income, Resources, and Expenses"
 				Text 15, 125, 60, 10, "Gross Income:    $"
 				EditBox 75, 120, 155, 15, determined_income
 				Text 15, 145, 35, 10, "Assets:   $"
@@ -3172,17 +3172,55 @@ function display_expedited_dialog()
 				PushButton 255, 140, 120, 13, "Calculate Assets", asset_calc_btn
 				PushButton 255, 160, 120, 13, "Calculate Housing Cost", housing_calc_btn
 				PushButton 255, 180, 120, 13, "Calculate Utilities", utility_calc_btn
-				' If snap_elig_results_read = True Then Text 55, 200, 180, 10, "Autofilled information based on current STAT and ELIG panels"
-				Text 15, 215, 250, 10, "Blank amounts will be defaulted to ZERO."
-				' GroupBox 5, 220, 390, 100, "Supports"
-				' Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
-				' PushButton 25, 250, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-				' PushButton 25, 265, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-				' PushButton 25, 280, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-				' PushButton 25, 295, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
-				' PushButton 180, 250, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-				' PushButton 180, 265, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-				' PushButton 180, 280, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
+				Text 15, 200, 250, 10, "Blank amounts will be defaulted to ZERO."
+
+				'This section will display the details of the notes the worker has entered into the main portion of the interview script.
+				'These details are intended to support update of Expedited Determination information
+				y_pos = 215
+				GroupBox 5, y_pos, 545, 100, "Interview NOTES entered into the Script already"
+				y_pos = y_pos + 15
+				If trim(question_8_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "8. Has anyone in the household had a job or been self-employed? " & question_8_interview_notes
+					y_pos = y_pos + 10
+				End If
+				first_job = True
+				for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+					If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+						interview_note_details_exists = True
+						If first_job = True Then
+							Text 15, y_pos, 360, 10, "9. Does anyone in the household have a job?"
+							y_pos = y_pos + 10
+						End If
+						Text 20, y_pos, 525, 10, JOBS_ARRAY(jobs_employee_name, each_job) & " at " & JOBS_ARRAY(jobs_employer_name, each_job) & " $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "/mo. Notes: " & JOBS_ARRAY(jobs_intv_notes, each_job)
+						y_pos = y_pos + 10
+						first_job = False
+					End If
+				next
+				If trim(question_10_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "10. Is anyone in the household self-employed? " & question_10_interview_notes
+					y_pos = y_pos + 10
+				End If
+				If trim(question_12_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "12. Does anyone have Unearned Income? " & question_12_interview_notes
+					y_pos = y_pos + 10
+				End If
+				If trim(question_14_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "14. Does your household have housing expenses? " & question_14_interview_notes
+					y_pos = y_pos + 10
+				End If
+				If trim(question_15_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "15. Does your household have utility expenses any time during the year? " & question_15_interview_notes
+					y_pos = y_pos + 10
+				End If
+				If trim(question_20_interview_notes) <> "" Then
+					Text 15, y_pos, 530, 10, "20. Does anyone in the household have assets? " & question_20_interview_notes
+					y_pos = y_pos + 10
+				End If
+				If y_pos = 230 Then
+					Text 15, y_pos, 530, 10, "No details entered into Interview Notes sections of relevant questions (8, 9, 10, 12, 14, 15, 20) and no specific job details were entered in question 9."
+					y_pos = y_pos + 10
+				End If
+
 			End If
 			If exp_page_display = show_exp_pg_determination then
 				Text 495, 27, 65, 10, "Determination"
@@ -3289,14 +3327,14 @@ function display_expedited_dialog()
 				PushButton 270, 257, 195, 13, "Information about EBT Cards", ebt_card_info_btn
 
 			End If
-			GroupBox 5, 295, 470, 60, "If you need support in handling for expedited, please access these resources:"
-			PushButton 15, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-			PushButton 15, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
-			PushButton 15, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
-			PushButton 165, 305, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
-			PushButton 165, 320, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
-			PushButton 315, 305, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-			PushButton 315, 320, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
+			GroupBox 5, 315, 470, 60, "If you need support in handling for expedited, please access these resources:"
+			PushButton 15, 325, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
+			PushButton 15, 340, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+			PushButton 15, 355, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
+			PushButton 165, 325, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
+			PushButton 165, 340, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
+			PushButton 315, 325, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
+			PushButton 315, 340, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
 
 			If exp_page_display <> show_exp_pg_amounts then PushButton 485, 10, 65, 13, "Amounts", amounts_btn
 			If exp_page_display <> show_exp_pg_determination then PushButton 485, 25, 65, 13, "Determination", determination_btn
@@ -7257,18 +7295,18 @@ function app_month_income_detail(determined_income, income_review_completed, job
 		prvt_err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 296, 160, "Determination of Assets in Month of Application"
-		  DropListBox 210, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", jobs_income_yn
-		  DropListBox 210, 60, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", busi_income_yn
-		  DropListBox 235, 110, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", unea_income_yn
-		  ButtonGroup ButtonPressed
-		    PushButton 240, 140, 50, 15, "Enter", enter_btn
-		  Text 10, 10, 205, 10, "Does this household have any income?"
-		  GroupBox 10, 25, 255, 65, "Earned Income "
-		  Text 65, 45, 140, 10, "Is anyone in the household working a job?"
-		  Text 25, 65, 180, 10, "Does anyone in the household have self employment?"
-		  GroupBox 10, 95, 280, 40, "Unearned Income"
-		  Text 20, 115, 215, 10, "Does anyone in the household receive any other kind of income?"
+		BeginDialog Dialog1, 0, 0, 296, 160, "Determination of Income in Month of Application"
+			DropListBox 210, 40, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", jobs_income_yn
+			DropListBox 210, 60, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", busi_income_yn
+			DropListBox 235, 110, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", unea_income_yn
+			ButtonGroup ButtonPressed
+				PushButton 240, 140, 50, 15, "Enter", enter_btn
+			Text 10, 10, 205, 10, "Does this household have any income?"
+			GroupBox 10, 25, 255, 65, "Earned Income "
+			Text 65, 45, 140, 10, "Is anyone in the household working a job?"
+			Text 25, 65, 180, 10, "Does anyone in the household have self employment?"
+			GroupBox 10, 95, 280, 40, "Unearned Income"
+			Text 20, 115, 215, 10, "Does anyone in the household receive any other kind of income?"
 		EndDialog
 
 		dialog Dialog1
@@ -7295,101 +7333,168 @@ function app_month_income_detail(determined_income, income_review_completed, job
 			If unea_income_yn = "No" Then unea_grp_len = 30
 			If unea_income_yn = "Yes" Then unea_grp_len = 55 + (UBound(EXP_UNEA_ARRAY, 2) + 1) * 20
 
+			'determining if additional length of the dialog is needed to display interview notes about income from the main script
+			interview_note_details_exists = False
+			intvw_notes_len = 20
+			If trim(question_8_interview_notes) <> "" Then
+				interview_note_details_exists = True
+				intvw_notes_len = intvw_notes_len + 20
+			End If
+			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+				first_job = True
+				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+					interview_note_details_exists = True
+					If first_job = True Then intvw_notes_len = intvw_notes_len + 10
+					intvw_notes_len = intvw_notes_len + 10
+					If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then
+						intvw_notes_len = intvw_notes_len + 10
+					End If
+					first_job = False
+				End If
+			next
+			If trim(question_10_interview_notes) <> "" Then
+				interview_note_details_exists = True
+				intvw_notes_len = intvw_notes_len + 20
+			End If
+			If trim(question_12_interview_notes) <> "" Then
+				interview_note_details_exists = True
+				intvw_notes_len = intvw_notes_len + 20
+			End If
+
 			dlg_len = 45 + jobs_grp_len + busi_grp_len + unea_grp_len
+			If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 10
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 400, dlg_len, "Determination of Income in Month of Application"
-			  ' Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
-			  ButtonGroup ButtonPressed
-				  y_pos = 10
-				  GroupBox 10, y_pos, 380, jobs_grp_len, "JOBS"
-				  y_pos = y_pos + 15
-				  If jobs_income_yn = "Yes" Then
-					  Text 20, y_pos, 190, 10, "JOBS Income on this case"
-					  y_pos = y_pos + 15
-					  Text 20, y_pos, 50, 10, "Employee"
-					  Text 90, y_pos, 70, 10, "Employer/Job"
-					  Text 185, y_pos, 50, 10, "Hourly Wage"
-					  Text 245, y_pos, 50, 10, "Weekly Hours"
-					  Text 305, y_pos, 50, 10, "Pay Frequency"
-					  y_pos = y_pos + 10
+			  	ButtonGroup ButtonPressed
+					'displaying details from interview notes in the dialog for calculating app month income
+				  	y_pos = 10
+					If interview_note_details_exists = True Then
+						GroupBox 10, y_pos, 380, intvw_notes_len, "Interview NOTES entered into the Script already"
+						y_pos = y_pos + 15
+						If trim(question_8_interview_notes) <> "" Then
+							Text 20, y_pos, 360, 10, "8. Has anyone in the household had a job or been self-employed?"
+							Text 30, y_pos+10, 350, 10, question_8_interview_notes
+							y_pos = y_pos + 20
+						End If
+						first_job = True
+						for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+							If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
+								interview_note_details_exists = True
+								If first_job = True Then
+									Text 20, y_pos, 360, 10, "9. Does anyone in the household have a job?"
+									y_pos = y_pos + 10
+								End If
+								Text 30, y_pos, 350, 10, JOBS_ARRAY(jobs_employee_name, each_job) & " at " & JOBS_ARRAY(jobs_employer_name, each_job) & " $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "/mo."
+								y_pos = y_pos + 10
+								If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then
+									Text 30, y_pos, 350, 10, "Notes: " & JOBS_ARRAY(jobs_intv_notes, each_job)
+									y_pos = y_pos + 10
+								End If
+								first_job = False
+							End If
+						next
+						If trim(question_10_interview_notes) <> "" Then
+							Text 20, y_pos, 360, 10, "10. Is anyone in the household self-employed?"
+							Text 30, y_pos+10, 350, 10, question_10_interview_notes
+							y_pos = y_pos + 20
+						End If
+						If trim(question_12_interview_notes) <> "" Then
+							Text 20, y_pos, 360, 10, "12. Does anyone have Unearned Income?"
+							Text 30, y_pos+10, 350, 10, question_12_interview_notes
+							y_pos = y_pos + 20
+						End If
+						y_pos = y_pos + 10
 
-					  For the_job = 0 to UBound(EXP_JOBS_ARRAY, 2)
-					  	  EXP_JOBS_ARRAY(jobs_wage_const, the_job) = EXP_JOBS_ARRAY(jobs_wage_const, the_job) & ""
-						  EXP_JOBS_ARRAY(jobs_hours_const, the_job) = EXP_JOBS_ARRAY(jobs_hours_const, the_job) & ""
-						  EditBox 20, y_pos, 60, 15, EXP_JOBS_ARRAY(jobs_employee_const, the_job)
-						  EditBox 90, y_pos, 85, 15, EXP_JOBS_ARRAY(jobs_employer_const, the_job)
-						  EditBox 185, y_pos, 50, 15, EXP_JOBS_ARRAY(jobs_wage_const, the_job)
-						  EditBox 245, y_pos, 50, 15, EXP_JOBS_ARRAY(jobs_hours_const, the_job)
-						  DropListBox 305, y_pos, 75, 15, "Select One..."+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", EXP_JOBS_ARRAY(jobs_frequency_const, the_job)
-						  y_pos = y_pos + 20
-					  Next
-					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_jobs_btn
-					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_jobs_btn
-					  y_pos = y_pos + 20
-				  Else
-					  Text 20, y_pos, 355, 10, "This household does NOT have JOBS."
-					  y_pos = y_pos + 20
-				  End If
+					End If
+					GroupBox 10, y_pos, 380, jobs_grp_len, "JOBS"
+					y_pos = y_pos + 15
+					If jobs_income_yn = "Yes" Then
+						Text 20, y_pos, 190, 10, "JOBS Income on this case"
+						y_pos = y_pos + 15
+						Text 20, y_pos, 50, 10, "Employee"
+						Text 90, y_pos, 70, 10, "Employer/Job"
+						Text 185, y_pos, 50, 10, "Hourly Wage"
+						Text 245, y_pos, 50, 10, "Weekly Hours"
+						Text 305, y_pos, 50, 10, "Pay Frequency"
+						y_pos = y_pos + 10
 
-				  GroupBox 10, y_pos, 380, busi_grp_len, "Self Employment"
-				  y_pos = y_pos + 15
-				  If busi_income_yn = "Yes" Then
-					  Text 20, y_pos, 190, 10, "BUSI Income on this case"
-					  y_pos = y_pos + 15
-					  Text 20, y_pos, 65, 10, "Business Owner"
-					  Text 125, y_pos, 70, 10, "Business"
-					  Text 230, y_pos, 65, 10, "Monthly Earnings"
-					  Text 290, y_pos, 65, 10, "Annual Earnings"
-					  y_pos = y_pos + 10
-					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
-					  For the_busi = 0 to UBound(EXP_BUSI_ARRAY, 2)
-					  	  EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) & ""
-						  EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) & ""
+						For the_job = 0 to UBound(EXP_JOBS_ARRAY, 2)
+							EXP_JOBS_ARRAY(jobs_wage_const, the_job) = EXP_JOBS_ARRAY(jobs_wage_const, the_job) & ""
+							EXP_JOBS_ARRAY(jobs_hours_const, the_job) = EXP_JOBS_ARRAY(jobs_hours_const, the_job) & ""
+							EditBox 20, y_pos, 60, 15, EXP_JOBS_ARRAY(jobs_employee_const, the_job)
+							EditBox 90, y_pos, 85, 15, EXP_JOBS_ARRAY(jobs_employer_const, the_job)
+							EditBox 185, y_pos, 50, 15, EXP_JOBS_ARRAY(jobs_wage_const, the_job)
+							EditBox 245, y_pos, 50, 15, EXP_JOBS_ARRAY(jobs_hours_const, the_job)
+							DropListBox 305, y_pos, 75, 15, "Select One..."+chr(9)+"Weekly"+chr(9)+"Biweekly"+chr(9)+"Semi-Monthly"+chr(9)+"Monthly", EXP_JOBS_ARRAY(jobs_frequency_const, the_job)
+							y_pos = y_pos + 20
+						Next
+						PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_jobs_btn
+						PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_jobs_btn
+						y_pos = y_pos + 20
+					Else
+						Text 20, y_pos, 355, 10, "This household does NOT have JOBS."
+						y_pos = y_pos + 20
+					End If
 
-						  EditBox 20, y_pos, 95, 15, EXP_BUSI_ARRAY(busi_owner_const, the_busi)
-						  EditBox 125, y_pos, 95, 15, EXP_BUSI_ARRAY(busi_info_const, the_busi)
-						  EditBox 230, y_pos, 50, 15, EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)
-						  EditBox 290, y_pos, 50, 15, EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)
-						  y_pos = y_pos + 20
-					  Next
-					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_busi_btn
-					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_busi_btn
-					  y_pos = y_pos + 20
-				  Else
-					  Text 20, y_pos, 355, 10, "This household does NOT have BUSI."
-					  y_pos = y_pos + 20
-				  End If
+					GroupBox 10, y_pos, 380, busi_grp_len, "Self Employment"
+					y_pos = y_pos + 15
+					If busi_income_yn = "Yes" Then
+						Text 20, y_pos, 190, 10, "BUSI Income on this case"
+						y_pos = y_pos + 15
+						Text 20, y_pos, 65, 10, "Business Owner"
+						Text 125, y_pos, 70, 10, "Business"
+						Text 230, y_pos, 65, 10, "Monthly Earnings"
+						Text 290, y_pos, 65, 10, "Annual Earnings"
+						y_pos = y_pos + 10
+						' Text 305, y_pos, 50, 10, "Pay Frequency"
+						For the_busi = 0 to UBound(EXP_BUSI_ARRAY, 2)
+							EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) = EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi) & ""
+							EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) = EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi) & ""
 
-				  GroupBox 10, y_pos, 380, unea_grp_len, "Unearned"
-				  y_pos = y_pos + 15
-				  If unea_income_yn = "Yes" Then
-					  Text 20, y_pos, 190, 10, "UNEA Income on this case"
-					  y_pos = y_pos + 15
-					  Text 20, y_pos, 65, 10, "Member Receiving"
-					  Text 125, y_pos, 70, 10, "Income Type"
-					  Text 230, y_pos, 65, 10, "Monthly Amount"
-					  Text 290, y_pos, 65, 10, "Weekly Amount"
-					  y_pos = y_pos + 10
-					  ' Text 305, y_pos, 50, 10, "Pay Frequency"
-					  For the_unea = 0 to UBound(EXP_UNEA_ARRAY, 2)
-						  EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) & ""
-						  EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) & ""
-						  EditBox 20, y_pos, 95, 15, EXP_UNEA_ARRAY(unea_owner_const, the_unea)
-						  EditBox 125, y_pos, 95, 15, EXP_UNEA_ARRAY(unea_info_const, the_unea)
-						  EditBox 230, y_pos, 50, 15, EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)
-						  EditBox 290, y_pos, 50, 15, EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)
-						  y_pos = y_pos + 20
-					  Next
-					  PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_unea_btn
-					  PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_unea_btn
-					  y_pos = y_pos + 20
-				  Else
-					  Text 20, y_pos, 355, 10, "This household does NOT have UNEA."
-					  y_pos = y_pos + 20
-				  End If
+							EditBox 20, y_pos, 95, 15, EXP_BUSI_ARRAY(busi_owner_const, the_busi)
+							EditBox 125, y_pos, 95, 15, EXP_BUSI_ARRAY(busi_info_const, the_busi)
+							EditBox 230, y_pos, 50, 15, EXP_BUSI_ARRAY(busi_monthly_earnings_const, the_busi)
+							EditBox 290, y_pos, 50, 15, EXP_BUSI_ARRAY(busi_annual_earnings_const, the_busi)
+							y_pos = y_pos + 20
+						Next
+						PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_busi_btn
+						PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_busi_btn
+						y_pos = y_pos + 20
+					Else
+						Text 20, y_pos, 355, 10, "This household does NOT have BUSI."
+						y_pos = y_pos + 20
+					End If
 
-				  PushButton 345, dlg_len - 20, 50, 15, "Return", return_btn
+					GroupBox 10, y_pos, 380, unea_grp_len, "Unearned"
+					y_pos = y_pos + 15
+					If unea_income_yn = "Yes" Then
+						Text 20, y_pos, 190, 10, "UNEA Income on this case"
+						y_pos = y_pos + 15
+						Text 20, y_pos, 65, 10, "Member Receiving"
+						Text 125, y_pos, 70, 10, "Income Type"
+						Text 230, y_pos, 65, 10, "Monthly Amount"
+						Text 290, y_pos, 65, 10, "Weekly Amount"
+						y_pos = y_pos + 10
+						' Text 305, y_pos, 50, 10, "Pay Frequency"
+						For the_unea = 0 to UBound(EXP_UNEA_ARRAY, 2)
+							EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) = EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea) & ""
+							EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) = EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea) & ""
+							EditBox 20, y_pos, 95, 15, EXP_UNEA_ARRAY(unea_owner_const, the_unea)
+							EditBox 125, y_pos, 95, 15, EXP_UNEA_ARRAY(unea_info_const, the_unea)
+							EditBox 230, y_pos, 50, 15, EXP_UNEA_ARRAY(unea_monthly_earnings_const, the_unea)
+							EditBox 290, y_pos, 50, 15, EXP_UNEA_ARRAY(unea_weekly_earnings_const, the_unea)
+							y_pos = y_pos + 20
+						Next
+						PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_unea_btn
+						PushButton 320, y_pos, 60, 10, "REMOVE ONE", remove_one_unea_btn
+						y_pos = y_pos + 20
+					Else
+						Text 20, y_pos, 355, 10, "This household does NOT have UNEA."
+						y_pos = y_pos + 20
+					End If
+
+					PushButton 345, dlg_len - 20, 50, 15, "Return", return_btn
 			EndDialog
 
 			dialog Dialog1
@@ -7582,47 +7687,76 @@ function app_month_asset_detail(determined_assets, assets_review_completed, cash
 			If cash_amount_yn = "Yes" Then cash_grp_len = 50
 			If bank_account_yn = "No" Then acct_grp_len = 30
 			If bank_account_yn = "Yes" Then acct_grp_len = 60 + (UBound(EXP_ACCT_ARRAY, 2) + 1) * 20
+
+			interview_note_details_exists = False
+			intvw_notes_len = 20
+
+			If trim(question_20_interview_notes) <> "" Then
+				interview_note_details_exists = True
+				intvw_notes_len = intvw_notes_len + 30
+			End If
+
 			dlg_len = 55 + cash_grp_len + acct_grp_len
+			If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 10
+
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 351, dlg_len, "Determination of Assets in Month of Application"
-			  Text 10, 10, 205, 10, "Are there any Liquid Assets available to the household?"
-			  GroupBox 10, 25, 220, cash_grp_len, "Cash"
-			  If cash_amount_yn = "Yes" Then
-				  Text 20, 40, 155, 10, "This household HAS Cash Savings."
-				  Text 20, 55, 150, 10, "How much in total does the household have?"
-				  EditBox 175, 50, 45, 15, cash_amount
-				  y_pos = 80
-			  Else
-				  Text 20, 40, 155, 10, "This household does NOT have Cash."
-				  y_pos = 60
-			  End If
-			  GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
-			  y_pos = y_pos + 15
-			  If bank_account_yn = "Yes" Then
-				  Text 20, y_pos, 190, 10, "This household HAS Bank Accounts."
-				  y_pos = y_pos + 15
-				  Text 20, y_pos, 50, 10, "Account Type"
-				  Text 90, y_pos, 70, 10, "Owner of Account"
-				  Text 180, y_pos, 45, 10, "Bank Name"
-				  Text 285, y_pos, 35, 10, "Amount"
-				  y_pos = y_pos + 15
+				y_pos = 10
 
-				  For the_acct = 0 to UBound(EXP_ACCT_ARRAY, 2)
-					  EXP_ACCT_ARRAY(account_amount_const, the_acct) = EXP_ACCT_ARRAY(account_amount_const, the_acct) & ""
-					  DropListBox 20, y_pos, 60, 45, "Select One..."+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Other", EXP_ACCT_ARRAY(account_type_const, the_acct)
-					  EditBox 90, y_pos, 85, 15, EXP_ACCT_ARRAY(account_owner_const, the_acct)
-					  EditBox 180, y_pos, 100, 15, EXP_ACCT_ARRAY(bank_name_const, the_acct)
-					  EditBox 285, y_pos, 50, 15, EXP_ACCT_ARRAY(account_amount_const, the_acct)
-					  y_pos = y_pos + 20
-				  Next
-			  Else
-			  	  Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
-			  End If
-			  ButtonGroup ButtonPressed
-			    If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
-			    If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one_btn
-				PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
+				'displaying details from interview notes in the dialog for calculating app month assets
+				If interview_note_details_exists = True Then
+					GroupBox 10, y_pos, 335, intvw_notes_len, "Interview NOTES entered into the Script already"
+					y_pos = y_pos + 15
+					If trim(question_20_interview_notes) <> "" Then
+						Text 20, y_pos, 320, 10, "20. Does anyone in the household have assets?"
+						Text 25, y_pos+10, 315, 20, question_20_interview_notes
+						y_pos = y_pos + 30
+					End If
+					y_pos = y_pos + 10
+
+				End If
+
+				Text 10, y_pos, 205, 10, "Are there any Liquid Assets available to the household?"
+				y_pos = y_pos + 15
+				GroupBox 10, y_pos, 220, cash_grp_len, "Cash"
+				y_pos = y_pos + 15
+				If cash_amount_yn = "Yes" Then
+					Text 20, y_pos, 155, 10, "This household HAS Cash Savings."
+					y_pos = y_pos + 15
+					Text 20, y_pos, 150, 10, "How much in total does the household have?"
+					EditBox 175, y_pos - 5, 45, 15, cash_amount
+					y_pos = y_pos + 25
+				Else
+					Text 20, y_pos, 155, 10, "This household does NOT have Cash."
+					y_pos = y_pos + 20
+				End If
+				GroupBox 10, y_pos, 335, acct_grp_len, "Accounts"
+				y_pos = y_pos + 15
+				If bank_account_yn = "Yes" Then
+					Text 20, y_pos, 190, 10, "This household HAS Bank Accounts."
+					y_pos = y_pos + 15
+					Text 20, y_pos, 50, 10, "Account Type"
+					Text 90, y_pos, 70, 10, "Owner of Account"
+					Text 180, y_pos, 45, 10, "Bank Name"
+					Text 285, y_pos, 35, 10, "Amount"
+					y_pos = y_pos + 15
+
+					For the_acct = 0 to UBound(EXP_ACCT_ARRAY, 2)
+						EXP_ACCT_ARRAY(account_amount_const, the_acct) = EXP_ACCT_ARRAY(account_amount_const, the_acct) & ""
+						DropListBox 20, y_pos, 60, 45, "Select One..."+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Other", EXP_ACCT_ARRAY(account_type_const, the_acct)
+						EditBox 90, y_pos, 85, 15, EXP_ACCT_ARRAY(account_owner_const, the_acct)
+						EditBox 180, y_pos, 100, 15, EXP_ACCT_ARRAY(bank_name_const, the_acct)
+						EditBox 285, y_pos, 50, 15, EXP_ACCT_ARRAY(account_amount_const, the_acct)
+						y_pos = y_pos + 20
+					Next
+				Else
+					Text 20, y_pos, 155, 10, "This household does NOT have Bank Accounts."
+				End If
+				ButtonGroup ButtonPressed
+					If bank_account_yn = "Yes" Then PushButton 20, y_pos, 60, 10, "ADD ANOTHER", add_another_btn
+					If bank_account_yn = "Yes" Then PushButton 275, y_pos, 60, 10, "REMOVE ONE", remove_one_btn
+					PushButton 295, dlg_len - 20, 50, 15, "Return", return_btn
 			EndDialog
 
 			dialog Dialog1
@@ -7684,30 +7818,59 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 
 	original_shel = determined_shel
 	determined_shel = 0
+
+	dlg_len = 140
+
+	interview_note_details_exists = False
+	intvw_notes_len = 20
+
+	If trim(question_14_interview_notes) <> "" Then
+		interview_note_details_exists = True
+		intvw_notes_len = intvw_notes_len + 40
+	End If
+
+	If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 5
+
+
 	Do
 		prvt_err_msg = ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 196, 140, "Determination of Housing Cost in Month of Application"
-		  EditBox 45, 35, 50, 15, rent_amount
-		  EditBox 45, 55, 50, 15, lot_rent_amount
-		  EditBox 45, 75, 50, 15, mortgage_amount
-		  EditBox 45, 95, 50, 15, insurance_amount
-		  EditBox 140, 35, 50, 15, tax_amount
-		  EditBox 140, 55, 50, 15, room_amount
-		  EditBox 140, 75, 50, 15, garage_amount
-		  EditBox 140, 95, 50, 15, subsidy_amount
-		  ButtonGroup ButtonPressed
-		    PushButton 140, 120, 50, 15, "Return", return_btn
-		  Text 10, 15, 165, 10, "Enter the total Shelter Expense for the Houshold."
-		  Text 25, 40, 20, 10, "Rent:"
-		  Text 10, 60, 35, 10, " Lot Rent:"
-		  Text 10, 80, 35, 10, "Mortgage:"
-		  Text 10, 100, 35, 10, "Insurance:"
-		  Text 115, 40, 25, 10, "Taxes:"
-		  Text 115, 60, 25, 10, "Room:"
-		  Text 110, 80, 30, 10, "Garage:"
-		  Text 105, 100, 35, 10, "  Subsidy:"
+		BeginDialog Dialog1, 0, 0, 196, dlg_len, "Determination of Housing Cost in Month of Application"
+			EditBox 45, 35, 50, 15, rent_amount
+			EditBox 45, 55, 50, 15, lot_rent_amount
+			EditBox 45, 75, 50, 15, mortgage_amount
+			EditBox 45, 95, 50, 15, insurance_amount
+			EditBox 140, 35, 50, 15, tax_amount
+			EditBox 140, 55, 50, 15, room_amount
+			EditBox 140, 75, 50, 15, garage_amount
+			EditBox 140, 95, 50, 15, subsidy_amount
+			Text 10, 15, 165, 10, "Enter the total Shelter Expense for the Houshold."
+			Text 25, 40, 20, 10, "Rent:"
+			Text 10, 60, 35, 10, " Lot Rent:"
+			Text 10, 80, 35, 10, "Mortgage:"
+			Text 10, 100, 35, 10, "Insurance:"
+			Text 115, 40, 25, 10, "Taxes:"
+			Text 115, 60, 25, 10, "Room:"
+			Text 110, 80, 30, 10, "Garage:"
+			Text 105, 100, 35, 10, "  Subsidy:"
+
+			y_pos = 120
+			'displaying details from interview notes in the dialog for calculating app month housing expenses
+			If interview_note_details_exists = True Then
+				GroupBox 5, y_pos, 185, intvw_notes_len, "Interview NOTES entered into the Script already"
+				y_pos = y_pos + 15
+				If trim(question_14_interview_notes) <> "" Then
+					Text 10, y_pos, 175, 10, "14. Does your household have housing expenses?"
+					Text 15, y_pos+10, 170, 30, question_14_interview_notes
+					y_pos = y_pos + 40
+				End If
+				y_pos = y_pos + 10
+
+			End If
+			ButtonGroup ButtonPressed
+				PushButton 140, y_pos, 50, 15, "Return", return_btn
+
 		EndDialog
 
 		dialog Dialog1
@@ -7763,24 +7926,53 @@ function app_month_utility_detail(determined_utilities, heat_expense, ac_expense
 	If phone_expense = True then phone_checkbox = checked
 	If none_expense = True then none_checkbox = checked
 
+	dlg_len = 175
+
+	interview_note_details_exists = False
+	intvw_notes_len = 20
+
+	If trim(question_15_interview_notes) <> "" Then
+		interview_note_details_exists = True
+		intvw_notes_len = intvw_notes_len + 40
+	End If
+
+	If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 10
+
 	Do
 		current_utilities = all_utilities
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 246, 175, "Determination of Utilities in Month of Application"
-		  CheckBox 30, 45, 50, 10, "Heat", heat_checkbox
-		  CheckBox 30, 60, 65, 10, "Air Conditioning", ac_checkbox
-		  CheckBox 30, 75, 50, 10, "Electric", electric_checkbox
-		  CheckBox 30, 90, 50, 10, "Phone", phone_checkbox
-		  CheckBox 30, 105, 50, 10, "NONE", none_checkbox
-		  ButtonGroup ButtonPressed
-		    PushButton 170, 105, 65, 15, "Calculate", calculate_btn
-		    PushButton 170, 155, 65, 15, "Return", return_btn
-		  Text 10, 10, 235, 10, "Check the boxes for each utility the household is responsible to pay:"
-		  GroupBox 15, 30, 225, 95, "Utilities"
-		  Text 150, 45, 50, 10, "$ " & determined_utilities
-		  Text 150, 60, 35, 35, all_utilities
-		  Text 15, 135, 225, 20, "Remember, this expense could be shared, they are still considered responsible to pay and we count the WHOLE standard."
+		BeginDialog Dialog1, 0, 0, 246, dlg_len, "Determination of Utilities in Month of Application"
+			CheckBox 30, 45, 50, 10, "Heat", heat_checkbox
+			CheckBox 30, 60, 65, 10, "Air Conditioning", ac_checkbox
+			CheckBox 30, 75, 50, 10, "Electric", electric_checkbox
+			CheckBox 30, 90, 50, 10, "Phone", phone_checkbox
+			CheckBox 30, 105, 50, 10, "NONE", none_checkbox
+
+			Text 10, 10, 235, 10, "Check the boxes for each utility the household is responsible to pay:"
+			GroupBox 15, 30, 225, 95, "Utilities"
+			Text 150, 45, 50, 10, "$ " & determined_utilities
+			Text 150, 60, 35, 35, all_utilities
+			Text 15, 135, 225, 20, "Remember, this expense could be shared, they are still considered responsible to pay and we count the WHOLE standard."
+
+			y_pos = 160
+			'displaying details from interview notes in the dialog for calculating app month utilities
+			If interview_note_details_exists = True Then
+				GroupBox 5, y_pos, 235, intvw_notes_len, "Interview NOTES entered into the Script already"
+				y_pos = y_pos + 15
+				If trim(question_15_interview_notes) <> "" Then
+					Text 10, y_pos, 215, 10, "15. Does your household have utility expenses any time during the year?"
+					Text 15, y_pos+10, 210, 30, question_15_interview_notes
+					y_pos = y_pos + 40
+				End If
+				y_pos = y_pos + 10
+			Else
+				y_pos = y_pos - 5
+			End If
+
+			ButtonGroup ButtonPressed
+				PushButton 170, 105, 65, 15, "Calculate", calculate_btn
+				PushButton 170, y_pos, 65, 15, "Return", return_btn
 		EndDialog
 
 		dialog Dialog1
