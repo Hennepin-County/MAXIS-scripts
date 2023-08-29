@@ -70,6 +70,7 @@ IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'
 	progs_closed = progs_closed & "SNAP/"
 	SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
 	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
+	'To do - where is cash_check coming from?
 	IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
 Else
 	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated.
@@ -82,7 +83,7 @@ PF3
 
 'To do - review functionality to confirm it works properly
 'HERE WE SEARCH CASE:NOTES
-write_value_and_transmit("N", 6, 3)
+call write_value_and_transmit("N", 6, 3)
 
 'We are looking for notes that multiple scripts complete to keep from making duplicate notes
 'To do - likely unnecessary, can delete
@@ -184,14 +185,14 @@ Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 PF3
 
 'Navigates to SPEC/MEMO through DAIL to maintain tie to list
-write_value_and_transmit("P", 6, 3)
-write_value_and_transmit("MEMO", 20, 70)
+Call write_value_and_transmit("P", 6, 3)
+Call write_value_and_transmit("MEMO", 20, 70)
 'To do - double-check function(ality), ran into issues leaving the DAIL
 ' Call start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 'Opens new MEMO
 PF5
 'Creates new MEMO
-write_value_and_transmit("X", 5, 12)
+Call write_value_and_transmit("X", 5, 12)
 
 'Dialog is defined here so the case number and application date are listed on it
 Dialog1 = ""
@@ -225,6 +226,17 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'Write information to SPEC/MEMO
+memo_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
+write_variable_in_SPEC_MEMO(memo_header)
+write_variable_in_SPEC_MEMO("Reason for closure: Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
+If verifs_needed <> "" then call write_variable_in_SPEC_MEMO("Verifications needed: " & verifs_needed)
+'To do - need to verify if this is necessary, won't it always include this info? 
+If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_variable_in_SPEC_MEMO("Last SNAP reinstatement date", SNAP_last_REIN_date & SNAP_followup_text)
+'Save MEMO and navigate back to DAIL
+PF4
+PF3
+
 'To do - update navigation back to/from DAIL to CASE/NOTE
 'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
 EMWriteScreen "N", 6, 3
@@ -244,6 +256,8 @@ case_note_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose -
 call write_variable_in_case_note(case_note_header)
 call write_bullet_and_variable_in_case_note("Reason for closure", "Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
 If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+
+'To do - check on the case noting intake notes
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
