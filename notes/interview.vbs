@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/30/2023", "Updates to NOTES - Interview##~##- The script will carry over 'Interview Notes' from relevant questions into the Expedited Determination so you can reference notes already made during the script run.##~##- Additional resources around EBT Cards, including reference to the HSR Manual Accounting page.##~##- Background updates and bug fixes.##~## ##~##Please send any comments or feedback about these update to hsph.ews.bluezonescripts@hennepin.us.", "Casey Love, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Created button to link to the interpreter service request.", "Casey Love, Hennepin County")
