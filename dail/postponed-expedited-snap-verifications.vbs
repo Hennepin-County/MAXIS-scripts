@@ -164,7 +164,7 @@ Do
 						verifs_to_add = verifs_to_add & line                    'adding the verif information all together
 					Next
 					If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'trimming the string
-					If verifs_to_add <> "" Then verifs_needed = verifs_needed & verifs_to_add 'adding the information to the variable used in this script 
+					If verifs_to_add <> "" Then verifs_needed = trim(verifs_needed & verifs_to_add) 'adding the information to the variable used in this script 
 				End If
 			End If
 			PF3         'leaving the note
