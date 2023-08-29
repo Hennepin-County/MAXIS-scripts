@@ -8901,6 +8901,7 @@ discrepancy_questions		= 12
 show_arep_page				= 13
 expedited_determination		= 14
 
+
 show_exp_pg_amounts = 1
 show_exp_pg_determination = 2
 show_exp_pg_review = 3
@@ -9699,7 +9700,7 @@ add_verif_23_btn			= 1093
 add_verif_24_btn			= 1094
 add_verif_jobs_btn			= 1095
 clear_job_btn				= 1100
-' open_r_and_r_button 		= 1200
+open_r_and_r_btn 			= 1200
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
@@ -9721,6 +9722,89 @@ q_12_all_no_btn				= 2900
 q_14_all_no_btn				= 3000
 expedited_determination_btn	= 3010
 return_btn 					= 900
+enter_btn					= 901
+continue_btn				= 902
+done_btn					= 903
+review_btn					= 904
+finish_btn					= 905
+clear_btn					= 906
+fill_button					= 907
+calculate_btn				= 908
+update_btn					= 909
+add_verif_button			= 910
+
+msg_mfip_orientation_btn		= 930
+cm_05_12_12_06_btn				= 931
+cm_28_12_btn					= 932
+open_dhs_4163_btn				= 933
+open_dhs_3477_btn				= 934
+open_dhs_3323_btn				= 935
+open_dhs_3366_btn				= 936
+open_dhs_bulletin_21_11_01_btn	= 937
+open_dhs_1826_btn				= 938
+open_hsr_manual_btn				= 939
+mfip_orientation_word_doc_btn	= 940
+emps_update_complete_btn		= 941
+
+add_another_jobs_btn			= 800
+remove_one_jobs_btn				= 801
+add_another_busi_btn			= 802
+remove_one_busi_btn				= 803
+add_another_unea_btn			= 804
+remove_one_unea_btn				= 805
+add_another_btn					= 806
+remove_one_btn					= 807
+income_calc_btn					= 808
+asset_calc_btn					= 809
+housing_calc_btn				= 810
+utility_calc_btn				= 811
+ht_id_in_solq_btn				= 812
+snap_active_in_another_state_btn	= 813
+case_previously_had_postponed_verifs_btn = 814
+household_in_a_facility_btn		= 815
+knowledge_now_support_btn		= 816
+te_02_10_01_btn					= 817
+cm_04_12_btn					= 818
+ebt_card_info_btn				= 819
+hsr_manual_expedited_snap_btn	= 820
+hsr_snap_applications_btn		= 821
+sir_exp_flowchart_btn			= 822
+ryb_exp_identity_btn			= 823
+ryb_exp_timeliness_btn			= 824
+cm_04_04_btn					= 825
+cm_04_06_btn					= 826
+amounts_btn						= 827
+determination_btn				= 828
+return_to_dialog_button			= 829
+fn_review_btn					= 830
+
+open_r_and_r_btn				= 700
+accounting_service_desk_btn		= 701
+accounting_in_hsr_manual_btn	= 702
+open_ebt_brochure_btn			= 703
+open_npp_doc					= 704
+open_IEVS_doc					= 705
+open_appeal_rights_doc			= 706
+open_civil_rights_rights_doc	= 707
+open_program_info_doc			= 708
+open_DV_doc						= 709
+open_disa_doc					= 710
+open_cs_2647_doc				= 711
+open_cs_2929_doc				= 712
+open_cs_3323_doc				= 713
+open_cs_3393_doc				= 714
+open_cs_3163B_doc				= 715
+open_cs_2338_doc				= 716
+open_cs_5561_doc				= 717
+open_cs_2961_doc				= 718
+open_cs_2887_doc				= 719
+open_cs_3238_doc				= 720
+open_cs_2625_doc				= 721
+explain_six_month_rept			= 722
+explain_change_rept				= 723
+explain_monthly_rept			= 724
+open_cs_2707_doc				= 725
+open_cs_7635_doc				= 726
 
 btn_placeholder = 4000
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
@@ -10132,36 +10216,52 @@ If left(confirm_ebt_read, 4) <> "YES!" Then
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
-			  ComboBox 310, 45, 225, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
-			  DropListBox 310, 75, 225, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
-			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Basics Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_read
-			  ButtonGroup ButtonPressed
-			    PushButton 465, 365, 80, 15, "Continue", continue_btn
-			  Text 10, 10, 160, 10, "REVIEW the information listed here to the resident:"
-			  GroupBox 10, 25, 530, 335, "EBT Information"
-			  Text 20, 35, 275, 10, "For Cash and Supplemental Nutrition Assistance Program (SNAP) benefits:"
-			  Text 30, 45, 265, 25, "- Each time you use your Electronic Benefits Transfer (EBT) card or sign your check, you state that you have informed the county or tribal agency about any changes in your situation that may affect your benefits."
-			  Text 30, 75, 265, 25, "- Each time your EBT card is used, we assume you have received your cash or SNAP benefits, unless you reported your card lost or stolen to the county or tribal agency."
+				ButtonGroup ButtonPressed
+					ComboBox 310, 45, 225, 45, "Select or Type"+chr(9)+"Yes - I have my card."+chr(9)+"No - I used to but I've lost it."+chr(9)+"No - I never had a card for this case"+chr(9)+case_card_info, case_card_info
+					DropListBox 310, 75, 225, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", clt_knows_how_to_use_ebt_card
+					DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! EBT Basics Discussed"+chr(9)+"No, I could not complete this", confirm_ebt_read
+					PushButton 465, 365, 80, 15, "Continue", continue_btn
+					Text 10, 10, 160, 10, "REVIEW the information listed here to the resident:"
+					GroupBox 10, 25, 530, 335, "EBT Information"
+					Text 20, 35, 275, 10, "For Cash and Supplemental Nutrition Assistance Program (SNAP) benefits:"
+					Text 30, 45, 265, 25, "- Each time you use your Electronic Benefits Transfer (EBT) card or sign your check, you state that you have informed the county or tribal agency about any changes in your situation that may affect your benefits."
+					Text 30, 75, 265, 25, "- Each time your EBT card is used, we assume you have received your cash or SNAP benefits, unless you reported your card lost or stolen to the county or tribal agency."
 
-			  Text 20, 105, 275, 25, "The standard way to get your benefits to you is through issuance on an EBT card. For cash benefits, there may be other options such as a vendor payment or direct deposit. If you want more information about these options, please let us know."
+					Text 20, 105, 275, 25, "The standard way to get your benefits to you is through issuance on an EBT card. For cash benefits, there may be other options such as a vendor payment or direct deposit. If you want more information about these options, please let us know."
 
-			  Text 20, 140, 275, 10, "EBT card balances and information can be found:"
-			  Text 30, 150, 265, 10, "- Call customer service, 24 hours a day / 7 days a week - Toll-free: 888-997-2227"
-			  Text 30, 160, 265, 25, "- Go to www.ebtEDGE.com - Under EBT Cardholders, click on 'More Information' and log in using your user ID and password."
-			  ' Text 20, 105, 275, 25, ""
+					Text 20, 140, 275, 10, "EBT card balances and information can be found:"
+					Text 30, 150, 265, 10, "- Call customer service, 24 hours a day / 7 days a week - Toll-free: 888-997-2227"
+					Text 30, 160, 265, 25, "- Go to www.ebtEDGE.com - Under EBT Cardholders, click on 'More Information' and log in using your user ID and password."
+					' Text 20, 105, 275, 25, ""
 
-			  GroupBox 10, 190, 290, 75, "Your EBT Issuances"
-			  Text 20, 205, 275, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
-			  Text 20, 220, 275, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
-			  Text 20, 235, 275, 20, "*** Due to processing changes or delay in receipt of information issuances days may change, you should access EBT information directly to ensure benefits are available."
+					GroupBox 10, 190, 290, 75, "Your EBT Issuances"
+					Text 20, 205, 275, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
+					Text 20, 220, 275, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
+					Text 20, 235, 275, 20, "*** Due to processing changes or delay in receipt of information issuances days may change, you should access EBT information directly to ensure benefits are available."
 
 
-			  Text 310, 35, 225, 10, "Do you already have an EBT card for this case?"
+					Text 310, 35, 225, 10, "Do you already have an EBT card for this case?"
 
-			  Text 310, 65, 225, 10, "Do you know how to use an EBT card?"
+					Text 310, 65, 225, 10, "Do you know how to use an EBT card?"
 
-			  Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
+					Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
+
+					Text 310, 100, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
+					Text 310, 125, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
+					Text 310, 150, 200, 20, "If they have never had an EBT card, they MAY be able to pick one up in one of the following service centers:"
+					Text 320, 170, 200, 10, "Central-Northeast HSB (525 Portland Ave South, Minneapolis)"
+					Text 320, 180, 200, 10, "South (2215 East Lake Street, Minneapolis)"
+					Text 320, 190, 215, 10, "Northwest (7051 Brooklyn Boulevard, Brooklyn Center - 1st floor)"
+					Text 320, 205, 180, 20, "REACH OUT TO THE ACCOUNTING SERVICE DESK TO CONFIRM CASE CAN RECEIVE A CARD IN OFFICE"
+					PushButton 320, 225, 180, 13, "Accounting Service Desk Sharepoint Site", accounting_service_desk_btn
+					Text 310, 245, 220, 35, "If resident does not have a stable mailing address to receive an EBT card and cannot get a new/replacement card in the office, there is a process to have the card mailed to one of the above service centers for pickup."
+					Text 310, 245, 220, 25, "If resident does not have a stable mailing address to receive an EBT card, there is a process to have the card mailed to a service center for pickup."
+					PushButton 310, 270, 180, 15, "Accounting Processes for EBT Cards", accounting_in_hsr_manual_btn
+					Text 320, 290, 115, 10, "This is helpful for residents who:"
+					Text 330, 300, 115, 10, "Need a replacement card."
+					Text 330, 310, 155, 20, "Accounting specifies resident cannot receive card in office."
 			EndDialog
+
 
 			dialog Dialog1
 			cancel_confirmation
@@ -10171,7 +10271,17 @@ If left(confirm_ebt_read, 4) <> "YES!" Then
 				If case_card_info = "Select or Type" or trim(case_card_info) = "" Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident has an EBT Card for this case."
 				If clt_knows_how_to_use_ebt_card = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since you have discussed EBT Information, indicate if the resident knows how to use their EBT Card."
 			End If
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+
+			If ButtonPressed = accounting_service_desk_btn Then
+				err_msg = "LOOP"
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-faa/SitePages/Randle-Unit.aspx"
+			End If
+			If ButtonPressed = accounting_in_hsr_manual_btn Then
+				err_msg = "LOOP"
+				run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Accounting.aspx"
+			End If
+
+			IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
