@@ -69,13 +69,13 @@ fifteen_of_appl_month = left(SNAP_application_date, 2) & "/15/" & right(SNAP_app
 IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'if rec'd ON or BEFORE 15th client gets 30 days from date of application to be reinstated.
 	progs_closed = progs_closed & "SNAP/"
 	SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
-	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
+	SNAP_followup_text = ", after which a new Combined Application Form (CAF) is required (expedited SNAP closing for postponed verification not returned)."
 	'To do - where is cash_check coming from?
 	IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
 Else
 	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated.
 	SNAP_last_REIN_date = closure_date
-	SNAP_followup_text = ", after which a new CAF is required (expedited SNAP closing for postponed verification not returned)."
+	SNAP_followup_text = ", after which a new Combined Application Form (CAF) is required (expedited SNAP closing for postponed verification not returned)."
 END IF
 
 'Navigates back to DAIL
@@ -90,6 +90,11 @@ call write_value_and_transmit("N", 6, 3)
 ' look_for_expedited_determination_case_note = False
 ' If SNAP_checkbox = checked and the_process_for_snap = "Application" Then look_for_expedited_determination_case_note = True
 ' Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+
+'To do - remove after testing complete. MAXIS case number identified through DAIL scrubber but not during testing so added in identification of MAXIS case number here
+EMReadScreen MAXIS_case_number, 8, 20, 38
+MAXIS_case_number = trim(replace(MAXIS_case_number,"_", " "))
+
 'Using SNAP application date to set too old date, no need to read for dates prior to SNAP application
 too_old_date = DateAdd("D", -1, SNAP_application_date)
 
@@ -103,7 +108,7 @@ Do
 	'VERIFICATIONS NOTES
 	If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
 		verifications_requested_case_note_found = True
-		verifs_needed = "Verifications Needed:"
+		verifs_needed = ""
 
 		EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
 		transmit
@@ -219,7 +224,7 @@ DO
 		cancel_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		IF trim(verifs_needed) = "" THEN err_msg = err_msg & vbCr & "* Please enter the postponed verifications requested."
-		IF len(trim(verifs_needed)) > 30 THEN err_msg = err_msg & vbCr & "* The list of verifications must be less than 30 characters long. Please shorten."
+		IF len(trim(verifs_needed)) > 100 THEN err_msg = err_msg & vbCr & "* The list of verifications must be less than 100 characters long. Please shorten."
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -232,7 +237,7 @@ write_variable_in_SPEC_MEMO(memo_header)
 write_variable_in_SPEC_MEMO("Reason for closure: Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
 If verifs_needed <> "" then call write_variable_in_SPEC_MEMO("Verifications needed: " & verifs_needed)
 'To do - need to verify if this is necessary, won't it always include this info? 
-If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_variable_in_SPEC_MEMO("Last SNAP reinstatement date", SNAP_last_REIN_date & SNAP_followup_text)
+If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_variable_in_SPEC_MEMO("Last SNAP reinstatement date: " & SNAP_last_REIN_date & SNAP_followup_text)
 'Save MEMO and navigate back to DAIL
 PF4
 PF3
