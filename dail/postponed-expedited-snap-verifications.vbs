@@ -81,15 +81,8 @@ END IF
 'Navigates back to DAIL
 PF3 						
 
-'To do - review functionality to confirm it works properly
-'HERE WE SEARCH CASE:NOTES
+'Search CASE/NOTEs to determine if there is a VERIFICATIONS REQUESTED CASE/NOTE
 call write_value_and_transmit("N", 6, 3)
-
-'We are looking for notes that multiple scripts complete to keep from making duplicate notes
-'To do - likely unnecessary, can delete
-' look_for_expedited_determination_case_note = False
-' If SNAP_checkbox = checked and the_process_for_snap = "Application" Then look_for_expedited_determination_case_note = True
-' Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
 
 'To do - remove after testing complete. MAXIS case number identified through DAIL scrubber but not during testing so added in identification of MAXIS case number here
 EMReadScreen MAXIS_case_number, 8, 20, 38
@@ -192,8 +185,6 @@ PF3
 'Navigates to SPEC/MEMO through DAIL to maintain tie to list
 Call write_value_and_transmit("P", 6, 3)
 Call write_value_and_transmit("MEMO", 20, 70)
-'To do - double-check function(ality), ran into issues leaving the DAIL
-' Call start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 'Opens new MEMO
 PF5
 'Creates new MEMO
@@ -255,8 +246,6 @@ If case_noting_intake_dates = True or case_noting_intake_dates = "" then call wr
 PF4
 PF3
 
-'To do - update navigation back to/from DAIL to CASE/NOTE
-'Navigates to Case Notes from DAIL - maintaining the tie to the list - does this so worker can reveiw case notes while the next dialog is up
 EMWriteScreen "N", 6, 3
 transmit
 
