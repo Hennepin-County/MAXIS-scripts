@@ -233,9 +233,22 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'Write information to SPEC/MEMO
 memo_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
-write_variable_in_SPEC_MEMO(memo_header)
-write_variable_in_SPEC_MEMO("Reason for closure: Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
+Call write_variable_in_SPEC_MEMO(memo_header)
+Call write_variable_in_SPEC_MEMO(" ")
+Call write_variable_in_SPEC_MEMO("Reason for closure: Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
+Call write_variable_in_SPEC_MEMO(" ")
 If verifs_needed <> "" then call write_variable_in_SPEC_MEMO("Verifications needed: " & verifs_needed)
+Call write_variable_in_SPEC_MEMO(" ")
+CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers listed below:")
+CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+Call write_variable_in_SPEC_MEMO(" ")
 'To do - need to verify if this is necessary, won't it always include this info? 
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_variable_in_SPEC_MEMO("Last SNAP reinstatement date: " & SNAP_last_REIN_date & SNAP_followup_text)
 'Save MEMO and navigate back to DAIL
@@ -260,7 +273,7 @@ End If
 case_note_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
 call write_variable_in_case_note(case_note_header)
 call write_bullet_and_variable_in_case_note("Reason for closure", "Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
-If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
+If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
 
 'To do - check on the case noting intake notes
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
