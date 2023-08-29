@@ -5364,7 +5364,7 @@ function create_appointment_letter_notice(application_date, interview_date, last
 	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
 	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-	CALL function digital_experience()
+	CALL digital_experience
 	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 	PF4
 end function
@@ -5472,7 +5472,7 @@ function create_NOMI (application_date, appt_date, last_contact_day)
 	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
 	CALL write_variable_in_SPEC_MEMO("")
-	CALL function digital_experience ()
+	CALL digital_experience
 	PF4
 end function
 
