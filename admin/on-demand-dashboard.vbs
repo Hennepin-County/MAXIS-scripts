@@ -787,8 +787,11 @@ function create_assignment_report()
     Set objConnection=nothing
 
 	'opening task log
-    file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
-    Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
+    file_url = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
+    Call excel_open(file_url, False, False, ObjExcel, objWorkbook)
+
+	ObjExcel.worksheets("QI Review Work").Activate
+
 	' MsgBox "Script has gathered cases from the TABLE and saved them to an array." & vbCr & "Total Count:" & cases_completed_by_me & vbCr & vbCr & "NOW an excel file should have opened. If one did NOT open, contact Casey right away." & vbCr & "Excel file url: " & file_url
 	''finding the first empty row in the log
     excel_row = 2
