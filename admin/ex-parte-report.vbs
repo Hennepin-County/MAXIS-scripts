@@ -5319,10 +5319,61 @@ If ex_parte_function = "Check REVW information on Phase 1 Cases" Then
 End If
 
 If ex_parte_function = "DHS Data Validation" Then
-	data_sheet_file_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\DHS " & ep_revw_mo & ep_revw_yr & " List.xlsx"
+	data_sheet_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\DHS Lists\DHS " & ep_revw_mo & ep_revw_yr & " List.xlsx"
 
 	call excel_open(data_sheet_file_path, True, True, ObjExcel, objWorkbook)
 	list_of_all_the_cases = " "
+	run_time_timer = timer
+
+
+	'First we run through the existing cases on the list - these are all from the DHS list
+	excel_row = 4
+	Do
+		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+		MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
+		If timer - run_time_timer  >= 720 Then
+			Call navigate_to_MAXIS_screen("STAT", "ADDR")
+			call back_to_SELF
+			run_time_timer = timer
+		End If
+		ObjExcel.Cells(excel_row, 2).Value = True
+
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
+		' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+		found_on_sql = False
+
+		Do While NOT objRecordSet.Eof
+			sql_case_number = objRecordSet("CaseNumber")
+			If MAXIS_case_number = sql_case_number Then
+				found_on_sql = True
+				ObjExcel.Cells(excel_row, 15).Value = True
+				ObjExcel.Cells(excel_row, 16).Value = objRecordSet("SelectExParte")
+
+				Exit Do
+			End If
+			objRecordSet.MoveNext
+		Loop
+
+		objRecordSet.Close			'Closing all the data connections
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+		If found_on_sql = False Then ObjExcel.Cells(excel_row, 15).Value = False
+
+		excel_row = excel_row + 1
+		next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+
+	Loop Until next_case_number = ""
 
 
 	PMI_01 = ""
@@ -5338,7 +5389,7 @@ If ex_parte_function = "DHS Data Validation" Then
 	MAXIS_MA_basis_02 = ""
 	MAXIS_msp_prog_02 = ""
 
-	excel_row = 3
+	excel_row = 4
 	Do
 		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 		MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
@@ -5350,108 +5401,76 @@ If ex_parte_function = "DHS Data Validation" Then
 		list_mx_msp = trim(ObjExcel.Cells(excel_row, 9).Value)
 
 		If on_henn_list = True and henn_appears_ex_parte = True and list_mx_maj_prog = "" and list_mx_msp = "" Then
-			found_on_sql = False
-			sql_appears_ex_parte = False
-			still_ex_parte = ""
 
-			'declare the SQL statement that will query the database
-			objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '2023-08-01'"
-			' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
+			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
 
 			'Creating objects for Access
-			Set objConnection = CreateObject("ADODB.Connection")
-			Set objRecordSet = CreateObject("ADODB.Recordset")
+			Set objELIGConnection = CreateObject("ADODB.Connection")
+			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
 			'This is the file path for the statistics Access database.
 			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objRecordSet.Open objSQL, objConnection
+			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
-			Do While NOT objRecordSet.Eof
-				sql_case_number = objRecordSet("CaseNumber")
-				If MAXIS_case_number = sql_case_number Then
-					found_on_sql = True
-					sql_prep_complete = objRecordSet("PREP_Complete")
-					still_ex_parte = objRecordSet("SelectExParte")
-					If IsDate(sql_prep_complete) = True Then sql_appears_ex_parte = True
+			Do While NOT objELIGRecordSet.Eof
 
-					objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & sql_case_number & "'"
+				If name_01 = "" Then
+					name_01 = trim(objELIGRecordSet("Name"))
+					PMI_01 = trim(objELIGRecordSet("PMINumber"))
 
-					'Creating objects for Access
-					Set objELIGConnection = CreateObject("ADODB.Connection")
-					Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+						MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
+						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+					End If
+				ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+						MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
+						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+					End If
+				ElseIf name_02 = "" Then
+					name_02 = trim(objELIGRecordSet("Name"))
+					PMI_02 = trim(objELIGRecordSet("PMINumber"))
 
-					'This is the file path for the statistics Access database.
-					' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-					objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-					objELIGRecordSet.Open objELIGSQL, objELIGConnection
-
-					Do While NOT objELIGRecordSet.Eof
-
-						If name_01 = "" Then
-							name_01 = trim(objELIGRecordSet("Name"))
-							PMI_01 = trim(objELIGRecordSet("PMINumber"))
-
-							If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-								MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-								MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-							ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-								MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
-								MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-							End If
-						ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-							If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-								MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-								MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-							ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-								MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
-								MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-							End If
-						ElseIf name_02 = "" Then
-							name_02 = trim(objELIGRecordSet("Name"))
-							PMI_02 = trim(objELIGRecordSet("PMINumber"))
-
-							If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-								MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-								MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-							ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-								MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
-								MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-							End If
-						ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-							If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-								MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-								MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-							ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-								MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
-								MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-							End If
-						End If
-						objELIGRecordSet.MoveNext
-					Loop
-
-					ObjExcel.Cells(excel_row, 18).Value = PMI_01
-					ObjExcel.Cells(excel_row, 19).Value = MAXIS_MA_prog_01
-					ObjExcel.Cells(excel_row, 20).Value = MAXIS_MA_basis_01
-					ObjExcel.Cells(excel_row, 21).Value = MAXIS_msp_prog_01
-					ObjExcel.Cells(excel_row, 23).Value = PMI_02
-					ObjExcel.Cells(excel_row, 24).Value = MAXIS_MA_prog_02
-					ObjExcel.Cells(excel_row, 25).Value = MAXIS_MA_basis_02
-					ObjExcel.Cells(excel_row, 26).Value = MAXIS_msp_prog_02
-
-					objELIGRecordSet.Close
-					objELIGConnection.Close
-					Set objELIGRecordSet=nothing
-					Set objELIGConnection=nothing
-
-
-
+					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+						MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
+						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+					End If
+				ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+						MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
+						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+					End If
 				End If
-				objRecordSet.MoveNext
+				objELIGRecordSet.MoveNext
 			Loop
-			ObjExcel.Cells(excel_row, 15).Value = found_on_sql
-			ObjExcel.Cells(excel_row, 16).Value = sql_appears_ex_parte
-			ObjExcel.Cells(excel_row, 17).Value = still_ex_parte
+
+			ObjExcel.Cells(excel_row, 18).Value = PMI_01
+			ObjExcel.Cells(excel_row, 19).Value = MAXIS_MA_prog_01
+			ObjExcel.Cells(excel_row, 20).Value = MAXIS_MA_basis_01
+			ObjExcel.Cells(excel_row, 21).Value = MAXIS_msp_prog_01
+			ObjExcel.Cells(excel_row, 23).Value = PMI_02
+			ObjExcel.Cells(excel_row, 24).Value = MAXIS_MA_prog_02
+			ObjExcel.Cells(excel_row, 25).Value = MAXIS_MA_basis_02
+			ObjExcel.Cells(excel_row, 26).Value = MAXIS_msp_prog_02
+
+			objELIGRecordSet.Close
+			objELIGConnection.Close
+			Set objELIGRecordSet=nothing
+			Set objELIGConnection=nothing
+
 
 			PMI_01 = ""
 			name_01 = ""
