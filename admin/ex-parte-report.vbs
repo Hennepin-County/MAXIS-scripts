@@ -4142,7 +4142,9 @@ If ex_parte_function = "Phase 1" Then
 		UC_INCOME_ARRAY(uc_inc_type_info_const, uc_count) = "Unemployment"
 		UC_INCOME_ARRAY(uc_claim_numb_const, uc_count) 	= ObjExcel.Cells(7, excel_row).Value
 		UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) 	= ObjExcel.Cells(9, excel_row).Value
-		UC_INCOME_ARRAY(uc_end_date_const, uc_count) 	= ObjExcel.Cells(10, excel_row).Value
+		If IsDate(trim(ObjExcel.Cells(10, excel_row).Value)) = True then
+			UC_INCOME_ARRAY(uc_end_date_const, uc_count) 	= ObjExcel.Cells(10, excel_row).Value
+		End if
 		If IsNumeric(UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count)) = True Then UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) * 1
 
 		uc_count = uc_count + 1				'count up
