@@ -5340,6 +5340,72 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 235 then script_end_procedure("This script is only able to assign excel columns to 234 distinct digits. You've exceeded this number, and this script cannot continue.")
 end function
 
+function create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
+'--- This function standardizes the creation and content for an application appointment letter notice. 
+'~~~~~ application_date: Date of applicattion, must be in date format
+'~~~~~ interview_date: Date interview was conducted, must be in date format
+'~~~~~ last_contact_day: Date of last contact with resident, must be in date format
+'===== Keywords: MAXIS, ADMIN, NOTICE, Appointment, Application
+	Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
+	Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	CALL digital_experience
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+	PF4
+end function
+
+
+function create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
+'--- This function standardizes the creation and content for a recertification appointment letter notice
+'~~~~~ programs: The variable to identify the programs applicable to the case
+'~~~~~ intvw_programs: The variable to identify the program identified during the interview (MFIP/SNAP, MFIP, SNAP)
+'~~~~~ interview_end_date: Last date an interview can be conducted within the recertification window, must be in date format
+'~~~~~ last_day_of_recert: Last day of recertification, must be in date format
+'===== Keywords: MAXIS, ADMIN, NOTICE, Appointment, Recertification
+	CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
+	If len(programs) < 11 Then CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & intvw_programs & " case to continue.")
+	CALL write_variable_in_SPEC_MEMO("")
+	Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	CALL write_variable_in_SPEC_MEMO("")
+	If len(programs) < 11 Then
+		CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
+	ElseIf len(programs) > 14 Then
+		CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless")
+	ElseIf len(programs) > 10 Then
+		CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
+	End If
+	CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	Call digital_experience
+	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+	PF4         'Submit the MEMO
+end function
+	
 Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
@@ -5417,6 +5483,63 @@ function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
 	array_name = split(array_name)
 end function
+
+function create_NOMI_application(application_date, appt_date, last_contact_day)
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) application notice. 
+'~~~~~ application_date: Date CAF was received, must be in date format
+'~~~~~ appt_date: Date interview is to be conducted by, must be in date format. This is 7 days from the CAF date.
+'~~~~~ last_contact_day: Date resident has to contact the county, must be in date format. This is 30 days from the application date.
+	Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
+	Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
+	Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL digital_experience
+	PF4
+end function
+
+function create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) recertification notice.
+'~~~~~ caf_date_as_of_today: Date recertification paperwork was received if received, must be in date format. 
+'~~~~~ last_day_of_recert: Last day to complete an interview in order to continue benefits, must be in date format. 
+	if caf_date_as_of_today <> "" then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & caf_date_as_of_today & ".")
+	if caf_date_as_of_today = "" then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
+	CALL write_variable_in_SPEC_MEMO("")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL digital_experience
+	CALL write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+	CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
+	PF4         'Submit the MEMO
+end function
+
 
 function create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type)
 '--- This function creates a mainframe friendly date. This can be used for both year formats and input spacing.
@@ -6289,7 +6412,6 @@ function digital_experience()
 	CALL write_variable_in_SPEC_MEMO("- Use InfoKeep online at infokeep.hennepin.us to upload directly to your case.")
 	CALL write_variable_in_SPEC_MEMO("- You can submit documents online at MNBenefits.mn.gov.")
 	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers.")
-	Call write_variable_in_SPEC_MEMO(" ")
 end function
 
 
