@@ -57,8 +57,11 @@ function find_hot_topic_name(ht_link, ht_name)
 	ht_name = replace(ht_name, ".aspx", "")
 	ht_name = replace(ht_name, "-%E2%80%93-", "   ")
 	ht_name = replace(ht_name, "-%e2%80%93-", "   ")
+	ht_name = replace(ht_name, "%20%E2%80%93%20", " - ")
 	ht_name = replace(ht_name, "-", " ")
 	ht_name = replace(ht_name, "   ", " - ")
+	ht_name = replace(ht_name, "%20", " ")
+	ht_name = replace(ht_name, "20%", " ")
 end function
 
 'declaring some constants for the array of the hot topic articles we are going to use
@@ -73,10 +76,10 @@ Const multiple_scripts_TF	= 7
 Const run_script_btn 		= 8
 Const add_to_favorites_btn	= 9
 Const script_displayed 		= 10
-Const hot_topic_name_const 	= 12
-Const script_instructions_url_const 	= 13
-Const script_url_const 		= 14
-Const last_ht_const 			= 15
+Const hot_topic_name_const 	= 11
+Const script_instructions_url_const = 12
+Const script_url_const 		= 13
+Const last_ht_const 		= 14
 
 'declaring the array
 Dim HOT_TOPIC_ARRAY()
