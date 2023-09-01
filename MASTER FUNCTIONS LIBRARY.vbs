@@ -5370,11 +5370,9 @@ function create_appointment_letter_notice_application(application_date, intervie
 end function
 
 
-function create_appointment_letter_notice_recertification(programs,CM_plus_1_mo,CM_plus_1_yr, intvw_programs, interview_end_date, last_day_of_recert)
+function create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
 '--- This function standardizes the creation and content for a recertification appointment letter notice
 '~~~~~ programs: The variable to identify the programs applicable to the case
-'~~~~~ CM_plus_1_mo: Current month plus 1 month
-'~~~~~ CM_plus_1_yr: Current month plus 1 year
 '~~~~~ intvw_programs: The variable to identify the program identified during the interview (MFIP/SNAP, MFIP, SNAP)
 '~~~~~ interview_end_date: Last date an interview can be conducted within the recertification window, must be in date format
 '~~~~~ last_day_of_recert: Last day of recertification, must be in date format
