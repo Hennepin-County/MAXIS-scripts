@@ -935,7 +935,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #07/11/2023#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx?"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1639,7 +1639,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/26/2022#
 script_array(script_num).hot_topic_date			= #07/11/2023#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx?"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx"
 script_array(script_num).used_for_elig			= True
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
