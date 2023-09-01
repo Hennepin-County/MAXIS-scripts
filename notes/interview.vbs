@@ -317,7 +317,7 @@ function check_for_errors(interview_questions_clear)
 
 	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
 		'if SNAP - must select PWE'
-	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "5 ^* Principal Wage Earner##~##   - Since this we have SNAP to consider, you must indicate who the resident selects as PWE."
+	If snap_status <> "INACTIVE" AND pwe_selection = "Select One..." Then err_msg = err_msg & "~!~" & "5 ^* Principal Wage Earner##~##   - Since we have SNAP to consider, you must indicate who the resident selects as PWE."
 
 	' If current_listing = "6"  Then tagline = ": Q. 12 - 13"
 
@@ -514,7 +514,7 @@ function define_main_dialog()
 
 		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
 			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
-		    Text 35, 210, 270, 10, "1. How much income (cash or checkes) did or will your household get this month?"
+		    Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
 		    Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
 		    Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
 		    Text 45, 265, 90, 10, "What utilities do you pay?"
@@ -1713,7 +1713,7 @@ function define_main_dialog()
 			' CheckBox 30, 285, 200, 10, "Check Here if this AREP is ALSO Listed on the CAF", CAF_arep_on_CAF_checkbox
 
 			Text 10, 295, 85, 10, "Authorization of AREP:"
-			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verbal"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate writen document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
+			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verbal"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate written document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
 			PushButton 395, 292, 85, 13, "Save AREP Detail", save_information_btn
 
 		ElseIf page_display = discrepancy_questions Then
@@ -3335,7 +3335,7 @@ function display_expedited_dialog()
 			PushButton 165, 325, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
 			PushButton 165, 340, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
 			PushButton 315, 325, 150, 13, "CM 04.04 - SNAP / Expedited Food", cm_04_04_btn
-			PushButton 315, 340, 150, 13, "CM 04.06 - 1st Mont Processing", cm_04_06_btn
+			PushButton 315, 340, 150, 13, "CM 04.06 - 1st Month Processing", cm_04_06_btn
 
 			If exp_page_display <> show_exp_pg_amounts then PushButton 485, 10, 65, 13, "Amounts", amounts_btn
 			If exp_page_display <> show_exp_pg_determination then PushButton 485, 25, 65, 13, "Determination", determination_btn
@@ -8058,7 +8058,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			next_steps_four = add_msg
 		End If
 
-		add_msg = "Denials can be coded in REPT/PND2 if they are for a resident 'Withdraw' of their request. Otherise, since the interview should be done at this point, denials should be processed in STAT."
+		add_msg = "Denials can be coded in REPT/PND2 if they are for a resident 'Withdraw' of their request. Otherwise, since the interview should be done at this point, denials should be processed in STAT."
 		If next_steps_three = "" Then
 			next_steps_three = add_msg
 		ElseIf next_steps_four = "" Then
@@ -9010,12 +9010,12 @@ Do
 		  Text 10, 90, 60, 10, "Worker Signature:"
 		  Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
 		  Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
-		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is canceled, the network goes down."
+		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
 		  Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
 		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
 		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
 		  Text 80, 205, 220, 10, "You should have this script running DURING the entire interview."
-		  Text 90, 220, 195, 20, "You  are capturing BOTH the information writen on the form AND the verbal responses in the script fields."
+		  Text 90, 220, 195, 20, "You  are capturing BOTH the information written on the form AND the verbal responses in the script fields."
 		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
 		EndDialog
 
@@ -9192,7 +9192,7 @@ BeginDialog Dialog1, 0, 0, 311, 245, "Programs to Interview For"
   Text 20, 45, 35, 10, "CAF Date:"
   GroupBox 180, 25, 125, 30, "Programs marked on CAF"
   Text 15, 60, 295, 10, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
-  Text 15, 75, 210, 10, "Confrim with the resident which programs should be assessed:"
+  Text 15, 75, 210, 10, "Confirm with the resident which programs should be assessed:"
   Text 25, 85, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
   Text 25, 95, 200, 10, "-Add any verbal request information in the boxes below."
   GroupBox 5, 110, 300, 85, "OTHER Program Requests (not marked on CAF)"
@@ -10236,8 +10236,8 @@ If left(confirm_ebt_read, 4) <> "YES!" Then
 					' Text 20, 105, 275, 25, ""
 
 					GroupBox 10, 190, 290, 75, "Your EBT Issuances"
-					Text 20, 205, 275, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
-					Text 20, 220, 275, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
+					Text 20, 205, 285, 10, "If approved, your SNAP benefits will regularly be issued on the " & snap_day_of_issuance & " of the month."
+					Text 20, 220, 285, 10, "If approved, your CASH benefits will regularly be issued on the " & cash_day_of_issuance & " of the month."
 					Text 20, 235, 275, 20, "*** Due to processing changes or delay in receipt of information issuances days may change, you should access EBT information directly to ensure benefits are available."
 
 
