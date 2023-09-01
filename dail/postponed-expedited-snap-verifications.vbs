@@ -71,8 +71,6 @@ IF datediff("D", SNAP_application_date, fifteen_of_appl_month) >= 0 Then							'
 	progs_closed = progs_closed & "SNAP/"
 	SNAP_last_REIN_date = dateadd("d", 30, SNAP_application_date)
 	SNAP_followup_text = ", after which a new Combined Application Form (CAF) is required (expedited SNAP closing for postponed verification not returned)."
-	'To do - where is cash_check coming from?
-	IF cash_check <> 1 THEN intake_date = dateadd("d", 1, SNAP_last_REIN_date)			        'if cash is not being closed the intake date needs to be the day after the rein date
 Else
 	progs_closed = progs_closed & "SNAP/"															'if rec'd after the 15th client gets until closure date (end of 2nd month of benefits) to be reinstated.
 	SNAP_last_REIN_date = closure_date
@@ -238,8 +236,7 @@ CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
 CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 Call write_variable_in_SPEC_MEMO(" ")
-'To do - need to verify if this is necessary, won't it always include this info? 
-If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_variable_in_SPEC_MEMO("Last SNAP reinstatement date: " & SNAP_last_REIN_date & SNAP_followup_text)
+
 'Save MEMO and navigate back to DAIL
 PF4
 PF3
@@ -261,9 +258,6 @@ case_note_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose -
 call write_variable_in_case_note(case_note_header)
 call write_bullet_and_variable_in_case_note("Reason for closure", "Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
 If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)
-
-'To do - check on the case noting intake notes
-If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
