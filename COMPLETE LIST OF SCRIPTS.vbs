@@ -3056,20 +3056,35 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "Overpayment"
-' script_array(script_num).description 			= "Template for noting basic information about overpayments."
+script_num = script_num + 1                     'Increment by one
+ReDim Preserve script_array(script_num)         'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie 'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name            = "Overpayment"
+' script_array(script_num).description          = "Template for noting basic information about overpayments."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "Income", "LTC", "MFIP", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Oe", "Up")
 script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).hot_topic_link         = ""
+script_array(script_num).used_for_elig          = False
+script_array(script_num).policy_references      = array("","","","","","","","","","","","","","","")
+script_array(script_num).policy_references(0)       = "CM Benefit_Adjustment_and_Recovery 25"
+script_array(script_num).policy_references(1)       = "TE Claim_Entry_Initiates_Transaction 02.09.07"
+script_array(script_num).policy_references(2)       = "TE CLAIM_REFERRAL_TRACKING 02.09.47"
+script_array(script_num).policy_references(3)       = "TE CASE_AND_PERSON-BASED_CLRA 02.09.02"
+script_array(script_num).policy_references(4)       = "TE CORRECT_MISTAKE_ON_A_CLAIM_ALREADY_ENTERED 02.09.05"
+script_array(script_num).policy_references(5)       = "TE DEMAND_LETTERS_FOR_OVERPAYMENTS 02.09.00"
+script_array(script_num).policy_references(6)       = "TE CASE_NOTE_III_CLAIMS/SYSTEMS/TRANSFER 02.08.095"
+script_array(script_num).policy_references(7)       = "TE MCE 02.09.41"
+script_array(script_num).policy_references(8)       = "TE MCE_PAYMENTS_AND_CONTACT_INFORMATION 02.09.41.03"
+script_array(script_num).policy_references(9)       = "SHAREPOINT CLAIMS_AND_UNDERPAYMENTS_POLICY https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Underpayments_Policy.aspx"
+script_array(script_num).policy_references(10)      = "SHAREPOINT CLAIMS_AND_UNDERPAYMENTS_PROCEDURE https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Claims_and_Underpayments_Procedure.aspx"
+script_array(script_num).policy_references(11)      = "SHAREPOINT CLAIM_DEMAND_LETTER https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_Demand_Letter.aspx"
+script_array(script_num).policy_references(12)      = "SHAREPOINT APPEAL_&_FRAUD_RELATED_CLAIMS https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Appeal_and_Fraud_Related_Claims.aspx"
+script_array(script_num).policy_references(13)      = "SHAREPOINT UNDERPAYMENTS,_ADJUSTMENTS,_AND_CLOSING https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Underpayments,_Adjustments_and_Closing.aspx"
+script_array(script_num).policy_references(14)      = "EPM 1.3.2.5_MHCP_OVERPAYMENTS http://hcopub.dhs.state.mn.us/epm/1_3_2_5.htm?rhhlterm=overpayments%20overpayment&rhsearch=overpayments"
 script_array(script_num).specialty_redirect 	= "DEU"
 
 script_num = script_num + 1								'Increment by one
