@@ -83,10 +83,6 @@ PF3
 'Search CASE/NOTEs to determine if there is a VERIFICATIONS REQUESTED CASE/NOTE
 call write_value_and_transmit("N", 6, 3)
 
-'To do - remove after testing complete. MAXIS case number identified through DAIL scrubber but not during testing so added in identification of MAXIS case number here
-EMReadScreen MAXIS_case_number, 8, 20, 38
-MAXIS_case_number = trim(replace(MAXIS_case_number,"_", " "))
-
 'Using SNAP application date to set too old date, no need to read for dates prior to SNAP application
 too_old_date = DateAdd("D", -1, SNAP_application_date)
 
