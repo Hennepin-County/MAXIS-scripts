@@ -5365,6 +5365,7 @@ function create_appointment_letter_notice_application(application_date, intervie
 	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 	CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 	CALL digital_experience
+	Call write_variable_in_SPEC_MEMO(" ")
 	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 	PF4
 end function
@@ -5533,6 +5534,7 @@ function create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
 	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
 	CALL write_variable_in_SPEC_MEMO("")
 	CALL digital_experience
+	CALL write_variable_in_SPEC_MEMO(" ")
 	CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
 	CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
 	PF4         'Submit the MEMO
