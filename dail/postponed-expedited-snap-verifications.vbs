@@ -183,14 +183,6 @@ Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 'Navigate back to DAIL
 PF3
 
-'Navigates to SPEC/MEMO through DAIL to maintain tie to list
-Call write_value_and_transmit("P", 6, 3)
-Call write_value_and_transmit("MEMO", 20, 70)
-'Opens new MEMO
-PF5
-'Creates new MEMO
-Call write_value_and_transmit("X", 5, 12)
-
 'Dialog is defined here so the case number and application date are listed on it
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 401, 120, "Verifications Needed"
@@ -222,6 +214,12 @@ DO
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+'Navigates to SPEC/MEMO 
+Call write_value_and_transmit("P", 6, 3)
+Call write_value_and_transmit("MEMO", 20, 70)
+'Function to create new MEMO
+Call start_a_new_spec_memo(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 
 'Write information to SPEC/MEMO
 memo_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
