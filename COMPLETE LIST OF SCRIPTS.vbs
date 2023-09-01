@@ -934,8 +934,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_date			= #12/13/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/CAF-Script-No-Longer-Supports-Interview-Details.aspx"
+script_array(script_num).hot_topic_date			= #07/11/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx?"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1593,7 +1593,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/05/2019#
-script_array(script_num).hot_topic_link			= ""
+script_array(script_num).hot_topic_date			= #08/26/2023#  
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/updates-to-actions-%E2%80%93-earned-income-budgeting.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("CM Determining_Gross_Income 17", "TE Student_Income 02.08.087", "TE AmeriCorps 02.05.34", "TE SNAP_Benefits_-_2nd_30_Days_Applicant_Delay 02.05.107", "TE CASE_NOTE_II_Assets_Income 02.08.094", "TE Determining_MFIP_Initial/Ongoing_Eligibilty 02.05.80", "TE Budget_Cycle/Monthly_Reporting_Changes 02.80.32", "SHAREPOINT Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Income.aspx", "SHAREPOINT Earned_Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Earned_Income.aspx")						'SEE Line 58 for format'
 
@@ -1637,8 +1638,8 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/26/2022#
-script_array(script_num).hot_topic_date 		= #08/23/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES---Eligibility-Summary-(BlueZone-Script)-Programs-Added.aspx"
+script_array(script_num).hot_topic_date 		= #07/11/2023#
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/:u:/r/teams/hs-economic-supports-hub/SitePages/NOTES%20%E2%80%93%20CAF%20updates%20and%20guidance.aspx"
 script_array(script_num).used_for_elig			= True
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
