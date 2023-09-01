@@ -6410,7 +6410,6 @@ function digital_experience()
 	CALL write_variable_in_SPEC_MEMO("- Use InfoKeep online at infokeep.hennepin.us to upload directly to your case.")
 	CALL write_variable_in_SPEC_MEMO("- You can submit documents online at MNBenefits.mn.gov.")
 	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers.")
-	Call write_variable_in_SPEC_MEMO(" ")
 end function
 
 
