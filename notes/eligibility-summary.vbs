@@ -3485,7 +3485,7 @@ function define_hc_elig_dialog()
 			month_display = "M" & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_app) & " - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_app) & ": " & month_display
 			' If each_app = approval_selected Then display_detail = month_display
 			If each_app = approval_selected Then
-				Text 475, apprvs_y_pos+2, 85, 13, month_display
+				Text 460, apprvs_y_pos+2, 85, 13, month_display
 			Else
 				PushButton 460, apprvs_y_pos, 85, 13, month_display, HC_UNIQUE_APPROVALS(btn_one, each_app)
 			End If
@@ -17334,6 +17334,15 @@ class hc_eligibility_detail
 				the_row = 1
 				the_col = 1
 				EMSearch "Auto-Closed", the_row, the_col
+				If the_row <> 0 Then PF3
+
+				If the_row = 0 Then
+					the_row = 1
+					the_col = 1
+					EMSearch "HC DENIAL Was Denied", the_row, the_col
+					If the_row <> 0 Then PF3
+				End if
+
 				If the_row = 0 Then
 					' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
 					EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
