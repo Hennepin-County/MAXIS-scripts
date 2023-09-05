@@ -5874,7 +5874,7 @@ function date_array_generator(initial_month, initial_year, date_array)
 end function
 
 function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
-'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP
+'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP. Info Source: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
 '~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
@@ -5885,7 +5885,18 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
 		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then				'these are the associated amounts
+		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'these are the associated amounts
+			If hh_size = 1 Then fpg_130_percent = 1580
+			If hh_size = 2 Then fpg_130_percent = 2137
+			If hh_size = 3 Then fpg_130_percent = 2694
+			If hh_size = 4 Then fpg_130_percent = 3250
+			If hh_size = 5 Then fpg_130_percent = 3807
+			If hh_size = 6 Then fpg_130_percent = 4364
+			If hh_size = 7 Then fpg_130_percent = 4921
+			If hh_size = 8 Then fpg_130_percent = 5478
+
+			If hh_size > 8 Then fpg_130_percent = 5052 + (557 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
 			If hh_size = 1 Then fpg_130_percent = 1473
 			If hh_size = 2 Then fpg_130_percent = 1984
 			If hh_size = 3 Then fpg_130_percent = 2495
@@ -5896,17 +5907,6 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 			If hh_size = 8 Then fpg_130_percent = 5052
 
 			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1396
-			If hh_size = 2 Then fpg_130_percent = 1888
-			If hh_size = 3 Then fpg_130_percent = 2379
-			If hh_size = 4 Then fpg_130_percent = 2871
-			If hh_size = 5 Then fpg_130_percent = 3363
-			If hh_size = 6 Then fpg_130_percent = 3855
-			If hh_size = 7 Then fpg_130_percent = 4347
-			If hh_size = 8 Then fpg_130_percent = 4839
-
-			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
 		End If
 	End If
 end function
