@@ -212,7 +212,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 Call write_value_and_transmit("P", 6, 3)
 Call write_value_and_transmit("MEMO", 20, 70)
 'Function to create new MEMO
-Call start_a_new_spec_memo(memo_opened, False, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
+Call start_a_new_spec_memo(memo_opened, False, "Y", "Y", "N", other_name, other_street, other_city, other_state, other_zip, True)
 
 'Write information to SPEC/MEMO
 memo_header = "--- SNAP Closed " & closure_date & " - Expedited Autoclose ---"
