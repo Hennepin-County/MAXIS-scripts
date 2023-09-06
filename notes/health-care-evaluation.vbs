@@ -3163,6 +3163,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	If ex_parte_phase = "Phase 1" Then
 		phase_1_review_month = er_month & "/" & er_year
+		correct_ex_parte_revw_month_code = right("00" & er_month, 2) & " 20" & right(er_year, 2)
 		start_of_prep_month = DateAdd("m", -4, review_month_from_SQL)
 
 		Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
@@ -4178,6 +4179,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validate that ExParte Renewal Month is correct
 						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
 						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+						If check_ex_parte_renewal_month_year <> correct_ex_parte_revw_month_code Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on REVW should be " & correct_ex_parte_revw_month_code & "."
 
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -4267,6 +4269,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validate that ExParte Renewal Month is correct
 						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
 						If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+						If check_ex_parte_renewal_month_year <> correct_ex_parte_revw_month_code Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on REVW should be " & correct_ex_parte_revw_month_code & "."
 
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
