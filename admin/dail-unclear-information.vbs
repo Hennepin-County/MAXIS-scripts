@@ -410,15 +410,20 @@ If script_action = "Create new Excel list" Then
                         End If
                         'To Do - verify that this is working properly
                         'TO do - check on how to handle if SR or recertification is in CM
-                        If DateDiff("m", Date, recertification_date) = 1 Then renewal_next_month = True
-                        
-                        If sr_report_date <> "N/A" Then
+                        If DateDiff("m", Date, recertification_date) = 1 Then
+                            renewal_next_month = True
+                        Else 
+                            renewal_next_month = False
+                        End If
+
+                        If sr_report_date <> "N/A" AND renewal_next_month = False Then
                             If DateDiff("m", Date, sr_report_date) = 1 Then 
                                 renewal_next_month = True
                             Else
                                 renewal_next_month = False
                             End If
                         End If
+                        
                         DAIL_array(reporting_status_const, item) = trim(reporting_status)
                         DAIL_array(recertification_date_const, item) = trim(recertification_date)
                         DAIL_array(sr_report_date_const, item) = trim(sr_report_date)
