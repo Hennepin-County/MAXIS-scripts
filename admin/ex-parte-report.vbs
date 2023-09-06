@@ -634,23 +634,23 @@ Const xlYes = 1
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
 
-Confirm_Process_to_Run_btn	= 200
+Confirm_Process_to_Run_btn	= 200		'setting the button values
 incorrect_process_btn		= 100
-end_msg = "DONE"
+end_msg = "DONE"						'making sure there is something in the end message for when the script run completes. This is often overwritten.
 
 MAXIS_footer_month = CM_plus_1_mo		'We are always operating in Current Month plus 1 while runing this script
 MAXIS_footer_year = CM_plus_1_yr
 
+'This is the file path for the Excel files that are created/updated during the different script run options.
 ex_parte_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte"
 
-'DISPLAYS DIALOG
-
+'Dialog to select which script operation we need to run
 DO
 	DO
 		DO
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 401, 300, "Ex Parte Report"
-				DropListBox 200, 25, 190, 45, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Check REVW information on Phase 1 Cases"+chr(9)+"DHS Data Validation"+chr(9)+"Ex Parte Eval Case Review", ex_parte_function
+				DropListBox 200, 25, 190, 45, "Select one..."+chr(9)+"Prep 1"+chr(9)+"Prep 2"+chr(9)+"Phase 1"+chr(9)+"Phase 2"+chr(9)+"ADMIN Review"+chr(9)+"FIX LIST"+chr(9)+"Check REVW information on Phase 1 Cases"+chr(9)+"DHS Data Validation"+chr(9)+"Ex Parte Eval Case Review"+chr(9)+"Evaluate DHS Error List", ex_parte_function
 				ButtonGroup ButtonPressed
 					OkButton 290, 280, 50, 15
 					CancelButton 345, 280, 50, 15
@@ -679,7 +679,6 @@ DO
 				Text 10, 250, 270, 10, "DHS Data Validation  -  Compare SQL Ex Parte list to the DHS Ex Parte List."
 				Text 10, 265, 350, 10, "Ex Parte Eval Case Review  -  Displays the evaluation of Ex Parte details for a single case."
 				Text 10, 280, 205, 10, "* * * * * THIS SCRIPT MUST BE RUN IN PRODUCTION * * * * *"
-				' Text 10, 235, 190, 10, "There is no CASE/NOTE entry by this script at this time."
 			EndDialog
 
 			err_msg = ""
@@ -689,15 +688,18 @@ DO
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP until err_msg = ""
 
-		If ex_parte_function <> "ADMIN Review" and ex_parte_function <> "Ex Parte Eval Case Review" Then
-			allow_bulk_run_use = False
+		'Once a selection is made, for the BULK runs, we need to confirm the details about the script run selected.
+		If ex_parte_function <> "ADMIN Review" and ex_parte_function <> "Ex Parte Eval Case Review" and ex_parte_function <>"Evaluate DHS Error List" Then
+			allow_bulk_run_use = False												'At this time the BULK runs can only be completed by AIT due to database access.
 			If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "MARI001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "MEGE001" Then allow_bulk_run_use = True
 
+			'stopping the script run if someone else tries to run the script for the bulk options.
 			If allow_bulk_run_use = False Then script_end_procedure("Ex Parte Report functionality for completing Ex Parte actions and list review is locked. The script will now end.")
 
+			'This part sets the footer month to run based on the selection made
 			If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" or ex_parte_function = "DHS Data Validation" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
@@ -719,6 +721,7 @@ DO
 				ep_end_budg_revw_yr = right(DatePart("yyyy",	DateAdd("m", 6, date)), 2)
 			End If
 
+			'Dialog to confirm the BULK run selected
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 341, 165, "Confirm Ex Parte process"
 				EditBox 600, 700, 10, 10, fake_edit_box
@@ -785,6 +788,7 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Display the details used in Prep 1 to determine if a case is Ex Parte or not. For information/review only.
 If ex_parte_function = "Ex Parte Eval Case Review" Then
 	'This functionality is locked down and only available for use by certain staff.
 	allow_admin_use = False
@@ -796,10 +800,13 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
 	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
 
+	'Ending the script run if someone else tries to run it
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
-	Call MAXIS_case_number_finder(MAXIS_case_number)
+
+	Call MAXIS_case_number_finder(MAXIS_case_number)						'attempting to pull the Case Number from MAXIS
 	Do
 		Do
+			'dialog to confirm the case number of the case to review. It will default to whatever case is currently entered in MAXIS
 			err_msg = ""
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 261, 100, "Case Number Selection"
@@ -5708,6 +5715,359 @@ If ex_parte_function = "DHS Data Validation" Then
 	Loop
 	' ObjExcel.Cells(excel_row, 15).Value = found_on_sql
 
+End If
+
+If ex_parte_function = "Evaluate DHS Error List" Then
+	original_user = windows_user_ID
+
+	'dialog to open a file
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 381, 115, "Ex Perte Error Information"
+		Text 10, 10, 350, 20, "This functionality will gather information from the Ex Parte Case list data table based on an Excel file and using the case number."
+		Text 10, 40, 365, 20, "Select the file you need information added to. The script will ask you to select the Case Number Column and will add any selected column to the right of the data."
+		Text 10, 70, 70, 10, "Select an Excel file:"
+		EditBox 80, 65, 245, 15, ex_parte_error_list_excel_file_path
+		ButtonGroup ButtonPressed
+			PushButton 330, 65, 45, 15, "Browse...", select_a_file_button
+			OkButton 270, 95, 50, 15
+			CancelButton 325, 95, 50, 15
+	EndDialog
+
+	'Show initial dialog
+	Do
+		Do
+			Dialog Dialog1
+			cancel_without_confirmation
+			If ButtonPressed = select_a_file_button then call file_selection_system_dialog(ex_parte_error_list_excel_file_path, ".xlsx")
+		Loop until ButtonPressed = OK and ex_parte_error_list_excel_file_path <> ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+	call excel_open(ex_parte_error_list_excel_file_path, True, True, ObjExcel, objWorkbook)
+
+	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	For Each objWorkSheet In objWorkbook.Worksheets
+		scenario_list = scenario_list & chr(9) & objWorkSheet.Name
+	Next
+	scenario_dropdown = report_date & " Review Report"
+
+	'Dialog to select worksheet
+	'DIALOG is defined here so that the dropdown can be populated with the above code
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 191, 60, "Select the Worksheet"
+		DropListBox 5, 20, 180, 45, "Select One..." & scenario_list, scenario_dropdown
+		ButtonGroup ButtonPressed
+			OkButton 80, 40, 50, 15
+			CancelButton 135, 40, 50, 15
+		Text 5, 10, 155, 10, "Select the correct worksheet from the error list:"
+	EndDialog
+
+
+	'Shows the dialog to select the correct worksheet
+	Do
+		Do
+			Dialog Dialog1
+			cancel_without_confirmation
+		Loop until scenario_dropdown <> "Select One..."
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
+
+	'dialog to select the case number column and the excel row to start in
+	col_to_use = 1
+	column_options = "Select One..."
+	Do
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		col_letter = convert_digit_to_excel_column(col_to_use)
+
+		column_options = column_options+chr(9)+col_letter & " - " & col_header
+
+		col_to_use = col_to_use + 1
+		next_col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+	Loop until next_col_header = ""
+
+	excel_row_to_start = "2"
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 386, 230, "Select the Case Number and Information"
+		Text 5, 10, 155, 10, "Select the column the Case Number is listed in:"
+		DropListBox 165, 5, 130, 45, column_options, case_number_column
+		Text 100, 30, 65, 10, "Excel Row to start:"
+		EditBox 165, 25, 30, 15, excel_row_to_start
+		GroupBox 10, 45, 370, 160, "Check all the SQL Column Information to Collect"
+		CheckBox 20, 65, 115, 10, "Worker ID", worker_id_checkbox
+		CheckBox 140, 65, 115, 10, "HC ER Date", hc_er_date_checkbox
+		CheckBox 260, 65, 115, 10, "Select Ex Parte", select_ex_parte_checkbox
+		CheckBox 20, 80, 115, 10, "PREP Complete", prep_complete_checkbox
+		CheckBox 140, 80, 115, 10, "Phase 1 Complete", phase_1_complete_checkbox
+		CheckBox 260, 80, 115, 10, "Phase 1 HSR", phase_1_HSR_checkbox
+		CheckBox 20, 95, 115, 10, "Ex Parte after Phase 1", ex_parte_after_phase_1_checkbox
+		CheckBox 140, 95, 115, 10, "Phase 1 Cancel Reason", phase_1_ex_parte_cancel_checkbox
+		CheckBox 260, 95, 115, 10, "Phase 2 Complete", phase_2_complete_checkbox
+		CheckBox 20, 110, 115, 10, "Phse 2 HSR", phase_2_hsr_checkbox
+		CheckBox 140, 110, 115, 10, "Ex parte after Phase 2", ex_parte_after_phase_2_checkbox
+		CheckBox 260, 110, 115, 10, "Phase 2 Cancel Reason", phase_2_ex_parte_cancel_checkbox
+		CheckBox 20, 125, 115, 10, "All HC is ABD", all_hc_is_abd_checkbox
+		CheckBox 140, 125, 115, 10, "SSA Income", ssa_income_checkbox
+		CheckBox 260, 125, 115, 10, "Wages Income", wages_income_checkbox
+		CheckBox 20, 140, 115, 10, "VA Income", va_income_checkbox
+		CheckBox 140, 140, 115, 10, "Self Emp Income", self_emp_income_checkbox
+		CheckBox 260, 140, 115, 10, "No Income", no_income_checkbox
+		CheckBox 20, 155, 115, 10, "EPD on Case", epd_on_case_checkbox
+		CheckBox 140, 155, 115, 10, "Year Month", year_month_checkbox
+		CheckBox 260, 155, 115, 10, "Eval Year Month", eval_year_month_checkbox
+		CheckBox 20, 170, 115, 10, "Approval Year Month", approval_year_month_checkbox
+		Text 15, 190, 305, 10, "Each SQL Data Information selected will be added as a new column on the Excel Error List."
+		ButtonGroup ButtonPressed
+			OkButton 275, 210, 50, 15
+			CancelButton 330, 210, 50, 15
+	EndDialog
+
+	'Shows the dialog to select the correct worksheet
+	Do
+		Do
+			Dialog Dialog1
+			cancel_without_confirmation
+		Loop until case_number_column <> "Select One..." and IsNumeric(excel_row_to_start) = True
+		call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+
+	case_number_col_letter = left(case_number_column, 2)
+	case_number_col_letter = trim(case_number_col_letter)
+
+	case_number_column = Instr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", case_number_col_letter)
+
+	If worker_id_checkbox = checked Then
+		ObjExcel.Cells(1, col_to_use).Value = "Worker ID"
+		worker_id_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If hc_er_date_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "HC Elig Review Date"
+		hc_er_date_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If select_ex_parte_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Select ExParte"
+		select_ex_parte_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If prep_complete_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "PREP Complete"
+		prep_complete_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_1_complete_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 1 Complete"
+		phase_1_complete_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_1_HSR_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 1 HSR"
+		phase_1_HSR_col = col_to_use
+		col_to_use = col_to_use + 1
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 1 HSR Name"
+		phase_1_hsr_name_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If ex_parte_after_phase_1_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Ex Parte After Phase 1"
+		ex_parte_after_phase_1_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_1_ex_parte_cancel_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 1 Ex Parte Cancel Reason"
+		phase_1_ex_parte_cancel_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_2_complete_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 2 Complete"
+		phase_2_complete_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_2_hsr_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 2 HSR"
+		phase_2_hsr_col = col_to_use
+		col_to_use = col_to_use + 1
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 2 HSR Name"
+		phase_2_hsr_name_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If ex_parte_after_phase_2_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Ex Parte After Phase 2"
+		ex_parte_after_phase_2_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If phase_2_ex_parte_cancel_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Phase 2 Ex Parte Cancel Reason"
+		phase_2_ex_parte_cancel_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If all_hc_is_abd_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "All HC is ABD"
+		all_hc_is_abd_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If ssa_income_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "SSA Income Exist"
+		ssa_income_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If wages_income_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Wages Exist"
+		wages_income_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If va_income_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "VA Income Exist"
+		va_income_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If self_emp_income_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Self Emp Exists"
+		self_emp_income_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If no_income_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "No Income"
+		no_income_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If epd_on_case_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "EPD on Case"
+		epd_on_case_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If year_month_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Year Month"
+		year_month_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If eval_year_month_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Evaluation Year Month"
+		eval_year_month_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+	If approval_year_month_checkbox = checked Then
+    	ObjExcel.Cells(1, col_to_use).Value = "Approval Year Month"
+		approval_year_month_col = col_to_use
+		col_to_use = col_to_use + 1
+	End If
+
+	For col_to_autofit = 1 to col_to_use
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+
+	excel_row = excel_row_to_start * 1
+	Do
+		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, case_number_column).Value)
+		MAXIS_case_number = right("00000000"&MAXIS_case_number, 8)
+
+
+		'This is opening the Ex Parte Case List data table so we can loop through it.
+		objLIST = "SELECT * FROM [ES].[ES_ExParte_CaseList] WHERE CaseNumber = '" & MAXIS_case_number & "'"		'we only need to look at the cases for the specific review month
+
+		Set objConnect = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
+		Set objTheRecord = CreateObject("ADODB.Recordset")
+
+		'opening the connections and data table
+		objConnect.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objTheRecord.Open objLIST, objConnect
+
+		Do While NOT objTheRecord.Eof 					'Loop through each item on the CASE LIST Table
+
+			SQL_worker_id 				= objTheRecord("WorkerID")
+			SQL_HCElig 					= objTheRecord("HCEligReviewDate")
+			SQL_Select_ExParte 			= objTheRecord("SelectExParte")
+
+			SQL_prep_complete 			= objTheRecord("PREP_Complete")
+			SQL_phase1_complete 		= objTheRecord("Phase1Complete")
+			SQL_phase1_hsr 				= objTheRecord("Phase1HSR")
+			SQL_ex_parte_after_phase1 	= objTheRecord("ExParteAfterPhase1")
+			SQL_phase1_cancel_reason 	= objTheRecord("Phase1ExParteCancelReason")
+			SQL_phase2_complete 		= objTheRecord("Phase2Complete")
+			SQL_phase2_hsr 				= objTheRecord("Phase2HSR")
+			SQL_ex_parte_after_phase2 	= objTheRecord("ExParteAfterPhase2")
+			SQL_phase2_cancel_reason 	= objTheRecord("Phase2ExParteCancelReason")
+			SQL_all_HC_is_ABD 			= objTheRecord("AllHCisABD")
+			SQL_ssa_income_exists 		= objTheRecord("SSAIncomExist")
+			SQL_wages_exist 			= objTheRecord("WagesExist")
+			SQL_va_inc_exists 			= objTheRecord("VAIncomeExist")
+			SQL_self_emp_exists 		= objTheRecord("SelfEmpExists")
+			SQL_no_income 				= objTheRecord("NoIncome")
+			SQL_EPD_on_case 			= objTheRecord("EPDonCase")
+			SQL_year_month 				= objTheRecord("YearMonth")
+			SQL_eval_year_month 		= objTheRecord("EvaluationYearMonth")
+			SQL_app_year_month 			= objTheRecord("ApprovalYearMonth")
+			objTheRecord.MoveNext			'now we go to the next case
+
+			If worker_id_checkbox = checked Then ObjExcel.Cells(excel_row, worker_id_col).Value = SQL_worker_id
+			If hc_er_date_checkbox = checked Then
+				SQL_HCElig = DateAdd("d", 0, SQL_HCElig)
+				ObjExcel.Cells(excel_row, hc_er_date_col).Value = SQL_HCElig
+			End If
+			If select_ex_parte_checkbox = checked Then ObjExcel.Cells(excel_row, select_ex_parte_col).Value = SQL_Select_ExParte
+
+
+			If prep_complete_checkbox = checked Then ObjExcel.Cells(excel_row, prep_complete_col).Value = SQL_prep_complete
+			If phase_1_complete_checkbox = checked Then ObjExcel.Cells(excel_row, phase_1_complete_col).Value = SQL_phase1_complete
+			If phase_1_HSR_checkbox = checked Then
+				ObjExcel.Cells(excel_row, phase_1_HSR_col).Value = SQL_phase1_hsr
+				windows_user_ID = ucase(trim(SQL_phase1_hsr))
+				Call find_user_name(phase_1_worker)
+				ObjExcel.Cells(excel_row, phase_1_hsr_name_col).Value = phase_1_worker
+			End If
+			If ex_parte_after_phase_1_checkbox = checked Then ObjExcel.Cells(excel_row, ex_parte_after_phase_1_col).Value = SQL_ex_parte_after_phase1
+			If phase_1_ex_parte_cancel_checkbox = checked Then ObjExcel.Cells(excel_row, phase_1_ex_parte_cancel_col).Value = SQL_phase1_cancel_reason
+			If phase_2_complete_checkbox = checked Then ObjExcel.Cells(excel_row, phase_2_complete_col).Value = SQL_phase2_complete
+			If phase_2_hsr_checkbox = checked Then
+				ObjExcel.Cells(excel_row, phase_2_hsr_col).Value = SQL_phase2_hsr
+				windows_user_ID = ucase(trim(SQL_phase2_hsr))
+				Call find_user_name(phase_2_worker)
+				ObjExcel.Cells(excel_row, phase_2_hsr_name_col).Value = phase_2_worker
+			End If
+			If ex_parte_after_phase_2_checkbox = checked Then ObjExcel.Cells(excel_row, ex_parte_after_phase_2_col).Value = SQL_ex_parte_after_phase2
+			If phase_2_ex_parte_cancel_checkbox = checked Then ObjExcel.Cells(excel_row, phase_2_ex_parte_cancel_col).Value = SQL_phase2_cancel_reason
+			If all_hc_is_abd_checkbox = checked Then ObjExcel.Cells(excel_row, all_hc_is_abd_col).Value = SQL_all_HC_is_ABD
+			If ssa_income_checkbox = checked Then ObjExcel.Cells(excel_row, ssa_income_col).Value = SQL_ssa_income_exists
+			If wages_income_checkbox = checked Then ObjExcel.Cells(excel_row, wages_income_col).Value = SQL_wages_exist
+			If va_income_checkbox = checked Then ObjExcel.Cells(excel_row, va_income_col).Value = SQL_va_inc_exists
+			If self_emp_income_checkbox = checked Then ObjExcel.Cells(excel_row, self_emp_income_col).Value = SQL_self_emp_exists
+			If no_income_checkbox = checked Then ObjExcel.Cells(excel_row, no_income_col).Value = SQL_no_income
+			If epd_on_case_checkbox = checked Then ObjExcel.Cells(excel_row, epd_on_case_col).Value = SQL_EPD_on_case
+			If year_month_checkbox = checked Then ObjExcel.Cells(excel_row, year_month_col).Value = SQL_year_month
+			If eval_year_month_checkbox = checked Then ObjExcel.Cells(excel_row, eval_year_month_col).Value = SQL_eval_year_month
+			If approval_year_month_checkbox = checked Then ObjExcel.Cells(excel_row, approval_year_month_col).Value = SQL_app_year_month
+
+			windows_user_ID = original_user
+			user_ID_for_validation = ucase(windows_user_ID)
+
+		Loop
+		objTheRecord.Close			'Closing all the data connections
+		objConnect.Close
+		Set objTheRecord=nothing
+		Set objConnect=nothing
+
+		excel_row = excel_row + 1
+
+
+		next_case_numb = trim(ObjExcel.Cells(excel_row, case_number_column).Value)
+
+	Loop until next_case_numb = ""
+
+
+
+
+	'find the last filled column, add columns to fill excel information
+
+	'loop through each row on the Excel
+
+	'create a SQL version of the case number
+	'select the case from SQL and enter the new information into the spreadsheet
+	end_msg = "Info done"
 End If
 
 'Loop through all the SQL Items and look for the right revew month and year and phase to determine if it's done.
