@@ -222,15 +222,7 @@ Call write_variable_in_SPEC_MEMO("Reason for closure: Delayed verifications were
 Call write_variable_in_SPEC_MEMO(" ")
 If verifs_needed <> "" then call write_variable_in_SPEC_MEMO("Verifications needed: " & verifs_needed)
 Call write_variable_in_SPEC_MEMO(" ")
-CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers listed below:")
-CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+Call digital_experience()
 Call write_variable_in_SPEC_MEMO(" ")
 
 'Save MEMO and navigate back to DAIL
