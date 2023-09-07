@@ -5874,7 +5874,7 @@ function date_array_generator(initial_month, initial_year, date_array)
 end function
 
 function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
-'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP
+'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP. Info Source: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
 '~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
@@ -5885,7 +5885,18 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
 		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then				'these are the associated amounts
+		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'these are the associated amounts
+			If hh_size = 1 Then fpg_130_percent = 1580
+			If hh_size = 2 Then fpg_130_percent = 2137
+			If hh_size = 3 Then fpg_130_percent = 2694
+			If hh_size = 4 Then fpg_130_percent = 3250
+			If hh_size = 5 Then fpg_130_percent = 3807
+			If hh_size = 6 Then fpg_130_percent = 4364
+			If hh_size = 7 Then fpg_130_percent = 4921
+			If hh_size = 8 Then fpg_130_percent = 5478
+
+			If hh_size > 8 Then fpg_130_percent = 5478 + (557 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
 			If hh_size = 1 Then fpg_130_percent = 1473
 			If hh_size = 2 Then fpg_130_percent = 1984
 			If hh_size = 3 Then fpg_130_percent = 2495
@@ -5896,17 +5907,6 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 			If hh_size = 8 Then fpg_130_percent = 5052
 
 			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1396
-			If hh_size = 2 Then fpg_130_percent = 1888
-			If hh_size = 3 Then fpg_130_percent = 2379
-			If hh_size = 4 Then fpg_130_percent = 2871
-			If hh_size = 5 Then fpg_130_percent = 3363
-			If hh_size = 6 Then fpg_130_percent = 3855
-			If hh_size = 7 Then fpg_130_percent = 4347
-			If hh_size = 8 Then fpg_130_percent = 4839
-
-			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
 		End If
 	End If
 end function
@@ -8687,16 +8687,16 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
 '~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
 '~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
 '===== Keywords: MAXIS, member, array, dialog
-    If DateDiff("d",date_variable,#10/01/2022#) <= 0 then
-        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+    If DateDiff("d",date_variable,#10/01/2023#) <= 0 then
+        'October 2023 -- Amounts for applications on or AFTER 10/01/2023
+        heat_AC_amt = 651
+        electric_amt = 213
+        phone_amt = 54
+    Elseif DateDiff("d",date_variable,#10/01/2023#) > 0 then
+        'October 2022 -- Amounts for applications BEFORE 10/01/2023
         heat_AC_amt = 586
         electric_amt = 185
         phone_amt = 55
-    Elseif DateDiff("d",date_variable,#10/01/2022#) > 0 then
-        'October 2021 -- Amounts for applications BEFORE 10/01/2022
-        heat_AC_amt = 488
-        electric_amt = 149
-        phone_amt = 56
     End if
 End Function
 
