@@ -5895,7 +5895,7 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 			If hh_size = 7 Then fpg_130_percent = 4921
 			If hh_size = 8 Then fpg_130_percent = 5478
 
-			If hh_size > 8 Then fpg_130_percent = 5052 + (557 * (hh_size-8))
+			If hh_size > 8 Then fpg_130_percent = 5478 + (557 * (hh_size-8))
 		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
 			If hh_size = 1 Then fpg_130_percent = 1473
 			If hh_size = 2 Then fpg_130_percent = 1984
