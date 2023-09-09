@@ -13958,7 +13958,6 @@ If developer_mode = False AND revw_pending_table = True Then                    
 End If
 
 STATS_manualtime = STATS_manualtime + (timer - start_time + add_to_time)
-MsgBox "STATS_manualtime - " & STATS_manualtime
 Call script_end_procedure_with_error_report(end_msg)
 
 
