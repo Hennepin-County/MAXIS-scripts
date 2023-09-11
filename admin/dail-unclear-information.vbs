@@ -145,7 +145,7 @@ If script_action = "Create new Excel list" Then
     objExcel.Cells(1, 8).Value = "Reporting Status"
     objExcel.Cells(1, 9).Value = "SR Report Date"
     objExcel.Cells(1, 10).Value = "Recertification Date"
-    objExcel.Cells(1, 11).Value = "Renewal Next Month?"
+    objExcel.Cells(1, 11).Value = "Renewal Month Determination"
     objExcel.Cells(1, 12).Value = "Action Required?"
     objExcel.Cells(1, 13).Value = "Processing Notes"
 
@@ -169,7 +169,7 @@ If script_action = "Create new Excel list" Then
     objExcel.Cells(1, 8).Value = "Reporting Status"
     objExcel.Cells(1, 9).Value = "SR Report Date"
     objExcel.Cells(1, 10).Value = "Recertification Date"
-    objExcel.Cells(1, 11).Value = "Renewal Next Month?"
+    objExcel.Cells(1, 11).Value = "Renewal Month Determination"
     objExcel.Cells(1, 12).Value = "Action Required?"
     objExcel.Cells(1, 13).Value = "Processing Notes"
 
@@ -188,22 +188,22 @@ If script_action = "Create new Excel list" Then
     Dail_count = 0
 
     'constants for array
-    const worker_const	                = 0
-    const maxis_case_number_const       = 1
-    const dail_type_const               = 2
-    const dail_month_const		        = 3
-    const dail_msg_const		        = 4
-    const snap_status_const             = 5
-    const other_programs_present_const  = 6
-    const reporting_status_const        = 7
-    const sr_report_date_const          = 8
-    const recertification_date_const    = 9
-    const renewal_next_month_const      = 10
-    const action_req_const              = 11
-    const processing_notes_const        = 12
+    const worker_const	                    = 0
+    const maxis_case_number_const           = 1
+    const dail_type_const                   = 2
+    const dail_month_const		            = 3
+    const dail_msg_const		            = 4
+    const snap_status_const                 = 5
+    const other_programs_present_const      = 6
+    const reporting_status_const            = 7
+    const sr_report_date_const              = 8
+    const recertification_date_const        = 9
+    const renewal_month_determination_const = 10
+    const action_req_const                  = 11
+    const processing_notes_const            = 12
     ' To Do - is the excel row constant needed?
-    const excel_row_hire_const          = 13
-    const excel_row_cses_const          = 14
+    const excel_row_hire_const              = 13
+    const excel_row_cses_const              = 14
 
     
     'Sets variable for the Excel rows to export data to Excel sheet
@@ -327,8 +327,13 @@ If script_action = "Create new Excel list" Then
 
     For item = 0 to Ubound(DAIL_array, 2)
         'Resets the dail_type so that it can switch between CSES and HIRE messages
+        'To do - double-check this is actually resetting information
         dail_type = DAIL_array(dail_type_const, item)
         MAXIS_case_number = DAIL_array(MAXIS_case_number_const, item)
+        dail_month = DAIL_array(dail_month_const, item)
+        worker = DAIL_array(worker_const, item)
+        dail_msg = DAIL_array(dail_msg_const, item)
+
         Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
         If is_this_priv = True then
             DAIL_array(processing_notes_const, item) = DAIL_array(processing_notes_const, item) & "Privileged Case"
@@ -345,7 +350,7 @@ If script_action = "Create new Excel list" Then
                     DAIL_array(reporting_status_const, item) = "N/A"
                     DAIL_array(recertification_date_const, item) = "N/A"
                     DAIL_array(sr_report_date_const, item) = "N/A"
-                    DAIL_array(renewal_next_month_const, item) = "N/A"
+                    DAIL_array(renewal_month_determination_const, item) = "N/A"
 
                 End If
 
@@ -410,30 +415,60 @@ If script_action = "Create new Excel list" Then
                         End If
                         'To Do - verify that this is working properly
                         'TO do - check on how to handle if SR or recertification is in CM
-                        If DateDiff("m", Date, recertification_date) = 1 Then
-                            renewal_next_month = True
-                        Else 
-                            renewal_next_month = False
+                        'Add validation to determine if renewal/SR certification dates align with corresponding DAIL month
+                        'CSES - determine if dail_month = recertification OR dail_month = SR report date. If this is true, even in past, then should be flagged
+                        'Convert dail_month to date in MM/DD/YYYY format for comparison purposes
+                        dail_month = Left(dail_month, 2) & "/01/" & Right(dail_month, 2)
+                        dail_month = DateAdd("m", 0, dail_month)
+
+                        If dail_type = "CSES" Then
+                            If DateDiff("m", dail_month, recertification_date) = 0 Then
+                                renewal_month_determination = "Recertification month equals DAIL month."
+                            Else 
+                                renewal_month_determination = "Recertification month does not equal DAIL month."
+                            End If
+                        ElseIf dail_type = "HIRE" Then
+                            If DateDiff("m", dail_month, recertification_date) = 1 Then
+                                renewal_month_determination = "Recertification month equals DAIL month + 1."
+                            Else 
+                                renewal_month_determination = "Recertification month does not equal DAIL month + 1."
+                            End If
                         End If
 
-                        If sr_report_date <> "N/A" AND renewal_next_month = False Then
-                            If DateDiff("m", Date, sr_report_date) = 1 Then 
-                                renewal_next_month = True
-                            Else
-                                renewal_next_month = False
+                        If sr_report_date <> "N/A" Then
+                            If dail_type = "CSES" Then
+                                If DateDiff("m", dail_month, sr_report_date) = 0 Then
+                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month equals DAIL month."
+                                Else 
+                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month does not equal DAIL month."
+                                End If
+                            ElseIf dail_type = "HIRE" Then
+                                If DateDiff("m", dail_month, sr_report_date) = 1 Then
+                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month equals DAIL month + 1."
+                                Else 
+                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month does not equal DAIL month + 1."
+                                End If
                             End If
                         End If
                         
+                        'Determine if action is required due to the DAIL message aligning with SR report date or recertification date regardless of CSES or HIRE message
+                        If instr(renewal_month_determination, "equals") Then
+                            renewal_month_action = True
+                        Else
+                            renewal_month_action = False
+                        End If    
+             
                         DAIL_array(reporting_status_const, item) = trim(reporting_status)
                         DAIL_array(recertification_date_const, item) = trim(recertification_date)
                         DAIL_array(sr_report_date_const, item) = trim(sr_report_date)
-                        DAIL_array(renewal_next_month_const, item) = trim(renewal_next_month)
+                        DAIL_array(renewal_month_determination_const, item) = trim(renewal_month_determination)
                     End if
                 Else
                     DAIL_array(reporting_status_const, item) = "N/A"
                 End if
 
-                If DAIL_array(other_programs_present_const, item) = False and DAIL_array(reporting_status_const, item) = "SIX MONTH" then
+                'Determine if action_req is true (don't act on DAIL message) or if action_req is false (act on DAIL message)
+                If DAIL_array(snap_status_const, item) = "ACTIVE" AND DAIL_array(other_programs_present_const, item) = False AND DAIL_array(reporting_status_const, item) = "SIX MONTH" AND renewal_month_action = False then
                     DAIL_array(action_req_const, item) = False
                 Else
                     DAIL_array(action_req_const, item) = True
@@ -450,7 +485,7 @@ If script_action = "Create new Excel list" Then
             objExcel.Cells(DAIL_array(excel_row_hire_const, item), 8).Value = DAIL_array(reporting_status_const, item)
             objExcel.Cells(DAIL_array(excel_row_hire_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
             objExcel.Cells(DAIL_array(excel_row_hire_const, item), 10).Value = DAIL_array(recertification_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_hire_const, item), 11).Value = DAIL_array(renewal_month_determination_const, item)
             objExcel.Cells(DAIL_array(excel_row_hire_const, item), 12).Value = DAIL_array(action_req_const, item)
             objExcel.Cells(DAIL_array(excel_row_hire_const, item), 13).Value = DAIL_array(processing_notes_const, item)
         End If
@@ -462,7 +497,7 @@ If script_action = "Create new Excel list" Then
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 8).Value = DAIL_array(reporting_status_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 9).Value = DAIL_array(sr_report_date_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 10).Value = DAIL_array(recertification_date_const, item)
-            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 11).Value = DAIL_array(renewal_next_month_const, item)
+            objExcel.Cells(DAIL_array(excel_row_cses_const, item), 11).Value = DAIL_array(renewal_month_determination_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 12).Value = DAIL_array(action_req_const, item)
             objExcel.Cells(DAIL_array(excel_row_cses_const, item), 13).Value = DAIL_array(processing_notes_const, item)
         End If
@@ -501,478 +536,478 @@ If script_action = "Create new Excel list" Then
     
 End If
 
-'Script actions if creating a new Excel list option is selected
-If script_action = "Process existing Excel list" Then
+' 'Script actions if creating a new Excel list option is selected
+' If script_action = "Process existing Excel list" Then
 
-    'Validation to ensure that processing correct Excel spreadsheet, otherwise script ends
-    'To do - should validation for Excel name be in the dialog instead?
-    If InStr(file_selection_path, "Unclear Information") Then 
-        Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
-    Else
-        script_end_procedure("The script must process an Unclear Information Excel list. The selected Excel file is not an Unclear Information Excel list. The script will now end.")
-    End If
+'     'Validation to ensure that processing correct Excel spreadsheet, otherwise script ends
+'     'To do - should validation for Excel name be in the dialog instead?
+'     If InStr(file_selection_path, "Unclear Information") Then 
+'         Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+'     Else
+'         script_end_procedure("The script must process an Unclear Information Excel list. The selected Excel file is not an Unclear Information Excel list. The script will now end.")
+'     End If
 
 
-    'To do - tracking deleted dails? STATs for this
+'     'To do - tracking deleted dails? STATs for this
 
-    'To do - should this be within the do loop?
-    objExcel.Worksheets("CSES").Activate
+'     'To do - should this be within the do loop?
+'     objExcel.Worksheets("CSES").Activate
 
-    'Set initial Excel row value to iterate through
-    excel_row = 2
+'     'Set initial Excel row value to iterate through
+'     excel_row = 2
 
-    'Iterate through all of the rows of the CSES then HIRE sheets, doesn't seem necessary to add all of the data to an array rather than just reading through the Excel list
-    Do 'purpose is to read each excel row and set the variables
-        'Reading information from the Excel
-        ' add_to_array = FALSE
-        ' MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
+'     'Iterate through all of the rows of the CSES then HIRE sheets, doesn't seem necessary to add all of the data to an array rather than just reading through the Excel list
+'     Do 'purpose is to read each excel row and set the variables
+'         'Reading information from the Excel
+'         ' add_to_array = FALSE
+'         ' MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
 
-        MAXIS_case_number = objExcel.cells(excel_row, 2).Value
-        MAXIS_case_number = trim(MAXIS_case_number)
-        IF MAXIS_case_number = "" THEN 
-            EXIT DO
-        Else
-            worker                    = objExcel.cells(excel_row, 1).Value 
-            dail_type                 = objExcel.cells(excel_row, 3).Value    
-            dail_month                = objExcel.cells(excel_row, 4).Value 
-            dail_msg                  = objExcel.cells(excel_row, 5).Value        
-            snap_status               = objExcel.cells(excel_row, 6).Value    
-            other_programs_present    = objExcel.cells(excel_row, 7).Value    
-            reporting_status          = objExcel.cells(excel_row, 8).Value  
-            sr_report_date            = objExcel.cells(excel_row, 9).Value 
-            recertification_date      = objExcel.cells(excel_row, 10).Value    
-            renewal_next_month        = objExcel.cells(excel_row, 11).Value
-            action_req                = objExcel.cells(excel_row, 12).Value    
-            processing_notes          = objExcel.cells(excel_row, 13).Value
+'         MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+'         MAXIS_case_number = trim(MAXIS_case_number)
+'         IF MAXIS_case_number = "" THEN 
+'             EXIT DO
+'         Else
+'             worker                    = objExcel.cells(excel_row, 1).Value 
+'             dail_type                 = objExcel.cells(excel_row, 3).Value    
+'             dail_month                = objExcel.cells(excel_row, 4).Value 
+'             dail_msg                  = objExcel.cells(excel_row, 5).Value        
+'             snap_status               = objExcel.cells(excel_row, 6).Value    
+'             other_programs_present    = objExcel.cells(excel_row, 7).Value    
+'             reporting_status          = objExcel.cells(excel_row, 8).Value  
+'             sr_report_date            = objExcel.cells(excel_row, 9).Value 
+'             recertification_date      = objExcel.cells(excel_row, 10).Value    
+'             renewal_month_determination        = objExcel.cells(excel_row, 11).Value
+'             action_req                = objExcel.cells(excel_row, 12).Value    
+'             processing_notes          = objExcel.cells(excel_row, 13).Value
 
-            ' MsgBox worker
-            ' MsgBox dail_type    
-            ' MsgBox dail_month 
-            ' MsgBox dail_msg        
-            ' MsgBox snap_status    
-            ' MsgBox other_programs_present    
-            ' MsgBox reporting_status  
-            ' MsgBox sr_report_date 
-            ' MsgBox recertification_date    
-            ' MsgBox renewal_next_month
-            ' MsgBox action_req    
-            ' MsgBox processing_notes
+'             ' MsgBox worker
+'             ' MsgBox dail_type    
+'             ' MsgBox dail_month 
+'             ' MsgBox dail_msg        
+'             ' MsgBox snap_status    
+'             ' MsgBox other_programs_present    
+'             ' MsgBox reporting_status  
+'             ' MsgBox sr_report_date 
+'             ' MsgBox recertification_date    
+'             ' MsgBox renewal_month_determination
+'             ' MsgBox action_req    
+'             ' MsgBox processing_notes
 
-            If action_req = FALSE Then
-                ' Ensure starting at SELF screen
-                Call back_to_SELF 
+'             If action_req = FALSE Then
+'                 ' Ensure starting at SELF screen
+'                 Call back_to_SELF 
                 
-                'Setting MAXIS case number and navigating to DAIL
-                EMWriteScreen "________", 18, 43
-                EMWriteScreen MAXIS_case_number, 18, 43
-                'Clears out MAXIS case number on SELF screen
-                CALL navigate_to_MAXIS_screen("DAIL", "PICK")   'Navigates to DAIL/PICK
-                EMWriteScreen "_", 7, 39    'blank out ALL selection
-                Call write_value_and_transmit("X", 10, 39)   'Select CSES DAIL type
+'                 'Setting MAXIS case number and navigating to DAIL
+'                 EMWriteScreen "________", 18, 43
+'                 EMWriteScreen MAXIS_case_number, 18, 43
+'                 'Clears out MAXIS case number on SELF screen
+'                 CALL navigate_to_MAXIS_screen("DAIL", "PICK")   'Navigates to DAIL/PICK
+'                 EMWriteScreen "_", 7, 39    'blank out ALL selection
+'                 Call write_value_and_transmit("X", 10, 39)   'Select CSES DAIL type
                 
-                    DO
-                        If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
-                        dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
-                        DO
+'                     DO
+'                         If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
+'                         dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+'                         DO
                 
-                            'Determining if there is a new case number...
-                            EMReadScreen new_case, 8, dail_row, 63
-                            new_case = trim(new_case)
-                            IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-                                Call write_value_and_transmit("T", dail_row, 3)
-                            ELSEIF new_case = "CASE NBR" THEN
-                                'To do - remove this, likely not needed    
-                                '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
-                                ' Call write_value_and_transmit("T", dail_row + 1, 3)
-                                'If the script reaches a new case number in the DAIL, it will exit the do loop since it will have moved to a different case
-                                Exit Do
-                            End if
+'                             'Determining if there is a new case number...
+'                             EMReadScreen new_case, 8, dail_row, 63
+'                             new_case = trim(new_case)
+'                             IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+'                                 Call write_value_and_transmit("T", dail_row, 3)
+'                             ELSEIF new_case = "CASE NBR" THEN
+'                                 'To do - remove this, likely not needed    
+'                                 '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+'                                 ' Call write_value_and_transmit("T", dail_row + 1, 3)
+'                                 'If the script reaches a new case number in the DAIL, it will exit the do loop since it will have moved to a different case
+'                                 Exit Do
+'                             End if
 
-                            dail_row = 6  'resetting the DAIL row '
+'                             dail_row = 6  'resetting the DAIL row '
                 
-                            EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
-                            MAXIS_case_number = trim(MAXIS_case_number)
+'                             EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
+'                             MAXIS_case_number = trim(MAXIS_case_number)
                             
-                            EMReadScreen dail_type, 4, dail_row, 6
-                            dail_type = trim(dail_type)
+'                             EMReadScreen dail_type, 4, dail_row, 6
+'                             dail_type = trim(dail_type)
                             
-                            EMReadScreen dail_month, 8, dail_row, 11
-                            dail_month = trim(dail_month)
+'                             EMReadScreen dail_month, 8, dail_row, 11
+'                             dail_month = trim(dail_month)
                             
-                            EMReadScreen dail_msg, 61, dail_row, 20
-                            dail_msg = trim(dail_msg)
+'                             EMReadScreen dail_msg, 61, dail_row, 20
+'                             dail_msg = trim(dail_msg)
 
-                            'Increment the stats counter
-                            stats_counter = stats_counter + 1
+'                             'Increment the stats counter
+'                             stats_counter = stats_counter + 1
 
-                            'Script confirms it is a CSES message and then checks if it is the type that can be deleted
-                            'To do - checking UNEA for the DISB?
-                            If InStr(dail_type, "CSES") Then
-                                'To do - is handling for Type 36 sufficient to prevent Replaced Type 36 messages?
-                                If InStr(dail_msg, "DISB CS (TYPE 36)") AND InStr(dail_msg, "ISSUED") OR _
-                                    InStr(dail_msg, "DISB CS ARREARS (TYPE 39)") OR _
-                                    InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") OR _
-                                    InStr(dail_msg, "DISB SPOUSAL SUP ARREARS (TYPE 40)") OR _
-                                    InStr(dail_msg, "REPLACED") AND InStr(dail_msg, "DISB CS (TYPE 36)") Then
-                                    'To do - only found one case of this and for a privileged case so need to confirm it auto-CASE/NOTES
-                                    ' InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
-                                    	Call write_value_and_transmit("D", dail_row, 3)
-                                        EMReadScreen other_worker_error, 13, 24, 2
-                                        If other_worker_error = "** WARNING **" then transmit
-                                        'To do - add deleted dails tracking to spreadsheet
-                                        deleted_dails = deleted_dails + 1
-                                ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER") Then
-                                    Call write_value_and_transmit("X", dail_row, 3)
-                                    EmReadScreen memb_ref_nbr, 2, 9, 54 
-                                    memb_ref_nbr = trim(memb_ref_nbr) 
-                                    EmReadScreen dail_new_employer_name_line_one, 8, 9, 57 
-                                    dail_new_employer_name_line_one = trim(dail_new_employer_name_line_one) 
-                                    EmReadScreen dail_new_employer_name_line_two, 60, 10, 5 
-                                    dail_new_employer_name_line_two = trim(dail_new_employer_name_line_two)
-                                    dail_new_employer_name_full = dail_new_employer_name_line_one & dail_new_employer_name_line_two
-                                    MsgBox dail_new_employer_name_full
-                                    PF3
-                                    Call write_value_and_transmit("S", dail_row, 3)
-                                    Call write_value_and_transmit("JOBS " & memb_ref_nbr, 20, 71)
-                                    EmReadScreen nbr_jobs_panels, 2, 2, 78
-                                    nbr_jobs_panels = trim(nbr_jobs_panels)
-                                    If nbr_jobs_panels = 0 Then
-                                        'Add handling new job panels - create a new one?
-                                    If nbr_jobs_panels <> 0 Then
-                                        for i = 1 to nbr_jobs_panels
-                                            EMReadScreen jobs_panel_employer, 30, 7, 42
-                                            jobs_panel_employer = trim(jobs_panel_employer)
-                                            jobs_panel_all_employers = jobs_panel_all_employers & ", " &jobs_panel_employer
-                                        Next
-                                        PF3
-                                        MsgBox jobs_panels_all_employers & "-----" & dail_new_employer_name_full
-                                End If
-                            End If
+'                             'Script confirms it is a CSES message and then checks if it is the type that can be deleted
+'                             'To do - checking UNEA for the DISB?
+'                             If InStr(dail_type, "CSES") Then
+'                                 'To do - is handling for Type 36 sufficient to prevent Replaced Type 36 messages?
+'                                 If InStr(dail_msg, "DISB CS (TYPE 36)") AND InStr(dail_msg, "ISSUED") OR _
+'                                     InStr(dail_msg, "DISB CS ARREARS (TYPE 39)") OR _
+'                                     InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") OR _
+'                                     InStr(dail_msg, "DISB SPOUSAL SUP ARREARS (TYPE 40)") OR _
+'                                     InStr(dail_msg, "REPLACED") AND InStr(dail_msg, "DISB CS (TYPE 36)") Then
+'                                     'To do - only found one case of this and for a privileged case so need to confirm it auto-CASE/NOTES
+'                                     ' InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
+'                                     	Call write_value_and_transmit("D", dail_row, 3)
+'                                         EMReadScreen other_worker_error, 13, 24, 2
+'                                         If other_worker_error = "** WARNING **" then transmit
+'                                         'To do - add deleted dails tracking to spreadsheet
+'                                         deleted_dails = deleted_dails + 1
+'                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER") Then
+'                                     Call write_value_and_transmit("X", dail_row, 3)
+'                                     EmReadScreen memb_ref_nbr, 2, 9, 54 
+'                                     memb_ref_nbr = trim(memb_ref_nbr) 
+'                                     EmReadScreen dail_new_employer_name_line_one, 8, 9, 57 
+'                                     dail_new_employer_name_line_one = trim(dail_new_employer_name_line_one) 
+'                                     EmReadScreen dail_new_employer_name_line_two, 60, 10, 5 
+'                                     dail_new_employer_name_line_two = trim(dail_new_employer_name_line_two)
+'                                     dail_new_employer_name_full = dail_new_employer_name_line_one & dail_new_employer_name_line_two
+'                                     MsgBox dail_new_employer_name_full
+'                                     PF3
+'                                     Call write_value_and_transmit("S", dail_row, 3)
+'                                     Call write_value_and_transmit("JOBS " & memb_ref_nbr, 20, 71)
+'                                     EmReadScreen nbr_jobs_panels, 2, 2, 78
+'                                     nbr_jobs_panels = trim(nbr_jobs_panels)
+'                                     If nbr_jobs_panels = 0 Then
+'                                         'Add handling new job panels - create a new one?
+'                                     If nbr_jobs_panels <> 0 Then
+'                                         for i = 1 to nbr_jobs_panels
+'                                             EMReadScreen jobs_panel_employer, 30, 7, 42
+'                                             jobs_panel_employer = trim(jobs_panel_employer)
+'                                             jobs_panel_all_employers = jobs_panel_all_employers & ", " &jobs_panel_employer
+'                                         Next
+'                                         PF3
+'                                         MsgBox jobs_panels_all_employers & "-----" & dail_new_employer_name_full
+'                                 End If
+'                             End If
 
                             
-                            If InStr(dail_type, "CSES") Then
-                                If InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
-                                    'Navigate to JOBS, pull up list of JOBS and compare against?
+'                             If InStr(dail_type, "CSES") Then
+'                                 If InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
+'                                     'Navigate to JOBS, pull up list of JOBS and compare against?
 
                                 
 
 
 
-                            ' o	DISB CS (TYPE 36) OF $X.XX FOR # CHILD(REN) ISSUED
-                            ' o	DISB CS ARREARS (TYPE 39) OF $X.XX FOR # CHILD(REN)
-                            ' o	DISB SPOUSAL SUP (TYPE 37) OF $X.XX ISSUED ON
-                            ' o	DISB SPOUSAL SUP ARREARS (TYPE 40) OF $X.XX ISSUED
-                            ' o	REPLACED DD/MM/YY DISB CS (TYPE 36) OF $X.XX FOR
-                            ' o	REPORTED: CHILD REF NBR: ## NO LONGER RESIDES WITH CAREGIVER
-                            ' o	CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: 01 [Employer Name]
+'                             ' o	DISB CS (TYPE 36) OF $X.XX FOR # CHILD(REN) ISSUED
+'                             ' o	DISB CS ARREARS (TYPE 39) OF $X.XX FOR # CHILD(REN)
+'                             ' o	DISB SPOUSAL SUP (TYPE 37) OF $X.XX ISSUED ON
+'                             ' o	DISB SPOUSAL SUP ARREARS (TYPE 40) OF $X.XX ISSUED
+'                             ' o	REPLACED DD/MM/YY DISB CS (TYPE 36) OF $X.XX FOR
+'                             ' o	REPORTED: CHILD REF NBR: ## NO LONGER RESIDES WITH CAREGIVER
+'                             ' o	CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: 01 [Employer Name]
 
                             
-                            If instr(dail_msg,"HIRE") or (instr(dail_type, "CSES") and INFC_dail_msg = 0) Then  
-                                'To do - any issues with using actual count instead of excel_row_const
-                                ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
-                                ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
-                                DAIL_array(worker_const,	           DAIL_count) = trim(worker)
-                                DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
-                                DAIL_array(dail_type_const, 	       DAIL_count) = trim(dail_type)
-                                DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
-                                DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-                                DAIL_array(excel_row_hire_const,       DAIL_count) = excel_row_hire
-                                DAIL_array(excel_row_cses_const, 	   DAIL_count) = excel_row_cses
-                                DAIL_count = DAIL_count + 1
+'                             If instr(dail_msg,"HIRE") or (instr(dail_type, "CSES") and INFC_dail_msg = 0) Then  
+'                                 'To do - any issues with using actual count instead of excel_row_const
+'                                 ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
+'                                 ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
+'                                 DAIL_array(worker_const,	           DAIL_count) = trim(worker)
+'                                 DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
+'                                 DAIL_array(dail_type_const, 	       DAIL_count) = trim(dail_type)
+'                                 DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
+'                                 DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
+'                                 DAIL_array(excel_row_hire_const,       DAIL_count) = excel_row_hire
+'                                 DAIL_array(excel_row_cses_const, 	   DAIL_count) = excel_row_cses
+'                                 DAIL_count = DAIL_count + 1
 
-                                'add the data from DAIL to Excel
-                                If instr(dail_type,"HIRE") Then
-                                    objExcel.Worksheets("HIRE").Activate
-                                    objExcel.Cells(excel_row_hire, 1).Value = trim(worker)
-                                    objExcel.Cells(excel_row_hire, 2).Value = trim(MAXIS_case_number)
-                                    objExcel.Cells(excel_row_hire, 3).Value = trim(dail_type)
-                                    objExcel.Cells(excel_row_hire, 4).Value = trim(dail_month)
-                                    objExcel.Cells(excel_row_hire, 5).Value = trim(dail_msg)
-                                    excel_row_hire = excel_row_hire + 1
-                                    'Adding MAXIS case number to case number string
-                                    'TO DO - verify functionality/need
-                                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                                End If
+'                                 'add the data from DAIL to Excel
+'                                 If instr(dail_type,"HIRE") Then
+'                                     objExcel.Worksheets("HIRE").Activate
+'                                     objExcel.Cells(excel_row_hire, 1).Value = trim(worker)
+'                                     objExcel.Cells(excel_row_hire, 2).Value = trim(MAXIS_case_number)
+'                                     objExcel.Cells(excel_row_hire, 3).Value = trim(dail_type)
+'                                     objExcel.Cells(excel_row_hire, 4).Value = trim(dail_month)
+'                                     objExcel.Cells(excel_row_hire, 5).Value = trim(dail_msg)
+'                                     excel_row_hire = excel_row_hire + 1
+'                                     'Adding MAXIS case number to case number string
+'                                     'TO DO - verify functionality/need
+'                                     all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+'                                 End If
 
-                                If instr(dail_type,"CSES") Then
-                                    objExcel.Worksheets("CSES").Activate
-                                    objExcel.Cells(excel_row_cses, 1).Value = trim(worker)
-                                    objExcel.Cells(excel_row_cses, 2).Value = trim(MAXIS_case_number)
-                                    objExcel.Cells(excel_row_cses, 3).Value = trim(dail_type)
-                                    objExcel.Cells(excel_row_cses, 4).Value = trim(dail_month)
-                                    objExcel.Cells(excel_row_cses, 5).Value = trim(dail_msg)
-                                    excel_row_cses = excel_row_cses + 1
-                                    'Adding MAXIS case number to case number string
-                                    'TO DO - verify if this is correct, necessary
-                                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                                End If
-                            End if
+'                                 If instr(dail_type,"CSES") Then
+'                                     objExcel.Worksheets("CSES").Activate
+'                                     objExcel.Cells(excel_row_cses, 1).Value = trim(worker)
+'                                     objExcel.Cells(excel_row_cses, 2).Value = trim(MAXIS_case_number)
+'                                     objExcel.Cells(excel_row_cses, 3).Value = trim(dail_type)
+'                                     objExcel.Cells(excel_row_cses, 4).Value = trim(dail_month)
+'                                     objExcel.Cells(excel_row_cses, 5).Value = trim(dail_msg)
+'                                     excel_row_cses = excel_row_cses + 1
+'                                     'Adding MAXIS case number to case number string
+'                                     'TO DO - verify if this is correct, necessary
+'                                     all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+'                                 End If
+'                             End if
                 
-                        dail_row = dail_row + 1
+'                         dail_row = dail_row + 1
                         
-                            'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
-                            'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-                            'If message_error = "NO MESSAGES" then exit do
+'                             'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
+'                             'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+'                             'If message_error = "NO MESSAGES" then exit do
                 
-                            '...going to the next page if necessary
-                            EMReadScreen next_dail_check, 4, dail_row, 4
-                            If trim(next_dail_check) = "" then
-                                PF8
-                                EMReadScreen last_page_check, 21, 24, 2
-                                'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
-                            If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
-                                    all_done = true
-                                    exit do
-                                Else
-                                    dail_row = 6
-                                End if
-                            End if
-                        LOOP
-                        IF all_done = true THEN exit do
-                    LOOP
+'                             '...going to the next page if necessary
+'                             EMReadScreen next_dail_check, 4, dail_row, 4
+'                             If trim(next_dail_check) = "" then
+'                                 PF8
+'                                 EMReadScreen last_page_check, 21, 24, 2
+'                                 'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+'                             If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
+'                                     all_done = true
+'                                     exit do
+'                                 Else
+'                                     dail_row = 6
+'                                 End if
+'                             End if
+'                         LOOP
+'                         IF all_done = true THEN exit do
+'                     LOOP
                 
 
 
-            excel_row = excel_row + 1
-        End If
-    Loop
-End If
+'             excel_row = excel_row + 1
+'         End If
+'     Loop
+' End If
 
-'To do - THIS IS FOR TESTING IN TRAINING, VARIABLES ARE NOT FOR CSES
-'Script actions if creating a new Excel list option is selected
-If script_action = "Process existing Excel list" Then
+' 'To do - THIS IS FOR TESTING IN TRAINING, VARIABLES ARE NOT FOR CSES
+' 'Script actions if creating a new Excel list option is selected
+' If script_action = "Process existing Excel list" Then
 
-    'Validation to ensure that processing correct Excel spreadsheet, otherwise script ends
-    'To do - should validation for Excel name be in the dialog instead?
-    If InStr(file_selection_path, "Unclear Information") Then 
-        Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
-    Else
-        script_end_procedure("The script must process an Unclear Information Excel list. The selected Excel file is not an Unclear Information Excel list. The script will now end.")
-    End If
+'     'Validation to ensure that processing correct Excel spreadsheet, otherwise script ends
+'     'To do - should validation for Excel name be in the dialog instead?
+'     If InStr(file_selection_path, "Unclear Information") Then 
+'         Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+'     Else
+'         script_end_procedure("The script must process an Unclear Information Excel list. The selected Excel file is not an Unclear Information Excel list. The script will now end.")
+'     End If
 
 
-    'To do - tracking deleted dails? STATs for this
+'     'To do - tracking deleted dails? STATs for this
 
-    'To do - should this be within the do loop?
-    objExcel.Worksheets("CSES").Activate
+'     'To do - should this be within the do loop?
+'     objExcel.Worksheets("CSES").Activate
 
-    'Set initial Excel row value to iterate through
-    excel_row = 2
+'     'Set initial Excel row value to iterate through
+'     excel_row = 2
 
-    'Iterate through all of the rows of the CSES then HIRE sheets, doesn't seem necessary to add all of the data to an array rather than just reading through the Excel list
-    Do 'purpose is to read each excel row and set the variables
-        'Reading information from the Excel
-        ' add_to_array = FALSE
-        ' MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
+'     'Iterate through all of the rows of the CSES then HIRE sheets, doesn't seem necessary to add all of the data to an array rather than just reading through the Excel list
+'     Do 'purpose is to read each excel row and set the variables
+'         'Reading information from the Excel
+'         ' add_to_array = FALSE
+'         ' MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
 
-        MAXIS_case_number = objExcel.cells(excel_row, 2).Value
-        MAXIS_case_number = trim(MAXIS_case_number)
-        IF MAXIS_case_number = "" THEN 
-            EXIT DO
-        Else
-            worker                    = objExcel.cells(excel_row, 1).Value 
-            dail_type                 = objExcel.cells(excel_row, 3).Value    
-            dail_month                = objExcel.cells(excel_row, 4).Value 
-            dail_msg                  = objExcel.cells(excel_row, 5).Value        
-            snap_status               = objExcel.cells(excel_row, 6).Value    
-            other_programs_present    = objExcel.cells(excel_row, 7).Value    
-            reporting_status          = objExcel.cells(excel_row, 8).Value  
-            sr_report_date            = objExcel.cells(excel_row, 9).Value 
-            recertification_date      = objExcel.cells(excel_row, 10).Value    
-            renewal_next_month        = objExcel.cells(excel_row, 11).Value
-            action_req                = objExcel.cells(excel_row, 12).Value    
-            processing_notes          = objExcel.cells(excel_row, 13).Value
+'         MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+'         MAXIS_case_number = trim(MAXIS_case_number)
+'         IF MAXIS_case_number = "" THEN 
+'             EXIT DO
+'         Else
+'             worker                    = objExcel.cells(excel_row, 1).Value 
+'             dail_type                 = objExcel.cells(excel_row, 3).Value    
+'             dail_month                = objExcel.cells(excel_row, 4).Value 
+'             dail_msg                  = objExcel.cells(excel_row, 5).Value        
+'             snap_status               = objExcel.cells(excel_row, 6).Value    
+'             other_programs_present    = objExcel.cells(excel_row, 7).Value    
+'             reporting_status          = objExcel.cells(excel_row, 8).Value  
+'             sr_report_date            = objExcel.cells(excel_row, 9).Value 
+'             recertification_date      = objExcel.cells(excel_row, 10).Value    
+'             renewal_month_determination        = objExcel.cells(excel_row, 11).Value
+'             action_req                = objExcel.cells(excel_row, 12).Value    
+'             processing_notes          = objExcel.cells(excel_row, 13).Value
 
-            ' MsgBox worker
-            ' MsgBox dail_type    
-            ' MsgBox dail_month 
-            ' MsgBox dail_msg        
-            ' MsgBox snap_status    
-            ' MsgBox other_programs_present    
-            ' MsgBox reporting_status  
-            ' MsgBox sr_report_date 
-            ' MsgBox recertification_date    
-            ' MsgBox renewal_next_month
-            ' MsgBox action_req    
-            ' MsgBox processing_notes
+'             ' MsgBox worker
+'             ' MsgBox dail_type    
+'             ' MsgBox dail_month 
+'             ' MsgBox dail_msg        
+'             ' MsgBox snap_status    
+'             ' MsgBox other_programs_present    
+'             ' MsgBox reporting_status  
+'             ' MsgBox sr_report_date 
+'             ' MsgBox recertification_date    
+'             ' MsgBox renewal_month_determination
+'             ' MsgBox action_req    
+'             ' MsgBox processing_notes
 
-            If action_req = FALSE Then
-                ' Ensure starting at SELF screen
-                Call back_to_SELF 
+'             If action_req = FALSE Then
+'                 ' Ensure starting at SELF screen
+'                 Call back_to_SELF 
                 
-                'Setting MAXIS case number and navigating to DAIL
-                EMWriteScreen "________", 18, 43
-                EMWriteScreen MAXIS_case_number, 18, 43
-                'Clears out MAXIS case number on SELF screen
-                CALL navigate_to_MAXIS_screen("DAIL", "PICK")   'Navigates to DAIL/PICK
-                EMWriteScreen "_", 7, 39    'blank out ALL selection
-                Call write_value_and_transmit("X", 10, 39)   'Select CSES DAIL type
+'                 'Setting MAXIS case number and navigating to DAIL
+'                 EMWriteScreen "________", 18, 43
+'                 EMWriteScreen MAXIS_case_number, 18, 43
+'                 'Clears out MAXIS case number on SELF screen
+'                 CALL navigate_to_MAXIS_screen("DAIL", "PICK")   'Navigates to DAIL/PICK
+'                 EMWriteScreen "_", 7, 39    'blank out ALL selection
+'                 Call write_value_and_transmit("X", 10, 39)   'Select CSES DAIL type
                 
-                    DO
-                        If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
-                        dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
-                        DO
+'                     DO
+'                         If number_of_dails = " " Then exit do		'if this space is blank the rest of the DAIL reading is skipped
+'                         dail_row = 6			'Because the script brings each new case to the top of the page, dail_row starts at 6.
+'                         DO
                 
-                            'Determining if there is a new case number...
-                            EMReadScreen new_case, 8, dail_row, 63
-                            new_case = trim(new_case)
-                            IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-                                Call write_value_and_transmit("T", dail_row, 3)
-                            ELSEIF new_case = "CASE NBR" THEN
-                                'To do - remove this, likely not needed    
-                                '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
-                                ' Call write_value_and_transmit("T", dail_row + 1, 3)
-                                'If the script reaches a new case number in the DAIL, it will exit the do loop since it will have moved to a different case
-                                Exit Do
-                            End if
+'                             'Determining if there is a new case number...
+'                             EMReadScreen new_case, 8, dail_row, 63
+'                             new_case = trim(new_case)
+'                             IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+'                                 Call write_value_and_transmit("T", dail_row, 3)
+'                             ELSEIF new_case = "CASE NBR" THEN
+'                                 'To do - remove this, likely not needed    
+'                                 '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+'                                 ' Call write_value_and_transmit("T", dail_row + 1, 3)
+'                                 'If the script reaches a new case number in the DAIL, it will exit the do loop since it will have moved to a different case
+'                                 Exit Do
+'                             End if
 
-                            dail_row = 6  'resetting the DAIL row '
+'                             dail_row = 6  'resetting the DAIL row '
                 
-                            EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
-                            MAXIS_case_number = trim(MAXIS_case_number)
+'                             EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
+'                             MAXIS_case_number = trim(MAXIS_case_number)
                             
-                            EMReadScreen dail_type, 4, dail_row, 6
-                            dail_type = trim(dail_type)
+'                             EMReadScreen dail_type, 4, dail_row, 6
+'                             dail_type = trim(dail_type)
                             
-                            EMReadScreen dail_month, 8, dail_row, 11
-                            dail_month = trim(dail_month)
+'                             EMReadScreen dail_month, 8, dail_row, 11
+'                             dail_month = trim(dail_month)
                             
-                            EMReadScreen dail_msg, 61, dail_row, 20
-                            dail_msg = trim(dail_msg)
+'                             EMReadScreen dail_msg, 61, dail_row, 20
+'                             dail_msg = trim(dail_msg)
 
-                            'Increment the stats counter
-                            stats_counter = stats_counter + 1
+'                             'Increment the stats counter
+'                             stats_counter = stats_counter + 1
 
-                            'Script confirms it is a CSES message and then checks if it is the type that can be deleted
-                            'To do - checking UNEA for the DISB?
-                            If InStr(dail_type, "CSES") Then
-                                'To do - is handling for Type 36 sufficient to prevent Replaced Type 36 messages?
-                                If InStr(dail_msg, "DISB CS (TYPE 36)") AND InStr(dail_msg, "ISSUED") OR _
-                                    InStr(dail_msg, "DISB CS ARREARS (TYPE 39)") OR _
-                                    InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") OR _
-                                    InStr(dail_msg, "DISB SPOUSAL SUP ARREARS (TYPE 40)") OR _
-                                    InStr(dail_msg, "REPLACED") AND InStr(dail_msg, "DISB CS (TYPE 36)") Then
-                                    'To do - only found one case of this and for a privileged case so need to confirm it auto-CASE/NOTES
-                                    ' InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
-                                    	Call write_value_and_transmit("D", dail_row, 3)
-                                        EMReadScreen other_worker_error, 13, 24, 2
-                                        If other_worker_error = "** WARNING **" then transmit
-                                        'To do - add deleted dails tracking to spreadsheet
-                                        deleted_dails = deleted_dails + 1
-                                ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER") Then
-                                    Call write_value_and_transmit("X", dail_row, 3)
-                                    EmReadScreen memb_ref_nbr, 2, 9, 54 
-                                    memb_ref_nbr = trim(memb_ref_nbr) 
-                                    EmReadScreen dail_new_employer_name_line_one, 8, 9, 57 
-                                    dail_new_employer_name_line_one = trim(dail_new_employer_name_line_one) 
-                                    EmReadScreen dail_new_employer_name_line_two, 60, 10, 5 
-                                    dail_new_employer_name_line_two = trim(dail_new_employer_name_line_two)
-                                    dail_new_employer_name_full = dail_new_employer_name_line_one & dail_new_employer_name_line_two
-                                    MsgBox dail_new_employer_name_full
-                                    PF3
-                                    Call write_value_and_transmit("S", dail_row, 3)
-                                    Call write_value_and_transmit("JOBS " & memb_ref_nbr, 20, 71)
-                                    EmReadScreen nbr_jobs_panels, 2, 2, 78
-                                    nbr_jobs_panels = trim(nbr_jobs_panels)
-                                    If nbr_jobs_panels = 0 Then
-                                        'Add handling new job panels - create a new one?
-                                    If nbr_jobs_panels <> 0 Then
-                                        for i = 1 to nbr_jobs_panels
-                                            EMReadScreen jobs_panel_employer, 30, 7, 42
-                                            jobs_panel_employer = trim(jobs_panel_employer)
-                                            jobs_panel_all_employers = jobs_panel_all_employers & ", " &jobs_panel_employer
-                                        Next
-                                        PF3
-                                        MsgBox jobs_panels_all_employers & "-----" & dail_new_employer_name_full
-                                End If
-                            End If
+'                             'Script confirms it is a CSES message and then checks if it is the type that can be deleted
+'                             'To do - checking UNEA for the DISB?
+'                             If InStr(dail_type, "CSES") Then
+'                                 'To do - is handling for Type 36 sufficient to prevent Replaced Type 36 messages?
+'                                 If InStr(dail_msg, "DISB CS (TYPE 36)") AND InStr(dail_msg, "ISSUED") OR _
+'                                     InStr(dail_msg, "DISB CS ARREARS (TYPE 39)") OR _
+'                                     InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") OR _
+'                                     InStr(dail_msg, "DISB SPOUSAL SUP ARREARS (TYPE 40)") OR _
+'                                     InStr(dail_msg, "REPLACED") AND InStr(dail_msg, "DISB CS (TYPE 36)") Then
+'                                     'To do - only found one case of this and for a privileged case so need to confirm it auto-CASE/NOTES
+'                                     ' InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
+'                                     	Call write_value_and_transmit("D", dail_row, 3)
+'                                         EMReadScreen other_worker_error, 13, 24, 2
+'                                         If other_worker_error = "** WARNING **" then transmit
+'                                         'To do - add deleted dails tracking to spreadsheet
+'                                         deleted_dails = deleted_dails + 1
+'                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER") Then
+'                                     Call write_value_and_transmit("X", dail_row, 3)
+'                                     EmReadScreen memb_ref_nbr, 2, 9, 54 
+'                                     memb_ref_nbr = trim(memb_ref_nbr) 
+'                                     EmReadScreen dail_new_employer_name_line_one, 8, 9, 57 
+'                                     dail_new_employer_name_line_one = trim(dail_new_employer_name_line_one) 
+'                                     EmReadScreen dail_new_employer_name_line_two, 60, 10, 5 
+'                                     dail_new_employer_name_line_two = trim(dail_new_employer_name_line_two)
+'                                     dail_new_employer_name_full = dail_new_employer_name_line_one & dail_new_employer_name_line_two
+'                                     MsgBox dail_new_employer_name_full
+'                                     PF3
+'                                     Call write_value_and_transmit("S", dail_row, 3)
+'                                     Call write_value_and_transmit("JOBS " & memb_ref_nbr, 20, 71)
+'                                     EmReadScreen nbr_jobs_panels, 2, 2, 78
+'                                     nbr_jobs_panels = trim(nbr_jobs_panels)
+'                                     If nbr_jobs_panels = 0 Then
+'                                         'Add handling new job panels - create a new one?
+'                                     If nbr_jobs_panels <> 0 Then
+'                                         for i = 1 to nbr_jobs_panels
+'                                             EMReadScreen jobs_panel_employer, 30, 7, 42
+'                                             jobs_panel_employer = trim(jobs_panel_employer)
+'                                             jobs_panel_all_employers = jobs_panel_all_employers & ", " &jobs_panel_employer
+'                                         Next
+'                                         PF3
+'                                         MsgBox jobs_panels_all_employers & "-----" & dail_new_employer_name_full
+'                                 End If
+'                             End If
 
                             
-                            If InStr(dail_type, "CSES") Then
-                                If InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
-                                    'Navigate to JOBS, pull up list of JOBS and compare against?
+'                             If InStr(dail_type, "CSES") Then
+'                                 If InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
+'                                     'Navigate to JOBS, pull up list of JOBS and compare against?
 
                                 
 
 
 
-                            ' o	DISB CS (TYPE 36) OF $X.XX FOR # CHILD(REN) ISSUED
-                            ' o	DISB CS ARREARS (TYPE 39) OF $X.XX FOR # CHILD(REN)
-                            ' o	DISB SPOUSAL SUP (TYPE 37) OF $X.XX ISSUED ON
-                            ' o	DISB SPOUSAL SUP ARREARS (TYPE 40) OF $X.XX ISSUED
-                            ' o	REPLACED DD/MM/YY DISB CS (TYPE 36) OF $X.XX FOR
-                            ' o	REPORTED: CHILD REF NBR: ## NO LONGER RESIDES WITH CAREGIVER
-                            ' o	CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: 01 [Employer Name]
+'                             ' o	DISB CS (TYPE 36) OF $X.XX FOR # CHILD(REN) ISSUED
+'                             ' o	DISB CS ARREARS (TYPE 39) OF $X.XX FOR # CHILD(REN)
+'                             ' o	DISB SPOUSAL SUP (TYPE 37) OF $X.XX ISSUED ON
+'                             ' o	DISB SPOUSAL SUP ARREARS (TYPE 40) OF $X.XX ISSUED
+'                             ' o	REPLACED DD/MM/YY DISB CS (TYPE 36) OF $X.XX FOR
+'                             ' o	REPORTED: CHILD REF NBR: ## NO LONGER RESIDES WITH CAREGIVER
+'                             ' o	CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: 01 [Employer Name]
 
                             
-                            If instr(dail_msg,"HIRE") or (instr(dail_type, "CSES") and INFC_dail_msg = 0) Then  
-                                'To do - any issues with using actual count instead of excel_row_const
-                                ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
-                                ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
-                                DAIL_array(worker_const,	           DAIL_count) = trim(worker)
-                                DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
-                                DAIL_array(dail_type_const, 	       DAIL_count) = trim(dail_type)
-                                DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
-                                DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-                                DAIL_array(excel_row_hire_const,       DAIL_count) = excel_row_hire
-                                DAIL_array(excel_row_cses_const, 	   DAIL_count) = excel_row_cses
-                                DAIL_count = DAIL_count + 1
+'                             If instr(dail_msg,"HIRE") or (instr(dail_type, "CSES") and INFC_dail_msg = 0) Then  
+'                                 'To do - any issues with using actual count instead of excel_row_const
+'                                 ReDim Preserve DAIL_array(14, dail_count)	'This resizes the array based on the number of rows in the Excel File'
+'                                 ' TO DO - Only adding data from DAIL message to array, that is why not all constants are included
+'                                 DAIL_array(worker_const,	           DAIL_count) = trim(worker)
+'                                 DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
+'                                 DAIL_array(dail_type_const, 	       DAIL_count) = trim(dail_type)
+'                                 DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
+'                                 DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
+'                                 DAIL_array(excel_row_hire_const,       DAIL_count) = excel_row_hire
+'                                 DAIL_array(excel_row_cses_const, 	   DAIL_count) = excel_row_cses
+'                                 DAIL_count = DAIL_count + 1
 
-                                'add the data from DAIL to Excel
-                                If instr(dail_type,"HIRE") Then
-                                    objExcel.Worksheets("HIRE").Activate
-                                    objExcel.Cells(excel_row_hire, 1).Value = trim(worker)
-                                    objExcel.Cells(excel_row_hire, 2).Value = trim(MAXIS_case_number)
-                                    objExcel.Cells(excel_row_hire, 3).Value = trim(dail_type)
-                                    objExcel.Cells(excel_row_hire, 4).Value = trim(dail_month)
-                                    objExcel.Cells(excel_row_hire, 5).Value = trim(dail_msg)
-                                    excel_row_hire = excel_row_hire + 1
-                                    'Adding MAXIS case number to case number string
-                                    'TO DO - verify functionality/need
-                                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                                End If
+'                                 'add the data from DAIL to Excel
+'                                 If instr(dail_type,"HIRE") Then
+'                                     objExcel.Worksheets("HIRE").Activate
+'                                     objExcel.Cells(excel_row_hire, 1).Value = trim(worker)
+'                                     objExcel.Cells(excel_row_hire, 2).Value = trim(MAXIS_case_number)
+'                                     objExcel.Cells(excel_row_hire, 3).Value = trim(dail_type)
+'                                     objExcel.Cells(excel_row_hire, 4).Value = trim(dail_month)
+'                                     objExcel.Cells(excel_row_hire, 5).Value = trim(dail_msg)
+'                                     excel_row_hire = excel_row_hire + 1
+'                                     'Adding MAXIS case number to case number string
+'                                     'TO DO - verify functionality/need
+'                                     all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+'                                 End If
 
-                                If instr(dail_type,"CSES") Then
-                                    objExcel.Worksheets("CSES").Activate
-                                    objExcel.Cells(excel_row_cses, 1).Value = trim(worker)
-                                    objExcel.Cells(excel_row_cses, 2).Value = trim(MAXIS_case_number)
-                                    objExcel.Cells(excel_row_cses, 3).Value = trim(dail_type)
-                                    objExcel.Cells(excel_row_cses, 4).Value = trim(dail_month)
-                                    objExcel.Cells(excel_row_cses, 5).Value = trim(dail_msg)
-                                    excel_row_cses = excel_row_cses + 1
-                                    'Adding MAXIS case number to case number string
-                                    'TO DO - verify if this is correct, necessary
-                                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
-                                End If
-                            End if
+'                                 If instr(dail_type,"CSES") Then
+'                                     objExcel.Worksheets("CSES").Activate
+'                                     objExcel.Cells(excel_row_cses, 1).Value = trim(worker)
+'                                     objExcel.Cells(excel_row_cses, 2).Value = trim(MAXIS_case_number)
+'                                     objExcel.Cells(excel_row_cses, 3).Value = trim(dail_type)
+'                                     objExcel.Cells(excel_row_cses, 4).Value = trim(dail_month)
+'                                     objExcel.Cells(excel_row_cses, 5).Value = trim(dail_msg)
+'                                     excel_row_cses = excel_row_cses + 1
+'                                     'Adding MAXIS case number to case number string
+'                                     'TO DO - verify if this is correct, necessary
+'                                     all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 
+'                                 End If
+'                             End if
                 
-                        dail_row = dail_row + 1
+'                         dail_row = dail_row + 1
                         
-                            'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
-                            'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-                            'If message_error = "NO MESSAGES" then exit do
+'                             'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
+'                             'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+'                             'If message_error = "NO MESSAGES" then exit do
                 
-                            '...going to the next page if necessary
-                            EMReadScreen next_dail_check, 4, dail_row, 4
-                            If trim(next_dail_check) = "" then
-                                PF8
-                                EMReadScreen last_page_check, 21, 24, 2
-                                'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
-                            If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
-                                    all_done = true
-                                    exit do
-                                Else
-                                    dail_row = 6
-                                End if
-                            End if
-                        LOOP
-                        IF all_done = true THEN exit do
-                    LOOP
+'                             '...going to the next page if necessary
+'                             EMReadScreen next_dail_check, 4, dail_row, 4
+'                             If trim(next_dail_check) = "" then
+'                                 PF8
+'                                 EMReadScreen last_page_check, 21, 24, 2
+'                                 'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+'                             If last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "NO MESSAGES TYPE" then
+'                                     all_done = true
+'                                     exit do
+'                                 Else
+'                                     dail_row = 6
+'                                 End if
+'                             End if
+'                         LOOP
+'                         IF all_done = true THEN exit do
+'                     LOOP
                 
 
 
-            excel_row = excel_row + 1
-        End If
-    Loop
-End If
+'             excel_row = excel_row + 1
+'         End If
+'     Loop
+' End If
 
