@@ -127,11 +127,7 @@ End If
 call write_variable_in_SPEC_MEMO("You can always apply for any program by contacting Hennepin County at 612-596-1300 to request a paper application.") ', or complete an application at any of the Human Service Centers:"'
 
 call write_variable_in_SPEC_MEMO("")
-CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
-CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
+CALL digital_experience
 'Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
 'Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
 'Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420")
