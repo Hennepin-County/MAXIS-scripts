@@ -2053,10 +2053,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 					CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
 					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-					CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-					CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-					CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-					CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
+					CALL digital_experience
 					Call write_variable_in_SPEC_MEMO(" ")
 					CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 
@@ -2146,10 +2143,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 						CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
 						CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-						CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-						CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-						CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
+						CALL digital_experience
 
 						PF4
 					Else
