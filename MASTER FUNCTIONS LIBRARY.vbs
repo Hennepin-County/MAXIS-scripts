@@ -473,9 +473,9 @@ For Each objFile in colFiles																'looping through each file
 	this_file_created_date = objFile.DateCreated											'Reading the date created
 	this_file_path = objFile.Path															'Grabing the path for the file
 
-	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
-	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True			'We want to delete files that say 'caf-answers-' as this is how the NOTES - CAF script creates the save your work doc
 	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If InStr(this_file_name, "earned-income-detail-") <> 0 Then delete_this_file = True		'We want to delete files that say 'earned-income-detail-' as this is how the ACTIONS - Earned Income Budgeting script creates the save your work doc
 	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
 	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
 
@@ -5341,7 +5341,7 @@ function convert_digit_to_excel_column(col_in_excel)
 end function
 
 function create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
-'--- This function standardizes the creation and content for an application appointment letter notice. 
+'--- This function standardizes the creation and content for an application appointment letter notice.
 '~~~~~ application_date: Date of applicattion, must be in date format
 '~~~~~ interview_date: Date interview was conducted, must be in date format
 '~~~~~ last_contact_day: Date of last contact with resident, must be in date format
@@ -5405,7 +5405,7 @@ function create_appointment_letter_notice_recertification(programs, intvw_progra
 	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 	PF4         'Submit the MEMO
 end function
-	
+
 Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
@@ -5485,7 +5485,7 @@ function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 end function
 
 function create_NOMI_application(application_date, appt_date, last_contact_day)
-'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) application notice. 
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) application notice.
 '~~~~~ application_date: Date CAF was received, must be in date format
 '~~~~~ appt_date: Date interview is to be conducted by, must be in date format. This is 7 days from the CAF date.
 '~~~~~ last_contact_day: Date resident has to contact the county, must be in date format. This is 30 days from the application date.
@@ -5515,8 +5515,8 @@ end function
 
 function create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
 '--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) recertification notice.
-'~~~~~ caf_date_as_of_today: Date recertification paperwork was received if received, must be in date format. 
-'~~~~~ last_day_of_recert: Last day to complete an interview in order to continue benefits, must be in date format. 
+'~~~~~ caf_date_as_of_today: Date recertification paperwork was received if received, must be in date format.
+'~~~~~ last_day_of_recert: Last day to complete an interview in order to continue benefits, must be in date format.
 	if caf_date_as_of_today <> "" then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & caf_date_as_of_today & ".")
 	if caf_date_as_of_today = "" then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
 	CALL write_variable_in_SPEC_MEMO("")
@@ -6406,7 +6406,7 @@ End Function
 
 
 function digital_experience()
-'--- This function standardizes the digital experience coding information so that we only have to update it in one location. 
+'--- This function standardizes the digital experience coding information so that we only have to update it in one location.
 '===== Keywords: MAXIS, MEMO, WCOM
 	CALL write_variable_in_SPEC_MEMO("*** Options for Submitting Documents ***")
 	CALL write_variable_in_SPEC_MEMO("- Use InfoKeep online at infokeep.hennepin.us to upload directly to your case.")
