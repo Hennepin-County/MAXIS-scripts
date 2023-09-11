@@ -252,11 +252,7 @@ For item = 0 to Ubound(DAIL_array, 2)
 
         Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your team to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
 		CALL write_variable_in_SPEC_MEMO("")
-		CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-		CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-		CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-		CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
-		CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
+		Call digital_experience
         Call write_variable_in_SPEC_MEMO("************************************************************")
 
         PF4
