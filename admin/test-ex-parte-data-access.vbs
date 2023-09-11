@@ -221,6 +221,70 @@ ReDim UC_INCOME_ARRAY(va_last_const, 0)
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
+
+
+const hsr_name_const 	= 0
+const hsr_mx_id_const 	= 1
+const hsr_hc_id_const	= 2
+const hsr_email_const 	= 3
+const hss_name_const 	= 4
+const hss_email_const 	= 6
+const pm_name_const 	= 7
+const pm_email_const 	= 9
+
+'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
+Dim WORKER_ARRAY()
+ReDim WORKER_ARRAY(pm_email_const, 0)
+
+
+'Creating objects for Access
+Set objConnection = CreateObject("ADODB.Connection")
+Set objRecordSet = CreateObject("ADODB.Recordset")
+
+SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
+
+'This is the file path the data tables
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+	ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
+
+	WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
+	WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
+	WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
+	WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
+	WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
+	WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
+
+	worker_count = worker_count + 1
+
+	objRecordSet.MoveNext											'Going to the next row in the table
+Loop
+
+'Now we disconnect from the table and close the connections
+objRecordSet.Close
+objConnection.Close
+Set objRecordSet=nothing
+Set objConnection=nothing
+
+Randomize
+each_wrkr = rnd
+each_wrkr = each_wrkr*1000
+each_wrkr = int(each_wrkr)
+
+MsgBox "This is the information for a random person:" & vbCr &_
+		"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
+		"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
+		"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
+		"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
+		"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
+		"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
+		"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
+		"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
+
+Call script_end_procedure("Test is complete, access appears to be sufficient")
+
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(False)
 
