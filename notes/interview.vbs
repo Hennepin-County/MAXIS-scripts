@@ -2961,7 +2961,7 @@ function display_expedited_dialog()
 	te_02_10_01_btn					= 510
 
 	hsr_manual_expedited_snap_btn 	= 1000
-	hsr_snap_applications_btn		= 1100
+	hsr_applications_btn			= 1100
 	ryb_exp_identity_btn			= 1200
 	ryb_exp_timeliness_btn			= 1300
 	sir_exp_flowchart_btn			= 1400
@@ -3330,7 +3330,7 @@ function display_expedited_dialog()
 			End If
 			GroupBox 5, 315, 470, 60, "If you need support in handling for expedited, please access these resources:"
 			PushButton 15, 325, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-			PushButton 15, 340, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+			PushButton 15, 340, 150, 13, "HSR Manual - Applications", hsr_applications_btn
 			PushButton 15, 355, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
 			PushButton 165, 325, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
 			PushButton 165, 340, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
@@ -3469,7 +3469,7 @@ function display_expedited_dialog()
 
 		If ButtonPressed >= 1000 Then
 			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
-			If ButtonPressed = hsr_snap_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Applications.aspx"
+			If ButtonPressed = hsr_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx"
 			If ButtonPressed = ryb_exp_identity_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%201%20-%20Identity.mp4"
 			If ButtonPressed = ryb_exp_timeliness_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%202%20-%20Timeliness.mp4"
 			If ButtonPressed = sir_exp_flowchart_btn Then resource_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Expedited%20Service%20Flowchart.pdf"
@@ -9768,7 +9768,7 @@ te_02_10_01_btn					= 817
 cm_04_12_btn					= 818
 ebt_card_info_btn				= 819
 hsr_manual_expedited_snap_btn	= 820
-hsr_snap_applications_btn		= 821
+hsr_applications_btn		= 821
 sir_exp_flowchart_btn			= 822
 ryb_exp_identity_btn			= 823
 ryb_exp_timeliness_btn			= 824
