@@ -74,7 +74,7 @@ BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
   DropListBox 80, 60, 125, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
   DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis", HC_process
   'DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
-  DropListBox 80, 100, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
+  DropListBox 80, 100, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
   DropListBox 80, 120, 125, 15, "Select One:"+chr(9)+"N/A - No Spouse"+chr(9)+"Yes"+chr(9)+"No", spouse_deeming
   ButtonGroup ButtonPressed
     OkButton 110, 140, 45, 15
