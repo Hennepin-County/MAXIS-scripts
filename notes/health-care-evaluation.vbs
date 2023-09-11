@@ -4772,12 +4772,12 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 				EditBox 10, 190, 365, 15, ma_bc_tikls
 				OkButton 270, 215, 50, 15
 				CancelButton 325, 215, 50, 15
-				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligiubility:"
+				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligibility:"
 				Text 10, 35, 300, 10, "Enter the date the Temporary Medical Assistance Authorization (DHS-3525B) was received:"
 				Text 10, 55, 350, 10, HC_form_name & " received on " & form_date
 				Text 10, 70, 115, 10, "Case Information for CASE/NOTE:"
 				Text 20, 85, 315, 10, "Breast Cancer application if Health Care is still needed after 2 months of Presumptive Care."
-				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligbility."
+				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligibility."
 				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe &"  and " & next_month_pe & "."
 				Text 10, 150, 85, 10, "Additional Case Details:"
 				Text 10, 180, 85, 10, "Additional TIKLs Set"
@@ -4816,14 +4816,14 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 
 	Call write_variable_in_CASE_NOTE("MEMB " & ma_bc_member & " approved for MA-BC Presumptive Care.")
 	Call write_variable_in_CASE_NOTE("  Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & ".")
-	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
+	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligibility.")
 	Call write_variable_in_CASE_NOTE("* Identity verified using medical document - " & short_form & ".")
 	Call write_variable_in_CASE_NOTE("* Citizenship and Immigration information are not requested or required.")
 
 	If ma_bc_notes <> "" OR ma_bc_tikls <> "" OR MA_BC_PE_end_TIKL_note_text <> "" Then Call write_variable_in_CASE_NOTE("============================== NOTES ===============================")
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
 	MA_BC_PE_end_TIKL_note_text = replace(MA_BC_PE_end_TIKL_note_text, ", 0 day return", "")
-	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Preseumtive Eligibility.")
+	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Presumptive Eligibility.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Additional TIKLs", ma_bc_tikls)
 
 	Call write_variable_in_case_note("---")
