@@ -703,8 +703,6 @@ DO
 			If ex_parte_function = "Prep 1" or ex_parte_function = "Prep 2" or ex_parte_function = "FIX LIST" or ex_parte_function = "DHS Data Validation" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
 				ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
-				ep_revw_mo = "11"		'TODO REMOVE THIS
-				ep_revw_yr = "23"
 			End If
 			If ex_parte_function = "Phase 1" Then
 				ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
@@ -740,8 +738,13 @@ DO
 					Text 20, 85, 200, 10, "Create a list of SMRT ending members."
 				End If
 				If ex_parte_function = "DHS Data Validation" Then
-					GroupBox 5, 40, 240, 60, "Tasks to be Completed:"
+					GroupBox 5, 40, 240, 75, "Tasks to be Completed:"
 					Text 20, 55, 190, 10, "Compare Hennepin Ex Parte list to the cases from the DHS list."
+					CheckBox 25, 65, 150, 10, "First SQL review is done", sql_reviewed_checkbox
+					CheckBox 25, 75, 150, 10, "HC Details already gathered", hc_elig_reviewed_checkbox
+					CheckBox 25, 85, 150, 10, "Missing cases have been added", missing_cases_added_checkbox
+					Text 25, 100, 110, 10, "What row should we start at?"
+					EditBox 135, 95, 30, 15, excel_starting_row
 				End If
 				If ex_parte_function = "Prep 2" Then
 					GroupBox 5, 40, 320, 50, "Tasks to be Completed:"
@@ -5369,57 +5372,73 @@ If ex_parte_function = "DHS Data Validation" Then
 	call excel_open(data_sheet_file_path, True, True, ObjExcel, objWorkbook)
 	list_of_all_the_cases = " "
 	run_time_timer = timer
+	ObjExcel.worksheets("Case Numbers").Activate
 
+	skip_finding_case_in_sql = False
+	skip_finding_hc_elig_datils = False
+	skip_adding_missing_cases = False
+	row_to_start_with = 4
 
-	'First we run through the existing cases on the list - these are all from the DHS list
-	excel_row = 4
-	Do
-		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-		MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
-		If timer - run_time_timer  >= 720 Then
-			Call navigate_to_MAXIS_screen("STAT", "ADDR")
-			call back_to_SELF
-			run_time_timer = timer
-		End If
-		ObjExcel.Cells(excel_row, 2).Value = True
+	If sql_reviewed_checkbox = checked Then skip_finding_case_in_sql = True
+	If hc_elig_reviewed_checkbox = checked Then skip_finding_hc_elig_datils = True
+	If missing_cases_added_checkbox = checked Then skip_adding_missing_cases = True
 
-		'declare the SQL statement that will query the database
-		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
-		' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
+	excel_starting_row = trim(excel_starting_row)
+	If IsNumeric(excel_starting_row) = True Then
+		If excel_starting_row > 4 Then row_to_start_with = excel_starting_row
+	End If
 
-		'Creating objects for Access
-		Set objConnection = CreateObject("ADODB.Connection")
-		Set objRecordSet = CreateObject("ADODB.Recordset")
+	If skip_finding_case_in_sql = False Then
 
-		'This is the file path for the statistics Access database.
-		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-		objRecordSet.Open objSQL, objConnection
-		found_on_sql = False
-
-		Do While NOT objRecordSet.Eof
-			sql_case_number = objRecordSet("CaseNumber")
-			If MAXIS_case_number = sql_case_number Then
-				found_on_sql = True
-				ObjExcel.Cells(excel_row, 15).Value = True
-				ObjExcel.Cells(excel_row, 16).Value = objRecordSet("SelectExParte")
-
-				Exit Do
+		'First we run through the existing cases on the list - these are all from the DHS list
+		excel_row = row_to_start_with
+		Do
+			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+			MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
+			If timer - run_time_timer  >= 720 Then
+				Call navigate_to_MAXIS_screen("STAT", "ADDR")
+				call back_to_SELF
+				run_time_timer = timer
 			End If
-			objRecordSet.MoveNext
-		Loop
+			ObjExcel.Cells(excel_row, 2).Value = True
 
-		objRecordSet.Close			'Closing all the data connections
-		objConnection.Close
-		Set objRecordSet=nothing
-		Set objConnection=nothing
-		If found_on_sql = False Then ObjExcel.Cells(excel_row, 15).Value = False
+			'declare the SQL statement that will query the database
+			objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
+			' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
 
-		excel_row = excel_row + 1
-		next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	Loop Until next_case_number = ""
+			'This is the file path for the statistics Access database.
+			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+			found_on_sql = False
 
+			Do While NOT objRecordSet.Eof
+				sql_case_number = objRecordSet("CaseNumber")
+				If MAXIS_case_number = sql_case_number Then
+					found_on_sql = True
+					ObjExcel.Cells(excel_row, 15).Value = True
+					ObjExcel.Cells(excel_row, 16).Value = objRecordSet("SelectExParte")
+
+					Exit Do
+				End If
+				objRecordSet.MoveNext
+			Loop
+
+			objRecordSet.Close			'Closing all the data connections
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
+			If found_on_sql = False Then ObjExcel.Cells(excel_row, 15).Value = False
+
+			excel_row = excel_row + 1
+			next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+
+		Loop Until next_case_number = ""
+	End If
 
 	PMI_01 = ""
 	name_01 = ""
@@ -5434,286 +5453,292 @@ If ex_parte_function = "DHS Data Validation" Then
 	MAXIS_MA_basis_02 = ""
 	MAXIS_msp_prog_02 = ""
 
-	excel_row = 4
-	Do
-		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-		MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
-		list_of_all_the_cases = list_of_all_the_cases & MAXIS_case_number & " "
+	If skip_finding_hc_elig_datils = False Then
+		excel_row = row_to_start_with
+		Do
+			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+			MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
+			list_of_all_the_cases = list_of_all_the_cases & MAXIS_case_number & " "
 
-		Call read_boolean_from_excel(ObjExcel.Cells(excel_row, 15).Value, on_henn_list)
-		Call read_boolean_from_excel(ObjExcel.Cells(excel_row, 16).Value, henn_appears_ex_parte)
-		list_mx_maj_prog = trim(ObjExcel.Cells(excel_row, 7).Value)
-		list_mx_msp = trim(ObjExcel.Cells(excel_row, 9).Value)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, 15).Value, on_henn_list)
+			Call read_boolean_from_excel(ObjExcel.Cells(excel_row, 16).Value, henn_appears_ex_parte)
+			list_mx_maj_prog = trim(ObjExcel.Cells(excel_row, 7).Value)
+			list_mx_msp = trim(ObjExcel.Cells(excel_row, 9).Value)
 
-		If on_henn_list = True and henn_appears_ex_parte = True and list_mx_maj_prog = "" and list_mx_msp = "" Then
+			If on_henn_list = True and henn_appears_ex_parte = True and list_mx_maj_prog = "" and list_mx_msp = "" Then
 
-			objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
+				objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
 
-			'Creating objects for Access
-			Set objELIGConnection = CreateObject("ADODB.Connection")
-			Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+				'Creating objects for Access
+				Set objELIGConnection = CreateObject("ADODB.Connection")
+				Set objELIGRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-			objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objELIGRecordSet.Open objELIGSQL, objELIGConnection
+				'This is the file path for the statistics Access database.
+				' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+				objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
-			Do While NOT objELIGRecordSet.Eof
+				Do While NOT objELIGRecordSet.Eof
 
-				If name_01 = "" Then
-					name_01 = trim(objELIGRecordSet("Name"))
-					PMI_01 = trim(objELIGRecordSet("PMINumber"))
+					If name_01 = "" Then
+						name_01 = trim(objELIGRecordSet("Name"))
+						PMI_01 = trim(objELIGRecordSet("PMINumber"))
 
-					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-						MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+						ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+							MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						End If
+					ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+						If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+							MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+						ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+							MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
+							MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+						End If
+					ElseIf name_02 = "" Then
+						name_02 = trim(objELIGRecordSet("Name"))
+						PMI_02 = trim(objELIGRecordSet("PMINumber"))
+
+						If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+						ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+							MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+						End If
+					ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+						If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
+							MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+						ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
+							MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
+							MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+						End If
 					End If
-				ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
-					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-						MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
-					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-						MAXIS_MA_prog_01 = objELIGRecordSet("MajorProgram")
-						MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
-					End If
-				ElseIf name_02 = "" Then
-					name_02 = trim(objELIGRecordSet("Name"))
-					PMI_02 = trim(objELIGRecordSet("PMINumber"))
-
-					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-						MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-					End If
-				ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
-					If objELIGRecordSet("MajorProgram") = "QM" or objELIGRecordSet("MajorProgram") = "SL"  Then
-						MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
-					ElseIf objELIGRecordSet("MajorProgram") <> "MA" or objELIGRecordSet("MajorProgram") <> "IM" or objELIGRecordSet("MajorProgram") <> "EH" or objELIGRecordSet("MajorProgram") <> "NM"  Then
-						MAXIS_MA_prog_02 = objELIGRecordSet("MajorProgram")
-						MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
-					End If
-				End If
-				objELIGRecordSet.MoveNext
-			Loop
-
-			ObjExcel.Cells(excel_row, 18).Value = PMI_01
-			ObjExcel.Cells(excel_row, 19).Value = MAXIS_MA_prog_01
-			ObjExcel.Cells(excel_row, 20).Value = MAXIS_MA_basis_01
-			ObjExcel.Cells(excel_row, 21).Value = MAXIS_msp_prog_01
-			ObjExcel.Cells(excel_row, 23).Value = PMI_02
-			ObjExcel.Cells(excel_row, 24).Value = MAXIS_MA_prog_02
-			ObjExcel.Cells(excel_row, 25).Value = MAXIS_MA_basis_02
-			ObjExcel.Cells(excel_row, 26).Value = MAXIS_msp_prog_02
-
-			objELIGRecordSet.Close
-			objELIGConnection.Close
-			Set objELIGRecordSet=nothing
-			Set objELIGConnection=nothing
-
-
-			PMI_01 = ""
-			name_01 = ""
-			person_01_ref_number = ""
-			MAXIS_MA_prog_01 = ""
-			MAXIS_MA_basis_01 = ""
-			MAXIS_msp_prog_01 = ""
-			name_02 = ""
-			PMI_02 = ""
-			person_02_ref_number = ""
-			MAXIS_MA_prog_02 = ""
-			MAXIS_MA_basis_02 = ""
-			MAXIS_msp_prog_02 = ""
-
-
-			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-
-			ObjExcel.Cells(excel_row, 3).Value = ma_status
-			ObjExcel.Cells(excel_row, 4).Value = msp_status
-
-			Call navigate_to_MAXIS_screen("ELIG", "HC  ")
-			hc_row = 8
-			Do
-				pers_type = ""
-				std = ""
-				meth = ""
-				' elig_result = ""
-				' results_created = ""
-				waiv = ""
-				EMReadScreen read_ref_numb, 2, hc_row, 3
-				EMReadScreen clt_hc_prog, 4, hc_row, 28
-				prev_row = hc_row
-				Do while read_ref_numb = "  "
-					prev_row = prev_row - 1
-					EMReadScreen read_ref_numb, 2, prev_row, 3
+					objELIGRecordSet.MoveNext
 				Loop
 
+				ObjExcel.Cells(excel_row, 18).Value = PMI_01
+				ObjExcel.Cells(excel_row, 19).Value = MAXIS_MA_prog_01
+				ObjExcel.Cells(excel_row, 20).Value = MAXIS_MA_basis_01
+				ObjExcel.Cells(excel_row, 21).Value = MAXIS_msp_prog_01
+				ObjExcel.Cells(excel_row, 23).Value = PMI_02
+				ObjExcel.Cells(excel_row, 24).Value = MAXIS_MA_prog_02
+				ObjExcel.Cells(excel_row, 25).Value = MAXIS_MA_basis_02
+				ObjExcel.Cells(excel_row, 26).Value = MAXIS_msp_prog_02
 
-				clt_hc_prog = trim(clt_hc_prog)
-				If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
-
-
-					Call write_value_and_transmit("X", hc_row, 26)
-					If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-						elig_msp_prog = clt_hc_prog
-						EMReadScreen pers_type, 2, 6, 56
-					Else
-						col = 19
-						Do									'Finding the current month in elig to get the current elig type
-							EMReadScreen span_month, 2, 6, col
-							EMReadScreen span_year, 2, 6, col+3
-
-							If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
-								EMReadScreen pers_type, 2, 12, col - 2
-								EMReadScreen std, 1, 12, col + 3
-								EMReadScreen meth, 1, 13, col + 2
-								EMReadScreen waiv, 1, 17, col + 2
-								Exit Do
-							End If
-							col = col + 11
-						Loop until col = 85
-						If col = 85 Then
-							Do
-								col = col - 11
-								EMReadScreen pers_type, 2, 12, col - 2
-							Loop until pers_type <> "__" and pers_type <> "  "
-						End If
-
-					End If
-					PF3
-
-					If person_01_ref_number = "" Or person_01_ref_number = read_ref_numb Then
-						person_01_ref_number = read_ref_numb
-					ElseIf person_02_ref_number = "" Then
-						person_02_ref_number = read_ref_numb
-					End If
+				objELIGRecordSet.Close
+				objELIGConnection.Close
+				Set objELIGRecordSet=nothing
+				Set objELIGConnection=nothing
 
 
-					If person_01_ref_number = read_ref_numb Then
-						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-							MAXIS_msp_prog_01 = clt_hc_prog
-							MAXIS_msp_basis_01 = pers_type
-						Else
-							MAXIS_MA_prog_01 = clt_hc_prog
-							MAXIS_MA_basis_01 = pers_type
-						End If
-					ElseIf person_02_ref_number = read_ref_numb Then
-						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
-							MAXIS_msp_prog_02 = clt_hc_prog
-							MAXIS_msp_basis_02 = pers_type
-						Else
-							MAXIS_MA_prog_02 = clt_hc_prog
-							MAXIS_MA_basis_02 = pers_type
-						End If
-					End If
-					' MsgBox "person_01_ref_number - " & person_01_ref_number & vbCr &_
-					' 		"MAXIS_MA_prog_01 - " & MAXIS_MA_prog_01 & vbCr &_
-					' 		"MAXIS_MA_basis_01 - " & MAXIS_MA_basis_01 & vbCr &_
-					' 		"MAXIS_msp_prog_01 - " & MAXIS_msp_prog_01 & vbCr & vbCR &_
-					' 		"person_02_ref_number - " & person_02_ref_number & vbCr &_
-					' 		"MAXIS_MA_prog_02 - " & MAXIS_MA_prog_02 & vbCr &_
-					' 		"MAXIS_MA_basis_02 - " & MAXIS_MA_basis_02 & vbCr &_
-					' 		"MAXIS_msp_prog_02 - " & MAXIS_msp_prog_02
-				End If
-				hc_row = hc_row + 1
-				EMReadScreen next_ref_numb, 2, hc_row, 3
-				EMReadScreen next_maj_prog, 4, hc_row, 28
-			Loop until next_ref_numb = "  " and next_maj_prog = "    "
+				PMI_01 = ""
+				name_01 = ""
+				person_01_ref_number = ""
+				MAXIS_MA_prog_01 = ""
+				MAXIS_MA_basis_01 = ""
+				MAXIS_msp_prog_01 = ""
+				name_02 = ""
+				PMI_02 = ""
+				person_02_ref_number = ""
+				MAXIS_MA_prog_02 = ""
+				MAXIS_MA_basis_02 = ""
+				MAXIS_msp_prog_02 = ""
 
 
-			CALL back_to_SELF()
-			If person_01_ref_number <> "" Then
-				CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+				ObjExcel.Cells(excel_row, 3).Value = ma_status
+				ObjExcel.Cells(excel_row, 4).Value = msp_status
+
+				Call navigate_to_MAXIS_screen("ELIG", "HC  ")
+				hc_row = 8
 				Do
-					EMReadScreen read_ref_number, 2, 4, 33
-					EMReadscreen last_name, 25, 6, 30
-					EMReadscreen first_name, 12, 6, 63
-					last_name = trim(replace(last_name, "_", "")) & " "
-					first_name = trim(replace(first_name, "_", "")) & " "
-					If read_ref_number = person_01_ref_number Then
-						EMReadScreen PMI_01, 8, 4, 46
-						PMI_01 = trim(PMI_01)
-						PMI_01 = right("00000000" & PMI_01, 8)
-						name_01 = first_name & " " & last_name
+					pers_type = ""
+					std = ""
+					meth = ""
+					' elig_result = ""
+					' results_created = ""
+					waiv = ""
+					EMReadScreen read_ref_numb, 2, hc_row, 3
+					EMReadScreen clt_hc_prog, 4, hc_row, 28
+					prev_row = hc_row
+					Do while read_ref_numb = "  "
+						prev_row = prev_row - 1
+						EMReadScreen read_ref_numb, 2, prev_row, 3
+					Loop
+
+
+					clt_hc_prog = trim(clt_hc_prog)
+					If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then
+
+
+						Call write_value_and_transmit("X", hc_row, 26)
+						If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+							elig_msp_prog = clt_hc_prog
+							EMReadScreen pers_type, 2, 6, 56
+						Else
+							col = 19
+							Do									'Finding the current month in elig to get the current elig type
+								EMReadScreen span_month, 2, 6, col
+								EMReadScreen span_year, 2, 6, col+3
+
+								If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then		'reading the ELIG TYPE
+									EMReadScreen pers_type, 2, 12, col - 2
+									EMReadScreen std, 1, 12, col + 3
+									EMReadScreen meth, 1, 13, col + 2
+									EMReadScreen waiv, 1, 17, col + 2
+									Exit Do
+								End If
+								col = col + 11
+							Loop until col = 85
+							If col = 85 Then
+								Do
+									col = col - 11
+									EMReadScreen pers_type, 2, 12, col - 2
+								Loop until pers_type <> "__" and pers_type <> "  "
+							End If
+
+						End If
+						PF3
+
+						If person_01_ref_number = "" Or person_01_ref_number = read_ref_numb Then
+							person_01_ref_number = read_ref_numb
+						ElseIf person_02_ref_number = "" Then
+							person_02_ref_number = read_ref_numb
+						End If
+
+
+						If person_01_ref_number = read_ref_numb Then
+							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+								MAXIS_msp_prog_01 = clt_hc_prog
+								MAXIS_msp_basis_01 = pers_type
+							Else
+								MAXIS_MA_prog_01 = clt_hc_prog
+								MAXIS_MA_basis_01 = pers_type
+							End If
+						ElseIf person_02_ref_number = read_ref_numb Then
+							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then
+								MAXIS_msp_prog_02 = clt_hc_prog
+								MAXIS_msp_basis_02 = pers_type
+							Else
+								MAXIS_MA_prog_02 = clt_hc_prog
+								MAXIS_MA_basis_02 = pers_type
+							End If
+						End If
+						' MsgBox "person_01_ref_number - " & person_01_ref_number & vbCr &_
+						' 		"MAXIS_MA_prog_01 - " & MAXIS_MA_prog_01 & vbCr &_
+						' 		"MAXIS_MA_basis_01 - " & MAXIS_MA_basis_01 & vbCr &_
+						' 		"MAXIS_msp_prog_01 - " & MAXIS_msp_prog_01 & vbCr & vbCR &_
+						' 		"person_02_ref_number - " & person_02_ref_number & vbCr &_
+						' 		"MAXIS_MA_prog_02 - " & MAXIS_MA_prog_02 & vbCr &_
+						' 		"MAXIS_MA_basis_02 - " & MAXIS_MA_basis_02 & vbCr &_
+						' 		"MAXIS_msp_prog_02 - " & MAXIS_msp_prog_02
 					End If
-					If read_ref_number = person_02_ref_number Then
-						EMReadScreen PMI_02, 8, 4, 46
-						PMI_02 = trim(PMI_02)
-						PMI_02 = right("00000000" & PMI_02, 8)
-						name_02 = first_name & " " & last_name
-					End If
-					transmit
-					EMReadScreen MEMB_end_check, 13, 24, 2
-					' MsgBox "PMI_01 - " & PMI_01 & vbCr & "PMI_02 - " & PMI_02 & vbCr & "MEMB_end_check - " & MEMB_end_check
-				LOOP Until PMI_01 <> "" AND (PMI_02 <> "" OR MEMB_end_check = "ENTER A VALID")
+					hc_row = hc_row + 1
+					EMReadScreen next_ref_numb, 2, hc_row, 3
+					EMReadScreen next_maj_prog, 4, hc_row, 28
+				Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+
+				CALL back_to_SELF()
+				If person_01_ref_number <> "" Then
+					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+					Do
+						EMReadScreen read_ref_number, 2, 4, 33
+						EMReadscreen last_name, 25, 6, 30
+						EMReadscreen first_name, 12, 6, 63
+						last_name = trim(replace(last_name, "_", "")) & " "
+						first_name = trim(replace(first_name, "_", "")) & " "
+						If read_ref_number = person_01_ref_number Then
+							EMReadScreen PMI_01, 8, 4, 46
+							PMI_01 = trim(PMI_01)
+							PMI_01 = right("00000000" & PMI_01, 8)
+							name_01 = first_name & " " & last_name
+						End If
+						If read_ref_number = person_02_ref_number Then
+							EMReadScreen PMI_02, 8, 4, 46
+							PMI_02 = trim(PMI_02)
+							PMI_02 = right("00000000" & PMI_02, 8)
+							name_02 = first_name & " " & last_name
+						End If
+						transmit
+						EMReadScreen MEMB_end_check, 13, 24, 2
+						' MsgBox "PMI_01 - " & PMI_01 & vbCr & "PMI_02 - " & PMI_02 & vbCr & "MEMB_end_check - " & MEMB_end_check
+					LOOP Until PMI_01 <> "" AND (PMI_02 <> "" OR MEMB_end_check = "ENTER A VALID")
+				End If
+
+				ObjExcel.Cells(excel_row, 5).Value = person_01_ref_number
+				ObjExcel.Cells(excel_row, 6).Value = PMI_01
+				ObjExcel.Cells(excel_row, 7).Value = MAXIS_MA_prog_01
+				ObjExcel.Cells(excel_row, 8).Value = MAXIS_MA_basis_01
+				ObjExcel.Cells(excel_row, 9).Value = MAXIS_msp_prog_01
+				ObjExcel.Cells(excel_row, 10).Value = person_02_ref_number
+				ObjExcel.Cells(excel_row, 11).Value = PMI_02
+				ObjExcel.Cells(excel_row, 12).Value = MAXIS_MA_prog_02
+				ObjExcel.Cells(excel_row, 13).Value = MAXIS_MA_basis_02
+				ObjExcel.Cells(excel_row, 14).Value = MAXIS_msp_prog_02
+
+				PMI_01 = ""
+				name_01 = ""
+				person_01_ref_number = ""
+				MAXIS_MA_prog_01 = ""
+				MAXIS_MA_basis_01 = ""
+				MAXIS_msp_prog_01 = ""
+				name_02 = ""
+				PMI_02 = ""
+				person_02_ref_number = ""
+				MAXIS_MA_prog_02 = ""
+				MAXIS_MA_basis_02 = ""
+				MAXIS_msp_prog_02 = ""
 			End If
 
-			ObjExcel.Cells(excel_row, 5).Value = person_01_ref_number
-			ObjExcel.Cells(excel_row, 6).Value = PMI_01
-			ObjExcel.Cells(excel_row, 7).Value = MAXIS_MA_prog_01
-			ObjExcel.Cells(excel_row, 8).Value = MAXIS_MA_basis_01
-			ObjExcel.Cells(excel_row, 9).Value = MAXIS_msp_prog_01
-			ObjExcel.Cells(excel_row, 10).Value = person_02_ref_number
-			ObjExcel.Cells(excel_row, 11).Value = PMI_02
-			ObjExcel.Cells(excel_row, 12).Value = MAXIS_MA_prog_02
-			ObjExcel.Cells(excel_row, 13).Value = MAXIS_MA_basis_02
-			ObjExcel.Cells(excel_row, 14).Value = MAXIS_msp_prog_02
-
-			PMI_01 = ""
-			name_01 = ""
-			person_01_ref_number = ""
-			MAXIS_MA_prog_01 = ""
-			MAXIS_MA_basis_01 = ""
-			MAXIS_msp_prog_01 = ""
-			name_02 = ""
-			PMI_02 = ""
-			person_02_ref_number = ""
-			MAXIS_MA_prog_02 = ""
-			MAXIS_MA_basis_02 = ""
-			MAXIS_msp_prog_02 = ""
-		End If
-
-		excel_row = excel_row + 1
-		next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-
-	Loop Until next_case_number = ""
-
-	'declare the SQL statement that will query the database
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
-	' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open objSQL, objConnection
-
-	Do While NOT objRecordSet.Eof
-		sql_case_number = objRecordSet("CaseNumber")
-		If Instr(list_of_all_the_cases, sql_case_number) = 0 Then
-		' If MAXIS_case_number = sql_case_number Then
-			sql_appears_ex_parte = False
-			' found_on_sql = True
-			ObjExcel.Cells(excel_row, 1).Value = sql_case_number
-			ObjExcel.Cells(excel_row, 2).Value = False
-			ObjExcel.Cells(excel_row, 15).Value = True
-			sql_prep_complete = objRecordSet("PREP_Complete")
-			If IsDate(sql_prep_complete) = True Then sql_appears_ex_parte = True
-			ObjExcel.Cells(excel_row, 16).Value = sql_appears_ex_parte
 			excel_row = excel_row + 1
+			next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 
-		End If
-		objRecordSet.MoveNext
-	Loop
-	' ObjExcel.Cells(excel_row, 15).Value = found_on_sql
+		Loop Until next_case_number = ""
+	End If
+
+	If skip_adding_missing_cases = False Then
+
+
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
+		' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		Do While NOT objRecordSet.Eof
+			sql_case_number = objRecordSet("CaseNumber")
+			If Instr(list_of_all_the_cases, sql_case_number) = 0 Then
+			' If MAXIS_case_number = sql_case_number Then
+				sql_appears_ex_parte = False
+				' found_on_sql = True
+				ObjExcel.Cells(excel_row, 1).Value = sql_case_number
+				ObjExcel.Cells(excel_row, 2).Value = False
+				ObjExcel.Cells(excel_row, 15).Value = True
+				sql_prep_complete = objRecordSet("PREP_Complete")
+				If IsDate(sql_prep_complete) = True Then sql_appears_ex_parte = True
+				ObjExcel.Cells(excel_row, 16).Value = sql_appears_ex_parte
+				excel_row = excel_row + 1
+
+			End If
+			objRecordSet.MoveNext
+		Loop
+		' ObjExcel.Cells(excel_row, 15).Value = found_on_sql
+	End If
 
 End If
 
