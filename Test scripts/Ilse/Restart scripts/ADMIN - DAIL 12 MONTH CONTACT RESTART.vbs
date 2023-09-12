@@ -183,7 +183,11 @@ For item = 0 to Ubound(DAIL_array, 2)
         Call write_variable_in_SPEC_MEMO("************************************************************")
         Call write_variable_in_SPEC_MEMO("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
 		CALL write_variable_in_SPEC_MEMO("")
-        CALL digital_experience
+		CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+		CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+		CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+		CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
+		CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
         Call write_variable_in_SPEC_MEMO("************************************************************")
         PF4
         EmReadscreen memo_confirmation, 26, 24, 2

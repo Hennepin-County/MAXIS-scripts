@@ -103,7 +103,11 @@ IF spec_memo_CHECKBOX = CHECKED THEN
     CALL write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
     CALL write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
 	CALL write_variable_in_SPEC_MEMO("")
-	CALL digital_experience
+	CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+	CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+	CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
+	CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("Thank you.")
     PF4

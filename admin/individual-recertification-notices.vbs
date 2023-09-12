@@ -219,7 +219,10 @@ If memo_to_send = "RECERT - APPT Notice" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
-			CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
@@ -246,7 +249,10 @@ If memo_to_send = "RECERT - APPT Notice" Then
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
 			' CALL write_variable_in_SPEC_MEMO("")
-            CALL digital_experience
+            CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("Los folletos de violencia domestica estan disponibles en")
             CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
@@ -271,7 +277,10 @@ If memo_to_send = "RECERT - APPT Notice" Then
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
             CALL write_variable_in_SPEC_MEMO("")
-            CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm")
             CALL write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
@@ -328,7 +337,10 @@ If memo_to_send = "RECERT - APPT Notice" Then
 			CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
 			CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 			CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-            CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+			CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+			CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
             CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 
     End Select
@@ -453,7 +465,10 @@ If memo_to_send = "RECERT - APPT Notice" Then
             CALL write_variable_in_SPEC_MEMO(" * Examples of medical cost proofs(if changed):")
             CALL write_variable_in_SPEC_MEMO("   prescription and medical bills, etc.")
             CALL write_variable_in_SPEC_MEMO("")
-            'CALL digital_experience
+            'CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            'CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			'CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			'CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			'Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
 
@@ -552,7 +567,10 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
-            CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
 			CALL write_variable_in_SPEC_MEMO("")
             CALL write_variable_in_SPEC_MEMO("* Haddii aynaan war kaa helin inta ka horreysa " & last_day_of_recert & " *")
@@ -580,7 +598,10 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
-			CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminaran el " & day_first_last_recert & "**")
 
@@ -601,7 +622,10 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
-			CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
+            CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
+			CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **")
             CALL write_variable_in_SPEC_MEMO("**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **")
@@ -649,7 +673,10 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
 			CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 			CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
 			CALL write_variable_in_SPEC_MEMO("")
-            CALL digital_experience
+			CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+			CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+			CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+			CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
             CALL write_variable_in_SPEC_MEMO("")
             CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
             CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")

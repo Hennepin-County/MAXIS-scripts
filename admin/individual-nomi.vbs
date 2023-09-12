@@ -176,7 +176,10 @@ CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
 CALL write_variable_in_SPEC_MEMO("")
-CALL digital_experience
+CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
 PF4
 PF3
 'Writes the case note for the NOMI
