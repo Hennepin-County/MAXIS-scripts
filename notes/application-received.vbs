@@ -1017,7 +1017,10 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an appoint
     CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
     CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
     CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-    CALL digital_experience
+    CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+    CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+    CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+    CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
     Call write_variable_in_SPEC_MEMO(" ")
     CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 
