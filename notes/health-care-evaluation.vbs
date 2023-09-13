@@ -4912,6 +4912,66 @@ Else
 	check_for_maxis(False)
 End If
 
+'Determining if there are any HC status codes on the case for CM + 1 through, and including, CM - 4.
+'Setting hc_status_code_past_4_months to False initially
+hc_status_code_past_4_months = False
+
+'Set footer month and year to CM + 1, will be reviewing CM + 1 up to and including CM - 4
+MAXIS_footer_month = CM_plus_1_mo					
+MAXIS_footer_year = CM_plus_1_yr
+MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year 
+MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+'Navigating to STAT/REVW for CM + 1
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+'Reads STAT/REVW to determine if there is a status code
+EMReadScreen HC_status_code, 1, 7, 73
+
+'If status_code is not blank, then set HC eval process to recertification for all HH members requesting HC access
+If HC_status_code <> "_" Then
+    hc_status_code_past_4_months = True
+Else
+    'Since starting at CM + 1, looking back 6 months from this footer month/year. Set date that is 6 months before CM (which is CM + 1) in footer month format ("04 23"), this is where script should stop as it iterates backward
+    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2) 
+
+    Do
+        'Head back to SELF panel
+        Call back_to_SELF
+        
+        'Subtract 1 from footer month/year
+        MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)				
+        MAXIS_footer_year = right(DatePart("yyyy", DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
+        MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year 
+        MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+        'Perform check to determine if it matches CM - 5 or "07 23"
+        If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then 
+            hc_status_code_past_4_months = False
+            Exit Do
+        Else
+            Call navigate_to_MAXIS_screen("STAT", "REVW")
+            'Check if errored on footer month/year
+            EmReadScreen HC_case_invalid_check, 25, 24, 2
+            If Instr(HC_case_invalid_check, "INVALID") Then
+                Call back_to_SELF  
+                Exit Do
+            End If
+
+            EMReadScreen HC_status_code, 1, 7, 73
+            If HC_status_code <> "_" Then 
+                'To do - update the process on how this will work
+                hc_status_code_past_4_months = True  
+                Exit Do 
+            End If 
+        End If
+    Loop 
+End If
+
+'Resetting MAXIS footer month and year to CM as earlier in script
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+
 selected_memb = ""
 List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
 FOR i = 0 to total_clients
@@ -4925,6 +4985,7 @@ FOR i = 0 to total_clients
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
 					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
+					If hc_status_code_past_4_months = False Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					' If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If
