@@ -58,27 +58,12 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '  The script is being run on or after [1st of the month after the month where most clients’ ABAWD months will run out post-pandemic]​
 '  The script is being run before [date that MNIT shuts off banked months]
 
-'TODO: add inline 
-
-
-
-'Todo: Remove this 
-BeginDialog confirmation_dialog, 0, 0, 156, 80, "Update case confirmation dialog"
-  EditBox 70, 5, 65, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 15, 60, 50, 15
-    CancelButton 80, 60, 50, 15
-  Text 5, 10, 60, 15, "Worker signature:"
-  Text 5, 30, 150, 30, "OK to update the tracking record and add a DAIL/WRIT, CASE/NOTE, and SPEC/MEMO?"
-EndDialog
-
-
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 90, "Case Number/Date Selection Dialog"
   EditBox 75, 5, 45, 15, MAXIS_case_number
   EditBox 75, 25, 20, 15, MAXIS_footer_month
   EditBox 100, 25, 20, 15, MAXIS_footer_year
-  EditBox 75, 45, 95, 15, member_number
+  EditBox 75, 45, 95, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 65, 65, 50, 15
     CancelButton 120, 65, 50, 15
@@ -101,6 +86,7 @@ call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
 'TODO: evaluate to support more than one member. 
+
 DO
 	DO
 		err_msg = ""
@@ -117,10 +103,9 @@ CALL navigate_to_MAXIS_screen("STAT", "WREG")	'Navigate to STAT/WREG and check f
 
 EMReadScreen WREG_STATUS, 2, 8, 50 '  (30)
 EMReadScreen TLR_STATUS, 2, 13, 50 '  (10/13) 
-IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN 
-	'navigate to ABAWD/TLR Tracking panel and check for historical months
-	EMWriteScreen "X", 13, 57
-	Transmit
+IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13) THEN 
+	Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
+
 	'todo: update to use fixed clock not 36 month lookback period. 
 	defaultrow = 10
 	EMReadScreen yearfindervariable, 2, defaultrow, 15  ' getting the relevant year's location in the Tracking Panel - the rows migrate upwards over time
@@ -149,6 +134,7 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 	'todo: 
 		'1. add validation point to ensure that 3 months have been used prior to case noting 
 		'2. adjust case note verbiage - case might not close, might just be members. 
+		'3. Handle for more than the current footer month (initial month)
 	IF Banked_Months = 2 THEN
 		CALL start_a_blank_CASE_NOTE
 		CALL write_variable_in_CASE_NOTE("Case no longer eligible for banked months")
@@ -196,6 +182,7 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 		CALL start_a_new_spec_memo()
 		CALL write_variable_in_spec_memo("You are getting this letter because you or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months. Unless you or someone in your SNAP unit meet work rules or an exemption, you/they will no longer be eligible for SNAP. However, due to additional funding we are able to approve SNAP benefits for up to 2 more months.	If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 2 months. Please contact your worker if you, or someone in your SNAP unit, start meeting work requirements or think that you meet an exemption. If you need help meeting these work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
 	end if
+
 	if Banked_Months = 0 then
 		PF9
 		EMWriteSCreen "13", 13, 50
@@ -212,10 +199,12 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 		EMWriteSCreen "C", row,col
 		PF3
 
-		'toDO: make the banked months count more
+		'TODO List 
+		'1. make the banked months count more dynamic. 
+		'2. Send MEMO prior to Case note. Leave case note in edit mode. 
+		'3. Update MEMO to have styling so it's not just a blob of text. Also only call it once. 
 		
-		'TODO: Send MEMO prior to Case note. Leave case note in edit mode. 
-		' SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
+		'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 
 		CALL start_a_blank_CASE_NOTE
 		CALL write_variable_in_CASE_NOTE("First Banked Month Used")
