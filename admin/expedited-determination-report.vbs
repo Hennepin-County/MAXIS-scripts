@@ -145,14 +145,16 @@ leave_excel_open = "No - Close the file"
 'Declaring the only dialog
 Do
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 246, 100, "Expedited Determination Report"
-	  DropListBox 10, 80, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
-	  ButtonGroup ButtonPressed
-	    OkButton 200, 80, 40, 15
-	  Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
-	  Text 10, 45, 225, 10, "When the script is complete, the Excel will be saved."
-	  Text 10, 60, 130, 20, "At the end of the script run, would you like the Excel file to remain open:"
+	BeginDialog Dialog1, 0, 0, 306, 90, "Expedited Determination Report"
+		DropListBox 10, 70, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
+		ButtonGroup ButtonPressed
+			OkButton 260, 70, 40, 15
+			PushButton 240, 10, 60, 15, "Reset HSS List", reset_HSS_List
+		Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
+		Text 10, 45, 225, 10, "When the script is complete, the Excel will be saved."
+		Text 10, 60, 235, 10, "At the end of the script run, would you like the Excel file to remain open:"
 	EndDialog
+
 
 	'showing the dialog - there is no loop because there is nothing to manage and no password handling.
 	dialog Dialog1
@@ -160,6 +162,37 @@ Do
 
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = False					'loops until user passwords back in
+
+If ButtonPressed =  Then
+
+	Call excel_open(hss_report_file, True, True, ObjHSSExcel, objHSSWorkbook)  			'opens the selected excel file'
+	ObjHSSExcel.worksheets("HSS List").Activate							'activating the sheet
+	excel_list = 2
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		If
+		trim(objRecordSet("211305003"))		'Regina Wagner
+		trim(objRecordSet("172335005"))		'
+		trim(objRecordSet("022666708"))
+		trim(objRecordSet(""))
+		trim(objRecordSet(""))
+		trim(objRecordSet(""))
+		trim(objRecordSet(""))
+
+
+
+
+End If
 
 'defining the assignment folder and setting the file paths
 exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
