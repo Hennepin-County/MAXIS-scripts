@@ -2,22 +2,29 @@
 name_of_script = "ACTIONS - BANKED MONTHS UPDATER.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 49                	'manual run time in seconds
+STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "M"       		'M is for each MEMBER
 'END OF stats block=========================================================================================================
 
-
-'LOADING FUNCTIONS LIBRARY FROM REPOSITORY===========================================================================
+'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		FuncLib_URL = script_repository & "MAXIS FUNCTIONS LIBRARY.vbs"
-		critical_error_msgbox = MsgBox ("The Functions Library code was not able to be reached by " &name_of_script & vbNewLine & vbNewLine &_
+		IF use_master_branch = TRUE THEN FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
+		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
+		req.send													'Sends request
+		IF req.Status = 200 THEN									'200 means great success
+			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
+			Execute req.responseText								'Executes the script code
+		ELSE														'Error message
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
                                             "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Send issues to " & contact_admin , _
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
                                             vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
             StopScript
+		END IF
 	ELSE
-		FuncLib_URL = script_repository & "MAXIS FUNCTIONS LIBRARY.vbs"
+		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -27,31 +34,35 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
-' ASSUMPTIONS
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/13/2023", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
+'THE SCRIPT----------------------------------------------------------------------------------------------------
+EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+' ASSUMPTIONS - Review these as TODO's 
 '  The case has a WREG panel​
 '  The “FS PWE” and “Defer FSET” fields on STAT/WREG are filled out​
 '  The case has no background edits and is otherwise ready to approve​
 '  The script is being run on or after [1st of the month after the month where most clients’ ABAWD months will run out post-pandemic]​
 '  The script is being run before [date that MNIT shuts off banked months]
 
-
-'CHANGELOG BLOCK ===========================================================================================================
-'("09/01/2023" "Initial version.", "Jared Peterson, DHS")
-'END CHANGELOG BLOCK =======================================================================================================
+'TODO: add inline 
 
 
-BeginDialog Case_selection_dialog, 0, 0, 156, 80, "Banked Months Updater dialog"
-  EditBox 65, 10, 80, 15, MAXIS_case_number
-  EditBox 85, 35, 20, 15, MAXIS_footer_month
-  EditBox 110, 35, 20, 15, MAXIS_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 15, 55, 50, 15
-    CancelButton 80, 55, 50, 15
-  Text 5, 15, 50, 10, "Case Number:"
-  Text 5, 35, 65, 10, "Footer month/year:"
-EndDialog
 
+'Todo: Remove this 
 BeginDialog confirmation_dialog, 0, 0, 156, 80, "Update case confirmation dialog"
   EditBox 70, 5, 65, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -62,41 +73,47 @@ BeginDialog confirmation_dialog, 0, 0, 156, 80, "Update case confirmation dialog
 EndDialog
 
 
-
-'THE SCRIPT----------------------------------------------------------------------------------------------------
-EMConnect ""
-'Hunts for Maxis case number and footer month/year to autofill
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 186, 90, "Case Number/Date Selection Dialog"
+  EditBox 75, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 25, 20, 15, MAXIS_footer_month
+  EditBox 100, 25, 20, 15, MAXIS_footer_year
+  EditBox 75, 45, 95, 15, member_number
+  ButtonGroup ButtonPressed
+    OkButton 65, 65, 50, 15
+    CancelButton 120, 65, 50, 15
+  Text 10, 30, 65, 10, "Footer month/year:"
+  Text 25, 10, 50, 10, "Case Number: "
+  Text 10, 50, 60, 10, "Worker Signature:"
+EndDialog
 
 DO
 	DO
-		dialog Case_selection_dialog
-		IF buttonpressed = 0 THEN stopscript
-		IF MAXIS_case_number = "" THEN MSGBOX "Please enter a case number"
-	LOOP UNTIL MAXIS_case_number <> ""
+		err_msg = ""
+		dialog Dialog1
+		cancel_without_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
 call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
+'TODO: evaluate to support more than one member. 
 DO
 	DO
 		err_msg = ""
 		'Creating a custom dialog for determining who the HH members are
 		call HH_member_custom_dialog(HH_member_array)
-		if ((ubound(HH_member_array) >= 1) or (ubound(HH_member_array) = -1)) then err_msg = "You must select exactly one household member"
+		if ((ubound(HH_member_array) >= 1) or (ubound(HH_member_array) = -1)) then err_msg = err_msg & vbNewLine & "You must select exactly one household member"
 		if err_msg <> "" then MsgBox err_msg
 	LOOP UNTIL  err_msg = ""
 call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-'Navigate to STAT/WREG and check for WREG Status codes
-CALL navigate_to_MAXIS_screen("STAT", "WREG")
-'Checking to see if the case is stuck in background.
-row = 1
-col = 1
-EMSearch "Background", row, col
-IF row <> 0 THEN script_end_procedure("The case is stuck in background. Please try again.")
-
+Call MAXIS_background_check
+CALL navigate_to_MAXIS_screen("STAT", "WREG")	'Navigate to STAT/WREG and check for WREG Status codes
 
 EMReadScreen WREG_STATUS, 2, 8, 50 '  (30)
 EMReadScreen TLR_STATUS, 2, 13, 50 '  (10/13) 
@@ -104,6 +121,7 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 	'navigate to ABAWD/TLR Tracking panel and check for historical months
 	EMWriteScreen "X", 13, 57
 	Transmit
+	'todo: update to use fixed clock not 36 month lookback period. 
 	defaultrow = 10
 	EMReadScreen yearfindervariable, 2, defaultrow, 15  ' getting the relevant year's location in the Tracking Panel - the rows migrate upwards over time
 	row = (defaultrow - (yearfindervariable-MAXIS_footer_year))
@@ -127,23 +145,10 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 	Next
 	PF3 	'exit Tracking Record
 	If TLR_Months < 3 then script_end_procedure("This client has not yet used all three TLR months. Please assess for TLR months before using banked months.")
-	MsgBox("The client has used 3 TLR Months and "&Banked_Months&" Banked months.")
-	DO
-		DO
-			dialog confirmation_dialog
-			IF buttonpressed = 0 THEN stopscript
-			IF worker_signature = "" THEN MSGBOX "Please enter a worker signature"
-		LOOP UNTIL worker_signature <> ""
-		call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = false
 
-	TIKL_M = DatePart("M", date) + 1
-	if TIKL_M = 13 then TIKL_M = 1
-	TIKL_M = right("0" & TIKL_M , 2)
-	TIKL_D = "01"
-	TIKL_Y = right( DatePart("YYYY",date) , 2)
-	if TIKL_M = "01" then TIKL_Y = TIKL_Y + 1
-
+	'todo: 
+		'1. add validation point to ensure that 3 months have been used prior to case noting 
+		'2. adjust case note verbiage - case might not close, might just be members. 
 	IF Banked_Months = 2 THEN
 		CALL start_a_blank_CASE_NOTE
 		CALL write_variable_in_CASE_NOTE("Case no longer eligible for banked months")
@@ -156,6 +161,7 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 		CALL write_variable_in_CASE_NOTE(worker_signature)
 		Transmit
 	end if
+
 	if Banked_Months = 1 then
 		PF9
 		EMWriteSCreen "13", 13, 50
@@ -172,19 +178,15 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 		EMWriteSCreen "C", row,col
 		PF3
 		Transmit
-		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-		Emwritescreen TIKL_M, 5, 18
-		Emwritescreen TIKL_D, 5, 21
-		EMWritescreen TIKL_Y, 5, 24
-		write_variable_in_TIKL("This case has used both available banked months. Please close the case if the client does not meet any TLR exemptions")
-		Back_to_self
+		
+
 		CALL start_a_blank_CASE_NOTE
 		CALL write_variable_in_CASE_NOTE("Second Banked Month Used")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE("*This case meets no TLR exemptions and has used 3 TLR months.")
 		CALL write_variable_in_CASE_NOTE( "*Banked month approved on:" & date &" for the month of "&MAXIS_footer_month&"/"&MAXIS_footer_year)
 		CALL write_variable_in_CASE_NOTE("*This is the last available banked month.")
-		CALL write_variable_in_CASE_NOTE( "TIKL set and SPEC/WCOM sent to client.")
+		CALL write_variable_in_CASE_NOTE("SPEC/WCOM sent to resident about SNAP Banked Months.")
 		CALL write_variable_in_CASE_NOTE("Case will be closed if no TLR exemptions are met")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE("*Processed using an automated script*")
@@ -209,20 +211,19 @@ IF WREG_STATUS = "30" and (TLR_STATUS = 10 or TLR_STATUS = 13)  THEN
 		PF9
 		EMWriteSCreen "C", row,col
 		PF3
-		Back_to_self
-		CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-		Emwritescreen TIKL_M, 5, 18
-		Emwritescreen TIKL_D, 5, 21
-		EMWritescreen TIKL_Y, 5, 24
-		write_variable_in_TIKL("This case has used one banked month. Remember to update and approve the second banked month")
-		Back_to_self
+
+		'toDO: make the banked months count more
+		
+		'TODO: Send MEMO prior to Case note. Leave case note in edit mode. 
+		' SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
+
 		CALL start_a_blank_CASE_NOTE
 		CALL write_variable_in_CASE_NOTE("First Banked Month Used")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE("*This case meets no TLR exemptions and has used 3 TLR months.")
 		CALL write_variable_in_CASE_NOTE( "*Banked month approved on:" & date &" for the month of "&MAXIS_footer_month&"/"&MAXIS_footer_year)
 		CALL write_variable_in_CASE_NOTE("*One more banked month is available.")
-		CALL write_variable_in_CASE_NOTE("TIKL set and SPEC/WCOM sent to client.")
+		CALL write_variable_in_CASE_NOTE("SPEC/WCOM sent to resident about SNAP Banked Months.")
 		CALL write_variable_in_CASE_NOTE("---")
 		CALL write_variable_in_CASE_NOTE("*Processed using an automated script*")
 		CALL write_variable_in_CASE_NOTE("---")
@@ -237,4 +238,48 @@ else
 end if
 
 script_end_procedure("Please remember to APP.")
-STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------
+'--Tab orders reviewed & confirmed----------------------------------------------
+'--Mandatory fields all present & Reviewed--------------------------------------
+'--All variables in dialog match mandatory fields-------------------------------
+'Review dialog names for content and content fit in dialog----------------------
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------
+'--CASE:NOTE Header doesn't look funky------------------------------------------
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
+'--MAXIS_background_check reviewed (if applicable)------------------------------
+'--PRIV Case handling reviewed -------------------------------------------------
+'--Out-of-County handling reviewed----------------------------------------------
+'--script_end_procedures (w/ or w/o error messaging)----------------------------
+'--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
