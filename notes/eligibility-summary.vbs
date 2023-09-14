@@ -17084,6 +17084,7 @@ class hc_eligibility_detail
 
 		hc_row = 8
 		hc_prog_count = 0
+		page_numb = 1
 		Do
 			ReDim preserve hc_elig_ref_numbs(hc_prog_count)
 			ReDim preserve hc_elig_full_name(hc_prog_count)
@@ -18431,7 +18432,18 @@ class hc_eligibility_detail
 				If hhmm_check <> "HHMM" Then PF3
 			Loop Until hhmm_check = "HHMM"
 			hc_prog_count = hc_prog_count + 1
+			If page_numb > 1 Then PF8
+			If page_numb > 2 Then PF8
+			If page_numb > 3 Then PF8
+
 			hc_row = hc_row + 1
+			If hc_row = 18 Then
+				PF8
+				page_numb = page_numb + 1
+				hc_row = 8
+				EMReadScreen last_page_check, 9, 24, 14
+				If last_page_check = "LAST PAGE" Then exit do
+			End If
 			EMReadScreen next_ref_numb, 2, hc_row, 3
 			EMReadScreen next_maj_prog, 4, hc_row, 28
 			' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
