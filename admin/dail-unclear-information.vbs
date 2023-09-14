@@ -552,4 +552,35 @@ If script_action = "Process existing Excel list" Then
 
     'Set initial Excel row value to iterate through
     excel_row = 2
+
+    'Utilize Do Loop to iterate through each row of the sheet until an empty row is found
+    Do
+    'Reach through each row and set variables
+
+    'Reading case number from Excel Sheet
+    MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+    MAXIS_case_number = trim(MAXIS_case_number)
+    'End do loop if the MAXIS_case_number is blank, script has reached end of sheet
+    IF MAXIS_case_number = "" THEN 
+        MsgBox "End of CSES Sheet has been reached."
+        EXIT DO
+    Else
+        worker                          = objExcel.cells(excel_row, 1).Value 
+        dail_type                       = objExcel.cells(excel_row, 3).Value    
+        dail_month                      = objExcel.cells(excel_row, 4).Value 
+        dail_msg                        = objExcel.cells(excel_row, 5).Value        
+        snap_status                     = objExcel.cells(excel_row, 6).Value    
+        other_programs_present          = objExcel.cells(excel_row, 7).Value    
+        reporting_status                = objExcel.cells(excel_row, 8).Value  
+        sr_report_date                  = objExcel.cells(excel_row, 9).Value 
+        recertification_date            = objExcel.cells(excel_row, 10).Value    
+        renewal_month_determination     = objExcel.cells(excel_row, 11).Value
+        action_req                      = objExcel.cells(excel_row, 12).Value    
+        processing_notes                = objExcel.cells(excel_row, 13).Value
+
+        'Increment excel_row to go to next row
+        excel_row = excel_row + 1
+    End If
+
+    Loop
 End If
