@@ -3090,9 +3090,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Call back_to_SELF
 	EMReadScreen MX_region, 10, 22, 48
 	MX_region = trim(MX_region)
+	phase_1_SQL_month = "20" & CM_plus_2_yr & "-" & CM_plus_2_mo & "-01"		'defining month in the format used in SQL for the REVW month for each of the Ex Parte phases
+	phase_2_SQL_month = "20" & CM_plus_1_yr & "-" & CM_plus_1_mo & "-01"		'This is used to pull ad update the correct information form SQL
 	If MX_region <> "TRAINING" Then
 		'declare the SQL statement that will query the database
-		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
+		'Searching for the specific case number and revw month.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and (HCEligReviewDate = '" & phase_2_SQL_month & "' or HCEligReviewDate = '" & phase_1_SQL_month & "')"
 
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
@@ -4291,7 +4294,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 				' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 				sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_1_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4509,7 +4512,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If MX_region <> "TRAINING" Then
 			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 				sql_format_phase_2_denial_reason = replace(phase_1_changes_summary, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_2_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4917,9 +4920,9 @@ End If
 hc_status_code_past_4_months = False
 
 'Set footer month and year to CM + 1, will be reviewing CM + 1 up to and including CM - 4
-MAXIS_footer_month = CM_plus_1_mo					
+MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
-MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year 
+MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
 MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
 
 'Navigating to STAT/REVW for CM + 1
@@ -4933,20 +4936,20 @@ If HC_status_code <> "_" Then
     hc_status_code_past_4_months = True
 Else
     'Since starting at CM + 1, looking back 6 months from this footer month/year. Set date that is 6 months before CM (which is CM + 1) in footer month format ("04 23"), this is where script should stop as it iterates backward
-    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2) 
+    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2)
 
     Do
         'Head back to SELF panel
         Call back_to_SELF
-        
+
         'Subtract 1 from footer month/year
-        MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)				
+        MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
         MAXIS_footer_year = right(DatePart("yyyy", DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
-        MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year 
+        MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
         MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
 
         'Perform check to determine if it matches CM - 5 or "07 23"
-        If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then 
+        If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then
             hc_status_code_past_4_months = False
             Exit Do
         Else
@@ -4954,18 +4957,18 @@ Else
             'Check if errored on footer month/year
             EmReadScreen HC_case_invalid_check, 25, 24, 2
             If Instr(HC_case_invalid_check, "INVALID") Then
-                Call back_to_SELF  
+                Call back_to_SELF
                 Exit Do
             End If
 
             EMReadScreen HC_status_code, 1, 7, 73
-            If HC_status_code <> "_" Then 
+            If HC_status_code <> "_" Then
                 'To do - update the process on how this will work
-                hc_status_code_past_4_months = True  
-                Exit Do 
-            End If 
+                hc_status_code_past_4_months = True
+                Exit Do
+            End If
         End If
-    Loop 
+    Loop
 End If
 
 'Resetting MAXIS footer month and year to CM as earlier in script
