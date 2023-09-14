@@ -438,15 +438,15 @@ If script_action = "Create new Excel list" Then
                         If sr_report_date <> "N/A" Then
                             If dail_type = "CSES" Then
                                 If DateDiff("m", dail_month, sr_report_date) = 0 Then
-                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month equals DAIL month."
+                                    renewal_month_determination = "SR Report Date month equals DAIL month." & " " & renewal_month_determination
                                 Else 
-                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month does not equal DAIL month."
+                                    renewal_month_determination = "SR Report Date month does not equal DAIL month." & " " & renewal_month_determination
                                 End If
                             ElseIf dail_type = "HIRE" Then
                                 If DateDiff("m", dail_month, sr_report_date) = 1 Then
-                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month equals DAIL month + 1."
+                                    renewal_month_determination = "SR Report Date month equals DAIL month + 1." & " " & renewal_month_determination
                                 Else 
-                                    renewal_month_determination = renewal_month_determination & " " & "SR Report Date month does not equal DAIL month + 1."
+                                    renewal_month_determination = "SR Report Date month does not equal DAIL month + 1." & " " & renewal_month_determination
                                 End If
                             End If
                         End If
