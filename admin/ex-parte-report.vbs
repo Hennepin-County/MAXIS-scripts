@@ -251,6 +251,7 @@ function get_list_of_members()
 	If MEMBER_INFO_ARRAY(memb_pmi_numb_const, 0) = "" Then client_count = 0					'setting back to 0 if the first instance of the array is blank
 	EMWriteScreen "01", 20, 76																'make sure to start at Memb 01
 	transmit
+	loop_count = 0
 
 	'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	DO
@@ -293,6 +294,8 @@ function get_list_of_members()
 		End If
 		transmit								'go to the next member
 		EMReadScreen edit_check, 7, 24, 2
+		loop_count = loop_count + 1
+		If loop_count > 40 Then Exit Do
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 end function
 
