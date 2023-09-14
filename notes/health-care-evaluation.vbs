@@ -4622,6 +4622,7 @@ Do
 		If last_page = "LAST PAGE" Then Exit Do
 	End If
 Loop until hcre_ref_numb = "  "
+If hc_memb = 0 Then script_end_procedure_with_error_report("There is no member listed on HCRE, indicating there has not been anyone on HC and no HC request exists. The script will now end.")
 
 'Now we go read STAT/MEMB for all of the persons listed on HCRE
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
