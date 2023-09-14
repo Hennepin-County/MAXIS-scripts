@@ -550,6 +550,12 @@ If script_action = "Process existing Excel list" Then
     'To do - should this be within the do loop?
     objExcel.Worksheets("CSES").Activate
 
+    'Navigate to DAIL/PICK, blank out selection, and select CSES DAIL type
+    'To do - consider if navigation to DAIL/PICK should be within DO LOOP
+    CALL navigate_to_MAXIS_screen("DAIL", "PICK")
+    EMWriteScreen "_", 7, 39
+    Call write_value_and_transmit("X", 10, 39)
+
     'Set initial Excel row value to iterate through
     excel_row = 2
 
@@ -565,6 +571,7 @@ If script_action = "Process existing Excel list" Then
         MsgBox "End of CSES Sheet has been reached."
         EXIT DO
     Else
+        'Set variables from Excel sheet
         worker                          = objExcel.cells(excel_row, 1).Value 
         dail_type                       = objExcel.cells(excel_row, 3).Value    
         dail_month                      = objExcel.cells(excel_row, 4).Value 
@@ -578,8 +585,31 @@ If script_action = "Process existing Excel list" Then
         action_req                      = objExcel.cells(excel_row, 12).Value    
         processing_notes                = objExcel.cells(excel_row, 13).Value
 
+        'If action is required, the row is skipped and processing notes is updated accordingly.
+        If action_req = TRUE Then
+            objExcel.Cells(excel_row, 13).Value = "Action required. DAIL message not processed."
+            excel_row = excel_row + 1
+
+        'If action is not required, then script processes DAIL message accordingly
+        ElseIf action_req = FALSE Then
+            'Clear out MAXIS case number if present
+            EMWriteScreen "________", 20, 38
+            'Write MAXIS_case_number to find corresponding DAIL message
+            EMWriteScreen MAXIS_case_number, 20, 38
+
+            'After processing is complete, add 1 to excel_row to go to next row
+            excel_row = excel_row + 1
+        'Add in handling in case there is no action required determination. May be unnecessary.
+        'To do - remove if unnecessary
+        Else
+            objExcel.Cells(excel_row, 13).Value = "No action required determination. DAIL message not processed"
+            excel_row = excel_row + 1
+        End If
+
         'Increment excel_row to go to next row
         excel_row = excel_row + 1
+
+
     End If
 
     Loop
