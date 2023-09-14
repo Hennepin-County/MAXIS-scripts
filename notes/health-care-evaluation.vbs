@@ -4889,29 +4889,39 @@ Else
 		If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = checked
 	NEXT
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-		Text 10, 5, 205, 10, "Select Household Members to capture information about."
-		Text 10, 15, 205, 10, "Check all members: "
-		Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
-		Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
-		Text 10, 55, 100, 10, "Count Income/Assets"
-		Text 200, 55, 100, 10, "Processing Health Care"
-		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN
-				checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-				ref_numb = left(all_clients_array(i, 0),2)
-				If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	Do
+		err_msg = ""
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+			Text 10, 5, 205, 10, "Select Household Members to capture information about."
+			Text 10, 15, 205, 10, "Check all members: "
+			Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
+			Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
+			Text 10, 55, 100, 10, "Count Income/Assets"
+			Text 200, 55, 100, 10, "Processing Health Care"
+			FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+				IF all_clients_array(i, 0) <> "" THEN
+					checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+					ref_numb = left(all_clients_array(i, 0),2)
+					If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 
-			End If
-		NEXT
-		ButtonGroup ButtonPressed
-		OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
-		CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
-	EndDialog
+				End If
+			NEXT
+			ButtonGroup ButtonPressed
+			OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
+			CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
+		EndDialog
 
-	Dialog Dialog1
-	Cancel_without_confirmation
+		Dialog Dialog1
+		Cancel_without_confirmation
+
+		member_checked_to_process = False
+		FOR i = 0 to total_clients
+			IF all_clients_array(i, process_checkbox) = 1 THEN member_checked_to_process = True
+		Next
+		If member_checked_to_process = False Then err_msg = err_mag & vbCr & "* You must select at least one household member for whom you are processing health care eligibility."
+		If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 	check_for_maxis(False)
 End If
 
