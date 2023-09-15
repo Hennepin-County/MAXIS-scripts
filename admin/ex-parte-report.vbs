@@ -132,7 +132,7 @@ function find_unea_information()
 					RR_INCOME_ARRAY(rr_pers_ssn_const, rr_count) = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
 					RR_INCOME_ARRAY(rr_pers_pmi_const, rr_count) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
 					RR_INCOME_ARRAY(rr_inc_type_code_const, rr_count) = income_type_code
-					RR_INCOME_ARRAY(rr_inc_type_info_const, rr_count) = "Unemployment"
+					RR_INCOME_ARRAY(rr_inc_type_info_const, rr_count) = "Railroad Retirement"
 					RR_INCOME_ARRAY(rr_claim_numb_const, rr_count) = claim_num
 					EMReadScreen RR_INCOME_ARRAY(rr_prosp_inc_const, rr_count), 8, 13, 68
 					RR_INCOME_ARRAY(rr_prosp_inc_const, rr_count) = trim(RR_INCOME_ARRAY(rr_prosp_inc_const, rr_count))
@@ -3134,6 +3134,8 @@ If ex_parte_function = "Prep 1" Then
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
+
+	'TODO Add Automation to send the emails with the Excel files attached.
 
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 1 Run has been completed."
