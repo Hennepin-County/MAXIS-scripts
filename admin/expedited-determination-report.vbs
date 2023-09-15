@@ -163,11 +163,19 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = False					'loops until user passwords back in
 
-If ButtonPressed =  Then
+If ButtonPressed = reset_HSS_List Then
+
+	const name_const = 0
+	const email_const = 1
+	Dim NAME_EMAIL_ARRAY()
+	ReDim NAME_EMAIL_ARRAY(2, 0)
+
+	hss_report_file = "C:\Users\" & user_ID_for_validation & "\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
 
 	Call excel_open(hss_report_file, True, True, ObjHSSExcel, objHSSWorkbook)  			'opens the selected excel file'
 	ObjHSSExcel.worksheets("HSS List").Activate							'activating the sheet
-	excel_list = 2
+	excel_row = 2
+	counter = 0
 
 	'Creating objects for Access
 	Set objConnection = CreateObject("ADODB.Connection")
@@ -180,18 +188,79 @@ If ButtonPressed =  Then
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
-		If
-		trim(objRecordSet("211305003"))		'Regina Wagner
-		trim(objRecordSet("172335005"))		'
-		trim(objRecordSet("022666708"))
-		trim(objRecordSet(""))
-		trim(objRecordSet(""))
-		trim(objRecordSet(""))
-		trim(objRecordSet(""))
+		ReDim preserve NAME_EMAIL_ARRAY(2, counter)
+		NAME_EMAIL_ARRAY(name_const, counter) = trim(objRecordSet("EmpFullName"))
+		NAME_EMAIL_ARRAY(email_const, counter) = trim(objRecordSet("EmployeeEmail"))
+		counter = counter + 1
 
+		appears_to_be_es_worker = False
 
+		'211305003 - RW
+		'172335005 - JA
+		'022666708 - JH
+		'230175002 - TT
+		'180085000 - MD
+		If trim(objRecordSet("L3ManagerEmployeeNumber")) = "211305003" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L4ManagerEmployeeNumber")) = "211305003" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L3ManagerEmployeeNumber")) = "172335005" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L4ManagerEmployeeNumber")) = "172335005" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L3ManagerEmployeeNumber")) = "022666708" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L4ManagerEmployeeNumber")) = "022666708" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L3ManagerEmployeeNumber")) = "230175002" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L4ManagerEmployeeNumber")) = "230175002" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L3ManagerEmployeeNumber")) = "180085000" Then appears_to_be_es_worker = True
+		If trim(objRecordSet("L4ManagerEmployeeNumber")) = "180085000" Then appears_to_be_es_worker = True
 
+		If appears_to_be_es_worker = True Then
+			ObjHSSExcel.Cells(excel_row, 1).Value = trim(objRecordSet("EmpFullName"))
+			ObjHSSExcel.Cells(excel_row, 2).Value = trim(objRecordSet("EmpStateLogOnID"))
+			ObjHSSExcel.Cells(excel_row, 3).Value = trim(objRecordSet("EmpLogOnID"))
+			ObjHSSExcel.Cells(excel_row, 4).Value = trim(objRecordSet("EmployeeEmail"))
+			ObjHSSExcel.Cells(excel_row, 5).Value = trim(objRecordSet("L1Manager"))
+			ObjHSSExcel.Cells(excel_row, 6).Value = ""
+			ObjHSSExcel.Cells(excel_row, 7).Value = trim(objRecordSet("L2Manager"))
+			ObjHSSExcel.Cells(excel_row, 8).Value = ""
+			ObjHSSExcel.Cells(excel_row, 9).Value = date
 
+			excel_row = excel_row + 1
+		End If
+
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+
+	Do
+		If ObjHSSExcel.Cells(excel_row, 1).Value <> "" Then
+			ObjHSSExcel.Rows(excel_row).EntireRow.Delete
+		End If
+	Loop until ObjHSSExcel.Cells(excel_row, 1).Value = ""
+
+	excel_row = 2
+	Do
+		hss_name_temp = trim(ObjHSSExcel.Cells(excel_row, 5).Value)
+		pm_name_temp = trim(ObjHSSExcel.Cells(excel_row, 7).Value)
+		hss_email_found = false
+		pm_email_found = false
+
+		for each_pers = 0 to UBound(NAME_EMAIL_ARRAY, 2)
+			If NAME_EMAIL_ARRAY(name_const, each_pers) = hss_name_temp Then
+				ObjHSSExcel.Cells(excel_row, 6).Value = NAME_EMAIL_ARRAY(email_const, each_pers)
+				hss_email_found = True
+			End If
+			If NAME_EMAIL_ARRAY(name_const, each_pers) = pm_name_temp Then
+				ObjHSSExcel.Cells(excel_row, 8).Value = NAME_EMAIL_ARRAY(email_const, each_pers)
+				pm_email_found = True
+			End If
+			If hss_email_found = True and pm_email_found = True Then Exit For
+		Next
+		excel_row = excel_row + 1
+	Loop until hss_name_temp = ""
+
+	call script_end_procedure("HSS List updated.")
 End If
 
 'defining the assignment folder and setting the file paths
