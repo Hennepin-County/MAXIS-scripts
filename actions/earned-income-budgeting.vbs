@@ -2081,6 +2081,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Select the pay frequency for this job."        'NEED to have a pay frequency
 
 									If ButtonPressed = ytd_calculator_btn Then
+										For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+											If LIST_OF_INCOME_ARRAY(pay_date, all_income) = "" AND LIST_OF_INCOME_ARRAY(gross_amount, all_income) = "" AND LIST_OF_INCOME_ARRAY(hours, all_income) = "" Then LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ""
+										Next
 										err_msg_on_loop = False
 										If len(sm_err_msg) >= 4 Then
 											If left(sm_err_msg, 4) = "LOOP" then err_msg_on_loop = True
@@ -2171,11 +2174,13 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 													Next
 
 													For each_known_chk = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-														If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, each_known_chk), check_date_before) = 0 Then
-															check_before_index = each_known_chk
-														End If
-														If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, each_known_chk), check_date_after) = 0 Then
-															check_after_index = each_known_chk
+														If LIST_OF_INCOME_ARRAY(panel_indct, each_known_chk) = ei_panel Then    'find the ones for THIS PANEL ONLY
+															If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, each_known_chk), check_date_before) = 0 Then
+																check_before_index = each_known_chk
+															End If
+															If DateDiff("d", LIST_OF_INCOME_ARRAY(pay_date, each_known_chk), check_date_after) = 0 Then
+																check_after_index = each_known_chk
+															End If
 														End If
 													Next
 													' MsgBox "check_date_before - " & check_date_before & vbCr & "check_before_index - " & check_before_index & vbCr & vbCr & "check_date_after - " & check_date_after & vbCr & "check_after_index - " & check_after_index
