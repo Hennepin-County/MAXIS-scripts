@@ -216,6 +216,10 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 	If type_code_found = True Then
 		For known_panel = 0 to UBound(unea_panel_array, 2)				'Loop through all the known panels
 			If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then				'If the panel matches the type code passed through in the function call - check the claim number
+				If UNEA_type_code = "03" Then 			'If the call is for an SSI panel type, we do not need to match the claim number, just the panel type since SSI is only on the persons SSN
+					panel_found = True					'setting the parameter to true
+					array_index = known_panel			'defining which instance of the array matched the provided criteria
+				End If
 				If unea_panel_array(panel_claim_const, known_panel) = UNEA_claim_number Then		'If the claim number on the panel matches the claim number passed through, WE FOUND A MATCH
 					panel_found = True					'setting the parameter to true
 					array_index = known_panel			'defining which instance of the array matched the provided criteria
