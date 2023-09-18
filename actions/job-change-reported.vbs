@@ -1332,7 +1332,6 @@ If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     End Select
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("If you have questions about verifications needed, or if your job change requires explanation, please call as much of the clarification can be provided verbally and is our best means to correctly budget your income.")
-	CALL write_variable_in_SPEC_MEMO("")
     Call digital_experience
     PF4
     Call back_to_SELF
