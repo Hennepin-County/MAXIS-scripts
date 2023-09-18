@@ -594,8 +594,67 @@ If script_action = "Process existing Excel list" Then
         ElseIf action_req = FALSE Then
             'Clear out MAXIS case number if present
             EMWriteScreen "________", 20, 38
-            'Write MAXIS_case_number to find corresponding DAIL message
+            'Write MAXIS_case_number to find corresponding DAIL message and transmits
             EMWriteScreen MAXIS_case_number, 20, 38
+            transmit
+
+            'Reads where the count of DAILs is listed
+            EMReadScreen number_of_dails, 1, 3, 67		
+            
+            'If the are no DAIL messages for the specific case number, it will exit the do loop and move to the next row
+            If number_of_dails = " " Then
+                objExcel.Cells(excel_row, 13).Value = "Unable to find DAIL message. It may have been deleted."
+            Else
+                'Do loop to find corresponding DAIL message
+                'Set the starting dail_row, read the message, compare the messages. If they match then process, if they don't, add one to dail row and go to next
+                dail_row = 6
+
+                Do
+                    'Checking if DAIL has moved to a new case number, if that's the case then it should exit the do loop and move to the next row in the spreadsheet. Otherwise it can move the message to the top and read the message.
+                    EMReadScreen new_case, 8, dail_row, 63
+                    new_case = trim(new_case)
+                    IF new_case = "CASE NBR" THEN Exit Do
+                
+                    'Make sure that top message is at the top
+                    Call write_value_and_transmit("T", dail_row, 3)
+
+                    'To do - verify this logic works
+                    'Reset dail_row to 6 since the message has been moved to the top
+                    dail_row = 6
+
+                    'Read the DAIL message month to check if it is a match
+                    EMReadScreen dail_month_check, 8, dail_row, 11
+                    
+                    'Read the DAIL message month to check if it is a match
+                    EMReadScreen dail_msg_check, 61, dail_row, 20
+
+                    'If the dail month and dail message match, then open the message to read full message info
+                    If dail_month_check = dail_month and dail_msg_check = dail_msg Then
+                        'Process changes depending on the CSES message type
+                        If InStr(dail_msg, "DISB CS (TYPE 36)")
+
+                        'Open the full dail message
+                        Call write_value_and_transmit("X", dail_row, 3)
+
+                        'Reads the full message and identifies the PMI numbers
+                        
+                        'Exit do loop once the match has been found and processed
+                        Exit Do
+
+                    Else
+                        'If the dail_msg and/or dail_month is different, then the script should go to next dail_row and restart do loop
+                        dail_row = dail_row + 1       
+                        'Go to next message to check, if it is a new case number then exit do
+                    End If
+
+                Loop
+
+
+
+            End If
+            
+
+            'Do loop to find 
 
             'After processing is complete, add 1 to excel_row to go to next row
             excel_row = excel_row + 1
