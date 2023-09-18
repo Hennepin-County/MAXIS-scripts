@@ -90,11 +90,7 @@ Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send
 Call write_variable_in_SPEC_MEMO("************************************************************")
 Call write_variable_in_SPEC_MEMO("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
 CALL write_variable_in_SPEC_MEMO("")
-CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
-CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
+CALL digital_experience
 Call write_variable_in_SPEC_MEMO("************************************************************")
 PF4
 
