@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - BANKED MONTHS UPDATER.vbs"
 start_time = timer
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 0                	'manual run time in seconds
-STATS_denomination = "M"       		'M is for each MEMBER
+STATS_counter = 1                   'sets the stats counter at one
+STATS_manualtime = 60                'manual run time in seconds
+STATS_denomination = "I"       		'I for Item
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -52,6 +52,7 @@ changelog_display
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
+Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(initial_month, initial_year)
 
@@ -81,6 +82,8 @@ DO
 	LOOP UNTIL err_msg = ""
 call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
+
+Call_check_for_MAXIS(False)
 
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
@@ -167,11 +170,12 @@ For each member in eats_array
 	Call write_value_and_transmit(member, 20, 76)
 	EmReadScreen member_first_name, 12, 6, 63
 	member_first_name = replace(member_first_name, "_", "")
-
+	'Adding the EATS HH to the array once name and member numbers are obtained 
 	ReDim Preserve banked_months_array(banked_month_eval_const, entry_count)
 	banked_months_array(member_number_const, entry_count) = member
 	banked_months_array(member_first_name_const, entry_count) = trim(member_first_name)
 	entry_count = entry_count + 1
+	Stats_counter = stats_counter + 1
 Next 
 
 'Initial Month evaluation of ABAWD/TLR - Banked Months
@@ -257,6 +261,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	banked_months_array(abawd_mo_string_const	, i) = abawd_counted_months_string
 	banked_months_array(banked_mo_count_const	, i) = banked_months_count
 	banked_months_array(banked_mo_string_const	, i) = banked_months_string
+	'ABAWD Determinations
 	If abawd_counted_months = 3 then 
 		banked_months_array(used_all_abawd_mo_const	, i) = 	True 
 		banked_months_array(abawd_month_eval_const, i) = "All ABAWD/TLR months used."
@@ -267,7 +272,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_months_count & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
 		banked_months_array(abawd_month_eval_const, i) = abawd_counted_months & " have been used. Only 3 are allowed. Updates are needed."
 	End if 
-
+	'Banked Months Determinations
 	If banked_months_count = 2 then 
 		banked_months_array(used_all_banked_mo_const, i) = True 
 		banked_months_array(banked_month_eval_const, i) = "All banked months have been used for this member."
@@ -302,13 +307,13 @@ If end_msg <> "" then script_end_procedure_with_error_report(end_msg)
 'Don't show the dialog if no one is already coded as ABAWD or banked for the initial month
 If Show_dialog = False then script_end_procedure_with_error_report("No members in the EATS Household with MEMB 01 are coded as ABAWD (30/10) or Banked (30/13) for the initial month. The script will now end.")
 
-script_actions = "" 'variable that tells users what's going on 
+script_actions = "" 'variable that tells users what's going on in dialog. 
 If update_wreg = True then script_actions = script_actions & VBCR & "* The STAT/WREG panel will be updated for members who have banked months available, or who have exhausted them."
 If spec_memo = True then script_actions = script_actions & VBCR & "* A SPEC/MEMO with required Banked Months and TLR Text will be sent to the resident, AREP, and/or SWKR."
 If case_note = True  then script_actions = script_actions & VBCR & "* A detailed CASE/NOTE will be created about case and member updates."
 
 Dialog1 = ""		    '----------------------------------------------------------------------------------------------------Displaying Main Dialog 
-BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog"
+BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/TLR's on Case #" & MAXIS_case_number
   Text 65, 10, 455, 10, "**The following information are for the ABAWD and Banked Months counts/months members in the EATS Household containing Memb 01**"
   Text 115, 25, 315, 10, "--The information below reflects counts from the initial month/year selected in the initial dialog.--"
 
@@ -322,7 +327,7 @@ For i = 0 to Ubound(banked_months_array, 2)
   		Text 285, y_pos + 30, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
 	End if 
 Next
-	
+'descriptor of what the script will do for the user. See incrementor variable above dialog for details/ 	
 GroupBox 10, 310, 415, 65, "What Actions The Script Will Take"
 Text 25, 325, 390, 40, "No apparent errors were found in the banked months evaluation, so the script will now take the following actions: " & vbcr & script_actions
 ButtonGroup ButtonPressed
@@ -337,6 +342,8 @@ Do
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 If case_note = False then script_end_procedure_with_error_report("There are not updates to be made, including case note. The script will now end.")
+
+Call check_for_MAXIS(False)
 
 For item = 0 to ubound(footer_month_array)
 	MAXIS_footer_month = datepart("m", footer_month_array(item)) 'Need to assign footer month / year each time through
@@ -379,7 +386,7 @@ For item = 0 to ubound(footer_month_array)
 
 	    PF3 'to save and exit to stat/wrap
 		Call back_to_SELF
-	
+		stats_counter = STATS_counter + 1
 		'cleaning up variable again for Case note output 
 		If trim(right(banked_months_string, 2)) = " |" THEN banked_months_string = left(banked_months_string, len(banked_months_string) - 2)
 	Next 
@@ -403,6 +410,7 @@ If spec_memo = True then
 	Call write_variable_in_SPEC_MEMO("If you need help meeting these work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4 'save memo
+	stats_counter = STATS_counter + 1
 End if 
 
 '----------------------------------------------------------------------------------------------------CASE/NOTE
@@ -416,11 +424,13 @@ For i = 0 to Ubound(banked_months_array, 2)
     Call write_variable_in_case_note("* ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i))
     Call write_variable_in_case_note("* Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i))
     Call write_variable_in_case_note("--")
+	stats_counter = STATS_counter + 1
 Next 
 If update_wreg = True then Call write_variable_in_case_note("* The STAT/WREG panel was updated through CM + 1 for members who have banked months available, or who have exhausted them.")
 If spec_memo = True then Call write_variable_in_case_note("* A SPEC/MEMO was sent to the household with banked months and time-limited SNAP information.")
 Call write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+stats_counter = STATS_counter + 1
 
 end_msg = "The main EATS household has been assessed and updated for banked months. Make sure to APP new SNAP results, and use NOTES - ELGIBILTY SUMMARY to case note the eligibility."
 If spec_memo = True then end_msg = end_msg & vbcr & vbcr & "The required SPEC/MEMO was sent to the household following details in Bulletin #23-01-02."
@@ -430,43 +440,43 @@ script_end_procedure_with_error_report(end_msg)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/19/2023	
+'--Tab orders reviewed & confirmed----------------------------------------------09/19/2023
+'--Mandatory fields all present & Reviewed--------------------------------------09/19/2023
+'--All variables in dialog match mandatory fields-------------------------------09/19/2023
+'Review dialog names for content and content fit in dialog----------------------09/19/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/19/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/19/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/19/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/19/2023 --------------The ones without periods have them in the variables or output a string or dates and it looked funnny.
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "i")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/19/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/19/2023
+'--PRIV Case handling reviewed -------------------------------------------------09/19/2023
+'--Out-of-County handling reviewed----------------------------------------------09/19/2023-----------------N/A staff are working off lists, out of county already filtered out. 
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/19/2023	
+'--BULK - review output of statistics and run time/count (if applicable)--------09/19/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "i")-----------09/19/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------09/19/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------09/19/2023
+'--Denomination reviewed -------------------------------------------------------09/19/2023
+'--Script name reviewed---------------------------------------------------------09/19/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/19/2023----------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------09/19/2023
+'--comment Code-----------------------------------------------------------------09/19/2023
+'--Update Changelog for release/update------------------------------------------09/19/2023
+'--Remove testing message boxes-------------------------------------------------09/19/2023----------------Keeping some of these until testing after 1st of the month for more than 1 month updates. 
+'--Remove testing code/unnecessary code-----------------------------------------09/19/2023
+'--Review/update SharePoint instructions----------------------------------------09/19/2023----------------In progress
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/19/2023----------------In progress
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/19/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------09/19/2023
+'--Complete misc. documentation (if applicable)---------------------------------09/19/2023
+'--Update project team/issue contact (if applicable)----------------------------09/19/2023
