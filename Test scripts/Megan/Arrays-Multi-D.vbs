@@ -82,7 +82,7 @@ ReDim REPT_ACVT_ARRAY(the_last_const, 0)
 'Step 3: Navigating to the correct screen
 Call back_to_SELF
 Call navigate_to_MAXIS_screen("REPT", "ACTV")
-Call write_value_and_transmit("X127EZ2", 21, 13)
+Call write_value_and_transmit("X127MG2", 21, 13)		'Was using X127EZ2
 
 
 'Step 4: Array counters and row defining. 
@@ -166,11 +166,11 @@ Loop until case_numb_temp = ""                                                  
     'In projects, we won't likely msgbox, instead we will pull this info into a dialog box, store it in a spreadsheet, etc. 
 
 for each_thing = 0 to UBound(REPT_ACVT_ARRAY, 2)                                    'Defaults to the first parameter unless you state what parameter, in this case we indicate 2                            
-	' MsgBox "each_thing - " & each_thing
-	If REPT_ACVT_ARRAY(Cash_1_stat_const, each_thing) = "A" Then                       'Picking criteria to search within our array for
-		MsgBox REPT_ACVT_ARRAY(Case_Nbr_const, each_thing) & " is on " & REPT_ACVT_ARRAY(Cash_1_prog_const, each_thing)     'This will msgbox each case
+	'MsgBox "each_thing - " & each_thing												'Msgbox for each item found
+	If REPT_ACVT_ARRAY(FS_const, each_thing) = "A" Then                       'Picking criteria to search within our array for CHANGED from Cash_1_prog_const to FS_const for testing
+		MsgBox REPT_ACVT_ARRAY(Case_Nbr_const, each_thing) & " is on " & REPT_ACVT_ARRAY(FS_const, each_thing)     'This will msgbox each case	CHANGED from Cash_1_prog_const to FS_const for testing
 	End If
 
 Next
 
-MsgBox "UBound 1 - " & UBound(REPT_ACVT_ARRAY) & vbCr & "UBound 2 - " & UBound(REPT_ACVT_ARRAY, 2)
+'MsgBox "UBound 1 - " & UBound(REPT_ACVT_ARRAY) & vbCr & "UBound 2 - " & UBound(REPT_ACVT_ARRAY, 2) 
