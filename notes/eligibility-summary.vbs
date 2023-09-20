@@ -10134,11 +10134,21 @@ class mfip_eligibility_detail
 
 		approved_today = False
 		approved_version_found = False
-
-		call navigate_to_MAXIS_screen("ELIG", "MFIP")
+		Call back_to_SELF
+		call navigate_to_MAXIS_screen("ELIG", "    ")		'for MFIP, we need to navigate to the correct month FIRST from the main ELIG menu beecause there is sometimes a sig change panel
 		EMWriteScreen elig_footer_month, 20, 55
 		EMWriteScreen elig_footer_year, 20, 58
-		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+		transmit
+		call navigate_to_MAXIS_screen("ELIG", "MFIP")
+		EMReadScreen sig_change_check, 4, 3, 38				'looking to see if the significant change panel is on this case
+		If sig_change_check = "MFSC" Then
+			'this is important because the command line is in a different place on the sig change panel so this call is slightly different
+			Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+		Else
+			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+		End If
+		'When the correct version is selected, MAXIS navigates to MFPR, even if MFSC exists, so once the correct version is selected, we can assume we are MFPR
+
 		If approved_version_found = True Then
 			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
@@ -10148,6 +10158,7 @@ class mfip_eligibility_detail
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
+
 		If approved_today = True Then
 			ReDim mfip_elig_ref_numbs(0)
 			ReDim mfip_elig_membs_full_name(0)
@@ -10247,6 +10258,16 @@ class mfip_eligibility_detail
 			ReDim mfip_elig_membs_deemer_allocation(0)
 			ReDim mfip_elig_membs_deemer_cs_alimny(0)
 			ReDim mfip_elig_membs_deemer_counted_income(0)
+
+			'If the case has significant change, there should be a MFSC panel with details of the significant change
+			EMReadScreen significant_change_check, 18, 4, 3
+			If significant_change_check = "SIGNIFICANT CHANGE" Then
+				Call write_value_and_transmit("MFSC", 20, 71)						'navigate to this panel manually to read sig change details
+				sig_change = True
+				'TODO - add reading of sig change details for specific handling.
+				Call write_value_and_transmit("MFPR", 20, 71)						'now we get to the panel that most ELIG/MFIP starts with
+			End If
+
 
 			row = 7
 			elig_memb_count = 0
