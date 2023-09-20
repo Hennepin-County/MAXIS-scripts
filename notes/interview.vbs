@@ -10247,9 +10247,10 @@ If left(confirm_ebt_read, 4) <> "YES!" Then
 
 					Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
 
-					Text 310, 100, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
-					Text 310, 125, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
-					Text 310, 150, 200, 20, "If they have never had an EBT card, they MAY be able to pick one up in one of the following service centers:"
+					Text 310, 95, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
+					Text 310, 115, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
+					PushButton 430, 127, 100, 12, "HSR Manual - Accounting", accounting_in_hsr_manual_btn
+					Text 310, 140, 200, 35, "If they have never had an EBT card, see the ACCOUNTING page in the HSR manual, the resident MAY be able to pick one up in one of the following service centers:"
 					Text 320, 170, 200, 10, "Central-Northeast HSB (525 Portland Ave South, Minneapolis)"
 					Text 320, 180, 200, 10, "South (2215 East Lake Street, Minneapolis)"
 					Text 320, 190, 215, 10, "Northwest (7051 Brooklyn Boulevard, Brooklyn Center - 1st floor)"
