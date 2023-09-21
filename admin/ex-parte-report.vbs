@@ -848,7 +848,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 
 
 	MAXIS_case_number = right("00000000"&MAXIS_case_number, 8)
-	ex_parte_renewal_date = ""
+	ex_parte_renewal_date = ""			'blank out these variables to ensure there is no carry over data
 	SQL_case_status = ""
 	SQL_select_ex_parte = ""
 	SQL_prep_complete = ""
@@ -1144,6 +1144,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 		objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
+		'This will create an array of all of the income listed in SQL - which is what this report uses to complete the evaluation.
 		Const sql_pers_name 	= 0
 		Const sql_pers_pmi 		= 1
 		Const sql_ref_numb 		= 2
@@ -1159,15 +1160,13 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Const sql_tpqy_end_dt	= 12
 		Const last_sql_const 	= 30
 
-
-
 		Dim SQL_INCOME_ARRAY()
 		ReDim SQL_INCOME_ARRAY(last_sql_const, 0)
 		inc_count = 0
 
 		'looping through each row in this case
 		Do While NOT objIncomeRecordSet.Eof
-			ReDim Preserve SQL_INCOME_ARRAY(last_sql_const, inc_count)
+			ReDim Preserve SQL_INCOME_ARRAY(last_sql_const, inc_count)			'saving each item from SQL Income list for this case into the array
 
 			SQL_INCOME_ARRAY(sql_pers_name, 	inc_count) = objIncomeRecordSet("PersName")
 			SQL_INCOME_ARRAY(sql_pers_pmi,  	inc_count) = objIncomeRecordSet("PersonID")
@@ -1186,62 +1185,33 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 
 			SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count) = right(SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count), 2)
 
-			' income_for_person_is_on_HC = False			'default this variable to false, indicating if the income is for a person on HC
-			' If InStr(list_of_membs_on_hc, objIncomeRecordSet("PersonID")) <> 0 Then income_for_person_is_on_HC = True		'this compares the PMI for the income to the list of PMIS discovered in finding HC elig information
+			If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True				'identifying some income types
+			If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
 
-			' 'If this income is for someone on HC, we are going to assess the income detail to determine if the case should still be Ex Parte
-			' If income_for_person_is_on_HC = True Then
-			' 	If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then									'UNEA income exists each type code will set the boolean about that income typr for this case
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
 
-					If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
-
-					If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
-					If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
-			' 	End If
-			' 	If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True					'we do not need to clarify further for JOBS or BUSI income, just indicate if these incomes exist.
-			' 	If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
-			' End If
-
-			' 'Here we set if there is certain types of income on the case for any member. This will information the creation of verification lists
-			' For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)			'loop through all the members
-			' 	If trim(objIncomeRecordSet("PersonID")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then						'if the PMI matches
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "16" Then MEMBER_INFO_ARRAY(sql_rr_income_exists, known_membs) = True		'if the income type is any of the specified, identify that the income exists
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "11" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "12" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "13" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "38" Then MEMBER_INFO_ARRAY(sql_va_income_exists, known_membs) = True
-			' 		If objIncomeRecordSet("IncomeTypeCode") = "14" Then MEMBER_INFO_ARRAY(sql_uc_income_exists, known_membs) = True
-			' 	End If
-			' Next
+			If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
 
 			inc_count = inc_count + 1
 			objIncomeRecordSet.MoveNext		'move to the next Income row
@@ -1251,20 +1221,13 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Set objIncomeRecordSet=nothing
 		Set objIncomeConnection=nothing
 
-		' 'This part is for logic to help us determine if the income impacts the Ex parte option
-		' case_has_no_income = False			'start at false for 'no income' basically false here means the case has income
-		' 'If every income type is false, then the case has no income and the variable, 'case_has_no_income' is set to True, because it is true that there is no income.
-		' If SSA_income_exists = False and RR_income_exists = False and VA_income_exists = False and UC_income_exists = False and PRISM_income_exists = False and Other_UNEA_income_exists = False and JOBS_income_exists = False and BUSI_income_exists = False Then case_has_no_income = True
-
-
-
-
 		objRecordSet.MoveNext			'now we go to the next case
 	Loop
 
+	'stopping the script if the case was not found.
 	If ex_parte_renewal_date = "" Then call script_end_procedure("The case " & MAXIS_case_number & " is not listed on the SQL Ex Parte Data Table.")
 
-
+	'Here we show the information about the case that was found in SQL
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 450, 350, "Case Detials"
 		Text 10, 10, 130, 10, "Case Number: " & MAXIS_case_number
@@ -1327,7 +1290,8 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 			OkButton 390, 330, 50, 15
 	EndDialog
 
-	Dialog Dialog1
+	Dialog Dialog1			'show the dialog
+	'there are no inputs or other loops in this script, it will just end.
 
 	Call script_end_procedure("")
 End If
