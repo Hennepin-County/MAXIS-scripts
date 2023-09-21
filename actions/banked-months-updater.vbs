@@ -83,10 +83,10 @@ DO
 call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-Call_check_for_MAXIS(False)
+Call check_for_MAXIS(False)
 
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
+If is_this_priv = True then script_end_procedure("This case is privileged, and you do not have access. The script will now end.")
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 If SNAP_CASE = False then script_end_procedure_with_error_report("This case is not a SNAP Case. The script will now end.")
@@ -432,7 +432,7 @@ Call write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 stats_counter = STATS_counter + 1
 
-end_msg = "The main EATS household has been assessed and updated for banked months. Make sure to APP new SNAP results, and use NOTES - ELGIBILTY SUMMARY to case note the eligibility."
+end_msg = "The main EATS household has been assessed and updated for banked months. Make sure to APP new SNAP results, and use NOTES - ELIGIBILITY SUMMARY to case note the eligibility."
 If spec_memo = True then end_msg = end_msg & vbcr & vbcr & "The required SPEC/MEMO was sent to the household following details in Bulletin #23-01-02."
 script_end_procedure_with_error_report(end_msg)
 
