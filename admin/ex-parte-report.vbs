@@ -391,9 +391,9 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 
 		'Now we clear the information for COLA and end date information
 		Call clear_line_of_text(10, 67)		'clear the COLA disregard - TODO - update this for Jan - June to not remove this
-		Call clear_line_of_text(7, 68)
-		Call clear_line_of_text(7, 71)
-		Call clear_line_of_text(7, 74)
+		' Call clear_line_of_text(7, 68)
+		' Call clear_line_of_text(7, 71)
+		' Call clear_line_of_text(7, 74)
 
 		'Clear amount details
 		row = 13									'row 13 is the top of the income information
@@ -415,16 +415,22 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 		retro_date = DateAdd("d", 0, retro_date)
 
 		If end_date <> "" Then						'if there is an end date, we need to enter the end date and be careful about if we enter income information
-			'enter the end date
-			Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
-			'determine the footer month of the end date
-			Call convert_date_into_MAXIS_footer_month(end_date, footer_month_end, footer_year_end)
+			EMReadScreen curr_end_date, 8, 7, 68
+			If curr_end_date = "__ __ __" Then
+				'enter the end date
+				Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
+				'determine the footer month of the end date
+				Call convert_date_into_MAXIS_footer_month(end_date, footer_month_end, footer_year_end)
 
-			If footer_month_end = CM_plus_1_mo and footer_year_end = CM_plus_1_yr Then		'if the footer month of the end date is the same as CM plus 1, we should enter the last pay information
-				Call create_mainframe_friendly_date(end_date, 13, 54, "YY")					'enter the last pay date
-				EMWriteScreen last_pay, 13, 68												'enter the last pay amount
+				If footer_month_end = CM_plus_1_mo and footer_year_end = CM_plus_1_yr Then		'if the footer month of the end date is the same as CM plus 1, we should enter the last pay information
+					Call create_mainframe_friendly_date(end_date, 13, 54, "YY")					'enter the last pay date
+					EMWriteScreen last_pay, 13, 68												'enter the last pay amount
+				End If
 			End If
 		Else										'if there is not an end date, we need to code in the current payement amounts
+			Call clear_line_of_text(7, 68)
+			Call clear_line_of_text(7, 71)
+			Call clear_line_of_text(7, 74)
 			If DateDiff("d", start_date, retro_date) >= 0 Then								'This ensures the start date is before the retro month. If it is, income is entered in the retro month fields
 				'the month and year are hardcoded using the CM_minus_1 global variable
 				EMWriteScreen CM_minus_1_mo, 13, 25
@@ -1176,6 +1182,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 			SQL_INCOME_ARRAY(sql_tpqy_grs_amt,	inc_count) = objIncomeRecordSet("GrossAmt")
 			SQL_INCOME_ARRAY(sql_tpqy_net_amt,	inc_count) = objIncomeRecordSet("NetAmt")
 			SQL_INCOME_ARRAY(sql_tpqy_end_dt,	inc_count) = objIncomeRecordSet("EndDate")
+			If DateDiff("d", SQL_INCOME_ARRAY(sql_tpqy_end_dt, inc_count), #1/1/1900#) = 0 Then SQL_INCOME_ARRAY(sql_tpqy_end_dt, inc_count) = ""
 
 			SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count) = right(SQL_INCOME_ARRAY(sql_ref_numb,  	inc_count), 2)
 
@@ -1263,23 +1270,24 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Text 10, 10, 130, 10, "Case Number: " & MAXIS_case_number
 		Text 20, 20, 130, 10, "CASE/CURR X Numb: " & case_pw
 		Text 10, 35, 120, 10, "Appears Ex Parte: " & SQL_select_ex_parte
-		Text 25, 45, 105, 10, "All HC is ABD: " & SQL_all_HC_is_ABD
-		Text 25, 55, 105, 10, "Case has EPD: " & SQL_EPD_on_case
-		Text 10, 70, 105, 10, "SQL HC ER: " & ex_parte_renewal_date
-		Text 25, 80, 105, 10, "STAT HC ER: " & STAT_HC_ER_mo & "/" & STAT_HC_ER_yr
+		Text 35, 45, 105, 10, "All HC is ABD: " & SQL_all_HC_is_ABD
+		Text 30, 55, 105, 10, " Case has EPD: " & SQL_EPD_on_case
+		Text 15, 70, 105, 10, "SQL HC ER: " & ex_parte_renewal_date
+		Text 10, 80, 105, 10, "STAT HC ER: " & STAT_HC_ER_mo & "/" & STAT_HC_ER_yr
+
 		Text 10, 95, 90, 10, "Case Active: " & case_active
-		Text 10, 105, 90, 10, "MA Status: " & ma_status
-		Text 10, 115, 90, 10, "MSP Status: " & msp_status
-		Text 10, 125, 90, 10, "MFIP Status: " & mfip_status
-		Text 10, 135, 90, 10, "SNAP Status: " & snap_status
-		Text 120, 95, 90, 10, "SSA Income: " & SQL_ssa_income_exists
-		Text 120, 105, 90, 10, "RR Income: " & RR_income_exists
-		Text 120, 115, 90, 10, "VA Income: " & SQL_va_inc_exists
-		Text 120, 125, 90, 10, "UC Income: " & UC_income_exists
-		Text 230, 95, 90, 10, "PRISM Income: " & PRISM_income_exists
-		Text 230, 105, 90, 10, "Other UNEA: " & Other_UNEA_income_exists
-		Text 230, 115, 90, 10, "JOBS Income: " & SQL_wages_exist
-		Text 230, 125, 90, 10, "BUSI Income: " & SQL_self_emp_exists
+		Text 20, 105, 90, 10, "MA Status: " & ma_status
+		Text 15, 115, 90, 10, "MSP Status: " & msp_status
+		Text 15, 125, 90, 10, "MFIP Status: " & mfip_status
+		Text 10, 135, 90, 10, " SNAP Status: " & snap_status
+		Text 120, 95, 90, 10, " SSA Income: " & SQL_ssa_income_exists
+		Text 125, 105, 90, 10, "RR Income: " & RR_income_exists
+		Text 125, 115, 90, 10, " VA Income: " & SQL_va_inc_exists
+		Text 125, 125, 90, 10, " UC Income: " & UC_income_exists
+		Text 230, 95, 90, 10, " PRISM Income: " & PRISM_income_exists
+		Text 240, 105, 90, 10, "Other UNEA: " & Other_UNEA_income_exists
+		Text 235, 115, 90, 10, " JOBS Income: " & SQL_wages_exist
+		Text 235, 125, 90, 10, "  BUSI Income: " & SQL_self_emp_exists
 		Text 150, 10, 50, 10, "Persons"
 		y_pos = 25
 		For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
@@ -1304,12 +1312,12 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 		Text 155, y_pos, 50, 10, "SQL Income"
 		y_pos = y_pos + 10
 		for each_inc = 0 to UBound(SQL_INCOME_ARRAY, 2)
-			Text 15, y_pos, 105, 10, "MEMB " & SQL_INCOME_ARRAY(sql_ref_numb, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_panel, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_type, each_inc) & " (" & SQL_INCOME_ARRAY(uc_inc_type_code_const, each_inc) &")"
-			Text 120, y_pos, 120, 10, "SQL amount $ " & SQL_INCOME_ARRAY(sql_prosp_amt, each_inc)
-			If SQL_INCOME_ARRAY(sql_clm_numb, each_inc) <> "" Then Text 250, y_pos, 120, 10, "Claim Number: " &  SQL_INCOME_ARRAY(sql_clm_numb, each_inc)
+			Text 15, y_pos, 200, 10, "MEMB " & SQL_INCOME_ARRAY(sql_ref_numb, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_panel, each_inc) & " - " & SQL_INCOME_ARRAY(sql_inc_type, each_inc) & " (" & SQL_INCOME_ARRAY(uc_inc_type_code_const, each_inc) &")"
+			Text 220, y_pos, 100, 10, "SQL amount $ " & SQL_INCOME_ARRAY(sql_prosp_amt, each_inc)
+			If SQL_INCOME_ARRAY(sql_clm_numb, each_inc) <> "" Then Text 325, y_pos, 150, 10, "Claim Number: " &  SQL_INCOME_ARRAY(sql_clm_numb, each_inc)
 			y_pos = y_pos + 10
 			If SQL_INCOME_ARRAY(sql_qury_sent, each_inc) <> "" or SQL_INCOME_ARRAY(sql_tpqy_resp, each_inc) <> "" Then
-				Text 15, y_pos, 185, 10, "QURY Date: " & SQL_INCOME_ARRAY(sql_qury_sent, each_inc) & " - TPQY Date: " & SQL_INCOME_ARRAY(sql_tpqy_resp, each_inc)
+				Text 25, y_pos, 185, 10, "QURY Date: " & SQL_INCOME_ARRAY(sql_qury_sent, each_inc) & " - TPQY Date: " & SQL_INCOME_ARRAY(sql_tpqy_resp, each_inc)
 				Text 200, y_pos, 140, 10, "TPQY Gross: $ " & SQL_INCOME_ARRAY(sql_tpqy_grs_amt, each_inc) & ", Net: $ " & SQL_INCOME_ARRAY(sql_tpqy_net_amt, each_inc)
 				If SQL_INCOME_ARRAY(sql_tpqy_end_dt, each_inc) <> "" Then Text 340, y_pos, 120, 10, "TPQY End Date: " & SQL_INCOME_ARRAY(sql_tpqy_end_dt, each_inc)
 				y_pos = y_pos + 10
