@@ -2541,10 +2541,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
 						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-						CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-						CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-						CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-						CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
+						CALL digital_experience
 			            CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 
 						PF4         'Submit the MEMO
@@ -2600,11 +2597,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						CALL write_variable_in_SPEC_MEMO("")
 						If renewal_guidance_needed = False Then CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
 						If renewal_guidance_needed = True Then
-							CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-							CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-							CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-							CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-							CALL write_variable_in_SPEC_MEMO("")
+							CALL digital_experience
 							CALL write_variable_in_SPEC_MEMO("Once we receive and process your renewal paperwork, you will receive information BY MAIL with possible follow up or actions taken on your case. Call 612-596-1300 if you have additional questions.")
 						End If
 
@@ -3360,12 +3353,7 @@ If renewal_option = "Send NOMIs" Then
 					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 					CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-					CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-					CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-					CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-					CALL write_variable_in_SPEC_MEMO("")
+					CALL digital_experience
 					CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
 					CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
 
