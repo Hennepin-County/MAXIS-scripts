@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Added checkbox option in the main dialog to select if user wants Excel output warning message.", "Ilse Ferris, Hennepin County")
@@ -2035,28 +2036,8 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 				Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
 				IF memo_started = True THEN
 					'TODO - add languages in when we can'
-					Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & "")
-					Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & need_intv_date & ". **")
-					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-					Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
-					Call write_variable_in_SPEC_MEMO(" ")
-					CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-					CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-					CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-					CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-					CALL digital_experience
-					CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+					Call create_appointment_letter_notice_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), need_intv_date, last_contact_day)
 
-					PF4
 				ELSE
 					WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) = "N" 'Setting this as N if the MEMO failed
 				END IF
@@ -2121,29 +2102,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 					Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
 					IF memo_started = True THEN
 						'TODO - add languages in when we can'
-
-						Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & ".")
-						Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) & ".")
-						Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-						Call write_variable_in_SPEC_MEMO(" ")
-						Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & nomi_last_contact_day & " **")
-						Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-						Call write_variable_in_SPEC_MEMO(" ")
-						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-						CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-						CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-						CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-						CALL digital_experience
-
-						PF4
+						Call create_appointment_letter_notice_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), WORKING_LIST_CASES_ARRAY(appointment_date, case_entry), nomi_last_contact_day)
 					Else
 						WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
 					End If

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
@@ -2520,29 +2521,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 						CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
 						If len(programs) < 11 Then CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & intvw_programs & " case to continue.")
-						CALL write_variable_in_SPEC_MEMO("")
-						Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
-						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-						CALL write_variable_in_SPEC_MEMO("")
-						If len(programs) < 11 Then
-							CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
-						ElseIf len(programs) > 14 Then
-							CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless")
-						ElseIf len(programs) > 10 Then
-							CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
-						End If
-						CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
-						CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-						CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-						CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-						CALL digital_experience
-			            CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+						CALL create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
 
 						PF4         'Submit the MEMO
 
