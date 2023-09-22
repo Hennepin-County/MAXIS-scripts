@@ -6409,7 +6409,7 @@ function digital_experience()
 '--- This function standardizes the digital experience coding information so that we only have to update it in one location.
 '===== Keywords: MAXIS, MEMO, WCOM
 	CALL write_variable_in_SPEC_MEMO("*** Options for Submitting Documents ***")
-	CALL write_variable_in_SPEC_MEMO("- Use InfoKeep online at infokeep.hennepin.us to upload directly to your case.")
+	CALL write_variable_in_SPEC_MEMO("- Upload documents to case with infokeep.hennepin.us.")
 	CALL write_variable_in_SPEC_MEMO("- You can submit documents online at MNBenefits.mn.gov.")
 	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers.")
 end function
