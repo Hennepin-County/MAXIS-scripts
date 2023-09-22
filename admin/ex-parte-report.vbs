@@ -3716,136 +3716,176 @@ If ex_parte_function = "Prep 2" Then
 							If MEDI_panel_exists = True and (panel_part_a_accurate = False or panel_part_b_accurate = False) Then
 								If InStr(verif_types, "Medicare") = 0 Then verif_types = verif_types & "/Medicare"
 								PF9
-
+								part_a_error = False
+								part_b_error = False
 								If panel_part_a_accurate = False Then
 									Do
+										EMReadScreen begin_date_three, 8, 17, 24
+										EMReadScreen end_date_three, 8, 17, 35
+										If begin_date_three = "__ __ __" and end_date_three = "__ __ __" Then Exit Do
+
 										PF20
 										EMReadScreen end_of_list, 34, 24, 2
+
+										If InStr(end_of_list, "BEGIN DATE IS REQUIRED") <> 0 and InStr(end_of_list, "PART A") <> 0 Then
+											If end_date_three <> "__ __ __" and part_a_ended = True Then
+												part_a_error = True
+												exit Do
+											End If
+										End If
 									Loop Until end_of_list = "COMPLETE THE PAGE BEFORE SCROLLING"
-									row = 17
 
-									Do
-										EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
-										begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
-										If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
+									If part_a_error = False Then
+										row = 17
 
-										EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
-										end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
-										If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+										Do
+											EMReadScreen begin_dt_a, 8, row, 24 		'reads part a start date
+											begin_dt_a = replace(begin_dt_a, " ", "/")	'reformatting with / for date
+											If begin_dt_a = "__/__/__" Then begin_dt_a = "" 		'blank out if not a date
 
-										If part_a_ended = True Then
-											If end_dt_a <> "" Then Exit Do
-											If end_dt_a = "" and begin_dt_a <> "" Then
-												MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True
-												EMReadScreen verif_code, 1, row, 47
-												If verif_code <> "V" Then
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), row, 35, "YY")
-												Else
+											EMReadScreen end_dt_a, 8, row, 35	'reads part a end date
+											end_dt_a =replace(end_dt_a , " ", "/")		'reformatting with / for date
+											If end_dt_a = "__/__/__" Then end_dt_a = ""					'blank out if not a date
+
+											If part_a_ended = True Then
+												If end_dt_a <> "" Then Exit Do
+												If end_dt_a = "" and begin_dt_a <> "" Then
+													MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True
+													EMReadScreen verif_code, 1, row, 47
+													If verif_code <> "V" Then
+														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), row, 35, "YY")
+													Else
+														If row = 17 Then
+															PF20
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 15, 24, "YY")
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 15, 35, "YY")
+														Else
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), row+1, 24, "YY")
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), row+1, 35, "YY")
+														End If
+													End If
+													Exit Do
+												End If
+											Else
+												If begin_dt_a <> "" and end_dt_a <> "" Then
+													MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True
 													If row = 17 Then
 														PF20
 														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 15, 24, "YY")
-														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), 15, 35, "YY")
 													Else
 														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), row+1, 24, "YY")
-														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_stop, each_memb), row+1, 35, "YY")
 													End If
+													Exit Do
+												ElseIf begin_dt_a <> "" and end_dt_a = "" Then
+													Exit Do
 												End If
-												Exit Do
 											End If
-										Else
-											If begin_dt_a <> "" and end_dt_a <> "" Then
-												MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = True
-												If row = 17 Then
-													PF20
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), 15, 24, "YY")
-												Else
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_a_start, each_memb), row+1, 24, "YY")
-												End If
-												Exit Do
-											ElseIf begin_dt_a <> "" and end_dt_a = "" Then
-												Exit Do
-											End If
-										End If
-										row = row - 1
+											row = row - 1
 
-										If row = 14 Then
+											If row = 14 Then
+												PF19
+												EMReadScreen begining_of_list, 10, 24, 14
+												If InStr(begining_of_list, " DATE IS R") <> 0 Then Exit Do
+
+												If begining_of_list = "FIRST PAGE" Then
+													Exit Do
+												Else
+													row = 17
+												End If
+											End If
+										Loop
+										Do
 											PF19
 											EMReadScreen begining_of_list, 10, 24, 14
-
-											If begining_of_list = "FIRST PAGE" Then
-												Exit Do
-											Else
-												row = 17
-											End If
-										End If
-									Loop
-									Do
-										PF19
-										EMReadScreen begining_of_list, 10, 24, 14
-									Loop Until begining_of_list = "FIRST PAGE"
+											If InStr(begining_of_list, " DATE IS R") <> 0 Then Exit Do
+										Loop Until begining_of_list = "FIRST PAGE"
+									End If
 								End If
 								If panel_part_b_accurate = False Then
 									Do
+										EMReadScreen begin_date_three, 8, 17, 54
+										EMReadScreen end_date_three, 8, 17, 65
+
+										If begin_date_three = "__ __ __" and end_date_three = "__ __ __" Then Exit Do
 										PF20
 										EMReadScreen end_of_list, 34, 24, 2
+
+										If InStr(end_of_list, "BEGIN DATE IS REQUIRED") <> 0 and InStr(end_of_list, "PART B") <> 0 Then
+											If end_date_three <> "__ __ __" and part_b_ended = True Then
+												part_b_error = True
+												exit Do
+											End If
+										End If
 									Loop Until end_of_list = "COMPLETE THE PAGE BEFORE SCROLLING"
-									row = 17
-									Do
-										EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
-										begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
-										If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
 
-										EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
-										end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
-										If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+									If part_b_error = False Then
+										row = 17
+										Do
+											EMReadScreen begin_dt_b, 8, row, 54 		'reads part a start date
+											begin_dt_b = replace(begin_dt_b, " ", "/")	'reformatting with / for date
+											If begin_dt_b = "__/__/__" Then begin_dt_b = "" 		'blank out if not a date
 
-										If part_b_ended = True Then
-											If end_dt_b <> "" Then Exit Do
-											If end_dt_b = "" and begin_dt_b <> "" Then
-												MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True
-												EMReadScreen verif_code, 1, row, 47
-												If verif_code <> "V" Then
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), row, 65, "YY")
-												Else
+											EMReadScreen end_dt_b, 8, row, 65	'reads part a end date
+											end_dt_b =replace(end_dt_b , " ", "/")		'reformatting with / for date
+											If end_dt_b = "__/__/__" Then end_dt_b = ""					'blank out if not a date
+
+											If part_b_ended = True Then
+												If end_dt_b <> "" Then Exit Do
+												If end_dt_b = "" and begin_dt_b <> "" Then
+													MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True
+													EMReadScreen verif_code, 1, row, 77
+
+													If verif_code <> "V" Then
+														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), row, 65, "YY")
+													Else
+														If row = 17 Then
+															PF20
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 15, 54, "YY")
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 15, 65, "YY")
+														Else
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), row+1, 54, "YY")
+															Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), row+1, 65, "YY")
+														End If
+													End If
+													Exit Do
+												End If
+											Else
+												If begin_dt_b <> "" and end_dt_b <> "" Then
+													MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True
 													If row = 17 Then
 														PF20
 														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 15, 54, "YY")
-														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), 15, 65, "YY")
 													Else
 														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), row+1, 54, "YY")
-														Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_stop, each_memb), row+1, 65, "YY")
 													End If
+													Exit Do
+												ElseIf begin_dt_b <> "" and end_dt_b = "" Then
+													Exit Do
 												End If
-												Exit Do
 											End If
-										Else
-											If begin_dt_b <> "" and end_dt_b <> "" Then
-												MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = True
-												If row = 17 Then
-													PF20
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), 15, 54, "YY")
-												Else
-													Call create_mainframe_friendly_date(MEMBER_INFO_ARRAY(tpqy_part_b_start, each_memb), row+1, 54, "YY")
-												End If
-												Exit Do
-											ElseIf begin_dt_b <> "" and end_dt_b = "" Then
-												Exit Do
-											End If
-										End If
-										row = row - 1
+											row = row - 1
 
-										If row = 14 Then
-											PF19
-											EMReadScreen begining_of_list, 10, 24, 14
-											If begining_of_list = "FIRST PAGE" Then
-												Exit Do
-											Else
-												row = 17
+											If row = 14 Then
+												PF19
+												EMReadScreen begining_of_list, 10, 24, 14
+												If InStr(begining_of_list, " DATE IS R") <> 0 Then Exit Do
+												If begining_of_list = "FIRST PAGE" Then
+													Exit Do
+												Else
+													row = 17
+												End If
 											End If
-										End If
-									Loop
+										Loop
+									End If
 								End If
 								transmit
+
+								EMReadScreen end_of_list, 34, 24, 2
+								If InStr(end_of_list, "BEGIN DATE IS REQUIRED") <> 0 Then
+									PF10
+									MEMBER_INFO_ARRAY(updated_medi_a, each_memb) = False
+									MEMBER_INFO_ARRAY(updated_medi_b, each_memb) = False
+								End If
 							End If
 
 							If MEDI_panel_exists = False and MEMBER_INFO_ARRAY(tpqy_medi_claim_num, each_memb) <> "" Then
