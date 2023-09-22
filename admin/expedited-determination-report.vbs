@@ -315,64 +315,88 @@ const pm_email_const 	= 7
 Dim WORKER_ARRAY()
 ReDim WORKER_ARRAY(pm_email_const, 0)
 
-' click_stopwatch = timer
+ObjHSSExcel.worksheets("HSS List").Activate
 
-'Creating objects for Access
-Set objConnection = CreateObject("ADODB.Connection")
-Set objRecordSet = CreateObject("ADODB.Recordset")
-
-SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
-
-'This is the file path the data tables
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
-
-Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+excel_row = 2
+worker_count = 0
+Do
 	ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
 
-	WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
-	WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
-	WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
-	WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
-	WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
-	WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
+	WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
+	WORKER_ARRAY(hsr_mx_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_mx_id_col))
+	WORKER_ARRAY(hsr_hc_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_hc_id_col))
+	WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_email_col))
+	WORKER_ARRAY(hss_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_name_col))
+	WORKER_ARRAY(hss_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
+	WORKER_ARRAY(pm_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_name_col))
+	WORKER_ARRAY(pm_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_email_col))
 
+	excel_row = excel_row + 1
 	worker_count = worker_count + 1
+	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
+Loop until next_worker_info = ""
 
-	objRecordSet.MoveNext											'Going to the next row in the table
-Loop
+'This functionality is to access worker information directly from the SQL table.
+'It will currently never execute because we haven't worked out access
+worker_has_access_to_SQL = False
+If worker_has_access_to_SQL = True Then
+	' click_stopwatch = timer
 
-'Now we disconnect from the table and close the connections
-objRecordSet.Close
-objConnection.Close
-Set objRecordSet=nothing
-Set objConnection=nothing
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-	For worker_check = 0 to UBound(WORKER_ARRAY, 2)
-		If WORKER_ARRAY(hss_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
-			WORKER_ARRAY(hss_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
-		End If
-		If WORKER_ARRAY(pm_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
-			WORKER_ARRAY(pm_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
-		End If
+	SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
+
+		WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
+		WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
+		WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
+		WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
+		WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
+		WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
+
+		worker_count = worker_count + 1
+
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+
+	For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+		For worker_check = 0 to UBound(WORKER_ARRAY, 2)
+			If WORKER_ARRAY(hss_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
+				WORKER_ARRAY(hss_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
+			End If
+			If WORKER_ARRAY(pm_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
+				WORKER_ARRAY(pm_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
+			End If
+		Next
 	Next
-Next
-
-' how_long_did_it_take = timer - click_stopwatch
-' MsgBox "it took " & how_long_did_it_take & " seconds"
-' For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-' 	MsgBox "This is the information for each person:" & vbCr &_
-' 			"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
-' 			"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
-' 			"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
-' 			"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
-' 			"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
-' 			"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
-' 			"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
-' 			"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
-' Next
-
+	' how_long_did_it_take = timer - click_stopwatch
+	' MsgBox "it took " & how_long_did_it_take & " seconds"
+	' For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+	' 	MsgBox "This is the information for each person:" & vbCr &_
+	' 			"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
+	' 			"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
+	' 			"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
+	' 			"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
+	' 			"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
+	' 			"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
+	' 			"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
+	' 			"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
+	' Next
+End If
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
