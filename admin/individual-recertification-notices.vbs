@@ -219,7 +219,7 @@ If memo_to_send = "RECERT - APPT Notice" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Saacaduhu waa Isniinta - Jimcaha 8-4:30 haddii aan si kale loo sheegin.)")
-			CALL digital_experience
+            CALL digital_experience
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("Qoraallada rabshadaha qoysaska waxaad ka heli kartaa https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. Waxaad kaloo codsan kartaa qoraalkan oo warqad ah.")
 
@@ -580,7 +580,7 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO("(Los horarios son de lunes a viernes de 8 a 4:30 a menos   que se remarque lo contrario)")
-			CALL digital_experience
+            CALL digital_experience
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("**Si no tenemos novedades suyas para el " & day_first_last_recert & ", sus beneficios se terminaran el " & day_first_last_recert & "**")
 
@@ -601,7 +601,7 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
             ' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
             ' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
             ' CALL write_variable_in_SPEC_MEMO(" (Cov sij hawm qhib yog M - F 8-4:30 tsis li mas yuav tsum qhia ua ntej)")
-			CALL digital_experience
+            CALL digital_experience
 			Call write_variable_in_SPEC_MEMO(" ")
             CALL write_variable_in_SPEC_MEMO("** Yog hais tias tsis hnov koj teb ua ntej " & last_day_of_recert & "  **")
             CALL write_variable_in_SPEC_MEMO("**   koj cov kev pab yuav raug kaw thaum " & last_day_of_recert & ".   **")
@@ -648,7 +648,6 @@ ElseIf memo_to_send = "RECERT - NOMI" Then
 			CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
 			CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
 			CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-			CALL write_variable_in_SPEC_MEMO("")
             CALL digital_experience
             CALL write_variable_in_SPEC_MEMO("")
             CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")

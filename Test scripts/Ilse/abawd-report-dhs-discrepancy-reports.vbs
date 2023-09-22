@@ -118,6 +118,23 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
+	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th 
+	''<<<<<<<<<<PROG for Foster care 
+	'Person-based evaluation
+    CALL navigate_to_MAXIS_screen("STAT", "PROG")
+	EmReadScreen IV-E_prog, 8, 11, 33 
+	EMReadScreen IV-E_status, 4, 11, 74
+	If trim(IV-E_prog) = "__ __ __" or IV-E_prog = 0 then 
+		foster_care = False 
+	else 
+		If Trim(IV-E_status) <> "DENY" then 
+			foster_care = True 
+			ObjExcel.Cells(excel_row, notes_col).Value = "Found foster care case!"
+		else 
+			foster_care = False 
+		End if 
+	End if
+
 	'Case-based determination
     IF memb_found = True THEN
 		If SNAP_status <> "INACTIVE" then
@@ -164,6 +181,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			End if
 
 		    'person-based determination
+			age_50 = False 
             CALL navigate_to_MAXIS_screen("STAT", "MEMB")
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen cl_age, 2, 8, 76
@@ -187,7 +205,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    	End if
 		    End if
 		    '----------------------------------------------------------------------------------------------------'16 – 50-59 Years Old
-		    If cl_age => 50 then
+		    If cl_age => 51 then
 		    	If cl_age < 60 then
 		    		If age_verif_code <> "NO" then
 		    			verified_wreg = verified_wreg & "16" & "|"
@@ -201,6 +219,13 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    	End if
 		    End if
 
+			If cl_age = 50 then age_50 = True 
+			'Todo: Add 51 and 52 for next month
+			
+			If cl_age < 24 then 
+				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case."
+			End if 
+			
 			'<<<<<<<<<<DISA
 			'Case-based evaluation
             CALL navigate_to_MAXIS_screen("STAT", "DISA")
@@ -297,26 +322,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
                 'msgbox "verified_disa: " & verified_disa
 			End if
-
-            'If disa_status = True then
-            '    Emreadscreen cash_disa, 2, 11, 59
-            '    If cash_disa <> "__" then
-            '        EMReadScreen cash_disa_verif, 1, 11, 69
-            '        If cash_disa_verif <> "N" then verified_disa = True
-            '    End If
-            '    Emreadscreen snap_disa, 2, 12, 59
-            '    If snap_disa <> "__" then
-            '        EMReadScreen snap_disa_verif, 1, 12, 69
-            '        If snap_disa_verif <> "N" or snap_disa_verif <> "7" then verified_disa = True
-            '    End If
-            '    Emreadscreen hc_disa, 2, 13, 59
-            '    If hc_disa <> "__" then
-            '        EMReadScreen hc_disa_verif, 1, 13, 69
-            '        If hc_disa_verif <> "N" then verified_disa = True
-            '    End If
-            '    If verified_disa = True then verified_wreg = verified_wreg & "03" & "|"
-            'End if
-
 
             '>>>>>>>>>>>>>>EARNED INCOME
 		    'Person-based determination for Earned Income
@@ -551,14 +556,26 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
             '>>>>>>>>>>ADDR
 		    'Case based determination
+			homeless_exemption = False
             CALL navigate_to_MAXIS_screen("STAT", "ADDR")
             EMReadScreen homeless_code, 1, 10, 43
+			EMReadScreen living_situation, 2, 11, 43
             EmReadscreen addr_line_01, 16, 6, 43
 
             IF homeless_code = "Y" then
-                verified_wreg = verified_wreg & "03" & "|"
+				If living_situation = "02" or _
+					living_situation = "06" or _							
+					living_situation = "07" or _
+					living_situation = "08" then 
+					verified_wreg = verified_wreg & "03" & "|"
+					homeless_exemption = True 
+				Else
+					possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is coded Y for homeless but living situation doesn't match."  
+				End if 
             Elseif addr_line_01 = "GENERAL DELIVERY" THEN
                 possible_exemptions = possible_exemptions & vbcr & "Case's ADDR is General Delivery."
+			Else 
+				homeless_exemption = False
             End if
 
             '>>>>>>>>>SCHL/STIN/STEC
@@ -588,167 +605,235 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 End if
 		    End if
 
-
-		    ''Case-based determination
-            'FOR EACH eats_pers IN eats_group_members
-            '	IF eats_pers <> "" THEN
-            '        CALL navigate_to_MAXIS_screen("STAT", "SCHL")
-            '		CALL write_value_and_transmit(eats_pers, 20, 76)
-            '		EMReadScreen num_of_SCHL, 1, 2, 78
-            '		IF num_of_SCHL = "1" THEN
-            '			EMReadScreen school_status, 1, 6, 40
-            '			IF school_status <> "N" THEN
-			'				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to be enrolled in school."
-			'			End if
-            '		ELSE
-            '			EMWriteScreen "STIN", 20, 71
-            '			CALL write_value_and_transmit(eats_pers, 20, 76)
-            '			EMReadScreen num_of_STIN, 1, 2, 78
-            '			IF num_of_STIN = "1" THEN
-            '				STIN_row = 8
-            '				DO
-            '					EMReadScreen cov_thru, 5, STIN_row, 67
-            '					IF cov_thru <> "__ __" THEN
-            '						cov_thru = replace(cov_thru, " ", "/01/")
-            '						cov_thru = DateAdd("M", 1, cov_thru)
-            '						cov_thru = DateAdd("D", -1, cov_thru)
-            '						IF DateDiff("D", ABAWD_eval_date, cov_thru) > 0 THEN
-            '							If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student income."
-            '							EXIT DO
-            '						ELSE
-            '							STIN_row = STIN_row + 1
-            '							IF STIN_row = 18 THEN
-            '								PF20
-            '								STIN_row = 8
-            '								EMReadScreen last_page, 21, 24, 2
-            '								IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-            '							END IF
-            '						END IF
-            '					ELSE
-            '						EXIT DO
-            '					END IF
-            '				LOOP
-            '			ELSE
-            '				EMWriteScreen "STEC", 20, 71
-            '				CALL write_value_and_transmit(eats_pers, 20, 76)
-            '				EMReadScreen num_of_STEC, 1, 2, 78
-            '				IF num_of_STEC = "1" THEN
-            '					STEC_row = 8
-            '					DO
-            '						EMReadScreen stec_thru, 5, STEC_row, 48
-            '						IF stec_thru <> "__ __" THEN
-            '							stec_thru = replace(stec_thru, " ", "/01/")
-            '							stec_thru = DateAdd("M", 1, stec_thru)
-            '							stec_thru = DateAdd("D", -1, stec_thru)
-            '							IF DateDiff("D", ABAWD_eval_date, stec_thru) > 0 THEN
-            '								If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have active student expenses. Please review student status to confirm SNAP eligibility as well as ABAWD and SNAP E&T exemptions."
-			'								EXIT DO
-            '							ELSE
-            '								STEC_row = STEC_row + 1
-            '								IF STEC_row = 17 THEN
-            '									PF20
-            '									STEC_row = 8
-            '									EMReadScreen last_page, 21, 24, 2
-            '									IF last_page = "THIS IS THE LAST PAGE" THEN EXIT DO
-            '								END IF
-            '							END IF
-            '						ELSE
-            '							EXIT DO
-            '						END IF
-            '					LOOP
-            '				END IF
-            '			END IF
-            '		END IF
-            '	END IF
-            '	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-            'NEXT
             IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
 		End if
-	End if
-		'fileter the list here for best_wreg_code
-	If trim(verified_wreg) = "" then
-		best_wreg_code = "30"
-		If verified_abawd = "" then
-			best_abawd_code = "10"
-		Else
-			best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
-		End if
-	Elseif len(verified_wreg) = 2 or len(verified_wreg) = 3 then
-		best_wreg_code = replace(verified_wreg, "|", "")
-	Else
-        wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
-        for each code in wreg_hierarchy
-            If instr(verified_wreg, code) then
-                best_wreg_code = code
-                exit for
-            End if
-        next
-	End if
+	
+	    'filter the list here for best_wreg_code
+	    If trim(verified_wreg) = "" then
+	    	best_wreg_code = "30"
+	    	If verified_abawd = "" then
+	    		best_abawd_code = "10"
+	    	Else
+	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
+	    	End if
+	    Elseif len(verified_wreg) = 2 or len(verified_wreg) = 3 then
+	    	best_wreg_code = replace(verified_wreg, "|", "")
+	    Else
+            wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
+            for each code in wreg_hierarchy
+                If instr(verified_wreg, code) then
+                    best_wreg_code = code
+                    exit for
+                End if
+            next
+	    End if
+    
+	    If best_wreg_code = "03" or _
+	    	best_wreg_code = "04" or _
+	    	best_wreg_code = "05" or _
+	    	best_wreg_code = "06" or _
+	    	best_wreg_code = "07" or _
+	    	best_wreg_code = "08" or _
+	    	best_wreg_code = "09" or _ 
+	    	best_wreg_code = "10" or _
+	    	best_wreg_code = "11" or _
+	    	best_wreg_code = "12" or _
+	    	best_wreg_code = "13" or _
+	    	best_wreg_code = "14" or _
+	    	best_wreg_code = "20" then
+	    		best_abawd_code = "01"
+	    End if
+    
+	    If best_wreg_code = "15" then best_abawd_code = "02"
+	    If best_wreg_code = "16" then best_abawd_code = "03"
+	    If best_wreg_code = "21" then best_abawd_code = "04"
+	    If best_wreg_code = "17" then best_abawd_code = "12"
+	    If best_wreg_code = "23" then best_abawd_code = "05"
+    
+        updates_needed = True
+        If snap_status = "ACTIVE" then
+			'msgbox  "data wreg: ~" & data_wreg & "~" & vbcr & _
+			'		"best wreg: ~" & best_wreg_code & "~" & vbcr & vbcr & _
+			'		"data abawd: ~" & data_abawd & "~" & vbcr & _
+			'		"best abawd: ~" & best_abawd_code & "~"
 
-	If best_wreg_code = "03" or _
-		best_wreg_code = "04" or _
-		best_wreg_code = "05" or _
-		best_wreg_code = "06" or _
-		best_wreg_code = "07" or _
-		best_wreg_code = "08" or _
-		best_wreg_code = "09" or _
-		best_wreg_code = "10" or _
-		best_wreg_code = "11" or _
-		best_wreg_code = "12" or _
-		best_wreg_code = "13" or _
-		best_wreg_code = "14" or _
-		best_wreg_code = "20" then
-			best_abawd_code = "01"
-	End if
-
-	If best_wreg_code = "15" then best_abawd_code = "02"
-	If best_wreg_code = "16" then best_abawd_code = "03"
-	If best_wreg_code = "21" then best_abawd_code = "04"
-	If best_wreg_code = "17" then best_abawd_code = "12"
-	If best_wreg_code = "23" then best_abawd_code = "05"
-
-    updates_needed = True
-    If snap_status = "ACTIVE" then
-        If FSET_code = best_wreg_code then
-            If ABAWD_code = best_abawd_code then
-                ObjExcel.Cells(excel_row, notes_col).Value = "No Updates Needed."
-                updates_needed = False
+            If data_wreg = best_wreg_code then
+                If data_abawd = best_abawd_code then
+					updates_needed = False
+                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed."
+                End if
             End if
         End if
-    End if
+    
+	    '----------------------------------------------------------------------------------------------------ABAWD Tracking Record Handling 
+		If age_50 = True then
+	    	If best_wreg_code = "30" then 
+				'changing codes per temp policy 
+				best_wreg_code = "16"
+				best_abawd_code = "03"
+	    		Call navigate_to_MAXIS_screen("STAT", "WREG")
+            	Call write_value_and_transmit(member_number, 20, 76)
+            	PF9
+	    		'Updating wreg to 16/03 
+				EMWriteScreen best_wreg_code, 8, 50
+				EMWriteScreen best_abawd_code, 13, 50
+				If best_wreg_code = "30" then
+				    EmWriteScreen "N", 8, 80
+				Else
+				    EMWriteScreen "_", 8, 80
+				End if
+	    		
+	    		'Update tracking record
+	    		ATR_updates = array("D","M")
+	    		For each update_code in ATR_updates
+	    		    'msgbox update_code
+					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
+	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+        		    bene_yr_row = 10
+			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+					PF3 'to go back to WREG/Panel
+	    		Next 
+	    		PF3 'save WREG panel
+	    		
+	    		start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age 50--")	
+				'Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age 50-52--")	
+	    		Call write_variable_in_CASE_NOTE("---")
+	    		Call write_variable_in_CASE_NOTE("* Effective 09/23 50 year old are no longer exempt from SNAP time limits due solely to age.")
+				'Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
+	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(Worker_Signature)
+	    		PF3
+	    		'case note workaround
+				ObjExcel.Cells(excel_row, notes_col).Value = "50 Years Old!"
+				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
+	    	End if
+	    End if  	
 
-    If updates_needed = True then
-        'script will update the WREG panel for the member if an update
-        Call navigate_to_MAXIS_screen("STAT", "WREG")
-        Call write_value_and_transmit(member_number, 20, 76)
-        PF9
-        EMWriteScreen best_wreg_code, 8, 50
-        EMWriteScreen best_abawd_code, 13, 50
-        If best_wreg_code = "30" then
-            EmWriteScreen "N", 8, 80
-        Else
-            EMWriteScreen "_", 8, 80
-        End if
+	    If best_wreg_code = "30" then 
+	    'Count all the ABAWD months
+	        Call navigate_to_MAXIS_screen("STAT","WREG")		'navigates to stat/wreg
+	        CALL write_value_and_transmit(member_number, 20, 76)
+            Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'
+            EMReadscreen tracking_record_check, 15, 4, 40  		'adds cases to the rejection list if the ABAWD tracking record cannot be accessed.
+        	If tracking_record_check <> "Tracking Record" then
+	    		ObjExcel.Cells(excel_row, notes_col).Value = "Error accessing ATR."
+        	ELSE
+        		TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
+	    		TLR_fixed_clock_yr = "23"
+	    	
+	    		bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+        		bene_yr_row = 10
+        		abawd_counted_months = 0					'delclares the variables values at 0
+	    		banked_months_count = 0
+        		month_count = 0
 
-        EmReadScreen wreg_check, 2, 8, 50
-        EmReadScreen abawd_check, 2, 13, 50
+        		DO
+        			'establishing variables for specific ABAWD counted month dates
+        			If bene_mo_col = "19" then counted_date_month = "01"
+        			If bene_mo_col = "23" then counted_date_month = "02"
+        			If bene_mo_col = "27" then counted_date_month = "03"
+        			If bene_mo_col = "31" then counted_date_month = "04"
+        			If bene_mo_col = "35" then counted_date_month = "05"
+        			If bene_mo_col = "39" then counted_date_month = "06"
+        			If bene_mo_col = "43" then counted_date_month = "07"
+        			If bene_mo_col = "47" then counted_date_month = "08"
+        			If bene_mo_col = "51" then counted_date_month = "09"
+        			If bene_mo_col = "55" then counted_date_month = "10"
+        			If bene_mo_col = "59" then counted_date_month = "11"
+        			If bene_mo_col = "63" then counted_date_month = "12"
+        			'counted date year: this is found on rows 7-10. Row 11 is current year plus one, so this will be exclude this list.
+        			If bene_yr_row = "10" then counted_date_year = right(DatePart("yyyy", date), 2)
+        			If bene_yr_row = "9"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -1, date)), 2)
+        			If bene_yr_row = "8"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -2, date)), 2)
+        			If bene_yr_row = "7"  then counted_date_year = right(DatePart("yyyy", DateAdd("yyyy", -3, date)), 2)
+        			abawd_counted_months_string = counted_date_month & "/" & counted_date_year
+    
+        			'reading to see if a month is counted month or not
+        			EMReadScreen is_counted_month, 1, bene_yr_row, bene_mo_col
+    
+        			'counting and checking for counted ABAWD months
+        			IF is_counted_month = "X" or is_counted_month = "M" THEN
+        				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+        				abawd_counted_months = abawd_counted_months + 1				'adding counted months
+        			END IF
+    
+	    			'counting and checking for counted banked months
+        			IF is_counted_month = "B" or is_counted_month = "C" THEN
+        				EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+        				banked_months_count = banked_months_count + 1				'adding counted months
+        			END IF
+    
+        			bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+        			IF bene_mo_col = 15 THEN
+        				bene_yr_row = bene_yr_row - 1
+        				bene_mo_col = 63
+        			END IF
+        			
+	    		'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members. 
+        		LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
+	    		'msgbox "ABAWD's: " & abawd_counted_months & vbcr & "Banked: " & banked_months_count
+        		PF3	' to exit tracking record 
+    
+	    		If abawd_counted_months => 3 then 
+	    			If banked_months_count = 0 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 1st Banked Month on STAT/WREG."
+	    			If banked_months_count = 1 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 2nd Banked Month on STAT/WREG."
+	    			If banked_months_count = 2 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Case has used all banked months."
 
-        If wreg_check = best_wreg_code then
-            If abawd_check = best_abawd_code then
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = True
+					If ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed." then 
+						ObjExcel.Cells(excel_row, auto_wreg_col).Value = TRUE 
+					End If 
+	    		End if
+			End if 
+        End if 
+	    	
+        If updates_needed = True then
+            'script will update the WREG panel for the member if an update
+            Call navigate_to_MAXIS_screen("STAT", "WREG")
+            Call write_value_and_transmit(member_number, 20, 76)
+            PF9
+            EMWriteScreen best_wreg_code, 8, 50
+            EMWriteScreen best_abawd_code, 13, 50
+            If best_wreg_code = "30" then
+                EmWriteScreen "N", 8, 80
             Else
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = False
+                EMWriteScreen "_", 8, 80
             End if
+    
+            EmReadScreen wreg_check, 2, 8, 50
+            EmReadScreen abawd_check, 2, 13, 50
+    
+            If wreg_check = best_wreg_code then
+                If abawd_check = best_abawd_code then
+                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = True
+                Else
+                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = False
+                End if
+            End if
+            PF3
+            EmReadScreen warning_check, 8, 24, 2
+            If warning_check = "WARNING:" then transmit
+            PF3 'out of STAT/WRAP
+    
+	    	If homeless_exemption = True then
+	    	    start_a_blank_CASE_NOTE
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
+	    		Call write_variable_in_CASE_NOTE("---")
+	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from time limits.")
+	    		Call write_variable_in_CASE_NOTE("* Effective 09/23 SNAP Work Rules will need to be followed by persons meeting this exemption.")
+	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 03/01 until DHS system updates are in place.")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(Worker_Signature)
+	    		PF3
+	    	End if 
         End if
-        PF3
-        EmReadScreen warning_check, 8, 24, 2
-        If warning_check = "WARNING:" then transmit
-        PF3 'out of STAT/WRAP
-    End if
+    End if 
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
 	ObjExcel.Cells(excel_row, verified_wreg_col).Value = verified_wreg
+	ObjExcel.Cells(excel_row, counted_months_col).Value = abawd_counted_months
     ObjExcel.Cells(excel_row, all_exemptions_col).Value = trim(possible_exemptions)
 End Function
 
@@ -768,14 +853,17 @@ pmi_col         	= 2
 SNAP_status_col	    = 3
 memb_numb_col   	= 4
 eats_HH_col			= 5
-CM_wreg_col		   	= 6
-CM_abawd_col		= 7
-best_wreg_col		= 8
-best_abawd_col		= 9
-notes_col			= 10
-auto_wreg_col       = 11
-verified_wreg_col 	= 12
-all_exemptions_col	= 13
+Data_wreg_col 		= 6
+Data_ABAWD_col		= 7
+CM_wreg_col		   	= 8
+CM_abawd_col		= 9	
+best_wreg_col		= 10	
+best_abawd_col		= 11
+notes_col			= 12
+auto_wreg_col  		= 13     
+verified_wreg_col 	= 14
+counted_months_col	= 15
+all_exemptions_col	= 16
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -823,6 +911,9 @@ Do
 	PMI_number = trim(ObjExcel.Cells(excel_row, pmi_col).Value)
 	PMI_number = right ("00000000" & trim(PMI_number), 8)
 	ObjExcel.Cells(excel_row, pmi_col).Value = PMI_number
+
+	data_wreg =  trim(ObjExcel.Cells(excel_row, data_wreg_col).Value)
+	data_abawd = trim(ObjExcel.Cells(excel_row, data_abawd_col).Value)
 
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then

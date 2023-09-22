@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/15/2023", "There was an error on Health Care Evaluation when a case either does not have Health Care on it or a household member with Health Care is not selected. The script will now stop if the case is missing a HCRE panel and will force the selection of a member to process on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2023", "Updated NOTES - Health Care Evaluation to include and reflect ex parte review process.", "Mark Riegel, Hennepin County")
 call changelog_update("05/30/2023", "Updated NOTES - Health Care Evaluation to support recertification processing.##~####~##Added the MN Health Care Programs Renewal form as an option to select.##~##'Recertification' can be selected for each person with HC being processed.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/28/2023", "Updates to the script funcationality to support:##~## ##~## - PBEN infomration for the requirment of other programs.##~## - Indicate for a requirement to apply for Medicare.##~## - Selection of Major Program wlong with Basis of Eligibility.##~## - Additional fields for LTC specific information.##~## - Place to provide details of the AVS steps taken.##~## - If only one person on the case, the script will no longer require you select the household members.##~##", "Casey Love, Hennepin County")
@@ -3090,9 +3091,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Call back_to_SELF
 	EMReadScreen MX_region, 10, 22, 48
 	MX_region = trim(MX_region)
+	phase_1_SQL_month = "20" & CM_plus_2_yr & "-" & CM_plus_2_mo & "-01"		'defining month in the format used in SQL for the REVW month for each of the Ex Parte phases
+	phase_2_SQL_month = "20" & CM_plus_1_yr & "-" & CM_plus_1_mo & "-01"		'This is used to pull ad update the correct information form SQL
 	If MX_region <> "TRAINING" Then
 		'declare the SQL statement that will query the database
-		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
+		'Searching for the specific case number and revw month.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and (HCEligReviewDate = '" & phase_2_SQL_month & "' or HCEligReviewDate = '" & phase_1_SQL_month & "')"
 
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
@@ -4291,7 +4295,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 				' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 				sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_1_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4509,7 +4513,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If MX_region <> "TRAINING" Then
 			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 				sql_format_phase_2_denial_reason = replace(phase_1_changes_summary, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_2_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4619,6 +4623,7 @@ Do
 		If last_page = "LAST PAGE" Then Exit Do
 	End If
 Loop until hcre_ref_numb = "  "
+If hc_memb = 0 Then script_end_procedure_with_error_report("There is no member listed on HCRE, indicating there has not been anyone on HC and no HC request exists. The script will now end.")
 
 'Now we go read STAT/MEMB for all of the persons listed on HCRE
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -4772,12 +4777,12 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 				EditBox 10, 190, 365, 15, ma_bc_tikls
 				OkButton 270, 215, 50, 15
 				CancelButton 325, 215, 50, 15
-				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligiubility:"
+				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligibility:"
 				Text 10, 35, 300, 10, "Enter the date the Temporary Medical Assistance Authorization (DHS-3525B) was received:"
 				Text 10, 55, 350, 10, HC_form_name & " received on " & form_date
 				Text 10, 70, 115, 10, "Case Information for CASE/NOTE:"
 				Text 20, 85, 315, 10, "Breast Cancer application if Health Care is still needed after 2 months of Presumptive Care."
-				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligbility."
+				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligibility."
 				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe &"  and " & next_month_pe & "."
 				Text 10, 150, 85, 10, "Additional Case Details:"
 				Text 10, 180, 85, 10, "Additional TIKLs Set"
@@ -4816,14 +4821,14 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 
 	Call write_variable_in_CASE_NOTE("MEMB " & ma_bc_member & " approved for MA-BC Presumptive Care.")
 	Call write_variable_in_CASE_NOTE("  Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & ".")
-	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
+	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligibility.")
 	Call write_variable_in_CASE_NOTE("* Identity verified using medical document - " & short_form & ".")
 	Call write_variable_in_CASE_NOTE("* Citizenship and Immigration information are not requested or required.")
 
 	If ma_bc_notes <> "" OR ma_bc_tikls <> "" OR MA_BC_PE_end_TIKL_note_text <> "" Then Call write_variable_in_CASE_NOTE("============================== NOTES ===============================")
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
 	MA_BC_PE_end_TIKL_note_text = replace(MA_BC_PE_end_TIKL_note_text, ", 0 day return", "")
-	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Preseumtive Eligibility.")
+	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Presumptive Eligibility.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Additional TIKLs", ma_bc_tikls)
 
 	Call write_variable_in_case_note("---")
@@ -4886,31 +4891,101 @@ Else
 		If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = checked
 	NEXT
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-		Text 10, 5, 205, 10, "Select Household Members to capture information about."
-		Text 10, 15, 205, 10, "Check all members: "
-		Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
-		Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
-		Text 10, 55, 100, 10, "Count Income/Assets"
-		Text 200, 55, 100, 10, "Processing Health Care"
-		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN
-				checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-				ref_numb = left(all_clients_array(i, 0),2)
-				If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	Do
+		err_msg = ""
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+			Text 10, 5, 205, 10, "Select Household Members to capture information about."
+			Text 10, 15, 205, 10, "Check all members: "
+			Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
+			Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
+			Text 10, 55, 100, 10, "Count Income/Assets"
+			Text 200, 55, 100, 10, "Processing Health Care"
+			FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+				IF all_clients_array(i, 0) <> "" THEN
+					checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+					ref_numb = left(all_clients_array(i, 0),2)
+					If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 
-			End If
-		NEXT
-		ButtonGroup ButtonPressed
-		OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
-		CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
-	EndDialog
+				End If
+			NEXT
+			ButtonGroup ButtonPressed
+			OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
+			CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
+		EndDialog
 
-	Dialog Dialog1
-	Cancel_without_confirmation
+		Dialog Dialog1
+		Cancel_without_confirmation
+
+		member_checked_to_process = False
+		FOR i = 0 to total_clients
+			IF all_clients_array(i, process_checkbox) = 1 THEN member_checked_to_process = True
+		Next
+		If member_checked_to_process = False Then err_msg = err_mag & vbCr & "* You must select at least one household member for whom you are processing health care eligibility."
+		If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 	check_for_maxis(False)
 End If
+
+'Determining if there are any HC status codes on the case for CM + 1 through, and including, CM - 4.
+'Setting hc_status_code_past_4_months to False initially
+hc_status_code_past_4_months = False
+
+'Set footer month and year to CM + 1, will be reviewing CM + 1 up to and including CM - 4
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
+MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+'Navigating to STAT/REVW for CM + 1
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+'Reads STAT/REVW to determine if there is a status code
+EMReadScreen HC_status_code, 1, 7, 73
+
+'If status_code is not blank, then set HC eval process to recertification for all HH members requesting HC access
+If HC_status_code <> "_" Then
+    hc_status_code_past_4_months = True
+Else
+    'Since starting at CM + 1, looking back 6 months from this footer month/year. Set date that is 6 months before CM (which is CM + 1) in footer month format ("04 23"), this is where script should stop as it iterates backward
+    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2)
+
+    Do
+        'Head back to SELF panel
+        Call back_to_SELF
+
+        'Subtract 1 from footer month/year
+        MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
+        MAXIS_footer_year = right(DatePart("yyyy", DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
+        MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
+        MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+        'Perform check to determine if it matches CM - 5 or "07 23"
+        If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then
+            hc_status_code_past_4_months = False
+            Exit Do
+        Else
+            Call navigate_to_MAXIS_screen("STAT", "REVW")
+            'Check if errored on footer month/year
+            EmReadScreen HC_case_invalid_check, 25, 24, 2
+            If Instr(HC_case_invalid_check, "INVALID") Then
+                Call back_to_SELF
+                Exit Do
+            End If
+
+            EMReadScreen HC_status_code, 1, 7, 73
+            If HC_status_code <> "_" Then
+                'To do - update the process on how this will work
+                hc_status_code_past_4_months = True
+                Exit Do
+            End If
+        End If
+    Loop
+End If
+
+'Resetting MAXIS footer month and year to CM as earlier in script
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
 selected_memb = ""
 List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
@@ -4925,6 +5000,7 @@ FOR i = 0 to total_clients
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
 					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
+					If hc_status_code_past_4_months = True Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					' If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If

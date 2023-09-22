@@ -445,7 +445,7 @@ Do
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
-		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("*** Options for Submitting Documents ***; - Use InfoKeep online at infokeep.hennepin.us to upload directly to your case.; - Use InfoKeep to upload documents directly to your case.; - You can submit documents online at MNBenefits.mn.gov.; - Mail, Fax, or Drop Boxes at service centers.")
+		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("*** Options for Submitting Documents ***; - Upload documents to case with infokeep.hennepin.us.; - You can submit documents online at MNBenefits.mn.gov.; - Mail, Fax, or Drop Boxes at service centers.")
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)

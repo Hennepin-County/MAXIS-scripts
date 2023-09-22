@@ -252,7 +252,7 @@ For item = 0 to Ubound(DAIL_array, 2)
 
         Call write_variable_in_SPEC_MEMO("If you have medical bills over $35 each month, please contact your team to discuss adjusting your benefits. You will need to send in proof of the medical bills, such as pharmacy receipts, an explanation of benefits, or premium notices.")
 		CALL write_variable_in_SPEC_MEMO("")
-		Call digital_experience
+		CALL digital_experience
         Call write_variable_in_SPEC_MEMO("************************************************************")
 
         PF4

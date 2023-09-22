@@ -10247,20 +10247,22 @@ If left(confirm_ebt_read, 4) <> "YES!" Then
 
 					Text 10, 370, 210, 10, "Confirm you have reviewed EBT Information:"
 
-					Text 310, 100, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
-					Text 310, 125, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
-					Text 310, 150, 200, 20, "If they have never had an EBT card, they MAY be able to pick one up in one of the following service centers:"
-					Text 320, 170, 200, 10, "Central-Northeast HSB (525 Portland Ave South, Minneapolis)"
-					Text 320, 180, 200, 10, "South (2215 East Lake Street, Minneapolis)"
-					Text 320, 190, 215, 10, "Northwest (7051 Brooklyn Boulevard, Brooklyn Center - 1st floor)"
-					Text 320, 205, 180, 20, "REACH OUT TO THE ACCOUNTING SERVICE DESK TO CONFIRM CASE CAN RECEIVE A CARD IN OFFICE"
-					PushButton 320, 225, 180, 13, "Accounting Service Desk Sharepoint Site", accounting_service_desk_btn
-					Text 310, 245, 220, 35, "If resident does not have a stable mailing address to receive an EBT card and cannot get a new/replacement card in the office, there is a process to have the card mailed to one of the above service centers for pickup."
-					Text 310, 245, 220, 25, "If resident does not have a stable mailing address to receive an EBT card, there is a process to have the card mailed to a service center for pickup."
-					PushButton 310, 270, 180, 15, "Accounting Processes for EBT Cards", accounting_in_hsr_manual_btn
-					Text 320, 290, 115, 10, "This is helpful for residents who:"
-					Text 330, 300, 115, 10, "Need a replacement card."
-					Text 330, 310, 155, 20, "Accounting specifies resident cannot receive card in office."
+					Text 310, 95, 225, 20, "If the resident does not have an EBT Card, discuss how they would like to get their EBT card."
+					Text 310, 115, 215, 20, "By default, the card will be mailed to the resident at the address listed on STAT/ADDR."
+					Text 310, 135, 200, 20, "If they have never had an EBT card, see the ACCOUNTING page in the HSR manual."
+					PushButton 430, 145, 100, 12, "HSR Manual - Accounting", accounting_in_hsr_manual_btn
+					Text 310, 160, 200, 20, "The resident MAY be able to pick one up in one of the following service centers:"
+					Text 320, 180, 200, 10, "Central-Northeast HSB (525 Portland Ave South, Minneapolis)"
+					Text 320, 190, 200, 10, "South (2215 East Lake Street, Minneapolis)"
+					Text 320, 200, 215, 10, "Northwest (7051 Brooklyn Boulevard, Brooklyn Center - 1st floor)"
+					Text 320, 215, 180, 20, "REACH OUT TO THE ACCOUNTING SERVICE DESK TO CONFIRM CASE CAN RECEIVE A CARD IN OFFICE"
+					PushButton 320, 235, 180, 13, "Accounting Service Desk Sharepoint Site", accounting_service_desk_btn
+					Text 310, 255, 220, 35, "If resident does not have a stable mailing address to receive an EBT card and cannot get a new/replacement card in the office, there is a process to have the card mailed to one of the above service centers for pickup."
+					Text 310, 255, 220, 25, "If resident does not have a stable mailing address to receive an EBT card, there is a process to have the card mailed to a service center for pickup."
+					PushButton 310, 280, 180, 15, "Accounting Processes for EBT Cards", accounting_in_hsr_manual_btn
+					Text 320, 300, 115, 10, "This is helpful for residents who:"
+					Text 330, 310, 115, 10, "Need a replacement card."
+					Text 330, 320, 155, 20, "Accounting specifies resident cannot receive card in office."
 			EndDialog
 
 
