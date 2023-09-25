@@ -2102,7 +2102,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 					Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
 					IF memo_started = True THEN
 						'TODO - add languages in when we can'
-						Call create_appointment_letter_notice_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), WORKING_LIST_CASES_ARRAY(appointment_date, case_entry), nomi_last_contact_day)
+						CALL create_NOMI_application(WORKING_LIST_CASES_ARRAY(application_date, case_entry), WORKING_LIST_CASES_ARRAY(appointment_date, case_entry), nomi_last_contact_day)
 					Else
 						WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
 					End If
