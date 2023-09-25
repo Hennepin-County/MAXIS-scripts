@@ -128,7 +128,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				MsgBox "Form selections were cleared, please reselect correct forms."	'Notify end user that entries were cleared.
 			End If
 			
-			If form_count = 0 and ButtonPressed = Ok Then err_msg = "~~Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
+			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
@@ -140,6 +140,20 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			Do
 				ReDim form_type_array(form_count)		'Reseting any selections already made so the user can reselect correct forms using different format.
 				form_count = 0							'Reseting the form count to 0 so that y_pos resets to 95. 
+				asset_checkbox = unchecked
+				arep_checkbox = unchecked
+				atr_checkbox = unchecked
+				change_checkbox = unchecked
+				evf_checkbox = unchecked
+				hospice_checkbox = unchecked
+				iaa_checkbox = unchecked
+				iaa_ssi_checkbox = unchecked
+				mof_checkbox = unchecked
+				mtaf_checkbox = unchecked
+				psn_checkbox = unchecked
+				shelter_checkbox = unchecked
+				diet_checkbox = unchecked
+				
 			
 				err_msg = ""
 				Dialog1 = "" 'Blanking out previous dialog detail
@@ -245,8 +259,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_count= form_count + 1 
 				End If
 				
-			' 	If (asset_checkbox and arep_checkbox and atr_checkbox and change_checkbox and evf_checkbox and hospice_checkbox and iaa_checkbox and iaa_ssi_checkbox and mof_checkbox and mtaf_checkbox and psn_checkbox and shelter_checkbox and diet_checkbox) = unchecked Then err_msg = "~~Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
-			' 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
+				If asset_checkbox = unchecked and arep_checkbox = unchecked and atr_checkbox = unchecked and change_checkbox = unchecked and evf_checkbox = unchecked and hospice_checkbox = unchecked and iaa_checkbox = unchecked and iaa_ssi_checkbox = unchecked and mof_checkbox = unchecked and mtaf_checkbox = unchecked and psn_checkbox = unchecked and shelter_checkbox = unchecked and diet_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "-Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
+				If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 			Loop until err_msg = ""	
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = FALSE
