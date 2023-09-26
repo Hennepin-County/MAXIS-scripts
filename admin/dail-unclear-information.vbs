@@ -246,36 +246,52 @@ FOR i = 1 to 5		'formatting the cells'
     objExcel.columns(1).AutoFit()				'sizing the columns'
 NEXT
 
-DIM DAIL_array()
-'TO DO - verify why we use excel_row_const instead of 12 for number of constants - 12 because of 0-index so actually 13 items
-' To Do - confirm use of actual number (14) vs excel_row_const
-' ReDim DAIL_array(excel_row_const, 0)
-ReDim DAIL_array(14, 0)
+'Create an array to track in-scope DAIL messages
+DIM DAIL_message_array()
+
+ReDim DAIL_message_array(9, 0)
 'Incrementor for the array
 Dail_count = 0
 
 'constants for array
-const worker_const	                    = 0
-const maxis_case_number_const           = 1
+const maxis_case_number_const           = 0
+const worker_const	                    = 1
 const dail_type_const                   = 2
 const dail_month_const		            = 3
 const dail_msg_const		            = 4
-const snap_status_const                 = 5
-const other_programs_present_const      = 6
-const reporting_status_const            = 7
-const sr_report_date_const              = 8
-const recertification_date_const        = 9
-const renewal_month_determination_const = 10
-const action_req_const                  = 11
-const processing_notes_const            = 12
+const renewal_month_determination_const = 5
+const processable_based_on_dail_const   = 6
+'To do - processing notes, would these be captured in case details array?
+const dail_processing_notes_const       = 7
 ' To Do - is the excel row constant needed?
-const excel_row_hire_const              = 13
-const excel_row_cses_const              = 14
+const dail_excel_row_const              = 8
 
+'Sets variable for the Excel row to export data to Excel sheet
+dail_excel_row = 2
 
-'Sets variable for the Excel rows to export data to Excel sheet
-excel_row_hire = 2
-excel_row_cses = 2
+'Create an array to track case details
+DIM case_details_array()
+
+ReDim case_details_array(9, 0)
+'Incrementor for the array
+case_count = 0
+
+'constants for array
+const maxis_case_number_const           = 0
+const worker_const	                    = 1
+const snap_status_const                 = 2
+const other_programs_present_const      = 3
+const reporting_status_const            = 4
+const sr_report_date_const              = 5
+const recertification_date_const        = 6
+'To do - processing notes, would these be captured in case details array?
+const processable_based_on_case_const   = 7
+' To Do - is the excel row constant needed?
+const case_excel_row_const              = 8
+
+'Sets variable for the Excel row to export data to Excel sheet
+case_excel_row = 2
+
 'To Do - add tracking of deleted dails once processing the list
 'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
