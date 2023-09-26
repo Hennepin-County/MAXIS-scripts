@@ -53,33 +53,35 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 Call Check_for_MAXIS(False)
-'To DO - determine if necessary, likely remove since pulling all worker numbers
-' all_workers_check = 1   'checked
+
 'Sets the county code for Hennepin County as X127
 worker_county_code = "X127"
-'Set current month and year
+
+'Set footer month and year to current month and year
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
-'To do - remove auto-setting of file path, added for speeding up testing
-' file_selection_path = "\\hcgg.fr.co.hennepin.mn.us\LOBRoot\HSPH\Team\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\Unclear Information\08-2023 Unclear Information.xlsx"
-
 'Initial dialog - select whether to create a list or process a list
-BeginDialog Dialog1, 0, 0, 266, 190, "DAIL Unclear Information"
-  GroupBox 10, 5, 250, 80, "Using the DAIL Unclear Information Script"
-  Text 20, 20, 235, 60, "A BULK script that gathers then processes selected (HIRE and CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. The script will then review the Excel file for 6-month reporters on SNAP-only and process the DAIL messages accordingly by adding a CASE/NOTE and then removing the message."
-  Text 15, 95, 175, 10, "Indicate if creating Excel list or processing Excel list:"
-  DropListBox 15, 105, 245, 20, "Select an option..."+chr(9)+"Create new Excel list"+chr(9)+"Process existing Excel list", script_action
-  Text 15, 130, 175, 10, "If processing list, navigate to the file below:"
-  EditBox 15, 140, 200, 15, file_selection_path
+BeginDialog Dialog1, 0, 0, 306, 210, "DAIL Unclear Information"
+  GroupBox 10, 5, 290, 65, "Using the DAIL Unclear Information Script"
+  Text 20, 15, 275, 50, "A BULK script that gathers and processes selected (HIRE and/or CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. As the DAIL messages are reviewed, the script will process DAIL messages for 6-month reporters on SNAP-only and process the DAIL messages accordingly. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. "
+  Text 15, 80, 175, 10, "Type of DAIL Messages to Process:"
+  CheckBox 15, 90, 55, 10, "CSES", CSES_messages
+  CheckBox 15, 100, 55, 10, "HIRE", HIRE_messages
+  Text 15, 115, 115, 10, "Select the X Numbers to Process:"
+  CheckBox 15, 125, 90, 10, "Process ALL X Numbers", process_all_x_numbers
+  CheckBox 15, 135, 185, 10, "Process Specific X Numbers (enter X Numbers below)", process_specific_x_numbers
+  Text 15, 150, 270, 10, "If processing specific X numbers, enter the numbers below separated by a comma:"
+  EditBox 15, 160, 270, 15, specific_x_numbers_to_process
+  Text 15, 195, 60, 10, "Worker Signature:"
+  EditBox 80, 190, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 220, 140, 40, 15, "Browse...", select_a_file_button
-  Text 5, 175, 60, 10, "Worker Signature:"
-  EditBox 65, 170, 110, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 180, 170, 40, 15
-    CancelButton 220, 170, 40, 15
+    OkButton 215, 190, 40, 15
+    CancelButton 255, 190, 40, 15
 EndDialog
+
+
+
 
 DO
     Do
@@ -88,14 +90,16 @@ DO
         cancel_confirmation
 
         'Dialog field validation
-        'Add handling for Browse button to allow the user to select the Excel file when processing an existing list
-        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx") 
-        'Ensures user selects script action - create or process list
-        If script_action = "Select an option..." THEN err_msg = err_msg & vbCr & "* Please indicate if you are creating or processing an Excel list."
-        'Ensures that if a new Excel list is to be created that the file path is blank
-        If script_action = "Create new Excel list" AND trim(file_selection_path) <> "" Then err_msg = err_msg & vbCr & "* The browse field must be blank if you are creating a new Excel list."
-        'Ensures that if processing an existing Excel list, the user has selected an .xlsx file path
-        If script_action = "Process existing Excel list" AND trim(file_selection_path) = "" Then err_msg = err_msg & vbCr & "* To process an existing list, you must navigate to and select the Excel file."
+        'Validation to ensure that at least CSES or HIRE messages checkbox is checked
+        If CSES_messages = 0 AND HIRE_messages = 0 Then err_msg = err_msg & vbCr & "* Select either CSES or HIRE messages, or both. Both checkboxes cannot be left blank."
+        'Validation to ensure that only one option is selected for X Numbers to process
+        If process_specific_x_numbers = 1 AND process_all_x_numbers = 1 Then err_msg = err_msg & vbCr & "* You can only select one option for processing X Numbers. Uncheck one of the boxes."
+        'Validation to ensure that X Numbers to Process options are not both blank
+        If process_specific_x_numbers = 0 AND process_all_x_numbers = 0 Then err_msg = err_msg & vbCr & "* You must select the X Numbers to process. Check one of the boxes, they cannot both be left blank."
+        'Validation to ensure that Specific X Numbers field is left blank if processing all X Numbers
+        If process_all_x_numbers = 1 AND trim(specific_x_numbers_to_process) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Process All X Numbers. The entry field for specific X Numbers must be blank to proceed."
+        'Validation to ensure that if processing specific X numbers, the list of X numbers field is not blank
+        If process_specific_x_numbers = 1 AND trim(specific_x_numbers_to_process) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. You must enter a list of X Numbers separated by a comma to proceed. The entry field is currently empty."
         'Ensures worker signature is not blank
         IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please enter your worker signature."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
