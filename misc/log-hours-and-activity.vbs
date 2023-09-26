@@ -133,6 +133,13 @@ If user_ID_for_validation = "MARI001" Then
 	bz_member = "Mark Riegel"
 	' leave_request_type = "PTO"
 End If
+If user_ID_for_validation = "DACO003" Then
+	t_drive_excel_file_path = excel_file_path & "\Dave Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Dave Time Tracking.xlsx"
+	bz_member = "Dave Courtright"
+	' leave_request_type = "PTO"
+End If
+
 
 If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
 If objFSO.FileExists(my_docs_excel_file_path) = False Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
