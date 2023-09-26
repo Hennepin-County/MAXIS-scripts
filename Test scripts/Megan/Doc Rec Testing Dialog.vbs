@@ -94,7 +94,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			err_msg = ""
 			Dialog1 = "" 			'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-				DropListBox 30, 30, 180, 15, "Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
+				DropListBox 30, 30, 180, 15, ""+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
@@ -118,9 +118,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
 
-			If ButtonPressed = add_button Then					'If statement to know when to store the information in the array
+			If ButtonPressed = add_button and form_type <> "" Then					'If statement to know when to store the information in the array
 				ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
-				form_type_array(form_count) = Form_type			'form_type is the same var for the combo box of for types  
+				form_type_array(form_count) = Form_type			'form_type is the same var for the dropbox of for types  
 				form_count= form_count + 1 
 			End If
 				
@@ -140,6 +140,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				psn_checkbox = unchecked				'Resetting checkboxes to unchecked
 				shelter_checkbox = unchecked			'Resetting checkboxes to unchecked
 				diet_checkbox = unchecked				'Resetting checkboxes to unchecked
+				form_type = ""							'Resetting dropdown to blank
 				MsgBox "Form selections cleared." & vbNewLine & "Please make new form selections."	'Notify end user that entries were cleared.
 			End If
 			
@@ -186,13 +187,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				'Capturing forms with checked checkboxes in array, which will then be listed on the Select Documents Received dialog.
 				If asset_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
-					form_type_array(form_count) = "AREP (Authorized Rep)"
+					form_type_array(form_count) = "Asset Statement" 
 					form_count= form_count + 1 
 				End If
 
 				If arep_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
-					form_type_array(form_count) = "Asset Statement"
+					form_type_array(form_count) = "AREP (Authorized Rep)"
 					form_count= form_count + 1 
 				End If
 
@@ -296,8 +297,8 @@ If asset_checkbox = checked or Form_type = "Asset Statement" Then
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -330,8 +331,8 @@ If arep_checkbox = checked or Form_type = "AREP (Authorized Rep)" Then
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -364,8 +365,8 @@ If atr_checkbox = checked or Form_type = "Authorization to Release Information (
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -398,8 +399,8 @@ If change_checkbox = checked or Form_type = "Change Report Form" Then
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -433,8 +434,8 @@ If evf_checkbox = checked or Form_type = "Employment Verification Form (EVF)" Th
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -453,7 +454,7 @@ End If
 If hospice_checkbox = checked or Form_type = "Hospice Transaction Form" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 225, "Hospice Form Received"
+	BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
 		EditBox 60, 5, 40, 15, MAXIS_case_number
 		EditBox 160, 5, 45, 15, effective_date
 		EditBox 285, 5, 45, 15, date_received
@@ -467,8 +468,8 @@ If hospice_checkbox = checked or Form_type = "Hospice Transaction Form" Then
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -501,8 +502,8 @@ If iaa_checkbox = checked or Form_type = "Interim Assistance Agreement (IAA)" Th
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -535,8 +536,8 @@ If iaa_ssi_checkbox = checked or Form_type = "Interim Assistance Authorization- 
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -569,8 +570,8 @@ If mof_checkbox = checked or Form_type = "Medical Opinion Form (MOF)" Then
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -603,8 +604,8 @@ If mtaf_checkbox = checked or Form_type = "Minnesota Transition Application Form
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -637,8 +638,8 @@ If psn_checkbox = checked or Form_type = "Professional Statement of Need (PSN)" 
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -657,7 +658,7 @@ End If
 If shelter_checkbox = checked or Form_type = "Residence and Shelter Expenses Release Form" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 280, "Residence and Shelter Expenses Release Form"
+	BeginDialog Dialog1, 0, 0, 376, 300, "Residence and Shelter Expenses Release Form"
 		EditBox 60, 5, 40, 15, MAXIS_case_number
 		EditBox 160, 5, 45, 15, effective_date
 		EditBox 285, 5, 45, 15, date_received
@@ -671,8 +672,8 @@ If shelter_checkbox = checked or Form_type = "Residence and Shelter Expenses Rel
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -705,8 +706,8 @@ If diet_checkbox = checked or Form_type = "Special Diet Information Request (MFI
 			PushButton 330, 45, 45, 15, "Form #1", Button9
 			PushButton 330, 65, 45, 15, "Form #2", Button11
 			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", btn3
-			PushButton 315, 275, 50, 15, "Next", btn6
+			PushButton 260, 275, 50, 15, "Previous", previous_btn
+			PushButton 315, 275, 50, 15, "Next", next_btn
 		Text 110, 10, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 220, 10, 60, 10, "Document Date:"
@@ -809,6 +810,9 @@ End If
 ' unchecked = 0			
 ' checked = 1
 
+' 'Button Definition
+' next_btn		= 400
+' previous_btn 	= 401
 
 ' Dim form_type_array()		'Defining 1D array
 ' ReDim form_type_array(0)	'Redefining array so we can resize it 
@@ -953,6 +957,26 @@ End If
 
 ' 'Dialogs for each form that either had a checked checked box, or was selected from the dropdown and added to the list should display. 
 
+' ''Trying to make Next/Previous Buttons work
+' 	' If ButtonPressed = -1 Then ButtonPressed = next_btn
+' 	' If ButtonPressed = next_button Then
+' 	' 	If page_display = Asset_Dialog Then MsgBox "no prevoius pages"
+' 	' 	If page_disaply = AREP_Dialog Then ButtonPressed = Asset_Dialog
+' 	' 	If page_disaply = ATR_Dialog Then ButtonPressed = AREP_Dialog
+' 	' 	If page_disaply = Change_Dialog Then ButtonPressed = ATR_Dialog
+' 	' 	If page_disaply = EVF_Dialog Then ButtonPressed = Change_Dialog
+' 	' 	If page_disaply = Hospice_Dialog Then ButtonPressed = EVF_Dialog
+' 	' 	If page_disaply = IAA_Dialog Then ButtonPressed = Hospice_Dialog
+' 	' 	If page_disaply = IAA_SSI_Dialog Then ButtonPressed = IAA_Dialog
+' 	' 	If page_disaply = MOF_Dialog Then ButtonPressed = IAA_SSI_Dialog
+' 	' 	If page_disaply = MTAF_Dialog Then ButtonPressed = MOF_Dialog
+' 	' 	If page_disaply = PSN_Dialog Then ButtonPressed = MTAF_Dialog
+' 	' 	If page_disaply = Shelter_Dialog Then ButtonPressed = PSN_Dialog
+' 	' 	If page_disaply = Diet_Dialog Then ButtonPressed = Shelter_Dialog
+' 	' End If
+
+
+
 ' If asset_checkbox = checked Then
 ' 	err_msg = ""
 ' 	Dialog1 = "" 'Blanking out previous dialog detail
@@ -970,8 +994,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1006,8 +1030,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1042,8 +1066,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1078,8 +1102,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1115,8 +1139,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1151,8 +1175,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1187,8 +1211,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1223,8 +1247,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1259,8 +1283,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1295,8 +1319,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1331,8 +1355,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1367,8 +1391,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1403,8 +1427,8 @@ End If
 ' 			PushButton 340, 55, 45, 15, "Form #1", Button9
 ' 			PushButton 340, 75, 45, 15, "Form #2", Button11
 ' 			PushButton 340, 95, 45, 15, "Form #3", Button7
-' 			PushButton 260, 275, 50, 15, "Previous", btn3
-' 			PushButton 315, 275, 50, 15, "Next", btn6
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
 ' 		Text 110, 10, 50, 10, "Effective Date:"
 ' 		Text 15, 70, 10, 10, "Q1"
 ' 		Text 220, 10, 60, 10, "Document Date:"
@@ -1426,31 +1450,31 @@ End If
 
 
 
-' 'PHASE 1 DIALOG DOCUMENT SELECTION
-' Do	'Phase 1: Currently this do loop bring the user back to the Select Documents Received after msgbox/all forms dialog
-' Dialog1 = "" 'Blanking out previous dialog detail
-' BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-' y_pos = 30
-' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
-' ButtonGroup ButtonPressed
-' PushButton 225, y_pos, 35, 10, "Add", add_button
-' PushButton 225, y_pos + 30, 35, 10, "All Forms", all_forms
-' OkButton 205, y_pos + 185, 40, 15
-' CancelButton 255, y_pos + 185, 40, 15
-' GroupBox 5, 5, y_pos + 250, 70, "Directions: For each document received either:"
-' Text 15, 15, y_pos + 245, 10, "1. Select document from dropdown, then select Add button. Repeat for each form."
-' Text 10, y_pos + 15, 15, 10, "OR"
-' Text 15, y_pos + 30, 180, 10, "2. Select All Forms to select forms via checkboxes."
-' GroupBox 45, y_pos + 55, 210, 125, "Documents Selected"
-' EndDialog
+' ' 'PHASE 1 DIALOG DOCUMENT SELECTION
+' ' Do	'Phase 1: Currently this do loop bring the user back to the Select Documents Received after msgbox/all forms dialog
+' ' Dialog1 = "" 'Blanking out previous dialog detail
+' ' BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
+' ' y_pos = 30
+' ' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
+' ' ButtonGroup ButtonPressed
+' ' PushButton 225, y_pos, 35, 10, "Add", add_button
+' ' PushButton 225, y_pos + 30, 35, 10, "All Forms", all_forms
+' ' OkButton 205, y_pos + 185, 40, 15
+' ' CancelButton 255, y_pos + 185, 40, 15
+' ' GroupBox 5, 5, y_pos + 250, 70, "Directions: For each document received either:"
+' ' Text 15, 15, y_pos + 245, 10, "1. Select document from dropdown, then select Add button. Repeat for each form."
+' ' Text 10, y_pos + 15, 15, 10, "OR"
+' ' Text 15, y_pos + 30, 180, 10, "2. Select All Forms to select forms via checkboxes."
+' ' GroupBox 45, y_pos + 55, 210, 125, "Documents Selected"
+' ' EndDialog
 
-' dialog dialog1	'TODO: Place this in a do loop and add handling to ensure the user selected the correct entries or will be warned
-' cancel_confirmation
+' ' dialog dialog1	'TODO: Place this in a do loop and add handling to ensure the user selected the correct entries or will be warned
+' ' cancel_confirmation
 
 
-' If ButtonPressed = add_button Then MsgBox form_type 	'Phase 1: If Add is selected, then msg box selected form ' TODO: Store selection and list selection in dialog
-' If ButtonPressed = all_forms Then Call all_forms_checkboxes		'Phase 1: Brings user to next dialg. 'TODO: Need coding to go back to previous dialo
-' Loop 
+' ' If ButtonPressed = add_button Then MsgBox form_type 	'Phase 1: If Add is selected, then msg box selected form ' TODO: Store selection and list selection in dialog
+' ' If ButtonPressed = all_forms Then Call all_forms_checkboxes		'Phase 1: Brings user to next dialg. 'TODO: Need coding to go back to previous dialo
+' ' Loop 
 
-'PHASE 2 DOCUMENT SELECTION
-'Form_Type_Array = Array("Asset Statement", "AREP (Authorized Rep)", "Authorization to Release (ATR)", "Change Report Form", "Employment Verification Form (EVF)", "Hospice Transaction Form", "Interim Assistance Agreement (IAA)", "Interim Assistance Agreement-SSI", "Medical Opinion Form (MOF)", "Minnesota Transition Application Form (MTAF)", "Professional Statement of Need (PSN)", "Residence and Shelter Expenses Release Form", "Special Diet Information Request")
+' 'PHASE 2 DOCUMENT SELECTION
+' 'Form_Type_Array = Array("Asset Statement", "AREP (Authorized Rep)", "Authorization to Release (ATR)", "Change Report Form", "Employment Verification Form (EVF)", "Hospice Transaction Form", "Interim Assistance Agreement (IAA)", "Interim Assistance Agreement-SSI", "Medical Opinion Form (MOF)", "Minnesota Transition Application Form (MTAF)", "Professional Statement of Need (PSN)", "Residence and Shelter Expenses Release Form", "Special Diet Information Request")
