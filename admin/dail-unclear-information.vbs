@@ -50,6 +50,49 @@ call changelog_update("08/21/2023", "Initial version.", "Mark Riegel, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'----------------------------------------------------------------------------------------------------FUNCTIONS
+'Add function for X Number restart functionality
+Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name, two_digit_county_code, restart_status, restart_x_number)
+'--- This function is used to grab all active X numbers in a county
+'~~~~~ array_name: name of array that will contain all the x numbers
+'~~~~~ county_code: inserted by reading the county code under REPT/USER
+'===== Keywords: MAXIS, array, worker number, create
+	'Getting to REPT/USER
+	Call navigate_to_MAXIS_screen("REPT", "USER")
+	PF5 'Hitting PF5 to force sorting, which allows directly selecting a county
+	Call write_value_and_transmit(county_code, 21, 6)  	'Inserting county
+
+	MAXIS_row = 7  'Declaring the MAXIS row
+	array_name = ""    'Blanking out array_name in case this has been used already in the script
+
+    Found_restart_worker = False    'defaulting to false. Will become true when the X number is found.
+	Do
+		Do
+			'Reading MAXIS information for this row, adding to spreadsheet
+			EMReadScreen worker_ID, 8, MAXIS_row, 5					'worker ID
+			If worker_ID = "        " then exit do					'exiting before writing to array, in the event this is a blank (end of list)
+            If restart_status = True then
+                If trim(UCase(worker_ID)) = trim(UCase(restart_x_number)) then
+                    Found_restart_worker = True
+                End if
+                If Found_restart_worker = True then array_name = trim(array_name & " " & worker_ID)				'writing to variable
+            Else
+                array_name = trim(array_name & " " & worker_ID)				'writing to variable
+            End if
+			MAXIS_row = MAXIS_row + 1
+		Loop until MAXIS_row = 19
+
+		'Seeing if there are more pages. If so it'll grab from the next page and loop around, doing so until there's no more pages.
+		EMReadScreen more_pages_check, 7, 19, 3
+		If more_pages_check = "More: +" then
+			PF8			'getting to next screen
+			MAXIS_row = 7	'redeclaring MAXIS row so as to start reading from the top of the list again
+		End if
+	Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
+
+    array_name = split(array_name)
+End function
+
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 Call Check_for_MAXIS(False)
@@ -62,26 +105,24 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
 'Initial dialog - select whether to create a list or process a list
-BeginDialog Dialog1, 0, 0, 306, 210, "DAIL Unclear Information"
+BeginDialog Dialog1, 0, 0, 306, 220, "DAIL Unclear Information"
   GroupBox 10, 5, 290, 65, "Using the DAIL Unclear Information Script"
   Text 20, 15, 275, 50, "A BULK script that gathers and processes selected (HIRE and/or CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. As the DAIL messages are reviewed, the script will process DAIL messages for 6-month reporters on SNAP-only and process the DAIL messages accordingly. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. "
   Text 15, 80, 175, 10, "Type of DAIL Messages to Process:"
   CheckBox 15, 90, 55, 10, "CSES", CSES_messages
   CheckBox 15, 100, 55, 10, "HIRE", HIRE_messages
-  Text 15, 115, 115, 10, "Select the X Numbers to Process:"
+  Text 15, 115, 185, 10, "Select the X Numbers to Process (check one box only):"
   CheckBox 15, 125, 90, 10, "Process ALL X Numbers", process_all_x_numbers
-  CheckBox 15, 135, 185, 10, "Process Specific X Numbers (enter X Numbers below)", process_specific_x_numbers
-  Text 15, 150, 270, 10, "If processing specific X numbers, enter the numbers below separated by a comma:"
-  EditBox 15, 160, 270, 15, specific_x_numbers_to_process
-  Text 15, 195, 60, 10, "Worker Signature:"
-  EditBox 80, 190, 110, 15, worker_signature
+  CheckBox 15, 135, 225, 10, "RESTART Process ALL X Numbers (enter restart X Number below)", restart_process_all_x_numbers
+  EditBox 25, 145, 85, 15, restart_x_number
+  CheckBox 15, 165, 255, 10, "Process Specific X Numbers (enter X Numbers below separated by comma)", process_specific_x_numbers
+  EditBox 25, 175, 270, 15, specific_x_numbers_to_process
+  Text 15, 205, 60, 10, "Worker Signature:"
+  EditBox 80, 200, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 215, 190, 40, 15
-    CancelButton 255, 190, 40, 15
+    OkButton 205, 200, 40, 15
+    CancelButton 245, 200, 40, 15
 EndDialog
-
-
-
 
 DO
     Do
@@ -93,11 +134,14 @@ DO
         'Validation to ensure that at least CSES or HIRE messages checkbox is checked
         If CSES_messages = 0 AND HIRE_messages = 0 Then err_msg = err_msg & vbCr & "* Select either CSES or HIRE messages, or both. Both checkboxes cannot be left blank."
         'Validation to ensure that only one option is selected for X Numbers to process
-        If process_specific_x_numbers = 1 AND process_all_x_numbers = 1 Then err_msg = err_msg & vbCr & "* You can only select one option for processing X Numbers. Uncheck one of the boxes."
-        'Validation to ensure that X Numbers to Process options are not both blank
-        If process_specific_x_numbers = 0 AND process_all_x_numbers = 0 Then err_msg = err_msg & vbCr & "* You must select the X Numbers to process. Check one of the boxes, they cannot both be left blank."
-        'Validation to ensure that Specific X Numbers field is left blank if processing all X Numbers
-        If process_all_x_numbers = 1 AND trim(specific_x_numbers_to_process) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Process All X Numbers. The entry field for specific X Numbers must be blank to proceed."
+        If process_specific_x_numbers + process_all_x_numbers + restart_process_all_x_numbers <> 1 Then err_msg = err_msg & vbCr & "* You can only select one option for processing X Numbers. Make sure only one box is checked."
+        'Validation to ensure that Specific X Numbers and Restart Process All X Numbers fields are left blank if processing all X Numbers
+        If process_all_x_numbers = 1 AND (trim(specific_x_numbers_to_process) <> "" OR trim(restart_x_number) <> "") Then err_msg = err_msg & vbCr & "* You selected the option to Process All X Numbers. The entry fields for Process Specific X Numbers and RESTART Process All X Numbers must be blank to proceed."
+        'Validation to ensure that Process Specific X Numbers field is blank if Restart Process All X Numbers is selected
+        If restart_process_all_x_numbers = 1 AND trim(specific_x_numbers_to_process) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Restart Process All X Numbers. The entry field for Process Specific X Numbers must be blank to proceed."
+        If restart_process_all_x_numbers = 1 AND trim(restart_x_number) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Restart Process All X Numbers. The entry field for Restart Process All X Numbers is empty. Enter the X Number that the script should restart on."
+        'Validation to ensure that Restart Process All X Numbers field is blank if Process Specific X Numbers is selected
+        If process_specific_x_numbers = 1 AND trim(restart_x_number) <> "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. The entry field for RESTART Process All X Numbers must be empty. Clear the field to proceed."
         'Validation to ensure that if processing specific X numbers, the list of X numbers field is not blank
         If process_specific_x_numbers = 1 AND trim(specific_x_numbers_to_process) = "" Then err_msg = err_msg & vbCr & "* You selected the option to Process Specific X Numbers. You must enter a list of X Numbers separated by a comma to proceed. The entry field is currently empty."
         'Ensures worker signature is not blank
@@ -107,22 +151,42 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in	
 
-'TO DO - confirm if restart functionality is needed
 'Determining if this is a restart or not in function below when gathering the x numbers.
-' If trim(restart_worker_number) = "" then
-'     restart_status = False
-' Else 
-' 	restart_status = True
-' End if 
+If restart_process_all_x_numbers = 0 then
+    restart_status = False
+Else 
+	restart_status = True
+End if 
+
+'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
+If process_all_x_numbers = 1 OR restart_process_all_x_numbers = 1 then
+	Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_x_number)
+Else
+	x_numbers_from_dialog = split(specific_x_numbers_to_process, ", ")	'Splits the worker array based on commas
+
+	'Need to add the worker_county_code to each one
+	For each x_number in x_numbers_from_dialog
+		If worker_array = "" then
+			worker_array = trim(ucase(x_number))		'replaces worker_county_code if found in the typed x1 number
+		Else
+			worker_array = worker_array & "," & trim(ucase(x_number)) 'replaces worker_county_code if found in the typed x1 number
+		End if
+	Next
+	'Split worker_array
+	worker_array = split(worker_array, ",")
+End if
 
 Call check_for_MAXIS(False)
+
+' Call write_value_and_transmit(worker, 21, 6)
+' transmit 'transmits past not your dail message'
 
 'Script actions if creating a new Excel list option is selected
 If script_action = "Create new Excel list" Then
     'To Do - Utilize function to pull workers into array, uncomment once final
     ' Call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
     'To Do - check, Use restart worker functionality?
-    'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
+    'Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_x_number)
     
     'TO DO - update after testing
     ' worker_array = array("X127ES1") 'Worker code has mix of CSES and HIRE messages, along with INFC messages that are filtered out
