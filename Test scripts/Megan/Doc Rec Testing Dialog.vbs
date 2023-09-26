@@ -93,7 +93,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			err_msg = ""
 			Dialog1 = "" 			'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-				ComboBox 30, 30, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA )", Form_type
+				ComboBox 30, 30, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
@@ -126,6 +126,19 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = clear_button Then 
 				ReDim form_type_array(form_count)		'Clear button wipes out any selections already made so the user can reselect correct forms.
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
+				asset_checkbox = unchecked				'Resetting checkboxes to unchecked
+				arep_checkbox = unchecked				'Resetting checkboxes to unchecked
+				atr_checkbox = unchecked				'Resetting checkboxes to unchecked
+				change_checkbox = unchecked				'Resetting checkboxes to unchecked
+				evf_checkbox = unchecked				'Resetting checkboxes to unchecked
+				hospice_checkbox = unchecked			'Resetting checkboxes to unchecked
+				iaa_checkbox = unchecked				'Resetting checkboxes to unchecked
+				iaa_ssi_checkbox = unchecked			'Resetting checkboxes to unchecked
+				mof_checkbox = unchecked				'Resetting checkboxes to unchecked
+				mtaf_checkbox = unchecked				'Resetting checkboxes to unchecked
+				psn_checkbox = unchecked				'Resetting checkboxes to unchecked
+				shelter_checkbox = unchecked			'Resetting checkboxes to unchecked
+				diet_checkbox = unchecked				'Resetting checkboxes to unchecked
 				MsgBox "Form selections were cleared, please reselect correct forms."	'Notify end user that entries were cleared.
 			End If
 			
@@ -141,19 +154,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			Do
 				ReDim form_type_array(form_count)		'Reseting any selections already made so the user can reselect correct forms using different format.
 				form_count = 0							'Reseting the form count to 0 so that y_pos resets to 95. 
-				asset_checkbox = unchecked				'Resetting checkboxes to unchecked
-				arep_checkbox = unchecked				'Resetting checkboxes to unchecked
-				atr_checkbox = unchecked				'Resetting checkboxes to unchecked
-				change_checkbox = unchecked				'Resetting checkboxes to unchecked
-				evf_checkbox = unchecked				'Resetting checkboxes to unchecked
-				hospice_checkbox = unchecked			'Resetting checkboxes to unchecked
-				iaa_checkbox = unchecked				'Resetting checkboxes to unchecked
-				iaa_ssi_checkbox = unchecked			'Resetting checkboxes to unchecked
-				mof_checkbox = unchecked				'Resetting checkboxes to unchecked
-				mtaf_checkbox = unchecked				'Resetting checkboxes to unchecked
-				psn_checkbox = unchecked				'Resetting checkboxes to unchecked
-				shelter_checkbox = unchecked			'Resetting checkboxes to unchecked
-				diet_checkbox = unchecked				'Resetting checkboxes to unchecked
+				
 				
 			
 				err_msg = ""
@@ -171,7 +172,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 110, 160, 10, "Minnesota Transition Application Form (MTAF)", mtaf_checkbox
 					CheckBox 15, 120, 160, 10, "Professional Statement of Need (PSN)", psn_checkbox
 					CheckBox 15, 130, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
-					CheckBox 15, 140, 175, 10, "Special Diet Information Request (MFIP and MSA )", diet_checkbox
+					CheckBox 15, 140, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
 					ButtonGroup ButtonPressed
 					PushButton 85, 185, 70, 15, "Review Selections", review_selections
 					CancelButton 165, 185, 40, 15
@@ -256,7 +257,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 
 				If diet_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
-					form_type_array(form_count) = "Special Diet Information Request (MFIP and MSA )"
+					form_type_array(form_count) = "Special Diet Information Request (MFIP and MSA)"
 					form_count= form_count + 1 
 				End If
 				
@@ -272,7 +273,111 @@ Loop Until ButtonPressed = Ok
 MsgBox "Not all forms are completely built out." & vbNewLine & "The following dialogs were created to give you an idea of what it will look like."
 		
 
-If change_checkbox = checked Then
+'Dialogs for each form that either had a checked checked box, or was selected from the dropdown and added to the list should display. 
+'TODO: If multiple forms are selected from the drop down feature, only the last dialog will display (assuming it is overwritting the previous selections)
+If asset_checkbox = checked or Form_type = "Asset Statement" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Asset Statement"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If arep_checkbox = checked or Form_type = "AREP (Authorized Rep)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "AREP (Authorized Rep)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If atr_checkbox = checked or Form_type = "Authorization to Release Information (ATR)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Authorization to Release Information (ATR)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If change_checkbox = checked or Form_type = "Change Report Form" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form"
@@ -317,9 +422,43 @@ If change_checkbox = checked Then
 
 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
+End If
+
+If evf_checkbox = checked or Form_type = "Employment Verification Form (EVF)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Employment Verification Form (EVF)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
 End If 
 
-If hospice_checkbox = checked Then 
+If hospice_checkbox = checked or Form_type = "Hospice Transaction Form" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 376, 225, "Hospice Form Received"
@@ -355,11 +494,179 @@ If hospice_checkbox = checked Then
 	cancel_confirmation
 End If
 
+If iaa_checkbox = checked or Form_type = "Interim Assistance Agreement (IAA)" Then
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Agreement (IAA)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
 
-If shelter_checkbox = checked Then
+If iaa_ssi_checkbox = checked or Form_type = "Interim Assistance Authorization- SSI" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 280, "Shelter Report Received"
+	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Authorization- SSI"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If mof_checkbox = checked or Form_type = "Medical Opinion Form (MOF)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Medical Opinion Form (MOF)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If mtaf_checkbox = checked or Form_type = "Minnesota Transition Application Form (MTAF)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Minnesota Transition Application Form (MTAF)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If psn_checkbox = checked or Form_type = "Professional Statement of Need (PSN)" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 300, "Professional Statement of Need (PSN)"
+		EditBox 60, 5, 40, 15, MAXIS_case_number
+		EditBox 160, 5, 45, 15, effective_date
+		EditBox 285, 5, 45, 15, date_received
+		EditBox 30, 65, 270, 15, address_notes
+		EditBox 30, 85, 270, 15, household_notes
+		EditBox 30, 105, 270, 15, Edit14
+		EditBox 30, 125, 270, 15, Edit15
+		EditBox 30, 145, 270, 15, Edit16
+		EditBox 75, 275, 85, 15, worker_signature
+		ButtonGroup ButtonPressed
+			PushButton 330, 45, 45, 15, "Form #1", Button9
+			PushButton 330, 65, 45, 15, "Form #2", Button11
+			PushButton 330, 85, 45, 15, "Form #3", Button7
+			PushButton 260, 275, 50, 15, "Previous", btn3
+			PushButton 315, 275, 50, 15, "Next", btn6
+		Text 110, 10, 50, 10, "Effective Date:"
+		Text 15, 70, 10, 10, "Q1"
+		Text 220, 10, 60, 10, "Document Date:"
+		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+		Text 5, 10, 50, 10, "Case Number:"
+		Text 10, 280, 60, 10, "Worker Signature:"
+		Text 15, 110, 10, 10, "Q3"
+		Text 15, 130, 15, 10, "Q4"
+		Text 15, 90, 15, 10, "Q2"
+		Text 15, 150, 15, 10, "..."
+	EndDialog
+	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+	cancel_confirmation
+End If 
+
+If shelter_checkbox = checked or Form_type = "Residence and Shelter Expenses Release Form" Then
+	err_msg = ""
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 376, 280, "Residence and Shelter Expenses Release Form"
 		EditBox 60, 5, 40, 15, MAXIS_case_number
 		EditBox 160, 5, 45, 15, effective_date
 		EditBox 285, 5, 45, 15, date_received
@@ -400,10 +707,10 @@ If shelter_checkbox = checked Then
 	cancel_confirmation
 End If
 
-If asset_checkbox = unchecked or arep_checkbox = unchecked or atr_checkbox = unchecked or evf_checkbox = unchecked or iaa_checkbox = unchecked or iaa_ssi_checkbox = unchecked or mof_checkbox = unchecked or mtaf_checkbox = unchecked or psn_checkbox = unchecked or diet_checkbox = unchecked Then
+If diet_checkbox = checked or Form_type = "Special Diet Information Request (MFIP and MSA)" Then
 	err_msg = ""
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "FORM NAME HERE"
+	BeginDialog Dialog1, 0, 0, 376, 300, "Special Diet Information Request (MFIP and MSA)"
 		EditBox 60, 5, 40, 15, MAXIS_case_number
 		EditBox 160, 5, 45, 15, effective_date
 		EditBox 285, 5, 45, 15, date_received
@@ -433,6 +740,10 @@ If asset_checkbox = unchecked or arep_checkbox = unchecked or atr_checkbox = unc
 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
 End If 
+
+			
+
+
 		' 	Form_selected = False 
 		' 		If asset_checkbox = checked Then Form_selected = True 
 		' 		If arep_checkbox = checked Then Form_selected = True 
@@ -457,42 +768,12 @@ End If
 		
 
 
-
-'~~~~~~Extra Things
-
-' 'Creating a function for the Document Selection Dialog
-' Function all_forms_checkboxes()
-' 	BeginDialog Dialog1, 0, 0, 216, 205, "Document Selection"
-' 		ButtonGroup ButtonPressed
-' 			PushButton 85, 185, 70, 15, "Review Selections", review_selections
-' 			CancelButton 165, 185, 40, 15
-' 		GroupBox 5, 5, 205, 170, "Directions: Select all documents received, then select OK."
-' 		CheckBox 15, 140, 160, 10, "Special Diet Information Request (MFIP and MSA )", diet_btn
-' 		CheckBox 15, 20, 160, 10, "Asset Statement", asset_btn
-' 		CheckBox 15, 30, 160, 10, "AREP (Authorized Rep)", arep_btn
-' 		CheckBox 15, 40, 160, 10, "Authorization to Release Information (ATR)", atr_btn
-' 		CheckBox 15, 50, 160, 10, "Change Report Form", change_btn
-' 		CheckBox 15, 60, 160, 10, "Employment Verification Form (EVF)", evf_btn
-' 		CheckBox 15, 70, 160, 10, "Hospice Transaction Form", hospice_btn
-' 		CheckBox 15, 80, 160, 10, "Interim Assistance Agreement (IAA)", iaa_btn
-' 		CheckBox 15, 100, 160, 10, "Medical Opinion Form (MOF)", mof_btn
-' 		CheckBox 15, 110, 160, 10, "Minnesota Transition Application Form (MTAF)", mtaf_btn
-' 		CheckBox 15, 120, 160, 10, "Professional Statement of Need (PSN)", psn_btn
-' 		CheckBox 15, 130, 170, 10, "Residence and Shelter Expenses Release Form", shelter_btn
-' 		CheckBox 15, 90, 160, 10, "Interim Assistance Authorization- SSI", iaa_ssi_btn
-' 	EndDialog
-' 	dialog dialog1
-' End Function
-
-
-
-
 ' 'PHASE 1 DIALOG DOCUMENT SELECTION
 ' Do	'Phase 1: Currently this do loop bring the user back to the Select Documents Received after msgbox/all forms dialog
 ' Dialog1 = "" 'Blanking out previous dialog detail
 ' BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
 ' y_pos = 30
-' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA )", Form_type
+' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
 ' ButtonGroup ButtonPressed
 ' PushButton 225, y_pos, 35, 10, "Add", add_button
 ' PushButton 225, y_pos + 30, 35, 10, "All Forms", all_forms
