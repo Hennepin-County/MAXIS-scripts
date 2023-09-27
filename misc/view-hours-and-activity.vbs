@@ -405,7 +405,7 @@ If old_items_to_move = True Then			'If we find that some of the activities are o
 	Next
 
 	objWorkbook.Save									'saving the file to 'My Documents'
-	objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+	If user_ID_for_validation <> "DACO003" Then objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 
 	ReDim TIME_TRACKING_ARRAY(last_const, 0)									'reset the array because we are going to read it fresh after the deleting
 
@@ -858,7 +858,7 @@ If added_end_time_row_list <> "" then
 	Next
 End If
 objWorkbook.Save									'saving the file to 'My Documents'
-objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+If user_ID_for_validation <> "DACO003" Then objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 ObjExcel.Quit		'Closing the Excel file.
 
 If view_excel = False Then leave_excel_open_checkbox = unchecked
