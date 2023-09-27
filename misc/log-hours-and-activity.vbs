@@ -929,6 +929,6 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 End If
 
 objWorkbook.Save									'saving the file to 'My Documents'
-objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+If user_ID_for_validation <> "DACO003" Then objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 ObjExcel.Quit										'closing the Excel File'
 call script_end_procedure(end_msg)
