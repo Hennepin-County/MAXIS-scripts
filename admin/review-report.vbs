@@ -2518,35 +2518,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 					Call start_a_new_spec_memo_and_continue(memo_started)
 
 					IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
-
-						CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
-						If len(programs) < 11 Then CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & intvw_programs & " case to continue.")
-						CALL write_variable_in_SPEC_MEMO("")
-						Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
-						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-						CALL write_variable_in_SPEC_MEMO("")
-						If len(programs) < 11 Then
-							CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
-						ElseIf len(programs) > 14 Then
-							CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless")
-						ElseIf len(programs) > 10 Then
-							CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
-						End If
-						CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
-						CALL write_variable_in_SPEC_MEMO("")
-						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-						CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-						CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-						CALL digital_experience
-			            CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
-						' CALL create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
-
-						PF4         'Submit the MEMO
+						CALL create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
 
 						memo_row = 7                                            'Setting the row for the loop to read MEMOs
 						ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
@@ -3339,28 +3311,7 @@ If renewal_option = "Send NOMIs" Then
 				Call start_a_new_spec_memo_and_continue(memo_started)
 
 				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
-
-					if caf_date_as_of_today <> "" then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & caf_date_as_of_today & ".")
-					if caf_date_as_of_today = "" then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
-					CALL write_variable_in_SPEC_MEMO("")
-					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-					CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-					CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-					CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-					CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-					CALL digital_experience
-					CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
-					CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
-
-
-					PF4         'Submit the MEMO
+					CALL create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
 
 					memo_row = 7                                            'Setting the row for the loop to read MEMOs
 					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
