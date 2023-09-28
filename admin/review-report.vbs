@@ -2520,8 +2520,6 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 					IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 						CALL create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
 
-						PF4         'Submit the MEMO
-
 						memo_row = 7                                            'Setting the row for the loop to read MEMOs
 						ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
 						Do
@@ -3314,8 +3312,6 @@ If renewal_option = "Send NOMIs" Then
 
 				IF memo_started = True THEN         'The function will return this as FALSE if PF5 does not move past MEMO DISPLAY
 					CALL create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
-
-					PF4         'Submit the MEMO
 
 					memo_row = 7                                            'Setting the row for the loop to read MEMOs
 					ObjExcel.Cells(excel_row, notc_col).Value = "N"         'Defaulting this to 'N'
