@@ -381,8 +381,6 @@ For item = 0 to ubound(footer_month_array)
 		    	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
 		    End If 
 		    transmit ' to save
-			'todo check for actual save post es referral date warning transmit
-			msgbox "did it save here?"
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval. 
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
@@ -435,8 +433,8 @@ Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initia
 Call write_variable_in_case_note("Case TLR Information by Member")
 Call write_variable_in_case_note("------------------------------")
 For i = 0 to Ubound(banked_months_array, 2)
-	'TOdo: Added member info that is exempt
-	Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
+	Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
+	'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then
         'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
         Call write_variable_in_case_note("* ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i))
