@@ -77,6 +77,7 @@ DO
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(initial_month, initial_year, err_msg, "*")
+		If initial_month < 10 then err_msg = err_msg & vbNewLine & "* The initial month/year cannot be prior to 10/23. Choose another date."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -272,6 +273,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_months_count & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
 		banked_months_array(abawd_month_eval_const, i) = abawd_counted_months & " have been used. Only 3 are allowed. Updates are needed."
 	End if 
+
 	'Banked Months Determinations
 	If banked_months_count = 2 then 
 		banked_months_array(used_all_banked_mo_const, i) = True 
@@ -328,15 +330,16 @@ Dialog1 = ""		    '-------------------------------------------------------------
 BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/TLR's on Case #" & MAXIS_case_number
   Text 65, 10, 455, 10, "**The following information are for the ABAWD and Banked Months counts/months members in the EATS Household containing Memb 01**"
   Text 115, 25, 315, 10, "--The information below reflects counts from the initial month/year selected in the initial dialog.--"
-
+dialog_item = 0
 For i = 0 to Ubound(banked_months_array, 2)
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
-		y_pos = (45 + i * 50)
+		y_pos = (45 + dialog_item * 50)
 		GroupBox 10, y_pos, 530, 45, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
   		Text 20, y_pos + 15, 255, 10, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
   		Text 20, y_pos + 30, 255, 10, "ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i)
  	 	Text 285, y_pos + 15, 245, 10, "Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i)
   		Text 285, y_pos + 30, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
+		dialog_item = dialog_item + 1
 	End if 
 Next
 'descriptor of what the script will do for the user. See incrementor variable above dialog for details/ 	
@@ -433,7 +436,7 @@ Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initia
 Call write_variable_in_case_note("Case TLR Information by Member")
 Call write_variable_in_case_note("------------------------------")
 For i = 0 to Ubound(banked_months_array, 2)
-	Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
+	Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(" & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
 	'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then
         'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
