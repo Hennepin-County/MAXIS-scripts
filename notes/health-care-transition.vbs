@@ -62,16 +62,17 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 186, 85, "Health Care Transition"
-  EditBox 60, 10, 45, 15, MAXIS_case_number
-  EditBox 60, 30, 45, 15, METS_case_number
-  DropListBox 60, 50, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
-  ButtonGroup ButtonPressed
-    OkButton 85, 65, 45, 15
-    CancelButton 135, 65, 45, 15
-  Text 5, 55, 50, 10, "Select process:"
-  Text 5, 15, 50, 10, "MAXIS case #:"
-  Text 5, 35, 50, 10, "METS case #:"
+BeginDialog Dialog1, 0, 0, 201, 120, "Health Care Transition"
+    EditBox 60, 5, 45, 15, MAXIS_case_number
+    DropListBox 10, 50, 70, 15, "METS case #"+chr(9)+"Personal Record #", mets_pr_option
+    EditBox 100, 50, 55, 15, METS_OR_PR_number
+    DropListBox 60, 85, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
+    ButtonGroup ButtonPressed
+        OkButton 85, 100, 45, 15
+        CancelButton 135, 100, 45, 15
+    Text 5, 10, 50, 10, "MAXIS case #:"
+    Text 5, 35, 190, 10, "Select METS Case # or Personal Record #, then enter #"
+    Text 5, 90, 50, 10, "Select process:"
 EndDialog
 
 'Main dialog: user will input case number and member number
@@ -83,7 +84,12 @@ DO
 		call validate_MAXIS_case_number(err_msg, "*")
         If initial_option = "Select One:" then err_msg = err_msg & vbcr & "* Select a transition process."
         If initial_option <> "MAXIS to METS Migration" then
-            If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
+            If mets_pr_option = "METS case #" then
+                If trim(METS_OR_PR_number) = "" or IsNumeric(METS_OR_PR_number) = False or len(METS_OR_PR_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
+            End If
+            If mets_pr_option = "Personal Record #" then
+                If trim(METS_OR_PR_number) = "" or IsNumeric(METS_OR_PR_number) = False or len(METS_OR_PR_number) <> 10 then err_msg = err_msg & vbcr & "* Enter a valid Personal Record number."
+            End If
         End if
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -192,31 +198,31 @@ If initial_option = "MAXIS to METS Migration" then
 '----------------------------------------------------------------------------------------------------Used for option 1. Non-MAGI referral
 Elseif initial_option = "1. Non-MAGI referral" then
 	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 271, (150 + (transition_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
-      Text 10, 10, 55, 10, "Date of Request:"
-      EditBox 70, 5, 55, 15, request_date
-      Text 140, 10, 120, 10, "METS Case Number: " & METS_case_number
-      Text 5, 30, 65, 10, "Service requested:"
-      DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Applying for MA-EPD"+chr(9)+"Requesting waiver"+chr(9)+"Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
-      CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
-      CheckBox 100, 45, 70, 10, "SMRT pending.", SMRT_pending
-      CheckBox 170, 45, 95, 10, "Sent Request to APPL.", useform_checkbox
-      CheckBox 5, 60, 180, 10, "Case has known duplicate PMI's and/or PMI issues.", PMI_checkbox
-      Text 5, 80, 40, 10, "Other notes:"
-      EditBox 50, 75, 215, 15, other_notes
-      x = 0
-      FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-          Text 10, (110 + (x * 15)), 140, 10, transition_array(member_name_const, item)
-          If transition_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 50, 15, "Select One:"+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, item)
-          x = x + 1
-      NEXT
-      GroupBox 5, 95, 260, (20 + (x * 12)), "Client Information and current METS coverage:"
-      Text 5,  (125 + (x * 12)), 60, 10, "Worker Signature:"
-      EditBox 70, (120 + (x * 12)), 85, 15, worker_signature
-      ButtonGroup ButtonPressed
-      OkButton 160, (120 + (x * 12)), 50, 15
-      CancelButton 215, (120 + (x * 12)), 50, 15
+    Dialog1 = "" 'Blanking out previous dialog detail
+        BeginDialog Dialog1, 0, 0, 271, (150 + (transition_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
+        Text 10, 10, 55, 10, "Date of Request:"
+        EditBox 70, 5, 55, 15, request_date
+        Text 140, 10, 120, 10, mets_pr_option & ": " & METS_OR_PR_number
+        Text 5, 30, 65, 10, "Service requested:"
+        DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Applying for MA-EPD"+chr(9)+"Requesting waiver"+chr(9)+"Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
+        CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
+        CheckBox 100, 45, 70, 10, "SMRT pending.", SMRT_pending
+        CheckBox 170, 45, 95, 10, "Sent Request to APPL.", useform_checkbox
+        CheckBox 5, 60, 180, 10, "Case has known duplicate PMI's and/or PMI issues.", PMI_checkbox
+        Text 5, 80, 40, 10, "Other notes:"
+        EditBox 50, 75, 215, 15, other_notes
+        x = 0
+        FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            Text 10, (110 + (x * 15)), 140, 10, transition_array(member_name_const, item)
+            If transition_array(member_name_const, item) <> "" then DropListBox 160, (110 + (x * 15)), 55, 15, "Select One:"+chr(9)+"MA"+chr(9)+"MCRE"+chr(9)+"IA"+chr(9)+"QHP", transition_array(hc_type_const, item)
+            x = x + 1
+        NEXT
+        GroupBox 5, 95, 260, (20 + (x * 12)), "Client Information and current METS coverage:"
+        Text 5,  (125 + (x * 12)), 60, 10, "Worker Signature:"
+        EditBox 70, (120 + (x * 12)), 85, 15, worker_signature
+        ButtonGroup ButtonPressed
+        OkButton 160, (120 + (x * 12)), 50, 15
+        CancelButton 215, (120 + (x * 12)), 50, 15
     EndDialog
 
     'Main dialog: user will input case number and member number
@@ -246,7 +252,7 @@ else
         Text 10, 10, 70, 10, "MMIS elig end date:"
         EditBox 80, 5, 55, 15, mmis_end_date
     End if
-       Text 140, 10, 120, 10, "METS Case Number: " & METS_case_number
+       Text 140, 10, 120, 10, mets_pr_option & ": " & METS_OR_PR_number
       	x = 0
       FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
           Text 10, (40 + (x * 15)), 100, 10, transition_array(member_name_const, item)
@@ -312,7 +318,7 @@ If initial_option = "MAXIS to METS Migration" then
 
     'THE MEMO----------------------------------------------------------------------------------------------------
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
-    If METS_case_number = "" then
+    If METS_OR_PR_number = "" then
         Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
         Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
         Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
@@ -345,7 +351,7 @@ If initial_option = "MAXIS to METS Migration" then header = "Closed HC " & CM_pl
 
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE(header & memb_info)
-Call write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number)
+Call write_bullet_and_variable_in_CASE_NOTE(mets_pr_option, METS_OR_PR_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Date of request", request_date)
 Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
 'HH member array output
@@ -368,8 +374,8 @@ IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Trans
 'METS to MAXIS case note only
 If initial_option = "MAXIS to METS Migration" then
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
-    If METS_case_number = "" then
-        Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
+    If METS_OR_PR_number = "" then
+s        Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
     Else
         'For cases with affliated METS cases
