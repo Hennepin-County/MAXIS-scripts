@@ -4107,7 +4107,7 @@ script_array(script_num).release_date           = #09/16/2021#
 script_array(script_num).hot_topic_date 		= #05/24/2022#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/All-ES-Staff-Can-Email-hsph.es.deed-for-Unemployment-Verification.aspx"
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Unearned_Income 17.12.03", "CM Applying_For_Other_Benefits 12.0012.12", "EPM 2.2.3.4_Income_Methodology https://hcopub.dhs.state.mn.us/epm/2_2_3_4.htm","EPM 2.3.3.3.2.1_Countable_Income https://hcopub.dhs.state.mn.us/epm/2_3_3_3_2_1.htm", "SHAREPOINT Unemployment_Insurance https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
