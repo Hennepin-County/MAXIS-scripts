@@ -3012,15 +3012,15 @@ For cases_to_make = 1 to how_many_cases_to_make
 		EMWriteScreen mid(ADDR_phone_3, 5, 3), 19, 51
 		EMWriteScreen right(ADDR_phone_3, 4), 19, 55
 	Else 																		'10/1 and after will be this'
-		EMWriteScreen left(ADDR_phone_1, 3), 16, 39						'Has to split phone numbers up into three parts each
-		EMWriteScreen mid(ADDR_phone_1, 5, 3), 16, 45
-		EMWriteScreen right(ADDR_phone_1, 4), 16, 49
-		EMWriteScreen left(ADDR_phone_2, 3), 17, 39
-		EMWriteScreen mid(ADDR_phone_2, 5, 3), 17, 45
-		EMWriteScreen right(ADDR_phone_2, 4), 17, 49
-		EMWriteScreen left(ADDR_phone_3, 3), 18, 39
-		EMWriteScreen mid(ADDR_phone_3, 5, 3), 18, 45
-		EMWriteScreen right(ADDR_phone_3, 4), 18, 49
+		EMWriteScreen left(ADDR_phone_1, 3), 16, 33						'Has to split phone numbers up into three parts each
+		EMWriteScreen mid(ADDR_phone_1, 5, 3), 16, 37
+		EMWriteScreen right(ADDR_phone_1, 4), 16, 41
+		EMWriteScreen left(ADDR_phone_2, 3), 17, 33
+		EMWriteScreen mid(ADDR_phone_2, 5, 3), 17, 37
+		EMWriteScreen right(ADDR_phone_2, 4), 17, 41
+		EMWriteScreen left(ADDR_phone_3, 3), 18, 33
+		EMWriteScreen mid(ADDR_phone_3, 5, 3), 18, 37
+		EMWriteScreen right(ADDR_phone_3, 4), 18, 41
 	End If
 
 	'Reads the case number and adds to an array before exiting
