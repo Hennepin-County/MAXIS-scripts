@@ -167,7 +167,8 @@ DO
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx") 'HSR manual policy page
         LOOP until ButtonPressed = -1
         Call validate_MAXIS_case_number(err_msg, "*")
-        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
+        IF cca_checkbox + other_checkbox = 2 Then err_msg = err_msg & vbCr & "* You cannot check both the 'CCA' and 'Other' boxes. Check only one option if selecting a department outside of ES."
+        IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* You must fill out the field to specify which department you are in."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
