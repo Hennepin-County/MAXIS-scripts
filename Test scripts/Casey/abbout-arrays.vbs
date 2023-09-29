@@ -129,6 +129,19 @@ for each_thing = 0 to UBound(REPT_ACVT_ARRAY, 2)
 
 Next
 
+index_count = 0
+Do
+	If REPT_ACVT_ARRAY(Cash_1_stat_const, each_thing) = "A" Then
+		MsgBox REPT_ACVT_ARRAY(Case_Nbr_const, each_thing) & " is on " & REPT_ACVT_ARRAY(Cash_1_prog_const, each_thing)
+	End If
+
+	index_count = InputBox("Which one do you want to see? - Enter as a number between 0 and " & UBound(REPT_ACVT_ARRAY,2))
+
+
+	'index_count = index_count + 1
+'Loop until index_counter > Ubound(REPT_ACVT_ARRAY, 2)
+Loop until UCASE(index_count) = "DONE"
+
 MsgBox "UBound 1 - " & UBound(REPT_ACVT_ARRAY) & vbCr & "UBound 2 - " & UBound(REPT_ACVT_ARRAY, 2)
 
 
