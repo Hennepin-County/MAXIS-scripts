@@ -708,6 +708,7 @@ DO
 			If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "MARI001" Then allow_bulk_run_use = True
 			If user_ID_for_validation = "MEGE001" Then allow_bulk_run_use = True
+			If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
 
 			'stopping the script run if someone else tries to run the script for the bulk options.
 			If allow_bulk_run_use = False Then script_end_procedure("Ex Parte Report functionality for completing Ex Parte actions and list review is locked. The script will now end.")
@@ -815,6 +816,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
 	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
 	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
+	If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
 
 	'Ending the script run if someone else tries to run it
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
@@ -1308,6 +1310,7 @@ If ex_parte_function = "ADMIN Review" Then
 	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
 	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
 	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
+	If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
 
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
 
@@ -1662,6 +1665,9 @@ End If
 bz_user = False
 If user_ID_for_validation = "CALO001" Then bz_user = True
 If user_ID_for_validation = "ILFE001" Then bz_user = True
+If user_ID_for_validation = "MARI001" Then bz_user = True
+If user_ID_for_validation = "MEGE001" Then bz_user = True
+If user_ID_for_validation = "DACO003" Then bz_user = True
 If bz_user = False Then script_end_procedure("This script functionality can only be operated by the BlueZone Script Team. The script will now end.")
 
 If ex_parte_function = "FIX LIST" Then
@@ -3322,7 +3328,7 @@ If ex_parte_function = "Prep 2" Then
 					transmit
 
 					Do
-						EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel\
+						EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads for BDXP panel and makes sure we are there
 						If check_BDXP_panel <> "BDXP" Then
 							row = 1
 							col = 1
@@ -4147,6 +4153,7 @@ If ex_parte_function = "Phase 1" Then
 	End If
 	objTextStream.WriteLine "LIST START"		'This is going to head each start of the script run.
 
+	'TODO - this will likely need to be updated to remove the SMRT list assessment. Need process determination before doing this.
 	'loading the excel file paths into the variables based on the naming ocnventions.
 	va_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	uc_excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Ex Parte\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
@@ -4180,9 +4187,12 @@ If ex_parte_function = "Phase 1" Then
 			Dialog Dialog1
 			cancel_without_confirmation
 
-			If IsDate(prep_phase_2_run_date) = False Then err_msg = err_msg & vbCr * "* Enter the date the second PREP run was completed. If you are not sure, check the SQL table."
+			'confirming the date was set correctly and that excel files were selected.
+			If IsDate(prep_phase_2_run_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the second PREP run was completed. If you are not sure, check the SQL table."
+			If right(va_excel_file_path, 5) <> ".xlsx" Then err_msg = err_msg & vbCr & "* Select a valid Excel File for the VA inocme verification."
+			If right(uc_excel_file_path, 5) <> ".xlsx" Then err_msg = err_msg & vbCr & "* Select a valid Excel File for the UC inocme verification."
 
-			If err_msg <> "" Then MsgBox "* * * * NOTICE * * * *" & vbCr & err_msg
+			If err_msg <> "" Then MsgBox "* * * * NOTICE * * * *" & vbCr & err_msg		'displaying possible errors
 
 		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -4192,7 +4202,7 @@ If ex_parte_function = "Phase 1" Then
 	Call excel_open(uc_excel_file_path, True, True, ObjExcel, objWorkbook)			'opening the UC excel
 
 	uc_count = 0			'setting the initial incrementors
-	excel_row = 2
+	excel_row = 2			'starting at the top of the excel list
 	Do
 		ReDim Preserve UC_INCOME_ARRAY(uc_last_const, uc_count)						'resize the array
 
@@ -4212,7 +4222,7 @@ If ex_parte_function = "Phase 1" Then
 		If IsNumeric(UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count)) = True Then UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_count) * 1
 
 		uc_count = uc_count + 1				'count up
-		excel_row = excel_row + 1
+		excel_row = excel_row + 1			'go to the next row
 		next_case_numb = ObjExcel.Cells(1, excel_row).Value		'loop until there are no more cases
 	Loop until next_case_numb = ""
 
@@ -4248,7 +4258,7 @@ If ex_parte_function = "Phase 1" Then
 		End If
 
 		va_count = va_count + 1				'count up
-		excel_row = excel_row + 1
+		excel_row = excel_row + 1			'go to the next row
 		next_case_numb = ObjExcel.Cells(1, excel_row).Value		'Loop until there are no more cases
 	Loop until next_case_numb = ""
 
@@ -4257,7 +4267,7 @@ If ex_parte_function = "Phase 1" Then
 	ObjExcel.Quit
 
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
-	review_date = DateAdd("d", 0, review_date)
+	review_date = DateAdd("d", 0, review_date)				'forcint it to be a date
 
 	'This functionality will remove any 'holds' with 'In Progress' marked. This is to make sure no cases get left behind if a script fails
 	If reset_in_Progress = checked Then
@@ -4294,22 +4304,20 @@ If ex_parte_function = "Phase 1" Then
 	End If
 
 	'Open The CASE LIST Table
-	'declare the SQL statement that will query the database
-	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
+	'This is opening the Ex Parte Case List data table so we can loop through it.
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"			'we're pulling all the cases based on the renewal month coded in
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open objSQL, objConnection
 
 	'Loop through each item on the CASE LIST Table
 	Do While NOT objRecordSet.Eof
 		If objRecordSet("SelectExParte") = True and (objRecordSet("Phase1Complete") = "" or IsNull(objRecordSet("Phase1Complete")) = True) Then
-			kick_it_off_reason = ""
+			kick_it_off_reason = ""			'resetting variables used to make case asseessments to be sure that information from other cases doesn't carry through the loops
 			case_active = ""
 			case_is_in_henn = ""
 			is_this_priv = ""
@@ -4328,67 +4336,75 @@ If ex_parte_function = "Phase 1" Then
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
-			case_is_in_henn = False
+			'first we check for access
+			case_is_in_henn = False					'default this to false, we will read the PW to see if it is in hennepin county
 			Do
 				Call back_to_SELF
-				Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
-				EMReadScreen curr_check, 4, 2, 55
+				Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)			'CASE/CURR will ahve good case information.
+				EMReadScreen curr_check, 4, 2, 55												'making sure the script gets to CASE/CURR and it isn't held up somehow
 			Loop until curr_check = "CURR" or is_this_priv = True
-			If is_this_priv = True Then kick_it_off_reason = "PRIV case"
-			If is_this_priv = False Then
+
+			If is_this_priv = True Then kick_it_off_reason = "PRIV case"						'PRIV cases cannot be assessed for Ex Parte correctly
+			If is_this_priv = False Then														'If not PRIV, we need case information and some other case details
 				Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-				EMReadScreen case_pw, 7, 21, 14
+				EMReadScreen case_pw, 7, 21, 14													'identifying if the case is in Henn or not
 				If left(case_pw, 4) = "X127" Then case_is_in_henn = True
-				If case_is_in_henn = False Then kick_it_off_reason = "Case not in 27"
+				If case_is_in_henn = False Then kick_it_off_reason = "Case not in 27"			'updating detail to record to the case list in SQL the reason the case cannot be processed as ex parte
 				If case_active = False Then kick_it_off_reason = "Case not Active"
 			End If
+
+			'if we could a reason that we cannot process ex parte, we need to update the SQL list with this information
 			If kick_it_off_reason <> "" Then
 				select_ex_parte = False
+				'This is opening the Ex Parte Case List data to update the information for the case if the case is not ex parte.
 				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', Phase1Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
 
-				'Creating objects for Access
-				Set objUpdateConnection = CreateObject("ADODB.Connection")
+				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-				'This is the file path for the statistics Access database.
+				'opening the connections and data table
 				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			Else
+				'if the case has not been determined to be 'kicked off' we can look closer into the case information
 
-
-				ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
-				Do
+				ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)										'resetting the person array
+				Do																				'making sure to get to STAT/MEMB
 					Call back_to_SELF
 					Call navigate_to_MAXIS_screen("STAT", "MEMB")
 					EMReadScreen memb_check, 4, 2, 48
 				Loop until memb_check = "MEMB"
-				Call get_list_of_members
+				Call get_list_of_members														'this funciton will fill the MEMBER_INFO_ARRAY with person information.
 
 				'Read SVES/TPQY for all persons on a case
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-					MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False
+					MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = False						'setting the array with these defaults
 					MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = False
 					MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = False
 					memb_has_railroad = False
 
-					Call navigate_to_MAXIS_screen("INFC", "SVES")
+					Call navigate_to_MAXIS_screen("INFC", "SVES")								'navigate to the SVES interface to read the TPQY response
 					EMWriteScreen MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb), 5, 68
 					Call write_value_and_transmit("TPQY", 20, 70)
 
 					Do
-						EMReadScreen check_TPQY_panel, 4, 2, 53 						'Reads for TPQY panel
+						EMReadScreen check_TPQY_panel, 4, 2, 53 								'Reads for TPQY panel to make sure we've made it to the right place
 						If check_TPQY_panel <> "TPQY" Then Call write_value_and_transmit("TPQY", 20, 70)
 					Loop until check_TPQY_panel = "TPQY"
 
-					EMReadScreen tpqy_response_date, 8, 7, 22
+					'here we see if the tpqy response is from the Prep 2 run.
+					'Not all cases have a new TPQY response at this point (phase 1)
+					'we only want to read the onces that were sent during Prep 2 (with a secondary RSDI claim number)
+					EMReadScreen tpqy_response_date, 8, 7, 22									'Reading the TPQY response date
 					tpqy_response_date = trim(tpqy_response_date)
-					If tpqy_response_date <> "" Then
-						tpqy_response_date = replace(tpqy_response_date, " ", "/")
+					If tpqy_response_date <> "" Then											'make sure that a response date exists
+						tpqy_response_date = replace(tpqy_response_date, " ", "/")				'making the response date a date
 						tpqy_response_date = DateAdd("d", 0, tpqy_response_date)
 
-						If DateDiff("d", prep_phase_2_run_date, tpqy_response_date) > 0 Then
+						If DateDiff("d", prep_phase_2_run_date, tpqy_response_date) > 0 Then	'if the response date is after the Prep 2 run date, then the response should be in regards to the Prep 2 QURY
 
-							EMReadScreen tpqy_name_txt, 40, 4, 10
+
+							EMReadScreen tpqy_name_txt, 40, 4, 10								'Read information from TPQY and save it in the member array
 							EMReadScreen tpqy_ssn_txt, 11, 5, 9
 							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb), 		1, 8, 39
 							EMReadScreen MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb), 		1, 8, 65
@@ -4398,14 +4414,12 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb), " ", "/")
 							MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = Trim(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb))
 							EMReadScreen sves_response, 8, 7, 22 		'Return Date
-							sves_response = replace(sves_response," ", "/")
+							sves_response = replace(sves_response," ", "/")						'this records the information from successful qurys into a txt file for the BZ team to review
 							objTextStream.WriteLine MAXIS_case_number & "| NAME: " & tpqy_name_txt & "|" & "SSN: " &  tpqy_ssn_txt & "|" & "SSI record - " & MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) & "|" & "RSDI record - " & MEMBER_INFO_ARRAY(tpqy_rsdi_record, each_memb) & "| CLAIM NUMB: " & MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb)
 
-							transmit
-
-
+							transmit															'go to the next panel
 							Do
-								EMReadScreen check_BDXP_panel, 4, 2, 53 						'Reads fro BDXP panel\
+								EMReadScreen check_BDXP_panel, 4, 2, 53 						'Makes sure we are at the BDXP panel
 								If check_BDXP_panel <> "BDXP" Then
 									row = 1
 									col = 1
@@ -4414,7 +4428,7 @@ If ex_parte_function = "Phase 1" Then
 								End If
 							Loop until check_BDXP_panel = "BDXP"
 
-							EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69
+							EMReadScreen MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb), 		12, 5, 69		'Read SVES information
 							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb), 	2, 6, 19
 							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), 	8, 8, 16
 							EMReadScreen MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb), 		8, 8, 32
@@ -4599,44 +4613,83 @@ If ex_parte_function = "Phase 1" Then
 								End If
 							End If
 
-							' MsgBox "MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) - " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & vbCr & "MAXIS_case_number - " & MAXIS_case_number & vbCr & "sves_response - " & sves_response
+							'This is opening the Ex Parte income list to record the QURY information for a particaular case and person - but only if the qury was sent during the prep 2 run
 							objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] = '" & prep_phase_2_run_date & "'"
 
-							'Creating objects for Access
-							Set objIncomeConnection = CreateObject("ADODB.Connection")
+							Set objIncomeConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 							Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
 
-							'This is the file path for the statistics Access database.
-							' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+							'opening the connections and data table
 							objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 							objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 
 						End If
 					End If
-					Call back_to_SELF
+					Call back_to_SELF		'getting all th way back
 				Next
 
 				Do
-					Call navigate_to_MAXIS_screen("STAT", "SUMM")
+					Call navigate_to_MAXIS_screen("STAT", "SUMM")					'making sure the case has come through background if it went through
 					EMReadScreen summ_check, 4, 2, 46
 				Loop until summ_check = "SUMM"
-				verif_types = ""
 
-
+				verif_types = ""													'blanking out the verification types for CASE/NOTE
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 					'NOTE that there is no SSI information that should be on a secondary claim so it should not be updated during the Phase 1 run (it was updated during the Prep 2 run.)
 
+					'here we need to see what is already listed as income on the RSDI panels that is NOT in the new TPQY.
+					'There has been duplication of
 					If MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = True Then
-						If MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) <> MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then
-							If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then
-								rsdi_type = "01"
-								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
-							Else
-								rsdi_type = "02"
-								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
-							End If
-							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
+						'First we need to see what the income is listed for any existant RSDI panel
+						'here we navigate to the UNEA panel
+						EMWriteScreen "UNEA", 20, 71
+						transmit
+						EMReadScreen unea_check, 4, 2, 48
+						Do While unea_check <> "UNEA"								'making sure we've made it.
+							Call navigate_to_MAXIS_screen("STAT", "UNEA")
+							EMReadScreen unea_check, 4, 2, 48
+						Loop
+						EMWriteScreen MEMB_reference_number, 20, 76 				'Navigating to the right member of unea
+						EMWriteScreen "01", 20, 79 									'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+						transmit
+
+						other_rsdi_amount = ""
+						EMReadScreen vers_count, 1, 2, 78							'reading the number of versions of UNEA for this member
+						If vers_count <> "0" Then									'if there are none, the rest of the functionality will be skipped, if there are any, we have to read them
+							Do
+								EMReadScreen panel_instance, 1, 2, 73										'reading the specific panel information
+								EMReadScreen panel_type_code, 2, 5, 37
+
+								If panel_type_code = "01" or panel_type_code = "02" Then
+									EMReadScreen panel_claim_number, 15, 6, 37
+									EMReadScreen panel_prosp_amount, 8, 18, 68
+									panel_claim_number = replace(panel_claim_number, "_", "")					'formatting the claim number
+									panel_claim_number = replace(panel_claim_number, " ", "")
+
+									If left(panel_claim_number, 9) <> left(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 9) Then
+										other_rsdi_amount = trim(panel_prosp_amount)
+									End If
+								End If
+
+								transmit											'go to the next UNEA panel
+								EMReadScreen end_of_UNEA_panels, 7, 24, 2			'read the warning/error message to see if we could not move to the next panel
+							Loop Until end_of_UNEA_panels = "ENTER A"
+						End If
+
+						rsdi_amount = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)
+						If other_rsdi_amount = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then rsdi_amount = 0
+						objTextStream.WriteLine "        | AMOUNT USED IN UPDATING RSDI: " & rsdi_amount & "| RSDI amount listed in TPQY: " &  MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)
+
+						If MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True Then
+							rsdi_type = "01"
+							Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
+						Else
+							rsdi_type = "02"
+							Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
+						End If
+						If RSDI_panel_found = True or rsdi_amount <> 0 Then
+							Call update_unea_pane(RSDI_panel_found, rsdi_type, rsdi_amount, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
 							If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 						End If
 					End If
@@ -4837,18 +4890,17 @@ If ex_parte_function = "Phase 1" Then
 				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 
 					If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) <> "" Then
+						'This is updating the Ex Parte Income list with details of rsdi information from SVES
 						objIncUpdtSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response &_
 										"', GrossAmt = '" & MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) &_
 										"', NetAmt = '" & MEMBER_INFO_ARRAY(tpqy_rsdi_net_amt, each_memb) &_
 										"', EndDate = '" & MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) &_
 										"' WHERE [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [ClaimNbr] LIKE '" & left(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 9) & "'"
 
-						'Creating objects for Access
-						Set objIncUpdtConnection = CreateObject("ADODB.Connection")
+						Set objIncUpdtConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 						Set objIncUpdtRecordSet = CreateObject("ADODB.Recordset")
 
-						'This is the file path for the statistics Access database.
-						' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+						'opening the connections and data table
 						objIncUpdtConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 						objIncUpdtRecordSet.Open objIncUpdtSQL, objIncUpdtConnection
 
@@ -4942,13 +4994,13 @@ If ex_parte_function = "Phase 1" Then
 					End If
 				End If
 
-
+				'This is opening the Ex Parte Case List data table so we update the progress on the case for phase 1 run completion. This tracks that the work was done for this case in phase 1.
 				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
-				'Creating objects for Access
-				Set objUpdateConnection = CreateObject("ADODB.Connection")
+
+				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-				'This is the file path for the statistics Access database.
+				'opening the connections and data table
 				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
@@ -4968,15 +5020,13 @@ If ex_parte_function = "Phase 1" Then
 
 
 
-	'declare the SQL statement that will query the database
+	'This is opening the Ex Parte Case List data table so we can loop through it. We just want to see what all happened.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"
 
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
+	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	'This is the file path for the statistics Access database.
-	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open objSQL, objConnection
 
