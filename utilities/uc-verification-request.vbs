@@ -151,7 +151,7 @@ BeginDialog Dialog1, 0, 0, 301, 95, "Verification Request for Unemployment Compe
     OkButton 195, 75, 45, 15
     CancelButton 245, 75, 45, 15
     PushButton 165, 5, 15, 15, "!", initial_help_button
-    PushButton 185, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
+    PushButton 185, 5, 105, 15, "Unemployment Compensation", HSR_manual_button
   Text 35, 10, 50, 10, "Case Number:"
   GroupBox 5, 40, 290, 30, "Department (if outside ES)"
   Text 5, 25, 295, 10, "FYI: Overpaypayment, tax, child/spousal support deductions will be reviewed for this case."
