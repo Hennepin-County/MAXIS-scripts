@@ -142,7 +142,7 @@ initial_help_text = "*** Unemployment Compensation ***" & vbNewLine & vbNewLine 
 
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 301, 95, "Request for Unemployment Insurance"
+BeginDialog Dialog1, 0, 0, 301, 95, "Verification Request for Unemployment Compensation"
   EditBox 85, 5, 50, 15, MAXIS_case_number
   CheckBox 10, 55, 25, 10, "CCA", cca_checkbox
   CheckBox 45, 55, 85, 10, "Other (please specify):", other_checkbox
