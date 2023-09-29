@@ -326,7 +326,6 @@ If initial_option = "MAXIS to METS Migration" then
         Call write_variable_in_SPEC_MEMO ("If you have questions or want to ask for a paper application, call your county human services agency at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
         Call write_variable_in_SPEC_MEMO ("You can also get help through a navigator. To find one, go to http://www.mnsure.org. Click the ""Get Help"" tab on the home page. Then click the ""Find an assister"" link and use the assister directory to find a navigator near you. Your county human services agency can also help you find a navigator in your area.")
         Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
-        End If 
     Else
         'has METS affliated case
         Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". Your eligibility for health care coverage needs to be redetermined. We are redetermining your eligibility under a new process using the MNsure system.")
@@ -378,7 +377,6 @@ If initial_option = "MAXIS to METS Migration" then
     If METS_OR_PR_number = "" then
         Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
-        End If
     Else
         'For cases with affliated METS cases
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
