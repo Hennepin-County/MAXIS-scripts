@@ -376,9 +376,11 @@ IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Trans
 'METS to MAXIS case note only
 If initial_option = "MAXIS to METS Migration" then
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
-    If METS_OR_PR_number = "" then
+    If mets_pr_option = "METS case #" then 
+        If METS_OR_PR_number = "" then
         Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
+        End If
     Else
         'For cases with affliated METS cases
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
