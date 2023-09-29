@@ -1517,9 +1517,9 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMReadScreen mail_state_line, 2, 15, 49
 			EMReadScreen mail_zip_line, 7, 15, 58
 
-			EMReadScreen phone_one, 14, 16, 39
-			EMReadScreen phone_two, 14, 17, 39
-			EMReadScreen phone_three, 14, 18, 39
+			EMReadScreen phone_one, 12, 16, 33
+			EMReadScreen phone_two, 12, 17, 33
+			EMReadScreen phone_three, 12, 18, 33
 
 			EMReadScreen type_one, 1, 16, 61
 			EMReadScreen type_two, 1, 17, 61
@@ -1560,16 +1560,13 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
 		notes_on_address = notes_on_address & "; "
 
-        phone_one = replace(phone_one, " ) ", "-")								'formatting phone numbers
-        phone_one = replace(phone_one, " ", "-")
-        If phone_one = "___-___-____" Then phone_one = ""
+        phone_one = replace(phone_one, " ", "-")									'formatting phone numbers
+        If phone_one = "___-___-____" Then phone_one = ""							'ALERT - phone numbers from panels before 10/21 will be formatted weird
 
-        phone_two = replace(phone_two, " ) ", "-")
         phone_two = replace(phone_two, " ", "-")
         If phone_two = "___-___-____" Then phone_two = ""
 
-        phone_three = replace(phone_three, " ) ", "-")
-        phone_three = replace(phone_three, " ", "-")
+		phone_three = replace(phone_three, " ", "-")
         If phone_three = "___-___-____" Then phone_three = ""
 
         If type_one = "H" Then type_one = "H - Home"
