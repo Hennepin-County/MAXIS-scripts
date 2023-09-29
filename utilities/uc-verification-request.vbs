@@ -194,6 +194,9 @@ DO
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
+'Navigate back to STAT/MEMB in case user has navigated away
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 'Establishing array
 uc_membs = 0       'incrementor for array
