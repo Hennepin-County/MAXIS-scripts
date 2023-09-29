@@ -202,7 +202,7 @@ Elseif initial_option = "1. Non-MAGI referral" then
         BeginDialog Dialog1, 0, 0, 271, (150 + (transition_membs * 15)), "Non-MAGI Referral for #" & MAXIS_case_number
         Text 10, 10, 55, 10, "Date of Request:"
         EditBox 70, 5, 55, 15, request_date
-        Text 140, 10, 120, 10, mets_pr_option & ": " & METS_OR_PR_number
+        Text 140, 10, 120, 10, mets_pr_option & " " & METS_OR_PR_number
         Text 5, 30, 65, 10, "Service requested:"
         DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Applying for MA-EPD"+chr(9)+"Requesting waiver"+chr(9)+"Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
         CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
@@ -252,7 +252,7 @@ else
         Text 10, 10, 70, 10, "MMIS elig end date:"
         EditBox 80, 5, 55, 15, mmis_end_date
     End if
-       Text 140, 10, 120, 10, mets_pr_option & ": " & METS_OR_PR_number
+       Text 140, 10, 120, 10, mets_pr_option & " " & METS_OR_PR_number
       	x = 0
       FOR item = 0 to ubound(transition_array, 2)							'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
           Text 10, (40 + (x * 15)), 100, 10, transition_array(member_name_const, item)
@@ -318,8 +318,7 @@ If initial_option = "MAXIS to METS Migration" then
 
     'THE MEMO----------------------------------------------------------------------------------------------------
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
-    If mets_pr_option = "METS case #" then 
-        If METS_OR_PR_number = "" then
+    If METS_OR_PR_number = "" then
         Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
         Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
         Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
@@ -376,8 +375,7 @@ IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Trans
 'METS to MAXIS case note only
 If initial_option = "MAXIS to METS Migration" then
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
-    If mets_pr_option = "METS case #" then 
-        If METS_OR_PR_number = "" then
+    If METS_OR_PR_number = "" then
         Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
         Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
         End If
