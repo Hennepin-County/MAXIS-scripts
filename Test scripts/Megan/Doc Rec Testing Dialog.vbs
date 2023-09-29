@@ -45,6 +45,25 @@ EMConnect "" 'Connects to BlueZone
 add_button 			= 201
 all_forms 			= 202
 review_selections 	= 203
+clear_button		= 204
+
+asset_btn			= 400
+arep_btn			= 401
+atr_btn				= 402
+change_btn 			= 403
+evf_btn				= 404
+hospice_btn			= 405
+iaa_btn				= 406
+iaa_ssi_btn			= 407
+mof_btn				= 408
+mtaf_btn			= 409
+psn_btn				= 410
+shelter_btn			= 411
+diet_btn			= 412
+
+
+
+
 
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
@@ -723,7 +742,66 @@ If diet_checkbox = checked or Form_type = "Special Diet Information Request (MFI
 	cancel_confirmation
 End If 
 
-			
+
+' ' 'BUTTON NAVIGATION
+
+' ' If ButtonPressed = asset_btn Then 
+' ' 	page_display = show_asset_pg
+' ' End If
+' ' If ButtonPressed = arep_btn Then 
+' ' 	page_display = show_arep_pg
+' ' End If
+' ' If ButtonPressed = atr_btn Then 
+' ' 	page_display = show_atr_pg
+' ' End If
+' ' If ButtonPressed = change_btn Then 
+' ' 	page_display = show_change_pg
+' ' End If
+' ' If ButtonPressed = evf_btn Then 
+' ' 	page_display = show_evf_pg
+' ' End If
+' ' If ButtonPressed = hospice_btn Then 
+' ' 	page_display = show_hospice_pg
+' ' End If
+' ' If ButtonPressed = iaa_btn Then 
+' ' 	page_display = show_iaa 
+' ' End If
+' ' If ButtonPressed = iaa_ssi_btn Then 
+' ' 	page_display = show_iaa_ssi_pg
+' ' End If
+' ' If ButtonPressed = mof_btn Then 
+' ' 	page_display = show_mof_pg
+' ' End If
+' ' If ButtonPressed = mtaf_btn Then 
+' ' 	page_display = show_mtaf_pg
+' ' End If
+' ' If ButtonPressed = psn_btn Then 
+' ' 	page_display = show_psn_pg
+' ' End If
+' ' If ButtonPressed = shelter_btn Then 
+' ' 	page_display = show_shelter_pg
+' ' End If
+' ' If ButtonPressed = diet_btn Then 
+' ' 	page_display = show_diet_pg
+' ' End If
+
+' ' 'Button naviation with next_btn
+' ' If ButtonPressed = next_btn Then
+' ' 	If page_display = show_asset_pg 	Then ButtonPressed = arep_btn
+' ' 	If page_display = show_arep_pg		Then ButtonPressed = atr_btn
+' ' 	If page_display = show_atr_pg		Then ButtonPressed = change_btn
+' ' 	If page_display = show_change_pg	Then ButtonPressed = evf_btn
+' ' 	If page_display = show_evf_pg		Then ButtonPressed = hospice_btn
+' ' 	If page_display = show_hospice_pg	Then ButtonPressed = iaa_btn
+' ' 	If page_display = show_iaa 			Then ButtonPressed = iaa_ssi_btn
+' ' 	If page_display = show_iaa_ssi_pg	Then ButtonPressed = mof_btn
+' ' 	If page_display = show_mof_pg		Then ButtonPressed = mtaf_btn
+' ' 	If page_display = show_mtaf_pg		Then ButtonPressed = psn_btn
+' ' 	If page_display = show_psn_pg		Then ButtonPressed = shelter_btn
+' ' 	If page_display = show_shelter_pg	Then ButtonPressed = diet_btn
+' ' 	'If page_display = show_diet_pg		Then ButtonPressed = 	'this is the last form, do I need this? 
+' ' End If
+
 
 
 ' 'VERSION #2: CHECKBOXES ONLY 
@@ -1450,31 +1528,31 @@ End If
 
 
 
-' ' 'PHASE 1 DIALOG DOCUMENT SELECTION
-' ' Do	'Phase 1: Currently this do loop bring the user back to the Select Documents Received after msgbox/all forms dialog
-' ' Dialog1 = "" 'Blanking out previous dialog detail
-' ' BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-' ' y_pos = 30
-' ' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
-' ' ButtonGroup ButtonPressed
-' ' PushButton 225, y_pos, 35, 10, "Add", add_button
-' ' PushButton 225, y_pos + 30, 35, 10, "All Forms", all_forms
-' ' OkButton 205, y_pos + 185, 40, 15
-' ' CancelButton 255, y_pos + 185, 40, 15
-' ' GroupBox 5, 5, y_pos + 250, 70, "Directions: For each document received either:"
-' ' Text 15, 15, y_pos + 245, 10, "1. Select document from dropdown, then select Add button. Repeat for each form."
-' ' Text 10, y_pos + 15, 15, 10, "OR"
-' ' Text 15, y_pos + 30, 180, 10, "2. Select All Forms to select forms via checkboxes."
-' ' GroupBox 45, y_pos + 55, 210, 125, "Documents Selected"
-' ' EndDialog
+' 'PHASE 1 DIALOG DOCUMENT SELECTION
+' Do	'Phase 1: Currently this do loop bring the user back to the Select Documents Received after msgbox/all forms dialog
+' Dialog1 = "" 'Blanking out previous dialog detail
+' BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
+' y_pos = 30
+' ComboBox 30, y_pos, 180, 15, "...Select or Type"+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
+' ButtonGroup ButtonPressed
+' PushButton 225, y_pos, 35, 10, "Add", add_button
+' PushButton 225, y_pos + 30, 35, 10, "All Forms", all_forms
+' OkButton 205, y_pos + 185, 40, 15
+' CancelButton 255, y_pos + 185, 40, 15
+' GroupBox 5, 5, y_pos + 250, 70, "Directions: For each document received either:"
+' Text 15, 15, y_pos + 245, 10, "1. Select document from dropdown, then select Add button. Repeat for each form."
+' Text 10, y_pos + 15, 15, 10, "OR"
+' Text 15, y_pos + 30, 180, 10, "2. Select All Forms to select forms via checkboxes."
+' GroupBox 45, y_pos + 55, 210, 125, "Documents Selected"
+' EndDialog
 
-' ' dialog dialog1	'TODO: Place this in a do loop and add handling to ensure the user selected the correct entries or will be warned
-' ' cancel_confirmation
+' dialog dialog1	'TODO: Place this in a do loop and add handling to ensure the user selected the correct entries or will be warned
+' cancel_confirmation
 
 
-' ' If ButtonPressed = add_button Then MsgBox form_type 	'Phase 1: If Add is selected, then msg box selected form ' TODO: Store selection and list selection in dialog
-' ' If ButtonPressed = all_forms Then Call all_forms_checkboxes		'Phase 1: Brings user to next dialg. 'TODO: Need coding to go back to previous dialo
-' ' Loop 
+' If ButtonPressed = add_button Then MsgBox form_type 	'Phase 1: If Add is selected, then msg box selected form ' TODO: Store selection and list selection in dialog
+' If ButtonPressed = all_forms Then Call all_forms_checkboxes		'Phase 1: Brings user to next dialg. 'TODO: Need coding to go back to previous dialo
+' Loop 
 
-' 'PHASE 2 DOCUMENT SELECTION
-' 'Form_Type_Array = Array("Asset Statement", "AREP (Authorized Rep)", "Authorization to Release (ATR)", "Change Report Form", "Employment Verification Form (EVF)", "Hospice Transaction Form", "Interim Assistance Agreement (IAA)", "Interim Assistance Agreement-SSI", "Medical Opinion Form (MOF)", "Minnesota Transition Application Form (MTAF)", "Professional Statement of Need (PSN)", "Residence and Shelter Expenses Release Form", "Special Diet Information Request")
+' PHASE 2 DOCUMENT SELECTION
+' Form_Type_Array = Array("Asset Statement", "AREP (Authorized Rep)", "Authorization to Release (ATR)", "Change Report Form", "Employment Verification Form (EVF)", "Hospice Transaction Form", "Interim Assistance Agreement (IAA)", "Interim Assistance Agreement-SSI", "Medical Opinion Form (MOF)", "Minnesota Transition Application Form (MTAF)", "Professional Statement of Need (PSN)", "Residence and Shelter Expenses Release Form", "Special Diet Information Request")
