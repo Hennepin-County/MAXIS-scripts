@@ -438,7 +438,7 @@ If spec_memo = True then
 	PF4 'save memo
 	stats_counter = STATS_counter + 1
 End if 
-----------------------------------------------------------------------------------------------------CASE/NOTE
+'----------------------------------------------------------------------------------------------------CASE/NOTE
 Call start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initial_month & "/" & initial_year & "--")
 Call write_variable_in_case_note("Case TLR Information by Member")
