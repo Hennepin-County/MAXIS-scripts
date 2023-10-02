@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/02/2023", "Fixed bug in ABAWD Tracking Record where codes were not entering for the current month.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -384,18 +385,26 @@ For item = 0 to ubound(footer_month_array)
 		    	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
 		    End If 
 		    transmit ' to save
+
+			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval. 
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
 		    'msgbox "DateDiff " & DateDiff("M", processing_month, date)
 		    If DateDiff("M", processing_month, date) => 0 then 
-		    	'msgbox "Will update ATR."
-	        	Call write_value_and_transmit("X", 13, 57)	'entering the ABAWD tracking record 
-		    	PF9
-	        	bene_yr_row = 10										'current year row is always 10	
-	        	bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-	        	If ABAWD_coding = "10" Then EMWriteSCreen "M", bene_yr_row, bene_mo_col	'manual counted ABAWD month
-		    	If ABAWD_coding = "13" Then EMWriteSCreen "C", bene_yr_row, bene_mo_col	'manual counted banked month
+				PF9
+				If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
+		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
+				'Update tracking record
+	    		ATR_updates = array("D", ATR_code)
+	    		For each update_code in ATR_updates
+	    		    'msgbox update_code
+					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
+	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+        		    bene_yr_row = 10
+			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+					PF3 'to go back to WREG/Panel
+	    		Next     	
 	        	PF3	' to save and exit ABAWD tracking record
 		    End if 
 	        transmit 'to save
@@ -409,7 +418,7 @@ For item = 0 to ubound(footer_month_array)
 	Next     
 Next 
 
-'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
+SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
 	'Writes the info into the MEMO.
@@ -429,8 +438,7 @@ If spec_memo = True then
 	PF4 'save memo
 	stats_counter = STATS_counter + 1
 End if 
-
-'----------------------------------------------------------------------------------------------------CASE/NOTE
+----------------------------------------------------------------------------------------------------CASE/NOTE
 Call start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initial_month & "/" & initial_year & "--")
 Call write_variable_in_case_note("Case TLR Information by Member")
