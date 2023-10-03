@@ -17378,7 +17378,6 @@ class hc_eligibility_detail
 					created_today = False
 					If DateDiff("d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then created_today = True
 					If developer_mode = True Then created_today = True 												'TESTING OPTION'
-					If MAXIS_case_number = "274613" Then created_today = True
 
 					If created_today = False Then
 						If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
@@ -17432,7 +17431,7 @@ class hc_eligibility_detail
 									approved_today = True
 									hc_prog_elig_approved_today(hc_prog_count) = True
 								End If
-								If developer_mode = True or MAXIS_case_number = "274613" Then
+								If developer_mode = True Then
 									approved_today = True										'TESTING OPTION'
 									hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
 								End If
@@ -18340,7 +18339,7 @@ class hc_eligibility_detail
 									approved_today = True
 									hc_prog_elig_approved_today(hc_prog_count) = True
 								End If
-								If developer_mode = True or MAXIS_case_number = "274613" Then
+								If developer_mode = True Then
 									approved_today = True										'TESTING OPTION'
 									hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
 								End If
@@ -23277,7 +23276,7 @@ If MX_region = "INQUIRY DB" Then
 End If
 
 developer_mode = False
-If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
+' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
