@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - IMIG - SPONSOR INCOME.vbs"
+name_of_script = "NOTES - SPONSOR INCOME.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 300          'manual run time in seconds
@@ -211,7 +211,7 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '--Manual time study reviewed --------------------------------------------------10/03/2022
 '--Incrementors reviewed (if necessary)-----------------------------------------11/14/2022
 '--Denomination reviewed -------------------------------------------------------10/03/2022
-'--Script name reviewed---------------------------------------------------------10/03/2022
+'--Script name reviewed---------------------------------------------------------10/03/2023
 '--BULK - remove 1 incrementor at end of script reviewed------------------------11/14/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
