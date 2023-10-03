@@ -17378,6 +17378,7 @@ class hc_eligibility_detail
 					created_today = False
 					If DateDiff("d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then created_today = True
 					If developer_mode = True Then created_today = True 												'TESTING OPTION'
+					If MAXIS_case_number = "274613" Then created_today = True
 
 					If created_today = False Then
 						If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 3, 73
@@ -23200,6 +23201,8 @@ end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 ineligible_approval_exists = False
+last_option_day = CM_plus_1_mo & "/1/" & CM_plus_1_yr				'setting cm+1 as the last date that can be used as the initial month
+last_option_day = DateAdd("d", 0, last_option_day)
 
 Do
 	Do
@@ -23234,6 +23237,13 @@ Do
 
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(first_footer_month, first_footer_year, err_msg, "*")
+
+		If err_msg = "" Then			'making sure that the footer month fields are accurate before trying to do date things
+			start_day = first_footer_month & "/1/" & first_footer_year			'making sure the entered footer month is not later than CM+1
+			start_day = DateAdd("d", 0, start_day)
+			If DateDiff("d", start_day, last_option_day) < 0 Then err_msg = err_msg & vbNewLine & "* You cannot start the initial month of approval after current month plus one - " & CM_plus_1_mo & "/" & CM_plus_1_yr & ". Update the Initial Month of Today's Approval."
+		End If
+
 		If trim(worker_signature) = "" Then err_msg = err_msg & vbNewLine & "* Enter your name to sign your case note."
 
 		If ButtonPressed = intructions_btn Then
