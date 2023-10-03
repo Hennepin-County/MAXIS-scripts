@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/03/2023", "The IMIG button has been removed from the menu. Immigration Status and Sponsor Income scripts are now found under the standard alpha menus with other note scripts.", "Dave Courtright, Hennepin County")
 call changelog_update("06/16/2023", "NOTES - ABAWD TRACKING RECORD is back! NOTES - ABAWD WAIVED APPROVAL is now retired.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/11/2023", "Retired the scripts:##~## NOTES - HCAPP##~## NOTES - IMIG - EMA##~## NOTES - LTC - Application Received##~## ##~## The functionality of this script is supported by NOTES - Health Care Evaluation.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Retired HC Renewal and LTC-Rennewal scripts. These scripts will be enhanced prior to renewals starting again. Health Care renewals remain paused during the PHE.", "Ilse Ferris, Hennepin County")
@@ -186,8 +187,6 @@ Function declare_main_menu_dialog(script_category)
 		Else
 			Text 			270,                    23, 					40, 		15, 			" LTC  "
 		End If
-		 If show_imig_btn = True  Then
-
 
 
 		'SCRIPT LIST HANDLING--------------------------------------------
