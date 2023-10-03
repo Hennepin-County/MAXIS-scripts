@@ -83,7 +83,6 @@ Function declare_main_menu_dialog(script_category)
 	'
 	' Next
 	show_ltc_btn = True
-	show_imig_btn = True
 	show_0_c_btn = True
 	show_d_f_btn = True
 	show_g_l_btn = True
@@ -98,9 +97,6 @@ Function declare_main_menu_dialog(script_category)
             If ButtonPressed = menu_ltc_button Then
                 If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = TRUE
 				show_ltc_btn = False
-            ElseIf ButtonPressed = menu_imig_button Then
-                If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = TRUE
-				show_imig_btn = False
             ElseIf ButtonPressed = menu_0_to_c_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "A" Then script_array(current_script).show_script = TRUE
@@ -119,7 +115,6 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "J" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "K" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "L" Then script_array(current_script).show_script = TRUE
-                If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = FALSE
                 If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = FALSE
 				show_g_l_btn = False
             ElseIf ButtonPressed = menu_M_to_Q_button Then
@@ -150,7 +145,6 @@ Function declare_main_menu_dialog(script_category)
             If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
         End If
     next
-	If ButtonPressed = menu_imig_button Then dlg_len = dlg_len + 10
 
 	BeginDialog Dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
@@ -192,11 +186,8 @@ Function declare_main_menu_dialog(script_category)
 		Else
 			Text 			270,                    23, 					40, 		15, 			" LTC  "
 		End If
-		If show_imig_btn = True  Then
-        	PushButton 		305,                    20, 					50, 		15, 			" IMIG ", 					menu_imig_button
-		Else
-			Text 			320,                    23, 					40, 		15, 			" IMIG "
-		End If
+		 If show_imig_btn = True  Then
+
 
 
 		'SCRIPT LIST HANDLING--------------------------------------------
@@ -245,7 +236,6 @@ menu_G_to_L_button          = 130
 menu_M_to_Q_button          = 140
 menu_R_to_Z_button          = 150
 menu_ltc_button             = 160
-menu_imig_button            = 170
 
 'Other pre-loop and pre-function declarations
 subcategory_array = array()
