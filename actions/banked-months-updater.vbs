@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/03/2023", "Fixed bug in saving STAT/WREG updates.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/02/2023", "Fixed bug in ABAWD Tracking Record where codes were not entering for the current month.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -384,6 +385,7 @@ For item = 0 to ubound(footer_month_array)
 		    Else
 		    	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
 		    End If 
+			PF3
 		    transmit ' to save
 
 			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
@@ -417,6 +419,7 @@ For item = 0 to ubound(footer_month_array)
 		End if 
 	Next     
 Next 
+
 
 'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
