@@ -23276,7 +23276,7 @@ If MX_region = "INQUIRY DB" Then
 End If
 
 developer_mode = False
-' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
+If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
@@ -23456,6 +23456,7 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
+	Call back_to_SELF
 
 	If numb_DWP_versions <> " " Then
 		ReDim Preserve DWP_ELIG_APPROVALS(dwp_elig_months_count)
@@ -24492,10 +24493,16 @@ Next
 EMWriteScreen MAXIS_case_number, 18, 43
 
 If approvals_not_created_today <> "" Then
-	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
-	Call write_value_and_transmit(first_month_not_created_today, 19, 56)
-	Call write_value_and_transmit(first_year_not_created_today, 19, 59)
-	Call Navigate_to_MAXIS_screen("ELIG", first_prog_not_created_today)
+
+	'making sure that the footer month fields are accurate before trying to do date things
+	check_day = first_month_not_created_today & "/1/" & first_year_not_created_today			'making sure the entered footer month is not later than CM+1
+	check_day = DateAdd("d", 0, check_day)
+	If DateDiff("d", check_day, last_option_day) >= 0 Then
+		Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
+		Call write_value_and_transmit(first_month_not_created_today, 19, 56)
+		Call write_value_and_transmit(first_year_not_created_today, 19, 59)
+		Call Navigate_to_MAXIS_screen("ELIG", first_prog_not_created_today)
+	End If
 
 	cannot_note_msg = "It appears there were approvals completed today on ELIG Results that were created on a different day:" & vbCr & vbCr
 	cannot_note_msg = cannot_note_msg & approvals_not_created_today & vbCr
