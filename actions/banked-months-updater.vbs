@@ -163,13 +163,14 @@ ELSEIF all_eat_together = "N" THEN
     LOOP UNTIL eats_group = "__"
 END IF
 
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+'Cleaning up eats graup string and creating array 
 If right(eats_group_members, 1) = "," THEN eats_group_members = left(eats_group_members, len(eats_group_members) - 1)
 eats_array = split(eats_group_members, ",")
 
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+
 entry_count = 0
 For each member in eats_array 
-	'msgbox member
 	Call write_value_and_transmit(member, 20, 76)
 	EmReadScreen member_first_name, 12, 6, 63
 	member_first_name = replace(member_first_name, "_", "")
@@ -251,9 +252,6 @@ For i = 0 to Ubound(banked_months_array, 2)
 		'cleaning up these variables for dialog display
 		If trim(right(abawd_counted_months_string, 2)) = " |" THEN abawd_counted_months_string = left(abawd_counted_months_string, len(abawd_counted_months_strings) - 2)
 		If trim(right(banked_months_string, 2)) = " |" THEN banked_months_string = left(banked_months_string, len(banked_months_string) - 2)
-	
-	    'msgbox "ABAWD's: " & abawd_counted_months & vbcr & "Banked: " & banked_months_count
-		'msgbox abawd_counted_months_string & vbcr & banked_months_string
 	    PF3	' to exit tracking record 	     
 	End If 
 
@@ -326,12 +324,11 @@ If case_note = True  then script_actions = script_actions & VBCR & "* A detailed
 
 If script_actions = "" then script_actions = "None! This case does not have any members that require SNAP Banked Months updating. The script will end after you press OK or Cancel."
 
-'msgbox "script actions: " & script_actions
-
 Dialog1 = ""		    '----------------------------------------------------------------------------------------------------Displaying Main Dialog 
 BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/TLR's on Case #" & MAXIS_case_number
   Text 65, 10, 455, 10, "**The following information are for the ABAWD and Banked Months counts/months members in the EATS Household containing Memb 01**"
   Text 115, 25, 315, 10, "--The information below reflects counts from the initial month/year selected in the initial dialog.--"
+
 dialog_item = 0
 For i = 0 to Ubound(banked_months_array, 2)
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
@@ -375,8 +372,8 @@ For item = 0 to ubound(footer_month_array)
 	        PF9
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
+
 		    If banked_months_array(banked_mo_count_const, i) < 2 then 
-		    	'msgbox banked_months_array(banked_mo_count_const, i)
 	        	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
 		    	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
 		    	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
@@ -390,14 +387,14 @@ For item = 0 to ubound(footer_month_array)
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval. 
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
-		    'msgbox "DateDiff " & DateDiff("M", processing_month, date)
 		    If DateDiff("M", processing_month, date) => 0 then 
+	
 				If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
 		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
+				ATR_updates = array("D", ATR_code)
+
 				'Update tracking record
-	    		ATR_updates = array("D", ATR_code)
-	    		For each update_code in ATR_updates
-	    		    'msgbox update_code
+	    		For each update_code in ATR_updates    
 					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
 	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         		    bene_yr_row = 10
@@ -405,15 +402,14 @@ For item = 0 to ubound(footer_month_array)
 					PF3 'to go back to WREG/Panel
 	    		Next     	
 		    End if 
+
 			transmit ' to save 
-	        'PF3	' to save 
-			'msgbox "what's happening"
-			EMReadscreen orientation_warning, 7, 24, 2 
+			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
 			If orientation_warning = "WARNING" then transmit 
-		
 	        PF3 'to save and exit to stat/wrap
 		    Call back_to_SELF
 		    stats_counter = STATS_counter + 1
+
 		    'cleaning up variable again for Case note output 
 		    If trim(right(banked_months_string, 2)) = " |" THEN banked_months_string = left(banked_months_string, len(banked_months_string) - 2)
 		End if 
@@ -423,7 +419,6 @@ Next
 'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
-	'Writes the info into the MEMO.
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	Call write_variable_in_SPEC_MEMO("You are getting this letter because you or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months.")
 	Call write_variable_in_SPEC_MEMO("")
@@ -448,15 +443,13 @@ Call write_variable_in_case_note("Case TLR Information by Member")
 Call write_variable_in_case_note("------------------------------")
 For i = 0 to Ubound(banked_months_array, 2)
 	Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(" & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
-	'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then
-        'Call write_variable_in_case_note(banked_months_array(member_first_name_const, i) & " (MEMB " & banked_months_array(member_number_const , i) & ")")
         Call write_variable_in_case_note("* ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i))
         Call write_variable_in_case_note("* ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i))
         Call write_variable_in_case_note("* Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i))
+		stats_counter = STATS_counter + 1
         Call write_variable_in_case_note("--")
 	End if 
-	stats_counter = STATS_counter + 1
 Next 
 If update_wreg = True then Call write_variable_in_case_note("* The STAT/WREG panel was updated through CM + 1 for members who have banked months available, or who have exhausted them.")
 If spec_memo = True then Call write_variable_in_case_note("* A SPEC/MEMO was sent to the household with banked months and time-limited SNAP information.")
@@ -504,10 +497,10 @@ script_end_procedure_with_error_report(end_msg)
 '--Confirm all GitHub tasks are complete----------------------------------------09/19/2023
 '--comment Code-----------------------------------------------------------------09/19/2023
 '--Update Changelog for release/update------------------------------------------09/19/2023
-'--Remove testing message boxes-------------------------------------------------09/19/2023----------------Keeping some of these until testing after 1st of the month for more than 1 month updates. 
+'--Remove testing message boxes-------------------------------------------------10/04/2023
 '--Remove testing code/unnecessary code-----------------------------------------09/19/2023
-'--Review/update SharePoint instructions----------------------------------------09/19/2023----------------In progress
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/19/2023----------------In progress
+'--Review/update SharePoint instructions----------------------------------------10/04/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/04/2023
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/19/2023
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------09/19/2023
 '--Complete misc. documentation (if applicable)---------------------------------09/19/2023
