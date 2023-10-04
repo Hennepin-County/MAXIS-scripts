@@ -95,7 +95,6 @@ Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending,
 If SNAP_CASE = False then script_end_procedure_with_error_report("This case is not a SNAP Case. The script will now end.")
 
 Call date_array_generator(initial_month, initial_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
-
 'Need to make sure we start in the correct year for maxis
 MAXIS_footer_month = initial_month
 MAXIS_footer_year = initial_year
@@ -397,7 +396,7 @@ For item = 0 to ubound(footer_month_array)
 				'Update tracking record
 	    		ATR_updates = array("D", ATR_code)
 	    		For each update_code in ATR_updates
-	    		    msgbox update_code
+	    		    'msgbox update_code
 					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
 	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         		    bene_yr_row = 10
