@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/04/2023", "Fixed bug in saving STAT/WREG panel updates when FSET orientation is blank.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2023", "Fixed bug in saving STAT/WREG updates.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/02/2023", "Fixed bug in ABAWD Tracking Record where codes were not entering for the current month.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2023", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -403,9 +404,10 @@ For item = 0 to ubound(footer_month_array)
 			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
 					PF3 'to go back to WREG/Panel
 	    		Next     	
-	        	PF3	' to save and exit ABAWD tracking recordcas
 		    End if 
-	        PF3	' to save 
+			transmit ' to save 
+	        'PF3	' to save 
+			'msgbox "what's happening"
 			EMReadscreen orientation_warning, 7, 24, 2 
 			If orientation_warning = "WARNING" then transmit 
 		
@@ -438,6 +440,7 @@ If spec_memo = True then
 	PF4 'save memo
 	stats_counter = STATS_counter + 1
 End if 
+
 '----------------------------------------------------------------------------------------------------CASE/NOTE
 Call start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initial_month & "/" & initial_year & "--")
