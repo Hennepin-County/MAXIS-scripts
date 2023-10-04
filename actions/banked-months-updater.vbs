@@ -385,32 +385,31 @@ For item = 0 to ubound(footer_month_array)
 		    Else
 		    	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
 		    End If 
-			PF3
-		    transmit ' to save
-
+		
 			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval. 
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
 		    'msgbox "DateDiff " & DateDiff("M", processing_month, date)
 		    If DateDiff("M", processing_month, date) => 0 then 
-				PF9
 				If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
 		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
 				'Update tracking record
 	    		ATR_updates = array("D", ATR_code)
 	    		For each update_code in ATR_updates
-	    		    'msgbox update_code
+	    		    msgbox update_code
 					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
 	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
         		    bene_yr_row = 10
 			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
 					PF3 'to go back to WREG/Panel
 	    		Next     	
-	        	PF3	' to save and exit ABAWD tracking record
+	        	PF3	' to save and exit ABAWD tracking recordcas
 		    End if 
-	        transmit 'to save
-    
+	        PF3	' to save 
+			EMReadscreen orientation_warning, 7, 24, 2 
+			If orientation_warning = "WARNING" then transmit 
+		
 	        PF3 'to save and exit to stat/wrap
 		    Call back_to_SELF
 		    stats_counter = STATS_counter + 1
@@ -419,7 +418,6 @@ For item = 0 to ubound(footer_month_array)
 		End if 
 	Next     
 Next 
-
 
 'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
