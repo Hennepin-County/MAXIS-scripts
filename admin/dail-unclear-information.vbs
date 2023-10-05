@@ -235,11 +235,7 @@ objExcel.Cells(2, 1).Value = "Average time to find/select/copy/paste one line (i
 objExcel.Cells(3, 1).Value = "Estimated manual processing time (lines x average):"
 objExcel.Cells(4, 1).Value = "Script run time (in seconds):"
 objExcel.Cells(5, 1).Value = "Estimated time savings by using script (in minutes):"
-objExcel.Cells(1, 2).Value = STATS_counter
-objExcel.Cells(2, 2).Value = STATS_manualtime
-objExcel.Cells(3, 2).Value = STATS_counter * STATS_manualtime
-objExcel.Cells(4, 2).Value = timer - start_time
-objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+
 
 FOR i = 1 to 5		'formatting the cells'
     objExcel.Cells(i, 1).Font.Bold = True		'bold font'
@@ -255,8 +251,8 @@ ReDim DAIL_message_array(8, 0)
 Dail_count = 0
 
 'constants for array
-const dail_maxis_case_number_const           = 0
-const dail_worker_const	                    = 1
+const dail_maxis_case_number_const      = 0
+const dail_worker_const	                = 1
 const dail_type_const                   = 2
 const dail_month_const		            = 3
 const dail_msg_const		            = 4
@@ -297,24 +293,81 @@ case_excel_row = 2
 'To Do - add tracking of deleted dails once processing the list
 'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
-'Navigates to DAIL to pull DAIL messages
-MAXIS_case_number = ""
-CALL navigate_to_MAXIS_screen("DAIL", "PICK")
-EMWriteScreen "_", 7, 39    'blank out ALL selection
-'Selects CSES DAIL Type based on dialog selection
-If CSES_messages = 1 Then EMWriteScreen "X", 10, 39    'Select CSES DAIL Type
-'Selects INFO (HIRE) DAIL Type based on dialog selection
-If HIRE_messages = 1 Then EMWriteScreen "X", 13, 39
-transmit
-
 For each worker in worker_array
+    ' MsgBox worker
+
+    'Clearing out MAXIS case number so that it doesn't carry forward from previous case
+    MAXIS_case_number = ""
+    
+    'Creating initial string for tracking all case numbers
+    valid_case_numbers_list = "*"
+
+    'Formatting the worker so there are no errors
+    worker = trim(ucase(worker))
+
+    'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason					
+	back_to_self	
+
+	Call navigate_to_MAXIS_screen("REPT", "ACTV")
+	EMWriteScreen worker, 21, 13
+	TRANSMIT
+	EMReadScreen user_worker, 7, 21, 71
+	EMReadScreen p_worker, 7, 21, 13
+	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
+
+	'msgbox "worker " & worker
+
+	IF worker_number = "X127CCL" or worker = "127CCL" THEN
+		DO
+			EmReadScreen worker_confirmation, 20, 3, 11 'looking for CENTURY PLAZA CLOSED
+			EMWaitReady 0, 0
+			'MsgBox "Are we waiting?"
+		LOOP UNTIL worker_confirmation = "CENTURY PLAZA CLOSED"
+	END IF
+
+	'Skips workers with no info
+	EMReadScreen has_content_check, 1, 7, 8
+	If has_content_check <> " " then
+		'Grabbing each case number on screen
+		Do
+		    'Set variable for next do...loop
+			MAXIS_row = 7
+			'Checking for the last page of cases.
+			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+			EMReadscreen number_of_pages, 4, 3, 76 'getting page number because to ensure it doesnt fail'
+			number_of_pages = trim(number_of_pages)
+			Do
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12	'Reading case number
+
+				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
+				MAXIS_case_number = trim(MAXIS_case_number)
+				If MAXIS_case_number <> "" and instr(valid_case_numbers_list, "*" & MAXIS_case_number & "*") <> 0 then exit do
+				valid_case_numbers_list = trim(valid_case_numbers_list & MAXIS_case_number & "*")
+
+				If MAXIS_case_number = "" Then Exit Do			'Exits do if we reach the end
+
+				MAXIS_row = MAXIS_row + 1
+				MAXIS_case_number = ""			'Blanking out variable
+			Loop until MAXIS_row = 19
+			PF8
+		Loop until last_page_check = "THIS IS THE LAST PAGE"
+	END IF
+
+    ' MsgBox valid_case_numbers_list
+
+    'Navigates to DAIL to pull DAIL messages
+    MAXIS_case_number = ""
+    CALL navigate_to_MAXIS_screen("DAIL", "PICK")
+    EMWriteScreen "_", 7, 39    'blank out ALL selection
+    'Selects CSES DAIL Type based on dialog selection
+    If CSES_messages = 1 Then EMWriteScreen "X", 10, 39    'Select CSES DAIL Type
+    'Selects INFO (HIRE) DAIL Type based on dialog selection
+    If HIRE_messages = 1 Then EMWriteScreen "X", 13, 39
+    transmit
+
     'To do - verify placement of this
     list_of_all_case_numbers = "~"
     'To do - think about handling for a situation where first case in DAIL is privileged so there wouldn't be any prior examples
-    'Establish list of all PRIV cases so script knows to skip forward
-    list_of_all_priv_case_numbers = "~"
-    'EStablish list of all cases prior to PRIV so script knows where to start and where to skip forward
-    list_of_all_prior_to_priv_case_numbers = "~"
 
     'Enter the worker number on DAIL to pull up DAIL messages
     Call write_value_and_transmit(worker, 21, 6)
@@ -332,7 +385,7 @@ For each worker in worker_array
 
         DO
             ' MsgBox "Did it move one row?"
-            'To do - not sure if necessary
+            'To do - verify if variables are resetting properly every do loop
             ' dail_type = ""
             ' dail_msg = ""
 
@@ -358,33 +411,29 @@ For each worker in worker_array
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
 
-                'If the MAXIS case number is NOT in the list of all case numbers, then it is a new case number and the script will gather case details
-                If Instr(list_of_all_case_numbers, "~" & MAXIS_case_number & "~") = 0 Then
-                    'Redim the case details array and add to array
-                    ReDim Preserve case_details_array(case_excel_row_const, case_count)
-                    case_details_array(case_maxis_case_number_const, case_count) = MAXIS_case_number
-                    case_details_array(case_worker_const, case_count) = worker
+                'If the case is in the valid_case_numbers_list, then it can be evaluated. If it is NOT in the valid_case_numbers_list then it is likely privileged or out of county so it will be skipped
+                If InStr(valid_case_numbers_list, "*" & MAXIS_case_number & "*") Then
+                    'If the MAXIS case number is NOT in the list of all case numbers, then it is a new case number and the script will gather case details
+                    If Instr(list_of_all_case_numbers, "~" & MAXIS_case_number & "~") = 0 Then
+                        'Redim the case details array and add to array
+                        ReDim Preserve case_details_array(case_excel_row_const, case_count)
+                        case_details_array(case_maxis_case_number_const, case_count) = MAXIS_case_number
+                        case_details_array(case_worker_const, case_count) = worker
 
-                    'Basically needs to be If Priv then this, elseif out-of-county then this, all other cases move forward
-                    'Must add handling for privileged case
-                    'Priv - determine priv case number and case number preceding priv case to then go back to, need to re-select DAIL/PICK correctly
+                        'Basically needs to be If Priv then this, elseif out-of-county then this, all other cases move forward
+                        'Must add handling for privileged case
+                        'Priv - determine priv case number and case number preceding priv case to then go back to, need to re-select DAIL/PICK correctly
 
-                    
-            
-                    'Navigating to CASE/CURR and pulling case details
-                    'Add new case number to list of all case numbers
-                    list_of_all_case_numbers = list_of_all_case_numbers & MAXIS_case_number & "~"
+                        
+                
+                        'Navigating to CASE/CURR and pulling case details
+                        'Add new case number to list of all case numbers
+                        list_of_all_case_numbers = list_of_all_case_numbers & MAXIS_case_number & "~"
 
-                    'Navigate to CASE/CURR to pull case details 
-                    Call write_value_and_transmit("H", dail_row, 3)
-                    EMReadScreen priv_check, 24, 24, 2
+                        'Navigate to CASE/CURR to pull case details 
+                        Call write_value_and_transmit("H", dail_row, 3)
+                        EMReadScreen priv_check, 24, 24, 2
 
-                    If InStr(priv_check, "YOU ARE NOT PRIVILEGED") Then
-                        'Determine the case number and add to priv_check_list
-                        'Determine case before priv case and add to prior to priv list
-                        'Navigate back to DAIL/PICK for requested CSES or HIRE
-                        'Enter the case number for prior to priv
-                    Else
                         'Handling if the case is out of county
                         EmReadscreen worker_county, 4, 21, 14
                         If worker_county <> worker_county_code then
@@ -432,7 +481,6 @@ For each worker in worker_array
                                 'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
                                 EMWriteScreen "ELIG", 20, 22
                                 Call write_value_and_transmit("FS  ", 20, 69)
-
 
                                 EMReadScreen no_SNAP, 10, 24, 2
                                 If no_SNAP = "NO VERSION" then						'NO SNAP version means no determination
@@ -488,8 +536,6 @@ For each worker in worker_array
                             ' MsgBox "case_details_array(reporting_status_const, case_count): " & case_details_array(reporting_status_const, case_count)
                         End If    
 
-
-
                         If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(other_programs_present_const, case_count) = False AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" then
                             case_details_array(processable_based_on_case_const, case_count) = True
                         Else
@@ -523,11 +569,75 @@ For each worker in worker_array
                         ' MsgBox "subtract 1 from dail?"
                         dail_row = dail_row - 1
                         ' MsgBox "After subtraction, dail_row = " & dail_row
-                    End if
-                'If the MAXIS case number IS in the list of all case numbers, then it is not a new case number and no case details need to be gathered. It can work off the already collected case details.
-                Else
-                    ' MsgBox "NOT a new case number"
+                    
+                    Else
+                        'If the MAXIS case number IS in the list of all case numbers, then it is not a new case number and no case details need to be gathered. It can work off the already collected case details.
+                        'Gather details on DAIL message, should capture DAIL details in spreadsheet even if ultimately not actionable
                         
+                        ' MsgBox "MAXIS_case_number: " & MAXIS_case_number
+
+                        ReDim Preserve DAIL_message_array(DAIL_excel_row_const, dail_count)
+                        DAIL_message_array(dail_maxis_case_number_const, DAIL_count) = MAXIS_case_number
+
+
+                        for each_case = 0 to UBound(case_details_array, 2)
+                            If DAIL_message_array(dail_maxis_case_number_const, dail_count) = case_details_array(case_maxis_case_number_const, each_case) Then
+                                EMReadScreen dail_type, 4, dail_row, 6
+                                dail_type = trim(dail_type)
+
+                                EMReadScreen dail_month, 8, dail_row, 11
+                                dail_month = trim(dail_month)
+
+                                EMReadScreen dail_msg, 61, dail_row, 20
+                                dail_msg = trim(dail_msg)
+                                If InStr(dail_msg, "INFC") then INFC_dail_message = True
+
+                                If INFC_dail_message <> True Then
+                                    DAIL_message_array(dail_maxis_case_number_const, dail_count) = MAXIS_case_number
+                                    DAIL_message_array(dail_type_const, dail_count) = dail_type
+                                    DAIL_message_array(dail_month_const, dail_count) = dail_month
+                                    DAIL_message_array(dail_msg_const, dail_count) = dail_msg
+                                End If
+
+                            End If 
+                        next
+
+
+                        dail_count = dail_count + 1
+
+
+                        
+
+                        ' const dail_maxis_case_number_const      = 0
+                        ' const dail_worker_const	                = 1
+                        ' const dail_type_const                   = 2
+                        ' const dail_month_const		            = 3
+                        ' const dail_msg_const		            = 4
+                        ' const renewal_month_determination_const = 5
+                        ' const processable_based_on_dail_const   = 6
+                        ' 'To do - processing notes, would these be captured in case details array?
+                        ' const dail_processing_notes_const       = 7
+                        ' ' To Do - is the excel row constant needed?
+                        ' const dail_excel_row_const              = 8
+
+                        ' a.	Is case processable based on case details? 
+                            ' i.	Yes (Processable based on Case Details = True)
+                                ' 1.	Is DAIL message processable based on DAIL details?
+                                    ' a.	Yes (Processable based on DAIL Details = True)
+                                        ' i.	Process DAIL according to process
+                                    ' b.	No (Processable based on DAIL Details = False)
+                                        ' i.	Move to next DAIL row and restart loop
+                        ' ii.	No (Processable based on Case Details = False)
+                            ' 1.	Still capture DAIL details (month, message, etc.) but then indicate that it is not processable based on case details
+
+
+
+
+                            
+                    End If
+                Else
+                    'To do - add handling for cases that are not on valid case numbers list, just set processable to false and include processing note that it is likely out of county or privileged?
+                
                 End If
                         
             
@@ -569,6 +679,15 @@ For each worker in worker_array
         IF all_done = true THEN exit do
     LOOP
 Next
+
+'Update Stats Info
+'Activate the stats sheet
+objExcel.Worksheets("Stats").Activate
+objExcel.Cells(1, 2).Value = STATS_counter
+objExcel.Cells(2, 2).Value = STATS_manualtime
+objExcel.Cells(3, 2).Value = STATS_counter * STATS_manualtime
+objExcel.Cells(4, 2).Value = timer - start_time
+objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
 
 
