@@ -737,7 +737,7 @@ DO
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 341, 165, "Confirm Ex Parte process"
 				EditBox 600, 700, 10, 10, fake_edit_box
-				Checkbox 10, 115, 330, 10, "Check here to clear any previous 'In Progress' statuses on cases in the Data Table.", reset_in_Progress
+				If ex_parte_function <> "DHS Data Validation" and ex_parte_function <> "Check REVW information on Phase 1 Cases" and ex_parte_function <> "FIX LIST" Then Checkbox 10, 115, 330, 10, "Check here to clear any previous 'In Progress' statuses on cases in the Data Table.", reset_in_Progress
 				ButtonGroup ButtonPressed
 					PushButton 10, 145, 210, 15, "CONFIRMED! This is the correct Process and Review Month", Confirm_Process_to_Run_btn
 					PushButton 230, 145, 100, 15, "Incorrect Process/Month", incorrect_process_btn
@@ -5776,7 +5776,16 @@ If ex_parte_function = "DHS Data Validation" Then
 	End If
 
 	If skip_adding_missing_cases = False Then
+		excel_row = 2
+		list_of_all_the_cases = ""
+		Do
+			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+			MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
+			list_of_all_the_cases = list_of_all_the_cases & MAXIS_case_number & " "
 
+			excel_row = excel_row + 1
+			next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+		Loop Until next_case_number = ""
 
 		'declare the SQL statement that will query the database
 		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '20" & ep_revw_yr & "-" & ep_revw_mo & "-01'"
