@@ -232,7 +232,7 @@ With (CreateObject("Scripting.FileSystemObject"))
 		objTextStream.WriteLine "Case Number from Form: " & case_number_from_form
 		objTextStream.WriteLine "Does this Case Number appear to be accurate: " & case_number_on_form_correct
 	Else
-		objTextStream.WriteLine "No Case Number was found on the XLM."
+		objTextStream.WriteLine "No Case Number was found on the XML."
 	End If
 	' objTextStream.WriteLine ": " &
 	objTextStream.WriteLine "-------------------------------------------------"
