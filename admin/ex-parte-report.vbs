@@ -215,7 +215,15 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 	'This part of the function will only trigger if the reading of the panels found a panel type that matches the parameter passed through
 	If type_code_found = True Then
 		For known_panel = 0 to UBound(unea_panel_array, 2)				'Loop through all the known panels
-			If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then				'If the panel matches the type code passed through in the function call - check the claim number
+			'Now we need to find if an SSI panel is found or and RSDI panel is found.
+			'RSDI can allow for 01 to match with 02 - this way the UNEA type can be corrected.
+			'We were finding duplicates if the existing panel was the wrong UNEA type - we will still be trying to match on the claim number
+			panel_type_matches = False																									'using a variable to identify a 'qualified match'
+			If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then panel_type_matches = True							'if there is an exact match, then it is matching
+			If unea_panel_array(panel_type_const, known_panel) = "02" and UNEA_type_code = "01" Then panel_type_matches = True			'either RSDI type is a match if the panel is an RSDI type
+			If unea_panel_array(panel_type_const, known_panel) = "01" and UNEA_type_code = "02" Then panel_type_matches = True
+
+			If panel_type_matches = True Then
 				If UNEA_type_code = "03" Then 			'If the call is for an SSI panel type, we do not need to match the claim number, just the panel type since SSI is only on the persons SSN
 					panel_found = True					'setting the parameter to true
 					array_index = known_panel			'defining which instance of the array matched the provided criteria
@@ -229,7 +237,15 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 		'This functionality will only run if the correct panel was not found in the above loop
 		If panel_found = False Then
 			For known_panel = 0 to UBound(unea_panel_array, 2)			'Loop through all the known panels
-				If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then						'If the panel matches the type code passed through in the function call - check the claim number
+				'Now we need to find if an SSI panel is found or and RSDI panel is found.
+				'RSDI can allow for 01 to match with 02 - this way the UNEA type can be corrected.
+				'We were finding duplicates if the existing panel was the wrong UNEA type - we will still be trying to match on the claim number
+				panel_type_matches = False																									'using a variable to identify a 'qualified match'
+				If unea_panel_array(panel_type_const, known_panel) = UNEA_type_code Then panel_type_matches = True							'if there is an exact match, then it is matching
+				If unea_panel_array(panel_type_const, known_panel) = "02" and UNEA_type_code = "01" Then panel_type_matches = True			'either RSDI type is a match if the panel is an RSDI type
+				If unea_panel_array(panel_type_const, known_panel) = "01" and UNEA_type_code = "02" Then panel_type_matches = True
+
+				If panel_type_matches = True Then
 					If unea_panel_array(panel_claim_left_9_const, known_panel) = SSN_UNEA_claim_portion Then	'If the SSN portion of the panel claim number matches the SSN portion of the claim passed through the function parameter
 						panel_found = True				'setting the parameter to true
 						array_index = known_panel		'defining which instance of the array matched the provided criteria
