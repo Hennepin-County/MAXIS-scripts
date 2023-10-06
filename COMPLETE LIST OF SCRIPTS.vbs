@@ -851,7 +851,7 @@ script_array(script_num).retirement_date		= ""
 script_array(script_num).hot_topic_date         = ""
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("TE TLR_Banked_Months_-_System_Process 10.34.01", "TE Coding_the_WREG_Panel_for_SNAP 02.05.70", "BULLETIN #23-01-02_SNAP_Banked_Months_for_Time_Limited_Recipients_(TLR's) https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946")					
+script_array(script_num).policy_references		= array("TE TLR_Banked_Months_-_System_Process 10.34.01", "TE Coding_the_WREG_Panel_for_SNAP 02.05.70", "BULLETIN #23-01-02_SNAP_Banked_Months_for_Time_Limited_Recipients_(TLR's) https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946")
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
@@ -3217,6 +3217,21 @@ script_array(script_num).tags                   = array("MFIP", "EMER")
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #06/19/2017#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Person Search"
+' script_array(script_num).description 			= "Template for noting Medical Service Questionaires (MSQ)."
+script_array(script_num).category               = "CA"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #10/05/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
