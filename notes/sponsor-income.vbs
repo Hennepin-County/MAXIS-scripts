@@ -61,6 +61,7 @@ changelog_display
 'Connecting to BlueZone, and finding case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do
     multiple_spon_checkbox = 0  'Defaults to unchecked
@@ -110,29 +111,31 @@ Do
 
     'Determines the income limits
     ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
-    If DateDiff("d",date,#10/01/2022#) <= 0 then
-        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
-        If sponsor_HH_size = 1 then income_limit = 1473
-        If sponsor_HH_size = 2 then income_limit = 1984
-        If sponsor_HH_size = 3 then income_limit = 2495
-        If sponsor_HH_size = 4 then income_limit = 3007
-        If sponsor_HH_size = 5 then income_limit = 3518
-        If sponsor_HH_size = 6 then income_limit = 4029
-        If sponsor_HH_size = 7 then income_limit = 4541
-        If sponsor_HH_size = 8 then income_limit = 5052
-        If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
-    Elseif DateDiff("d",date,#10/01/2022#) > 0 then
-        'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
-        If sponsor_HH_size = 1 then income_limit = 1396
-        If sponsor_HH_size = 2 then income_limit = 1888
-        If sponsor_HH_size = 3 then income_limit = 2379
-        If sponsor_HH_size = 4 then income_limit = 2871
-        If sponsor_HH_size = 5 then income_limit = 3363
-        If sponsor_HH_size = 6 then income_limit = 3855
-        If sponsor_HH_size = 7 then income_limit = 4347
-        If sponsor_HH_size = 8 then income_limit = 4839
-        If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
-    End if
+    Call determine_130_percent_of_FPG(MAXIS_footer_month, MAXIS_footer_year, sponsor_HH_size, income_limit)
+
+    'If DateDiff("d",date,#10/01/2022#) <= 0 then
+    '    'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+    '    If sponsor_HH_size = 1 then income_limit = 1473
+    '    If sponsor_HH_size = 2 then income_limit = 1984
+    '    If sponsor_HH_size = 3 then income_limit = 2495
+    '    If sponsor_HH_size = 4 then income_limit = 3007
+    '    If sponsor_HH_size = 5 then income_limit = 3518
+    '    If sponsor_HH_size = 6 then income_limit = 4029
+    '    If sponsor_HH_size = 7 then income_limit = 4541
+    '    If sponsor_HH_size = 8 then income_limit = 5052
+    '    If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
+    'Elseif DateDiff("d",date,#10/01/2022#) > 0 then
+    '    'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
+    '    If sponsor_HH_size = 1 then income_limit = 1396
+    '    If sponsor_HH_size = 2 then income_limit = 1888
+    '    If sponsor_HH_size = 3 then income_limit = 2379
+    '    If sponsor_HH_size = 4 then income_limit = 2871
+    '    If sponsor_HH_size = 5 then income_limit = 3363
+    '    If sponsor_HH_size = 6 then income_limit = 3855
+    '    If sponsor_HH_size = 7 then income_limit = 4347
+    '    If sponsor_HH_size = 8 then income_limit = 4839
+    '    If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
+    'End if
 
     'If any income variables are not numeric, the script will convert them to a "0" for calculating
     If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
