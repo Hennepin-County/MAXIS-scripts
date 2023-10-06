@@ -23280,6 +23280,7 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AN
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
+ex_parte_members = " "
 complete_ex_parte_as_closed = False
 stop_ex_parte_checkbox = unchecked
 MSP_approvals_only = True
@@ -23721,7 +23722,10 @@ For each footer_month in MONTHS_ARRAY
 
 			If number_of_rows = 1 Then
 				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
-					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then ex_parte_approval = True
+					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then
+						ex_parte_approval = True
+						if InStr(ex_parte_members, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then ex_parte_members = ex_parte_members & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
+					End If
 					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then complete_ex_parte_as_closed = True
 				next
 			End If
@@ -23730,6 +23734,55 @@ For each footer_month in MONTHS_ARRAY
 		for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 			If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "INELIGIBLE" Then ineligible_approval_exists = True
 		next
+
+		'This is to determine if the Notice was missed for Ex Part
+		If ex_parte_approval = True Then
+			ex_parte_members = trim(ex_parte_members)
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen CM_plus_1_mo, 3, 46
+			EMWriteScreen CM_plus_1_yr, 3, 51
+			transmit
+
+			wcom_waiting = "-"
+			wcom_printed = "-"
+			wcom_exception = "-"
+			wcom_row = 7
+			Do
+				EMReadScreen wcom_prog, 2, wcom_row, 26
+				EMReadScreen wcom_status, 9, wcom_row, 71
+				EMReadScreen wcom_ref_numb, 2, wcom_row, 62
+				wcom_status = trim(wcom_status)
+
+				If wcom_prog = "HC" Then
+					If wcom_status = "Waiting" Then wcom_waiting = wcom_waiting & " " & wcom_ref_numb
+					If wcom_status = "Printed" Then wcom_printed = wcom_printed & " " & wcom_ref_numb
+					If wcom_status = "XP Except" Then wcom_exception = wcom_exception & " " & wcom_ref_numb
+				End IF
+				wcom_row = wcom_row + 1
+			Loop until wcom_prog = "  " and wcom_status = ""
+
+			wcom_waiting = wcom_waiting & "-"
+			wcom_printed = wcom_printed & "-"
+			wcom_exception = wcom_exception & "-"
+
+			'Currently we are alerting workers that the notice was missed and NOT automating the notice just yet.
+			If wcom_exception <> "--" Then
+				notice_exception_message = "*  *  *  *  *  *  * NOTICE EXEPTION *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & "There is an Ex Parte Notice Exeption for this case."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "This means the notice did not generate correctly for some reason."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "The notice must be sent manually in SPEC/MEMO to the resident."
+				notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
+				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
+				notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
+
+				' notice_exception_message = notice_exception_message & vbCr & ""
+				' notice_exception_message = notice_exception_message & vbCr & vbCr & ""
+
+				MsgBox notice_exception_message
+			End If
+		End If
    	End If
 
 	ReDim preserve STAT_INFORMATION(month_count)
