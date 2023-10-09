@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/09/2023", "*  *  *  *  SCRIPT RETIREMENT NOTICE  *  *  *  *##~####~##This script will be retired next week and will no longer be available.##~####~## - Documentation of approval or denial of Health Care benefits is supported in the script NOTES - Eligibility Summary.##~## - COLA Income Summary will be available in the DAIL Scrubber for COLA processing.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("01/09/2020", "Restructured and updated the back end of script.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added header to be specific to the MAXIS footer month/year approved.", "Ilse Ferris, Hennepin County")
