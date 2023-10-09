@@ -404,7 +404,7 @@ Do
             CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
             ' CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
             CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-            CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
+            ' CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
             CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
             CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
             CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
@@ -798,31 +798,32 @@ Do
             CALL add_words_to_message(abawd_exempt_child_18_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to a child(ren) under the age of 18 in the SNAP unit.")
         End If
 
-        If abawd_child_6_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
-            'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
-            Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 235, 65, "WCOM Details"
-              DropListBox 60, 20, 135, 15, client_dropdown, abawd_exempt_child_6_name
-              ButtonGroup ButtonPressed
-                OkButton 145, 45, 50, 15
-              Text 5, 5, 220, 10, "Client exempt from ABAWD due to child 6 or under in the SNAP Unit."
-              Text 5, 25, 50, 10, "Client Name:"
-            EndDialog
+        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
+        ' If abawd_child_6_coded_wcom_checkbox = checked Then         'ABAWD exemption for care of child
+        '     'code for the dialog for ABAWD child exemption (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        '     Dialog1 = ""
+        '     BeginDialog Dialog1, 0, 0, 235, 65, "WCOM Details"
+        '       DropListBox 60, 20, 135, 15, client_dropdown, abawd_exempt_child_6_name
+        '       ButtonGroup ButtonPressed
+        '         OkButton 145, 45, 50, 15
+        '       Text 5, 5, 220, 10, "Client exempt from ABAWD due to child 6 or under in the SNAP Unit."
+        '       Text 5, 25, 50, 10, "Client Name:"
+        '     EndDialog
 
-            Do                          'displaying the dialog and ensuring that all required information is entered
-                err_msg = ""
+        '     Do                          'displaying the dialog and ensuring that all required information is entered
+        '         err_msg = ""
 
-                Dialog Dialog1
-                cancel_confirmation
+        '         Dialog Dialog1
+        '         cancel_confirmation
 
-                If abawd_exempt_child_6_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that is using child under 6 years exemption."
-                If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-            Loop until err_msg = ""
+        '         If abawd_exempt_child_6_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the name of the client that is using child under 6 years exemption."
+        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        '     Loop until err_msg = ""
 
-            abawd_exempt_child_6_name = right(abawd_exempt_child_6_name, len(abawd_exempt_child_6_name)-5)
-            'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-            CALL add_words_to_message(abawd_exempt_child_6_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to caring for a child under the age of 6.")
-        End If
+        '     abawd_exempt_child_6_name = right(abawd_exempt_child_6_name, len(abawd_exempt_child_6_name)-5)
+        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        '     CALL add_words_to_message(abawd_exempt_child_6_name & " is exempt from the Able Bodied Adults Without Dependents (ABAWD) Work Requirements due to caring for a child under the age of 6.")
+        ' End If
 
         If voluntary_quit_wcom_checkbox = checked Then
 
@@ -1110,7 +1111,8 @@ If postponed_verif_wcom_checkbox = checked Then
 	If wreg_verifs_needed <> "" Then CALL write_variable_in_CASE_NOTE("   -" & abawd_name & " has used their 3 ABAWD months. Postponed WREG verification: " & wreg_verifs_needed & ".")
 End If
 If abawd_child_18_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_18_name & " is ABAWD and WREG exempt due to a child(ren) under the age of 18 in the SNAP unit.")
-If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
+'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
+' If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
 If voluntary_quit_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & vol_quit_name & " is sanctioned from SNAP due to: " & vol_quit_sanction_reason & ".")
 If additional_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Verifs not provided: " & add_verifs_missing & ", which were due on " & add_verifs_due_date & ".")
 'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
