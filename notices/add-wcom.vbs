@@ -402,7 +402,7 @@ Do
             CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
             CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
             CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-            CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+            ' CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
             CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
             CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
             CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
@@ -854,34 +854,35 @@ Do
 
         End If
 
-        If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
-            'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
-            Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 211, 80, "WCOM Details"
-              DropListBox 75, 20, 130, 45, client_dropdown, temp_disa_memb_name
-              EditBox 185, 40, 20, 15, numb_disa_mos
-              ButtonGroup ButtonPressed
-                OkButton 155, 60, 50, 15
-              Text 5, 5, 120, 10, "DISA indicated on form from Doctor"
-              Text 10, 25, 60, 10, "Disabled Member"
-              Text 80, 45, 105, 10, "Number of months of disability"
-            EndDialog
+        'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
+        ' If temp_disa_abawd_wcom_checkbox = checked Then       'Verified temporary disa for ABAWD exemption
+        '     'code for the dialog for temporary disa for ABAWD (this dialog has the same name in each IF to prevent the over 7 dialog error)
+        '     Dialog1 = ""
+        '     BeginDialog Dialog1, 0, 0, 211, 80, "WCOM Details"
+        '       DropListBox 75, 20, 130, 45, client_dropdown, temp_disa_memb_name
+        '       EditBox 185, 40, 20, 15, numb_disa_mos
+        '       ButtonGroup ButtonPressed
+        '         OkButton 155, 60, 50, 15
+        '       Text 5, 5, 120, 10, "DISA indicated on form from Doctor"
+        '       Text 10, 25, 60, 10, "Disabled Member"
+        '       Text 80, 45, 105, 10, "Number of months of disability"
+        '     EndDialog
 
-            Do                          'displaying the dialog and ensuring that all required information is entered
-                err_msg = ""
+        '     Do                          'displaying the dialog and ensuring that all required information is entered
+        '         err_msg = ""
 
-                Dialog Dialog1
-                cancel_confirmation
+        '         Dialog Dialog1
+        '         cancel_confirmation
 
-                If temp_disa_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
-                If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "* Enter the number of months the disability is expected to last from the doctor's information."
-                If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
-            Loop until err_msg = ""
+        '         If temp_disa_memb_name = "Select One..." Then err_msg = err_msg & vbNewLine & "* Choose the ABAWD Client."
+        '         If trim(numb_disa_mos) = "" Then err_msg = err_msg & vbNewLine & "* Enter the number of months the disability is expected to last from the doctor's information."
+        '         If err_msg <> "" Then MsgBox "Resolve the following to continue:" & vbNewLine & err_msg
+        '     Loop until err_msg = ""
 
-            temp_disa_memb_name = right(temp_disa_memb_name, len(temp_disa_memb_name)-5)
-            'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
-            CALL add_words_to_message(temp_disa_memb_name & " is exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
-        End If
+        '     temp_disa_memb_name = right(temp_disa_memb_name, len(temp_disa_memb_name)-5)
+        '     'Adding the verbiage to the WCOM_TO_WRITE_ARRAY
+        '     CALL add_words_to_message(temp_disa_memb_name & " is exempt from the ABAWD work provision because you are unable to work for " & numb_disa_mos & " months per your Doctor statement.")
+        ' End If
 
         If voluntary_e_t_wcom_checkbox = checked Then
 
@@ -1112,7 +1113,8 @@ If abawd_child_18_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE
 If abawd_child_6_coded_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & abawd_exempt_child_6_name & " is ABAWD and WREG exempt due to care of a child under 6.")
 If voluntary_quit_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & vol_quit_name & " is sanctioned from SNAP due to: " & vol_quit_sanction_reason & ".")
 If additional_verif_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Verifs not provided: " & add_verifs_missing & ", which were due on " & add_verifs_due_date & ".")
-If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & temp_disa_memb_name & " meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
+'Removed functionality per POLI TEMP TE02.05.19 SNAP Worker Comments updated effective 10/23.
+' If temp_disa_abawd_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* " & temp_disa_memb_name & " meets ABAWD exemption of temporary inability to work for " & numb_disa_mos & " months per Doctor statement.")
 If voluntary_e_t_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Voluntary SNAP E&T offered to " & abawd_memb_name & ".")
 If abawd_homeless_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Information about ABAWD Exemption for homelessness.")
 If banked_mos_avail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* ABAWD months have been used, explained Banked Months may be available.")
