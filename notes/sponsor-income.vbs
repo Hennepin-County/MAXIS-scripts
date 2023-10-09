@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/09/2022", "The script has been updated to calculate income standards for 130% FPG based on the footer month selected in the dialog. The amount updates yearly with the October footer month, be sure you are using the correct footer for your calculations.", "Dave Courtright, Hennepin County")
 call changelog_update("11/14/2022", "Added checkbox option for multiple sponsors.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2022", "Updated income standards for 130% FPG effective 10/22.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Updated income standards for 130% FPG effective 10/21.", "Ilse Ferris, Hennepin County")
