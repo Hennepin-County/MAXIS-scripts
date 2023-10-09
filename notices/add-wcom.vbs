@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/09/2023", "In accordance with POLI TEMP TE02.05.19 (effective 10/23), removed functionality for WREG Exemption coded - Temporarily disabled and WREG Exemption coded - Care of Child under 6, and updated language for ineligible students.", "Mark Riegel, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/20/2021", "Updated online document submission option to include MNBenefits. Added Health Care PARIS match WCOM.", "Ilse Ferris, Hennepin County")
 Call changelog_update("09/02/2021", "Added functionality to support sending a WCOM about any Expedited SNAP Postponed Verification.", "Casey Love, Hennepin County")
