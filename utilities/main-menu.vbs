@@ -79,14 +79,12 @@ Function declare_main_menu_dialog(script_category)
 
 	Next
 
+	If left(subcategory_list, 1) = "|" Then subcategory_list = right(subcategory_list, len(subcategory_list)-1)
 	subcategory_list = split(subcategory_list, "|")
-	' total_number_of_subcategories = ubound(subcategory_list)
-	' ReDim subcategory_array(total_number_of_subcategories, 1)
 
 	For i = 0 to ubound(subcategory_list)
         ReDim Preserve subcategory_array(i)
 		set subcategory_array(i) = new subcat
-		If subcategory_list(i) = "" then subcategory_list(i) = "ALL"
 		subcategory_array(i).subcat_name = subcategory_list(i)
 	Next
 
@@ -99,13 +97,8 @@ Function declare_main_menu_dialog(script_category)
             'Joins all subcategories together
             subcategory_string = ucase(join(script_array(current_script).subcategory))
 
-            'Accounts for scripts without subcategories
-            If subcategory_string = "" then subcategory_string = "ALL"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
-
-
             'If the selected subcategory is in the subcategory string, it will display those scripts
             If InStr(subcategory_string, subcategory_selected) <> 0 then script_array(current_script).show_script = TRUE
-            If subcategory_selected = "ALL" Then script_array(current_script).show_script = TRUE
 
             If IsDate(script_array(current_script).retirement_date) = TRUE Then
                 If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
@@ -135,8 +128,9 @@ Function declare_main_menu_dialog(script_category)
 
 				subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
 			Else
-				If subcategory_array(i).subcat_name = "ALL" Then adjuster = 20
+				If subcategory_array(i).subcat_name = "TOP" Then adjuster = 20
 				If subcategory_array(i).subcat_name = "TOOL" Then adjuster = 13
+				If subcategory_array(i).subcat_name = "REQUESTS" Then adjuster = 5
 				If subcategory_array(i).subcat_name = "POLICY" Then adjuster = 10
 				If subcategory_array(i).subcat_name = "MAXIS" Then adjuster = 13
 				' If subcategory_array(i).subcat_name = "WORD DOCS" Then adjuster = 7
@@ -164,7 +158,7 @@ Function declare_main_menu_dialog(script_category)
 
 				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-				' PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
 				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
 				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
 				'----------
@@ -192,7 +186,7 @@ subcat_button_placeholder 	= 1701
 'Other pre-loop and pre-function declarations
 Dim subcategory_array : subcategory_array = Array()
 subcategory_string = ""
-subcategory_selected = "ALL"
+subcategory_selected = "TOP"
 
 'Defining dialog1 as 1000. Assigning a numeric value seems to work to preserve a high amount of buttons for our scripts.
 dialog1 = 1000
