@@ -65,16 +65,16 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 'Main dialog: user will input case number(s) or personal record number.
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 201, 120, "Health Care Transition"
-    EditBox 60, 5, 45, 15, MAXIS_case_number
-    DropListBox 10, 50, 70, 15, "METS case #"+chr(9)+"Personal Record #", mets_pr_option
-    EditBox 100, 50, 55, 15, METS_OR_PR_number
-    DropListBox 60, 85, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
-    ButtonGroup ButtonPressed
-        OkButton 85, 100, 45, 15
-        CancelButton 135, 100, 45, 15
-    Text 5, 10, 50, 10, "MAXIS case #:"
-    Text 5, 35, 190, 10, "Select METS Case # or Personal Record #, then enter #"
-    Text 5, 90, 50, 10, "Select process:"
+  EditBox 60, 5, 45, 15, MAXIS_case_number
+  DropListBox 10, 50, 70, 15, "METS case #"+chr(9)+"Personal Record #", mets_pr_option
+  EditBox 100, 50, 55, 15, METS_OR_PR_number
+  DropListBox 60, 75, 120, 15, "Select One:"+chr(9)+"1. Non-MAGI referral"+chr(9)+"2. Request to end eligibility in METS"+chr(9)+"3. Eligibility ended in METS"+chr(9)+"MAXIS to METS Migration", initial_option
+  ButtonGroup ButtonPressed
+    OkButton 85, 100, 45, 15
+    CancelButton 135, 100, 45, 15
+  Text 5, 10, 50, 10, "MAXIS case #:"
+  Text 5, 35, 190, 10, "Select METS Case # or Personal Record #, then enter #"
+  Text 5, 80, 50, 10, "Select process:"
 EndDialog
 
 DO
