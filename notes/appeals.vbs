@@ -71,16 +71,18 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 176, 85, "Appeals"
+BeginDialog Dialog1, 0, 0, 176, 105, "Appeals"
   EditBox 75, 5, 45, 15, MAXIS_case_number
-  DropListBox 75, 25, 95, 15, "Select One:"+chr(9)+"Received"+chr(9)+"Summary Completed"+chr(9)+"Hearing Information"+chr(9)+"Decision Received"+chr(9)+"Pending Request"+chr(9)+"Reconsideration"+chr(9)+"Resolution", appeal_actions
-  EditBox 75, 45, 95, 15, worker_signature
+  EditBox 75, 25, 45, 15, docket_number
+  DropListBox 75, 45, 95, 15, "Select One:"+chr(9)+"Received"+chr(9)+"Summary Completed"+chr(9)+"Hearing Information"+chr(9)+"Decision Received"+chr(9)+"Pending Request"+chr(9)+"Reconsideration"+chr(9)+"Resolution", appeal_actions
+  EditBox 75, 65, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 65, 45, 15
-    CancelButton 125, 65, 45, 15
+    OkButton 75, 85, 45, 15
+    CancelButton 125, 85, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 30, 50, 10, "Appeal Action:"
-  Text 5, 50, 60, 10, "Worker Signature:"
+  Text 5, 30, 55, 10, "Docket Number:"
+  Text 5, 50, 50, 10, "Appeal Action:"
+  Text 5, 70, 60, 10, "Worker Signature:"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -90,6 +92,7 @@ Do
 		Dialog Dialog1
 		cancel_without_confirmation
       	Call validate_MAXIS_case_number(err_msg, "*")
+        IF docket_number = "" then err_msg = err_msg & vbNewLine & "* Please enter a docket number or enter N/A if unknown."
         IF appeal_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal action the client is claiming."
         IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -110,7 +113,6 @@ IF appeal_actions = "Received" THEN
       EditBox 235, 5, 45, 15, client_request_date
       EditBox 140, 25, 45, 15, effective_date
       DropListBox 90, 45, 55, 15, "Select One:"+chr(9)+"Denial"+chr(9)+"Overpayment"+chr(9)+"Reduction"+chr(9)+"Termination"+chr(9)+"Other", appeal_action_dropdown
-      EditBox 235, 25, 45, 15, docket_number
       DropListBox 135, 65, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", benefits_continuing_dropdown
       EditBox 235, 45, 45, 15, claim_number
       EditBox 165, 85, 115, 15, benefits_continuing_explanation
@@ -140,7 +142,7 @@ IF appeal_actions = "Received" THEN
       Text 5, 10, 50, 10, "How Received:"
       Text 5, 50, 85, 10, "Action client is appealing:"
       Text 5, 90, 155, 10, "How was determination made for cont benefits:"
-      Text 200, 30, 35, 10, "Docket #:"
+      Text 200, 30, 105, 10, "Docket #: " & docket_number
       Text 200, 50, 35, 10, "Claim(s)#:"
     EndDialog
     '------------------------------------------------------------------------------------DIALOG
