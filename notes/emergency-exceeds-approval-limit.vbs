@@ -2,7 +2,7 @@
 name_of_script = "NOTES - EMERGENCY EXCEEDS APPROVAL LIMIT.vbs"
 start_time = timer
 STATS_counter = 1			     'sets the stats counter at one
-STATS_manualtime = 	100			 'manual run time in seconds
+STATS_manualtime = 	120			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
 
@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("10/1/2023", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("10/9/2023", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -117,7 +117,7 @@ End If
 
 'dialog to confirm Case Number, EMER program, approval limit, and Worker Signature
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 216, 185, "Dialog"
+BeginDialog Dialog1, 0, 0, 216, 185, "Emer Exceeds Approval Limit - Case Number"
 	EditBox 95, 15, 50, 15, MAXIS_case_number
 	DropListBox 95, 35, 60, 45, "Select One..."+chr(9)+"EA"+chr(9)+"EGA", EMER_type
 	EditBox 95, 55, 50, 15, chck_approval_limit
@@ -278,6 +278,7 @@ If check_1_elig_hh_membs <> "" Then Call write_variable_in_CASE_NOTE("   ELIG HH
 Call write_variable_in_CASE_NOTE("   Vendor #: " & check_1_vendor)
 If check_1_client_ref <> "" Then Call write_variable_in_CASE_NOTE("   Client Ref Number: " & check_1_client_ref)
 If add_check_2 = True Then
+	STATS_manualtime = STATS_manualtime + 45
 	Call write_variable_in_CASE_NOTE("CHECK TWO")
 	Call write_variable_in_CASE_NOTE("   Reason: " & check_2_reason)
 	Call write_variable_in_CASE_NOTE("   Amount: $ " & check_2_amount)
@@ -297,46 +298,46 @@ call script_end_procedure_with_error_report("Check detail has been added to CASE
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/9/2023
+'--Tab orders reviewed & confirmed----------------------------------------------10/9/2023
+'--Mandatory fields all present & Reviewed--------------------------------------10/9/2023
+'--All variables in dialog match mandatory fields-------------------------------10/9/2023
+'Review dialog names for content and content fit in dialog----------------------10/9/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/9/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/9/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/9/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------10/9/2023
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/9/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/9/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/9/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------10/9/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------10/9/2023
+'--Script name reviewed---------------------------------------------------------10/9/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/9/2023
+'--comment Code-----------------------------------------------------------------10/9/2023
+'--Update Changelog for release/update------------------------------------------10/9/2023
+'--Remove testing message boxes-------------------------------------------------10/9/2023
+'--Remove testing code/unnecessary code-----------------------------------------10/9/2023
+'--Review/update SharePoint instructions----------------------------------------10/9/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/9/2023		Email will be sent to EMER teams
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/9/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------10/9/2023
+'--Update project team/issue contact (if applicable)----------------------------N/A
 
 
 
