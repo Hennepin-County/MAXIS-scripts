@@ -156,7 +156,6 @@ IF appeal_actions = "Received" THEN
             IF appeal_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal was received."
     	    IF how_appeal_rcvd_dropdown = "Select One:" THEN  err_msg = err_msg & vbNewLine & "* Please select how the appeal was received."
             IF appeal_action_dropdown = "Other" and other_notes = "" THEN  err_msg = err_msg & vbNewLine & "* Please advise what the appeal action was in other notes."
-    	    IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the docket number, if unknown enter N/A."
             IF benefits_continuing_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Please select if the benefits will be continuing and explain your decision."
             IF benefits_continuing_explanation = "" then err_msg = err_msg & vbNewLine & "* Please advise why the benefits will or will not be continuing at pre-appeal level."
             IF proofs_attachments = "" then err_msg = err_msg & vbNewLine & "* Please advise what proofs or information has been provided."
@@ -206,7 +205,6 @@ IF appeal_actions = "Pending Request"  THEN
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 231, 85, "Pending Request"
       EditBox 55, 5, 50, 15, date_requested
-      EditBox 170, 5, 55, 15, docket_number
       EditBox 95, 25, 130, 15, verification_needed
       EditBox 60, 45, 165, 15, other_notes
       ButtonGroup ButtonPressed
@@ -215,7 +213,7 @@ IF appeal_actions = "Pending Request"  THEN
       Text 5, 30, 85, 10, "Verification(s) Requested:"
       Text 5, 50, 45, 10, "Other Notes:"
       Text 5, 10, 50, 10, "Request Date:"
-      Text 130, 10, 35, 10, "Docket #:"
+      Text 130, 10, 105, 10, "Docket #: " & docket_number
     EndDialog
 
     DO
@@ -223,7 +221,6 @@ IF appeal_actions = "Pending Request"  THEN
             err_msg = ""
             Dialog Dialog1
             cancel_confirmation
-            IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a docket number or enter N/A if unknown."
             IF isdate(date_requested) = false THEN err_msg = err_msg & vbNewLine & "* Please complete date of hearing."
             IF verification_needed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the pending verifications"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -245,7 +242,6 @@ IF appeal_actions = "Summary Completed"  THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 276, 85, "Appeal Summary Completed"
-      EditBox 65, 5, 50, 15, docket_number
       EditBox 210, 5, 60, 15, date_appeal_rcvd
       EditBox 65, 25, 50, 15, claim_number
       EditBox 210, 25, 60, 15, effective_date
@@ -257,7 +253,7 @@ IF appeal_actions = "Summary Completed"  THEN
       Text 130, 30, 80, 10, "Effective date of action:"
       Text 5, 30, 60, 10, "Claim number(s):"
       Text 5, 50, 85, 10, "Action client is appealing:"
-      Text 5, 10, 55, 10, "Docket number:"
+      Text 5, 10, 105, 10, "Docket #: " & docket_number
     EndDialog
 
     Do
@@ -265,7 +261,6 @@ IF appeal_actions = "Summary Completed"  THEN
             err_msg = ""
             Dialog Dialog1
             cancel_confirmation
-            IF docket_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid docket number or enter N/A if unknown."
             IF Isdate(date_appeal_rcvd) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a date for the appeal."
             IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
             IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
@@ -290,7 +285,6 @@ IF appeal_actions = "Reconsideration" THEN
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 286, 105, "Reconsideration"
       EditBox 65, 5, 55, 15, hearing_date
-      EditBox 225, 5, 55, 15, docket_number
       DropListBox 65, 25, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
       EditBox 225, 25, 55, 15, anticipated_date_result
       EditBox 65, 45, 215, 15, hearing_details
@@ -302,7 +296,7 @@ IF appeal_actions = "Reconsideration" THEN
       Text 5, 50, 55, 10, "Hearing Details:"
       Text 5, 70, 45, 10, "Other Notes:"
       Text 5, 10, 60, 10, "Date Of Hearing:"
-      Text 185, 10, 35, 10, "Docket #:"
+      Text 185, 10, 105, 10, "Docket #: " & docket_number
       Text 135, 30, 85, 10, "Anticipated Decision Date:"
     EndDialog
 
@@ -336,7 +330,6 @@ IF appeal_actions = "Hearing Information" THEN
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 286, 105, "Hearing Information"
       EditBox 65, 5, 55, 15, hearing_date
-      EditBox 225, 5, 55, 15, docket_number
       DropListBox 65, 25, 60, 15, "Select One:"+chr(9)+"Yes, in person"+chr(9)+"Yes, by phone"+chr(9)+"Did not attend", appeal_attendence
       EditBox 225, 25, 55, 15, anticipated_date_result
       EditBox 65, 45, 215, 15, hearing_details
@@ -345,7 +338,7 @@ IF appeal_actions = "Hearing Information" THEN
         OkButton 175, 85, 50, 15
         CancelButton 230, 85, 50, 15
       Text 5, 10, 60, 10, "Date Of Hearing:"
-      Text 185, 10, 35, 10, "Docket #:"
+      Text 185, 10, 105, 10, "Docket #: " & docket_number
       Text 5, 30, 55, 10, "Client Attended:"
       Text 135, 30, 85, 10, "Anticipated Decision Date:"
       Text 5, 50, 55, 10, "Hearing Details:"
@@ -381,7 +374,6 @@ IF appeal_actions = "Decision Received" THEN
 '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 336, 85, "Appeal Decision Received"
-      EditBox 85, 5, 60, 15, docket_number
       EditBox 270, 5, 60, 15, date_signed_by_judge
       EditBox 85, 25, 245, 15, disposition_of_appeal
       EditBox 85, 45, 245, 15, actions_needed
@@ -389,7 +381,7 @@ IF appeal_actions = "Decision Received" THEN
       ButtonGroup ButtonPressed
         OkButton 225, 65, 50, 15
         CancelButton 280, 65, 50, 15
-      Text 5, 10, 40, 10, "Docket #:"
+      Text 5, 10, 105, 10, "Docket #: " & docket_number
       Text 5, 30, 75, 10, "Disposition of appeal:"
       Text 5, 50, 55, 10, "Actions needed:"
       Text 185, 10, 75, 10, "Date signed by judge:"
@@ -471,6 +463,7 @@ IF appeal_actions = "Resolution" THEN
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Resolution-----")
+    Call write_bullet_and_variable_in_CASE_NOTE("Docket #", docket_number)
     IF Overpayments_Required_dropdown = "YES" THEN
         Call write_variable_in_CASE_NOTE("* Overpayments Required")
         CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
@@ -482,7 +475,7 @@ IF appeal_actions = "Resolution" THEN
     Call write_bullet_and_variable_in_CASE_NOTE("Withdrawn with Appellant", Withdrawn_with_appellant_dropdown)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified Hennepin EWS of Withdrawal", Notified_EWS_Withdraw_dropdown )
     Call write_bullet_and_variable_in_CASE_NOTE("Referred Appellant to DHS Appeals 651-431-3600", Referred_Appellant_dropdown)
-    Call write_bullet_and_variable_in_CASE_NOTE("Action is needed by caseworker.", Further_Action_Required_dropdown)
+    Call write_bullet_and_variable_in_CASE_NOTE("Action is needed by caseworker", Further_Action_Required_dropdown)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken/Required", actions_taken_required)
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
