@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/09/2023", "*  *  *  *  SCRIPT RETIREMENT NOTICE  *  *  *  *##~####~##This script is being retired and soon will no longer be available.##~####~##Documentation of approval or denial of Health Care benefits is supported in the script NOTES - Eligibility Summary.##~####~##We know that this script provides specific support to documenting the initial request and assessment of LTC and Waiver MA programs and that this processing has specific information and documentation needs.##~####~##LTC/Waiver Initial Evaluation script support will be in NOTES - Health Care Evaluation.##~####~##If you have specific, critical feedback on how to best support this process in the Health Care Evaluation script, please send an email to the team at HSPH.EWS.BlueZoneScripts@hennepin.us with the specific detail you have to best meet the processing standards for these programs.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2018", "Resolved bug that was running through MAXIS panels when user selected to 'cancel' the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -318,7 +319,7 @@ EndDialog
 'DISPLAYS THE TYPE/STD DIALOG AFTER GATHERING THE INFO
 DO
 	Dialog Dialog1
-	cancel_confirmation	
+	cancel_confirmation
 	Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false							'Loops until we affirm that we're ready to case note.
 
