@@ -93,7 +93,7 @@ Do
 		cancel_without_confirmation
       	Call validate_MAXIS_case_number(err_msg, "*")
         IF docket_number = "" then err_msg = err_msg & vbNewLine & "* Please enter a docket number or enter N/A if unknown."
-        IF appeal_actions <> "Received" AND appeal_actions <> "Summary Completed" AND isnumeric(docket_number) = False then err_msg = err_msg & vbNewLine & "* You have selected an action that should correspond to an existing docket number. Please enter a numeric docket number."
+        IF appeal_actions <> "Received" AND appeal_actions <> "Summary Completed" AND appeal_actions <> "Pending Request" AND isnumeric(docket_number) = False then err_msg = err_msg & vbNewLine & "* You have selected an action that should correspond to an existing docket number. Please enter a numeric docket number."
         IF appeal_actions = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select what type of appeal action the client is claiming."
         IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
