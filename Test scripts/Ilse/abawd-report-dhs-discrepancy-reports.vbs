@@ -54,6 +54,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 'excluding matching grant and participating in CD treatment due to non-MAXIS indicators.
 '----------------------------------------------------------------------------------------------------Determining the EATS Household
     'default strings and counts
+	verified_wreg = ""
+	verified_abawd = ""
 	eats_HH_count = 0
 	possible_exemptions = ""
 
@@ -109,15 +111,30 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 	'Case-based determination
     '----------------------------------------------------------------------------------------------------14 – ES Compliant While Receiving MFIP
-	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
 	'----------------------------------------------------------------------------------------------------20 – ES Compliant While Receiving DWP
 	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	If mfip_case = True then verified_wreg = verified_wreg & "14" & "|"
-	If RCA_case = True then verified_wreg = verified_wreg & "17" & "|"
 	If DWP_case = True then verified_wreg = verified_wreg & "20" & "|"
 
 	ObjExcel.Cells(excel_row, snap_status_col).Value = snap_status
 
+	'----------------------------------------------------------------------------------------------------17 – Receiving RCA
+	'Case-based determination -- Looking for RCA information while still on CASE/CURR	
+	row = 1                                            
+    col = 1
+    EMSearch "RCA:", row, col
+    If row <> 0 Then
+        EMReadScreen rca_status, 9, row, col + 5
+        rca_status = trim(rca_status)
+		rca_status = rca_status
+        If rca_status = "ACTIVE" or rca_status = "APP CLOSE" or rca_status = "APP OPEN" Then
+            rca_case = TRUE
+			verified_wreg = verified_wreg & "17" & "|"
+        End If
+	End if 
+	
+	msgbox cash_one & vbcr & cash_one_status & vbcr & verified_wreg
+	
 	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th 
 	''<<<<<<<<<<PROG for Foster care 
 	'Person-based evaluation
@@ -138,9 +155,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	'Case-based determination
     IF memb_found = True THEN
 		If SNAP_status <> "INACTIVE" then
-			verified_wreg = ""
-			verified_abawd = ""
-
             eats_group_members = trim(eats_group_members)
             eats_group_members = split(eats_group_members, ",")
 
@@ -544,10 +558,14 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
                 If preg_due_dt <> "__/__/__" Then
 		    		EMReadscreen preg_verif, 1, 6, 75
-                    If DateDiff("d", ABAWD_eval_date, preg_due_dt) > 0 AND preg_end_dt = "__ __ __" THEN
+					msgbox DateDiff("d", ABAWD_eval_date, preg_due_dt)
+                    If DateDiff("d", ABAWD_eval_date, preg_due_dt) >= 0 AND preg_end_dt = "__ __ __" THEN
+
 						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
-						Else
+						Elseif preg_verif = "N" then
+							verified_wreg = verified_wreg & "23" & "|"
+						Else 	
 							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
 						End if
 					End If
@@ -608,6 +626,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
             IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
 		End if
 	
+		msgbox verified_wreg
+
 	    'filter the list here for best_wreg_code
 	    If trim(verified_wreg) = "" then
 	    	best_wreg_code = "30"
@@ -616,7 +636,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	Else
 	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
 	    	End if
-	    Elseif len(verified_wreg) = 2 or len(verified_wreg) = 3 then
+	    Elseif len(verified_wreg) = 3 then
 	    	best_wreg_code = replace(verified_wreg, "|", "")
 	    Else
             wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
@@ -780,10 +800,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    			If banked_months_count = 0 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 1st Banked Month on STAT/WREG."
 	    			If banked_months_count = 1 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 2nd Banked Month on STAT/WREG."
 	    			If banked_months_count = 2 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Case has used all banked months."
-
-					If ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed." then 
-						ObjExcel.Cells(excel_row, auto_wreg_col).Value = TRUE 
-					End If 
 	    		End if
 			End if 
         End if 
@@ -805,11 +821,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             EmReadScreen abawd_check, 2, 13, 50
     
             If wreg_check = best_wreg_code then
-                If abawd_check = best_abawd_code then
-                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = True
-                Else
-                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = False
-                End if
+                If abawd_check = best_abawd_code then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed." 
             End if
             PF3
             EmReadScreen warning_check, 8, 24, 2
@@ -918,12 +930,14 @@ Do
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
         ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
+		ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
     Else
         Call MAXIS_background_check     'needed when more than one member on a case is on a list.
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
         If county_code <> UCASE(worker_county_code) then
             ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
+			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
         Else
             Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Do
@@ -949,6 +963,7 @@ Do
 				ObjExcel.Cells(excel_row, CM_abawd_col).Value = replace(ABAWD_code, "_", "")
 
                 Call BULK_ABAWD_FSET_exemption_finder
+				If snap_status = "INACTIVE" then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Don't assign."
             End if
         End if
     End if

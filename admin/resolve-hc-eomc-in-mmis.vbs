@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "Resolve HC EOMC in MMIS.vbs"
+name_of_script = "ADMIN - RESOLVE HC EOMC IN MMIS.vbs"
 start_time = timer
 STATS_counter = 0                          'sets the stats counter at one
 STATS_manualtime = 160                       'manual run time in seconds
