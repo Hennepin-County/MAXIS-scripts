@@ -50,30 +50,72 @@ call changelog_update("10/1/2023", "Initial version.", "Casey Love, Hennepin Cou
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'FUNCTIONS =================================================================================================================
-'END FUNCTIONS BLOCK =======================================================================================================
-
 
 'SCRIPT ====================================================================================================================
-EMConnect "" 								'Connect to MAXIS
+EMConnect "" 													'Connect to MAXIS
 Call Check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)				'Capture CASE/NUMBER
 
-If MAXIS_case_number <> "" Then 								'Try to identify if the case is EA or EGA
-	EMReadScreen on_mony_chck, 4, 2, 46
-	If on_mony_chck = "CHCK" Then
-		EMReadScreen EMER_type, 2, 5, 17
+'If the CASE Number was found, we can try to read additional information about the case.
+If MAXIS_case_number <> "" Then
+
+	EMReadScreen on_mony_chck, 4, 2, 46				'first, seeing if we are on MONY/CHCK. If the worker filled in MONY/CHCK, we can read all information from this panel
+	If on_mony_chck = "CHCK" Then					'YAY! We are on MONY/CHCK, let's autofill everything we can
+		EMReadScreen EMER_type, 2, 5, 17			'Read the EMER type
 		If EMER_type = "EG" Then EMER_type = "EGA"
+		EMReadScreen chck_warning, 22, 24, 2		'Check to see if the approval limit is displayed on the bottom of the screen
+		If chck_warning = "TOTAL ISSUANCE EXCEEDS" Then EMReadscreen chck_approval_limit, 4, 24, 36
+
 		'READ CHCK INFORMAITON
-	Else
+		EMReadScreen check_1_start_date, 	8, 4, 58		'This can only fill one check, so we will put everything in the check 1 variables
+		EMReadScreen check_1_end_date, 		8, 4, 73
+		EMReadScreen check_1_reason_code, 	2, 5, 32
+		EMReadScreen check_1_amount, 		8, 5, 59
+		EMReadScreen check_1_vendor, 		8, 6, 17
+		EMReadScreen check_1_elig_hh_membs, 2, 7, 27
+		EMReadScreen check_1_client_ref, 	16, 7, 51
+
+		check_1_amount = trim(check_1_amount)				'formatting for readability
+		check_1_amount = replace(check_1_amount, "_", "")
+
+		check_1_start_date = replace(check_1_start_date, " ", "/")
+		check_1_end_date = replace(check_1_end_date, " ", "/")
+
+		check_1_elig_hh_membs = trim(check_1_elig_hh_membs)
+		check_1_elig_hh_membs = replace(check_1_elig_hh_membs, "_", "")
+
+		check_1_vendor = trim(check_1_vendor)
+		check_1_vendor = replace(check_1_vendor, "_", "")
+
+		check_1_client_ref = trim(check_1_client_ref)
+		check_1_client_ref = replace(check_1_client_ref, "_", "")
+
+		If check_1_reason_code = "03" Then check_1_reason = "03 Home Repair"		'Autoselecting the droplist option
+		If check_1_reason_code = "04" Then check_1_reason = "04 HH Furnishings"
+		If check_1_reason_code = "10" Then check_1_reason = "10 Transportation"
+		If check_1_reason_code = "12" Then check_1_reason = "12 Other"
+		If check_1_reason_code = "26" Then check_1_reason = "26 Shelter Not FV"
+		If check_1_reason_code = "28" Then check_1_reason = "28 Utility Shut-off"
+		If check_1_reason_code = "29" Then check_1_reason = "29 Foreclosure"
+		If check_1_reason_code = "30" Then check_1_reason = "30 Moving Exp"
+		If check_1_reason_code = "35" Then check_1_reason = "35 Temporary Housing"
+		If check_1_reason_code = "40" Then check_1_reason = "40 Damage Deposit"
+		If check_1_reason_code = "44" Then check_1_reason = "44 Permanent Housing"
+
+	Else	'if we do not appear to be on MONY/CHCK
+		'Try to identify if the case is EA or EGA by reading CASE/CURR - this requires that the Case Number was found
     	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, EMER_type, case_status, list_active_programs, list_pending_programs)
 	End If
 End If
 
-chck_approval_limit = "1200" 									'default the approval limit to 1200 for EA
-If EMER_type = "EGA" then chck_approval_limit = "4000"			'default the approval limit to 4000 for EGA
+'If we did not find the approval limit, we are going to default to 1200 and set to 4000 for EGA.
+'During testing, we will ask the teams if this is accurate and update based on responses
+If chck_approval_limit = "" Then
+	chck_approval_limit = "1200" 									'default the approval limit to 1200 for EA
+	If EMER_type = "EGA" then chck_approval_limit = "4000"			'default the approval limit to 4000 for EGA
+End If
 
-'dialog to confirm Case Number, EMER program, and Worker Signature
+'dialog to confirm Case Number, EMER program, approval limit, and Worker Signature
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 216, 185, "Dialog"
 	EditBox 95, 15, 50, 15, MAXIS_case_number
@@ -107,6 +149,7 @@ Do
 	If err_msg <> "" Then MsgBox "*  *  *  NOTICE  *  *  *" & vbCr & "Please resolve the following to continue:" & vbCr & err_msg
 Loop until err_msg = ""
 
+'Creating a droplist selection of all the reasons for EMER from MONY/CHCK
 reason_code_list = "Select or Type"
 reason_code_list = reason_code_list+chr(9)+"03 Home Repair"
 reason_code_list = reason_code_list+chr(9)+"04 HH Furnishings"
@@ -120,61 +163,92 @@ reason_code_list = reason_code_list+chr(9)+"35 Temporary Housing"
 reason_code_list = reason_code_list+chr(9)+"40 Damage Deposit"
 reason_code_list = reason_code_list+chr(9)+"44 Permanent Housing"
 
-add_check_2 = False
-approval_date = date & ""
+add_check_2 = False			'defaulting there to only be one check
+approval_date = date & ""	'default the approval date to today
 
 'dialog to select emergeny types and record check specifics.
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 466, 205, "Emergency Issuance Details"
-	ButtonGroup ButtonPressed
-	EditBox 410, 15, 40, 15, approval_date
-	ComboBox 15, 95, 130, 45, reason_code_list+chr(9)+check_1_reason, check_1_reason
-	EditBox 155, 95, 40, 15, check_1_amount
-	EditBox 210, 95, 30, 15, check_1_start_date
-	EditBox 245, 95, 30, 15, check_1_end_date
-	EditBox 285, 95, 25, 15, check_1_elig_hh_membs
-	EditBox 320, 95, 35, 15, check_1_vendor
-	EditBox 365, 95, 75, 15, check_1_client_ref
-	If add_check_2 = True Then
-		ComboBox 15, 115, 130, 45, reason_code_list+chr(9)+check_2_reason, check_2_reason
-		EditBox 155, 115, 40, 15, check_2_amount
-		EditBox 210, 115, 30, 15, check_2_start_date
-		EditBox 245, 115, 30, 15, check_2_end_date
-		EditBox 285, 115, 25, 15, check_2_elig_hh_membs
-		EditBox 320, 115, 35, 15, check_2_vendor
-		EditBox 365, 115, 75, 15, check_2_client_ref
-	Else
-		PushButton 340, 120, 115, 15, "This case requires two checks", add_another_check
-	End If
-	EditBox 5, 160, 455, 15, emer_approval_notes
-	OkButton 355, 185, 50, 15
-	CancelButton 410, 185, 50, 15
-  	GroupBox 5, 5, 455, 30, "Case Information"
-  	Text 15, 20, 110, 10, "Case Number:"
-  	Text 130, 20, 90, 10, "Emergency Program:"
-  	Text 235, 20, 100, 10, "Your approval limit:"
-  	Text 355, 20, 50, 10, "Approval Date:"
-	Text 10, 40, 300, 10, "Enter all information needed to create the check to make issuance easier for the approver."
-	Text 10, 50, 215, 10, "This script currently allows for 2 unique checks to be entered. "
-	GroupBox 5, 70, 455, 70, "Checks Needed to Resolve Emergency:"
-	Text 15, 85, 65, 10, "Check Reason"
-	Text 165, 85, 50, 10, "Check Amount"
-	Text 230, 85, 50, 10, "Period"
-	Text 320, 85, 65, 10, "Elig HH Membs"
-	Text 320, 85, 30, 10, "Vendor"
-	Text 365, 85, 50, 10, "Client Ref Number:"
-	Text 260, 97, 5, 10, "--"
-	Text 5, 150, 120, 10, "Emergency Determination Notes:"
-EndDialog
-
 Do
 	Do
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 466, 205, "Emergency Issuance Details"
+			ButtonGroup ButtonPressed
+			EditBox 410, 15, 40, 15, approval_date
+			ComboBox 15, 95, 130, 45, reason_code_list+chr(9)+check_1_reason, check_1_reason
+			EditBox 155, 95, 40, 15, check_1_amount
+			EditBox 205, 95, 40, 15, check_1_start_date
+			EditBox 250, 95, 40, 15, check_1_end_date
+			EditBox 295, 95, 25, 15, check_1_elig_hh_membs
+			EditBox 330, 95, 35, 15, check_1_vendor
+			EditBox 375, 95, 75, 15, check_1_client_ref
+			If add_check_2 = True Then
+				ComboBox 15, 115, 130, 45, reason_code_list+chr(9)+check_2_reason, check_2_reason
+				EditBox 155, 115, 40, 15, check_2_amount
+				EditBox 205, 115, 40, 15, check_2_start_date
+				EditBox 250, 115, 40, 15, check_2_end_date
+				EditBox 295, 115, 25, 15, check_2_elig_hh_membs
+				EditBox 330, 115, 35, 15, check_2_vendor
+				EditBox 375, 115, 75, 15, check_2_client_ref
+				Text 245, 117, 5, 10, "--"
+			Else
+				PushButton 340, 120, 115, 15, "This case requires two checks", add_another_check
+			End If
+			EditBox 5, 160, 455, 15, emer_approval_notes
+			OkButton 355, 185, 50, 15
+			CancelButton 410, 185, 50, 15
+			GroupBox 5, 5, 455, 30, "Case Information"
+			Text 15, 20, 110, 10, "Case Number: " & MAXIS_case_number
+			Text 130, 20, 90, 10, "Emergency Program: " & EMER_type
+			Text 235, 20, 100, 10, "Your approval limit: " & chck_approval_limit
+			Text 355, 20, 50, 10, "Approval Date:"
+			Text 10, 40, 300, 10, "Enter all information needed to create the check to make issuance easier for the approver."
+			Text 10, 50, 215, 10, "This script currently allows for 2 unique checks to be entered. "
+			GroupBox 5, 70, 455, 70, "Checks Needed to Resolve Emergency:"
+			Text 15, 85, 65, 10, "* Check Reason"
+			Text 155, 77, 40, 18, "* Check Amount"			'This field is not standard dimensions because it looks better like this
+			Text 205, 85, 50, 10, "Period"
+			Text 295, 77, 30, 18, "Elig HH Membs"			'This field is not standard dimensions because it looks better like this
+			Text 330, 85, 35, 10, "* Vendor #"
+			Text 375, 85, 70, 10, "Client Ref Number:"
+			Text 245, 97, 5, 10, "--"
+			Text 5, 150, 120, 10, "Emergency Determination Notes:"
+			'POSSIBLE FUTURE ENHANCEMENT - if requested, the script could automte the email requesting this approval.
+		EndDialog
+
 		err_msg = ""
 
 		dialog Diaog1
 		cancel_confirmation
 
+		check_1_amount = trim(check_1_amount)		'formatting the amount, reason, and vendor to not allow spaces to be valid entries
+		check_2_amount = trim(check_2_amount)
 
+		check_1_start_date = trim(check_1_start_date)
+		check_2_start_date = trim(check_2_start_date)
+		check_1_end_date = trim(check_1_end_date)
+		check_2_end_date = trim(check_2_end_date)
+
+		check_1_reason = trim(check_1_reason)
+		check_2_reason = trim(check_2_reason)
+
+		check_1_vendor = trim(check_1_vendor)
+		check_2_vendor = trim(check_2_vendor)
+
+		emer_approval_notes = trim(emer_approval_notes)
+
+		'mandating entry of the amount, reason and vendor number
+		If check_1_reason = "" or check_1_reason = "Select or Type" Then err_msg = err_msg & vbCr & "* Select the reason the check is being issued, or type the reason information into the field."
+		If check_1_amount = "" Then err_msg = err_msg & vbCr & "* Enter the amount of the check to be issued."
+		If check_1_start_date <> "" and check_1_end_date = "" Then err_msg = err_msg & vbCr & "* You have entered a start date, but the end date is missing, please enter an end date."
+		If check_1_vendor = "" Then err_msg = err_msg & vbCr & "* Enter the vendor number for the check to be issued."
+
+		If add_check_2 = True Then
+			If check_2_reason = "" or check_2_reason = "Select or Type" Then err_msg = err_msg & vbCr & "* Select the reason the SECOND check is being issued, or type the reason information into the field."
+			If check_2_amount = "" Then err_msg = err_msg & vbCr & "* Enter the amount of the SECOND check to be issued."
+			If check_2_start_date <> "" and check_2_end_date = "" Then err_msg = err_msg & vbCr & "* You have entered a start date for the SECOND check, but the end date is missing, please enter an end date."
+			If check_2_vendor = "" Then err_msg = err_msg & vbCr & "* Enter the vendor number for the SECOND check to be issued."
+		End If
+
+		'this functionality allows the user to indicate they need a second check issued and to allow for entry of that check
 		If ButtonPressed = add_another_check Then
 			err_msg = "LOOP" & err_msg
 			add_check_2 = True
@@ -182,39 +256,42 @@ Do
 
 		If err_msg <> "" and left(err_msg, 4) <> "LOOP" Then MsgBox "*  *  *  NOTICE  *  *  *" & vbCr & "Please resolve the following to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
+	If on_mony_chck = "CHCK" Then PF10				'making sure we don't get stuck if the script started on MONY/CHCK
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 Call Check_for_MAXIS(False)
 
-'possibly email?
+'POSSIBLE FUTURE ENHANCEMENT - if requested, the script could automte the email requesting this approval.
 
-
-'CASE/NOTE of the information about the case approval
+'CASE/NOTE of the information about the emer check needed. This will be the reference for the case documentation until the check can be approved.
 Call start_a_blank_CASE_NOTE
 
-Call write_variable_in_CASE_NOTE(EMER_typt & "Determination Done - Check Issuance Still Needed")
+Call write_variable_in_CASE_NOTE(EMER_type & " Determination Done - Check Issuance Still Needed")
 Call write_variable_in_CASE_NOTE("Approval of " & EMER_type & " has been compelted, but issuance is restricted and a separate approver is needed to issue the payment.")
 Call write_bullet_and_variable_in_CASE_NOTE ("Approval Date", approval_date)
 Call write_variable_in_CASE_NOTE("Check Details ===============================================")
 If add_check_2 = True Then Call write_variable_in_CASE_NOTE("CHECK ONE")
-Call write_variable_in_CASE_NOTE("   Amount: " & check_1_amount)
-Call write_variable_in_CASE_NOTE("   Period: " & check_1_start_date & " - " & check_1_end_date)
-Call write_variable_in_CASE_NOTE("   ELIG HH Members: " & check_1_elig_hh_membs)
-Call write_variable_in_CASE_NOTE("   Vendor: " & check_1_vendor)
-Call write_variable_in_CASE_NOTE("   Client Ref Number: " & check_1_client_ref)
+Call write_variable_in_CASE_NOTE("   Reason: " & check_1_reason)
+Call write_variable_in_CASE_NOTE("   Amount: $ " & check_1_amount)
+If check_1_start_date <> "" Then Call write_variable_in_CASE_NOTE("   Period: " & check_1_start_date & " - " & check_1_end_date)
+If check_1_elig_hh_membs <> "" Then Call write_variable_in_CASE_NOTE("   ELIG HH Members: " & check_1_elig_hh_membs)
+Call write_variable_in_CASE_NOTE("   Vendor #: " & check_1_vendor)
+If check_1_client_ref <> "" Then Call write_variable_in_CASE_NOTE("   Client Ref Number: " & check_1_client_ref)
 If add_check_2 = True Then
 	Call write_variable_in_CASE_NOTE("CHECK TWO")
-	Call write_variable_in_CASE_NOTE("   Amount: " & check_2_amount)
-	Call write_variable_in_CASE_NOTE("   Period: " & check_2_start_date & " - " & check_2_end_date)
-	Call write_variable_in_CASE_NOTE("   ELIG HH Members: " & check_2_elig_hh_membs)
-	Call write_variable_in_CASE_NOTE("   Vendor: " & check_2_vendor)
-	Call write_variable_in_CASE_NOTE("   Client Ref Number: " & check_2_client_ref)
+	Call write_variable_in_CASE_NOTE("   Reason: " & check_2_reason)
+	Call write_variable_in_CASE_NOTE("   Amount: $ " & check_2_amount)
+	If check_2_start_date <> "" Then Call write_variable_in_CASE_NOTE("   Period: " & check_2_start_date & " - " & check_2_end_date)
+	If check_2_elig_hh_membs <> "" Then Call write_variable_in_CASE_NOTE("   ELIG HH Members: " & check_2_elig_hh_membs)
+	Call write_variable_in_CASE_NOTE("   Vendor #: " & check_2_vendor)
+	If check_2_client_ref <> "" Then Call write_variable_in_CASE_NOTE("   Client Ref Number: " & check_2_client_ref)
 End If
 Call write_variable_in_CASE_NOTE("=============================================================")
 Call write_bullet_and_variable_in_CASE_NOTE("Note", emer_approval_notes)
-Call write_variable_in_CASE_NOTE("---")
+If emer_approval_notes <> "" Then Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
+call script_end_procedure_with_error_report("Check detail has been added to CASE/NOTE. Make sure to manually send the check information to an approver.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
