@@ -133,8 +133,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
         End If
 	End if 
 	
-	msgbox cash_one & vbcr & cash_one_status & vbcr & verified_wreg
-	
 	'----------------------------------------------------------------------------------------------------'temp coding - Foster care on 18th 
 	''<<<<<<<<<<PROG for Foster care 
 	'Person-based evaluation
@@ -218,8 +216,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    		verified_wreg = verified_wreg & "06" & "|"
 		    	End if
 		    End if
-		    '----------------------------------------------------------------------------------------------------'16 – 50-59 Years Old
-		    If cl_age => 51 then
+		    '----------------------------------------------------------------------------------------------------'16 – 53-59 Years Old
+		    If cl_age => 53 then
 		    	If cl_age < 60 then
 		    		If age_verif_code <> "NO" then
 		    			verified_wreg = verified_wreg & "16" & "|"
@@ -233,8 +231,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		    	End if
 		    End if
 
-			If cl_age = 50 then age_50 = True 
-			'Todo: Add 51 and 52 for next month
+			If cl_age = 50 or _
+				cl_age = 51 or _ 
+				cl_age = 52 then 
+				age_50 = True
+			End if 
 			
 			If cl_age < 24 then 
 				If foster_care = True then possible_exemptions = possible_exemptions & vbcr & "Member is under 24 & may have been in foster case on 18th birthday. Review case."
@@ -563,9 +564,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 						If preg_verif = "Y" then
 							verified_wreg = verified_wreg & "23" & "|"
-						Elseif preg_verif = "N" then
+						Elseif preg_verif = "N" then 
 							verified_wreg = verified_wreg & "23" & "|"
-						Else 	
+						Else 
 							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
 						End if
 					End If
@@ -625,8 +626,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
             IF possible_exemptions = "" THEN possible_exemptions = "No other potential exemptions."
 		End if
-	
-		msgbox verified_wreg
 
 	    'filter the list here for best_wreg_code
 	    If trim(verified_wreg) = "" then
@@ -670,13 +669,9 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    If best_wreg_code = "17" then best_abawd_code = "12"
 	    If best_wreg_code = "23" then best_abawd_code = "05"
     
+		'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned. 
         updates_needed = True
         If snap_status = "ACTIVE" then
-			'msgbox  "data wreg: ~" & data_wreg & "~" & vbcr & _
-			'		"best wreg: ~" & best_wreg_code & "~" & vbcr & vbcr & _
-			'		"data abawd: ~" & data_abawd & "~" & vbcr & _
-			'		"best abawd: ~" & best_abawd_code & "~"
-
             If data_wreg = best_wreg_code then
                 If data_abawd = best_abawd_code then
 					updates_needed = False
@@ -684,7 +679,18 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 End if
             End if
         End if
-    
+
+		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
+		Call navigate_to_MAXIS_screen("STAT", "REVW")
+		EMReadScreen next_revw_mo, 2, 9, 57
+		EMReadScreen next_revw_yr, 2, 9, 63
+		next_SNAP_revw = next_revw_mo & "/" & next_revw_yr
+		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
+		If next_SNAP_revw = next_month then 
+			updates_needed = False
+			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP Review Next Month."
+		End if 
+		
 	    '----------------------------------------------------------------------------------------------------ABAWD Tracking Record Handling 
 		If age_50 = True then
 	    	If best_wreg_code = "30" then 
@@ -716,17 +722,15 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    		PF3 'save WREG panel
 	    		
 	    		start_a_blank_CASE_NOTE
-                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age 50--")	
-				'Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age 50-52--")	
+                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
 	    		Call write_variable_in_CASE_NOTE("---")
-	    		Call write_variable_in_CASE_NOTE("* Effective 09/23 50 year old are no longer exempt from SNAP time limits due solely to age.")
-				'Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
+	    		Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
 	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	    		PF3
 	    		'case note workaround
-				ObjExcel.Cells(excel_row, notes_col).Value = "50 Years Old!"
+				ObjExcel.Cells(excel_row, notes_col).Value = cl_age & "year old!"
 				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
 	    	End if
 	    End if  	
@@ -793,7 +797,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
         			
 	    		'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members. 
         		LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
-	    		'msgbox "ABAWD's: " & abawd_counted_months & vbcr & "Banked: " & banked_months_count
         		PF3	' to exit tracking record 
     
 	    		If abawd_counted_months => 3 then 
