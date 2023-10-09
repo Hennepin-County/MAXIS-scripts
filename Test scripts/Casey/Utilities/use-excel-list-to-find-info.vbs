@@ -156,10 +156,58 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 
 
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\ELIG by PERS JULY.xlsx"
+
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\TEMP Files\Search for Ex Parte Notices - 10-23.xlsx"
 ' file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\Case List JULY.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
+MAXIS_footer_month = "10"
+MAXIS_footer_year = "23"
+excel_row = 2
+Do
+	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+
+	PF8
+
+	wcom_waiting = "-"
+	wcom_printed = "-"
+	wcom_exception = "-"
+	wcom_row = 7
+	Do
+		EMReadScreen wcom_prog, 2, wcom_row, 26
+		EMReadScreen wcom_status, 9, wcom_row, 71
+		EMReadScreen wcom_ref_numb, 2, wcom_row, 62
+		wcom_status = trim(wcom_status)
+
+		If wcom_prog = "HC" Then
+			If wcom_status = "Waiting" Then wcom_waiting = wcom_waiting & " " & wcom_ref_numb
+			If wcom_status = "Printed" Then wcom_printed = wcom_printed & " " & wcom_ref_numb
+			If wcom_status = "XP Except" Then wcom_exception = wcom_exception & " " & wcom_ref_numb
+		End IF
+		wcom_row = wcom_row + 1
+	Loop until wcom_prog = "  " and wcom_status = ""
+
+	wcom_waiting = wcom_waiting & "-"
+	wcom_printed = wcom_printed & "-"
+	wcom_exception = wcom_exception & "-"
+
+	ObjExcel.Cells(excel_row, 10).Value = wcom_printed
+	ObjExcel.Cells(excel_row, 11).Value = wcom_waiting
+	ObjExcel.Cells(excel_row, 12).Value = wcom_exception
+
+	Call back_to_SELF
+
+	excel_row = excel_row + 1
+	next_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+Loop until next_case_number = ""
+
+MsgBox "STOP"
+
+
+
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
 ' count = 1
 ' xl_col = 5
@@ -221,9 +269,9 @@ If check_CASE_list = True Then
 	ObjREVWExcel.Quit
 End If
 
-MAXIS_footer_month = "06"
+MAXIS_footer_month = "10"
 MAXIS_footer_year = "23"
-excel_row = 5652
+excel_row = 2
 
 
 Do
