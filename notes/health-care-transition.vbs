@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/09/2023", "Added 10-digit personal record number as alternate if METS case number does not exist.", "Megan Geissler, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Removed 'certified disabled' text from health care service requested option. Example: 'certified disabled, requesting TEFRA' is now 'Requesting TERFA'.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
@@ -61,6 +62,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
+'Main dialog: user will input case number(s) or personal record number.
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 201, 120, "Health Care Transition"
     EditBox 60, 5, 45, 15, MAXIS_case_number
@@ -75,7 +77,6 @@ BeginDialog Dialog1, 0, 0, 201, 120, "Health Care Transition"
     Text 5, 90, 50, 10, "Select process:"
 EndDialog
 
-'Main dialog: user will input case number and member number
 DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
@@ -427,11 +428,11 @@ script_end_procedure_with_error_report("Success, your case note has been created
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------08/10/2022
 '--comment Code-----------------------------------------------------------------08/10/2022
-'--Update Changelog for release/update------------------------------------------08/10/2022
+'--Update Changelog for release/update------------------------------------------10/09/2023
 '--Remove testing message boxes-------------------------------------------------08/10/2022
 '--Remove testing code/unnecessary code-----------------------------------------08/10/2022
-'--Review/update SharePoint instructions----------------------------------------08/10/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/10/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/10/2022
+'--Review/update SharePoint instructions----------------------------------------10/09/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/09/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/09/2023
 '--Complete misc. documentation (if applicable)---------------------------------08/10/2022
 '--Update project team/issue contact (if applicable)----------------------------08/10/2022
