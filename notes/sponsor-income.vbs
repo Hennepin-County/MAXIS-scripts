@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/09/2022", "The script has been updated to calculate income standards for 130% FPG based on the footer month selected in the dialog. The amount updates yearly with the October footer month, be sure you are using the correct footer for your calculations.", "Dave Courtright, Hennepin County")
 call changelog_update("11/14/2022", "Added checkbox option for multiple sponsors.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2022", "Updated income standards for 130% FPG effective 10/22.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Updated income standards for 130% FPG effective 10/21.", "Ilse Ferris, Hennepin County")
@@ -61,34 +62,38 @@ changelog_display
 'Connecting to BlueZone, and finding case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 Do
     multiple_spon_checkbox = 0  'Defaults to unchecked
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 216, 170, "Sponsor Income Calculation Dialog"
+    BeginDialog Dialog1, 0, 0, 216, 190, "Sponsor Income Calculation Dialog"
       Text 5, 10, 50, 10, "Case number:"
       EditBox 55, 5, 50, 15, MAXIS_case_number
-      CheckBox 110, 10, 100, 10, "Check if multiple sponsors.", multiple_spon_checkbox
-      GroupBox 5, 30, 205, 30, "Earned income to deem:"
-      Text 10, 45, 30, 10, "Primary:"
-      EditBox 40, 40, 55, 15, primary_sponsor_earned_income
-      Text 120, 45, 30, 10, "Spousal:"
-      EditBox 150, 40, 55, 15, spousal_sponsor_earned_income
-      GroupBox 5, 70, 205, 30, "Unearned income to deem:"
-      Text 10, 85, 30, 10, "Primary:"
-      EditBox 40, 80, 55, 15, primary_sponsor_unearned_income
-      Text 120, 85, 30, 10, "Spousal:"
-      EditBox 150, 80, 55, 15, spousal_sponsor_unearned_income
-      Text 20, 115, 60, 10, "Sponsor HH size:"
-      EditBox 80, 110, 15, 15, sponsor_HH_size
-      Text 105, 115, 90, 10, "# of sponsored immigrants:"
-      EditBox 190, 110, 15, 15, number_of_sponsored_immigrants
-      Text 5, 135, 60, 10, "Worker signature:"
-      EditBox 65, 130, 140, 15, worker_signature
+      Text 5, 30, 50, 10, "Footer Month:"
+      EditBox 55, 25, 20, 15, MAXIS_footer_month
+      EditBox 85, 25, 20, 15, MAXIS_footer_year
+      CheckBox 110, 30, 100, 10, "Check if multiple sponsors.", multiple_spon_checkbox
+      GroupBox 5, 50, 205, 30, "Earned income to deem:"
+      Text 10, 65, 30, 10, "Primary:"
+      EditBox 40, 60, 55, 15, primary_sponsor_earned_income
+      Text 120, 65, 30, 10, "Spousal:"
+      EditBox 150, 60, 55, 15, spousal_sponsor_earned_income
+      GroupBox 5, 90, 205, 30, "Unearned income to deem:"
+      Text 10, 105, 30, 10, "Primary:"
+      EditBox 40, 100, 55, 15, primary_sponsor_unearned_income
+      Text 120, 105, 30, 10, "Spousal:"
+      EditBox 150, 100, 55, 15, spousal_sponsor_unearned_income
+      Text 20, 125, 60, 10, "Sponsor HH size:"
+      EditBox 80, 130, 15, 15, sponsor_HH_size
+      Text 105, 135, 90, 10, "# of sponsored immigrants:"
+      EditBox 190, 130, 15, 15, number_of_sponsored_immigrants
+      Text 5, 155, 60, 10, "Worker signature:"
+      EditBox 65, 150, 140, 15, worker_signature
       ButtonGroup ButtonPressed
-        OkButton 120, 150, 40, 15
-        CancelButton 165, 150, 40, 15
+        OkButton 120, 170, 40, 15
+        CancelButton 165, 170, 40, 15
     EndDialog
 
 
@@ -103,6 +108,7 @@ Do
     		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
     		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
     		If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+            Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     	LOOP UNTIL err_msg = ""
     call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -110,29 +116,7 @@ Do
 
     'Determines the income limits
     ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
-    If DateDiff("d",date,#10/01/2022#) <= 0 then
-        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
-        If sponsor_HH_size = 1 then income_limit = 1473
-        If sponsor_HH_size = 2 then income_limit = 1984
-        If sponsor_HH_size = 3 then income_limit = 2495
-        If sponsor_HH_size = 4 then income_limit = 3007
-        If sponsor_HH_size = 5 then income_limit = 3518
-        If sponsor_HH_size = 6 then income_limit = 4029
-        If sponsor_HH_size = 7 then income_limit = 4541
-        If sponsor_HH_size = 8 then income_limit = 5052
-        If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
-    Elseif DateDiff("d",date,#10/01/2022#) > 0 then
-        'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
-        If sponsor_HH_size = 1 then income_limit = 1396
-        If sponsor_HH_size = 2 then income_limit = 1888
-        If sponsor_HH_size = 3 then income_limit = 2379
-        If sponsor_HH_size = 4 then income_limit = 2871
-        If sponsor_HH_size = 5 then income_limit = 3363
-        If sponsor_HH_size = 6 then income_limit = 3855
-        If sponsor_HH_size = 7 then income_limit = 4347
-        If sponsor_HH_size = 8 then income_limit = 4839
-        If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
-    End if
+    Call determine_130_percent_of_FPG(MAXIS_footer_month, MAXIS_footer_year, sponsor_HH_size, income_limit)
 
     'If any income variables are not numeric, the script will convert them to a "0" for calculating
     If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
