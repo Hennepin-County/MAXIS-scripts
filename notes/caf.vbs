@@ -5599,8 +5599,6 @@ If vars_filled = False Then
 	EMReadScreen case_name_for_data_table, 25, 21, 40
 	case_name_for_data_table = trim(case_name_for_data_table)
 
-	CM_minus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
-	CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
 	cash_terminated_revw_date = ""
 	grh_terminated_revw_date = ""
 	snap_terminated_revw_date = ""
@@ -6259,6 +6257,7 @@ If vars_filled = False Then
 					Text 20, y_pos, 200, 10, "SNAP benefit is a part of MFIP Grant"
 					y_pos = y_pos + 15
 				End If
+
 				If SNAP_checkbox = checked Then
 					If snap_with_mfip = False Then Text 15, y_pos + 5, 20, 10, "SNAP"
 					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
@@ -6267,6 +6266,7 @@ If vars_filled = False Then
 					If allow_SNAP_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack SNAP", untrack_snap_btn
 					y_pos = y_pos + 20
 				End If
+
 				If HC_checkbox = checked Then
 					Text 15, y_pos + 5, 40, 10, "Health Care"
 					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Recertification", the_process_for_hc
@@ -6275,6 +6275,7 @@ If vars_filled = False Then
 					If allow_HC_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack HC", untrack_hc_btn
 					y_pos = y_pos + 20
 				End If
+
 				If EMER_checkbox = checked Then
 					Text 15, y_pos+5, 40, 10, "EMER"
 					DropListBox 35, y_pos, 45, 45, "Select"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
@@ -6392,6 +6393,55 @@ If vars_filled = False Then
 
 			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
 
+			If err_msg = "LOOP" Then
+				RECERT_being_assessed = False
+				APPL_being_assessed = False
+
+				If CASH_checkbox = checked Then
+					If the_process_for_cash = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_cash = "Application" Then APPL_being_assessed = True
+				End If
+				If GRH_checkbox = checked Then
+					If the_process_for_grh = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_grh = "Application" Then APPL_being_assessed = True
+				End If
+				If SNAP_checkbox = checked Then
+					If the_process_for_snap = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_snap = "Application" Then APPL_being_assessed = True
+				End If
+				If EMER_checkbox = checked Then APPL_being_assessed = True
+
+
+				multiple_CAF_dates = False
+				multiple_interview_dates = False
+
+				If RECERT_being_assessed = True and APPL_being_assessed = True Then
+					If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
+						CAF_datestamp = REVW_CAF_datestamp
+						If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
+						multiple_CAF_dates = True
+					Else
+						If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
+						If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
+					End If
+
+					If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
+						interview_date = REVW_interview_date
+						If DateDiff("d", PROG_interview_date, REVW_interview_date) Then interview_date = PROG_interview_date
+						multiple_interview_dates = True
+					Else
+						If PROG_interview_date <> "" Then interview_date = PROG_interview_date
+						If REVW_interview_date <> "" Then interview_date = REVW_interview_date
+					End If
+				ElseIf RECERT_being_assessed = True Then
+					CAF_datestamp = REVW_CAF_datestamp
+					interview_date = REVW_interview_date
+				Else
+					CAF_datestamp = PROG_CAF_datestamp
+					interview_date = PROG_interview_date
+				End If
+
+			End If
 
 			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
