@@ -2116,8 +2116,7 @@ script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
-
+script_array(script_num).policy_references		= array("SHAREPOINT METS_to_MAXIS_Transitions https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/METS_to_MAXIS_Transitions.aspx", "SHAREPOINT Use_MA_Transition_Communication_form_for_METS_to_MAXIS_Transition https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Reminder--METS-to-MAXIS-Transition.aspx")
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
