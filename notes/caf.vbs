@@ -6181,6 +6181,8 @@ If vars_filled = False Then
 	If SNAP_checkbox = unchecked Then allow_SNAP_untrack = True
 	If EMER_checkbox = unchecked Then allow_EMER_untrack = True
 	If GRH_checkbox = unchecked Then allow_GRH_untrack = True
+	'TESTING - 1514354 - this case has multiple dates. UNCOMMENT the next line to test our the functionality by untracking EMER and ignore the appl date.
+	' allow_EMER_untrack = True
 
 	option_to_process_with_no_interview = False
 	original_snap_with_mfip = snap_with_mfip
@@ -6393,10 +6395,13 @@ If vars_filled = False Then
 
 			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
 
+			'This part of the script will reset the CAF date and Interview date and reassess if there are multiple dates for the next loop.
+			'This way if a program is untracked - it won't force date information or form information for a program process that is not being handled with the script run
 			If err_msg = "LOOP" Then
-				RECERT_being_assessed = False
+				RECERT_being_assessed = False			'default these to false
 				APPL_being_assessed = False
 
+				'assess each program and process to determine if we are looking at RECERTS or APPLs
 				If CASH_checkbox = checked Then
 					If the_process_for_cash = "Recertification" Then RECERT_being_assessed = True
 					If the_process_for_cash = "Application" Then APPL_being_assessed = True
@@ -6411,34 +6416,46 @@ If vars_filled = False Then
 				End If
 				If EMER_checkbox = checked Then APPL_being_assessed = True
 
-
-				multiple_CAF_dates = False
-				multiple_interview_dates = False
-
-				If RECERT_being_assessed = True and APPL_being_assessed = True Then
-					If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
-						CAF_datestamp = REVW_CAF_datestamp
-						If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
-						multiple_CAF_dates = True
-					Else
-						If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
-						If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
-					End If
-
-					If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
-						interview_date = REVW_interview_date
-						If DateDiff("d", PROG_interview_date, REVW_interview_date) Then interview_date = PROG_interview_date
-						multiple_interview_dates = True
-					Else
-						If PROG_interview_date <> "" Then interview_date = PROG_interview_date
-						If REVW_interview_date <> "" Then interview_date = REVW_interview_date
-					End If
-				ElseIf RECERT_being_assessed = True Then
-					CAF_datestamp = REVW_CAF_datestamp
-					interview_date = REVW_interview_date
+				'If there is neither recert of appl process, the script will 'recheck' the program and loop back
+				If RECERT_being_assessed = False and APPL_being_assessed = False Then
+					err_msg = err_msg & vbCr & "* No programs appear to be selected. The script can only operate if at least one program is selected. The script has NOT 'untracked' the selected program."
+					If ButtonPressed = untrack_cash_btn Then CASH_checkbox = checked
+					If ButtonPressed = untrack_grh_btn Then GRH_checkbox = checked
+					If ButtonPressed = untrack_snap_btn Then SNAP_checkbox = checked
+					If ButtonPressed = untrack_snap_btn Then original_snap_with_mfip = snap_with_mfip
+					If ButtonPressed = untrack_hc_btn Then HC_checkbox = checked
+					If ButtonPressed = untrack_emer_btn Then EMER_checkbox = checked
 				Else
-					CAF_datestamp = PROG_CAF_datestamp
-					interview_date = PROG_interview_date
+					'if there is recert or appl, the script here will reset the dates.
+					multiple_CAF_dates = False				'default multiple dates to false
+					multiple_interview_dates = False
+
+					'If both recert and appl programs, the script will determine which date is older to assign it to the CAF and Interview date
+					If RECERT_being_assessed = True and APPL_being_assessed = True Then
+						If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
+							CAF_datestamp = REVW_CAF_datestamp
+							If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
+							multiple_CAF_dates = True
+						Else
+							If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
+							If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
+						End If
+
+						If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
+							interview_date = REVW_interview_date
+							If DateDiff("d", PROG_interview_date, REVW_interview_date) Then interview_date = PROG_interview_date
+							multiple_interview_dates = True
+						Else
+							If PROG_interview_date <> "" Then interview_date = PROG_interview_date
+							If REVW_interview_date <> "" Then interview_date = REVW_interview_date
+						End If
+					ElseIf RECERT_being_assessed = True Then		'set if only recert
+						CAF_datestamp = REVW_CAF_datestamp
+						interview_date = REVW_interview_date
+					Else											'set if only APPL
+						CAF_datestamp = PROG_CAF_datestamp
+						interview_date = PROG_interview_date
+					End If
 				End If
 
 			End If
