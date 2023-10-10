@@ -175,14 +175,17 @@ Do
 	wcom_waiting = "-"
 	wcom_printed = "-"
 	wcom_exception = "-"
+	all_dates = "-"
 	wcom_row = 7
 	Do
+		EMReadScreen wcom_date, 8, wcom_row, 16
 		EMReadScreen wcom_prog, 2, wcom_row, 26
 		EMReadScreen wcom_status, 9, wcom_row, 71
 		EMReadScreen wcom_ref_numb, 2, wcom_row, 62
 		wcom_status = trim(wcom_status)
 
 		If wcom_prog = "HC" Then
+			all_dates = all_dates & " " & wcom_date
 			If wcom_status = "Waiting" Then wcom_waiting = wcom_waiting & " " & wcom_ref_numb
 			If wcom_status = "Printed" Then wcom_printed = wcom_printed & " " & wcom_ref_numb
 			If wcom_status = "XP Except" Then wcom_exception = wcom_exception & " " & wcom_ref_numb
@@ -190,10 +193,12 @@ Do
 		wcom_row = wcom_row + 1
 	Loop until wcom_prog = "  " and wcom_status = ""
 
+	all_dates = all_dates & "-"
 	wcom_waiting = wcom_waiting & "-"
 	wcom_printed = wcom_printed & "-"
 	wcom_exception = wcom_exception & "-"
 
+	ObjExcel.Cells(excel_row, 9).Value = all_dates
 	ObjExcel.Cells(excel_row, 10).Value = wcom_printed
 	ObjExcel.Cells(excel_row, 11).Value = wcom_waiting
 	ObjExcel.Cells(excel_row, 12).Value = wcom_exception
