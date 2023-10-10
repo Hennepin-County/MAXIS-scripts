@@ -104,6 +104,9 @@ worker_county_code = "X127"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
+EMWriteScreen MAXIS_footer_month, 20, 43
+EMWriteScreen MAXIS_footer_year, 20, 46
+
 'Initial dialog - select whether to create a list or process a list
 BeginDialog Dialog1, 0, 0, 306, 220, "DAIL Unclear Information"
   GroupBox 10, 5, 290, 65, "Using the DAIL Unclear Information Script"
@@ -578,8 +581,9 @@ For each worker in worker_array
 
                         ReDim Preserve DAIL_message_array(DAIL_excel_row_const, dail_count)
                         DAIL_message_array(dail_maxis_case_number_const, DAIL_count) = MAXIS_case_number
+                        DAIL_message_array(dail_worker_const, DAIL_count) = worker
 
-
+                        'Use for next loop to match the individual DAIL message to the corresponding array item of matching Case Details
                         for each_case = 0 to UBound(case_details_array, 2)
                             If DAIL_message_array(dail_maxis_case_number_const, dail_count) = case_details_array(case_maxis_case_number_const, each_case) Then
                                 EMReadScreen dail_type, 4, dail_row, 6
@@ -590,23 +594,80 @@ For each worker in worker_array
 
                                 EMReadScreen dail_msg, 61, dail_row, 20
                                 dail_msg = trim(dail_msg)
-                                If InStr(dail_msg, "INFC") then INFC_dail_message = True
+                                If InStr(dail_msg, "INFC") then 
+                                    INFC_dail_message = True
+                                Else
+                                    INFC_dail_message = False
+                                End If
 
-                                If INFC_dail_message <> True Then
+                                ' MsgBox "This is the dail_msg: " & dail_msg
+                                ' MsgBox infc_dail_message  
+
+                                If INFC_dail_message = False Then
                                     DAIL_message_array(dail_maxis_case_number_const, dail_count) = MAXIS_case_number
                                     DAIL_message_array(dail_type_const, dail_count) = dail_type
                                     DAIL_message_array(dail_month_const, dail_count) = dail_month
                                     DAIL_message_array(dail_msg_const, dail_count) = dail_msg
-                                End If
 
+                                    'Activate the DAIL Messages sheet
+                                    objExcel.Worksheets("DAIL Messages").Activate
+
+                                    objExcel.Cells(dail_excel_row, 1).Value = DAIL_message_array(dail_maxis_case_number_const, dail_count)
+                                    objExcel.Cells(dail_excel_row, 2).Value = DAIL_message_array(dail_worker_const, dail_count)
+                                    objExcel.Cells(dail_excel_row, 3).Value = DAIL_message_array(dail_type_const, dail_count)
+                                    objExcel.Cells(dail_excel_row, 4).Value = DAIL_message_array(dail_month_const, dail_count)
+                                    objExcel.Cells(dail_excel_row, 5).Value = DAIL_message_array(dail_msg_const, dail_count)
+
+                                    If case_details_array(processable_based_on_case_const, each_case) = False Then
+                                        ' MsgBox "not processable based on case details"
+                                        DAIL_message_array(renewal_month_determination_const, dail_count) = "N/A"
+                                        DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable based on Case Details"
+
+                                        'Activate the DAIL Messages sheet
+                                        objExcel.Worksheets("DAIL Messages").Activate
+
+                                        objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(renewal_month_determination_const, dail_count)
+                                        objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+                                    End If
+
+                                    
+
+                                    ' const dail_maxis_case_number_const      = 0
+                                    ' const dail_worker_const	                = 1
+                                    ' const dail_type_const                   = 2
+                                    ' const dail_month_const		            = 3
+                                    ' const dail_msg_const		            = 4
+                                    ' const renewal_month_determination_const = 5
+                                    ' const processable_based_on_dail_const   = 6
+                                    ' 'To do - processing notes, would these be captured in case details array?
+                                    ' const dail_processing_notes_const       = 7
+                                    ' ' To Do - is the excel row constant needed?
+                                    ' const dail_excel_row_const              = 8
+
+                                    ' 'Changes name of Excel sheet to DAIL Messages to capture details about in-scope DAIL messages
+                                    ' ObjExcel.ActiveSheet.Name = "DAIL Messages"
+
+                                    ' 'Excel headers and formatting the columns
+                                    ' objExcel.Cells(1, 1).Value = "Case Number"
+                                    ' objExcel.Cells(1, 2).Value = "X Number"
+                                    ' objExcel.Cells(1, 3).Value = "DAIL Type"
+                                    ' objExcel.Cells(1, 4).Value = "DAIL Month"
+                                    ' 'To do - determine if FULL DAIL message should be captured
+                                    ' objExcel.Cells(1, 5).Value = "DAIL Message"
+                                    ' objExcel.Cells(1, 6).Value = "Renewal Month Determination"
+                                    ' objExcel.Cells(1, 7).Value = "Processable based on DAIL"
+                                    ' objExcel.Cells(1, 8).Value = "Processing Notes for DAIL Message"
+
+                                    dail_excel_row = dail_excel_row + 1
+                                    
+
+                                End If
+                                ' dail_excel_row = dail_excel_row + 1
                             End If 
                         next
 
 
                         dail_count = dail_count + 1
-
-
-                        
 
                         ' const dail_maxis_case_number_const      = 0
                         ' const dail_worker_const	                = 1
