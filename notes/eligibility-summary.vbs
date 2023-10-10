@@ -23770,12 +23770,16 @@ For each footer_month in MONTHS_ARRAY
 				notice_exception_message = "*  *  *  *  *  *  * NOTICE EXEPTION *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & "There is an Ex Parte Notice Exeption for this case."
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "This means the notice did not generate correctly for some reason."
-				notice_exception_message = notice_exception_message & vbCr & vbCr & "The notice must be sent manually in SPEC/MEMO to the resident."
+				' notice_exception_message = notice_exception_message & vbCr & vbCr & "The notice must be sent manually in SPEC/MEMO to the resident."
 				notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "THE SCRIPT WILL ATTEMPT TO SEND A MEMO FOR THIS CASE."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "A testing Email will be created at the end of the script run. Please send that so we can review the functionality."
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
 				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
 				notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
+				testing_run = True
 
 				' notice_exception_message = notice_exception_message & vbCr & ""
 				' notice_exception_message = notice_exception_message & vbCr & vbCr & ""
@@ -27602,49 +27606,93 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	End if
 End If
 
-If ex_parte_approval = True and MSP_approvals_only = True Then
+If ex_parte_approval = True and wcom_exception <> "--" Then
+	Dim memo_array()
+	ReDim memo_array(0)
+	memo_count = 0
+	memo_ref_numb_string = " "
+
 	For approval = 0 to UBound(HC_ELIG_APPROVALS)
 		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
-			If  HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" Then
-				MSP_memo_success = True		'TODO - add a way to make sure the memo was created
-				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
-					temp_array = ""
-					If InStr(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~") <> 0 Then
-						temp_array = split(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member), "~")
-					Else
-						temp_array = Array(HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member))
-					End If
-				End If
-				'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-15010315'
-				Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
+			If HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" and InStr(wcom_exception, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) <> 0 Then
+				' REF NUMB ~&~&~ NAME ~&~&~ INCOME ~&~&~ HH SIZE ~&~&~ HC PROGS
+				If InStr(memo_ref_numb_string, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then
+					memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
+					ReDim preserve memo_array(memo_count)
 
-				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following Medicare Savings Program:")
-				' Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO(HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member))
-				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("Your Income was verified using electronic sources.")
-				Call write_variable_in_SPEC_MEMO("Household size: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member))
-				Call write_variable_in_SPEC_MEMO("")
-				If HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) <> "" Then
-					Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
-					For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
-						Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
-					Next
+					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+
+					memo_count = memo_count + 1
 				Else
-					Call write_variable_in_SPEC_MEMO("No Income known that Counts for your HC Program.")
+					for each memo_to_send in memo_array
+						If left(memo_to_send, 2) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) Then
+							memo_to_send = memo_to_send & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+						End If
+					next
 				End If
-				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
-				Call write_variable_in_SPEC_MEMO("")
-				Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
-				Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
-				' MsgBox "See the MEMO?"
-				PF4 'Exits the MEMO
 			End If
 		Next
 	Next
+
+	for each memo_to_send in memo_array
+		Dim this_memo_array()
+		this_memo_array = split(memo_to_send, "~&~&~")
+
+		memo_memb_ref = this_memo_array(0)
+		memo_memb_name = this_memo_array(1)
+		memo_income = this_memo_array(2)
+		memo_hh_size = this_memo_array(3)
+		memo_hc_progs = this_memo_array(4)
+
+		MSP_memo_success = True		'TODO - add a way to make sure the memo was created
+		If memo_income <> "" Then
+			temp_array = ""
+			If InStr(memo_income, "~") <> 0 Then
+				temp_array = split(memo_income, "~")
+			Else
+				temp_array = Array(memo_income)
+			End If
+		End If
+		progs_temp_array = ""
+		If InStr(memo_hc_progs, "~") <> 0 Then
+			progs_temp_array = split(memo_hc_progs, "~")
+		Else
+			progs_temp_array = Array(memo_hc_progs)
+		End If
+
+		'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-16013
+		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
+
+		Call write_variable_in_SPEC_MEMO(memo_memb_name & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following:")
+
+		Call write_variable_in_SPEC_MEMO("")
+		For i = 0 to Ubound(progs_temp_array)
+			Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i) & ".")
+		Next
+
+		' Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("")
+		If memo_income <> "" Then
+			Call write_variable_in_SPEC_MEMO("You have been renewed because your income was able to be verified from electronic sources.")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
+			For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
+				Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+			Next
+		Else
+			Call write_variable_in_SPEC_MEMO("You have been renewed because you do not have income that is counted for determining health care benefits.")
+		End If
+			Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("Household size: " & memo_hh_size)
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
+		Call write_variable_in_SPEC_MEMO("")
+		Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
+		Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
+		' MsgBox "See the MEMO?"
+		PF4 'Exits the MEMO
+next
+
 End If
 
 If enter_CNOTE_for_EMER = True Then
@@ -28645,7 +28693,7 @@ If ex_parte_approval = True Then
 	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
 	If MSP_approvals_only = True and MSP_memo_success = True Then
 		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
-		Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
+		' Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
 	End If
 	' Call write_variable_in_CASE_NOTE("")
 	Call write_variable_in_CASE_NOTE("---")
