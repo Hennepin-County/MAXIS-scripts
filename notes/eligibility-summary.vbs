@@ -27635,7 +27635,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 	Next
 
 	for each memo_to_send in memo_array
-		Dim this_memo_array()
+		this_memo_array = ""
 		this_memo_array = split(memo_to_send, "~&~&~")
 
 		memo_memb_ref = this_memo_array(0)
