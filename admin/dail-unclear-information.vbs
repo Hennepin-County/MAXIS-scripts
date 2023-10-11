@@ -504,25 +504,32 @@ For each worker in worker_array
                                         End if
                                         If app_status = "UNAPPROV" Then status_row = status_row + 1
                                     Loop until app_status = "APPROVED" or app_status = ""
-
                                     If app_status = "" or app_status <> "APPROVED" then
                                         case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                         case_details_array(processable_based_on_case_const, case_count) = False
+                                        'To do - since pulling cases for REPT/ACTV, this may never trigger but using message box just in case
+                                        MsgBox "Instance where SNAP is active but there is not app status or it is not approved"
                                     Elseif app_status = "APPROVED" then
                                         EMReadScreen vers_number, 1, status_row, 23
                                         Call write_value_and_transmit(vers_number, 18, 54)
                                         Call write_value_and_transmit("FSSM", 19, 70)
-                                    End if
-                                    EmReadscreen reporting_status, 12, 8, 31
-                                    EmReadscreen recertification_date, 8, 11, 31
-                                    'Converts date from string to date
-                                    recertification_date = DateAdd("m", 0, recertification_date)
+                                        EmReadscreen reporting_status, 12, 8, 31
+                                        EmReadscreen recertification_date, 8, 11, 31
+                                        'Converts date from string to date
+                                        recertification_date = DateAdd("m", 0, recertification_date)
 
-                                    If InStr(reporting_status, "SIX MONTH") Then 
-                                        sr_report_date = DateAdd("m", -6, recertification_date)
-                                    Else
-                                        sr_report_date = "N/A"
-                                    End If
+                                        If InStr(reporting_status, "SIX MONTH") Then 
+                                            sr_report_date = DateAdd("m", -6, recertification_date)
+                                        Else
+                                            sr_report_date = "N/A"
+                                        End If
+                                        ' MsgBox "Updating the footer month and year"
+                                        'Change the footer month and year back to CM/CY
+                                        EMWriteScreen MAXIS_footer_month, 19, 54
+                                        EMWriteScreen MAXIS_footer_year, 19, 57
+                                        ' MsgBox "did footer month year update?"
+                                    End if
+                                    
                                     ' MsgBox "Updating the case_details_array"
                                     'Update the array with new case details
                                     case_details_array(reporting_status_const, case_count) = trim(reporting_status)
@@ -531,6 +538,11 @@ For each worker in worker_array
                                 End if
                             Else
                                 case_details_array(reporting_status_const, case_count) = "N/A"
+                                ' MsgBox "Updating the footer month and year"
+                                'Update the footer month and year to CM/CY on CASE/CURR before returning to DAIL
+                                EMWriteScreen MAXIS_footer_month, 20, 54
+                                EMWriteScreen MAXIS_footer_year, 20, 57
+                                ' MsgBox "did footer month year update?"
                             End If 
 
                             'Determine if processable_based_on_case is True (case is within scope, MAY act on DAIL message) or if processable_based_on_case is false (case is outside of scope, WILL NOT act on DAIL message)
@@ -560,11 +572,12 @@ For each worker in worker_array
                         objExcel.Cells(case_excel_row, 9).Value = case_details_array(processable_based_on_case_const, case_count)
                         case_excel_row = case_excel_row + 1
 
+                        ' MsgBox "place the footer month update here"
+
                         ' MsgBox "determine program and case status. Did it work?"
                         'Return to DAIL by PF3
                         PF3
-
-                        
+                      
                         ' MsgBox "Where did the PF3 move to?"
                         'Increment the case_count for updating the array
                         case_count = case_count + 1
