@@ -601,6 +601,9 @@ For each worker in worker_array
                         'Use for next loop to match the individual DAIL message to the corresponding array item of matching Case Details
                         for each_case = 0 to UBound(case_details_array, 2)
                             If DAIL_message_array(dail_maxis_case_number_const, dail_count) = case_details_array(case_maxis_case_number_const, each_case) Then
+                                'Clearing out process_dail_message
+                                process_dail_message = ""
+
                                 EMReadScreen dail_type, 4, dail_row, 6
                                 dail_type = trim(dail_type)
 
@@ -656,8 +659,10 @@ For each worker in worker_array
                                                     'To do - update language once finalized
                                                     DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+                                                    process_dail_message = False
                                                 Else
                                                     'Process the CSES message here
+                                                    process_dail_message = True
                                                 End If
                                             ElseIf dail_type = "HIRE" Then
                                                 ' MsgBox "dail type is HIRE"
@@ -665,12 +670,25 @@ For each worker in worker_array
                                                     'To do - update language once finalized
                                                     DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+                                                    process_dail_message = False
                                                 Else
                                                     'Process the HIRE message
+                                                    process_dail_message = True
                                                 End If
                                             End If
 
                                         End If
+
+                                        'Process CSES message
+                                        If process_dail_message = True and dail_type = "CSES" Then
+                                            'Update here
+                                            
+                                        End if
+
+                                        If process_dail_message = True and dail_type = "HIRE" Then
+                                            'Update here
+                                        End If
+
                                         
                                         
 
