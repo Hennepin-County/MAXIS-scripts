@@ -103,6 +103,8 @@ worker_county_code = "X127"
 'Set footer month and year to current month and year
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+'To determine if DAIL message is in scope based on DAIL month, creating variable for date for current month, day, and year
+footer_month_day_year = dateadd("d", 0, MAXIS_footer_month & "/1/20" & MAXIS_footer_year)
 
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
@@ -641,35 +643,39 @@ For each worker in worker_array
 
                                         objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(renewal_month_determination_const, dail_count)
                                         objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
-                                    End If
-
                                     
+                                    ElseIf case_details_array(processable_based_on_case_const, each_case) = True Then     
+                                        
+                                        ' MsgBox "Processable = true"
+                                        
+                                        'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
+                                        If DateAdd("m", 0, case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
+                                            If dail_type = "CSES" Then
+                                                ' MsgBox "dail type is CSES"
+                                                If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
+                                                    'To do - update language once finalized
+                                                    DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                    objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+                                                Else
+                                                    'Process the CSES message here
+                                                End If
+                                            ElseIf dail_type = "HIRE" Then
+                                                ' MsgBox "dail type is HIRE"
+                                                If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
+                                                    'To do - update language once finalized
+                                                    DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
+                                                    objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+                                                Else
+                                                    'Process the HIRE message
+                                                End If
+                                            End If
 
-                                    ' const dail_maxis_case_number_const      = 0
-                                    ' const dail_worker_const	                = 1
-                                    ' const dail_type_const                   = 2
-                                    ' const dail_month_const		            = 3
-                                    ' const dail_msg_const		            = 4
-                                    ' const renewal_month_determination_const = 5
-                                    ' const processable_based_on_dail_const   = 6
-                                    ' 'To do - processing notes, would these be captured in case details array?
-                                    ' const dail_processing_notes_const       = 7
-                                    ' ' To Do - is the excel row constant needed?
-                                    ' const dail_excel_row_const              = 8
+                                        End If
+                                        
+                                        
 
-                                    ' 'Changes name of Excel sheet to DAIL Messages to capture details about in-scope DAIL messages
-                                    ' ObjExcel.ActiveSheet.Name = "DAIL Messages"
 
-                                    ' 'Excel headers and formatting the columns
-                                    ' objExcel.Cells(1, 1).Value = "Case Number"
-                                    ' objExcel.Cells(1, 2).Value = "X Number"
-                                    ' objExcel.Cells(1, 3).Value = "DAIL Type"
-                                    ' objExcel.Cells(1, 4).Value = "DAIL Month"
-                                    ' 'To do - determine if FULL DAIL message should be captured
-                                    ' objExcel.Cells(1, 5).Value = "DAIL Message"
-                                    ' objExcel.Cells(1, 6).Value = "Renewal Month Determination"
-                                    ' objExcel.Cells(1, 7).Value = "Processable based on DAIL"
-                                    ' objExcel.Cells(1, 8).Value = "Processing Notes for DAIL Message"
+                                    End If
 
                                     dail_excel_row = dail_excel_row + 1
                                     
@@ -682,18 +688,6 @@ For each worker in worker_array
 
                         dail_count = dail_count + 1
 
-                        ' const dail_maxis_case_number_const      = 0
-                        ' const dail_worker_const	                = 1
-                        ' const dail_type_const                   = 2
-                        ' const dail_month_const		            = 3
-                        ' const dail_msg_const		            = 4
-                        ' const renewal_month_determination_const = 5
-                        ' const processable_based_on_dail_const   = 6
-                        ' 'To do - processing notes, would these be captured in case details array?
-                        ' const dail_processing_notes_const       = 7
-                        ' ' To Do - is the excel row constant needed?
-                        ' const dail_excel_row_const              = 8
-
                         ' a.	Is case processable based on case details? 
                             ' i.	Yes (Processable based on Case Details = True)
                                 ' 1.	Is DAIL message processable based on DAIL details?
@@ -701,12 +695,8 @@ For each worker in worker_array
                                         ' i.	Process DAIL according to process
                                     ' b.	No (Processable based on DAIL Details = False)
                                         ' i.	Move to next DAIL row and restart loop
-                        ' ii.	No (Processable based on Case Details = False)
-                            ' 1.	Still capture DAIL details (month, message, etc.) but then indicate that it is not processable based on case details
-
-
-
-
+                            ' ii.	No (Processable based on Case Details = False)
+                                ' 1.	Still capture DAIL details (month, message, etc.) but then indicate that it is not processable based on case details
                             
                     End If
                 Else
