@@ -3370,13 +3370,15 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 		ABPS_current = trim(ABPS_current)
         ABPS_current = split(ABPS_current)
         For each ABPS_part in ABPS_current
-          first_letter = ucase(left(ABPS_part, 1))
-          other_letters = LCase(right(ABPS_part, len(ABPS_part) -1))
-          If len(ABPS_part) > 1 then
-            new_ABPS_current = new_ABPS_current & first_letter & other_letters & " "
-          Else
-            new_ABPS_current = new_ABPS_current & ABPS_part & " "
-          End if
+          	If ABPS_part <> "" Then
+				first_letter = ucase(left(ABPS_part, 1))
+				other_letters = LCase(right(ABPS_part, len(ABPS_part) -1))
+				If len(ABPS_part) > 1 then
+					new_ABPS_current = new_ABPS_current & first_letter & other_letters & " "
+				Else
+					new_ABPS_current = new_ABPS_current & ABPS_part & " "
+				End if
+			End If
         Next
         ABPS_row = 15 'Setting variable for do...loop
         Do
