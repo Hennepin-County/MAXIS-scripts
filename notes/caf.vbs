@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/11/2023", "Bug Fix - sometimes there was an issue if the NOTES - CAF script found a program at application and recertification with dealing with potential multiple forms and dates. This update should resolve any errors in these rare situations.", "Casey Love, Hennepin County")
 call changelog_update("07/28/2023", "Two updates to this script:##~####~##1. Added the form DHS-2128 (Renewal for People Receiving MA-LTC) as an option. Be aware the script will not work if SNAP or  cash programs other than GRH are at recertification.##~##2. The script can redirect to the script NOTES - Health Care Evaluation if there is no CAF process found and there is Health Care on the case, and the form can be used on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 Call changelog_update("07/11/2023", "The CAF script will no longer allow for the selection of programs, MAXIS program status will inform which programs are included in the review of the case. ##~## ##~##It is vital that MAXIS is updated entirely before using the CAF script. In particular, the script will not operate if the CAF/Form Dates and Interview Dates have not been entered in the correct fields of MAXIS. ##~## ##~##It is best practice to run the CAF script PRIOR to any 'APP' as MAXIS updates are still possible and the display during the script run can support a secondary review of case details.##~##", "Casey Love, Hennepin County")
@@ -6181,8 +6182,6 @@ If vars_filled = False Then
 	If SNAP_checkbox = unchecked Then allow_SNAP_untrack = True
 	If EMER_checkbox = unchecked Then allow_EMER_untrack = True
 	If GRH_checkbox = unchecked Then allow_GRH_untrack = True
-	'TESTING - 1514354 - this case has multiple dates. UNCOMMENT the next line to test our the functionality by untracking EMER and ignore the appl date.
-	' allow_EMER_untrack = True
 
 	option_to_process_with_no_interview = False
 	original_snap_with_mfip = snap_with_mfip
