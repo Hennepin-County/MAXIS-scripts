@@ -103,7 +103,7 @@ function bring_correct_message_to_top()
 			PF8
 			EMReadScreen last_page, 9, 24, 14
 			If last_page = "LAST PAGE" Then call go_to_top_of_dail
-			header_row = 5
+			header_row = 4
 		End If
 	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
 
