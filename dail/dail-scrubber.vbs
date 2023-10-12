@@ -72,7 +72,7 @@ changelog_display
 function go_to_top_of_dail()
 	Do
 		PF7							'scroll up'
-		first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
+		EMReadScreen first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
 	Loop until first_page = "ONLY SCROLL FORWARD"		'once the messages is displayed, the function is done.
 end function
 
