@@ -72,7 +72,7 @@ changelog_display
 function go_to_top_of_dail()
 	Do
 		PF7							'scroll up'
-		first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
+		EMReadScreen first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
 	Loop until first_page = "ONLY SCROLL FORWARD"		'once the messages is displayed, the function is done.
 end function
 
@@ -103,7 +103,7 @@ function bring_correct_message_to_top()
 			PF8
 			EMReadScreen last_page, 9, 24, 14
 			If last_page = "LAST PAGE" Then call go_to_top_of_dail
-			header_row = 5
+			header_row = 4
 		End If
 	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
 
