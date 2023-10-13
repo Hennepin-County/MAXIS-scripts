@@ -897,6 +897,7 @@ If first_item_date <> date Then
 				If Instr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "PRIVILEGED CASE") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "PRIVILEGED CASE. " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
 			Elseif county_check <> "27" Then
 				ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
+				ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "OUT OF COUNTY - " & county_check
 			ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER" Then
 				ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CASE HAS BEEN DELETED"
 			Else
