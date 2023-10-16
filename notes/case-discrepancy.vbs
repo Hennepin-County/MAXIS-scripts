@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/16/2023", "Updated case note header to be more descriptive.", "Megan Geissler")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("07/10/2018", "The ACTIONS TAKEN field is no longer a mandatory field.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -54,33 +55,22 @@ changelog_display
 'The script----------------------------------------------------------------------------------------------------
 'Connecing to MAXIS, establishing the county code, and grabbing the case number
 EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
+CALL check_for_MAXIS(FALSE)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 336, 245, "Case discrepancy"
-  EditBox 90, 10, 70, 15, MAXIS_case_number
-  DropListBox 90, 35, 70, 15, "Select one..."+chr(9)+"found/pending"+chr(9)+"resolved ", discrepancy_status
-  EditBox 90, 55, 70, 15, MNsure_case_number
-  CheckBox 175, 20, 25, 10, "MA", MA_checkbox
-  CheckBox 210, 20, 30, 10, "MSP", MSP_checkbox
-  CheckBox 250, 20, 35, 10, "MNsure", MNsure_checkbox
-  CheckBox 290, 20, 30, 10, "SNAP", SNAP_checkbox
-  CheckBox 175, 35, 30, 10, "DWP", DWP_checkbox
-  CheckBox 210, 35, 30, 10, "MFIP", MFIP_checkbox
-  CheckBox 250, 35, 30, 10, "MSA", MSA_checkbox
-  CheckBox 290, 35, 25, 10, "GA", GA_checkbox
-  CheckBox 175, 50, 30, 10, "GRH", GRH_checkbox
-  CheckBox 210, 50, 30, 10, "RCA", RCA_checkbox
-  CheckBox 250, 50, 35, 10, "EMER", EMER_checkbox
-  EditBox 90, 75, 240, 15, MEMB_PMI
-  EditBox 90, 100, 240, 15, describe_discrepancy
-  EditBox 90, 125, 240, 15, verifs_needed
-  EditBox 90, 150, 240, 15, other_notes
-  EditBox 90, 175, 240, 15, actions_taken
-  CheckBox 25, 200, 60, 10, "MAXIS updated", MAXIS_updated
-  CheckBox 95, 200, 60, 10, "MMIS updated", MMIS_updated
-  CheckBox 160, 200, 170, 10, "Set TIKL for 10 day return of verifcations needed", TIKL_checkbox
-  EditBox 90, 220, 130, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 396, 255, "Case Discrepancy"
+  EditBox 90, 5, 70, 15, MAXIS_case_number
+  EditBox 90, 25, 70, 15, MNsure_case_number
+  ComboBox 90, 45, 95, 15, "Select or Type..."+chr(9)+"Household Error"+chr(9)+"Incorrect Approval"+chr(9)+"Incorrect Panel Info"+chr(9)+"Missing Verfication"+chr(9)+"MAXIS/MMIS Disparity"+chr(9)+"Policy Change", discrepancy_type
+  DropListBox 90, 65, 70, 15, "Select one..."+chr(9)+"found/pending"+chr(9)+"resolved", discrepancy_status 
+  CheckBox 235, 20, 25, 10, "MA", MA_checkbox
+  CheckBox 270, 20, 30, 10, "MSP", MSP_checkbox
+  CheckBox 310, 20, 35, 10, "MNsure", MNsure_checkbox
+  CheckBox 350, 20, 30, 10, "SNAP", SNAP_checkbox
+  CheckBox 235, 35, 30, 10, "DWP", DWP_checkbox
+  CheckBox 270, 35, 30, 10, "MFIP", MFIP_checkbox
+  CheckBox 310, 35, 30, 10, "MSA", MSA_checkbox
   CheckBox 350, 35, 25, 10, "GA", GA_checkbox
   CheckBox 235, 50, 30, 10, "GRH", GRH_checkbox
   CheckBox 270, 50, 30, 10, "RCA", RCA_checkbox
@@ -175,3 +165,48 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/16/2023
+'--Tab orders reviewed & confirmed----------------------------------------------10/16/2023
+'--Mandatory fields all present & Reviewed--------------------------------------10/16/2023
+'--All variables in dialog match mandatory fields-------------------------------10/16/2023
+'Review dialog names for content and content fit in dialog----------------------10/16/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/16/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/16/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/16/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------10/16/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/16/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/16/2023 NA
+'--PRIV Case handling reviewed -------------------------------------------------10/16/2023
+'--Out-of-County handling reviewed----------------------------------------------10/16/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/16/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------10/16/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/16/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/16/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------10/16/2023
+'--Denomination reviewed -------------------------------------------------------10/16/2023
+'--Script name reviewed---------------------------------------------------------10/16/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/16/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/16/2023
+'--comment Code-----------------------------------------------------------------10/16/2023
+'--Update Changelog for release/update------------------------------------------10/16/2023
+'--Remove testing message boxes-------------------------------------------------10/16/2023
+'--Remove testing code/unnecessary code-----------------------------------------10/16/2023
+'--Review/update SharePoint instructions----------------------------------------10/16/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/16/2023 NA
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/16/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------10/16/2023
+'--Complete misc. documentation (if applicable)---------------------------------10/16/2023
+'--Update project team/issue contact (if applicable)----------------------------10/16/2023
