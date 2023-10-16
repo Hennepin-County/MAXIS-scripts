@@ -44,7 +44,8 @@ EMConnect "" 'Connects to BlueZone
 'Button Defined
 add_button 			= 201
 all_forms 			= 202
-clear_button		= 203
+review_selections 	= 203
+clear_button		= 204
 
 asset_btn			= 400
 arep_btn			= 401
@@ -184,24 +185,23 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				err_msg = ""
 				Dialog1 = "" 'Blanking out previous dialog detail
 				BeginDialog Dialog1, 0, 0, 196, 180, "Document Selection"
-				CheckBox 15, 20, 160, 10, "Asset Statement", asset_checkbox
-				CheckBox 15, 30, 160, 10, "AREP (Authorized Rep)", arep_checkbox
-				CheckBox 15, 40, 160, 10, "Authorization to Release Information (ATR)", atr_checkbox
-				CheckBox 15, 50, 160, 10, "Change Report Form", change_checkbox
-				CheckBox 15, 60, 160, 10, "Employment Verification Form (EVF)", evf_checkbox
-				CheckBox 15, 70, 160, 10, "Hospice Transaction Form", hospice_checkbox
-				CheckBox 15, 80, 160, 10, "Interim Assistance Agreement (IAA)", iaa_checkbox
-				CheckBox 15, 90, 160, 10, "Interim Assistance Authorization- SSI", iaa_ssi_checkbox
-				CheckBox 15, 100, 160, 10, "Medical Opinion Form (MOF)", mof_checkbox
-				CheckBox 15, 110, 160, 10, "Minnesota Transition Application Form (MTAF)", mtaf_checkbox
-				CheckBox 15, 120, 160, 10, "Professional Statement of Need (PSN)", psn_checkbox
-				CheckBox 15, 130, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
-				CheckBox 15, 140, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
-				ButtonGroup ButtonPressed
-					OkButton 70, 160, 70, 15
-					OkButton 205, 215, 40, 15
-					
-				Text 5, 5, 200, 10, "Select documents received, then Review Selections."
+					CheckBox 15, 20, 160, 10, "Asset Statement", asset_checkbox
+					CheckBox 15, 30, 160, 10, "AREP (Authorized Rep)", arep_checkbox
+					CheckBox 15, 40, 160, 10, "Authorization to Release Information (ATR)", atr_checkbox
+					CheckBox 15, 50, 160, 10, "Change Report Form", change_checkbox
+					CheckBox 15, 60, 160, 10, "Employment Verification Form (EVF)", evf_checkbox
+					CheckBox 15, 70, 160, 10, "Hospice Transaction Form", hospice_checkbox
+					CheckBox 15, 80, 160, 10, "Interim Assistance Agreement (IAA)", iaa_checkbox
+					CheckBox 15, 90, 160, 10, "Interim Assistance Authorization- SSI", iaa_ssi_checkbox
+					CheckBox 15, 100, 160, 10, "Medical Opinion Form (MOF)", mof_checkbox
+					CheckBox 15, 110, 160, 10, "Minnesota Transition Application Form (MTAF)", mtaf_checkbox
+					CheckBox 15, 120, 160, 10, "Professional Statement of Need (PSN)", psn_checkbox
+					CheckBox 15, 130, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
+					CheckBox 15, 140, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
+					ButtonGroup ButtonPressed
+						PushButton 65, 160, 70, 15, "Review Selections", review_selections
+						CancelButton 145, 160, 40, 15
+					Text 5, 5, 200, 10, "Select documents received, then Review Selections."
 				EndDialog
 				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation
