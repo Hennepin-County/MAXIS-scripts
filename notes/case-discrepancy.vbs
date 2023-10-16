@@ -81,36 +81,61 @@ BeginDialog Dialog1, 0, 0, 336, 245, "Case discrepancy"
   CheckBox 95, 200, 60, 10, "MMIS updated", MMIS_updated
   CheckBox 160, 200, 170, 10, "Set TIKL for 10 day return of verifcations needed", TIKL_checkbox
   EditBox 90, 220, 130, 15, worker_signature
+  CheckBox 350, 35, 25, 10, "GA", GA_checkbox
+  CheckBox 235, 50, 30, 10, "GRH", GRH_checkbox
+  CheckBox 270, 50, 30, 10, "RCA", RCA_checkbox
+  CheckBox 310, 50, 35, 10, "EMER", EMER_checkbox
+  EditBox 90, 85, 240, 15, describe_discrepancy
+  EditBox 90, 110, 240, 15, MEMB_PMI
+  EditBox 90, 135, 240, 15, verifs_needed
+  EditBox 90, 160, 240, 15, other_notes
+  EditBox 90, 185, 240, 15, actions_taken
+  CheckBox 20, 215, 60, 10, "MAXIS updated", MAXIS_updated
+  CheckBox 90, 215, 60, 10, "MMIS updated", MMIS_updated
+  CheckBox 155, 215, 170, 10, "Set TIKL for 10 day return of verifcations needed", TIKL_checkbox
+  EditBox 65, 235, 130, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 225, 220, 50, 15
-	CancelButton 280, 220, 50, 15
-  Text 40, 15, 45, 10, "Case number:"
-  Text 20, 130, 70, 10, "Verifications needed: "
-  Text 20, 80, 65, 10, "HH memb/PMI #(s):"
-  Text 10, 180, 80, 10, "Resolution/Action taken:"
-  Text 20, 40, 65, 10, "Discrepancy status:"
-  GroupBox 165, 5, 165, 65, "Programs effected by the discrepancy:"
-  Text 30, 225, 60, 10, "Worker signature:"
-  Text 45, 155, 40, 10, "Other notes:"
-  Text 5, 105, 85, 10, "Describe the discrepancy:"
-  Text 35, 60, 55, 10, "MNsure case #:"
+    OkButton 285, 235, 50, 15
+    CancelButton 340, 235, 50, 15
+  Text 40, 10, 45, 10, "Case number:"
+  Text 35, 30, 55, 10, "MNsure case #:"
+  Text 30, 50, 60, 10, "Discrepancy type:"
+  Text 25, 70, 65, 10, "Discrepancy status:"
+  GroupBox 225, 5, 160, 65, "Programs effected by the discrepancy:"
+  Text 5, 90, 85, 10, "Describe the discrepancy:"
+  Text 25, 115, 65, 10, "HH memb/PMI #(s):"
+  Text 20, 140, 70, 10, "Verifications needed: "
+  Text 50, 165, 40, 10, "Other notes:"
+  Text 10, 190, 80, 10, "Resolution/Action taken:"
+  Text 5, 240, 60, 10, "Worker signature:"
 EndDialog
+
 DO
 	DO
-	    err_msg = ""								'establishing value of varaible, this is necessary for the Do...LOOP
+	  err_msg = ""								'establishing value of varaible, this is necessary for the Do...LOOP
 		dialog Dialog1				'initial dialog
 		cancel_confirmation		'script ends if cancel is selected
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbNewline & "* Enter a valid case number."	'mandatory field
-		If discrepancy_status = "Select one..." then err_msg = err_msg & vbnewline & "* Select a discrepancy status."
+    Call validate_MAXIS_case_number(err_msg, "*")
+    If MNsure_case_number = "" and MNsure_checkbox = 1 then err_msg = err_msg & vbnewline & "* Enter the MNsure case number."
+		If discrepancy_type = "Select or Type..." then err_msg = err_msg & vbnewline & "* Select a discrepancy type or enter your own type."
+    If discrepancy_status = "Select one..." then err_msg = err_msg & vbnewline & "* Select a discrepancy status."
 		If (MNsure_checkbox <> 1 and DWP_checkbox <> 1 and EMER_checkbox <> 1 and GA_checkbox <> 1 and GRH_checkbox <> 1 and MA_checkbox <> 1 and MFIP_checkbox <> 1 and MSA_checkbox <> 1 and MSP_checkbox <> 1 and RCA_checkbox <> 1 and SNAP_checkbox <> 1) then err_msg = err_msg & vbnewline & "* You must enter at least one program."
-		If MNsure_case_number = "" and MNsure_checkbox = 1 then err_msg = err_msg & vbnewline & "* Enter the MNsure case number."
-        If MEMB_PMI = "" then err_msg = err_msg & vbnewline & "* Enter the HH member and/or PMI #'s the discrepancy effects."
 		If describe_discrepancy = "" then err_msg = err_msg & vbnewline & "* Describe the discrepancy."
+    If MEMB_PMI = "" then err_msg = err_msg & vbnewline & "* Enter the HH member and/or PMI #'s the discrepancy effects."
 		If worker_signature = "" then err_msg = err_msg & vbnewline & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
+' Check if case is privileged and end script if it is privileged
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
+' Confirm that the case is in county and end script if the case is out of county
+EMReadScreen county_code, 4, 21, 14
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
+
 
 'Creating an incremantal variable based on the programs selected
 If MA_checkbox = 1 then progs_effect = progs_effect & " MA,"
@@ -136,11 +161,11 @@ If TIKL_checkbox = 1 then Call create_TIKL("The following verifications were req
 
 'The case notes----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
-Call write_variable_in_CASE_NOTE("---Case discrepancy " & discrepancy_status & "---")
-Call write_bullet_and_variable_in_CASE_NOTE("Programs effected by discrepancy", progs_effect)
-Call write_bullet_and_variable_in_CASE_NOTE("MNsure case #", MNsure_case_number)
-Call write_bullet_and_variable_in_CASE_NOTE("HH member/PMI #'s", MEMB_PMI)
+Call write_variable_in_CASE_NOTE("~Case discrepancy " & discrepancy_status & "-" & discrepancy_type & "~")
+Call write_bullet_and_variable_in_CASE_NOTE("Program(s) effected by discrepancy", progs_effect)
 Call write_bullet_and_variable_in_CASE_NOTE("Description of the discrepancy", describe_discrepancy)
+Call write_bullet_and_variable_in_CASE_NOTE("MNsure case #", MNsure_case_number)
+Call write_bullet_and_variable_in_CASE_NOTE("HH member(s)/PMI#(s)", MEMB_PMI)
 Call write_bullet_and_variable_in_CASE_NOTE("Verifications needed", verifs_needed)
 If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* TIKL'd out for 10 day return of requested verifications.")
 Call write_variable_in_CASE_NOTE(TIKL_note_text)
