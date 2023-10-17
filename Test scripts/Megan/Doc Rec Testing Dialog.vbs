@@ -117,7 +117,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			err_msg = ""
 			Dialog1 = "" 			'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-				DropListBox 30, 30, 180, 15, ""+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"SSI Interim Assistance Authorization"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
+				DropListBox 30, 30, 180, 15, ""+chr(9)+"Asset Statement"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Interim Assistance Authorization- SSI"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
@@ -295,10 +295,12 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If			
 Loop Until ButtonPressed = Ok
 
-MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders to give you an idea of the look and feel."
-		
+'MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders to give you an idea of the look and feel."
+
 'Do while/Loop display individual dialogs for each form selected via checkbox or dropdown. Do/Loops allows us to jump around/are more flexible than For/Next 
-Do while form_count < Ubound(form_type_array) 
+
+form_count = 0
+Do 
 	If form_type_array(form_count) = "Asset Statement" then
 		err_msg = ""
 		Dialog1 = "" 'Blanking out previous dialog detail
@@ -473,7 +475,7 @@ Do while form_count < Ubound(form_type_array)
 	If form_type_array(form_count) = "Hospice Transaction Form" Then
 		err_msg = ""
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
+		BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Transaction Form"
 			EditBox 60, 5, 40, 15, MAXIS_case_number
 			EditBox 160, 5, 45, 15, effective_date
 			EditBox 285, 5, 45, 15, date_received
@@ -741,7 +743,9 @@ Do while form_count < Ubound(form_type_array)
 		dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 	End If 
-Loop
+form_count = form_count + 1
+Loop until form_count > Ubound(form_type_array)
+
 
 'For/Next displays individual dialogs for each form selected via checkbox or dropdown
 ' For form_count = 0 to Ubound(form_type_array)			
@@ -919,7 +923,7 @@ Loop
 ' 	If form_type_array(form_count) = "Hospice Transaction Form" Then
 ' 		err_msg = ""
 ' 		Dialog1 = "" 'Blanking out previous dialog detail
-' 		BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
+' 		BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Transaction Form"
 ' 			EditBox 60, 5, 40, 15, MAXIS_case_number
 ' 			EditBox 160, 5, 45, 15, effective_date
 ' 			EditBox 285, 5, 45, 15, date_received
