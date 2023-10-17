@@ -143,7 +143,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 
 			If ButtonPressed = add_button and form_type <> "" Then					'If statement to know when to store the information in the array
 				ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
-				form_type_array(form_count) = Form_type			'form_type is the same var for the dropbox of for types  
+				form_type_array(form_count) = Form_type			'form_type is the same var for the dropbox for types  
 				form_count= form_count + 1 
 			End If
 				
@@ -295,7 +295,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If			
 Loop Until ButtonPressed = Ok
 
-MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders to give you an idea of the look and feel."
+'MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders to give you an idea of the look and feel."
 		
 
 'Dialogs for each form that either had a checked checked box, or was selected from the dropdown and added to the list should display. 
@@ -303,446 +303,965 @@ MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders t
 ' For i = 0 to = UBOUND form_type_array(form_count)
 ' 	"Authorization to Release Information (ATR)" 
 
-If asset_checkbox = checked or Form_type = "Asset Statement" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Asset Statement"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+  	For form_count = 0 to Ubound(form_type_array)			' For/Next allows us to follow a set path and display the desired dialogs based on either checkbox or drop down selection.
+		If form_type_array(form_count) = "Asset Statement" then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Asset Statement"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If
 
-If arep_checkbox = checked or Form_type = "AREP (Authorized Rep)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "AREP (Authorized Rep)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "AREP (Authorized Rep)" then 
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "AREP (Authorized Rep)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
+        
+		If form_type_array(form_count) = "Authorization to Release Information (ATR)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Authorization to Release Information (ATR)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If atr_checkbox = checked or Form_type = "Authorization to Release Information (ATR)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Authorization to Release Information (ATR)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Change Report Form" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
 
-If change_checkbox = checked or Form_type = "Change Report Form" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If
 
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If
+		If form_type_array(form_count) = "Employment Verification Form (EVF)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Employment Verification Form (EVF)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If evf_checkbox = checked or Form_type = "Employment Verification Form (EVF)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Employment Verification Form (EVF)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Hospice Transaction Form" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
 
-If hospice_checkbox = checked or Form_type = "Hospice Transaction Form" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If
 
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If
+		If form_type_array(form_count) = "Interim Assistance Agreement (IAA)" Then
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Agreement (IAA)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If iaa_checkbox = checked or Form_type = "Interim Assistance Agreement (IAA)" Then
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Agreement (IAA)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Interim Assistance Authorization- SSI" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Authorization- SSI"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If iaa_ssi_checkbox = checked or Form_type = "Interim Assistance Authorization- SSI" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Authorization- SSI"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Medical Opinion Form (MOF)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Medical Opinion Form (MOF)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If mof_checkbox = checked or Form_type = "Medical Opinion Form (MOF)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Medical Opinion Form (MOF)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Minnesota Transition Application Form (MTAF)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Minnesota Transition Application Form (MTAF)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If mtaf_checkbox = checked or Form_type = "Minnesota Transition Application Form (MTAF)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Minnesota Transition Application Form (MTAF)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Professional Statement of Need (PSN)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Professional Statement of Need (PSN)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
 
-If psn_checkbox = checked or Form_type = "Professional Statement of Need (PSN)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Professional Statement of Need (PSN)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+		If form_type_array(form_count) = "Residence and Shelter Expenses Release Form" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Residence and Shelter Expenses Release Form"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If
 
-If shelter_checkbox = checked or Form_type = "Residence and Shelter Expenses Release Form" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Residence and Shelter Expenses Release Form"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If
+		If form_type_array(form_count) = "Special Diet Information Request (MFIP and MSA)" Then
+			err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 376, 300, "Special Diet Information Request (MFIP and MSA)"
+				EditBox 60, 5, 40, 15, MAXIS_case_number
+				EditBox 160, 5, 45, 15, effective_date
+				EditBox 285, 5, 45, 15, date_received
+				EditBox 30, 65, 270, 15, address_notes
+				EditBox 30, 85, 270, 15, household_notes
+				EditBox 30, 105, 270, 15, Edit14
+				EditBox 30, 125, 270, 15, Edit15
+				EditBox 30, 145, 270, 15, Edit16
+				EditBox 75, 275, 85, 15, worker_signature
+				ButtonGroup ButtonPressed
+					PushButton 330, 45, 45, 15, "Form #1", Button9
+					PushButton 330, 65, 45, 15, "Form #2", Button11
+					PushButton 330, 85, 45, 15, "Form #3", Button7
+					PushButton 260, 275, 50, 15, "Previous", previous_btn
+					PushButton 315, 275, 50, 15, "Next", next_btn
+				Text 110, 10, 50, 10, "Effective Date:"
+				Text 15, 70, 10, 10, "Q1"
+				Text 220, 10, 60, 10, "Document Date:"
+				GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+				Text 5, 10, 50, 10, "Case Number:"
+				Text 10, 280, 60, 10, "Worker Signature:"
+				Text 15, 110, 10, 10, "Q3"
+				Text 15, 130, 15, 10, "Q4"
+				Text 15, 90, 15, 10, "Q2"
+				Text 15, 150, 15, 10, "..."
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+		End If 
+	Next
 
-If diet_checkbox = checked or Form_type = "Special Diet Information Request (MFIP and MSA)" Then
-	err_msg = ""
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Special Diet Information Request (MFIP and MSA)"
-		EditBox 60, 5, 40, 15, MAXIS_case_number
-		EditBox 160, 5, 45, 15, effective_date
-		EditBox 285, 5, 45, 15, date_received
-		EditBox 30, 65, 270, 15, address_notes
-		EditBox 30, 85, 270, 15, household_notes
-		EditBox 30, 105, 270, 15, Edit14
-		EditBox 30, 125, 270, 15, Edit15
-		EditBox 30, 145, 270, 15, Edit16
-		EditBox 75, 275, 85, 15, worker_signature
-		ButtonGroup ButtonPressed
-			PushButton 330, 45, 45, 15, "Form #1", Button9
-			PushButton 330, 65, 45, 15, "Form #2", Button11
-			PushButton 330, 85, 45, 15, "Form #3", Button7
-			PushButton 260, 275, 50, 15, "Previous", previous_btn
-			PushButton 315, 275, 50, 15, "Next", next_btn
-		Text 110, 10, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 220, 10, 60, 10, "Document Date:"
-		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
-		Text 5, 10, 50, 10, "Case Number:"
-		Text 10, 280, 60, 10, "Worker Signature:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, "..."
-	EndDialog
-	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-	cancel_confirmation
-End If 
+'' Do/Loop to display dialogs for each form selected. Do/Loops allows us to jump around. 
+' Do 
+' 	If form_type_array() = "Asset Statement" then
+' 		err_msg = ""
+' 		Dialog1 = "" 'Blanking out previous dialog detail
+' 		BeginDialog Dialog1, 0, 0, 376, 300, "Asset Statement"
+' 			EditBox 60, 5, 40, 15, MAXIS_case_number
+' 			EditBox 160, 5, 45, 15, effective_date
+' 			EditBox 285, 5, 45, 15, date_received
+' 			EditBox 30, 65, 270, 15, address_notes
+' 			EditBox 30, 85, 270, 15, household_notes
+' 			EditBox 30, 105, 270, 15, Edit14
+' 			EditBox 30, 125, 270, 15, Edit15
+' 			EditBox 30, 145, 270, 15, Edit16
+' 			EditBox 75, 275, 85, 15, worker_signature
+' 			ButtonGroup ButtonPressed
+' 				PushButton 330, 45, 45, 15, "Form #1", Button9
+' 				PushButton 330, 65, 45, 15, "Form #2", Button11
+' 				PushButton 330, 85, 45, 15, "Form #3", Button7
+' 				PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 				PushButton 315, 275, 50, 15, "Next", next_btn
+' 			Text 110, 10, 50, 10, "Effective Date:"
+' 			Text 15, 70, 10, 10, "Q1"
+' 			Text 220, 10, 60, 10, "Document Date:"
+' 			GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 			Text 5, 10, 50, 10, "Case Number:"
+' 			Text 10, 280, 60, 10, "Worker Signature:"
+' 			Text 15, 110, 10, 10, "Q3"
+' 			Text 15, 130, 15, 10, "Q4"
+' 			Text 15, 90, 15, 10, "Q2"
+' 			Text 15, 150, 15, 10, "..."
+' 		EndDialog
+' 		dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 		cancel_confirmation
+' 	End If
+
+' 	If form_type_array() = "AREP (Authorized Rep)" then 
+' 		err_msg = ""
+' 		Dialog1 = "" 'Blanking out previous dialog detail
+' 		BeginDialog Dialog1, 0, 0, 376, 300, "AREP (Authorized Rep)"
+' 			EditBox 60, 5, 40, 15, MAXIS_case_number
+' 			EditBox 160, 5, 45, 15, effective_date
+' 			EditBox 285, 5, 45, 15, date_received
+' 			EditBox 30, 65, 270, 15, address_notes
+' 			EditBox 30, 85, 270, 15, household_notes
+' 			EditBox 30, 105, 270, 15, Edit14
+' 			EditBox 30, 125, 270, 15, Edit15
+' 			EditBox 30, 145, 270, 15, Edit16
+' 			EditBox 75, 275, 85, 15, worker_signature
+' 			ButtonGroup ButtonPressed
+' 				PushButton 330, 45, 45, 15, "Form #1", Button9
+' 				PushButton 330, 65, 45, 15, "Form #2", Button11
+' 				PushButton 330, 85, 45, 15, "Form #3", Button7
+' 				PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 				PushButton 315, 275, 50, 15, "Next", next_btn
+' 			Text 110, 10, 50, 10, "Effective Date:"
+' 			Text 15, 70, 10, 10, "Q1"
+' 			Text 220, 10, 60, 10, "Document Date:"
+' 			GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 			Text 5, 10, 50, 10, "Case Number:"
+' 			Text 10, 280, 60, 10, "Worker Signature:"
+' 			Text 15, 110, 10, 10, "Q3"
+' 			Text 15, 130, 15, 10, "Q4"
+' 			Text 15, 90, 15, 10, "Q2"
+' 			Text 15, 150, 15, 10, "..."
+' 		EndDialog
+' 		dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 		cancel_confirmation
+' 	End If 
+
+' Loop until form_count > Ubound(form_type_array)
+
+
+
+' If asset_checkbox = checked or Form_type = "Asset Statement" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Asset Statement"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If arep_checkbox = checked or Form_type = "AREP (Authorized Rep)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "AREP (Authorized Rep)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If atr_checkbox = checked or Form_type = "Authorization to Release Information (ATR)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Authorization to Release Information (ATR)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If change_checkbox = checked or Form_type = "Change Report Form" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If
+
+' If evf_checkbox = checked or Form_type = "Employment Verification Form (EVF)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Employment Verification Form (EVF)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If hospice_checkbox = checked or Form_type = "Hospice Transaction Form" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Hospice Form Received"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If
+
+' If iaa_checkbox = checked or Form_type = "Interim Assistance Agreement (IAA)" Then
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Agreement (IAA)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If iaa_ssi_checkbox = checked or Form_type = "Interim Assistance Authorization- SSI" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Interim Assistance Authorization- SSI"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If mof_checkbox = checked or Form_type = "Medical Opinion Form (MOF)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Medical Opinion Form (MOF)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If mtaf_checkbox = checked or Form_type = "Minnesota Transition Application Form (MTAF)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Minnesota Transition Application Form (MTAF)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If psn_checkbox = checked or Form_type = "Professional Statement of Need (PSN)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Professional Statement of Need (PSN)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
+
+' If shelter_checkbox = checked or Form_type = "Residence and Shelter Expenses Release Form" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Residence and Shelter Expenses Release Form"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If
+
+' If diet_checkbox = checked or Form_type = "Special Diet Information Request (MFIP and MSA)" Then
+' 	err_msg = ""
+' 	Dialog1 = "" 'Blanking out previous dialog detail
+' 	BeginDialog Dialog1, 0, 0, 376, 300, "Special Diet Information Request (MFIP and MSA)"
+' 		EditBox 60, 5, 40, 15, MAXIS_case_number
+' 		EditBox 160, 5, 45, 15, effective_date
+' 		EditBox 285, 5, 45, 15, date_received
+' 		EditBox 30, 65, 270, 15, address_notes
+' 		EditBox 30, 85, 270, 15, household_notes
+' 		EditBox 30, 105, 270, 15, Edit14
+' 		EditBox 30, 125, 270, 15, Edit15
+' 		EditBox 30, 145, 270, 15, Edit16
+' 		EditBox 75, 275, 85, 15, worker_signature
+' 		ButtonGroup ButtonPressed
+' 			PushButton 330, 45, 45, 15, "Form #1", Button9
+' 			PushButton 330, 65, 45, 15, "Form #2", Button11
+' 			PushButton 330, 85, 45, 15, "Form #3", Button7
+' 			PushButton 260, 275, 50, 15, "Previous", previous_btn
+' 			PushButton 315, 275, 50, 15, "Next", next_btn
+' 		Text 110, 10, 50, 10, "Effective Date:"
+' 		Text 15, 70, 10, 10, "Q1"
+' 		Text 220, 10, 60, 10, "Document Date:"
+' 		GroupBox 5, 50, 320, 195, "Reponses to form questions captured here"
+' 		Text 5, 10, 50, 10, "Case Number:"
+' 		Text 10, 280, 60, 10, "Worker Signature:"
+' 		Text 15, 110, 10, 10, "Q3"
+' 		Text 15, 130, 15, 10, "Q4"
+' 		Text 15, 90, 15, 10, "Q2"
+' 		Text 15, 150, 15, 10, "..."
+' 	EndDialog
+' 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+' 	cancel_confirmation
+' End If 
 
