@@ -573,33 +573,80 @@ Do
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 		End If
-		
-	'Permanant buttons for each form
-		PushButton 320, 45, 45, 15, "ASSET", asset_btn
-		PushButton 320, 60, 45, 15, "ATR", art_btn
-		PushButton 320, 75, 45, 15, "CHNG", change_btn
-		PushButton 320, 90, 45, 15, "EVF", evf_btn
-		PushButton 320, 105, 45, 15, "HOSP", hospice_btn
-		PushButton 320, 120, 45, 15, "IAA", iaa_btn
-		PushButton 320, 135, 45, 15, "IAA-SSI", iaa_ssi_btn
-		PushButton 320, 150, 45, 15, "MOF", mof_btn
-		PushButton 320, 165, 45, 15, "MTAF", mtaf_btn
-		PushButton 320, 180, 45, 15, "PSN", psn_btn
-		PushButton 320, 195, 45, 15, "SF", SF_btn
-		PushButton 320, 210, 45, 15, "DIET", diet_btn
-		PushButton 315, 275, 50, 15, "Next Form", next_btn
+	
+	'Buttons only display if the respective form was selected in the intial dialog. TODO: These buttons will take you to the respective form. 
+			btn_pos = 45		'variable to interate down for each necessary button
+			For current_form = 0 to Ubound(form_type_array)
+				If form_type_array(current_form) = "Asset Statement" then 
+					PushButton 320, btn_pos, 45, 15, "ASSET", asset_btn
+					btn_pos = btn_pos + 15
+				End If
 
-	'TODO: build dynamic buttons- current issues: only matching button will appear on form dialog
-		' If form_type_array(form_count) = "Asset Statement" then 
-		' 	PushButton 320, btn_pos, 45, 15, "ASSET", asset_btn
-		' 	btn_pos = btn_pos + 15
-		' End If
-		' If form_type_array(form_count) = "Authorization to Release Information (ATR)" Then
-		' 	PushButton 320, btn_pos, 45, 15, "ATR", art_btn
-		' 	btn_pos = btn_pos + 15
-		' End If
+				If form_type_array(current_form) = "Authorization to Release Information (ATR)" Then 
+					PushButton 320, btn_pos, 45, 15, "ATR", art_btn
+					btn_pos = btn_pos + 15
+				End If
+			
+				If form_type_array(current_form) = "AREP (Authorized Rep)" then 
+					PushButton 320, btn_pos, 45, 15, "AREP", arep_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Change Report Form"  then 
+					PushButton 320, btn_pos, 45, 15, "CHNG", change_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Employment Verification Form (EVF)"  then 
+					PushButton 320, btn_pos, 45, 15, "EVF", evf_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Hospice Transaction Form"  then 
+					PushButton 320, btn_pos, 45, 15, "HOSP", hospice_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Interim Assistance Agreement (IAA)"  then 
+					PushButton 320, btn_pos, 45, 15, "IAA", iaa_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Interim Assistance Authorization- SSI" then 
+					PushButton 320, btn_pos, 45, 15, "IAA-SSI", iaa_ssi_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Medical Opinion Form (MOF)" then 
+					PushButton 320, btn_pos, 45, 15, "MOF", mof_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Minnesota Transition Application Form (MTAF)" then 
+					PushButton 320, btn_pos, 45, 15, "MTAF", mtaf_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Professional Statement of Need (PSN)" then 
+					PushButton 320, btn_pos, 45, 15, "PSN", psn_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Residence and Shelter Expenses Release Form" then 
+					PushButton 320, btn_pos, 45, 15, "SF", sf_btn
+					btn_pos = btn_pos + 15
+				End If
+
+				If form_type_array(current_form) = "Special Diet Information Request (MFIP and MSA)" then 
+					PushButton 320, btn_pos, 45, 15, "DIET", diet_btn
+					btn_pos = btn_pos + 15
+				End If
+
+			Next
+			PushButton 315, 275, 50, 15, "Next Form", next_btn
+		
 	
-	
+
 	EndDialog
 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
