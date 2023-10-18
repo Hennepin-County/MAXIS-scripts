@@ -150,6 +150,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		End if 
 	End if
 
+	Call HCRE_panel_bypass	'making sure we don't get stuck 
+
 	'Case-based determination
     IF memb_found = True THEN
 		If SNAP_status <> "INACTIVE" then
@@ -866,8 +868,7 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 ABAWD_eval_date = CM_plus_1_mo & "/01/" & CM_plus_1_yr
 
-'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\11-2023 ABAWD-TLR's.xlsx" 'TESTING CODE
+file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Assignments\" & CM_mo & "-20" & CM_yr & " ABAWD-TLR's.xlsx"
 
 'column constants
 case_number_col 	= 1		'Col A
