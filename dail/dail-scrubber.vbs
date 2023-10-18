@@ -250,8 +250,7 @@ If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") <> 0
 If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") <> 0 Then review_and_approve_from_COLA = TRUE
 
 If review_and_approve_from_COLA = TRUE Then
-	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
-    Call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
+	'NO CURRENT SUPPORT FOR COLA REVIEW AND APPROVE. WILL ADD COLA SUMMARY FOR NEXT COLA PROCESSING
 End If
 
 'COLA SVES RESPONSE
@@ -340,7 +339,7 @@ If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message,
 END IF
 
 'ABAWD Exemption DAIL Messages
-If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _ 
+If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _
    instr(full_message, "POTENTIAL ABAWD MEMBER, REVIEW WREG PANEL, UPDATE AND APPROV") or _
    instr(full_message, "SNAP ABAWD ELIGIBILITY HAS EXPIR") or _
    instr(full_message, "SNAP MEMBERS AGE IS 50 OR OLDER-REVIEW FOR ABAWD EXEMPTION") or _
