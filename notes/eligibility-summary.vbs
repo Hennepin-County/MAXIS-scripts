@@ -23306,7 +23306,7 @@ developer_mode = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
-ex_parte_approval = True
+ex_parte_approval = False
 ex_parte_members = " "
 complete_ex_parte_as_closed = False
 stop_ex_parte_checkbox = unchecked
