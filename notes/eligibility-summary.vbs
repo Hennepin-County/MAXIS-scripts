@@ -23807,7 +23807,7 @@ For each footer_month in MONTHS_ARRAY
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
 				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
 				notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
-				testing_run = True
+				' testing_run = True
 
 				' notice_exception_message = notice_exception_message & vbCr & ""
 				' notice_exception_message = notice_exception_message & vbCr & vbCr & ""
