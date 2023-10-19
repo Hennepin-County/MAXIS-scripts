@@ -37,6 +37,23 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'WSH cannot directly access the clipboard. Here is one work-around though.
+
+Dim x
+x = CreateObject("htmlfile").ParentWindow.ClipboardData.Getdata("text")
+MsgBox x
+'WScript.Echo x
+
+' 'Or, in more steps with the opportunity to destroy your object
+' Dim o, x
+' Set o = CreateObject("htmlfile")
+' x = o.ParentWindow.ClipboardData.getData("text")
+' Set o = Nothing
+
+MsgBox "STOP"
+
+
 const Worker_col                        = 1
 const AssignedDate_col                  = 2
 const CaseNumber_col                    = 3
