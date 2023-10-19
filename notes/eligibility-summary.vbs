@@ -9945,6 +9945,8 @@ class mfip_eligibility_detail
 	public mfip_case_test_elig_child
 	public mfip_case_test_fail_coop
 	public mfip_case_test_fail_file
+	public mfip_case_test_fail_file_hrf
+	public mfip_case_test_fail_file_revw
 	public mfip_case_test_initial_income
 	public mfip_case_test_minor_liv_arrange
 	public mfip_case_test_monthly_income
@@ -10545,6 +10547,14 @@ class mfip_eligibility_detail
 
 			transmit
 			' MsgBox "Back to MFCR - 1"
+
+			Call write_value_and_transmit("X", 7, 5)						'FAIL TO FILE
+			EMReadScreen mfip_case_test_fail_file_hrf, 6, 9, 47
+			EMReadScreen mfip_case_test_fail_file_revw, 6, 10, 47
+
+			mfip_case_test_fail_file_hrf = UCase(trim(mfip_case_test_fail_file_hrf))
+			mfip_case_test_fail_file_revw = UCase(trim(mfip_case_test_fail_file_revw))
+			transmit
 
 			If mfip_case_test_verif = "FAILED" Then
 
@@ -18248,7 +18258,7 @@ class hc_eligibility_detail
 							hc_prog_list_all_income(hc_prog_count) = income_string
 							If right(hc_prog_list_all_income(hc_prog_count), 1) = "~" and len(hc_prog_list_all_income(hc_prog_count)) <> 1 Then hc_prog_list_all_income(hc_prog_count) = left(hc_prog_list_all_income(hc_prog_count), len(hc_prog_list_all_income(hc_prog_count))-1)
 							If len(hc_prog_list_all_income(hc_prog_count)) = 1 Then hc_prog_list_all_income(hc_prog_count) = ""
-							' MsgBox hc_prog_list_all_income(hc_prog_count)
+							' MsgBox "ALL INCOME - " & hc_prog_list_all_income(hc_prog_count)
 
 
 							hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
@@ -18404,6 +18414,23 @@ class hc_eligibility_detail
 					' 	hc_prog_elig_appd(hc_prog_count) = False
 					End If
 				End If
+
+				If hc_elig_full_name(hc_prog_count) <> "" Then
+					hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
+					If Instr(hc_elig_full_name(hc_prog_count), ",") <> 0 Then
+						temp_name_array = ""
+						temp_name_array = split(hc_elig_full_name(hc_prog_count), ",")
+						hc_elig_full_name(hc_prog_count) = trim(temp_name_array(1) & " " & trim(temp_name_array(0)))
+					End If
+					temp_name_array = ""
+					temp_name_array = split(hc_elig_full_name(hc_prog_count))
+					hc_elig_full_name(hc_prog_count) = ""
+					for i = 0 to UBound(temp_name_array)
+						hc_elig_full_name(hc_prog_count) = hc_elig_full_name(hc_prog_count) & " " & UCase(left(temp_name_array(i), 1)) & LCase(right(temp_name_array(i), len(temp_name_array(i))-1))
+					next
+					hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
+				End If
+
 			End If
 
 			' EMReadScreen next_ref_numb, 2, hc_row+1, 3
@@ -23279,10 +23306,12 @@ developer_mode = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
-ex_parte_approval = False
+ex_parte_approval = True
 ex_parte_members = " "
 complete_ex_parte_as_closed = False
 stop_ex_parte_checkbox = unchecked
+sql_review_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
+sql_review_date = DateAdd("d", 0, sql_review_date)
 MSP_approvals_only = True
 MSP_memo_success = False
 
@@ -23699,9 +23728,8 @@ For each footer_month in MONTHS_ARRAY
 		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
 
 			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
-			sql_revw_date = "20"&CM_plus_1_yr&"-"&CM_plus_1_mo&"-01"
 
-			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_revw_date & "' and [SelectExParte] = '1'"
+			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_review_date & "' and [SelectExParte] = '1'"
 
 			'Creating objects for Access
 			Set objConnection = CreateObject("ADODB.Connection")
@@ -25753,6 +25781,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				Else
 					If DateDiff("d", MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						If expedited_package_approved = False Then
+							'TODO add functionality to allow less than 10 days for a FAIL to FILE - MFIP_ELIG_APPROVALS(approval).mfip_case_test_fail_file ="FAILED"
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 						End If
@@ -27611,22 +27640,117 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 	ReDim memo_array(0)
 	memo_count = 0
 	memo_ref_numb_string = " "
+	month_ind = UBound(STAT_INFORMATION)
 
 	For approval = 0 to UBound(HC_ELIG_APPROVALS)
 		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+			' MsgBox "wcom exception - " & wcom_exception & vbCr & "ref number - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "elig result - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member)
 			If HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" and InStr(wcom_exception, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) <> 0 Then
 				' REF NUMB ~&~&~ NAME ~&~&~ INCOME ~&~&~ HH SIZE ~&~&~ HC PROGS
+				' MsgBox "memo string - " & memo_ref_numb_string & vbCr & "ref number - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "elig result - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member)
 				If InStr(memo_ref_numb_string, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then
+					' MsgBox "IN ONE"
 					memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
 					ReDim preserve memo_array(memo_count)
+					income_string = ""
 
-					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_list_all_income(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 
+						If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+							income_info = STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb) & "."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+							income_info = STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb) & "."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+							income_info = STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb) & "."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+							income_info = STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb) & "."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+							income_info = STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb) & "."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+
+
+						If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+							income_info = STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
+							income_info = STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
+							income_info = STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
+							income_info = STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
+							income_info = STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+
+						If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+						If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) & " monthly."
+							If Instr(income_string, income_info) = 0 Then
+								income_string = income_string & "~" & income_info
+							End If
+						End If
+
+
+					Next
+					If left(income_string, 1) = "~" Then income_string = right(income_string, len(income_string)-1)
+
+					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & income_string & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+
+					'HC_ELIG_APPROVALS(approval).hc_elig_full_name(member)
 					memo_count = memo_count + 1
 				Else
+					' MsgBox "IN TWO"
 					for each memo_to_send in memo_array
 						If left(memo_to_send, 2) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) Then
-							memo_to_send = memo_to_send & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+							memo_array(memo_count-1) = memo_array(memo_count-1) & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
 						End If
 					next
 				End If
@@ -27643,6 +27767,9 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		memo_income = this_memo_array(2)
 		memo_hh_size = this_memo_array(3)
 		memo_hc_progs = this_memo_array(4)
+		' MsgBox "NAME - " & memo_memb_name
+		' MsgBox "INCOME - " & memo_income
+		' MsgBox "PROGS - " & memo_hc_progs
 
 		MSP_memo_success = True		'TODO - add a way to make sure the memo was created
 		If memo_income <> "" Then
@@ -27667,7 +27794,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 
 		Call write_variable_in_SPEC_MEMO("")
 		For i = 0 to Ubound(progs_temp_array)
-			Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i) & ".")
+			Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i))
 		Next
 
 		' Call write_variable_in_SPEC_MEMO("")
@@ -28645,13 +28772,16 @@ If enter_CNOTE_for_GRH = True Then
 End If
 
 If complete_ex_parte_as_closed = True Then
+	sql_review_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
+	sql_review_date = DateAdd("d", 0, sql_review_date)
+	sql_review_date
 	If developer_mode = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
 	Else
 		end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
 		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
 		'Creating objects for Access
 		Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -28671,7 +28801,7 @@ If ex_parte_approval = True Then
 	Else
 		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
 		'Creating objects for Access
 		Set objUpdateConnection = CreateObject("ADODB.Connection")
