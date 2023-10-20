@@ -186,6 +186,16 @@ Next
 For i = 0 to Ubound(banked_months_array, 2)
 	CALL navigate_to_MAXIS_screen("STAT", "WREG")	'Navigate to STAT/WREG and check for WREG Status codes
 	Call write_value_and_transmit(banked_months_array(member_number_const, i), 20, 76)
+		'Resetting the variables
+		asssessment_month = MAXIS_footer_month - 1
+	    bene_mo_col = (15 + (4*cint(asssessment_month)))		'col to search starts at 15, increased by 4 for each footer month
+	    bene_yr_row = 10
+	    abawd_counted_months = 0					'delclares the variables values at 0 or blanks
+	    banked_months_count = 0
+		abawd_status = 0
+		wreg_status = 0
+	    abawd_counted_months_string = ""
+	    banked_months_string = ""
 	EMReadScreen panel_exists, 1, 2, 78
 	If panel_exists = "0" then 
 		banked_months_array(abawd_month_eval_const, i) = "No WREG Panel."
@@ -197,13 +207,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
 	    TLR_fixed_clock_yr = "23"
 	
-		asssessment_month = MAXIS_footer_month - 1
-	    bene_mo_col = (15 + (4*cint(asssessment_month)))		'col to search starts at 15, increased by 4 for each footer month
-	    bene_yr_row = 10
-	    abawd_counted_months = 0					'delclares the variables values at 0 or blanks
-	    banked_months_count = 0
-	    abawd_counted_months_string = ""
-	    banked_months_string = ""
+
 	    DO
             'establishing variables for specific ABAWD counted month dates
             If bene_mo_col = "19" then counted_date_month = "01"
@@ -442,7 +446,11 @@ Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initia
 Call write_variable_in_case_note("Case TLR Information by Member")
 Call write_variable_in_case_note("------------------------------")
 For i = 0 to Ubound(banked_months_array, 2)
-	Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(" & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
+	If banked_months_array(wreg_status_const, i) = 0 THEN
+		Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(WREG Panel does not exist.)")
+	Else
+		Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(" & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i) & ")")
+	End If
 	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then
         Call write_variable_in_case_note("* ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i))
         Call write_variable_in_case_note("* ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i))
