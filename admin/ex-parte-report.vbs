@@ -785,6 +785,11 @@ DO
 				If ex_parte_function = "FIX LIST" Then
 					Text 20, 55, 270, 10, "FIX LIST HAS NO SET FUNCTIONALITY"
 				End If
+				If ex_parte_function = "Evaluate DHS Error List" Then
+					Text 20, 55, 270, 10, "Built to review our information and compare it to a DHS error list."
+					Text 20, 65, 270, 10, "REVIEW FUNCTIONALITY BEFORE USE."
+					Text 20, 75, 270, 10, "Functionality may need alteration based on the list provided"
+				End If
 				If ex_parte_function = "Phase 1" Then
 					GroupBox 5, 40, 295, 70, "Tasks to be Completed:"
 					Text 20, 55, 245, 10, "Read SVES/TPQY Response, Update STAT with detail, enter CASE/NOTE."
@@ -2304,7 +2309,7 @@ If ex_parte_function = "Prep 1" Then
 			If objRecordSet("PREP_Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
 				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"	'removing the 'In Progress' indicator and blanking it out
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -2376,7 +2381,7 @@ If ex_parte_function = "Prep 1" Then
 
 			'Here we are setting the PREP_Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -3088,7 +3093,7 @@ If ex_parte_function = "Prep 1" Then
 			If appears_ex_parte = False Then prep_status = "Not Ex Parte"			'if this case is not ex parte, the prep status is reset
 
 			'here is the update statement. setting the exparte eval and the income/case information for the case running
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -3208,7 +3213,7 @@ If ex_parte_function = "Prep 2" Then
 			If objRecordSet("PREP_Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
 				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"	'removing the 'In Progress' indicator and blanking it out
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -3280,7 +3285,7 @@ If ex_parte_function = "Prep 2" Then
 
 			'Here we are setting the PREP_Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -3302,7 +3307,7 @@ If ex_parte_function = "Prep 2" Then
 			If (case_active = False and case_pending = False and case_rein = False) or case_is_in_henn = False Then
 				'WE ARE NOT going to update this here for now
 				' select_ex_parte = False
-				' objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', PREP_Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+				' objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', PREP_Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 				' Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				' Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -4093,7 +4098,7 @@ If ex_parte_function = "Prep 2" Then
 			End If
 
 			'here is the update statement. setting the Phase2 BULK run completion date for the case running
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -4302,7 +4307,7 @@ If ex_parte_function = "Phase 1" Then
 			If objRecordSet("Phase1Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
 				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"	'removing the 'In Progress' indicator and blanking it out
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -4343,7 +4348,7 @@ If ex_parte_function = "Phase 1" Then
 
 			'Here we are setting the Phase1Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -4373,7 +4378,7 @@ If ex_parte_function = "Phase 1" Then
 			If kick_it_off_reason <> "" Then
 				select_ex_parte = False
 				'This is opening the Ex Parte Case List data to update the information for the case if the case is not ex parte.
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', Phase1Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & select_ex_parte & "', Phase1Complete = '" & kick_it_off_reason & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -5011,7 +5016,7 @@ If ex_parte_function = "Phase 1" Then
 				End If
 
 				'This is opening the Ex Parte Case List data table so we update the progress on the case for phase 1 run completion. This tracks that the work was done for this case in phase 1.
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase1Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -5106,7 +5111,7 @@ If ex_parte_function = "Phase 2" Then
 			If objRecordSet("Phase2Complete") = "In Progress" Then			'If the case is marked as 'In Progress' - we are going to remove it
 				MAXIS_case_number = objRecordSet("CaseNumber") 				'SET THE MAXIS CASE NUMBER
 
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "'"	'removing the 'In Progress' indicator and blanking it out
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & NULL & "'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"	'removing the 'In Progress' indicator and blanking it out
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -5158,7 +5163,7 @@ If ex_parte_function = "Phase 2" Then
 
 			'Here we are setting the Phase1Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -5187,7 +5192,7 @@ If ex_parte_function = "Phase 2" Then
 			Call back_to_SELF												'Need to get to SELF
 
 			'here is the update statement. setting the Phase2 BULK run completion date for the case running
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "'"
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
 			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
@@ -5839,6 +5844,7 @@ If ex_parte_function = "DHS Data Validation" Then
 End If
 
 If ex_parte_function = "Evaluate DHS Error List" Then
+	'THIS FUNCTIONALITY NEEDS TO BE REVIEWED BEFORE USE AND IS FOR A DHS ERROR LIST
 	original_user = windows_user_ID
 
 	'dialog to open a file
