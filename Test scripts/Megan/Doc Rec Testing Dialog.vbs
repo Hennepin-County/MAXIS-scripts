@@ -48,8 +48,8 @@ review_selections 	= 203
 clear_button		= 204
 
 asset_btn			= 400
-arep_btn			= 401
-atr_btn				= 402
+atr_btn				= 401
+arep_btn			= 402
 change_btn 			= 403
 evf_btn				= 404
 hospice_btn			= 405
@@ -58,7 +58,7 @@ iaa_ssi_btn			= 407
 mof_btn				= 408
 mtaf_btn			= 409
 psn_btn				= 410
-shelter_btn			= 411
+sf_btn				= 411
 diet_btn			= 412
 
 
@@ -69,7 +69,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 
-'FIRST DIALOG COLLECTING CASE, MO/YR===========================================================================
+'DIALOG COLLECTING CASE, MO/YR===========================================================================
 Do
 	DO
 		err_msg = ""
@@ -99,7 +99,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
-'SECOND & THIRD DIALOG FORM SELECTION===========================================================================
+'DIALOG COLLECTING FORM SELECTION===========================================================================
 
 Dim unchecked, checked		'Defining unchecked/checked 
 unchecked = 0			
@@ -213,73 +213,61 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_count) = "Asset Statement" 
 					form_count= form_count + 1 
 				End If
-
 				If atr_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Authorization to Release Information (ATR)"
 					form_count= form_count + 1 
 				End If
-
 				If arep_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "AREP (Authorized Rep)"
 					form_count= form_count + 1 
 				End If
-
 				If change_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Change Report Form"
 					form_count= form_count + 1 
 				End If
-
 				If evf_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Employment Verification Form (EVF)"
 					form_count= form_count + 1 
 				End If
-
 				If hospice_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Hospice Transaction Form"
 					form_count= form_count + 1 
 				End If
-
 				If iaa_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Interim Assistance Agreement (IAA)"
 					form_count= form_count + 1 
 				End If
-
 				If iaa_ssi_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Interim Assistance Authorization- SSI"
 					form_count= form_count + 1 
 				End If
-				
 				If mof_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Medical Opinion Form (MOF)"
 					form_count= form_count + 1 
 				End If
-
 				If mtaf_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Minnesota Transition Application Form (MTAF)"
 					form_count= form_count + 1 
 				End If
-
 				If psn_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Professional Statement of Need (PSN)"
 					form_count= form_count + 1 
 				End If
-
 				If shelter_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Residence and Shelter Expenses Release Form"
 					form_count= form_count + 1 
 				End If
-
 				If diet_checkbox = checked Then 
 					ReDim Preserve form_type_array(form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_count) = "Special Diet Information Request (MFIP and MSA)"
@@ -295,18 +283,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If			
 Loop Until ButtonPressed = Ok
 
-'MsgBox "Form dialogs are not built yet." & vbNewLine & "These are placeholders to give you an idea of the look and feel."
-
-'Do while/Loop display individual dialogs for each form selected via checkbox or dropdown. Do/Loops allows us to jump around/are more flexible than For/Next 
-
+'Displays individual dialogs for each form selected via checkbox or dropdown. Do/Loops allows us to jump around/are more flexible than For/Next 
 form_count = 0
-Do 
-	err_msg = ""
+Do
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 300, "Documents Received"
-	
+	BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		If form_type_array(form_count) = "Asset Statement" then
-				Text 60, 25, 45, 10, "MAXIS_case_number"
+				Text 60, 25, 45, 10, MAXIS_case_number
 				EditBox 175, 20, 45, 15, effective_date
 				EditBox 310, 20, 45, 15, date_received
 				EditBox 30, 65, 270, 15, address_notes
@@ -314,27 +297,20 @@ Do
 				EditBox 30, 105, 270, 15, Edit14
 				EditBox 30, 125, 270, 15, Edit15
 				EditBox 30, 145, 270, 15, Edit16
-				' ButtonGroup ButtonPressed
-				' 	PushButton 320, 45, 45, 15, "Form #1", Button9
-				' 	PushButton 320, 65, 45, 15, "Form #2", Button11
-				' 	PushButton 320, 85, 45, 15, "Form #3", Button7
-				' 	PushButton 315, 275, 50, 15, "Next Form", next_btn
 				Text 5, 5, 220, 10, "ASSET STATEMENT"
 				Text 125, 25, 50, 10, "Effective Date:"
 				Text 15, 70, 10, 10, "Q1"
 				Text 245, 25, 60, 10, "Document Date:"
 				GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 				Text 5, 25, 50, 10, "Case Number:"
+				Text 395, 35, 45, 10, "    --Forms--"
 				Text 15, 110, 10, 10, "Q3"
 				Text 15, 130, 15, 10, "Q4"
 				Text 15, 90, 15, 10, "Q2"
 				Text 15, 150, 15, 10, ""
-			
+		
 		ElseIf form_type_array(form_count) = "Authorization to Release Information (ATR)" Then
-		' err_msg = ""
-			' Dialog1 = "" 'Blanking out previous dialog detail
-			' BeginDialog Dialog1, 0, 0, 376, 300, "Documents Received"
-				Text 60, 25, 45, 10, "MAXIS_case_number"
+				Text 60, 25, 45, 10, MAXIS_case_number
 				EditBox 175, 20, 45, 15, effective_date
 				EditBox 310, 20, 45, 15, date_received
 				EditBox 30, 65, 270, 15, address_notes
@@ -348,13 +324,14 @@ Do
 				Text 245, 25, 60, 10, "Document Date:"
 				GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 				Text 5, 25, 50, 10, "Case Number:"
+				Text 395, 35, 45, 10, "    --Forms--"
 				Text 15, 110, 10, 10, "Q3"
 				Text 15, 130, 15, 10, "Q4"
 				Text 15, 90, 15, 10, "Q2"
 				Text 15, 150, 15, 10, ""
-			
+		
 		ElseIf form_type_array(form_count) = "AREP (Authorized Rep)" then 
-				Text 60, 25, 45, 10, "MAXIS_case_number"
+				Text 60, 25, 45, 10, MAXIS_case_number
 				EditBox 175, 20, 45, 15, effective_date
 				EditBox 310, 20, 45, 15, date_received
 				EditBox 30, 65, 270, 15, address_notes
@@ -374,27 +351,42 @@ Do
 				Text 15, 150, 15, 10, ""
 		
 		ElseIf form_type_array(form_count) = "Change Report Form" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
-			EditBox 30, 65, 270, 15, address_notes
-			EditBox 30, 85, 270, 15, household_notes
-			EditBox 30, 105, 270, 15, Edit14
-			EditBox 30, 125, 270, 15, Edit15
-			EditBox 30, 145, 270, 15, Edit16
-			Text 5, 5, 220, 10, "Change Report Form"
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
-
+			EditBox 175, 15, 45, 15, effective_date
+			EditBox 310, 15, 45, 15, date_received		
+			EditBox 50, 45, 320, 15, address_notes
+			EditBox 50, 65, 320, 15, household_notes
+			EditBox 50, 125, 320, 15, income_notes
+			EditBox 50, 145, 320, 15, shelter_notes
+			EditBox 110, 85, 260, 15, asset_notes
+			EditBox 50, 105, 320, 15, vehicles_notes
+			EditBox 50, 165, 320, 15, other_change_notes
+			EditBox 65, 200, 305, 15, actions_taken
+			EditBox 65, 220, 305, 15, other_notes
+			EditBox 75, 240, 295, 15, verifs_requested
+			CheckBox 10, 285, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
+			DropListBox 270, 280, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
+			Text 5, 5, 220, 10, "CHANGE REPORT FORM"
+			Text 395, 35, 45, 10, "    --Forms--"
+			Text 5, 20, 50, 10, "Case Number:"
+			Text 60, 20, 45, 10, MAXIS_case_number
+			Text 125, 20, 50, 10, "Effective Date:"
+			Text 245, 20, 60, 10, "Document Date:"
+			GroupBox 5, 35, 370, 150, "CHANGES REPORTED"
+			Text 15, 50, 30, 10, "Address:"
+			Text 15, 70, 35, 10, "HH Comp:"
+			Text 15, 130, 30, 10, "Income:"
+			Text 15, 150, 25, 10, "Shelter:"
+			Text 15, 90, 95, 10, "Assets (savings or property):"
+			Text 15, 110, 30, 10, "Vehicles:"
+			Text 15, 170, 20, 10, "Other:"
+			GroupBox 5, 190, 370, 70, "ACTIONS"
+			Text 15, 205, 45, 10, "Action Taken:"
+			Text 15, 225, 45, 10, "Other Notes:"
+			Text 180, 285, 90, 10, "The changes client reports:"
+			Text 15, 245, 60, 10, "Verifs Requested:"
+			CheckBox 10, 270, 140, 10, "Check if no notable changes reported.", checkbox_not_notable		'TODO: Need handling around this new checkbox and case note clearly if checked
 		ElseIf form_type_array(form_count) = "Employment Verification Form (EVF)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -408,13 +400,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Hospice Transaction Form" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -428,13 +421,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Interim Assistance Agreement (IAA)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -448,13 +442,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Interim Assistance Authorization- SSI" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -468,13 +463,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Medical Opinion Form (MOF)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -488,13 +484,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Minnesota Transition Application Form (MTAF)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -508,13 +505,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Professional Statement of Need (PSN)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -528,13 +526,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Residence and Shelter Expenses Release Form" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -548,13 +547,14 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 
 		ElseIf form_type_array(form_count) = "Special Diet Information Request (MFIP and MSA)" Then
-			Text 60, 25, 45, 10, "MAXIS_case_number"
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, effective_date
 			EditBox 310, 20, 45, 15, date_received
 			EditBox 30, 65, 270, 15, address_notes
@@ -568,92 +568,84 @@ Do
 			Text 245, 25, 60, 10, "Document Date:"
 			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
+			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
 		End If
 	
-	'Buttons only display if the respective form was selected in the intial dialog. TODO: These buttons will take you to the respective form. 
-			btn_pos = 45		'variable to interate down for each necessary button
-			For current_form = 0 to Ubound(form_type_array)
-				If form_type_array(current_form) = "Asset Statement" then 
-					PushButton 320, btn_pos, 45, 15, "ASSET", asset_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Authorization to Release Information (ATR)" Then 
-					PushButton 320, btn_pos, 45, 15, "ATR", art_btn
-					btn_pos = btn_pos + 15
-				End If
-			
-				If form_type_array(current_form) = "AREP (Authorized Rep)" then 
-					PushButton 320, btn_pos, 45, 15, "AREP", arep_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Change Report Form"  then 
-					PushButton 320, btn_pos, 45, 15, "CHNG", change_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Employment Verification Form (EVF)"  then 
-					PushButton 320, btn_pos, 45, 15, "EVF", evf_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Hospice Transaction Form"  then 
-					PushButton 320, btn_pos, 45, 15, "HOSP", hospice_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Interim Assistance Agreement (IAA)"  then 
-					PushButton 320, btn_pos, 45, 15, "IAA", iaa_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Interim Assistance Authorization- SSI" then 
-					PushButton 320, btn_pos, 45, 15, "IAA-SSI", iaa_ssi_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Medical Opinion Form (MOF)" then 
-					PushButton 320, btn_pos, 45, 15, "MOF", mof_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Minnesota Transition Application Form (MTAF)" then 
-					PushButton 320, btn_pos, 45, 15, "MTAF", mtaf_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Professional Statement of Need (PSN)" then 
-					PushButton 320, btn_pos, 45, 15, "PSN", psn_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Residence and Shelter Expenses Release Form" then 
-					PushButton 320, btn_pos, 45, 15, "SF", sf_btn
-					btn_pos = btn_pos + 15
-				End If
-
-				If form_type_array(current_form) = "Special Diet Information Request (MFIP and MSA)" then 
-					PushButton 320, btn_pos, 45, 15, "DIET", diet_btn
-					btn_pos = btn_pos + 15
-				End If
-
-			Next
-			PushButton 315, 275, 50, 15, "Next Form", next_btn
-		
-	
+'Buttons only display if the respective form was selected in the intial dialog. TODO: These buttons will take you to the respective form. 
+		btn_pos = 45		'variable to interate down for each necessary button
+		For current_form = 0 to Ubound(form_type_array)		'This cycles through the forms and creates buttons for each form selected. It also positions them from top down so there aren't weird spaces inbetween. 
+			If form_type_array(current_form) = "Asset Statement" then 
+				PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Authorization to Release Information (ATR)" Then 
+				PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "AREP (Authorized Rep)" then 
+				PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Change Report Form"  then 
+				PushButton 395, btn_pos, 45, 15, "CHNG", change_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Employment Verification Form (EVF)"  then 
+				PushButton 395, btn_pos, 45, 15, "EVF", evf_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Hospice Transaction Form"  then 
+				PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Interim Assistance Agreement (IAA)"  then 
+				PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Interim Assistance Authorization- SSI" then 
+				PushButton 395, btn_pos, 45, 15, "IAA-SSI", iaa_ssi_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Medical Opinion Form (MOF)" then 
+				PushButton 395, btn_pos, 45, 15, "MOF", mof_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Minnesota Transition Application Form (MTAF)" then 
+				PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Professional Statement of Need (PSN)" then 
+				PushButton 395, btn_pos, 45, 15, "PSN", psn_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Residence and Shelter Expenses Release Form" then 
+				PushButton 395, btn_pos, 45, 15, "SF", sf_btn
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(current_form) = "Special Diet Information Request (MFIP and MSA)" then 
+				PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
+				btn_pos = btn_pos + 15
+			End If
+		Next
+		PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. TODO: Determine if we need more handilng around this. 
+		'TODO: Need functionality to make buttons move between dialogs as they are pushed. 
+		'TODO: error handling 
 
 	EndDialog
 	dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 	cancel_confirmation
+			
 form_count = form_count + 1
-Loop until form_count > Ubound(form_type_array)
+Loop until form_count > Ubound(form_type_array) 	
 
+'TODO: Case Notes
+script_end_procedure ("Success! The script has ended. ")
 
+'EXTRA CODE--------------------------------------------------------------------------------------------
 'For/Next displays individual dialogs for each form selected via checkbox or dropdown
 ' For form_count = 0 to Ubound(form_type_array)			
 ' 	If form_type_array(form_count) = "Asset Statement" then
@@ -1099,4 +1091,6 @@ Loop until form_count > Ubound(form_type_array)
 ' 		cancel_confirmation
 ' 	End If 
 ' Next
+
+
 
