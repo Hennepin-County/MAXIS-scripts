@@ -267,7 +267,7 @@ Call Check_for_MAXIS(False)
 Call start_a_blank_CASE_NOTE
 
 Call write_variable_in_CASE_NOTE(EMER_type & " Determination Done - Check Issuance Still Needed")
-Call write_variable_in_CASE_NOTE("Approval of " & EMER_type & " has been compelted, but issuance is restricted and a separate approver is needed to issue the payment.")
+Call write_variable_in_CASE_NOTE("Approval of " & EMER_type & " has been completed, but issuance is restricted and a separate approver is needed to issue the payment.")
 Call write_bullet_and_variable_in_CASE_NOTE ("Approval Date", approval_date)
 Call write_variable_in_CASE_NOTE("Check Details ===============================================")
 If add_check_2 = True Then Call write_variable_in_CASE_NOTE("CHECK ONE")
