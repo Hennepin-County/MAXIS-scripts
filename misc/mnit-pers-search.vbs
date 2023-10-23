@@ -176,72 +176,76 @@ Transmit
 
 
 'THIS PART HAS BEEN ADDED TO ASSIST WITH GATHERING INFORMATION FOR TESTING AND CREATING A TESTING REPORT
-search_time = timer-start_time
-EMReadScreen panel_title, 78, 2, 2
-panel_title = trim(panel_title)
+log_usage = False
+
+If log_usage = True Then
+	search_time = timer-start_time
+	EMReadScreen panel_title, 78, 2, 2
+	panel_title = trim(panel_title)
 
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 411, 200, "Search Script Testing"
-  DropListBox 150, 60, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", search_found
-  EditBox 15, 90, 380, 15, notes_about_search
-  EditBox 15, 135, 380, 15, testing_report
-  If case_number_from_form <> "" Then DropListBox 210, 175, 85, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Unsure", case_number_on_form_correct
-  ButtonGroup ButtonPressed
-    OkButton 350, 175, 50, 15
-  Text 10, 10, 335, 10, "Thank you for testing the new MNIT script for assisting with searching from MNBenefits applications."
-  Text 10, 25, 335, 10, "You can use this dialog to record any notes, comments, issues, or ideas from running this new script."
-  GroupBox 10, 45, 390, 70, "Did the script function well?"
-  Text 15, 65, 135, 10, "Was the person found with this search?"
-  Text 15, 80, 75, 10, "Notes about search:"
-  Text 15, 125, 200, 10, "Detail any issues with the search or during the script run:"
-  If case_number_from_form <> "" Then
-	Text 15, 160, 240, 10, "Case Number provided by resident on MN Benefits form: " & case_number_from_form
-	Text 15, 180, 195, 10, "Does this appear to be the Case Number for this resident?"
-  End If
-EndDialog
-
-dialog Dialog1
-
-
-txt_file_name = "mnit_pers_search_script_test_" & replace(Search_type, " ", "_") & "_" & confrimation_number_from_form & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
-script_test_info_file_path = t_drive &"\Eligibility Support\Assignments\Script Testing Logs\"  & txt_file_name
-
-Call find_user_name(script_run_worker)
-
-'CREATING THE TESTING REPORT
-With (CreateObject("Scripting.FileSystemObject"))
-	'Creating an object for the stream of text which we'll use frequently
-	Dim objTextStream
-
-	Set objTextStream = .OpenTextFile(script_test_info_file_path, ForWriting, true)
-
-	objTextStream.WriteLine "SCRIPT Run Date and Time: " & now
-	objTextStream.WriteLine "Script run be: " & script_run_worker
-	objTextStream.WriteLine "File Name Selected: " & file_name
-	objTextStream.WriteLine "Confirmation Number: " & confrimation_number_from_form
-	objTextStream.WriteLine "APPL Date: " & appl_date_from_form
-	objTextStream.WriteLine "Length of script run: " & search_time
-	objTextStream.WriteLine "Panel Title at the End: " & panel_title
-	objTextStream.WriteLine "-------------------------------------------------"
-	objTextStream.WriteLine "Search Type: " & Search_type
-	objTextStream.WriteLine "Was the search found: " & search_found
-	objTextStream.WriteLine "Search Notes: " &  notes_about_search
-	objTextStream.WriteLine "-------------------------------------------------"
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 411, 200, "Search Script Testing"
+	DropListBox 150, 60, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", search_found
+	EditBox 15, 90, 380, 15, notes_about_search
+	EditBox 15, 135, 380, 15, testing_report
+	If case_number_from_form <> "" Then DropListBox 210, 175, 85, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Unsure", case_number_on_form_correct
+	ButtonGroup ButtonPressed
+		OkButton 350, 175, 50, 15
+	Text 10, 10, 335, 10, "Thank you for testing the new MNIT script for assisting with searching from MNBenefits applications."
+	Text 10, 25, 335, 10, "You can use this dialog to record any notes, comments, issues, or ideas from running this new script."
+	GroupBox 10, 45, 390, 70, "Did the script function well?"
+	Text 15, 65, 135, 10, "Was the person found with this search?"
+	Text 15, 80, 75, 10, "Notes about search:"
+	Text 15, 125, 200, 10, "Detail any issues with the search or during the script run:"
 	If case_number_from_form <> "" Then
-		objTextStream.WriteLine "Case Number from Form: " & case_number_from_form
-		objTextStream.WriteLine "Does this Case Number appear to be accurate: " & case_number_on_form_correct
-	Else
-		objTextStream.WriteLine "No Case Number was found on the XLM."
+		Text 15, 160, 240, 10, "Case Number provided by resident on MN Benefits form: " & case_number_from_form
+		Text 15, 180, 195, 10, "Does this appear to be the Case Number for this resident?"
 	End If
-	' objTextStream.WriteLine ": " &
-	objTextStream.WriteLine "-------------------------------------------------"
-	objTextStream.WriteLine "Testing Information: " & testing_report
-	objTextStream.WriteLine "Running Error: " & running_error
-	objTextStream.WriteLine "-------------------------------------------------"
+	EndDialog
 
-	objTextStream.Close
-End With
+	dialog Dialog1
+
+
+	txt_file_name = "mnit_pers_search_script_test_" & replace(Search_type, " ", "_") & "_" & confrimation_number_from_form & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+	script_test_info_file_path = t_drive &"\Eligibility Support\Assignments\Script Testing Logs\"  & txt_file_name
+
+	Call find_user_name(script_run_worker)
+
+	'CREATING THE TESTING REPORT
+	With (CreateObject("Scripting.FileSystemObject"))
+		'Creating an object for the stream of text which we'll use frequently
+		Dim objTextStream
+
+		Set objTextStream = .OpenTextFile(script_test_info_file_path, ForWriting, true)
+
+		objTextStream.WriteLine "SCRIPT Run Date and Time: " & now
+		objTextStream.WriteLine "Script run be: " & script_run_worker
+		objTextStream.WriteLine "File Name Selected: " & file_name
+		objTextStream.WriteLine "Confirmation Number: " & confrimation_number_from_form
+		objTextStream.WriteLine "APPL Date: " & appl_date_from_form
+		objTextStream.WriteLine "Length of script run: " & search_time
+		objTextStream.WriteLine "Panel Title at the End: " & panel_title
+		objTextStream.WriteLine "-------------------------------------------------"
+		objTextStream.WriteLine "Search Type: " & Search_type
+		objTextStream.WriteLine "Was the search found: " & search_found
+		objTextStream.WriteLine "Search Notes: " &  notes_about_search
+		objTextStream.WriteLine "-------------------------------------------------"
+		If case_number_from_form <> "" Then
+			objTextStream.WriteLine "Case Number from Form: " & case_number_from_form
+			objTextStream.WriteLine "Does this Case Number appear to be accurate: " & case_number_on_form_correct
+		Else
+			objTextStream.WriteLine "No Case Number was found on the XML."
+		End If
+		' objTextStream.WriteLine ": " &
+		objTextStream.WriteLine "-------------------------------------------------"
+		objTextStream.WriteLine "Testing Information: " & testing_report
+		objTextStream.WriteLine "Running Error: " & running_error
+		objTextStream.WriteLine "-------------------------------------------------"
+
+		objTextStream.Close
+	End With
+End If
 'END OF TESTING REPORT
 
 script_end_procedure("")
