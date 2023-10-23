@@ -2330,28 +2330,6 @@ If ex_parte_function = "Prep 1" Then
 	uc_count = 0
 	rr_count = 0
 
-	'Opening a spreadsheet to capture the cases with a SMRT ending soon
-	Set ObjSMRTExcel = CreateObject("Excel.Application")
-	ObjSMRTExcel.Visible = True
-	Set objSMRTWorkbook = ObjSMRTExcel.Workbooks.Add()
-	ObjSMRTExcel.DisplayAlerts = True
-
-	'Setting the first 4 col as worker, case number, name, and APPL date
-	ObjSMRTExcel.Cells(1, 1).Value = "CASE NUMBER"
-	ObjSMRTExcel.Cells(1, 2).Value = "REF"
-	ObjSMRTExcel.Cells(1, 3).Value = "NAME"
-	ObjSMRTExcel.Cells(1, 4).Value = "PMI NUMBER"
-	ObjSMRTExcel.Cells(1, 5).Value = "SSN"
-	ObjSMRTExcel.Cells(1, 6).Value = "SMRT Cert End Date"
-	ObjSMRTExcel.Cells(1, 7).Value = "SMRT Renewal Status"
-	ObjSMRTExcel.Cells(1, 8).Value = "Ongoing SMRT"
-
-	FOR i = 1 to 8		'formatting the cells'
-		ObjSMRTExcel.Cells(1, i).Font.Bold = True		'bold font'
-	NEXT
-
-	smrt_excel_row = 2		'initializing the counter to move through the excel lines
-
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
 
@@ -2858,36 +2836,6 @@ If ex_parte_function = "Prep 1" Then
 					objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 					objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
-					'If the member has HC eligibility, we need to check DISA to see if it is ending
-					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb)	= True Then
-						call navigate_to_MAXIS_screen("STAT", "DISA")
-						EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76
-						transmit
-
-						EMReadScreen disa_vers, 1, 2, 78													'disa panel exists
-						If disa_vers <> "0" Then
-							EMReadScreen disa_hc_verif, 1, 13, 69											'disa is SMRT verified
-							If disa_hc_verif = "2" Then
-								EMReadScreen disa_cert_end_date, 10, 7, 69									'grabbing the cert period end date
-								If disa_cert_end_date = "__ __ ____" Then disa_cert_end_date = ""
-								disa_cert_end_date = replace(disa_cert_end_date, " ", "/")					'making this a date
-								If disa_cert_end_date <> "" Then
-									disa_cert_end_date  = DateAdd("d", 0, disa_cert_end_date)
-									If DateDiff("d", disa_cert_end_date, smrt_cut_off) >=0 Then				'if the cert end date is before or equal to the smrt cut off set at the beginning of the run
-										'set the SMRT information to the list of SMRT cases
-										ObjSMRTExcel.Cells(smrt_excel_row, 1).Value = MAXIS_case_number
-										ObjSMRTExcel.Cells(smrt_excel_row, 2).Value = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
-										ObjSMRTExcel.Cells(smrt_excel_row, 3).Value = MEMBER_INFO_ARRAY(memb_name_const, each_memb)
-										ObjSMRTExcel.Cells(smrt_excel_row, 4).Value = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
-										ObjSMRTExcel.Cells(smrt_excel_row, 5).Value = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
-										ObjSMRTExcel.Cells(smrt_excel_row, 6).Value = disa_cert_end_date
-										smrt_excel_row = smrt_excel_row + 1									'counting to increment to the next excel row
-									End If
-								End If
-							End If
-						End If
-					End If
-
 					'If there is RR income listed from the SQL table and NOT from UNEA - it is going to save any member with RR income listed on SQL to the RR array for the verif list
 					If MEMBER_INFO_ARRAY(sql_rr_income_exists, each_memb) = True and MEMBER_INFO_ARRAY(unea_RR_exists, each_memb) = False Then
 						ReDim Preserve RR_INCOME_ARRAY(rr_last_const, rr_count)
@@ -3110,8 +3058,6 @@ If ex_parte_function = "Prep 1" Then
 		If va_excel_created = True Then objVAExcel.columns(col_to_autofit).AutoFit()
 		If uc_excel_created = True Then objUCExcel.columns(col_to_autofit).AutoFit()
 		If rr_excel_created = True Then objRRExcel.columns(col_to_autofit).AutoFit()
-
-		ObjSMRTExcel.columns(col_to_autofit).AutoFit()
 	Next
 
 	If va_excel_created = True Then
@@ -3129,9 +3075,6 @@ If ex_parte_function = "Prep 1" Then
 		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	End If
-	ObjSMRTExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjSMRTExcel.Range("A1:H" & smrt_excel_row - 1), xlYes).Name = "Table1"
-	ObjSMRTExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-	ObjSMRTExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\SMRT Ending\SMRT Ending - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 
     objRecordSet.Close			'Closing all the data connections
     objConnection.Close
