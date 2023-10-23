@@ -11862,7 +11862,8 @@ Set objWord = CreateObject("Word.Application")
 If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
 ' objWord.Visible = True														'Let the worker see the document
-objWord.Visible = False														'Let the worker see the document
+objWord.Visible = False 														'Let the worker see the document
+If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True														'Let the worker see the document
 
 Set objDoc = objWord.Documents.Add()										'Start a new document
 Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
@@ -13300,6 +13301,7 @@ file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name s
 'We set the file path and name based on case number and date. We can add other criteria if important.
 'This MUST have the 'pdf' file extension to work
 pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+' MsgBox pdf_doc_path
 If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
 
 'Now we save the document.
