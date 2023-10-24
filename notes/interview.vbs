@@ -11862,8 +11862,9 @@ Set objWord = CreateObject("Word.Application")
 If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
 ' objWord.Visible = True														'Let the worker see the document
-objWord.Visible = False 														'Let the worker see the document
-If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True														'Let the worker see the document
+objWord.Visible = False 														'The worker should NOT see the docuement
+'allow certain workers to see the document
+' If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True
 
 Set objDoc = objWord.Documents.Add()										'Start a new document
 Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
