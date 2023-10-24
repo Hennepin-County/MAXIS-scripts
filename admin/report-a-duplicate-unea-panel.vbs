@@ -96,7 +96,8 @@ MAXIS_footer_monht = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 'Going to STAT/MEMB to get the member information
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = True Then call script_end_procedure("The script has ended because this case appears to be privileged.")
 
 member_list = " "									'creating a list that starts with a space. This is nice for splittling simple things
 memb_row = 5										'begin at row 5
@@ -156,3 +157,47 @@ end_msg = end_msg & vbCr & "No additional report is needed."
 end_msg = end_msg & vbCr & "You can now update the case and process as needed."
 Call script_end_procedure(end_msg)														'ending the script run
 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/24/2023
+'--Tab orders reviewed & confirmed----------------------------------------------10/24/2023
+'--Mandatory fields all present & Reviewed--------------------------------------10/24/2023
+'--All variables in dialog match mandatory fields-------------------------------10/24/2023
+'Review dialog names for content and content fit in dialog----------------------10/24/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/24/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/24/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/24/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/24/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------10/24/2023
+'--Denomination reviewed -------------------------------------------------------10/24/2023
+'--Script name reviewed---------------------------------------------------------10/24/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/24/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/24/2023
+'--comment Code-----------------------------------------------------------------10/24/2023
+'--Update Changelog for release/update------------------------------------------10/24/2023
+'--Remove testing message boxes-------------------------------------------------10/24/2023
+'--Remove testing code/unnecessary code-----------------------------------------10/24/2023
+'--Review/update SharePoint instructions----------------------------------------10/24/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/25/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------10/24/2023
+'--Update project team/issue contact (if applicable)----------------------------10/24/2023
