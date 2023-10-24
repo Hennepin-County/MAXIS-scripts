@@ -1,8 +1,8 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "ADMIN - Report a Duplicate UNEA Panel.vbs"
 start_time = timer
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 0                	'manual run time in seconds
+STATS_counter = 0                     	'sets the stats counter at one
+STATS_manualtime = 45                	'manual run time in seconds
 STATS_denomination = "I"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -117,6 +117,7 @@ for each memb_numb in member_array
 	EMReadScreen version_number, 1, 2, 78
 	If version_number <> "0" Then
 		Do
+			STATS_counter = STATS_counter + 1
 			EMReadScreen instance, 1, 2, 73
 			email_body = email_body & "<br>" & "<h3>PANEL INFORMATION: UNEA " & memb_numb & " 0" & instance & ":</h3>"
 			For unea_row = 2 to 19
