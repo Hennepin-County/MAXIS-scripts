@@ -51,13 +51,12 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 
-
 'THE SCRIPT ================================================================================================================
+EMConnect ""											'connect to BZ
+Call MAXIS_case_number_finder(MAXIS_case_number)		'See if we can find the case number
+Call check_for_MAXIS(False)								'make sure we are in MAXIS
 
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-Call check_for_MAXIS(False)
-
+'Create a dialog image to gather the CASE NUMBER and explain the script purpose
 BeginDialog Dialog1, 0, 0, 231, 145, "Case Number Dialog"
   EditBox 60, 55, 55, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
@@ -70,80 +69,90 @@ BeginDialog Dialog1, 0, 0, 231, 145, "Case Number Dialog"
   Text 10, 120, 150, 20, "Once the script run is completed, you can update the case to process as needed."
 EndDialog
 
+'here is where we show the dialog
 Do
 	Do
-		err_msg = ""
+		err_msg = ""									'reset the error message variable
 
-		dialog Dialog1
-		cancel_without_confirmation
+		dialog Dialog1									'show the dialog
+		cancel_without_confirmation						'cancel if the button is pressed
 
-		Call validate_MAXIS_case_number(err_msg, "*")
+		Call validate_MAXIS_case_number(err_msg, "*")	'makse sure a Case Number has been entered
 
-		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
+		If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg		'display any error message that might exist
 
 	Loop until err_msg = ""
-	Call check_for_password(are_we_passworded_out)
+	Call check_for_password(are_we_passworded_out)		'make sure we are not passworded out
 Loop until are_we_passworded_out = False
+Call check_for_MAXIS(False)
 
-email_subject = "TESTING REPORT - Ex Parte DUPLICATE UNEA Panel"
+'starting the email information
+email_subject = "TESTING REPORT - " & MAXIS_case_number & "Ex Parte DUPLICATE UNEA Panel"		'setting the subject text
 
-email_body = "The case - " & MAXIS_case_number & ", appears to have a duplicate UNEA panel created from the Ex Parte Report run." & vbCr
+email_body = "The case - " & MAXIS_case_number & ", appears to have a duplicate UNEA panel created from the Ex Parte Report run." & vbCr		'starting the email body with some base information
 
+'We are always going to be looking in current month plus 1 for Ex Parte cases
 MAXIS_footer_monht = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
+'Going to STAT/MEMB to get the member information
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
-member_list = " "
-memb_row = 5
+member_list = " "									'creating a list that starts with a space. This is nice for splittling simple things
+memb_row = 5										'begin at row 5
 Do
-	EMReadScreen ref_numb, 2, memb_row, 3
-	member_list = member_list & ref_numb & " "
-	memb_row = memb_row + 1
-	EMReadScreen next_ref_numb, 2, memb_row, 3
+	EMReadScreen ref_numb, 2, memb_row, 3			'read each reference number from the list on the left side of MAXIS.
+	member_list = member_list & ref_numb & " "		'save to the string with a space between each reference number
+	memb_row = memb_row + 1							'go to the next row
+	EMReadScreen next_ref_numb, 2, memb_row, 3		'read to see if we are at the end of the list of reference numbers
 Loop until next_ref_numb = "  "
 
+'Create an array of the list of reference numbers, removing the spaces at the beginning and end, then split by the spaces
 member_list = trim(member_list)
 member_array = split(member_list)
 
-Call navigate_to_MAXIS_screen("STAT", "UNEA")
-email_body = email_body & "<BODY style=font-size:11pt;font-family:Courier New>"
-' "Good Morning;<p>We have completed our main aliasing process for today.  All assigned firms are complete.  Please feel free to respond with any questions.<p>Thank you."
+'Now we go look at UNEA and save the information into the email body
+Call navigate_to_MAXIS_screen("STAT", "UNEA")									'go to UNEA
+email_body = email_body & "<BODY style=font-size:11pt;font-family:Courier New>"	'set the email body to courier font type
 
-for each memb_numb in member_array
-	EMWriteScreen memb_numb, 20, 76
-	Call write_value_and_transmit("01", 20, 79)
+'Here we find all the UNEA panels
+for each memb_numb in member_array												'we are going to check UENA for every HH member
+	EMWriteScreen memb_numb, 20, 76												'enter the reference number in the command line
+	Call write_value_and_transmit("01", 20, 79)									'enter 01 to get to the first instance and transmit to go to that panel
 
-	EMReadScreen version_number, 1, 2, 78
+	EMReadScreen version_number, 1, 2, 78										'read the version number to make sure that any UNEA panel exists for this member
 	If version_number <> "0" Then
-		Do
-			STATS_counter = STATS_counter + 1
-			EMReadScreen instance, 1, 2, 73
-			email_body = email_body & "<br>" & "<h3>PANEL INFORMATION: UNEA " & memb_numb & " 0" & instance & ":</h3>"
-			For unea_row = 2 to 19
-				EMReadScreen unea_line, 57, unea_row, 24
-				unea_line = replace(unea_line, "    ", "&emsp;&ensp;")
+		Do																		'This do loop is to go through all the panels for a specific worker
+			STATS_counter = STATS_counter + 1									'incremember our stats count, which counts up for any panel found
+			EMReadScreen instance, 1, 2, 73										'reading the instance for the panel to enter it into the email
+			email_body = email_body & "<br>" & "<h3>PANEL INFORMATION: UNEA " & memb_numb & " 0" & instance & ":</h3>"		'This is a header line in the email of the panel information
+			For unea_row = 2 to 19												'loop through each row of the panel to read and copy it into the email
+				EMReadScreen unea_line, 57, unea_row, 24						'read the line from 24 to the end
+				unea_line = replace(unea_line, "    ", "&emsp;&ensp;")			'format the spaces to look better in the email
 				unea_line = replace(unea_line, "  ", "&emsp;")
 				unea_line = replace(unea_line, " ", "&ensp;")
-				email_body = email_body & "&emsp;&emsp;" & unea_line & "<br>"
+				email_body = email_body & "&emsp;&emsp;" & unea_line & "<br>"	'add the line information into the body of the email
 			Next
+			'this enters a horizontal line after the UNEA information in the email
 			email_body = email_body & "<br>" & "------------------------------------------------------------------------------------" & "<br>"
 
-			transmit
-			EMReadScreen enter_a_valid, 13, 24, 2
+			transmit															'try to go to the next UNEA panel for this member
+			EMReadScreen enter_a_valid, 13, 24, 2								'read to see if MAXIS moved to the next UNEA or listed and error asking for 'Enter a valid command or PF-Key' indicating we are at the end of the UNEA panels
 		Loop until enter_a_valid = "ENTER A VALID"
-
 	End If
 Next
-email_body = email_body & "</BODY>"
+email_body = email_body & "</BODY>"												'closing the html body in the email and ending use of Courier New font
 
-call find_user_name(worker_name)
-email_body = email_body & "<br>" & "Thank you!" & "<br>" & worker_name & "<br>" & now
+call find_user_name(worker_name)				'getting the name of the user for the email
+email_body = email_body & "<br>" & "Thank you!" & "<br>" & worker_name & "<br>" & now		'adding a signature to the email
 
-' Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+'Sending the email. The parameters can be seen here:
+'create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", "", "", email_body, False, "", True)
+
+'Creating an end message to let the worker know the script ran and the case can be processed
 end_msg = "EMAIL SENT TO THE A & I Team"
 end_msg = end_msg & vbCr & "No additional report is needed."
 end_msg = end_msg & vbCr & "You can now update the case and process as needed."
-Call script_end_procedure(end_msg)
+Call script_end_procedure(end_msg)														'ending the script run
 
