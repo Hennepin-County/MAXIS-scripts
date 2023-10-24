@@ -295,6 +295,22 @@ const case_excel_row_const              = 9
 'Sets variable for the Excel row to export data to Excel sheet
 case_excel_row = 2
 
+'Create an array with PMIs to match with CASE/PERS info
+Dim PMI_and_ref_nbr_array()
+
+'Reset the array 
+ReDim PMI_and_ref_nbr_array(3, 0)
+
+'Incrementor for the array
+'To do - necessary?
+member_count = 0
+
+'Constants for the array
+const ref_nbr_const           = 0
+const PMI_const               = 1
+const PMI_match_found_const   = 2
+const hh_member_count_const   = 3
+
 'To Do - add tracking of deleted dails once processing the list
 'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 
@@ -680,13 +696,373 @@ For each worker in worker_array
                                         End If
 
                                         'Process CSES message
+                                        ' DISB CS (TYPE 36) OF [$X.XX] FOR [#] CHILD(REN) ISSUED 
+                                        ' REPLACED [DD/MM/YY] DISB CS (TYPE 36) OF [$X.XX] FOR 
+                                        ' DISB SPOUSAL SUP (TYPE 37) OF [$X.XX] ISSUED ON 
+                                        ' DISB CS ARREARS (TYPE 39) OF [$X.XX] FOR [#] CHILD(REN) 
+                                        ' REPLACED [MM/DD/YY] DISB CS ARREARS (TYPE 39) OF
+                                        ' DISB SPOUSAL SUP ARREARS (TYPE 40) OF [$X.XX] ISSUED 
+                                        ' CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: [##] [EMPLOYER NAME]
+                                        ' REPORTED: CHILD REF NBR: [##] NO LONGER RESIDES WITH CAREGIVER (unable to find example)
+
                                         If process_dail_message = True and dail_type = "CSES" Then
-                                            'Update here
+
+                                            If InStr(dail_msg, "DISB CS (TYPE 36) OF") Then
+
+                                                '1.	Enters “X” on DAIL message to open full message. 
+                                                'To do - once it is working, can use Call write value and transmit
+                                                EMWriteScreen "X", dail_row, 3
+                                                ' MsgBox "Did it add X?"
+                                                Transmit
+
+                                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                EMReadScreen full_dail_msg_line_1, 60, 9, 5
+
+                                                full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                                                MsgBox full_dail_msg_line_1
+
+                                                EMReadScreen full_dail_msg_line_2, 60, 10, 5
+                                                full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+                                                MsgBox full_dail_msg_line_2
+
+                                                EMReadScreen full_dail_msg_line_3, 60, 11, 5
+                                                full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+                                                MsgBox full_dail_msg_line_3
+
+                                                EMReadScreen full_dail_msg_line_4, 60, 12, 5
+                                                full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+                                                MsgBox full_dail_msg_line_4
+
+                                                full_dail_msg = full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4
+
+                                                MsgBox full_dail_msg
+
+                                                ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
+                                                EMReadScreen PMIs_line_one, 37, 10, 28
+                                                ' MsgBox PMIs_line_one
+                                                EMReadScreen PMIs_line_two, 60, 11, 5
+                                                ' MsgBox PMIs_line_two
+                                                EMReadScreen PMIs_line_three, 60, 12, 5
+                                                ' MsgBox PMIs_line_three
+                                                
+                                                'Combine the PMIs into one string
+                                                full_PMIs = replace(PMIs_line_one & PMIs_line_two & PMIs_line_three, " ", "")
+                                                ' MsgBox full_PMIs
+                                                'Splits the PMIs into an array
+                                                PMIs_array = Split(full_PMIs, ",")
+
+                                                'Reset the array 
+                                                ReDim PMI_and_ref_nbr_array(3, 0)
+
+                                                'Using list of PMIs in PMIs_array to update the PMI number in PMI_and_ref_nbr_array 
+                                                for each_PMI = 0 to UBound(PMIs_array, 1)
+                                                    ReDim Preserve PMI_and_ref_nbr_array(hh_member_count_const, each_PMI)
+                                                    PMI_and_ref_nbr_array(PMI_const, each_PMI) = PMIs_array(each_PMI)
+                                                Next 
+
+                                                'Transmit back to DAIL
+                                                transmit
+
+                                                ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
+                                                'To do - this will break tie to specific DAIL message, think about how to navigate back
+                                                
+                                                EMWriteScreen "H", dail_row, 3
+                                                Transmit
+
+                                                EMWriteScreen "PERS", 20, 69
+                                                Transmit
+
+                                                ' Iterate through CASE/PERS to match up PMI with Ref Nbr
+
+                                                'the first member number starts at row 10
+                                                pers_row = 10                  
+
+                                                Do
+                                                    'Reset reference number and PMI number so they don't carry through loop
+                                                    ref_number_pers_panel = ""
+                                                    pmi_number_pers_panel = ""
+
+                                                    'reading the member number
+                                                    EMReadScreen ref_number_pers_panel, 2, pers_row, 3
+                                                    ref_number_pers_panel = trim(ref_number_pers_panel)
+
+                                                    MsgBox "ref_number_pers_panel: " & ref_number_pers_panel
+
+                                                    'Reading the PMI number
+                                                    EMReadScreen pmi_number_pers_panel, 8, pers_row, 34  
+                                                    pmi_number_pers_panel = trim(pmi_number_pers_panel)
+                                                    MsgBox "pmi_number_pers_panel: " & PMI_number_pers_panel
+
+                                                    for each_PMI = 0 to UBound(PMI_and_ref_nbr_array, 2)
+                                                        MsgBox "pmi_number_pers_panel: " & PMI_number_pers_panel
+                                                        MsgBox PMI_and_ref_nbr_array(PMI_const, each_PMI) 
+
+                                                        If pmi_number_pers_panel = PMI_and_ref_nbr_array(PMI_const, each_PMI) Then
+                                                            PMI_and_ref_nbr_array(ref_nbr_const, each_PMI) = ref_number_pers_panel
+                                                            MsgBox PMI_and_ref_nbr_array(ref_nbr_const, each_PMI)
+                                                            PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI) = True
+                                                            MsgBox PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI)
+                                                        End If
+                                                    Next
+                                                    
+                                                    'go to the next member number - which is 3 rows down
+                                                    pers_row = pers_row + 3
+
+                                                    'if it reaches 19 - this is further down from the last member
+                                                    If pers_row = 19 Then                       
+                                                        'go to the next page and reset to line 10
+                                                        PF8                                     
+                                                        pers_row = 10
+                                                    End If
+
+                                                    EMReadScreen ref_number_pers_panel, 2, pers_row, 3
+                                                    ' If ref_number_pers_panel = "  " Then Exit Do
+
+
+                                                Loop until ref_number_pers_panel = "  "      
+                                                
+                                                'If there are PMIs listed on the DAIL message that do not align, then that DAIL message needs to be flagged for QI
+                                                'To do - remove message boxes
+                                                'To do - verify this approach works
+                                                for each_individual = 0 to UBound(PMI_and_ref_nbr_array, 2)
+                                                    If PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) <> True Then
+                                                        MsgBox "Some PMIs not matched"
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " not found on case."
+                                                        objExcel.Cells(dail_excel_row, 8).Value = DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    End If
+                                                Next
+
+                                                'Only check UNEA panels if ALL PMIs are matched for DAIL message and for case
+                                                If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "not found on case.") = 0 Then
+                                                    'If all PMIs are found on the case, then the script will navigate directly to STAT/UNEA from CASE/PERS to verify that UNEA panels exist for CS Type 36
+                                                    MsgBox "PMIs all found on case"
+
+                                                    EMWriteScreen "STAT", 19, 22
+                                                    Call write_value_and_transmit("UNEA", 19, 69)
+
+
+                                                Else
+                                                    MsgBox "PMIs NOT ALL found on case"
+
+                                                    'To do - add functionality to go to the next message and skip the message because not processable
+
+                                                End If
+
+                                                'this is the end of the list
+
+                                                ' for each_PMI = 0 to UBound(case_pers_ref_nbr_and_pmi_array, 2)
+                                                '     for each PMI in PMIs_array
+                                                '         If PMI = case_pers_ref_nbr_and_pmi_array(case_curr_PMI_const, each_PMI) Then
+                                                '             msgbox "PMIs_array: " & PMI
+                                                '             MsgBox "PMI ref nbr array: " & PMI_with_ref_nbrs_array(PMI_number_const, each_case)
+                                                '             MsgBox "There is a match"
+                                                '             case_pers_ref_nbr_and_pmi_array(case_curr_PMI_match_found_const, each_PMI) = True
+                                                '             MsgBox case_pers_ref_nbr_and_pmi_array(case_curr_PMI_match_found_const, each_PMI)
+                                                '         End If
+                                                '     Next
+                                                ' Next 
+
+                                                'Navigate back to the DAIL. This will reset to the top of the DAIL messages for the specific case number. Need to consider how to handle.
+                                                MsgBox "navigate back to DAIL"
+                                                PF3
+
+
+                                                'Delete after testing
+
+                                                ' 'Navigate to STAT/UNEA to determine if UNEA panels exist for the case
+                                                ' 'To do - once it is working, can use Call write value and transmit
+                                                ' EMWriteScreen "S", dail_row, 3
+                                                ' ' MsgBox "Did it add X?"
+                                                ' Transmit
+                                                
+                                                ' EMWriteScreen "UNEA", 20, 71
+                                                ' Transmit
+
+                                                ' ' Check if no UNEA panels exist for the case, in which this makes it easy to determine whether to process the DAIL message
+                                                ' EMReadScreen no_unea_panels_check, 34, 24, 2
+                                                ' If no_unea_panels_check = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
+                                                '     'Add functionality here to handle this situation
+
+
+
+
+                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
+                                                ' 3.	Script reads through each household member’s UNEA panels until each PMI is matched
+                                                ' 4.	For each identified PMI number, determines if there is a corresponding Type 36 UNEA panel 
+                                                ' 5.	If there is a Type 36 UNEA panel for every PMI, script navigates back to DAIL (PF3)
+                                                ' 1.	Script reads through the messages again until the full DAIL message matches accordingly
+                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 36 panel exists for every PMI. DAIL message deleted.”
+                                                ' 6.	If there is NOT a UNEA panel for every PMI, script navigates back to DAIL but does NOT delete the panel
+                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel TYPE 36 missing for PMI(S): #####. DAIL message not deleted. Requires QI review.”
+                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
+
+                                                ' MsgBox "DISB CS (TYPE 36) OF: " & dail_msg
+                                            ElseIf InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") Then
+                                                'Enters “X” on DAIL message to open full message. 
+                                                EMWriteScreen "X", dail_row, 3
+                                                ' MsgBox "Did it add X?"
+                                                Transmit
+                                                
+                                                ' Script reads information from full message, specifically the caregiver reference number
+                                                EMReadScreen caregiver_ref_nbr, 2, 10, 32
+                                                MsgBox caregiver_ref_nbr
+                                                PF3
+                                                '1.	Enters “X” on DAIL message to open full message. Script reads information from full message, particularly the reference number provided. The script creates a new variable for the full DAIL message text and a variable for the reference number.
+                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
+                                                ' 3.	Script navigates to corresponding reference number’s UNEA panels.
+                                                ' 4.	For identified reference number, script iterates through all UNEA panels to determine if there is a corresponding Type 37 UNEA panel 
+                                                ' 5.	If there is a Type 37 UNEA panel for the reference number, script navigates back to DAIL (PF3)
+                                                ' 1.	Script reads through the DAIL messages again until the full DAIL message matches accordingly
+                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 37 panel exists for Reference Number #. DAIL message deleted.”
+                                                ' 6.	If there is NOT a UNEA panel for the reference number, the script navigates back to DAIL (PF3) but does NOT delete the panel
+                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel Type 37 missing for Reference Number #. DAIL message not deleted. Requires QI review.”
+                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
+
+                                                ' MsgBox "DISB SPOUSAL SUP (TYPE 37): " & dail_msg
+                                            ElseIf InStr(dail_msg, "DISB CS ARREARS (TYPE 39) OF") Then
+                                                '1.	Enters “X” on DAIL message to open full message. Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
+
+                                                'To do - once it is working, can use Call write value and transmit
+                                                '1.	Enters “X” on DAIL message to open full message. 
+                                                EMWriteScreen "X", dail_row, 3
+                                                ' MsgBox "Did it add X?"
+                                                Transmit
+                                                
+                                                ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
+                                                EMReadScreen PMIs_line_one, 30, 10, 35
+                                                MsgBox PMIs_line_one
+                                                EMReadScreen PMIs_line_two, 60, 11, 5
+                                                MsgBox PMIs_line_two
+                                                EMReadScreen PMIs_line_three, 60, 12, 5
+                                                MsgBox PMIs_line_three
+                                                
+                                                'Combine the PMIs into one string
+                                                full_PMIs = replace(PMIs_line_one & PMIs_line_two & PMIs_line_three, " ", "")
+                                                ' MsgBox full_PMIs
+                                                'Splits the PMIs into an array
+                                                PMIs_array = Split(full_PMIs, ",")
+
+                                                For each PMI in PMIs_array
+                                                    MsgBox PMI 
+                                                Next
+
+                                                'Backs out of full DAIL message to DAIL
+                                                PF3
+
+                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
+                                                ' 3.	Script reads through each household member’s UNEA panels until each PMI is matched
+                                                ' 4.	For each identified PMI number, determines if there is a corresponding Type 39 UNEA panel 
+                                                ' 5.	If there is a Type 39 UNEA panel for every PMI, script navigates back to DAIL (PF3)
+                                                ' 1.	Script reads through the messages again until the full DAIL message matches accordingly
+                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 39 panel exists for all PMI(s). DAIL message deleted.”
+                                                ' 6.	If there is NOT a UNEA panel for every PMI, script navigates back to DAIL but does NOT delete the panel
+                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel Type 39 missing for PMI(S): #####. DAIL message not deleted. Requires QI review.”
+                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
+
+                                                ' MsgBox "DISB CS ARREARS (TYPE 39) OF: " & dail_msg
+                                            ElseIf InStr(dail_msg, "DISB SPOUSAL SUP ARREARS (TYPE 40) OF") Then
+                                                'Enters “X” on DAIL message to open full message. 
+                                                EMWriteScreen "X", dail_row, 3
+                                                ' MsgBox "Did it add X?"
+                                                Transmit
+                                                
+                                                ' Script reads information from full message, specifically the caregiver reference number
+                                                EMReadScreen caregiver_ref_nbr, 2, 10, 32
+                                                MsgBox caregiver_ref_nbr
+                                                PF3
+                                                '1.	Enters “X” on DAIL message to open full message. Script reads information from full message, particularly the reference number provided. The script creates a new variable for the full DAIL message text and a variable for the reference number.
+                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
+                                                ' 3.	Script navigates to corresponding reference number’s UNEA panels.
+                                                ' 4.	For identified reference number, script iterates through all UNEA panels to determine if there is a corresponding Type 40 UNEA panel 
+                                                ' 5.	If there is a Type 40 UNEA panel for the reference number, script navigates back to DAIL (PF3)
+                                                ' 1.	Script reads through the DAIL messages again until the full DAIL message matches accordingly
+                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 40 panel exists for Reference Number #. DAIL message deleted.”
+                                                ' 6.	If there is NOT a UNEA panel for the reference number, the script navigates back to DAIL (PF3) but does NOT delete the panel
+                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel Type 40 missing for Reference Number #. DAIL message not deleted. Requires QI review.”
+                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
+
+                                                ' MsgBox "DISB SPOUSAL SUP ARREARS (TYPE 40) OF: " & dail_msg
+                                            ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
+
+                                                'Enters “X” on DAIL message to open full message. 
+                                                EMWriteScreen "X", dail_row, 3
+                                                ' MsgBox "Did it add X?"
+                                                Transmit
+                                                
+                                                ' Script reads information from full message, specifically the caregiver reference number
+                                                EMReadScreen caregiver_ref_nbr, 2, 9, 54
+                                                MsgBox caregiver_ref_nbr
+                                                
+                                                'Then it reads the employer name up to two extra lines just in case
+                                                EMReadScreen employer_name_line_one, 8, 9, 57
+                                                EMReadScreen employer_name_line_two, 60, 10, 5
+                                                EMReadScreen employer_name_line_three, 60, 11, 5
+                                                
+                                                ' Combine the employer name lines together to form the full nameCombine the PMIs into one string
+                                                full_employer_name = employer_name_line_one & employer_name_line_two & employer_name_line_three
+                                                
+                                                MsgBox full_employer_name
+
+                                                PF3
+                                                
+                                                '1.	Enters “X” on DAIL message to open full message. Script reads information from full message. The script creates a new variable for the full DAIL message text, a variable for the reference number, and a variable for the full employer name.
+                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/JOBS from DAIL (Enters “S” on for DAIL row, then enters JOBS) 
+                                                ' 3.	Script navigates to corresponding reference number’s JOBS panels.
+                                                ' 4.	For identified reference number, script iterates through all JOBS panels to determine if there is a matching employer name
+                                                ' 1.	Consider handling for an approximate match vs exact match 
+                                                ' 2.	Dialog box with list of employer names against the CSES message to choose manually?
+                                                ' 5.	If there is a matching JOBS panel for the reference number, script navigates back to DAIL (PF3)
+                                                ' 1.	Script reads through the DAIL messages again until the full DAIL message matches accordingly
+                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 3.	Updates spreadsheet with processing notes “JOBS panel exists for Reference Number #. DAIL message deleted.”
+                                                ' 4.	Script CASE/NOTEs information about deleting the DAIL message
+                                                ' 6.	If there is NO matching JOBS panel for the reference number, the script creates a new JOBS panel
+                                                ' 1.	Adds new JOBS panel for the reference number
+                                                ' 2.	Use “Other” for JOBS panel and fill in rest (blank?)
+                                                ' 3.	Navigate back to DAIL (PF3)
+                                                ' 4.	Deletes the DAIL message (enters “D” on DAIL row)
+                                                ' 5.	Updates spreadsheet with processing notes “Created new JOBS panel for employer [name] and CASE/NOTEd. DAIL message deleted.”
+                                                ' 6.	Script CASE/NOTEs information about deleting the DAIL message
+                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
+
+                                                ' MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & dail_msg
+                                            ElseIf InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
+                                                '1.	No action on these, simply note in spreadsheet that QI team to review
+                                                ' MsgBox "REPORTED: CHILD REF NBR:" & dail_msg
+                                            Else
+                                                msgbox "Something went wrong"
+                                            End If
+
 
                                         End if
 
+                                        'Process HIRE message
+                                        ' NDNH MEMB [##] NEW [STATE ABBREV] JOB DETAILS 
+                                        ' NEW JOB DETAILS FOR SSN [###-##-####] ([LAST NAME, FIRST INITIAL])
+                                        ' SDNH NEW JOB DETAILS FOR MEMB [##] 
+                                        ' [SSN #] NEW [STATE ABBREV] JOB DETAILS FOR  [LAST NAME,FIRST INITIAL]
+
+
                                         If process_dail_message = True and dail_type = "HIRE" Then
                                             'Update here
+
+                                            If InStr(dail_msg, "NDNH MEMB") Then
+                                                'Add logic here
+                                                MsgBox "NDNH MEMB: " & dail_msg
+                                            ElseIf InStr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
+                                                'Add logic here
+                                                MsgBox "NEW JOB DETAILS FOR SSN: " & dail_msg
+                                            ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
+                                                'Add logic here
+                                                MsgBox "SDNH NEW JOB DETAILS: " & dail_msg
+                                            ElseIf InStr(dail_msg, "JOB DETAILS FOR  ") Then
+                                                'Add logic here
+                                                MsgBox "JOB DETAILS FOR  " & dail_msg
+                                            End If
                                         End If
 
                                         
