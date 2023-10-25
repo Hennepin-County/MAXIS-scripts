@@ -223,7 +223,7 @@ Do
 
 		err_msg = ""
 
-		dialog Diaog1
+		dialog Dialog1
 		cancel_confirmation
 
 		check_1_amount = trim(check_1_amount)		'formatting the amount, reason, and vendor to not allow spaces to be valid entries
