@@ -92,7 +92,7 @@ email_subject = "TESTING REPORT - " & MAXIS_case_number & "Ex Parte DUPLICATE UN
 email_body = "The case - " & MAXIS_case_number & ", appears to have a duplicate UNEA panel created from the Ex Parte Report run." & vbCr		'starting the email body with some base information
 
 'We are always going to be looking in current month plus 1 for Ex Parte cases
-MAXIS_footer_monht = CM_plus_1_mo
+MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 'Going to STAT/MEMB to get the member information
@@ -176,7 +176,7 @@ Call script_end_procedure(end_msg)														'ending the script run
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/24/2023
 '--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------
+'--PRIV Case handling reviewed -------------------------------------------------10/24/2023
 '--Out-of-County handling reviewed----------------------------------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------10/24/2023
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
