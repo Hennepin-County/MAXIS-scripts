@@ -37,8 +37,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-SHOW_TESTING_BOXES = False
-If user_ID_for_validation = "WFC553" or user_ID_for_validation = "CALO001" Then SHOW_TESTING_BOXES = True
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -49,22 +48,18 @@ call changelog_update("10/9/2023", "Initial version.", "Casey Love, Hennepin Cou
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
-If SHOW_TESTING_BOXES = True Then MsgBox "Changelog Loaded"
 'END CHANGELOG BLOCK =======================================================================================================
 
 
 'SCRIPT ====================================================================================================================
 EMConnect "" 													'Connect to MAXIS
-If SHOW_TESTING_BOXES = True Then MsgBox "Connected"
 Call Check_for_MAXIS(False)
-If SHOW_TESTING_BOXES = True Then MsgBox "In MAXIS"
 Call MAXIS_case_number_finder(MAXIS_case_number)				'Capture CASE/NUMBER
 
 'If the CASE Number was found, we can try to read additional information about the case.
 If MAXIS_case_number <> "" Then
 
 	EMReadScreen on_mony_chck, 4, 2, 46				'first, seeing if we are on MONY/CHCK. If the worker filled in MONY/CHCK, we can read all information from this panel
-	If SHOW_TESTING_BOXES = True Then MsgBox "Reading MONY/CHCK - " & on_mony_chck
 	If on_mony_chck = "CHCK" Then					'YAY! We are on MONY/CHCK, let's autofill everything we can
 		EMReadScreen EMER_type, 2, 5, 17			'Read the EMER type
 		If EMER_type = "EG" Then EMER_type = "EGA"
@@ -110,7 +105,6 @@ If MAXIS_case_number <> "" Then
 	Else	'if we do not appear to be on MONY/CHCK
 		'Try to identify if the case is EA or EGA by reading CASE/CURR - this requires that the Case Number was found
     	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, EMER_type, case_status, list_active_programs, list_pending_programs)
-		If SHOW_TESTING_BOXES = True Then MsgBox "Reading CASE/CURR"
 	End If
 End If
 
@@ -120,7 +114,6 @@ If chck_approval_limit = "" Then
 	chck_approval_limit = "1200" 									'default the approval limit to 1200 for EA
 	If EMER_type = "EGA" then chck_approval_limit = "4000"			'default the approval limit to 4000 for EGA
 End If
-If SHOW_TESTING_BOXES = True Then MsgBox "Ready to Show the DIALOG"
 
 'dialog to confirm Case Number, EMER program, approval limit, and Worker Signature
 Dialog1 = ""
