@@ -146,7 +146,7 @@ EndDialog
 Do
 	err_msg = ""
 
-	dialog Diaog1
+	dialog Dialog1
 	cancel_without_confirmation
 
 	Call validate_MAXIS_case_number(err_msg, "*")
