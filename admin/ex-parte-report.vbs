@@ -1549,136 +1549,206 @@ If ex_parte_function = "ADMIN Review" Then
 
 	'display the counts and information gathered from the data list in a dialog
 	BeginDialog Dialog1, 0, 0, 500, dlg_len, "Ex Parte Work Details"
-		'PREP PHASE
-		GroupBox 5, 10, 250, 50, "PREP Phase - " & PREP_PHASE_MO
-		Text 15, 25, 155, 10, "Total Cases with HC ER in " & PREP_PHASE_MO & ": " & prep_month_er_count
-		If prep_month_expt_at_prep = 0 Then Text 15, 40, 155, 10, "PREP Run not completed."
-		If prep_month_expt_at_prep <> 0 Then
-			Text 15, 35, 155, 10, "Case that appear Ex Parte Eligible: " & prep_month_expt_at_prep
-			Text 175, 35, 75, 10, "Percent: " & prep_month_percent_ex_parte_pcnt & " %"
-			If prep_month_still_need_eval <> 0 Then
-				Text 25, 45, 155, 10, "Cases that still need PREP run: " & prep_month_still_need_eval
-			End If
-		End If
-
-		'PHASE 1
-		Text 15, 75, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
-		Text 15, 90, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
-		Text 115, 100, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
-		Text 15, 115, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
-		Text 115, 125, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
-		Text 15, 140, 205, 10, "Cases processed and passed: " & month_after_next_complete_and_expt & "    ( " & month_after_next_complete_and_expt_pcnt & " % )"
-		' Text 145, 150, 75, 10, "( " & month_after_next_complete_and_expt_pcnt & " % )"
-		If Phase_one_hard_stop_passed = True Then Text 15, 155, 165, 10, "Phase One Processing has stopped."
-
-		y_pos = 85
-		x_pos = 185
-		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
-			If HSR_WORK_ARRAY(case_complete_p1_count, each_worker) <> 0 Then
-				If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 4 Then Text x_pos, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 3 Then Text x_pos+5, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 2 Then Text x_pos+10, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 1 Then Text x_pos+15, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
-				Text x_pos+25, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
-				If x_pos = 185 Then
-					x_pos = 350
-				Else
-					x_pos = 185
-					y_pos = y_pos + 10
-				End If
-			End If
-		Next
-		If x_pos = 350 Then y_pos = y_pos + 10
-		y_pos = y_pos + 5
-		If month_after_next_need_to_work <> 0 Then
-			Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 1: " & month_after_next_need_to_work
-			Text 350, y_pos, 130, 10, "Percent: " & month_after_next_waiting_pcnt & " %"
-		Else
-			Text 180, y_pos, 260, 10, "All Ex Parte Evaluation cases for " & PHASE_ONE_MO & " have been completed."
-		End If
-		GroupBox 180, 75, 306, y_pos-75, "Count"
-		Text 210, 75, 20, 10, "Name"
-		Text 350, 75, 20, 10, "Count"
-		Text 375, 75, 20, 10, "Name"
-
-		y_pos = y_pos + 15
-		If y_pos < 155 Then y_pos = 155
-		' MsgBox "1 - y_pos - " & y_pos
-		' If y_pos = 125 Then y_pos = 165
-		GroupBox 5, 65, 485, y_pos-65, "PHASE ONE - " & PHASE_ONE_MO
-
-		y_pos = y_pos + 15
-
-		'PHASE 2
-		start_y_pos = y_pos
-		set_y_pos = y_pos - 10
-		Text 15, y_pos, 155, 10, "Total Cases with HC ER in " & PHASE_TWO_MO & ": " & next_month_er_count
-		y_pos = y_pos + 15
-		Text 15, y_pos, 175, 10, "Cases Ex Parte after Phase ONE: " & next_month_still_expt		'" - XX%"
-		y_pos = y_pos + 10
-		Text 95, y_pos, 175, 10, "Percent: " & next_month_initially_expt_pcnt & " %"
-		y_pos = y_pos + 15
-		Text 15, y_pos, 165, 10, "Cases with Phase 2 completed by HSR: " & next_month_hsr_phase2_complete_count
-		y_pos = y_pos + 10
-		Text 115, y_pos, 165, 10, "Percent: " & next_month_processed_pcnt & " %"
-		y_pos = y_pos + 15
-		If next_month_hsr_phase2_complete_count <> 0 Then
-			Text 15, y_pos, 205, 10, "Cases Approved for " & PHASE_TWO_MO & ": " & next_month_app_count & "    ( " & next_month_app_pcnt & " % )"
-			y_pos = y_pos + 10
-			Text 15, y_pos, 205, 10, "Cases with ER Rescheduled : " & next_month_rescheduled_count & "    ( " & next_month_rescheduled_pcnt & " % )"
-			y_pos = y_pos + 10
-			Text 15, y_pos, 205, 10, "Cases closed/transferred : " & next_month_closed_xfer_count  & "    ( " & next_month_closed_xfer_pcnt & " % )"
-			y_pos = y_pos + 10
-			Text 15, y_pos, 205, 10, "Cases to on PROBLEM list: " & next_month_need_more_review & "    ( " & next_problem_pcnt & " % )"
-		End If
-
-		y_pos = set_y_pos
-		y_pos = y_pos + 20
-		x_pos = 185
-		For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
-			If HSR_WORK_ARRAY(case_complete_p2_count, each_worker) <> 0 Then
-				If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 4 Then Text x_pos, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 3 Then Text x_pos+5, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 2 Then Text x_pos+10, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
-				If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 1 Then Text x_pos+15, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
-				Text x_pos+25, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
-				If x_pos = 185 Then
-					x_pos = 350
-				Else
-					x_pos = 185
-					y_pos = y_pos + 10
-				End If
-			End If
-		Next
-		If x_pos = 350 Then y_pos = y_pos + 10
-		y_pos = y_pos + 5
-		If next_month_need_to_work <> 0 Then
-			Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
-			Text 350, y_pos, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
-		Else
-			Text 180, y_pos, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
-		End If
-		GroupBox 180, set_y_pos+10, 306, y_pos-set_y_pos-10, "Count"
-		Text 210, set_y_pos+10, 20, 10, "Name"
-		Text 350, set_y_pos+10, 20, 10, "Count"
-		Text 375, set_y_pos+10, 20, 10, "Name"
-		y_pos = y_pos + 5
-		If next_month_hsr_phase2_complete_count <> 0 Then
-			If y_pos < start_y_pos+100 Then y_pos = start_y_pos+100
-		Else
-			If y_pos < start_y_pos+55 Then y_pos = start_y_pos+55
-		End If
-		' MsgBox "2 - y_pos - " & y_pos
-
-		' If y_pos < 310 then y_pos = 310
-		' If y_pos = 125 Then y_pos = 165
-		GroupBox 5, set_y_pos, 485, y_pos-set_y_pos+10, "PHASE TWO - " & PHASE_TWO_MO
-
 		ButtonGroup ButtonPressed
+			'PREP PHASE
+			GroupBox 5, 10, 250, 50, "PREP Phase - " & PREP_PHASE_MO
+			Text 15, 25, 155, 10, "Total Cases with HC ER in " & PREP_PHASE_MO & ": " & prep_month_er_count
+			If prep_month_expt_at_prep = 0 Then Text 15, 40, 155, 10, "PREP Run not completed."
+			If prep_month_expt_at_prep <> 0 Then
+				Text 15, 35, 155, 10, "Case that appear Ex Parte Eligible: " & prep_month_expt_at_prep
+				Text 175, 35, 75, 10, "Percent: " & prep_month_percent_ex_parte_pcnt & " %"
+				If prep_month_still_need_eval <> 0 Then
+					Text 25, 45, 155, 10, "Cases that still need PREP run: " & prep_month_still_need_eval
+				End If
+			End If
+
+			'PHASE 1
+			Text 15, 75, 155, 10, "Total Cases with HC ER in " & PHASE_ONE_MO & ": " & month_after_next_er_count
+			Text 15, 90, 175, 10, "Cases that appeared Ex Parte at PREP: " & month_after_next_expt_at_prep		'" - XX%"
+			Text 115, 100, 175, 10, "Percent: " & month_after_next_initially_expt_pcnt & " %"
+			Text 15, 115, 165, 10, "Cases with Phase 1 completed by HSR: " & month_after_next_hsr_phase1_complete_count
+			Text 115, 125, 165, 10, "Percent: " & month_after_next_processed_pcnt & " %"
+			Text 15, 140, 205, 10, "Cases processed and passed: " & month_after_next_complete_and_expt & "    ( " & month_after_next_complete_and_expt_pcnt & " % )"
+			' Text 145, 150, 75, 10, "( " & month_after_next_complete_and_expt_pcnt & " % )"
+			If Phase_one_hard_stop_passed = True Then Text 15, 155, 165, 10, "Phase One Processing has stopped."
+
+			y_pos = 85
+			x_pos = 185
+			For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
+				If HSR_WORK_ARRAY(case_complete_p1_count, each_worker) <> 0 Then
+					If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 4 Then Text x_pos, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 3 Then Text x_pos+5, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 2 Then Text x_pos+10, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p1_count, each_worker)) = 1 Then Text x_pos+15, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p1_count, each_worker)
+					Text x_pos+25, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
+					If x_pos = 185 Then
+						x_pos = 350
+					Else
+						x_pos = 185
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
+			If x_pos = 350 Then y_pos = y_pos + 10
+			y_pos = y_pos + 5
+			If month_after_next_need_to_work <> 0 Then
+				Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 1: " & month_after_next_need_to_work
+				Text 350, y_pos, 130, 10, "Percent: " & month_after_next_waiting_pcnt & " %"
+				If month_after_next_need_to_work < 30 Then
+					PushButton 15, y_pos-3, 150, 13, "Export list of Unprocessed Phase 1", export_list_of_phase_1
+				End If
+			Else
+				Text 180, y_pos, 260, 10, "All Ex Parte Evaluation cases for " & PHASE_ONE_MO & " have been completed."
+			End If
+			GroupBox 180, 75, 306, y_pos-75, "Count"
+			Text 210, 75, 20, 10, "Name"
+			Text 350, 75, 20, 10, "Count"
+			Text 375, 75, 20, 10, "Name"
+
+			y_pos = y_pos + 15
+			If y_pos < 155 Then y_pos = 155
+			' MsgBox "1 - y_pos - " & y_pos
+			' If y_pos = 125 Then y_pos = 165
+			GroupBox 5, 65, 485, y_pos-65, "PHASE ONE - " & PHASE_ONE_MO
+
+			y_pos = y_pos + 15
+
+			'PHASE 2
+			start_y_pos = y_pos
+			set_y_pos = y_pos - 10
+			Text 15, y_pos, 155, 10, "Total Cases with HC ER in " & PHASE_TWO_MO & ": " & next_month_er_count
+			y_pos = y_pos + 15
+			Text 15, y_pos, 175, 10, "Cases Ex Parte after Phase ONE: " & next_month_still_expt		'" - XX%"
+			y_pos = y_pos + 10
+			Text 95, y_pos, 175, 10, "Percent: " & next_month_initially_expt_pcnt & " %"
+			y_pos = y_pos + 15
+			Text 15, y_pos, 165, 10, "Cases with Phase 2 completed by HSR: " & next_month_hsr_phase2_complete_count
+			y_pos = y_pos + 10
+			Text 115, y_pos, 165, 10, "Percent: " & next_month_processed_pcnt & " %"
+			y_pos = y_pos + 15
+			If next_month_hsr_phase2_complete_count <> 0 Then
+				Text 15, y_pos, 205, 10, "Cases Approved for " & PHASE_TWO_MO & ": " & next_month_app_count & "    ( " & next_month_app_pcnt & " % )"
+				y_pos = y_pos + 10
+				Text 15, y_pos, 205, 10, "Cases with ER Rescheduled : " & next_month_rescheduled_count & "    ( " & next_month_rescheduled_pcnt & " % )"
+				y_pos = y_pos + 10
+				Text 15, y_pos, 205, 10, "Cases closed/transferred : " & next_month_closed_xfer_count  & "    ( " & next_month_closed_xfer_pcnt & " % )"
+				y_pos = y_pos + 10
+				Text 15, y_pos, 205, 10, "Cases to on PROBLEM list: " & next_month_need_more_review & "    ( " & next_problem_pcnt & " % )"
+			End If
+
+			y_pos = set_y_pos
+			y_pos = y_pos + 20
+			x_pos = 185
+			For each_worker = 0 to UBound(HSR_WORK_ARRAY, 2)
+				If HSR_WORK_ARRAY(case_complete_p2_count, each_worker) <> 0 Then
+					If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 4 Then Text x_pos, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 3 Then Text x_pos+5, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 2 Then Text x_pos+10, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
+					If len(HSR_WORK_ARRAY(case_complete_p2_count, each_worker)) = 1 Then Text x_pos+15, y_pos, 15, 10, HSR_WORK_ARRAY(case_complete_p2_count, each_worker)
+					Text x_pos+25, y_pos, 115, 10, HSR_WORK_ARRAY(worker_name_const, each_worker)
+					If x_pos = 185 Then
+						x_pos = 350
+					Else
+						x_pos = 185
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
+			If x_pos = 350 Then y_pos = y_pos + 10
+			y_pos = y_pos + 5
+			If next_month_need_to_work <> 0 Then
+				Text 180, y_pos, 130, 10, "Cases to Still Process in Phase 2: " & next_month_need_to_work
+				Text 350, y_pos, 130, 10, "Percent: " & next_month_waiting_pcnt & " %"
+				If next_month_need_to_work < 30 Then
+					PushButton 15, y_pos-3, 150, 13, "Export list of Unprocessed Phase 2", export_list_of_phase_2
+				End If
+			Else
+				Text 180, y_pos, 260, 10, "All Ex Parte Approval cases for " & PHASE_TWO_MO & " have been completed."
+			End If
+			GroupBox 180, set_y_pos+10, 306, y_pos-set_y_pos-10, "Count"
+			Text 210, set_y_pos+10, 20, 10, "Name"
+			Text 350, set_y_pos+10, 20, 10, "Count"
+			Text 375, set_y_pos+10, 20, 10, "Name"
+			y_pos = y_pos + 5
+			If next_month_hsr_phase2_complete_count <> 0 Then
+				If y_pos < start_y_pos+100 Then y_pos = start_y_pos+100
+			Else
+				If y_pos < start_y_pos+55 Then y_pos = start_y_pos+55
+			End If
+			' MsgBox "2 - y_pos - " & y_pos
+
+			' If y_pos < 310 then y_pos = 310
+			' If y_pos = 125 Then y_pos = 165
+			GroupBox 5, set_y_pos, 485, y_pos-set_y_pos+10, "PHASE TWO - " & PHASE_TWO_MO
+
 			OkButton 440, y_pos+15, 50, 15
 	EndDialog
 
-	Dialog Dialog1		'There is no looping and the dialog shows until the user presses OK or Cancel
+	Do
+		Dialog Dialog1		'There is no looping and the dialog shows until the user presses OK or Cancel
+		cancel_without_confirmation
+
+		If ButtonPressed = export_list_of_phase_1 or ButtonPressed = export_list_of_phase_2 Then
+			'Opening the Excel file
+			Set objExcel = CreateObject("Excel.Application")
+			objExcel.Visible = True
+			Set objWorkbook = objExcel.Workbooks.Add()
+			objExcel.DisplayAlerts = True
+
+			'Setting the first 4 col as worker, case number, name, and APPL date
+			ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+			If ButtonPressed = export_list_of_phase_1 Then ObjExcel.Cells(1, 3).Value = "Phase 1 Cases Not Completed in the Data Table - Ex Parte Month " & month_after_next_revw
+			If ButtonPressed = export_list_of_phase_2 Then ObjExcel.Cells(1, 3).Value = "Phase 2 Cases Not Completed in the Data Table - Ex Parte Month " & next_month_revw
+			ObjExcel.columns(1).AutoFit()
+			ObjExcel.columns(3).AutoFit()
+			excel_row = 2
+
+			'declare the SQL statement that will query the database - we need to pull cases from 3 different review months.
+			objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE HCEligReviewDate = '" & next_month_revw & "' or HCEligReviewDate = '" & month_after_next_revw & "' or HCEligReviewDate = '" & prep_month_revw & "'"
+
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
+
+			'Opening the SQL data path for Ex Parte
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+
+			Do While NOT objRecordSet.Eof		'here is where we look at all of the cases to count where everything is at and determine the workers
+				If ButtonPressed = export_list_of_phase_1 Then
+					'PHASE 1 CASE INFORMATION
+					If DateDiff("d", objRecordSet("HCEligReviewDate"), month_after_next_revw) = 0 Then
+						If IsNull(objRecordSet("Phase1HSR")) = False and trim(objRecordSet("Phase1HSR")) <> "" Then
+						Else
+							If objRecordSet("SelectExParte") = True Then
+								ObjExcel.Cells(excel_row, 1).Value = objRecordSet("CaseNumber")
+								excel_row = excel_row + 1
+							End If
+						End If
+					End If
+				End If
+
+				If ButtonPressed = export_list_of_phase_2 Then
+					'PHASE 2 CASE INFORMATION
+					If DateDiff("d", objRecordSet("HCEligReviewDate"), next_month_revw) = 0 Then
+						If IsNull(objRecordSet("Phase2HSR")) = False and trim(objRecordSet("Phase2HSR")) <> "" Then
+						Else
+							If objRecordSet("SelectExParte") = True Then
+								ObjExcel.Cells(excel_row, 1).Value = objRecordSet("CaseNumber")
+								excel_row = excel_row + 1
+							End If
+						End If
+					End If
+				End If
+				objRecordSet.MoveNext		'go to the next case
+			Loop
+			objRecordSet.Close				'close the data connection
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
+		End If
+	Loop until ButtonPressed = -1
+
 	end_msg = ""
 	Call script_end_procedure(end_msg)		'That's all in the ADMIN run
 End If
