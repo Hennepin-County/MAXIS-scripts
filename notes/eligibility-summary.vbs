@@ -2933,6 +2933,14 @@ function define_hc_elig_dialog()
 					Text 350, y_pos+25, 95, 10, "TOTAL PREMIUM $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_premium(memb_ind)
 					y_pos = y_pos + 45
 				End If
+				dp_option_selected = False
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(each_memb) = "DP" Then dp_option_selected = True
+				Next
+				If dp_option_selected = True Then
+					Text 155, 50, 75, 10, "Designated Provider:"
+					EditBox 155, 60, 100, 15, HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected)
+				End If
 			End If
 
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then
@@ -6818,6 +6826,10 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("MEMB " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) & " is eligible for MA-EPD (MA for Employed Persons with Disabilities)")
 				Call write_variable_in_CASE_NOTE("  Monthly Premium is required for MA-EPD")
 				Call write_variable_in_CASE_NOTE("  Total Monthly Premium: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_premium(memb_ind))
+			End If
+			If HC_UNIQUE_APPROVALS(designated_provider_info, unique_app) <> "" Then
+				Call write_variable_in_CASE_NOTE("Spenddown Option Selected: Designated Provider")
+				Call write_variable_in_CASE_NOTE(" - Selected Designated Provider: " & HC_UNIQUE_APPROVALS(designated_provider_info, unique_app))
 			End If
 
 		End If
@@ -18619,6 +18631,7 @@ class stat_detail
 	public stat_memi_citizenship_yn()
 	public stat_memi_citizenship_verif_code()
 	public stat_memi_citizenship_verif_info()
+	public stat_hcmi_spdwn_option()
 	public stat_jobs_one_exists()
 	public stat_jobs_one_job_ended()
 	public stat_jobs_one_job_counted_for_snap()
@@ -19366,6 +19379,7 @@ class stat_detail
 		ReDim stat_memi_citizenship_yn(0)
 		ReDim stat_memi_citizenship_verif_code(0)
 		ReDim stat_memi_citizenship_verif_info(0)
+		ReDim stat_hcmi_spdwn_option(0)
 		ReDim stat_jobs_one_exists(0)
 		ReDim stat_jobs_one_job_ended(0)
 		ReDim stat_jobs_one_job_counted_for_snap(0)
@@ -19985,6 +19999,7 @@ class stat_detail
 			ReDim preserve stat_memi_citizenship_yn(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_code(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_info(memb_count)
+			ReDim preserve stat_hcmi_spdwn_option(memb_count)
 			ReDim preserve stat_jobs_one_exists(memb_count)
 			ReDim preserve stat_jobs_one_job_ended(memb_count)
 			ReDim preserve stat_jobs_one_job_counted_for_snap(memb_count)
@@ -20653,6 +20668,18 @@ class stat_detail
 			If stat_memi_citizenship_verif_code(each_memb) = "PV" Then stat_memi_citizenship_verif_info(each_memb) = "Passport/Visa"
 			If stat_memi_citizenship_verif_code(each_memb) = "OT" Then stat_memi_citizenship_verif_info(each_memb) = "Other Document"
 			If stat_memi_citizenship_verif_code(each_memb) = "NO" Then stat_memi_citizenship_verif_info(each_memb) = "No Verif Provided"
+		Next
+
+		Call navigate_to_MAXIS_screen("STAT", "HCMI")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			stat_hcmi_spdwn_option(each_memb) = ""
+
+			Call write_value_and_transmit(stat_memb_ref_numb(each_memb), 20, 76)
+			EMReadScreen version_exists, 1, 2, 78
+			If version_exists = "1" Then
+				EMReadScreen spdwn_opt, 2, 10, 57
+				If spdwn_opt <> "__" Then stat_hcmi_spdwn_option(each_memb) = spdwn_opt
+			End If
 		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "PREG")
@@ -24996,7 +25023,8 @@ const ref_numb_for_hc_app			= 32
 const major_prog_for_hc_app			= 33
 const process_for_note 				= 34
 const changes_for_note				= 35
-const approval_confirmed			= 36
+const designated_provider_info		= 36
+const approval_confirmed			= 37
 
 Dim DWP_UNIQUE_APPROVALS()
 ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
