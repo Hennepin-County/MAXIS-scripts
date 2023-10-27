@@ -768,7 +768,7 @@ DO
 					Text 20, 85, 200, 10, "Create a list of SMRT ending members."
 				End If
 				If ex_parte_function = "DHS Data Validation" Then
-					GroupBox 5, 40, 240, 75, "Tasks to be Completed:"
+					GroupBox 5, 40, 240, 75, "Tasks to be Skipped:"
 					Text 20, 55, 190, 10, "Compare Hennepin Ex Parte list to the cases from the DHS list."
 					CheckBox 25, 65, 150, 10, "First SQL review is done", sql_reviewed_checkbox
 					CheckBox 25, 75, 150, 10, "HC Details already gathered", hc_elig_reviewed_checkbox
@@ -5853,6 +5853,7 @@ If ex_parte_function = "DHS Data Validation" Then
 		Loop
 		' ObjExcel.Cells(excel_row, 15).Value = found_on_sql
 	End If
+	end_msg = "DHS Compare is Completed."
 
 End If
 
