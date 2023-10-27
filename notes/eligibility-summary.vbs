@@ -27846,7 +27846,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
 		' MsgBox "See the MEMO?"
 		PF4 'Exits the MEMO
-next
+	next
 
 End If
 
