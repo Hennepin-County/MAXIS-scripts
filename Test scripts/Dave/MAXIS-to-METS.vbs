@@ -67,14 +67,32 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
+'Case number and sig dialog
 
+'HH_member selection
+
+'Grab some info before bringing up main dialog
+	'For each member selected
+		'Go to elig, collect recent approved version
+		'Errors that stop script:
+			'Not currently open
+			If case_status <> "active" THEN script_end_procedure_with_error_report("This script should be used to note the circumstances and reason for migrating a maxis case to METS. You must keep MA open in MAXIS for 35 days to allow for the return of information. The individual(s) selected do not have active HC in MAXIS at this time. The script will now stop.")
+			'FCA basis? 
 
 'WCOM-----------------------------------------------------------------------------------
-
-
-'NOTE-----------------------------------------------------------------------------------
+If continued_basis <> true THEN
+'“You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.”
+End If
 
 'TIKL------------------------------------------------------------------------------------
+If continued_basis = true Then
+	create_TIKL("Potential METS migration case, check for return of 6696.", 35, date, false, TIKL_note_text) 'write the TIKL for 35 days out, not sensitive to ten day
+Else
+	create_TIKL(TIKL_text, 35, date, true, TIKL_note_text) 'write the TIKL for 35 days out, not sensitive to ten day
+End If
+'NOTE-----------------------------------------------------------------------------------
+
+
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------

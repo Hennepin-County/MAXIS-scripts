@@ -47,7 +47,7 @@ END IF
     '---------------------------
 
 function new_create_mainframe_friendly_date(date_variable, screen_row, screen_col, variable_length)
-'--- This function creates a mainframe friendly date. This can be used for both year formats and input spacing.
+'--- This function creates a mainframe friendly date. This can be used for all field lengths, spacings, and year formats in MAXIS and MMIS.
 '~~~~~ date_variable: the name of the variable to output
 '~~~~~ screen_row: row to start writing date
 '~~~~~ screen_col: column to start writing date
