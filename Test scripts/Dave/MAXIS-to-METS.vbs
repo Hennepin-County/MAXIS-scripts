@@ -61,6 +61,102 @@ CALL changelog_update("10/20/2023", "Initial version.", "Dave Courtright, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'Custom HH_member_array function
+function HH_member_enhanced_dialog(HH_member_array, instruction_text, checkbox_1, checkbox_2, display_birthdate, display_ssn)
+'--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
+'~~~~~ HH_member_array: should be HH_member_array for function to work
+'===== Keywords: MAXIS, member, array, dialog
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+    transmit
+
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMREadScreen numb_of_membs, 1, 2, 78 'if only one MEMB screen, we don't need to display the dialog 
+		EMReadscreen ref_nbr, 3, 4, 33
+        EMReadScreen access_denied_check, 13, 24, 2
+        'MsgBox access_denied_check
+        If access_denied_check = "ACCESS DENIED" Then
+            PF10
+			EMWaitReady 0, 0
+            last_name = "UNABLE TO FIND"
+            first_name = " - Access Denied"
+            mid_initial = ""
+        Else
+    		EMReadscreen last_name, 25, 6, 30
+    		EMReadscreen first_name, 12, 6, 63
+    		EMReadscreen mid_initial, 1, 6, 79
+			EMReadScreen ssn_last_4, 4, 7, 49
+			EMReadScreen birthdate, 10, 8, 42
+    		last_name = trim(replace(last_name, "_", "")) & " "
+    		first_name = trim(replace(first_name, "_", "")) & " "
+    		mid_initial = replace(mid_initial, "_", "")
+			birthdate = replace(birthdate, " ", "/")
+        End If
+		client_string = ref_nbr & last_name & first_name & mid_initial
+		client_array = client_array & client_string & "|"
+		transmit
+	    Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_array = TRIM(client_array)
+	test_array = split(client_array, "|")
+	total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+	DIM all_client_array()
+	ReDim all_clients_array(total_clients, 1)
+
+	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+		Interim_array = split(client_array, "|")
+		all_clients_array(x, 0) = Interim_array(x)
+		all_clients_array(x, 1) = 1
+	NEXT
+
+	'Generating the dialog
+	'Define some height variables based on inputs
+	member_height = 15
+	If display_ssn = true Or display_birthdate = true  Then member_height = member_height + 15
+	If checkbox_1 <> "" Then member_height = member_height + 15
+	If checkbox_2 <> "" Then member_height = member_height + 15
+	instruction_text_lines = int(len(instruction_text) / 105) + 1
+	dialog1 = ""
+	'gonna need handling for long member lists to start a second column
+	BEGINDIALOG dialog1, 0, 0, 240, (35 + (total_clients * member_height)), "HH Member Dialog"   
+		
+		Text 10, 5, 105, 10 * instruction_text_lines, "Household members to look at:"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+		NEXT
+		ButtonGroup ButtonPressed
+		OkButton 185, 10, 50, 15
+		CancelButton 185, 30, 50, 15
+	ENDDIALOG
+													'runs the dialog that has been dynamically create
+	
+	If numb_of_membs <> "1" Then 
+		Dialog dialog1
+		Cancel_without_confirmation
+	End If 
+
+	HH_member_array = ""
+
+	FOR i = 0 to total_clients
+		IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+			IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+				'msgbox all_clients_
+				HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+			END IF
+		END IF
+	NEXT
+
+	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+	HH_member_array = SPLIT(HH_member_array, " ")
+end function
+
+
+
+
+
+
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
 EMConnect ""
@@ -68,17 +164,18 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 'Case number and sig dialog
-
+check_for_MAXIS(false)
 'HH_member selection
+Call HH_member_custom_dialog(HH_member_array)
 
 'Grab some info before bringing up main dialog
-	'For each member selected
+	For each selected_member in HH_member_array
 		'Go to elig, collect recent approved version
 		'Errors that stop script:
 			'Not currently open
 			If case_status <> "active" THEN script_end_procedure_with_error_report("This script should be used to note the circumstances and reason for migrating a maxis case to METS. You must keep MA open in MAXIS for 35 days to allow for the return of information. The individual(s) selected do not have active HC in MAXIS at this time. The script will now stop.")
 			'FCA basis? 
-
+	Next
 'WCOM-----------------------------------------------------------------------------------
 If continued_basis <> true THEN
 '“You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.”
