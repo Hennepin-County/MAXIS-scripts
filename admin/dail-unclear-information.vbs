@@ -320,8 +320,20 @@ For each worker in worker_array
     'Clearing out MAXIS case number so that it doesn't carry forward from previous case
     MAXIS_case_number = ""
     
-    'Creating initial string for tracking all case numbers
+    'To do - verify placement of these strings for lists of case numbers, dail messages, etc.
+
+    'Resetting all of the string lists
+    'Creating initial string for tracking list of valid case numbers pulled from REPT/ACTV. This is used to avoid triggering a privileged case and losing connection to DAIL
     valid_case_numbers_list = "*"
+
+    'Create list of case numbers to be used for comparison purposes as the script navigates through the DAIL
+    list_of_all_case_numbers = "*"
+
+    'Create list of DAIL messages that should be deleted. If a DAIL message matches, then it will be deleted. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc.
+    list_of_DAIL_messages_to_delete = "*"
+
+    'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
+    list_of_DAIL_messages_to_skip = "*"
 
     'Formatting the worker so there are no errors
     worker = trim(ucase(worker))
@@ -342,7 +354,6 @@ For each worker in worker_array
 		DO
 			EmReadScreen worker_confirmation, 20, 3, 11 'looking for CENTURY PLAZA CLOSED
 			EMWaitReady 0, 0
-			'MsgBox "Are we waiting?"
 		LOOP UNTIL worker_confirmation = "CENTURY PLAZA CLOSED"
 	END IF
 
@@ -374,7 +385,8 @@ For each worker in worker_array
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	END IF
 
-    ' MsgBox valid_case_numbers_list
+    'Ensuring valid_case_numbers is blanked out
+    ' msgbox valid_case_numbers_list
 
     'Navigates to DAIL to pull DAIL messages
     MAXIS_case_number = ""
@@ -385,17 +397,6 @@ For each worker in worker_array
     'Selects INFO (HIRE) DAIL Type based on dialog selection
     If HIRE_messages = 1 Then EMWriteScreen "X", 13, 39
     transmit
-
-    'To do - verify placement of these strings for lists of case numbers, dail messages, etc.
-    'Create list of case numbers to be used for comparison purposes as the script navigates through the DAIL
-    list_of_all_case_numbers = "~"
-
-    'Create list of DAIL messages that should be deleted. If a DAIL message matches, then it will be deleted. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc.
-    list_of_DAIL_messages_to_delete = "~"
-
-    'Create list of DAIL messages that should be skipped. If a DAIL message matches, then the script will skip past it to next DAIL row. This is needed because DAIL will reset to first DAIL message for case number anytime the script goes to CASE/CURR, CASE/PERS, STAT/UNEA, etc. 
-    list_of_DAIL_messages_to_skip = "~"
-
 
     'Enter the worker number on DAIL to pull up DAIL messages
     Call write_value_and_transmit(worker, 21, 6)
@@ -417,7 +418,7 @@ For each worker in worker_array
             dail_msg = ""
             dail_month = ""
             MAXIS_case_number = ""
-            INFC_dail_message = ""
+            INFC_dail_msg = ""
 
             'To do - do we need to reset the full dail message or any other variables?
 
@@ -444,33 +445,32 @@ For each worker in worker_array
             EMReadScreen dail_msg, 61, dail_row, 20
             dail_msg = trim(dail_msg)
             If InStr(dail_msg, "INFC") then 
-                INFC_dail_message = True
+                INFC_dail_msg = True
             Else
-                INFC_dail_message = False
+                INFC_dail_msg = False
             End If
 
-            ' MsgBox INFC_dail_message
-
-
-            'To do - add handling to skip INFC CSES messages since they will stop the script
-            If (INFC_dail_message = False AND dail_type = "CSES") OR dail_type = "HIRE" Then
-                ' MsgBox "INFC dail is false and it is CSES or HIRE"
-                
+            If (INFC_dail_msg = False AND dail_type = "CSES") OR dail_type = "HIRE" Then
                 'Read the MAXIS Case Number, if it is a new case number then pull case details. If it is not a new case number, then do not pull new case details.
+                
+                ' Msgbox "(INFC_dail_msg = False AND dail_type = 'CSES') OR dail_type = 'HIRE' Then"
+
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
 
-                'If the case is in the valid_case_numbers_list, then it can be evaluated. If it is NOT in the valid_case_numbers_list then it is likely privileged or out of county so it will be skipped
                 If InStr(valid_case_numbers_list, "*" & MAXIS_case_number & "*") Then
-                    'If the MAXIS case number is NOT in the list of all case numbers, then it is a new case number and the script will gather case details
-                    If Instr(list_of_all_case_numbers, "~" & MAXIS_case_number & "~") = 0 Then
+                    'If the case is in the valid_case_numbers_list, then it can be evaluated. If it is NOT in the valid_case_numbers_list then it is likely privileged or out of county so it will be skipped
+
+                    If Instr(list_of_all_case_numbers, "*" & MAXIS_case_number & "*") = 0 Then
+                        'If the MAXIS case number is NOT in the list of all case numbers, then it is a new case number and the script will gather case details
+                        
                         'Redim the case details array and add to array
                         ReDim Preserve case_details_array(case_excel_row_const, case_count)
                         case_details_array(case_maxis_case_number_const, case_count) = MAXIS_case_number
                         case_details_array(case_worker_const, case_count) = worker
                 
                         'Since case number is not in list of all case numbers, add it to the list
-                        list_of_all_case_numbers = list_of_all_case_numbers & MAXIS_case_number & "~"
+                        list_of_all_case_numbers = list_of_all_case_numbers & MAXIS_case_number & "*"
 
                         'Navigate to CASE/CURR to pull case details 
                         Call write_value_and_transmit("H", dail_row, 3)
@@ -588,11 +588,11 @@ For each worker in worker_array
 
                             'To do - remove comments below after testing
                             'Determine if processable_based_on_case is True (case is within scope, MAY act on DAIL message) or if processable_based_on_case is false (case is outside of scope, WILL NOT act on DAIL message)
-                            ' MsgBox "case_details_array(snap_status_const, case_count): " & case_details_array(snap_status_const, case_count)
-                            ' MsgBox "case_details_array(other_programs_present_const, case_count): " & case_details_array(other_programs_present_const, case_count)
-                            ' MsgBox "case_details_array(reporting_status_const, case_count): " & case_details_array(reporting_status_const, case_count)
+                            ' Msgbox "case_details_array(snap_status_const, case_count): " & case_details_array(snap_status_const, case_count)
+                            ' Msgbox "case_details_array(other_programs_present_const, case_count): " & case_details_array(other_programs_present_const, case_count)
+                            ' Msgbox "case_details_array(reporting_status_const, case_count): " & case_details_array(reporting_status_const, case_count)
                         End If    
-
+                        
                         If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(other_programs_present_const, case_count) = False AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" then
                             case_details_array(processable_based_on_case_const, case_count) = True
                         Else
@@ -620,9 +620,9 @@ For each worker in worker_array
                         'Increment the case_count for updating the array
                         case_count = case_count + 1
                         'Subtract one from dail_row so that the dail_row restarts evaluation of cases now with case details
-                        ' MsgBox "subtract 1 from dail? Dail row is currently: " & dail_row
+                        ' Msgbox "subtract 1 from dail? Dail row is currently: " & dail_row
                         dail_row = dail_row - 1
-                        ' MsgBox "After subtraction, dail_row = " & dail_row
+                        ' Msgbox "After subtraction, dail_row = " & dail_row
                     
                     Else
                         'If the MAXIS case number IS in the list of all case numbers, then it is not a new case number and no case details need to be gathered. It can work off the already collected case details.
@@ -634,56 +634,59 @@ For each worker in worker_array
                         full_dail_msg = ""
 
                         'Script opens the entire DAIL message to evaluate if it is a new message or not
-                        'To do - once it is working, can use Call write value and transmit
-                        EMWriteScreen "X", dail_row, 3
-                        ' MsgBox "Did it add X?"
-                        Transmit
+                        Call write_value_and_transmit("X", dail_row, 3)
 
                         ' Script reads the full DAIL message so that it can process, or not process, as needed.
                         EMReadScreen full_dail_msg_line_1, 60, 9, 5
 
                         full_dail_msg_line_1 = trim(full_dail_msg_line_1)
-                        ' MsgBox full_dail_msg_line_1
+                        ' Msgbox full_dail_msg_line_1
 
                         EMReadScreen full_dail_msg_line_2, 60, 10, 5
                         full_dail_msg_line_2 = trim(full_dail_msg_line_2)
-                        ' MsgBox full_dail_msg_line_2
+                        ' Msgbox full_dail_msg_line_2
 
                         EMReadScreen full_dail_msg_line_3, 60, 11, 5
                         full_dail_msg_line_3 = trim(full_dail_msg_line_3)
-                        ' MsgBox full_dail_msg_line_3
+                        ' If full_dail_msg_line_3 <> "" Then Msgbox full_dail_msg_line_3
 
                         EMReadScreen full_dail_msg_line_4, 60, 12, 5
                         full_dail_msg_line_4 = trim(full_dail_msg_line_4)
-                        ' MsgBox full_dail_msg_line_4
+                        ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
 
                         full_dail_msg = full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4
 
-                        ' MsgBox full_dail_msg
+                        ' Msgbox full_dail_msg
 
                         'Transmit back to dail
                         transmit
 
+                        'Confirming that dail message lists are updating properly
+                        ' Msgbox "list_of_DAIL_messages_to_delete: " & list_of_DAIL_messages_to_delete
+                        ' Msgbox "list_of_DAIL_messages_to_skip: " & list_of_DAIL_messages_to_skip
+
                         'The script has the full DAIL message and can compare against delete and skip lists to determine if it is a new message
 
-                        'To do - consider more robust handling, should we validate that case number matches? That dail month matches? etc.
-                        If Instr(list_of_DAIL_messages_to_delete, "~" & full_dail_msg & "~") Then
-                            'Add handling here for deleting DAIL messages
-                            'Delete the message
-                            'To do - update once testing complete
-                            MsgBox "This message is on the delete list. It would normally be deleted"
+                        'To do - consider more robust handling, should we validate that case number matches? That dail month matches? These could be added to the string - i.e. *123456 - CS DISB Type 36....*
+                        If Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") Then
+                            'If the full dail message is within the list of dail messages to delete then the message should be deleted
+                            'To do - Add handling here for deleting DAIL messages
+                            ' MsgBox "This message is on the delete list. It would normally be deleted"
                             'To do - remove adding dail to row because it would happen automatically if deleted
+                            ' MsgBox "Where is the dail row? Should it be increased?"
                             ' dail_row = dail_row + 1
-                        ElseIf Instr(list_of_DAIL_messages_to_skip, "~" & full_dail_msg & "~") Then
-                            'Add handling for messages to skip
-                            MsgBox "This message is on the skip list. It should be skipped."
+                        ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
+                            'If the full message is on the list of dail messages to skip then the message should be skipped
+                            'To do - Add handling for messages to skip
+                            ' MsgBox "This message is on the skip list. It should be skipped."
+                            ' MsgBox "Where is the dail row? It should be increased so that it is skipped?"
                             
                             'Go to next dail_row
                             ' dail_row = dail_row + 1
 
-                        ElseIf Instr(list_of_DAIL_messages_to_delete, "~" & full_dail_msg & "~") = 0 AND Instr(list_of_DAIL_messages_to_skip, "~" & full_dail_msg & "~") = 0 Then
-                            'Add handling for messages that are not on delete list and not on skip list, these SHOULD be new messages
-                            'Add all of the handling for determining type, comparing against case details, array, etc.
+                        ElseIf Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") = 0 AND Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") = 0 Then
+                            'If the full dail message is NOT in the list of dail messages to delete AND the full dail messages is NOT in the list of skip messages then it SHOULD be a new dail message and therefore it needs to be evaluated
+
                             'Gather details on DAIL message, should capture DAIL details in spreadsheet even if ultimately not actionable
                         
                             ' MsgBox "This is a new DAIL message. It should be processed accordingly."
@@ -693,12 +696,19 @@ For each worker in worker_array
                             DAIL_message_array(dail_maxis_case_number_const, DAIL_count) = MAXIS_case_number
                             DAIL_message_array(dail_worker_const, DAIL_count) = worker
 
+                            ' Msgbox "DAIL_message_array(dail_maxis_case_number_const, DAIL_count): " & DAIL_message_array(dail_maxis_case_number_const, DAIL_count)
+                            ' Msgbox "DAIL_message_array(dail_worker_const, DAIL_count): " & DAIL_message_array(dail_worker_const, DAIL_count)
+
                             'Use for next loop to match the individual DAIL message to the corresponding array item of matching Case Details
                             for each_case = 0 to UBound(case_details_array, 2)
+                                'Iterate through each of the cases 
                                 If DAIL_message_array(dail_maxis_case_number_const, dail_count) = case_details_array(case_maxis_case_number_const, each_case) Then
+                                    'As the for to loop iterates through each case details array, if the dail maxis case number for the dail message array matches the maxis case number for the case details array then it can pull the case details from the array  
+                                    
                                     'Clearing out process_dail_message
                                     process_dail_message = ""
 
+                                    'Read dail message details
                                     EMReadScreen dail_type, 4, dail_row, 6
                                     dail_type = trim(dail_type)
 
@@ -708,10 +718,11 @@ For each worker in worker_array
                                     EMReadScreen dail_msg, 61, dail_row, 20
                                     dail_msg = trim(dail_msg)
 
-                                    ' MsgBox "This is the dail_msg: " & dail_msg
-                                    ' MsgBox infc_dail_message  
+                                    ' MsgBox "dail_type: " & dail_type & " dail_month: " & dail_month & " dail_msg: " & dail_msg
 
-                                    DAIL_message_array(dail_maxis_case_number_const, dail_count) = MAXIS_case_number
+                                    'Update the DAIL message array with details
+                                    'To do - no need to update the maxis case number again. Remove?
+                                    ' DAIL_message_array(dail_maxis_case_number_const, dail_count) = MAXIS_case_number
                                     DAIL_message_array(dail_type_const, dail_count) = dail_type
                                     DAIL_message_array(dail_month_const, dail_count) = dail_month
                                     DAIL_message_array(dail_msg_const, dail_count) = dail_msg
@@ -719,74 +730,118 @@ For each worker in worker_array
                                     'Activate the DAIL Messages sheet
                                     objExcel.Worksheets("DAIL Messages").Activate
 
+                                    'Write dail details to the Excel sheet
                                     objExcel.Cells(dail_excel_row, 1).Value = DAIL_message_array(dail_maxis_case_number_const, dail_count)
                                     objExcel.Cells(dail_excel_row, 2).Value = DAIL_message_array(dail_worker_const, dail_count)
                                     objExcel.Cells(dail_excel_row, 3).Value = DAIL_message_array(dail_type_const, dail_count)
                                     objExcel.Cells(dail_excel_row, 4).Value = DAIL_message_array(dail_month_const, dail_count)
                                     objExcel.Cells(dail_excel_row, 5).Value = DAIL_message_array(dail_msg_const, dail_count)
 
+                                    ' Msgbox "case_details_array(processable_based_on_case_const, each_case): " & case_details_array(processable_based_on_case_const, each_case)
+
                                     If case_details_array(processable_based_on_case_const, each_case) = False Then
-                                        ' MsgBox "not processable based on case details"
+                                        
+                                        ' Msgbox "case_details_array(processable_based_on_case_const, each_case) = False"
+                                        
                                         DAIL_message_array(renewal_month_determination_const, dail_count) = "N/A"
                                         DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable based on Case Details"
+
+                                        'The dail message should not be processed due to case details
+                                        process_dail_message = False
+
+                                        'to do - do we need to add to skip list? It shouldn't ever process since it is false based on case details
+                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                         'Activate the DAIL Messages sheet
                                         objExcel.Worksheets("DAIL Messages").Activate
 
+                                        'Update the Excel sheet
                                         objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(renewal_month_determination_const, dail_count)
                                         objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
                                     
                                     ElseIf case_details_array(processable_based_on_case_const, each_case) = True Then     
                                         
-                                        ' MsgBox "Processable = true"
-                                        
+                                        ' Msgbox "case_details_array(processable_based_on_case_const, each_case) = True Then " 
+
+                                        ' Msgbox "DateAdd('m', 0, case_details_array(recertification_date_const, each_case)) " & DateAdd("m", 0, case_details_array(recertification_date_const, each_case)) 
+                                        ' Msgbox "DateAdd('m', 1, footer_month_day_year) " & DateAdd("m", 1, footer_month_day_year) 
+                                        ' Msgbox "DateAdd('m', 0, case_details_array(sr_report_date_const, each_case)) " & DateAdd("m", 0, case_details_array(sr_report_date_const, each_case)) 
+                                        ' Msgbox "DateAdd('m', 1, footer_month_day_year) Then " & DateAdd("m", 1, footer_month_day_year)
+
+
                                         'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                         If DateAdd("m", 0, case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
+                                            ' Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
+
                                             If dail_type = "CSES" Then
-                                                ' MsgBox "dail type is CSES"
+                                                
+                                                ' Msgbox "dail type is CSES"
+                                                ' Msgbox "dail_month: " & dail_month
+                                                
                                                 If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
                                                     'To do - update language once finalized
+                                                    ' Msgbox "DateAdd('m', 0, Replace(dail_month, ' ', '/01/')): " & DateAdd("m", 0, Replace(dail_month, " ", "/01/"))
+                                                    ' Msgbox "DateAdd('m', 1, footer_month_day_year): " & DateAdd("m", 1, footer_month_day_year)
+
                                                     DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+
+                                                    'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
+
+                                                    'to do - do we need to add to skip list? It shouldn't ever process since it is false based on case details
+                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+
                                                 Else
+
                                                     'Process the CSES message here
                                                     process_dail_message = True
+
                                                 End If
                                             ElseIf dail_type = "HIRE" Then
                                                 ' MsgBox "dail type is HIRE"
                                                 If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 0, footer_month_day_year) Then
+                                                    
+                                                    ' Msgbox "DateAdd('m', 0, Replace(dail_month, ' ', '/01/')): " & DateAdd("m", 0, Replace(dail_month, " ", "/01/"))
+                                                    ' Msgbox "DateAdd('m', 0, footer_month_day_year): " & DateAdd("m", 0, footer_month_day_year)
+                                                    
                                                     'To do - update language once finalized
                                                     DAIL_message_array(processable_based_on_dail_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(processable_based_on_dail_const, dail_count)
+
+                                                    'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
+
+                                                    'to do - do we need to add to skip list? It shouldn't ever process since it is false based on case details
+                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+
                                                 Else
                                                     'Process the HIRE message
                                                     process_dail_message = True
                                                 End If
+                                            Else
+                                                MsgBox "something went wrong on line 809"
                                             End If
 
+                                        Else
+                                            'To do - ensure this is correct logic regarding handling based on dail months
+                                            'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
+                                            process_dail_message = True
+                                             
                                         End If
 
-                                        'Process CSES message
-                                        ' DISB CS (TYPE 36) OF [$X.XX] FOR [#] CHILD(REN) ISSUED 
-                                        ' REPLACED [DD/MM/YY] DISB CS (TYPE 36) OF [$X.XX] FOR 
-                                        ' DISB SPOUSAL SUP (TYPE 37) OF [$X.XX] ISSUED ON 
-                                        ' DISB CS ARREARS (TYPE 39) OF [$X.XX] FOR [#] CHILD(REN) 
-                                        ' REPLACED [MM/DD/YY] DISB CS ARREARS (TYPE 39) OF
-                                        ' DISB SPOUSAL SUP ARREARS (TYPE 40) OF [$X.XX] ISSUED 
-                                        ' CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: [##] [EMPLOYER NAME]
-                                        ' REPORTED: CHILD REF NBR: [##] NO LONGER RESIDES WITH CAREGIVER (unable to find example)
+                                        'Make sure variables are correct
+                                        ' Msgbox "process_dail_message: " & process_dail_message
+                                        ' Msgbox "dail_type: " & dail_type
 
+                                        'Process the CSES dail message
                                         If process_dail_message = True and dail_type = "CSES" Then
 
                                             If InStr(dail_msg, "DISB CS (TYPE 36) OF") Then
 
+                                                ' Msgbox "InStr(dail_msg, 'DISB CS (TYPE 36) OF'): " & InStr(dail_msg, "DISB CS (TYPE 36) OF")
                                                 'Enters “X” on DAIL message to open full message. 
-                                                'To do - once it is working, can use Call write value and transmit
-                                                EMWriteScreen "X", dail_row, 3
-                                                ' MsgBox "Did it add X?"
-                                                Transmit
+                                                Call write_value_and_transmit("X", dail_row, 3)
 
                                                 ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                 'To do - may not need to double-check messages after fully tested
@@ -830,7 +885,7 @@ For each worker in worker_array
                                                 
                                                 'Combine the PMIs into one string
                                                 full_PMIs = replace(PMIs_line_one & PMIs_line_two & PMIs_line_three, " ", "")
-                                                ' MsgBox full_PMIs
+                                                ' Msgbox full_PMIs
                                                 'Splits the PMIs into an array
                                                 PMIs_array = Split(full_PMIs, ",")
 
@@ -842,15 +897,15 @@ For each worker in worker_array
                                                 for each_PMI = 0 to UBound(PMIs_array, 1)
                                                     ReDim Preserve PMI_and_ref_nbr_array(hh_member_count_const, each_PMI)
                                                     PMI_and_ref_nbr_array(PMI_const, each_PMI) = PMIs_array(each_PMI)
+                                                    ' Msgbox "PMI_and_ref_nbr_array(PMI_const, each_PMI): " & PMI_and_ref_nbr_array(PMI_const, each_PMI)
                                                 Next 
 
                                                 'Transmit back to DAIL
                                                 transmit
 
                                                 ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
-                                                'To do - can use write value and transmit once finalized
-                                                EMWriteScreen "H", dail_row, 3
-                                                Transmit
+                                                ' Msgbox "Navigate to CASE/PERS"
+                                                Call write_value_and_transmit("H", dail_row, 3)
 
                                                 EMWriteScreen "PERS", 20, 69
                                                 Transmit
@@ -869,22 +924,23 @@ For each worker in worker_array
                                                     EMReadScreen ref_number_pers_panel, 2, pers_row, 3
                                                     ref_number_pers_panel = trim(ref_number_pers_panel)
 
-                                                    ' MsgBox "ref_number_pers_panel: " & ref_number_pers_panel
+                                                    ' Msgbox "ref_number_pers_panel: " & ref_number_pers_panel
 
                                                     'Reading the PMI number
                                                     EMReadScreen pmi_number_pers_panel, 8, pers_row, 34  
                                                     pmi_number_pers_panel = trim(pmi_number_pers_panel)
-                                                    ' MsgBox "pmi_number_pers_panel: " & PMI_number_pers_panel
+                                                    ' Msgbox "pmi_number_pers_panel: " & PMI_number_pers_panel
 
                                                     for each_PMI = 0 to UBound(PMI_and_ref_nbr_array, 2)
-                                                        ' MsgBox "pmi_number_pers_panel: " & PMI_number_pers_panel
-                                                        ' MsgBox PMI_and_ref_nbr_array(PMI_const, each_PMI) 
+                                                        ' Msgbox "pmi_number_pers_panel: " & PMI_number_pers_panel
+                                                        ' Msgbox PMI_and_ref_nbr_array(PMI_const, each_PMI) 
 
                                                         If pmi_number_pers_panel = PMI_and_ref_nbr_array(PMI_const, each_PMI) Then
+                                                            ' Msgbox "There is a match on the PMI"
                                                             PMI_and_ref_nbr_array(ref_nbr_const, each_PMI) = ref_number_pers_panel
-                                                            ' MsgBox PMI_and_ref_nbr_array(ref_nbr_const, each_PMI)
+                                                            ' Msgbox "PMI_and_ref_nbr_array(ref_nbr_const, each_PMI): " & PMI_and_ref_nbr_array(ref_nbr_const, each_PMI)
                                                             PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI) = True
-                                                            ' MsgBox PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI)
+                                                            ' Msgbox "PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI): " & PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI)
                                                         End If
                                                     Next
                                                     
@@ -894,7 +950,11 @@ For each worker in worker_array
                                                     'if it reaches 19 - this is further down from the last member
                                                     If pers_row = 19 Then                       
                                                         'go to the next page and reset to line 10
-                                                        PF8                                     
+                                                        PF8         
+                                                        ' Msgbox "did last page show up"
+                                                        EMReadScreen last_page_check, 21, 24, 2                          
+                                                        ' Msgbox last_page_check
+                                                        If last_page_check = "THIS IS THE LAST PAGE" Then Exit Do   
                                                         pers_row = 10
                                                     End If
 
@@ -909,46 +969,50 @@ For each worker in worker_array
                                                 'To do - verify this approach works
                                                 for each_individual = 0 to UBound(PMI_and_ref_nbr_array, 2)
                                                     If PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) <> True Then
-                                                        ' MsgBox "Some PMIs not matched"
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " not found on case."
-                                                        objExcel.Cells(dail_excel_row, 8).Value = DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        ' Msgbox "Some PMIs not matched"
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " not found on case.")
+                                                        ' objExcel.Cells(dail_excel_row, 8).Value = DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     End If
                                                 Next
 
-                                                'Only check UNEA panels if ALL PMIs are matched for DAIL message and for case
-                                                If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "not found on case.") = 0 Then
+                                                'Only check UNEA panels if ALL PMIs are matched for DAIL message and for case. There are no PMIs that did not match within the array.
+                                                If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "not found on case") = 0 Then
                                                     'If all PMIs are found on the case, then the script will navigate directly to STAT/UNEA from CASE/PERS to verify that UNEA panels exist for CS Type 36 for each identified PMI/reference number
+
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'not found on case') = 0: " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "not found on case")
                                                     ' MsgBox "PMIs all found on case"
 
-                                                    'Add full dail msg to list of dail messages to delete
-                                                    ' list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "~"
-
-                                                    MsgBox "Moving to STAT"
+                                                    ' Msgbox "Moving to STAT"
                                                     EMWriteScreen "STAT", 19, 22
                                                     Call write_value_and_transmit("UNEA", 19, 69)
 
                                                     EmReadScreen no_unea_panels_exist, 34, 24, 2
 
+                                                    ' MsgBox "no_unea_panels_exist: " & no_unea_panels_exist
+
                                                     If trim(no_unea_panels_exist) = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
                                                         'If no UNEA panels exist for the case, then the case needs to be flagged for QI
-                                                        MsgBox "no_unea_panels_exist: " & no_unea_panels_exist
+                                                        ' Msgbox "no_unea_panels_exist: " & no_unea_panels_exist
                                                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = "No UNEA panels exist for any member on the case"
 
                                                         ' Add full dail msg to list of dail messages to skip
                                                         'To do - use check_full_dail_msg or just full_dail_msg
-                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "~"
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                                         'Navigate back to DAIL
                                                         PF3
 
                                                         'To do - is it necessary to reset the footer month since it should update when going to CASE/CURR?
                                                         'Need to reset the footer month and footer year without interrupting script navigation in DAIL so open CASE/CURR
+                                                        Msgbox "Resetting footer month and year by going to case curr. Needed?"
                                                         Call write_value_and_transmit("H", dail_row, 3)
 
+                                                        MsgBox "update footer month and year"
                                                         'Update the footer month and year to CM/CY
                                                         EMWriteScreen MAXIS_footer_month, 20, 54
                                                         EMWriteScreen MAXIS_footer_year, 20, 57
-
+                                                        MsgBox "Did footer month and year update?"
+                                                        
                                                         'Navigate back to DAIL
                                                         PF3
 
@@ -956,26 +1020,33 @@ For each worker in worker_array
                                                         'There are at least some UNEA panels. Iterate through all of the PMI/reference numbers to ensure there are corresponding UNEA panels for the DISB Type
                                                         for each_individual = 0 to UBound(PMI_and_ref_nbr_array, 2)
                                                             'Navigate to first UNEA panel for member to determine if any exist
+                                                            ' Msgbox "Write the PMI number to UNEA panel"
                                                             EMWriteScreen PMI_and_ref_nbr_array(ref_nbr_const, each_individual), 20, 76
                                                             Call write_value_and_transmit("01", 20, 79)
 
+                                                            ' Msgbox "What panel did it end up on?"
                                                             'Check if no UNEA panel exists
                                                             EmReadScreen unea_panel_check, 25, 24, 2
 
+                                                            ' Msgbox "unea_panel_check: " & unea_panel_check
+
                                                             If InStr(unea_panel_check, "DOES NOT EXIST") Then
                                                                 'There are no UNEA panels for this HH member. Updates the processing notes for the DAIL message to reflect this
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panels exist for HH member: " & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panels exist for HH member: " & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & ".")
                                                             Else
                                                                 'Read the UNEA type
                                                                 EMReadScreen unea_type, 2, 5, 37
+                                                                ' Msgbox "unea_type: " & unea_type
                                                                 If unea_type = "36" Then
                                                                     'To do - add flagging that the panel does exist?
                                                                     'If it is a type 36 panel then it does not need to read the other panels
-                                                                    MsgBox "unea_type: " & unea_type
+                                                                    ' Msgbox "unea_type: " & unea_type
                                                                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does exist for HH member: " & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                 Else
                                                                     'Check how many panels exist for the HH member
                                                                     EMReadScreen unea_panels_count, 1, 2, 78
+                                                                    ' Msgbox "unea_panels_count: " & unea_panels_count
+                                                                    MsgBox "Is it a number? " & IsNumeric(unea_panels_count)
                                                                     'If there are more than just a single UNEA panel, loop through them all to check for Type 36
                                                                     If unea_panels_count <> 1 Then
                                                                         'Set incrementor for do loop
@@ -983,15 +1054,18 @@ For each worker in worker_array
 
                                                                         Do
                                                                             panel_count = panel_count + 1
+                                                                            ' Msgbox "panel_count: " & panel_count
                                                                             EMWriteScreen PMI_and_ref_nbr_array(ref_nbr_const, each_individual), 20, 76
+                                                                            ' Msgbox "Where did it write the ref number?"
                                                                             Call write_value_and_transmit("0" & panel_count, 20, 79)
 
                                                                             'Read the UNEA type
                                                                             EMReadScreen unea_type, 2, 5, 37
+                                                                            ' Msgbox "unea_type: " & unea_type
                                                                             If unea_type = "36" Then
                                                                                 'To do - add flagging that the panel does exist?
                                                                                 'If it is a type 36 panel then it does not need to read the other panels
-                                                                                MsgBox "unea_type: " & unea_type
+                                                                                ' Msgbox "unea_type: " & unea_type
                                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does exist for HH member: " & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                                 Exit Do
                                                                             End if
@@ -1006,81 +1080,45 @@ For each worker in worker_array
                                                                 End If
                                                             End If
                                                         Next
-
-                                                    'Add handling to indicate if no Type 36 UNEA panels found
-                                                    'To do - verify this is at the correct level
-                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") Then
-                                                        'Write this information to the Excel sheet
-                                                        'To do - update excel sheet
-                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "~"
-                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") = 0 Then
-                                                        'Write this information to the Excel sheet
-                                                        'To do - update excel sheet
-                                                        list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "~"
                                                     End If
+
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
+
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") Then
+                                                        'There is at least one missing Type 36 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 8).Value = "Message added to skip list." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") = 0 Then
+                                                        'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
+                                                        list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 8).Value = "Message added to delete list." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    End If
+
 
                                                 Else
                                                     'There are PMIs in the DAIL message that are not on the case. Therefore, this message should be flagged for QI and added to the DAIL skip list when it is encountered again.
                                                     ' MsgBox "PMIs NOT ALL found on case"
 
-                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "~"
+                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
-
-
-                                                    'To do - add functionality to go to the next message and skip the message because not processable
+                                                    'Update the excel spreadsheet with processing notes
+                                                    'Ensure this is at correct spot
+                                                    objExcel.Cells(dail_excel_row, 8).Value = "Message added to skip list." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 End If
 
-                                                'this is the end of the list
-
-                                                ' for each_PMI = 0 to UBound(case_pers_ref_nbr_and_pmi_array, 2)
-                                                '     for each PMI in PMIs_array
-                                                '         If PMI = case_pers_ref_nbr_and_pmi_array(case_curr_PMI_const, each_PMI) Then
-                                                '             msgbox "PMIs_array: " & PMI
-                                                '             MsgBox "PMI ref nbr array: " & PMI_with_ref_nbrs_array(PMI_number_const, each_case)
-                                                '             MsgBox "There is a match"
-                                                '             case_pers_ref_nbr_and_pmi_array(case_curr_PMI_match_found_const, each_PMI) = True
-                                                '             MsgBox case_pers_ref_nbr_and_pmi_array(case_curr_PMI_match_found_const, each_PMI)
-                                                '         End If
-                                                '     Next
-                                                ' Next 
+                                                'To do - ensure this is at the correct spot
+                                                'Update the excel spreadsheet with processing notes
+                                                ' objExcel.Cells(dail_excel_row, 8).Value = DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 'Navigate back to the DAIL. This will reset to the top of the DAIL messages for the specific case number. Need to consider how to handle.
                                                 ' MsgBox "navigate back to DAIL"
                                                 PF3
 
-
-                                                'Delete after testing
-
-                                                ' 'Navigate to STAT/UNEA to determine if UNEA panels exist for the case
-                                                ' 'To do - once it is working, can use Call write value and transmit
-                                                ' EMWriteScreen "S", dail_row, 3
-                                                ' ' MsgBox "Did it add X?"
-                                                ' Transmit
-                                                
-                                                ' EMWriteScreen "UNEA", 20, 71
-                                                ' Transmit
-
-                                                ' ' Check if no UNEA panels exist for the case, in which this makes it easy to determine whether to process the DAIL message
-                                                ' EMReadScreen no_unea_panels_check, 34, 24, 2
-                                                ' If no_unea_panels_check = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
-                                                '     'Add functionality here to handle this situation
-
-
-
-
-                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
-                                                ' 3.	Script reads through each household member’s UNEA panels until each PMI is matched
-                                                ' 4.	For each identified PMI number, determines if there is a corresponding Type 36 UNEA panel 
-                                                ' 5.	If there is a Type 36 UNEA panel for every PMI, script navigates back to DAIL (PF3)
-                                                ' 1.	Script reads through the messages again until the full DAIL message matches accordingly
-                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
-                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 36 panel exists for every PMI. DAIL message deleted.”
-                                                ' 6.	If there is NOT a UNEA panel for every PMI, script navigates back to DAIL but does NOT delete the panel
-                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel TYPE 36 missing for PMI(S): #####. DAIL message not deleted. Requires QI review.”
-                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
-
-                                                ' MsgBox "DISB CS (TYPE 36) OF: " & dail_msg
                                             ElseIf InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") Then
                                                 'Enters “X” on DAIL message to open full message. 
                                                 EMWriteScreen "X", dail_row, 3
@@ -1217,20 +1255,11 @@ For each worker in worker_array
                                                 '1.	No action on these, simply note in spreadsheet that QI team to review
                                                 ' MsgBox "REPORTED: CHILD REF NBR:" & dail_msg
                                             Else
-                                                msgbox "Something went wrong"
+                                                msgbox "Something went wrong - line 1248"
                                             End If
 
 
-                                        End if
-
-                                        'Process HIRE message
-                                        ' NDNH MEMB [##] NEW [STATE ABBREV] JOB DETAILS 
-                                        ' NEW JOB DETAILS FOR SSN [###-##-####] ([LAST NAME, FIRST INITIAL])
-                                        ' SDNH NEW JOB DETAILS FOR MEMB [##] 
-                                        ' [SSN #] NEW [STATE ABBREV] JOB DETAILS FOR  [LAST NAME,FIRST INITIAL]
-
-
-                                        If process_dail_message = True and dail_type = "HIRE" Then
+                                        ElseIf process_dail_message = True and dail_type = "HIRE" Then
                                             'Update here
 
                                             If InStr(dail_msg, "NDNH MEMB") Then
@@ -1245,7 +1274,14 @@ For each worker in worker_array
                                             ElseIf InStr(dail_msg, "JOB DETAILS FOR  ") Then
                                                 'Add logic here
                                                 MsgBox "JOB DETAILS FOR  " & dail_msg
+                                            Else
+                                                msgbox "Something went wrong - line 1268"
                                             End If
+                                        Else
+                                            MsgBox "Something went wrong = 1269"
+                                            MsgBox "process_dail_message: " & process_dail_message
+                                            MsgBox "dail_type: " & dail_type
+                                            MsgBox "Stop here"
                                         End If
 
                                         
@@ -1265,7 +1301,7 @@ For each worker in worker_array
                                 'To do - validate placement of dail count incrementor
                                 'To do - I think it is in wrong spot. Erroring out on line 680. The dail count is incrementing before it is redimmed so when it is called at higher dail count it errors.
                                 ' dail_count = dail_count + 1
-                            next
+                            Next
 
                         Else
                             'Add handling for messages that are not meeting any criteria. May not be necessary but have this just in case
