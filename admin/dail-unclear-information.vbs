@@ -199,11 +199,11 @@ objExcel.Cells(1, 3).Value = "DAIL Type"
 objExcel.Cells(1, 4).Value = "DAIL Month"
 'To do - determine if FULL DAIL message should be captured
 objExcel.Cells(1, 5).Value = "DAIL Message"
-objExcel.Cells(1, 6).Value = "Renewal Month Determination"
+' objExcel.Cells(1, 6).Value = "Renewal Month Determination"
 ' objExcel.Cells(1, 7).Value = "Processable based on DAIL"
-objExcel.Cells(1, 7).Value = "Processing Notes for DAIL Message"
+objExcel.Cells(1, 6).Value = "Processing Notes for DAIL Message"
 
-FOR i = 1 to 7		'formatting the cells'
+FOR i = 1 to 6		'formatting the cells'
     objExcel.Cells(1, i).Font.Bold = True		'bold font'
     ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
     objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -251,7 +251,7 @@ NEXT
 'Create an array to track in-scope DAIL messages
 DIM DAIL_message_array()
 
-ReDim DAIL_message_array(7, 0)
+ReDim DAIL_message_array(6, 0)
 'Incrementor for the array
 Dail_count = 0
 
@@ -261,13 +261,14 @@ const dail_worker_const	                = 1
 const dail_type_const                   = 2
 const dail_month_const		            = 3
 const dail_msg_const		            = 4
-const renewal_month_determination_const = 5
+'Unneccessary - info is recorded in processing notes field
+' const renewal_month_determination_const = 5
 'Removed constant because redundant with processing notes
 ' const processable_based_on_dail_const   = 6
 'To do - processing notes, would these be captured in case details array?
-const dail_processing_notes_const       = 6
+const dail_processing_notes_const       = 5
 ' To Do - is the excel row constant needed?
-const dail_excel_row_const              = 7
+const dail_excel_row_const              = 6
 
 'Sets variable for the Excel row to export data to Excel sheet
 dail_excel_row = 2
@@ -637,30 +638,44 @@ For each worker in worker_array
                         'Script opens the entire DAIL message to evaluate if it is a new message or not
                         Call write_value_and_transmit("X", dail_row, 3)
 
-                        ' Script reads the full DAIL message so that it can process, or not process, as needed.
-                        EMReadScreen full_dail_msg_line_1, 60, 9, 5
+                        'Check if the full message is displayed
+                        EMReadScreen full_message_check, 36, 24, 2
+                        If InStr(full_message_check, "THE ENTIRE MESSAGE TEXT") Then
+                            ' MsgBox "entire message is displayed"
+                            EMReadScreen dail_msg, 61, dail_row, 20
+                            dail_msg = trim(dail_msg)
+                            full_dail_msg = dail_msg
+                            'Remove x from dail message
+                            EMWriteScreen " ", dail_row, 3
+                        Else
+                            ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                            EMReadScreen full_dail_msg_line_1, 60, 9, 5
 
-                        full_dail_msg_line_1 = trim(full_dail_msg_line_1)
-                        ' Msgbox full_dail_msg_line_1
+                            full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                            ' Msgbox full_dail_msg_line_1
 
-                        EMReadScreen full_dail_msg_line_2, 60, 10, 5
-                        full_dail_msg_line_2 = trim(full_dail_msg_line_2)
-                        ' Msgbox full_dail_msg_line_2
+                            EMReadScreen full_dail_msg_line_2, 60, 10, 5
+                            full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+                            ' Msgbox full_dail_msg_line_2
 
-                        EMReadScreen full_dail_msg_line_3, 60, 11, 5
-                        full_dail_msg_line_3 = trim(full_dail_msg_line_3)
-                        ' If full_dail_msg_line_3 <> "" Then Msgbox full_dail_msg_line_3
+                            EMReadScreen full_dail_msg_line_3, 60, 11, 5
+                            full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+                            ' If full_dail_msg_line_3 <> "" Then Msgbox full_dail_msg_line_3
 
-                        EMReadScreen full_dail_msg_line_4, 60, 12, 5
-                        full_dail_msg_line_4 = trim(full_dail_msg_line_4)
-                        ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
+                            EMReadScreen full_dail_msg_line_4, 60, 12, 5
+                            full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+                            ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
 
-                        full_dail_msg = full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4
+                            full_dail_msg = full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4
 
-                        ' Msgbox full_dail_msg
+                            ' Msgbox full_dail_msg
 
-                        'Transmit back to dail
-                        transmit
+                            'Transmit back to dail
+                            transmit
+
+                        End If
+
+                        
 
                         'Confirming that dail message lists are updating properly
                         ' Msgbox "list_of_DAIL_messages_to_delete: " & list_of_DAIL_messages_to_delete
@@ -744,7 +759,8 @@ For each worker in worker_array
                                         
                                         ' Msgbox "case_details_array(processable_based_on_case_const, each_case) = False"
                                         
-                                        DAIL_message_array(renewal_month_determination_const, dail_count) = "N/A"
+                                        'To do - can delete, no longer needed
+                                        ' DAIL_message_array(renewal_month_determination_const, dail_count) = "N/A"
                                         DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details"
 
                                         'The dail message should not be processed due to case details
@@ -757,8 +773,9 @@ For each worker in worker_array
                                         objExcel.Worksheets("DAIL Messages").Activate
 
                                         'Update the Excel sheet
-                                        objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(renewal_month_determination_const, dail_count)
-                                        objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
+                                        'To do - can delete, no longer needed
+                                        ' objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(renewal_month_determination_const, dail_count)
+                                        objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                     
                                     ElseIf case_details_array(processable_based_on_case_const, each_case) = True Then     
                                         
@@ -785,7 +802,7 @@ For each worker in worker_array
                                                     ' Msgbox "DateAdd('m', 1, footer_month_day_year): " & DateAdd("m", 1, footer_month_day_year)
 
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
-                                                    objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
+                                                    objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
 
                                                     'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
@@ -808,7 +825,7 @@ For each worker in worker_array
                                                     
                                                     'To do - update language once finalized
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
-                                                    objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
+                                                    objExcel.Cells(dail_excel_row, 6).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
 
                                                     'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
@@ -1091,13 +1108,13 @@ For each worker in worker_array
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     End If
 
 
@@ -1109,7 +1126,7 @@ For each worker in worker_array
 
                                                     'Update the excel spreadsheet with processing notes
                                                     'Ensure this is at correct spot
-                                                    objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 End If
 
