@@ -1641,7 +1641,7 @@ function define_main_dialog()
 		ElseIf page_display = retro_page Then															'RETRO Page - this page displays only if there is a RETRO request
 			y_pos = 25
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True Then
 					Text 15, y_pos, 300, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, hc_memb) & " retro request to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb)
 					y_pos = y_pos + 15
 				End If
