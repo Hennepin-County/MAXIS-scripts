@@ -66,6 +66,16 @@ function HH_member_enhanced_dialog(HH_member_array, instruction_text, checkbox_1
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
 '===== Keywords: MAXIS, member, array, dialog
+'Creating a class to hold member info grabbed from maxis
+	Class member_data
+		public member_number
+		public member_name
+		public member_ssn
+		public member_birthdate
+	End Class
+	dim client_array()
+	membs = 1
+
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
     transmit
@@ -81,6 +91,8 @@ function HH_member_enhanced_dialog(HH_member_array, instruction_text, checkbox_1
             last_name = "UNABLE TO FIND"
             first_name = " - Access Denied"
             mid_initial = ""
+			ssn_last_4 = ""
+			birthdate = ""
         Else
     		EMReadscreen last_name, 25, 6, 30
     		EMReadscreen first_name, 12, 6, 63
@@ -91,25 +103,20 @@ function HH_member_enhanced_dialog(HH_member_array, instruction_text, checkbox_1
     		first_name = trim(replace(first_name, "_", "")) & " "
     		mid_initial = replace(mid_initial, "_", "")
 			birthdate = replace(birthdate, " ", "/")
-        End If
-		client_string = ref_nbr & last_name & first_name & mid_initial
-		client_array = client_array & client_string & "|"
+		End If
+		client_string = last_name & first_name & mid_initial
+		redim preserve client_array(membs)
+		set client_array(membs) = new member_data
+		client_array(membs).member_number = ref_numb
+		client_array(membs).member_name = client_string
+		client_array(membs).member_ssn = ssn_last_4
+		client_array(membs).member_birthdate = birthdate
+		membs = membs + 1 'index the value up 1 for next member
 		transmit
 	    Emreadscreen edit_check, 7, 24, 2
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
-	client_array = TRIM(client_array)
-	test_array = split(client_array, "|")
-	total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
-
-	DIM all_client_array()
-	ReDim all_clients_array(total_clients, 1)
-
-	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
-		Interim_array = split(client_array, "|")
-		all_clients_array(x, 0) = Interim_array(x)
-		all_clients_array(x, 1) = 1
-	NEXT
+	total_clients = Ubound(client_array)			'setting the upper bound for how many spaces to use from the array
 
 	'Generating the dialog
 	'Define some height variables based on inputs
@@ -117,14 +124,19 @@ function HH_member_enhanced_dialog(HH_member_array, instruction_text, checkbox_1
 	If display_ssn = true Or display_birthdate = true  Then member_height = member_height + 15
 	If checkbox_1 <> "" Then member_height = member_height + 15
 	If checkbox_2 <> "" Then member_height = member_height + 15
-	instruction_text_lines = int(len(instruction_text) / 105) + 1
+	instruction_text_lines = len(instruction_text) \ 200 + 1
 	dialog1 = ""
 	'gonna need handling for long member lists to start a second column
 	BEGINDIALOG dialog1, 0, 0, 240, (35 + (total_clients * member_height)), "HH Member Dialog"   
 		
-		Text 10, 5, 105, 10 * instruction_text_lines, "Household members to look at:"
+		Text 10, 5, 105, 10 * instruction_text_lines, instruction_text
 		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			IF all_clients_array(i, 0) <> "" THEN 
+				Text 10, (10 + (10*instruction_text_lines) + (i * member_height)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+				If display_birthdate = True Then Text, 10, 
+				If checkbox_1 <> "" Then checkbox, 25, (25 + (10*instruction_text_lines) + (i * member_height)), 160, 10
+				If checkbox_2 <> "" Then checkbox, 40, (25 + (10*instruction_text_lines) + (i * member_height)), 160, 10
+			End If
 		NEXT
 		ButtonGroup ButtonPressed
 		OkButton 185, 10, 50, 15
@@ -173,6 +185,7 @@ Call HH_member_custom_dialog(HH_member_array)
 		'Go to elig, collect recent approved version
 		'Errors that stop script:
 			'Not currently open
+			'Lets make this actually a dialog with the procedure and a button to reach it - maybe functionalize it?
 			If case_status <> "active" THEN script_end_procedure_with_error_report("This script should be used to note the circumstances and reason for migrating a maxis case to METS. You must keep MA open in MAXIS for 35 days to allow for the return of information. The individual(s) selected do not have active HC in MAXIS at this time. The script will now stop.")
 			'FCA basis? 
 	Next
