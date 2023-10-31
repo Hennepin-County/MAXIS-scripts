@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/31/2023", "Fixed inhibiting bug related to IMIG panel for both members on case and/or applying for Health Care.##~##", "Dave Courtright, Hennepin County")
 call changelog_update("09/15/2023", "There was an error on Health Care Evaluation when a case either does not have Health Care on it or a household member with Health Care is not selected. The script will now stop if the case is missing a HCRE panel and will force the selection of a member to process on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2023", "Updated NOTES - Health Care Evaluation to include and reflect ex parte review process.", "Mark Riegel, Hennepin County")
 call changelog_update("05/30/2023", "Updated NOTES - Health Care Evaluation to support recertification processing.##~####~##Added the MN Health Care Programs Renewal form as an option to select.##~##'Recertification' can be selected for each person with HC being processed.##~##", "Casey Love, Hennepin County")
@@ -1617,23 +1618,33 @@ function define_main_dialog()
 			'TODO - SPON
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
-					y_pos = y_pos + 10
-					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 200, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
-					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 275, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
-					y_pos = y_pos + 10
-					Text 25, y_pos+5, 50, 10, "IMIG Notes:"
-					EditBox 60, y_pos, 385, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
-					y_pos = y_pos + 25
+				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True THEN
+					match = ""
+					For match_search = 0 to Ubound(HEALTH_CARE_MEMBERS, 2) 'This loop checks the two arrays - HH members and HC members, and links the member numbers together
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, match_search) THEN 
+						match = match_search
+						End If
+					Next 
+					If match <> "" Then
+						If HEALTH_CARE_MEMBERS(show_hc_detail_const, match) = True Then 'If the member number matches, and that member number indicates we show HC info
+							Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
+							y_pos = y_pos + 10
+							Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 200, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
+							If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 275, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 150, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
+							y_pos = y_pos + 10
+							Text 25, y_pos+5, 50, 10, "IMIG Notes:"
+							EditBox 60, y_pos, 385, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
+							y_pos = y_pos + 25
+						End If
+					End If
 				End If
 			Next
 			grp_len = y_pos-10
