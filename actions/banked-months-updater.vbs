@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/04/2023", "Fixed bug in saving STAT/WREG panel updates when FSET orientation is blank.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2023", "Fixed bug in saving STAT/WREG updates.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/02/2023", "Fixed bug in ABAWD Tracking Record where codes were not entering for the current month.", "Ilse Ferris, Hennepin County")
@@ -196,6 +197,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 		wreg_status = 0
 	    abawd_counted_months_string = ""
 	    banked_months_string = ""
+
 	EMReadScreen panel_exists, 1, 2, 78
 	If panel_exists = "0" then 
 		banked_months_array(abawd_month_eval_const, i) = "No WREG Panel."
@@ -207,7 +209,6 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
 	    TLR_fixed_clock_yr = "23"
 	
-
 	    DO
             'establishing variables for specific ABAWD counted month dates
             If bene_mo_col = "19" then counted_date_month = "01"
@@ -240,7 +241,7 @@ For i = 0 to Ubound(banked_months_array, 2)
             
             'counting and checking for counted banked months
             IF is_counted_month = "B" or is_counted_month = "C" THEN
-            	EMReadScreen counted_date_year, 2, bene_yr_row, 14			'reading counted year date
+            	EMReadScreen counted_date_year, 2, bene_yr_row, 15			'reading counted year date
             	banked_months_count = banked_months_count + 1				'adding counted months
 	    		banked_months_string = banked_months_string & counted_date_month & "/" & counted_date_year & " |"
             END IF
