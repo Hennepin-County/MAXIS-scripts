@@ -28802,7 +28802,7 @@ End If
 If complete_ex_parte_as_closed = True Then
 	sql_review_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	sql_review_date = DateAdd("d", 0, sql_review_date)
-	sql_review_date
+	'sql_review_date
 	If developer_mode = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
 	Else
