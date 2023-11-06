@@ -1139,26 +1139,130 @@ For each worker in worker_array
                                                 PF3
 
                                             ElseIf InStr(dail_msg, "DISB SPOUSAL SUP (TYPE 37)") Then
+                                                'Reset the caregiver reference number
+                                                caregiver_ref_nbr = ""
+
                                                 'Enters “X” on DAIL message to open full message. 
-                                                EMWriteScreen "X", dail_row, 3
-                                                ' MsgBox "Did it add X?"
-                                                Transmit
-                                                
-                                                ' Script reads information from full message, specifically the caregiver reference number
+                                                Call write_value_and_transmit("X", dail_row, 3)
+
+                                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                'To do - may not need to double-check messages after fully tested
+                                                EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
+
+                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                ' MsgBox check_full_dail_msg_line_1
+
+                                                EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
+                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
+                                                ' MsgBox check_full_dail_msg_line_2
+
+                                                EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
+                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
+                                                ' MsgBox check_full_dail_msg_line_3
+
+                                                EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
+                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
+                                                ' MsgBox check_full_dail_msg_line_4
+
+                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+
+                                                ' MsgBox check_full_dail_msg
+                                                ' MsgBox full_dail_msg
+
+                                                If check_full_dail_msg = full_dail_msg Then
+                                                    ' MsgBox "They match"
+                                                Else
+                                                    MsgBox "Something went wrong. The DAIL messages do not match"
+                                                    MsgBox "STOP THE SCRIPT HERE"
+                                                End if
+
+                                                ' Script reads caregiver reference number from the full dail message
                                                 EMReadScreen caregiver_ref_nbr, 2, 10, 32
-                                                ' MsgBox caregiver_ref_nbr
+                                                MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
+
+                                                'Transmit back to DAIL message
+                                                transmit
+
+                                                'Navigate to STAT/UNEA to check for corresponding Type 37 UNEA panel
+                                                Call write_value_and_transmit("S", dail_row, 3)
+                                                Call write_value_and_transmit("UNEA", 20, 71)
+
+                                                'Open the first panel of the caregiver reference number
+                                                EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                Call write_value_and_transmit("01", 20, 79)
+
+                                                'Check if no UNEA panel exists
+                                                EmReadScreen unea_panel_check, 25, 24, 2
+
+                                                'Check if UNEA panels exist for the caregiver reference number
+                                                If InStr(unea_panel_check, "DOES NOT EXIST") Then
+                                                    'There are no UNEA panels for this HH member. Updates the processing notes for the DAIL message to reflect this
+                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panels exist for caregiver reference number: " & caregiver_ref_nbr & ".")
+                                                Else
+                                                    'Read the UNEA type
+                                                    EMReadScreen unea_type, 2, 5, 37
+                                                    ' Msgbox "unea_type: " & unea_type
+                                                    If unea_type = "37" Then
+                                                        'To do - add flagging that the panel does exist?
+                                                        'If it is a type 37 panel then it does not need to read the other panels
+                                                        ' Msgbox "unea_type: " & unea_type
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does exist for HH member: " & caregiver_ref_nbr & "."
+                                                    Else
+                                                        'Check how many panels exist for the HH member
+                                                        EMReadScreen unea_panels_count, 1, 2, 78
+                                                        MsgBox "unea_panels_count: " & unea_panels_count
+                                                        MsgBox IsNumeric(unea_panels_count)
+                                                        'If there are more than just a single UNEA panel, loop through them all to check for Type 37
+                                                        If unea_panels_count <> 1 Then
+                                                            'Set incrementor for do loop
+                                                            panel_count = 1
+
+                                                            Do
+                                                                panel_count = panel_count + 1
+                                                                Msgbox "panel_count: " & panel_count
+                                                                EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                                Msgbox "Where did it write the ref number?"
+                                                                Call write_value_and_transmit("0" & panel_count, 20, 79)
+
+                                                                'Read the UNEA type
+                                                                EMReadScreen unea_type, 2, 5, 37
+                                                                ' Msgbox "unea_type: " & unea_type
+                                                                If unea_type = "37" Then
+                                                                    'To do - add flagging that the panel does exist?
+                                                                    'If it is a type 36 panel then it does not need to read the other panels
+                                                                    ' Msgbox "unea_type: " & unea_type
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does exist for HH member: " & caregiver_ref_nbr & "."
+                                                                    Exit Do
+                                                                End if
+
+                                                                'If the loop has reached the final panel without encountering a Type 37 message, then it updates the processing notes accordingly
+                                                                If panel_count = unea_panels_count Then
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does not exist for HH member: " & caregiver_ref_nbr & "."
+                                                                    Exit Do
+                                                                End If
+                                                            Loop
+                                                        End If
+                                                    End If
+                                                End If
+
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
+
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") Then
+                                                        'There is at least one missing Type 36 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist") = 0 Then
+                                                        'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
+                                                        list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    End If
+
+                                                'PF3 back to DAIL
                                                 PF3
-                                                '1.	Enters “X” on DAIL message to open full message. Script reads information from full message, particularly the reference number provided. The script creates a new variable for the full DAIL message text and a variable for the reference number.
-                                                ' 2.	Script PF3s out of DAIL message and navigates to STAT/UNEA from DAIL (Enters “S” on for DAIL row, then enters UNEA) 
-                                                ' 3.	Script navigates to corresponding reference number’s UNEA panels.
-                                                ' 4.	For identified reference number, script iterates through all UNEA panels to determine if there is a corresponding Type 37 UNEA panel 
-                                                ' 5.	If there is a Type 37 UNEA panel for the reference number, script navigates back to DAIL (PF3)
-                                                ' 1.	Script reads through the DAIL messages again until the full DAIL message matches accordingly
-                                                ' 2.	Deletes the DAIL message (enters “D” on DAIL row)
-                                                ' 3.	Updates spreadsheet with processing notes “UNEA Type 37 panel exists for Reference Number #. DAIL message deleted.”
-                                                ' 6.	If there is NOT a UNEA panel for the reference number, the script navigates back to DAIL (PF3) but does NOT delete the panel
-                                                ' 1.	Updates spreadsheet with processing notes “UNEA panel Type 37 missing for Reference Number #. DAIL message not deleted. Requires QI review.”
-                                                ' 7.	Exits Do Loop back and moves to next row in the spreadsheet (excel_row = excel_row + 1)
 
                                                 ' MsgBox "DISB SPOUSAL SUP (TYPE 37): " & dail_msg
                                             ElseIf InStr(dail_msg, "DISB CS ARREARS (TYPE 39) OF") Then
