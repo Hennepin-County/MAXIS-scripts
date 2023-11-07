@@ -5549,7 +5549,7 @@ function create_mainframe_friendly_date(date_variable, screen_row, screen_col, v
 '      entering any other non-numeric variable will result in 0 days added.
 '===== Keywords: MAXIS, PRISM, MMIS, date, create
 'Year type is now variable length. This is a date offset calculation in days.
-	IF isnumeric(variable_length) = false THEN variable_length = 0 'Need to handle the old function, where this value was "YY or YYYY" for handling year.
+	IF isnumeric(variable_length) = false THEN variable_length = 0 'This handles the old function, where this value was "YY or YYYY" for handling year.
 	date_variable = dateadd("d", variable_length, date_variable) 'adding the number of days to the date
 
 	'Formatting the parts of the Date to correct lengths
