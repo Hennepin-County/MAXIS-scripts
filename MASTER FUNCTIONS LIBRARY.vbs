@@ -5542,11 +5542,12 @@ end function
 
 function create_mainframe_friendly_date(date_variable, screen_row, screen_col, variable_length)
 '--- This function creates a mainframe friendly date. This can be used for all field lengths, spacings, and year formats in MAXIS and MMIS.
+'	 The function tabs through the date fields to determine formatting. Handles full dates with 2 or 4 digit year, as well as month/year fields. 
 '~~~~~ date_variable: the name of the variable to output
 '~~~~~ screen_row: row to start writing date
 '~~~~~ screen_col: column to start writing date
-'~~~~~ variable length: the number of days to add to the date_variable for output. Entering "tikl_date" will calculate the first date for negative action allowing for 10 day notice. 
-'      entering any other non-numeric variable will result in 0 days added.
+'~~~~~ variable length: the number of days to add to the date_variable for output. 
+'      entering any non-numeric variable will result in 0 days added. This is for backward compatibility with scripts that used this variable for year format
 '===== Keywords: MAXIS, PRISM, MMIS, date, create
 'Year type is now variable length. This is a date offset calculation in days.
 	IF isnumeric(variable_length) = false THEN variable_length = 0 'This handles the old function, where this value was "YY or YYYY" for handling year.
