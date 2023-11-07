@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/07/2023", "Fixed bug when case is a MA Excluded Time case.", "Ilse Ferris, Hennepin County.")
 call changelog_update("05/24/2023", "Updated date validation and error messages for dialog to ensure consistent entry.", "Mark Riegel, Hennepin County.")
 call changelog_update("10/26/2022", "Updated several functionalities to support enhanced experience for both inner and inter county transfer.", "Ilse Ferris, Hennepin County.")
 call changelog_update("04/01/2022", "There is no longer a case note for in-county transfers based on guidance provided by CASE NOTE III: CLAIMS/SYSTEMS/TRANSFERS TE02.08.095.", "MiKayla Handley, Hennepin County.")
@@ -395,6 +396,7 @@ IF panel_check = "XCTY" THEN
 
     IF excluded_time_dropdown = "Yes" THEN                          'If there's excluded time, need to write the info
         call create_MAXIS_friendly_date(excluded_time_begin_date, 0, 6, 28)
+        EMWriteScreen hc_cfr, 15, 39
     Else
         IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE) THEN
             EmReadscreen Cash_I_prog, 2, 11, 28
