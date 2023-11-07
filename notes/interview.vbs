@@ -11861,8 +11861,8 @@ Set objWord = CreateObject("Word.Application")
 'Adding all of the information in the dialogs into a Word Document
 If no_case_number_checkbox = checked Then objWord.Caption = "CAF Form Details - NEW CASE"
 If no_case_number_checkbox = unchecked Then objWord.Caption = "CAF Form Details - CASE #" & MAXIS_case_number			'Title of the document
-' objWord.Visible = True														'Let the worker see the document
-objWord.Visible = False 														'The worker should NOT see the docuement
+objWord.Visible = True														'Let the worker see the document
+'objWord.Visible = False 														'The worker should NOT see the docuement
 'allow certain workers to see the document
 ' If user_ID_for_validation = "WFA168" or user_ID_for_validation = "LILE002" Then objWord.Visible = True
 
