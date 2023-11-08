@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/08/2023", "Updated script to support up to 3 banked months.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/04/2023", "Fixed bug in saving STAT/WREG panel updates when FSET orientation is blank.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2023", "Fixed bug in saving STAT/WREG updates.", "Ilse Ferris, Hennepin County")
@@ -280,18 +281,21 @@ For i = 0 to Ubound(banked_months_array, 2)
 	End if 
 
 	'Banked Months Determinations
-	If banked_months_count = 2 then 
+	If banked_months_count = 3 then 
 		banked_months_array(used_all_banked_mo_const, i) = True 
 		banked_months_array(banked_month_eval_const, i) = "All banked months have been used for this member."
-	Elseif banked_months_count = 1 then 
+	Elseif banked_months_count = 2 then 
 		banked_months_array(used_all_banked_mo_const, i) = False 
 		banked_months_array(banked_month_eval_const, i) = "1 banked months available." 
-	Elseif banked_months_count = 0 then 
+	Elseif banked_months_count = 1 then 
 		banked_months_array(used_all_banked_mo_const, i) = False 
 		banked_months_array(banked_month_eval_const, i) = "2 banked months available." 
+	Elseif banked_months_count = 0 then 
+		banked_months_array(used_all_banked_mo_const, i) = False 
+		banked_months_array(banked_month_eval_const, i) = "3 banked months available." 
 	Else 
-		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & banked_months_count & " banked months. Only 2 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
-		banked_months_array(banked_month_eval_const, i) = banked_months_count & " have been used. Only 2 are allowed. Updates are needed."
+		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & banked_months_count & " banked months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
+		banked_months_array(banked_month_eval_const, i) = banked_months_count & " have been used. Only 3 are allowed. Updates are needed."
 	End if
 Next 
 
@@ -378,7 +382,7 @@ For item = 0 to ubound(footer_month_array)
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
 
-		    If banked_months_array(banked_mo_count_const, i) < 2 then 
+		    If banked_months_array(banked_mo_count_const, i) < 3 then 
 	        	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
 		    	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
 		    	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
@@ -429,7 +433,7 @@ If spec_memo = True then
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("Unless you or someone in your SNAP unit meet work rules or an exemption, you/they will no longer be eligible for SNAP.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits for up to 2 more months.")
+	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits for up to 3 more months.")
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 2 months.")
 	Call write_variable_in_SPEC_MEMO("")
