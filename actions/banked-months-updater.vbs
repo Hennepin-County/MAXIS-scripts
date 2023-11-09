@@ -435,7 +435,7 @@ If spec_memo = True then
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits for up to 3 more months.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 2 months.")
+	Call write_variable_in_SPEC_MEMO("If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 3 months.")
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("Please contact your team if you, or someone in your SNAP unit, start meeting work requirements or think that you meet an exemption.")
 	Call write_variable_in_SPEC_MEMO("")
