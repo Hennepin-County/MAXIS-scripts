@@ -387,11 +387,12 @@ For each worker in worker_array
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	END IF
 
-    'Ensuring valid_case_numbers is blanked out
+    ' Ensuring valid_case_numbers is blanked out
     ' msgbox valid_case_numbers_list
 
     'To do - delete this after testing, used to test specific case numbers
     ' valid_case_numbers_list = "**"
+
 
     'Navigates to DAIL to pull DAIL messages
     MAXIS_case_number = ""
@@ -651,6 +652,7 @@ For each worker in worker_array
                             'Remove x from dail message
                             EMWriteScreen " ", dail_row, 3
                         Else
+                            
                             ' Script reads the full DAIL message so that it can process, or not process, as needed.
                             EMReadScreen full_dail_msg_line_1, 60, 9, 5
 
@@ -1364,7 +1366,7 @@ For each worker in worker_array
 
                                                 ' Script reads caregiver reference number from the full dail message
                                                 EMReadScreen caregiver_ref_nbr, 2, 10, 35
-                                                MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
+                                                ' MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
 
                                                 'Transmit back to DAIL message
                                                 transmit
@@ -1396,8 +1398,8 @@ For each worker in worker_array
                                                     Else
                                                         'Check how many panels exist for the HH member
                                                         EMReadScreen unea_panels_count, 1, 2, 78
-                                                        MsgBox "unea_panels_count: " & unea_panels_count
-                                                        MsgBox "IsNumeric(unea_panels_count): " & IsNumeric(unea_panels_count)
+                                                        ' MsgBox "unea_panels_count: " & unea_panels_count
+                                                        ' MsgBox "IsNumeric(unea_panels_count): " & IsNumeric(unea_panels_count)
                                                         'If there are more than just a single UNEA panel, loop through them all to check for Type 37
                                                         If unea_panels_count <> 1 Then
                                                             'Set incrementor for do loop
@@ -1405,14 +1407,14 @@ For each worker in worker_array
 
                                                             Do
                                                                 panel_count = panel_count + 1
-                                                                Msgbox "panel_count: " & panel_count
+                                                                ' Msgbox "panel_count: " & panel_count
                                                                 EMWriteScreen caregiver_ref_nbr, 20, 76
-                                                                Msgbox "Where did it write the ref number?"
+                                                                ' Msgbox "Where did it write the ref number?"
                                                                 Call write_value_and_transmit("0" & panel_count, 20, 79)
 
                                                                 'Read the UNEA type
                                                                 EMReadScreen unea_type, 2, 5, 37
-                                                                Msgbox "unea_type: " & unea_type
+                                                                ' Msgbox "unea_type: " & unea_type
                                                                 If unea_type = "40" Then
                                                                     'To do - add flagging that the panel does exist?
                                                                     'If it is a type 40 panel then it does not need to read the other panels
@@ -1428,7 +1430,7 @@ For each worker in worker_array
                                                                 'If the loop has reached the final panel without encountering a Type 40 message, then it updates the processing notes accordingly
                                                                 If panel_count = unea_panels_count Then
                                                                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A Type " & unea_type & " UNEA panel does not exist for HH member: " & caregiver_ref_nbr & "."
-                                                                    msgbox "Line 1426. It worked. panel_count = unea_panels_count BUT HAD TO CONVERT TO NUMBERS FOR SOME REASON"
+                                                                    ' msgbox "Line 1426. It worked. panel_count = unea_panels_count BUT HAD TO CONVERT TO NUMBERS FOR SOME REASON"
                                                                     Exit Do
                                                                 End If
                                                             Loop
@@ -1457,26 +1459,407 @@ For each worker in worker_array
 
                                             ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
 
-                                                'Enters “X” on DAIL message to open full message. 
-                                                EMWriteScreen "X", dail_row, 3
-                                                ' MsgBox "Did it add X?"
-                                                Transmit
-                                                
-                                                ' Script reads information from full message, specifically the caregiver reference number
-                                                EMReadScreen caregiver_ref_nbr, 2, 9, 54
-                                                ' MsgBox caregiver_ref_nbr
-                                                
-                                                'Then it reads the employer name up to two extra lines just in case
-                                                EMReadScreen employer_name_line_one, 8, 9, 57
-                                                EMReadScreen employer_name_line_two, 60, 10, 5
-                                                EMReadScreen employer_name_line_three, 60, 11, 5
-                                                
-                                                ' Combine the employer name lines together to form the full nameCombine the PMIs into one string
-                                                full_employer_name = employer_name_line_one & employer_name_line_two & employer_name_line_three
-                                                
-                                                ' MsgBox full_employer_name
+                                                'Reset the caregiver reference number
+                                                caregiver_ref_nbr = ""
 
+                                                'Reset the no_exact_JOBS_panel_matches 
+                                                no_exact_JOBS_panel_matches = ""
+
+                                                'Reset the list of employers
+                                                list_of_employers_on_jobs_panels = "*"
+
+                                                'Enters “X” on DAIL message to open full message. 
+                                                Call write_value_and_transmit("X", dail_row, 3)
+
+                                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                'To do - may not need to double-check messages after fully tested
+                                                EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
+
+                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                ' MsgBox check_full_dail_msg_line_1
+
+                                                EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
+                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
+                                                ' MsgBox check_full_dail_msg_line_2
+
+                                                EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
+                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
+                                                ' MsgBox check_full_dail_msg_line_3
+
+                                                EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
+                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
+                                                ' MsgBox check_full_dail_msg_line_4
+
+                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+
+                                                ' MsgBox check_full_dail_msg
+                                                ' MsgBox full_dail_msg
+
+                                                'To do - delete after testing
+                                                If check_full_dail_msg = full_dail_msg Then
+                                                    ' MsgBox "They match"
+                                                Else
+                                                    MsgBox "Something went wrong. The DAIL messages do not match"
+                                                    MsgBox "STOP THE SCRIPT HERE"
+                                                End if
+
+                                                ' Script reads caregiver reference number from the full dail message
+                                                EMReadScreen caregiver_ref_nbr, 2, 9, 54
+                                                MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
+                                                
+                                                EMReadScreen employer_name_line_1, 8, 9, 57
+                                                MsgBox "employer_name_line_1: " & employer_name_line_1
+
+                                                employer_full_name = employer_name_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4
+                                                MsgBox employer_full_name
+                                                
+                                                'Transmit back to DAIL message
+                                                transmit
+
+                                                'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
+                                                Call write_value_and_transmit("S", dail_row, 3)
+                                                Call write_value_and_transmit("JOBS", 20, 71)
+
+                                                msgbox "JOBS panel"
+
+                                                'Open the first JOBS panel of the caregiver reference number
+                                                EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                Call write_value_and_transmit("01", 20, 79)
+
+                                                msgbox "First JOBS panel"
+
+                                                'Check if no JOBS panel exists
+                                                EmReadScreen jobs_panel_check, 25, 24, 2
+
+                                                'Check if UNEA panels exist for the caregiver reference number
+                                                If InStr(jobs_panel_check, "DOES NOT EXIST") Then
+                                                    'There are no JOBS panels for this HH member. Updates the processing notes for the DAIL message to reflect this
+                                                    msgbox "No jobs panels exist"
+                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for caregiver reference number: " & caregiver_ref_nbr & ".")
+                                                Else
+                                                    'Read the employer name
+                                                    EMReadScreen employer_name_jobs_panel, 30, 7, 42
+                                                    employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
+                                                    Msgbox "employer_name_jobs_panel: " & employer_name_jobs_panel
+
+
+                                                    If employer_name_jobs_panel = employer_full_name Then
+                                                        MsgBox "That's convenient. The employer names match exactly"
+                                                        'Compare new employer name with JOBS panel, use fuzzy matching
+                                                        'If it is a type 40 panel then it does not need to read the other panels
+                                                        ' Msgbox "unea_type: " & unea_type
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "."
+
+                                                        'To do - add CASE/NOTE capabilities
+                                                        'To do - add to delete list
+
+                                                    Else
+                                                        msgbox "Employer names do not match"
+                                                        'Check how many panels exist for the HH member
+                                                        EMReadScreen jobs_panels_count, 1, 2, 78
+                                                        'Convert jobs_panels_count to a number
+                                                        MsgBox "is jobs_panels_count numeric:? before " & IsNumeric(jobs_panels_count)
+                                                        jobs_panels_count = jobs_panels_count * 1
+                                                        MsgBox "is jobs_panels_count numeric:? after " & IsNumeric(jobs_panels_count)
+                                                        'If there is more than just 1 JOBS panel, loop through them all to check for Type 37
+                                                        If jobs_panels_count = 1 Then
+                                                            MsgBox "jobs_panel_count equals 1"
+
+                                                            'It adds the employer name to the list of employers so that it can be displayed on the dialog for verification
+                                                            list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+
+                                                        
+                                                        
+                                                        ElseIf jobs_panels_count <> 1 Then
+                                                            MsgBox "jobs_panel_count is greater than 1"
+                                                            
+                                                            'It adds the first employer name to the list of employers so that it can be displayed on the dialog for verification
+                                                            list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+
+                                                            'Set incrementor for do loop
+                                                            panel_count = 1
+
+                                                            Do
+                                                                panel_count = panel_count + 1
+                                                                Msgbox "panel_count: " & panel_count
+                                                                EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                                Msgbox "Where did it write the ref number?"
+                                                                Call write_value_and_transmit("0" & panel_count, 20, 79)
+
+                                                                'Read the employer name
+                                                                EMReadScreen employer_name_jobs_panel, 30, 7, 42
+                                                                employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
+                                                                Msgbox "employer_name_jobs_panel: " & employer_name_jobs_panel
+
+                                                                If employer_name_jobs_panel = employer_full_name Then
+                                                                    MsgBox "That's convenient. The employer names match exactly"
+                                                                    'Compare new employer name with JOBS panel, use fuzzy matching
+                                                                    'If the employer names match then it does not need to check any other panels and can update array accordingly
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "."
+
+                                                                    'To do - add CASE/NOTE capabilities
+                                                                    'To do - add to delete list
+                                                                    
+                                                                    'Exit the do loop since an exact match was found
+                                                                    Exit Do
+                                                                Else
+                                                                    'If the employer names do not match, then it adds to the employer name to the list of employers for review in dialog
+                                                                    list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+
+                                                                End If
+
+                                                                MsgBox "line 1610. here is list of jobs string: " & list_of_employers_on_jobs_panels
+                                                                'Ensuring that both panel_count and unea_panels_count are both numbers
+                                                                panel_count = panel_count * 1
+                                                                jobs_panels_count = jobs_panels_count * 1
+                                                                MsgBox "panel_count = " & panel_count & " AND " & "jobs_panels_count = " & jobs_panels_count 
+                                                                
+                                                                If panel_count = jobs_panels_count Then
+                                                                    'To do - will determine if the JOBS panel exists once reviewed in dialog, can likely delete code below
+                                                                    ' DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "."
+                                                                    no_exact_JOBS_panel_matches = True
+                                                                    msgbox "Line 1603. It worked. panel_count = jobs_panels_count"
+                                                                    Exit Do
+                                                                End If
+                                                            Loop
+                                                        End If
+
+                                                        'Add dialog info here
+                                                        'Convert string of the employer names into an array for use in the dialog
+                                                        'To do - add handling for when it has already been determined that there is a match on the employer names
+                                                        If no_exact_JOBS_panel_matches = True Then
+                                                            'Remove ending *
+                                                            list_of_employers_on_jobs_panels = Left(list_of_employers_on_jobs_panels, len(list_of_employers_on_jobs_panels) - 1)
+                                                            'Remove starting *
+                                                            list_of_employers_on_jobs_panels = Right(list_of_employers_on_jobs_panels, len(list_of_employers_on_jobs_panels) - 1)
+                                                            'Convert list of employer names from a string to a single dimensional array
+                                                            MsgBox "list_of_employers_on_jobs_panels after removing beginning and ending asterisk: " & list_of_employers_on_jobs_panels
+                                                            list_of_employers_on_jobs_panels = split(list_of_employers_on_jobs_panels, "*")
+
+
+                                                            'Updated dialog
+                                                            'To do - previous dialog approach, saved in case needed later
+                                                            ' BeginDialog Dialog1, 0, 0, 401, 190, "Employers on JOBS Panel"
+                                                            '     Text 5, 5, 100, 10, "Caregiver Reference Number:"
+                                                            '     Text 105, 5, 20, 10, caregiver_ref_nbr
+                                                            '     Text 55, 20, 50, 10, "Case Number:"
+                                                            '     Text 105, 20, 80, 10, MAXIS_case_number
+                                                            '     GroupBox 5, 40, 390, 115, "Employer on JOBS Panels"
+                                                            '     Text 25, 55, 75, 10, "CSES - New Employer:"
+                                                            '     Text 100, 55, 210, 10, employer_full_name
+                                                            '     Text 10, 75, 90, 10, "Employer - JOBS Panel 01: "
+                                                            '     Text 100, 75, 210, 10, list_of_employers_on_jobs_panels(0)
+                                                            '     DropListBox 315, 70, 75, 15, "[Select Option]"+chr(9)+"Definite Match"+chr(9)+"Potential Match"+chr(9)+"Not a Match", employer_1_match
+                                                            '     'Only show additional employer names if they are present
+                                                            '     If UBound(list_of_employers_on_jobs_panels) >= 1 Then
+                                                            '         Text 10, 90, 90, 10, "Employer - JOBS Panel 02:"
+                                                            '         Text 100, 90, 210, 10, list_of_employers_on_jobs_panels(1)
+                                                            '         DropListBox 315, 85, 75, 15, "[Select Option]"+chr(9)+"Definite Match"+chr(9)+"Potential Match"+chr(9)+"Not a Match", employer_2_match
+                                                            '     End If
+                                                            '     If UBound(list_of_employers_on_jobs_panels) >= 2 Then
+                                                            '         Text 10, 105, 90, 10, "Employer - JOBS Panel 03:"
+                                                            '         Text 100, 105, 210, 10, list_of_employers_on_jobs_panels(2)
+                                                            '         DropListBox 315, 100, 75, 15, "[Select Option]"+chr(9)+"Definite Match"+chr(9)+"Potential Match"+chr(9)+"Not a Match", employer_3_match
+                                                            '     End If
+                                                            '     If UBound(list_of_employers_on_jobs_panels) >= 3 Then
+                                                            '         Text 10, 120, 90, 10, "Employer - JOBS Panel 04:"
+                                                            '         Text 100, 120, 210, 10, list_of_employers_on_jobs_panels(3)
+                                                            '         DropListBox 315, 115, 75, 15, "[Select Option]"+chr(9)+"Definite Match"+chr(9)+"Potential Match"+chr(9)+"Not a Match", employer_4_match
+                                                            '     End If
+                                                            '     If UBound(list_of_employers_on_jobs_panels) >= 4 Then
+                                                            '         Text 10, 135, 90, 10, "Employer - JOBS Panel 05:"
+                                                            '         Text 100, 135, 210, 10, list_of_employers_on_jobs_panels(4)
+                                                            '         DropListBox 315, 130, 75, 15, "[Select Option]"+chr(9)+"Definite Match"+chr(9)+"Potential Match"+chr(9)+"Not a Match", employer_5_match
+                                                            '     End If
+                                                            '     ButtonGroup ButtonPressed
+                                                            '         OkButton 285, 170, 50, 15
+                                                            '         CancelButton 340, 170, 50, 15
+                                                            '     EndDialog
+
+                                                            'Show dialog
+                                                            ' DO
+                                                            '     DO
+                                                            '         err_msg = ""
+                                                            '         Dialog Dialog1
+                                                            '         cancel_confirmation
+                                                            '         'Validation for first employer since there should always be at least one
+                                                            '         If employer_1_match = "[Select Option]" Then err_msg = err_msg & vbCr & "* You must make a match determination for Employer 1."
+
+                                                            '         'Dialog validation for each of the employers if they exist
+                                                            '         If 2 <= UBound(list_of_employers_on_jobs_panels) and employer_2_match = "[Select Option]" Then err_msg = err_msg & vbCr & "* You must make a match determination for Employer 2."
+                                                            '         If 3 <= UBound(list_of_employers_on_jobs_panels) and employer_3_match = "[Select Option]" Then err_msg = err_msg & vbCr & "* You must make a match determination for Employer 3."
+                                                            '         If 4 <= UBound(list_of_employers_on_jobs_panels) and employer_4_match = "[Select Option]" Then err_msg = err_msg & vbCr & "* You must make a match determination for Employer 4."
+                                                            '         If 5 <= UBound(list_of_employers_on_jobs_panels) and employer_5_match = "[Select Option]" Then err_msg = err_msg & vbCr & "* You must make a match determination for Employer 5."
+                                                                    
+                                                            '         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+                                                            '     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+                                                            '     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                                                            ' LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+
+                                                            'Alternative dialog and approach
+                                                            BeginDialog Dialog1, 0, 0, 321, 255, "Employers on JOBS Panel"
+                                                                Text 5, 5, 100, 10, "Caregiver Reference Number:"
+                                                                Text 105, 5, 20, 10, caregiver_ref_nbr
+                                                                Text 55, 20, 50, 10, "Case Number:"
+                                                                Text 105, 20, 80, 10, MAXIS_case_number
+                                                                GroupBox 5, 40, 310, 115, "Employer on JOBS Panels"
+                                                                Text 25, 55, 75, 10, "CSES - New Employer:"
+                                                                Text 100, 55, 210, 10, employer_full_name
+                                                                Text 10, 75, 90, 10, "Employer - JOBS Panel 01: "
+                                                                Text 100, 75, 210, 10, list_of_employers_on_jobs_panels(0)
+                                                                If UBound(list_of_employers_on_jobs_panels) >= 1 Then
+                                                                    Text 10, 90, 90, 10, "Employer - JOBS Panel 02:"
+                                                                    Text 100, 90, 210, 10, list_of_employers_on_jobs_panels(1)
+                                                                End if
+                                                                If UBound(list_of_employers_on_jobs_panels) >= 2 Then
+                                                                    Text 10, 105, 90, 10, "Employer - JOBS Panel 03:"
+                                                                    Text 100, 105, 210, 10, list_of_employers_on_jobs_panels(2)
+                                                                End If
+                                                                If UBound(list_of_employers_on_jobs_panels) >= 3 Then
+                                                                    Text 10, 120, 90, 10, "Employer - JOBS Panel 04:"
+                                                                    Text 100, 120, 210, 10, list_of_employers_on_jobs_panels(3)
+                                                                End if
+                                                                If UBound(list_of_employers_on_jobs_panels) >= 4 Then
+                                                                    Text 10, 135, 90, 10, "Employer - JOBS Panel 05:"
+                                                                    Text 100, 135, 210, 10, list_of_employers_on_jobs_panels(4)
+                                                                End If
+                                                                GroupBox 5, 160, 310, 65, "Employer Match Verification"
+                                                                Text 10, 175, 110, 10, "Indicate if any Employers Match:"
+                                                                DropListBox 120, 175, 110, 15, "[Select Option]"+chr(9)+"One Panel Matches"+chr(9)+"Multiple Panels Match"+chr(9)+"Potential Match(es)"+chr(9)+"No Matches", employer_match_determination
+                                                                Text 10, 195, 235, 10, "If 'One Panel Matches' ONLY, select the matching panel:"
+                                                                'To do - use cleaner code once workaround for no item in array is found
+                                                                If UBound(list_of_employers_on_jobs_panels) = 4 Then
+                                                                    DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2)+chr(9)+list_of_employers_on_jobs_panels(3)+chr(9)+list_of_employers_on_jobs_panels(4), matching_employer_panel
+                                                                ElseIf UBound(list_of_employers_on_jobs_panels) = 3 Then
+                                                                    DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2)+chr(9)+list_of_employers_on_jobs_panels(3), matching_employer_panel
+                                                                ElseIf UBound(list_of_employers_on_jobs_panels) = 2 Then
+                                                                    DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2), matching_employer_panel
+                                                                ElseIf UBound(list_of_employers_on_jobs_panels) = 1 Then
+                                                                    DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1), matching_employer_panel
+                                                                ElseIf UBound(list_of_employers_on_jobs_panels) = 0 Then
+                                                                    DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0), matching_employer_panel
+                                                                End If
+
+                                                                ButtonGroup ButtonPressed
+                                                                    OkButton 200, 235, 50, 15
+                                                                    CancelButton 255, 235, 50, 15
+                                                            EndDialog
+
+                                                            'Show dialog
+                                                            DO
+                                                                DO
+                                                                    err_msg = ""
+                                                                    Dialog Dialog1
+                                                                    cancel_confirmation
+                                                                    'Validation to ensure that match determination made
+                                                                    If employer_match_determination = "[Select Option]" Then err_msg = err_msg & vbNewLine & "* You must indicate if any employers match."
+                                                                    
+                                                                    'If one match is indicated, then the matching employer must be selected
+                                                                    If employer_match_determination = "One Panel Matches" AND matching_employer_panel = "Not Applicable - No Match" Then err_msg = err_msg & vbNewLine & "* You must select the matching employer."
+
+                                                                    'If there isn't an exact match, then the N/A option must be selected
+                                                                    If (employer_match_determination = "Multiple Panels Match" OR employer_match_determination = "Potential Match(es)" OR employer_match_determination = "No Matches") AND matching_employer_panel <> "Not Applicable - No Match" Then err_msg = err_msg & vbNewLine & "* You must indicate if any employers match."
+
+                                                                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+                                                                LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+                                                                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                                                            LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+
+                                                            'Handling for match determination
+                                                            If employer_match_determination = "Multiple Panels Match" OR employer_match_determination = "Potential Match(es)" Then
+                                                                'The message cannot be processed since no exact match exists
+                                                                'Add the message to the skip list since it cannot be processed
+                                                                'To do - ensure this is best way to capture decision and next steps
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "." & " Message should not be deleted."
+
+
+                                                            ElseIf employer_match_determination = "No Matches" Then
+                                                                
+                                                                '5 panels, note in array and don't add panel, add to skip list
+                                                                If UBound(list_of_employers_on_jobs_panels) = 4 Then
+                                                                    MsgBox "There are 5 panels"
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ", but unable to add a panel because 5 JOBS panels exist already." & " Message should not be deleted."
+                                                                ElseIf UBound(list_of_employers_on_jobs_panels) < 4 Then
+                                                                    'Less than 5 panels, add panel
+                                                                    'To do - Uncomment once finalized and values confirmed
+                                                                    
+                                                                    'Add a new panel
+                                                                    MsgBox "A new JOBS panel would be created. There is no matching panel and there are fewer than 5 panels."
+                                                                    ' EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                                    ' Call write_value_and_transmit("NN", 20, 79)
+                                                                    'Write Inc Type to Other
+                                                                    ' EMWriteScreen "O", 5, 34
+                                                                    'Write Ver Type
+                                                                    ' EMWriteScreen "N", 6, 34
+                                                                    'Write employer name
+                                                                    ' EMWriteScreen Left(employer_full_name, 30), 7, 42
+                                                                    'Write the pay date
+                                                                    'To do - determine what these are
+                                                                    ' EMWriteScreen prospective_date, 12, 54
+                                                                    ' EMWriteScreen prospective_pay, 12, 67
+                                                                    'To do - handling for STAT/WRAP
+                                                                    'Navigate to CASE/NOTES
+                                                                    'To do - handling for change in footer month when finding case/note again
+
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did not exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ". A JOBS panel for this employer was successfully added, along with a CASE/NOTE." & " Message should be deleted."
+                                                                    'Unecessary to back out of DAIL here
+                                                                    ' PF3
+                                                                End If
+
+                                                            ElseIf employer_match_determination = "One Panel Matches" AND matching_employer_panel <> "Not Applicable - No Match" Then
+                                                                'There is an exact match for the employer
+                                                                'CASE/NOTE that there is a match for the employer and the message was deleted
+                                                                'Navigate to CASE/NOTE
+                                                                ' PF4
+                                                                'Write the CASE/NOTE
+                                                                ' CALL write_variable_in_case_note("CSES New Employer Match for (M" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
+                                                                'To do - date to use for hiring? From JOBS panel or from CSES message?
+                                                                ' CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                                ' CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
+                                                                ' CALL write_variable_in_case_note("---")
+                                                                ' CALL write_variable_in_case_note("Deleted the CSES message")
+                                                                ' CALL write_variable_in_case_note("DAIL Month: " & dail_month)
+                                                                ' CALL write_variable_in_case_note("DAIL Message: " & dail_msg)
+                                                                ' CALL write_variable_in_case_note("---")
+                                                                ' CALL write_variable_in_case_note("Six-month verification. Review information at renewal or recertification.")
+                                                                ' CALL write_variable_in_case_note("---")
+                                                                ' CALL write_variable_in_case_note(worker_signature)
+
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did match for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ". A CASE/NOTE was added." & " Message should be deleted."
+
+                                                                'Add message to delete list
+                                                                'PF3 back to 
+
+                                                            End If
+                                                                
+
+
+                                                        End if
+
+                                                    End If
+                                                End If
+
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
+
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
+                                                        'There is at least one missing Type 36 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
+                                                        'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
+                                                        list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
+                                                        'To do - ensure this is at the correct spot
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 6).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    End If
+
+                                                'PF3 back to DAIL
                                                 PF3
+
                                                 
                                                 '1.	Enters “X” on DAIL message to open full message. Script reads information from full message. The script creates a new variable for the full DAIL message text, a variable for the reference number, and a variable for the full employer name.
                                                 ' 2.	Script PF3s out of DAIL message and navigates to STAT/JOBS from DAIL (Enters “S” on for DAIL row, then enters JOBS) 
@@ -1500,10 +1883,19 @@ For each worker in worker_array
 
                                                 ' MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & dail_msg
                                             ElseIf InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
-                                                '1.	No action on these, simply note in spreadsheet that QI team to review
+                                                'No action on these, simply note in spreadsheet that QI team to review
+
                                                 ' MsgBox "REPORTED: CHILD REF NBR:" & dail_msg
+                                                
+                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = "QI Review. CHILD NO LONGER RESIDES WITH CAREGIVER."
+
+                                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                'To do - ensure this is at the correct spot
+                                                'Update the excel spreadsheet with processing notes
+                                                objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                             Else
-                                                ' msgbox "Something went wrong - line 1248"
+                                                msgbox "Something went wrong - line 1897." & "dail_msg: " & dail_msg 
+
                                             End If
 
 
