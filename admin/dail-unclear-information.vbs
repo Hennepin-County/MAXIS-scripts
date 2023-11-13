@@ -1929,18 +1929,37 @@ For each worker in worker_array
 
                                             If InStr(dail_msg, "NDNH MEMB") Then
                                                 'Add logic here
-                                                MsgBox "NDNH MEMB: " & dail_msg
+                                                ' MsgBox "NDNH MEMB: " & dail_msg
                                             ElseIf InStr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
-                                                'Add logic here
-                                                MsgBox "NEW JOB DETAILS FOR SSN: " & dail_msg
+                                                ' MsgBox "NEW JOB DETAILS FOR SSN: " & dail_msg
+
+                                                'No action on these, simply note in spreadsheet that QI team to review
+
+                                                MsgBox "NEW JOB DETAILS FOR SSN:" & dail_msg
+                                                
+                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = "QI Review. Outdated HIRE message."
+
+                                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                'To do - ensure this is at the correct spot
+                                                'Update the excel spreadsheet with processing notes
+                                                objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+
                                             ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
                                                 'Add logic here
-                                                MsgBox "SDNH NEW JOB DETAILS: " & dail_msg
+                                                ' MsgBox "SDNH NEW JOB DETAILS: " & dail_msg
                                             ElseIf InStr(dail_msg, "JOB DETAILS FOR  ") Then
-                                                'Add logic here
-                                                MsgBox "JOB DETAILS FOR  " & dail_msg
+                                                'No action on these, simply note in spreadsheet that QI team to review
+
+                                                ' MsgBox "NEW JOB DETAILS FOR SSN:" & dail_msg
+                                                
+                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = "QI Review. Outdated HIRE message."
+
+                                                list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                'To do - ensure this is at the correct spot
+                                                'Update the excel spreadsheet with processing notes
+                                                objExcel.Cells(dail_excel_row, 6).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                             Else
-                                                ' msgbox "Something went wrong - line 1268"
+                                                ' msgbox "Something went wrong - line 1964"
                                             End If
                                         Else
                                             ' MsgBox "Something went wrong = 1269"
