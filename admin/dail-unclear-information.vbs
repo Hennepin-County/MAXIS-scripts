@@ -900,8 +900,13 @@ For each worker in worker_array
 
                                                 ' Script reads information from full message, particularly the PMI number(s) listed. The script creates new variables for each PMI number.
                                                 'To do - likely should validate that this is ALWAYS starting point for PMIs for Type 36
-                                                EMReadScreen PMIs_line_one, 37, 10, 28
-                                                ' MsgBox PMIs_line_one
+                                                'Identify where 'PMI(S):' text is so that script can account for Type 36 and replaced Type 36 is
+                                                'Set row and col
+                                                row = 1
+                                                col = 1
+                                                EMSearch "PMI(S):", row, col
+                                                EMReadScreen PMIs_line_one, 65 - (col + 8), row, col + 8
+                                                ' MsgBox "PMIs_line_one: " & PMIs_line_one 
                                                 EMReadScreen PMIs_line_two, 60, 11, 5
                                                 ' MsgBox PMIs_line_two
                                                 EMReadScreen PMIs_line_three, 60, 12, 5
@@ -1189,9 +1194,14 @@ For each worker in worker_array
                                                     MsgBox "STOP THE SCRIPT HERE"
                                                 End if
 
-                                                ' Script reads caregiver reference number from the full dail message
-                                                EMReadScreen caregiver_ref_nbr, 2, 10, 32
-                                                ' MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
+                                                'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+                                                'Set row and col
+                                                row = 1
+                                                col = 1
+                                                EMSearch "REF NBR:", row, col
+                                                EMReadScreen caregiver_ref_nbr, 2, row, col + 9
+
+                                                MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
 
                                                 'Transmit back to DAIL message
                                                 transmit
@@ -1364,9 +1374,14 @@ For each worker in worker_array
                                                     MsgBox "STOP THE SCRIPT HERE"
                                                 End if
 
-                                                ' Script reads caregiver reference number from the full dail message
-                                                EMReadScreen caregiver_ref_nbr, 2, 10, 35
-                                                ' MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
+                                                'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+                                                'Set row and col
+                                                row = 1
+                                                col = 1
+                                                EMSearch "REF NBR:", row, col
+                                                EMReadScreen caregiver_ref_nbr, 2, row, col + 9
+
+                                                MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
 
                                                 'Transmit back to DAIL message
                                                 transmit
@@ -1503,11 +1518,21 @@ For each worker in worker_array
                                                     MsgBox "STOP THE SCRIPT HERE"
                                                 End if
 
-                                                ' Script reads caregiver reference number from the full dail message
-                                                EMReadScreen caregiver_ref_nbr, 2, 9, 54
+                                                'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+                                                'Set row and col
+                                                row = 1
+                                                col = 1
+                                                EMSearch "REF NBR:", row, col
+                                                EMReadScreen caregiver_ref_nbr, 2, row, col + 9
                                                 MsgBox "caregiver ref nbr: " & caregiver_ref_nbr
-                                                
-                                                EMReadScreen employer_name_line_1, 8, 9, 57
+
+                                                'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+                                                'Set row and col
+                                                row = 1
+                                                col = 1
+                                                EMSearch "REF NBR:", row, col
+                                                EMReadScreen employer_name_line_1, 65 - (col + 12), row, col + 12
+                                            
                                                 MsgBox "employer_name_line_1: " & employer_name_line_1
 
                                                 employer_full_name = employer_name_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4
@@ -1548,7 +1573,7 @@ For each worker in worker_array
                                                         'Compare new employer name with JOBS panel, use fuzzy matching
                                                         'If it is a type 40 panel then it does not need to read the other panels
                                                         ' Msgbox "unea_type: " & unea_type
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "."
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_full_name & " for HH member: " & caregiver_ref_nbr & "."
 
                                                         'To do - add CASE/NOTE capabilities
                                                         'To do - add to delete list
@@ -1595,7 +1620,7 @@ For each worker in worker_array
                                                                     MsgBox "That's convenient. The employer names match exactly"
                                                                     'Compare new employer name with JOBS panel, use fuzzy matching
                                                                     'If the employer names match then it does not need to check any other panels and can update array accordingly
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does exist for employer: " & employer_full_name & " for HH member: " & caregiver_ref_nbr & "."
 
                                                                     'To do - add CASE/NOTE capabilities
                                                                     'To do - add to delete list
@@ -1772,7 +1797,7 @@ For each worker in worker_array
                                                                 'The message cannot be processed since no exact match exists
                                                                 'Add the message to the skip list since it cannot be processed
                                                                 'To do - ensure this is best way to capture decision and next steps
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & "." & " Message should not be deleted."
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & employer_full_name & " for HH member: " & caregiver_ref_nbr & "." & " Message should not be deleted."
 
 
                                                             ElseIf employer_match_determination = "No Matches" Then
@@ -1780,7 +1805,7 @@ For each worker in worker_array
                                                                 '5 panels, note in array and don't add panel, add to skip list
                                                                 If UBound(list_of_employers_on_jobs_panels) = 4 Then
                                                                     MsgBox "There are 5 panels"
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ", but unable to add a panel because 5 JOBS panels exist already." & " Message should not be deleted."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_full_name & " for HH member: " & caregiver_ref_nbr & ", but unable to add a panel because 5 JOBS panels exist already." & " Message should not be deleted."
                                                                 ElseIf UBound(list_of_employers_on_jobs_panels) < 4 Then
                                                                     'Less than 5 panels, add panel
                                                                     'To do - Uncomment once finalized and values confirmed
@@ -1803,7 +1828,7 @@ For each worker in worker_array
                                                                     'Navigate to CASE/NOTES
                                                                     'To do - handling for change in footer month when finding case/note again
 
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did not exist for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ". A JOBS panel for this employer was successfully added, along with a CASE/NOTE." & " Message should be deleted."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did not exist for employer: " & employer_full_name & " for HH member: " & caregiver_ref_nbr & ". A JOBS panel for this employer was successfully added, along with a CASE/NOTE." & " Message should be deleted."
                                                                     'Unecessary to back out of DAIL here
                                                                     ' PF3
                                                                 End If
@@ -1827,7 +1852,7 @@ For each worker in worker_array
                                                                 ' CALL write_variable_in_case_note("---")
                                                                 ' CALL write_variable_in_case_note(worker_signature)
 
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did match for employer: " & employer_name_jobs_panel & "  for HH member: " & caregiver_ref_nbr & ". A CASE/NOTE was added." & " Message should be deleted."
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did match for employer: " & employer_name_jobs_panel & " for HH member: " & caregiver_ref_nbr & ". A CASE/NOTE was added." & " Message should be deleted."
 
                                                                 'Add message to delete list
                                                                 'PF3 back to 
