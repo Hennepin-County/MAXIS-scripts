@@ -615,6 +615,10 @@ For the_member = 1 to how_many_new_members
                             End If
                         End If
                         abps_row = abps_row + 1
+                        If abps_row = 18 then 
+                            PF20
+                            abps_row = 15
+                        End if 
                     Loop until child_ref_numb = "__"
 
                     transmit
