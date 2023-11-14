@@ -618,6 +618,8 @@ For the_member = 1 to how_many_new_members
                         abps_row = abps_row + 1
                         If abps_row = 18 then 
                             PF20
+                            EMReadScreen last_page_check, 21, 24, 2
+                            If last_page_check = "THIS IS THE LAST PAGE" Then Exit Do
                             abps_row = 15
                         End if 
                     Loop until child_ref_numb = "__"
