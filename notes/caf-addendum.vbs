@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/14/2023", "Bug Fix - Resolved bug on STAT/ABPS when more than 3 children on case.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/22/2020", "Removed the default date for the addendum date as the functionality was pulling incorrect data and there is not a reliable way to know which date is accurate. Since this is a form date, it should be manually entered.", "Casey Love, Hennepin County")
 Call changelog_update("12/21/2019", "Added 'NB' to the list of former states.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - Verifs Needed was creating possible multiple case notes and noting when nothing was added. Also a typo in the case note wording.", "Casey Love, Hennepin County")
@@ -615,6 +616,12 @@ For the_member = 1 to how_many_new_members
                             End If
                         End If
                         abps_row = abps_row + 1
+                        If abps_row = 18 then 
+                            PF20
+                            EMReadScreen last_page_check, 21, 24, 2
+                            If last_page_check = "THIS IS THE LAST PAGE" Then Exit Do
+                            abps_row = 15
+                        End if 
                     Loop until child_ref_numb = "__"
 
                     transmit
