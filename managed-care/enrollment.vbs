@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/16/2023", "Updated Enrollment script with the Enrollment cutoff dates for 2024 so the script is ready for next year processing.", "Casey Love, Hennepin County")
 call changelog_update("10/11/2023", "Open Enrollment Dates updated for 2024.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Updates for AHPS for 2023, updating the enrollment year selection for processing AHPS.##~####~##No changes to plans or capitation dates at this time.", "Casey Love, Hennepin County")
 call changelog_update("03/03/2022", "The script is not able to process enrollments for every recipient, this is particularly dependent on which exclusion the receiptient is currently on. Right now the script is only programed to handle 'YY', 'HH', and 'AA' exclusions. If a recipient has any other exclusion, the enrollment should be processed manually.##~## ##~##The script will now display the fact that it is unable to process these enrollments in the dialog with each individual's enrollment details. It will be clear if an enrollment is not able to be automated by the script before attempting the enrollment to better communicate the script capabilities.##~##", "Casey Love, Hennepin County")
@@ -176,31 +177,31 @@ IF open_enrollment_case = FALSE Then
 	this_year = year(date)
 	Select Case this_month
 	    Case "January"
-			cut_off_date = #01/20/2023#
+			cut_off_date = #01/22/2024#
 	    Case "February"
-			cut_off_date = #02/16/2023#
+			cut_off_date = #02/20/2024#
 	    Case "March"
-			cut_off_date = #03/22/2023#
+			cut_off_date = #03/20/2024#
 	    Case "April"
-			cut_off_date = #04/19/2023#
+			cut_off_date = #04/19/2024#
 	    Case "May"
-			cut_off_date = #05/19/2023#
+			cut_off_date = #05/21/2024#
 	    Case "June"
-			cut_off_date = #06/21/2023#
+			cut_off_date = #06/18/2024#
 	    Case "July"
-			cut_off_date = #07/20/2023#
+			cut_off_date = #07/22/2024#
 	    Case "August"
-			cut_off_date = #08/22/2023#
+			cut_off_date = #08/21/2024#
 	    Case "September"
-			cut_off_date = #09/20/2023#
+			cut_off_date = #09/19/2024#
 	    Case "October"
-			cut_off_date = #10/20/2023#
+			cut_off_date = #10/22/2024#
 	    Case "November"
-			if this_year = 2022 Then cut_off_date = #11/17/2022#
 			if this_year = 2023 Then cut_off_date = #11/17/2023#
+			if this_year = 2024 Then cut_off_date = #11/18/2024#
 	    Case "December"
-			if this_year = 2022 Then cut_off_date = #12/20/2022#
 			if this_year = 2023 Then cut_off_date = #12/19/2023#
+			if this_year = 2024 Then cut_off_date = #12/19/2024#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
