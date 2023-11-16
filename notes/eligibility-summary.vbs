@@ -8838,6 +8838,10 @@ class dwp_eligibility_detail
 			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 			If approved_version_found = True Then
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+				If allow_late_note = True Then
+					one_week_ago = DateAdd("d", -7, date)
+					If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+				End If
 			ElseIf elig_version_number <> "" Then
 				call navigate_to_MAXIS_screen("ELIG", "DWP ")
 				EMWriteScreen elig_footer_month, 20, 56
@@ -10169,6 +10173,10 @@ class mfip_eligibility_detail
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, approval_date) = 0 Then approved_today = True
+			End If
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
@@ -11590,6 +11598,10 @@ class msa_eligibility_detail
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #8/9/2022#, elig_version_date) = 0 Then approved_today = True
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
@@ -12290,6 +12302,10 @@ class ga_eligibility_detail
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #7/25/2022#, elig_version_date) = 0 Then approved_today = True
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
@@ -12992,6 +13008,10 @@ class deny_eligibility_detail
 			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
@@ -13983,6 +14003,10 @@ class grh_eligibility_detail
 			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
@@ -15536,6 +15560,10 @@ class emer_eligibility_detail
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
+				If allow_late_note = True Then
+					one_week_ago = DateAdd("d", -7, date)
+					If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
+				End If
 				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End if
 			' MsgBox "elig_version_date - " & elig_version_date & vbCr & "approved_today - " & approved_today
@@ -16155,6 +16183,10 @@ class snap_eligibility_detail
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, approval_date) = 0 Then approved_today = True
+			End If
+			If allow_late_note = True Then
+				one_week_ago = DateAdd("d", -7, date)
+				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
 			End If
 			If developer_mode = True Then approved_today = True			'TESTING OPTION'
 		End If
@@ -17399,6 +17431,10 @@ class hc_eligibility_detail
 
 					created_today = False
 					If DateDiff("d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then created_today = True
+					If allow_late_note = True Then
+						one_week_ago = DateAdd("d", -7, date)
+						If DateDiff("d", one_week_ago, hc_prog_elig_process_date(hc_prog_count)) >= 0 Then created_today = True
+					End If
 					If developer_mode = True Then created_today = True 												'TESTING OPTION'
 
 					If created_today = False Then
@@ -17417,6 +17453,13 @@ class hc_eligibility_detail
 								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
 									approved_today = True
 									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If allow_late_note = True Then
+									one_week_ago = DateAdd("d", -7, date)
+									If DateDiff("d", one_week_ago, hc_prog_elig_app_date(hc_prog_count)) >= 0 Then
+										approved_today = True
+										hc_prog_elig_approved_today(hc_prog_count) = True
+									End If
 								End If
 								If developer_mode = True Then
 									approved_today = True										'TESTING OPTION'
@@ -17452,6 +17495,13 @@ class hc_eligibility_detail
 								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
 									approved_today = True
 									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If allow_late_note = True Then
+									one_week_ago = DateAdd("d", -7, date)
+									If DateDiff("d", one_week_ago, hc_prog_elig_app_date(hc_prog_count)) >= 0 Then
+										approved_today = True
+										hc_prog_elig_approved_today(hc_prog_count) = True
+									End If
 								End If
 								If developer_mode = True Then
 									approved_today = True										'TESTING OPTION'
@@ -18360,6 +18410,13 @@ class hc_eligibility_detail
 								If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
 									approved_today = True
 									hc_prog_elig_approved_today(hc_prog_count) = True
+								End If
+								If allow_late_note = True Then
+									one_week_ago = DateAdd("d", -7, date)
+									If DateDiff("d", one_week_ago, hc_prog_elig_app_date(hc_prog_count)) >= 0 Then
+										approved_today = True
+										hc_prog_elig_approved_today(hc_prog_count) = True
+									End If
 								End If
 								If developer_mode = True Then
 									approved_today = True										'TESTING OPTION'
@@ -23330,7 +23387,9 @@ If MX_region = "INQUIRY DB" Then
 End If
 
 developer_mode = False
+allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001") AND MX_region <> "TRAINING" Then developer_mode = True
+If MAXIS_case_number = "2444894" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
