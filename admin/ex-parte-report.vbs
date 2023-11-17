@@ -2400,6 +2400,130 @@ If ex_parte_function = "Prep 1" Then
 	uc_count = 0
 	rr_count = 0
 
+	Set ObjFSO = CreateObject("Scripting.FileSystemObject")
+
+	'If the file exists we open it and set to add to it
+	If ObjFSO.FileExists(ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx") Then
+		Call excel_open(ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx", True, False, objVAExcel, objVAWorkbook)
+		va_excel_row = 2
+		va_inc_count = 0
+		Do
+			listed_case_numb = trim(objVAExcel.Cells(va_excel_row, 1).value)
+			If listed_case_numb <> "" Then
+				va_excel_row = va_excel_row + 1
+				va_inc_count = va_inc_count + 1
+			End If
+		Loop until listed_case_numb = ""
+	Else												'If the file does not exists, we create it and set to writing the file
+		'set the Excel sheet up for VA
+		Set objVAExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
+		objVAExcel.Visible = True
+		Set objVAWorkbook = objVAExcel.Workbooks.Add()
+		objVAExcel.DisplayAlerts = True
+
+		objVAExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
+		objVAExcel.Cells(1, 2).Value = "REF"
+		objVAExcel.Cells(1, 3).Value = "NAME"
+		objVAExcel.Cells(1, 4).Value = "PMI NUMBER"
+		objVAExcel.Cells(1, 5).Value = "SSN"
+		objVAExcel.Cells(1, 6).Value = "VA INC TYPE"
+		objVAExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
+		objVAExcel.Cells(1, 8).Value = "CURR VA INCOME"
+		objVAExcel.Cells(1, 9).Value = "Verified VA Income"
+		objVAExcel.columns(2).NumberFormat = "@" 		'formatting as text
+
+		FOR i = 1 to 9		'formatting the cells'
+			objVAExcel.Cells(1, i).Font.Bold = True		'bold font'
+		NEXT
+		va_excel_row = 2
+		va_inc_count = 0
+
+		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objVAExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
+		objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+
+	If ObjFSO.FileExists(ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx") Then
+		Call excel_open(ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx", True, False, objUCExcel, objUCWorkbook)
+		uc_excel_row = 2
+		uc_inc_count = 0
+		Do
+			listed_case_numb = trim(objUCExcel.Cells(uc_excel_row, 1).value)
+			If listed_case_numb <> "" Then
+				uc_excel_row = uc_excel_row + 1
+				uc_inc_count = uc_inc_count + 1
+			End If
+		Loop until listed_case_numb = ""
+	Else
+		'set the Excel sheet up for UC
+		Set objUCExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
+		objUCExcel.Visible = True
+		Set objUCWorkbook = objUCExcel.Workbooks.Add()
+		objUCExcel.DisplayAlerts = True
+
+		objUCExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
+		objUCExcel.Cells(1, 2).Value = "REF"
+		objUCExcel.Cells(1, 3).Value = "NAME"
+		objUCExcel.Cells(1, 4).Value = "PMI NUMBER"
+		objUCExcel.Cells(1, 5).Value = "SSN"
+		objUCExcel.Cells(1, 6).Value = "UC INC TYPE"
+		objUCExcel.Cells(1, 7).Value = "UC CLAIM NUMB"
+		objUCExcel.Cells(1, 8).Value = "CURR UC INCOME"
+		objUCExcel.Cells(1, 9).Value = "Verified UC Income"
+		objUCExcel.columns(2).NumberFormat = "@" 		'formatting as text
+
+		FOR i = 1 to 9		'formatting the cells'
+			objUCExcel.Cells(1, i).Font.Bold = True		'bold font'
+		NEXT
+		uc_excel_row = 2
+		uc_inc_count = 0
+
+		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objUCExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
+		objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+
+	If ObjFSO.FileExists(ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx") Then
+		Call excel_open(ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx", True, False, objRRExcel, objRRWorkbook)
+		rr_excel_row = 2
+		rr_inc_count = 0
+		Do
+			listed_case_numb = trim(objRRExcel.Cells(rr_excel_row, 1).value)
+			If listed_case_numb <> "" Then
+				rr_excel_row = rr_excel_row + 1
+				rr_inc_count = rr_inc_count + 1
+			End If
+		Loop until listed_case_numb = ""
+	Else
+		'set the Excel sheet up for RR
+		Set objRRExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
+		objRRExcel.Visible = True
+		Set objRRWorkbook = objRRExcel.Workbooks.Add()
+		objRRExcel.DisplayAlerts = True
+
+		objRRExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
+		objRRExcel.Cells(1, 2).Value = "REF"
+		objRRExcel.Cells(1, 3).Value = "NAME"
+		objRRExcel.Cells(1, 4).Value = "PMI NUMBER"
+		objRRExcel.Cells(1, 5).Value = "SSN"
+		objRRExcel.Cells(1, 6).Value = "RR INC TYPE"
+		objRRExcel.Cells(1, 7).Value = "RR CLAIM NUMB"
+		objRRExcel.Cells(1, 8).Value = "CURR RR INCOME"
+		objRRExcel.Cells(1, 9).Value = "Verified RR Income"
+		objRRExcel.columns(2).NumberFormat = "@" 		'formatting as text
+
+		FOR i = 1 to 9		'formatting the cells'
+			objRRExcel.Cells(1, i).Font.Bold = True		'bold font'
+		NEXT
+		rr_excel_row = 2
+		rr_inc_count = 0
+
+		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objRRExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
+		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	End If
+
+
 	'This is opening the Ex Parte Case List data table so we can loop through it.
 	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "'"		'we only need to look at the cases for the specific review month
 
@@ -2961,146 +3085,68 @@ If ex_parte_function = "Prep 1" Then
 				'Now that we have an array saved, we are going to add it to the Excel sheet right away for UC, VA, or RR income.
 				'We do it all at once because if we have a script error, this way we don't lose the information
 
-				If va_count <> 0 Then								'if there is VA income found
-					If last_va_count <> va_count Then				'and the va income found has incremented up since the last loop
-						If last_va_count = 0 Then						'First, if this is the first VA income, we need to set the Excel sheet up
-							va_excel_created = True						'Identifying that the VA excel list was created
+				If va_count <> 0 and last_va_count <> va_count Then	'if there is VA income found and the va income found has incremented up since the last loop
+					va_excel_created = True						'Identifying that the VA excel list was created
 
-							Set objVAExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
-							objVAExcel.Visible = True
-							Set objVAWorkbook = objVAExcel.Workbooks.Add()
-							objVAExcel.DisplayAlerts = True
+					'adding any va income from the array to the spreadsheet
+					Do
+						objVAExcel.Cells(va_excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 5).value = VA_INCOME_ARRAY(va_pers_ssn_const, va_inc_count)
+						If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) <> "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
+						If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) = "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 7).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
+						objVAExcel.Cells(va_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
+						objVAWorkbook.Save()
 
-							objVAExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
-							objVAExcel.Cells(1, 2).Value = "REF"
-							objVAExcel.Cells(1, 3).Value = "NAME"
-							objVAExcel.Cells(1, 4).Value = "PMI NUMBER"
-							objVAExcel.Cells(1, 5).Value = "SSN"
-							objVAExcel.Cells(1, 6).Value = "VA INC TYPE"
-							objVAExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
-							objVAExcel.Cells(1, 8).Value = "CURR VA INCOME"
-							objVAExcel.Cells(1, 9).Value = "Verified VA Income"
-							objVAExcel.columns(2).NumberFormat = "@" 		'formatting as text
-
-							FOR i = 1 to 9		'formatting the cells'
-								objVAExcel.Cells(1, i).Font.Bold = True		'bold font'
-							NEXT
-
-							va_excel_row = 2
-							va_inc_count = 0
-						End If
-
-						'adding any va income from the array to the spreadsheet
-						Do
-							objVAExcel.Cells(va_excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 5).value = VA_INCOME_ARRAY(va_pers_ssn_const, va_inc_count)
-							If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) <> "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
-							If VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) = "" Then objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 7).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
-							objVAExcel.Cells(va_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
-
-							va_inc_count = va_inc_count + 1			'going to the next array item
-							va_excel_row = va_excel_row + 1			'going to the next row
-						Loop until va_inc_count = va_count			'loop until the income count gets to the total of va counted
-					End If
+						va_inc_count = va_inc_count + 1			'going to the next array item
+						va_excel_row = va_excel_row + 1			'going to the next row
+					Loop until va_inc_count = va_count			'loop until the income count gets to the total of va counted
 				End If
 
-				If uc_count <> 0 Then								'If there is UC income found
-					If last_uc_count <> uc_count Then				'and the UC income found has incremented up since the last loop
-						If last_uc_count = 0 Then						'First, if this is the first UC income, we need to set the Excel sheet up
-							uc_excel_created = True						'Identifying that the UC excel list was created
+				If uc_count <> 0 and last_uc_count <> uc_count Then	'If there is UC income found and the UC income found has incremented up since the last loop
+					uc_excel_created = True						'Identifying that the UC excel list was created
 
-							Set objUCExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
-							objUCExcel.Visible = True
-							Set objUCWorkbook = objUCExcel.Workbooks.Add()
-							objUCExcel.DisplayAlerts = True
+					'adding any uc income from the array to the spreadsheet
+					Do
+						objUCExcel.Cells(uc_excel_row, 1).value = UC_INCOME_ARRAY(uc_case_numb_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 2).value = UC_INCOME_ARRAY(uc_ref_numb_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 3).value = UC_INCOME_ARRAY(uc_pers_name_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 4).value = UC_INCOME_ARRAY(uc_pers_pmi_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 5).value = UC_INCOME_ARRAY(uc_pers_ssn_const, uc_inc_count)
+						If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) <> "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) & " - " & UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
+						If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) = "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 7).value = UC_INCOME_ARRAY(uc_claim_numb_const, uc_inc_count)
+						objUCExcel.Cells(uc_excel_row, 8).value = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_inc_count)
+						objUCWorkbook.Save()
 
-							objUCExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
-							objUCExcel.Cells(1, 2).Value = "REF"
-							objUCExcel.Cells(1, 3).Value = "NAME"
-							objUCExcel.Cells(1, 4).Value = "PMI NUMBER"
-							objUCExcel.Cells(1, 5).Value = "SSN"
-							objUCExcel.Cells(1, 6).Value = "UC INC TYPE"
-							objUCExcel.Cells(1, 7).Value = "UC CLAIM NUMB"
-							objUCExcel.Cells(1, 8).Value = "CURR UC INCOME"
-							objUCExcel.Cells(1, 9).Value = "Verified UC Income"
-							objUCExcel.columns(2).NumberFormat = "@" 		'formatting as text
-
-							FOR i = 1 to 9		'formatting the cells'
-								objUCExcel.Cells(1, i).Font.Bold = True		'bold font'
-							NEXT
-
-							uc_excel_row = 2
-							uc_inc_count = 0
-						End If
-
-						'adding any uc income from the array to the spreadsheet
-						Do
-							objUCExcel.Cells(uc_excel_row, 1).value = UC_INCOME_ARRAY(uc_case_numb_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 2).value = UC_INCOME_ARRAY(uc_ref_numb_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 3).value = UC_INCOME_ARRAY(uc_pers_name_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 4).value = UC_INCOME_ARRAY(uc_pers_pmi_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 5).value = UC_INCOME_ARRAY(uc_pers_ssn_const, uc_inc_count)
-							If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) <> "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) & " - " & UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
-							If UC_INCOME_ARRAY(uc_inc_type_code_const, uc_inc_count) = "" Then objUCExcel.Cells(uc_excel_row, 6).value = UC_INCOME_ARRAY(uc_inc_type_info_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 7).value = UC_INCOME_ARRAY(uc_claim_numb_const, uc_inc_count)
-							objUCExcel.Cells(uc_excel_row, 8).value = UC_INCOME_ARRAY(uc_prosp_inc_const, uc_inc_count)
-
-							uc_inc_count = uc_inc_count + 1			'going to the next array item
-							uc_excel_row = uc_excel_row + 1			'going to the next row
-						Loop until uc_inc_count = uc_count			'loop until the income count gets to the total of uc counted
-					End If
+						uc_inc_count = uc_inc_count + 1			'going to the next array item
+						uc_excel_row = uc_excel_row + 1			'going to the next row
+					Loop until uc_inc_count = uc_count			'loop until the income count gets to the total of uc counted
 				End If
 
 
-				If rr_count <> 0 Then								'If there is RR income found
-					If last_rr_count <> rr_count Then				'and the RR income found has incremented up since the last loop
-						If last_rr_count = 0 Then							'First, if this is the first RR income, we need to set the Excel sheet up
-							rr_excel_created = True							'Identifying that the RR excel list was created
+				If rr_count <> 0 and last_rr_count <> rr_count Then		'If there is RR income found and the RR income found has incremented up since the last loop
+					rr_excel_created = True							'Identifying that the RR excel list was created
 
-							Set objRRExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
-							objRRExcel.Visible = True
-							Set objRRWorkbook = objRRExcel.Workbooks.Add()
-							objRRExcel.DisplayAlerts = True
+					'adding any rr income from the array to the spreadsheet
+					Do
+						objRRExcel.Cells(rr_excel_row, 1).value = RR_INCOME_ARRAY(rr_case_numb_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 2).value = RR_INCOME_ARRAY(rr_ref_numb_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 3).value = RR_INCOME_ARRAY(rr_pers_name_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 4).value = RR_INCOME_ARRAY(rr_pers_pmi_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 5).value = RR_INCOME_ARRAY(rr_pers_ssn_const, rr_inc_count)
+						If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) <> "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) & " - " & RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
+						If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) = "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 7).value = RR_INCOME_ARRAY(rr_claim_numb_const, rr_inc_count)
+						objRRExcel.Cells(rr_excel_row, 8).value = RR_INCOME_ARRAY(rr_prosp_inc_const, rr_inc_count)
+						objRRWorkbook.Save()
 
-							objRRExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
-							objRRExcel.Cells(1, 2).Value = "REF"
-							objRRExcel.Cells(1, 3).Value = "NAME"
-							objRRExcel.Cells(1, 4).Value = "PMI NUMBER"
-							objRRExcel.Cells(1, 5).Value = "SSN"
-							objRRExcel.Cells(1, 6).Value = "RR INC TYPE"
-							objRRExcel.Cells(1, 7).Value = "RR CLAIM NUMB"
-							objRRExcel.Cells(1, 8).Value = "CURR RR INCOME"
-							objRRExcel.Cells(1, 9).Value = "Verified RR Income"
-							objRRExcel.columns(2).NumberFormat = "@" 		'formatting as text
-
-							FOR i = 1 to 9		'formatting the cells'
-								objRRExcel.Cells(1, i).Font.Bold = True		'bold font'
-							NEXT
-
-							rr_excel_row = 2
-							rr_inc_count = 0
-						End If
-
-						'adding any rr income from the array to the spreadsheet
-						Do
-							objRRExcel.Cells(rr_excel_row, 1).value = RR_INCOME_ARRAY(rr_case_numb_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 2).value = RR_INCOME_ARRAY(rr_ref_numb_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 3).value = RR_INCOME_ARRAY(rr_pers_name_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 4).value = RR_INCOME_ARRAY(rr_pers_pmi_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 5).value = RR_INCOME_ARRAY(rr_pers_ssn_const, rr_inc_count)
-							If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) <> "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) & " - " & RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
-							If RR_INCOME_ARRAY(rr_inc_type_code_const, rr_inc_count) = "" Then objRRExcel.Cells(rr_excel_row, 6).value = RR_INCOME_ARRAY(rr_inc_type_info_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 7).value = RR_INCOME_ARRAY(rr_claim_numb_const, rr_inc_count)
-							objRRExcel.Cells(rr_excel_row, 8).value = RR_INCOME_ARRAY(rr_prosp_inc_const, rr_inc_count)
-
-							rr_inc_count = rr_inc_count + 1			'going to the next array item
-							rr_excel_row = rr_excel_row + 1			'going to the next row
-						Loop until rr_inc_count = rr_count			'loop until the income count gets to the total of rr counted
-					End If
+						rr_inc_count = rr_inc_count + 1			'going to the next array item
+						rr_excel_row = rr_excel_row + 1			'going to the next row
+					Loop until rr_inc_count = rr_count			'loop until the income count gets to the total of rr counted
 				End If
 			End If
 
@@ -3131,19 +3177,22 @@ If ex_parte_function = "Prep 1" Then
 	Next
 
 	If va_excel_created = True Then
-		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objVAExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
-		objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-		objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		objVAWorkbook.Save()
+		objVAExcel.ActiveWorkbook.Close
+		objVAExcel.Application.Quit
+		objVAExcel.Quit
 	End If
 	If uc_excel_created = True Then
-		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objUCExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
-		objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-		objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		objUCWorkbook.Save()
+		objUCExcel.ActiveWorkbook.Close
+		objUCExcel.Application.Quit
+		objUCExcel.Quit
 	End If
 	If rr_excel_created = True Then
-		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objRRExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
-		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		objRRWorkbook.Save()
+		objRRExcel.ActiveWorkbook.Close
+		objRRExcel.Application.Quit
+		objRRExcel.Quit
 	End If
 
     objRecordSet.Close			'Closing all the data connections
