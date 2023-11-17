@@ -3292,25 +3292,41 @@ If ex_parte_function = "Prep 2" Then
 		Set objConnection=nothing
 	End If
 
-	'Opening a spreadsheet to capture the cases with a SMRT ending soon
-	Set ObjExcel = CreateObject("Excel.Application")
-	ObjExcel.Visible = True
-	Set objWorkbook = ObjExcel.Workbooks.Add()
-	ObjExcel.DisplayAlerts = True
+	If ObjFSO.FileExists(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx") Then
+		Call excel_open(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx", True, False, ObjExcel, objWorkbook)
+		excel_row = 2
+		Do
+			listed_case_numb = trim(ObjExcel.Cells(excel_row, 1).value)
+			If listed_case_numb <> "" Then
+				excel_row = excel_row + 1
+			End If
+		Loop until listed_case_numb = ""
+	Else
+		'Opening a spreadsheet to capture the cases with a SMRT ending soon
+		Set ObjExcel = CreateObject("Excel.Application")
+		ObjExcel.Visible = True
+		Set objWorkbook = ObjExcel.Workbooks.Add()
+		ObjExcel.DisplayAlerts = True
 
-	'Setting the first 4 col as worker, case number, name, and APPL date
-	ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-	ObjExcel.Cells(1, 2).Value = "REF"
-	ObjExcel.Cells(1, 3).Value = "NAME"
-	ObjExcel.Cells(1, 4).Value = "PMI NUMBER"
-	ObjExcel.Cells(1, 5).Value = "SSN"
-	ObjExcel.Cells(1, 6).Value = "Date of Death"
+		'Setting the first 4 col as worker, case number, name, and APPL date
+		ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
+		ObjExcel.Cells(1, 2).Value = "REF"
+		ObjExcel.Cells(1, 3).Value = "NAME"
+		ObjExcel.Cells(1, 4).Value = "PMI NUMBER"
+		ObjExcel.Cells(1, 5).Value = "SSN"
+		ObjExcel.Cells(1, 6).Value = "Date of Death"
 
-	FOR i = 1 to 6		'formatting the cells'
-		ObjExcel.Cells(1, i).Font.Bold = True		'bold font'
-	NEXT
+		FOR i = 1 to 6		'formatting the cells'
+			ObjExcel.Cells(1, i).Font.Bold = True		'bold font'
+		NEXT
 
-	excel_row = 2		'initializing the counter to move through the excel lines
+		'Formatting the table created in the list of date of death that is listed
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjExcel.Range("A1:H" & excel_row - 1), xlYes).Name = "Table1"
+		ObjExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
+		ObjExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+
+		excel_row = 2		'initializing the counter to move through the excel lines
+	End If
 
 	yesterday = DateAdd("d", -1, date)		'defining yesterday
 
@@ -3652,7 +3668,9 @@ If ex_parte_function = "Prep 2" Then
 						ObjExcel.Cells(excel_row, 4).Value = MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
 						ObjExcel.Cells(excel_row, 5).Value = left(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 3) & "-" & mid(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4, 2) & "-" & right(MEMBER_INFO_ARRAY(memb_ssn_const, each_memb), 4)
 						ObjExcel.Cells(excel_row, 6).Value = MEMBER_INFO_ARRAY(tpqy_date_of_death, each_memb)
+						objWorkbook.Save()
 						excel_row = excel_row + 1													'counting to increment to the next excel row
+
 					Else 	'If there is no date of death, we are going to try to update UNEA for SSI/RSDI
 						'Update MAXIS UNEA panels with information from TPQY
 						If MEMBER_INFO_ARRAY(tpqy_memb_has_ssi, each_memb) = True Then				'Member with SSI
@@ -4176,10 +4194,14 @@ If ex_parte_function = "Prep 2" Then
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-	'Formatting the table created in the list of date of death that is listed
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjExcel.Range("A1:H" & excel_row - 1), xlYes).Name = "Table1"
-	ObjExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
-	ObjExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+	For col_to_autofit = 1 to 6
+		ObjExcel.columns(col_to_autofit).AutoFit()
+	Next
+
+	objWorkbook.Save()
+	ObjExcel.ActiveWorkbook.Close
+	ObjExcel.Application.Quit
+	ObjExcel.Quit
 
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
