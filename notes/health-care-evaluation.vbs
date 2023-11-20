@@ -180,10 +180,10 @@ function check_for_errors(eval_questions_clear)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being completed for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligibility of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligibility of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) = "None" and HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) = "None" Then err_msg = err_msg & "~!~" & "1 ^* HC/MSP Basis of Eligibility##~##   - At least one Major Program needs to be selected for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ", indicate if MA/EMA/or a MSP is being assessed.##~##"
 		End If
@@ -191,7 +191,7 @@ function check_for_errors(eval_questions_clear)
 	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then		'handling for mandatory fields ONLY if MA-BC is being processed
 		If trim(ma_bc_authorization_form) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Select authorization form needed##~##   - Select the form name needed for MA-BC Eligibility.##~##"
 		If ma_bc_authorization_form_missing_checkbox = checked and IsDate(ma_bc_authorization_form_date) = True Then err_msg = err_msg & "~!~" & "1 ^* Check here if the form is NOT received and still required.##~##   - You checked the box indicating that the MA-BC authorization form was missing but entered a date for when the form was received."
-		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authoriazation Form)##~##   - Enter the date the form for MA-BC Authorization was received."
+		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authorization Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
 
@@ -202,7 +202,7 @@ function check_for_errors(eval_questions_clear)
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - Indicate the status of the Health Care Evaluation for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
-			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verificaitons" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
+			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verifications" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - other" and trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Evaluation Notes##~##   - Explain the details of the Health Care Evaluation Status for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " as you have selected 'Other'.##~##- Add notes to 'Evaluation Notes' for further explanation.##~##"
 		End if
 	Next
@@ -1740,7 +1740,7 @@ function define_main_dialog()
 				Text 20, y_pos, 400, 10, "NO Waiver or FACI information found for any Members you selected to process HC in this script run."
 				y_pos = y_pos + 20
 			End If
-			Text 20, y_pos, 70, 10, "LTC Eligiblity Notes:"
+			Text 20, y_pos, 70, 10, "LTC Eligibility Notes:"
 			y_pos = y_pos + 10
 			EditBox 20, y_pos, 445, 15, ltc_elig_notes
 			y_pos = y_pos + 25
@@ -1810,7 +1810,7 @@ function define_main_dialog()
 					Text 335, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 75, 10, "Health Care Eval: "
-					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
+					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verifications"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 70, 10, "Evaluation Notes:"
 					EditBox 95, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)
@@ -5813,7 +5813,7 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 		Do
 			err_msg = ""
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligiblity"
+			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligibility"
   			  ButtonGroup ButtonPressed
 				DropListBox 195, 10, 180, 45, case_memb_list, ma_bc_member
 				EditBox 310, 30, 65, 15, temp_ma_auth_form_date
