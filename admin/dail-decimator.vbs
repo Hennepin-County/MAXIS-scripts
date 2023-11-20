@@ -244,6 +244,8 @@ NEXT
 DIM DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
+all_dail_array = "*"    'setting up string to find duplicate DAIL messages. At times there is a glitch in the DAIL, and messages are reviewed a second time.
+false_count = 0 'testing code 
 
 'constants for array
 const worker_const	            = 0
@@ -305,30 +307,47 @@ For each worker in worker_array
                 If instr(dail_msg, "TPQY RESPONSE RECEIVED FROM SSA") then actionable_dail = False  'cleaning up TPQY messages after BULK SVES/QURY for SSI/RSDI RAP project.
             End if
 
-            IF actionable_dail = False then
-				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
-				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-				objExcel.Cells(excel_row, 3).Value = dail_type
-				objExcel.Cells(excel_row, 4).Value = dail_month
-				objExcel.Cells(excel_row, 5).Value = dail_msg
-				excel_row = excel_row + 1
+			'Accounting for duplicate DAIL messages 
+			dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
+            'If the case number is found in the string of case numbers, it's not added again.
+            If instr(all_dail_array, "*" & dail_string & "*") then
+                If dail_type = "HIRE" then
+                    capture_message = True 
+                Else
+                    capture_message = False
+					false_count = false_count + 1 'testing code 
+                End if
+            else
+				all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string
+                capture_message = True 
+            End if
 
-				Call write_value_and_transmit("D", dail_row, 3)
-				EMReadScreen other_worker_error, 13, 24, 2
-				If other_worker_error = "** WARNING **" then transmit
-				deleted_dails = deleted_dails + 1
-			else
-				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
-				dail_row = dail_row + 1
-                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-            	DAIL_array(worker_const,	           DAIL_count) = worker
-            	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
-            	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-            	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
-            	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
-                Dail_count = DAIL_count + 1
-			End if
+			If capture_message = True then 
+                IF actionable_dail = False then				
+			    	'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
+			    	objExcel.Cells(excel_row, 1).Value = worker
+			    	objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+			    	objExcel.Cells(excel_row, 3).Value = dail_type
+			    	objExcel.Cells(excel_row, 4).Value = dail_month
+			    	objExcel.Cells(excel_row, 5).Value = dail_msg
+			    	excel_row = excel_row + 1
+    
+			    	Call write_value_and_transmit("D", dail_row, 3)
+			    	EMReadScreen other_worker_error, 13, 24, 2
+			    	If other_worker_error = "** WARNING **" then transmit
+			    	deleted_dails = deleted_dails + 1
+			    else
+			    	actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
+			    	dail_row = dail_row + 1
+                    ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                	DAIL_array(worker_const,	           DAIL_count) = worker
+                	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
+                	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
+                	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
+                    Dail_count = DAIL_count + 1
+			    End if
+			End if 
 
             EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
             If message_error = "NO MESSAGES" then exit do
@@ -415,6 +434,7 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & da
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
-objExcel.Quit
+'objExcel.Quit
+msgbox false_count ' testing code 
 
 script_end_procedure("Success! Please review the list created for accuracy.")
