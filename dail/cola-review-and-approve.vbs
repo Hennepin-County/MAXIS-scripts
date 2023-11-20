@@ -57,7 +57,7 @@ changelog_display
 'identify if all HH members on HC have been approved
 'Identify what programs are active
 'Read CASE/NOTE to see if the COLA income summary already exists.
-'Gather information about income (SVES?) and the COLA amounts
+'Gather information about income from STAT/UNEA
 
 'IF no NOTE about income exists, dialog to view the UNEA updates and create CASE/NOTE.
 
@@ -240,14 +240,14 @@ If snap_status = "ACTIVE" Then other_programs_active = True
 PF3             'Back to DAIL
 
 
-const dail_memb_ref_const
-const dail_memb_name_const
-const dail_unea_instance_const
-const dail_unea_type_code_const
-const dail_unea_type_info_const
-const dail_cola_disregard_const
-const dail_prosp_total_const
-const dail_last_const
+const dail_memb_ref_const			= 0
+const dail_memb_name_const			= 1
+const dail_unea_instance_const		= 2
+const dail_unea_type_code_const		= 3
+const dail_unea_type_info_const		= 4
+const dail_cola_disregard_const		= 5
+const dail_prosp_total_const		= 6
+const dail_last_const				= 7
 
 DIM UNEA_FROM_DAIL_RUN()
 ReDIM UNEA_FROM_DAIL_RUN(dail_last_const, 0)
@@ -259,13 +259,18 @@ transmit
 'Creating a custom dialog for determining who the HH members are
 Call HH_member_custom_dialog(HH_member_array)
 
+Dim MEDI_PART_BE_ARRAY(UBound(HH_member_array))
+medi_count = 0
+
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'DETERMINES THE UNEARNED INCOME RECEIVED BY THE CLIENT
 For each HH_member in HH_member_array
 	call navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMWriteScreen HH_member, 20, 76
 	transmit
-
+	EMReadScreen first_name, 12, 6, 63
+	EMReadScreen last_name, 25, 6, 30
+	memb_name = replace(first_name, "_", "") & " " & replace(last_name, "_", "")
 
 	call navigate_to_MAXIS_screen("STAT", "UNEA")
 	EMWriteScreen HH_member, 20, 76
@@ -276,19 +281,123 @@ For each HH_member in HH_member_array
 		Do
 			ReDIM Preserve UNEA_FROM_DAIL_RUN(dail_last_const, unea_count)
 
+			EMReadScreen UNEA_panel_current, 1, 2, 73
+			EMReadScreen inc_type, 2, 5, 37
+			EMReadScreen cola_disregard, 8, 10, 67
+			EMReadScreen unea_amount, 8, 18, 68
+
+			UNEA_FROM_DAIL_RUN(dail_memb_ref_const, unea_count) = HH_member
+			UNEA_FROM_DAIL_RUN(dail_memb_name_const, unea_count) = memb_name
+			UNEA_FROM_DAIL_RUN(dail_unea_instance_const, unea_count) = "0" & UNEA_panel_current
+			UNEA_FROM_DAIL_RUN(dail_unea_type_code_const, unea_count) = inc_type
+
+			If inc_type = "01" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "RSDI, Disability"
+			If inc_type = "02" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "RSDI, No Disability"
+			If inc_type = "03" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "SSI"
+			If inc_type = "06" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Non-MN Public Assistance"
+			If inc_type = "11" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "VA Disability Benefit"
+			If inc_type = "12" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "VA Pension"
+			If inc_type = "13" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "VA other"
+			If inc_type = "38" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "VA Aid & Attendance"
+			If inc_type = "14" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Unemployment Insurance"
+			If inc_type = "15" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Worker's Comp"
+			If inc_type = "16" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Railroad Retirement"
+			If inc_type = "17" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other Retirement"
+			If inc_type = "18" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Military Entitlement"
+			If inc_type = "19" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Foster Care Child Requesting SNAP"
+			If inc_type = "20" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Foster Care Child NOT Requesting SNAP"
+			If inc_type = "21" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Foster Care Adult Requesting SNAP"
+			If inc_type = "22" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Foster Care Adult NOT Requesting SNAP"
+			If inc_type = "23" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Dividends"
+			If inc_type = "24" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Interest"
+			If inc_type = "25" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Counted Gifts or Prizes"
+			If inc_type = "26" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Strike Benefit"
+			If inc_type = "27" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Contract for Deed"
+			If inc_type = "28" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Illegal Income"
+			If inc_type = "29" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other Countable Income"
+			If inc_type = "30" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Infrequent, <30, Not Counted"
+			If inc_type = "31" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other SNAP Only"
+			If inc_type = "08" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Direct Child Support"
+			If inc_type = "35" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Direct Spousal Support"
+			If inc_type = "36" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Child Support"
+			If inc_type = "37" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Spousal Support"
+			If inc_type = "39" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Child Support Arrears"
+			If inc_type = "40" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Spousal Support Arrears"
+			If inc_type = "43" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Excess Child Support"
+			If inc_type = "44" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "MSA - Excess Income for SSI"
+			If inc_type = "45" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "County 88 Child Support"
+			If inc_type = "46" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "County 88 Gaming"
+			If inc_type = "47" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Counted Tribal Income"
+			If inc_type = "48" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Trust income"
+			If inc_type = "49" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Non-Recurring Income > $60 per Quarter"
 
 
+			UNEA_FROM_DAIL_RUN(dail_cola_disregard_const, unea_count) = trim(cola_disregard)
+			UNEA_FROM_DAIL_RUN(dail_prosp_total_const, unea_count) = trim(unea_amount)
 
-		If HH_member = "01" then
-			call add_UNEA_to_variable(unearned_income)
-		Else
-			call add_unea_to_variable(unearned_income_spouse)
-		End if
-		EMReadScreen UNEA_panel_current, 1, 2, 73
-		If cint(UNEA_panel_current) < cint(UNEA_total) then transmit
-		Loop until cint(UNEA_panel_current) = cint(UNEA_total)
+			unea_count = unea_count + 1
+
+			transmit
+			EMReadScreen warn_msg, 60, 24, 2
+			warn_msg = trim(warn_msg)
+		Loop Until warn_msg = "ENTER A VALID COMMAND OR PF-KEY"
+
 	End if
+
+    call navigate_to_MAXIS_screen("STAT", "MEDI")
+	EMWriteScreen HH_member, 20, 76
+	transmit
+    EMReadScreen MEDI_total, 1, 2, 78
+    If MEDI_total <> 0 then
+        EMReadScreen medicare_part_B, 8, 7, 73
+		MEDI_PART_BE_ARRAY(medi_count) = trim(medicare_part_B)
+    End if
+	medi_count = medi_count + 1
+
 Next
+PF3             'Back to DAIL
+
+'If this case has ANY UNEA income, we can see about adding information to CASE/NOTE
+If unea_count <> 0 Then
+	EMWriteScreen "N", 6, 3                         'Navigates to CASE/CURR - maintaining tie to the DAIL for ease of processing
+	transmit
+
+	recent_cola_inocme_summary_found = False
+	too_old_date = DateAdd("d", -30, date)              'We don't need to read notes from before the CAF date
+
+	note_row = 5
+	Do
+		EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+		EMReadScreen note_title, 55, note_row, 25               'reading the note header
+		note_title = trim(note_title)
+
+		If left(note_title, 26) = "===COLA INCOME SUMMARY for" Then recent_cola_inocme_summary_found = True
+
+		if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+		note_row = note_row + 1
+		if note_row = 19 then
+			note_row = 5
+			PF8
+			EMReadScreen check_for_last_page, 9, 24, 14
+			If check_for_last_page = "LAST PAGE" Then Exit Do
+		End If
+		EMReadScreen next_note_date, 8, note_row, 6
+		if next_note_date = "        " then Exit Do
+	Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+
+
+
+	If recent_cola_inocme_summary_found = False Then
+
+
+
+		call start_a_blank_CASE_NOTE
+		Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "===")
+	End If
+End If
 
 
 
