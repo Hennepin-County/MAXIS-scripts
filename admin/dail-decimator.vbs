@@ -197,9 +197,9 @@ End if
 'determining if this is a restart or not in function below when gathering the x numbers.
 If trim(restart_worker_number) = "" then
     restart_status = False
-Else 
+Else
 	restart_status = True
-End if 
+End if
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -307,24 +307,24 @@ For each worker in worker_array
                 If instr(dail_msg, "TPQY RESPONSE RECEIVED FROM SSA") then actionable_dail = False  'cleaning up TPQY messages after BULK SVES/QURY for SSI/RSDI RAP project.
             End if
 
-			'Accounting for duplicate DAIL messages 
+			'Accounting for duplicate DAIL messages
 			dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
-			
+
             'If the case number is found in the string of case numbers, it's not added again.
             If instr(all_dail_array, "*" & dail_string & "*") then
                 If dail_type = "HIRE" then
-                    capture_message = True 
+                    capture_message = True
                 Else
                     capture_message = False
-					false_count = false_count + 1 'testing code 
+					false_count = false_count + 1
                 End if
             else
-                capture_message = True 
+                capture_message = True
             End if
 
-			If capture_message = True then 
+			If capture_message = True then
 				all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding dail_string to all_daily_array
-                IF actionable_dail = False then				
+                IF actionable_dail = False then
 			    	'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
 			    	objExcel.Cells(excel_row, 1).Value = worker
 			    	objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
@@ -342,7 +342,7 @@ For each worker in worker_array
                 	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
                     Dail_count = DAIL_count + 1
 			    End if
-			End if 
+			End if
 
 			'Navigation handling for if a case is actionable or not. If actionable the dail_row needs to increment
 			If actionable_DAIL = False then
@@ -350,9 +350,9 @@ For each worker in worker_array
 			    EMReadScreen other_worker_error, 13, 24, 2
 			    If other_worker_error = "** WARNING **" then transmit
 			    deleted_dails = deleted_dails + 1
-			Elseif actionable_DAIL = True then 
+			Elseif actionable_DAIL = True then
 				dail_row = dail_row + 1
-			End if 	
+			End if
 
             EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
             If message_error = "NO MESSAGES" then exit do
