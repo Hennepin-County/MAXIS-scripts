@@ -6742,7 +6742,6 @@ CALL write_variable_in_case_note(form_date & " " & short_form & ": " & hc_case_d
 Call write_bullet_and_variable_in_CASE_NOTE("Form Recvd", HC_form_name)
 If ltc_waiver_request_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* This application can be used to request LTC/Waiver services.")
 Call write_bullet_and_variable_in_CASE_NOTE("Date Recvd", form_date)
-Call write_bullet_and_variable_in_CASE_NOTE("Renewal Date", revw_date)
 If policy_to_apply = "Protected Policy - Continuous Coverage applies and not negative action can be taken" Then Call write_variable_in_CASE_NOTE("* PROTECTED POLICY from Public Health Emergency still apply at this time.")
 
 If ma_bc_authorization_form_missing_checkbox = unchecked Then
