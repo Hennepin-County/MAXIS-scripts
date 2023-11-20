@@ -3176,18 +3176,38 @@ If ex_parte_function = "Prep 1" Then
 		If rr_excel_created = True Then objRRExcel.columns(col_to_autofit).AutoFit()
 	Next
 
+	next_month = DatePart("m", DateAdd("m", 1, date))
+	next_mo_yr = DatePart("yyyy", DateAdd("m", 1, date))
+	first_of_next_month = next_month & "/1/" & next_mo_yr
+	first_of_next_month = DateAdd("d", 0, first_of_next_month)
+	due_date = DateAdd("d", -3, first_of_next_month)
+	Call change_date_to_soonest_working_day(due_date, "BACK")
+
 	If va_excel_created = True Then
 		objVAWorkbook.Save()
 		objVAExcel.ActiveWorkbook.Close
 		objVAExcel.Application.Quit
 		objVAExcel.Quit
+
+		' Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+		email_header = "Verification of VA Income for Cases with a " & ep_revw_mo & "-" & ep_revw_yr & " HC Renewal"
+		email_body = "Good afternoon Chad," & vbCR & vbCr & "Here is the list of persons that are indicated in our system to possibly have VA Income that we need verified to process our Ex Parte HC Renewals. It would be helpful if this information was returned by " & due_date &"." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
+		email_attachment_array = Array(ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
+		Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "chad.huseby@hennepin.us", email_recip_CC, email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
 	End If
+
 	If uc_excel_created = True Then
 		objUCWorkbook.Save()
 		objUCExcel.ActiveWorkbook.Close
 		objUCExcel.Application.Quit
 		objUCExcel.Quit
+
+		email_header = "Verification of UC Income for Cases with a " & ep_revw_mo & "-" & ep_revw_yr & " HC Renewal"
+		email_body = "Good afternoon Abdimalik," & vbCR & vbCr & "Here is the list of persons that are indicated in our system to possibly have UC Income that we need verified to process our Ex Parte HC Renewals. It would be helpful if this information was returned by " & due_date &"." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
+		email_attachment_array = Array(ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
+		Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "Abdimalik.Mohamed@hennepin.us", email_recip_CC, email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
 	End If
+
 	If rr_excel_created = True Then
 		objRRWorkbook.Save()
 		objRRExcel.ActiveWorkbook.Close
