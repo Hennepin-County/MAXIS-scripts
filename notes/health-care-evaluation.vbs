@@ -176,7 +176,7 @@ end function
 
 function check_for_errors(eval_questions_clear)
 'This is a function specific to this script to see if there are dialog errors that prevent us from moving forward in the script.
-	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'maandatory fields related to specific persons on the case from the first dialog
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'mandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being completed for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
@@ -305,8 +305,11 @@ function define_main_dialog()
 			GroupBox 10, 45, 465, 310, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
 			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
-			Text 300, 60, 80, 10, "Health Care Eval is at "
-			DropListBox 380, 55, 85, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			Text 155, 60, 80, 10, "Health Care Eval is at "
+			DropListBox 230, 55, 90, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			EditBox 420, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_month, selected_memb)
+ 			EditBox 445, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_year, selected_memb)
+ 			Text 330, 60, 85, 10, "HC Recertification MM/YY"
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
 			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
@@ -3800,7 +3803,9 @@ Const HC_major_prog_const				= 74
 Const MSP_major_prog_const				= 75
 Const LTC_waiver_notes_const			= 76
 Const LTC_facility_notes_const			= 77
-Const last_const						= 78
+Const HC_recertification_month			= 78
+Const HC_recertification_year			= 79
+Const last_const						= 80
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
