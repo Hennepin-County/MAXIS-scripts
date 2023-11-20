@@ -151,10 +151,10 @@ decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 150, "Dail Decimator Dialog"
+BeginDialog Dialog1, 0, 0, 266, 150, "DAIL Decimator Dialog"
   GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
   Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
-  Text 40, 55, 35, 10, "Dail type:"
+  Text 40, 55, 35, 10, "DAIL type:"
   DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
   Text 15, 75, 60, 10, "Worker number(s):"
   EditBox 80, 70, 180, 15, worker_number
@@ -444,3 +444,48 @@ objExcel.Application.Quit
 objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/20/2023
+'--Tab orders reviewed & confirmed----------------------------------------------11/20/2023
+'--Mandatory fields all present & Reviewed--------------------------------------11/20/2023
+'--All variables in dialog match mandatory fields-------------------------------11/20/2023
+'Review dialog names for content and content fit in dialog----------------------11/20/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/20/2023-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/20/2023-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/20/2023-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/20/2023-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/20/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/20/2023-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------11/20/2023-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------11/20/2023-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/20/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------11/20/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/20/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/20/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------11/20/2023
+'--Denomination reviewed -------------------------------------------------------11/20/2023
+'--Script name reviewed---------------------------------------------------------11/20/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/20/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/20/2023
+'--comment Code-----------------------------------------------------------------11/20/2023
+'--Update Changelog for release/update------------------------------------------11/20/2023-------------------N/A
+'--Remove testing message boxes-------------------------------------------------11/20/2023
+'--Remove testing code/unnecessary code-----------------------------------------11/20/2023
+'--Review/update SharePoint instructions----------------------------------------11/20/2023-------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/20/2023-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/20/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------11/20/2023-------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------11/20/2023
+'--Update project team/issue contact (if applicable)----------------------------11/20/2023
