@@ -192,7 +192,7 @@ Do
     Do
         err_msg = ""
         Do
-            BeginDialog Dialog1, 0, 0, 391, 345, "Client Contact"
+            BeginDialog Dialog1, 0, 0, 391, 355, "Client Contact"
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
@@ -200,22 +200,23 @@ Do
                 EditBox 245, 65, 135, 15, regarding
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
-                EditBox 75, 105, 45, 15, MAXIS_case_number
-                PushButton 130, 105, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
-                EditBox 315, 105, 65, 15, METS_IC_number
-                EditBox 75, 125, 305, 15, contact_reason
-                EditBox 70, 155, 310, 15, actions_taken
-                EditBox 60, 195, 320, 15, verifs_needed
-                EditBox 60, 215, 320, 15, case_status
-                EditBox 60, 235, 320, 15, other_notes
-                CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-                CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-                CheckBox 5, 290, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
-                CheckBox 270, 260, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
-                EditBox 340, 275, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-                EditBox 70, 325, 205, 15, worker_signature
-                OkButton 280, 325, 50, 15
-                CancelButton 335, 325, 50, 15
+                CheckBox 15, 105, 230, 10, "Check here if a phone interview was attempted but NOT completed.", phone_interview_attempt_checkbox
+                EditBox 75, 120, 45, 15, MAXIS_case_number
+                PushButton 130, 120, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+                EditBox 315, 120, 65, 15, METS_IC_number
+                EditBox 75, 140, 305, 15, contact_reason
+                EditBox 70, 165, 310, 15, actions_taken
+                EditBox 60, 205, 320, 15, verifs_needed
+                EditBox 60, 225, 320, 15, case_status
+                EditBox 60, 245, 320, 15, other_notes
+                CheckBox 5, 270, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+                CheckBox 5, 285, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+                CheckBox 5, 300, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
+                CheckBox 270, 275, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
+                EditBox 340, 285, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                EditBox 70, 335, 205, 15, worker_signature
+                OkButton 280, 335, 50, 15
+                CancelButton 335, 335, 50, 15
                 PushButton 10, 15, 25, 10, "ADDR", ADDR_button
                 PushButton 35, 15, 25, 10, "AREP", AREP_button
                 PushButton 60, 15, 25, 10, "MEMB", MEMB_button
@@ -226,15 +227,15 @@ Do
                 PushButton 250, 15, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
                 PushButton 300, 15, 40, 10, "MEMO", MEMO_button
                 PushButton 340, 15, 40, 10, "WCOM", WCOM_button
-                Text 20, 110, 50, 10, "Case number: "
-                Text 10, 130, 65, 10, "Reason for contact:"
-                Text 20, 160, 50, 10, "Actions taken: "
-                GroupBox 5, 180, 380, 75, "Additional information about case (not mandatory):"
-                Text 10, 200, 50, 10, "Verifs needed: "
-                Text 15, 220, 45, 10, "Case status: "
-                Text 10, 330, 60, 10, "Worker signature:"
+                Text 20, 125, 50, 10, "Case number: "
+                Text 10, 145, 65, 10, "Reason for contact:"
+                Text 20, 170, 50, 10, "Actions taken: "
+                GroupBox 5, 190, 380, 75, "Additional information about case (not mandatory):"
+                Text 10, 210, 50, 10, "Verifs needed: "
+                Text 15, 230, 45, 10, "Case status: "
+                Text 10, 340, 60, 10, "Worker signature:"
                 GroupBox 5, 5, 135, 25, "STAT Navigation"
-                GroupBox 5, 40, 380, 110, "Contact Information:"
+                GroupBox 5, 40, 380, 120, "Contact Information:"
                 Text 30, 55, 40, 10, "Contact type"
                 Text 100, 55, 30, 10, "From/To"
                 Text 150, 55, 65, 10, "Who was contacted"
@@ -243,11 +244,11 @@ Do
                 GroupBox 145, 5, 240, 25, "CASE Navigation"
                 Text 15, 90, 50, 10, "Phone Number:"
                 Text 15, 240, 40, 10, "Other notes:"
-                GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-                Text 280, 305, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-                Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                GroupBox 260, 305, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                Text 280, 315, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                Text 285, 290, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 170, 90, 75, 10, "Date/Time of Contact:"
-                Text 255, 110, 60, 10, "METS IC number:"
+                Text 255, 125, 60, 10, "METS IC number:"
                 PushButton 300, 35, 85, 15, "Display Benefits", display_benefits_btn
             EndDialog
 
@@ -276,6 +277,7 @@ Do
         If trim(contact_type) = "Phone call" then
             If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number."
         End if
+        If trim(contact_type) <> "Phone call" AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted interview attempt should only be checked for the phone call contact type."
 		If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
         If follow_up_needed_checkbox = 1 and trim(ticket_number) = "" then err_msg = err_msg & vbcr & "* Enter the Q-Flow ticket number."
         If follow_up_needed_checkbox = 0 and trim(ticket_number) <> "" then err_msg = err_msg & vbcr & "* Check the follow up box or clear the Q-flow ticket field if follow up is not needed."
@@ -294,6 +296,7 @@ If county_code <> worker_county_code then script_end_procedure("This case is out
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
+If phone_interview_attempt_checkbox = checked Then write_variable_in_CASE_NOTE("Phone Interview Attempted but Interview NOT Completed")
 CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
 If Used_interpreter_checkbox = checked THEN
 	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter.")
