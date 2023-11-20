@@ -4870,7 +4870,8 @@ function check_for_MAXIS(end_script)
 				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & vbCr & "The script has stopped, please check your MAXIS screen and try again."
 				script_end_procedure(check_for_MAXIS_msg)
 			Else
-				BeginDialog Password_dialog, 0, 0, 241, 145, "Password Dialog"
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 241, 145, "Password Dialog"
 				ButtonGroup ButtonPressed
 					OkButton 130, 125, 50, 15
 					CancelButton 185, 125, 50, 15
@@ -4885,7 +4886,7 @@ function check_for_MAXIS(end_script)
 				EndDialog
                 Do
                     Do
-                        dialog Password_dialog
+                        dialog Dialog1
                         cancel_confirmation
                     Loop until ButtonPressed = -1
                     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
