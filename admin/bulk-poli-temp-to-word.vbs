@@ -188,7 +188,7 @@ Do
         Do
             For notice_row = 4 to 21
                 EMReadScreen poli_line, 74, notice_row, 6
-                poli_line = trim(poli_line)
+                poli_line = rtrim(poli_line)
                 If notice_row = 3 Then first_line = poli_line
                 if right(trim(poli_line),9) = "FMINFO___" Then poli_line = ""
                 If right(trim(poli_line),4) = "Page" Then
