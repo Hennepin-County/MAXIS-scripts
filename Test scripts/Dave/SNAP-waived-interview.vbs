@@ -145,7 +145,7 @@ ReDim HH_MEMB_ARRAY(last_const, 0)
 '===========================================================================================================================
 
 'FUNCTIONS =================================================================================================================
-function create_interview_questions_array(questions_string, questions) 'TODO add variables for caf_type, info_only to clear initial dialogs, create other dialog
+function create_interview_questions_array(questions_string, questions) 
 	'This function creates a dictionary object of all questions to be called from the interview script.
 	'----questions_string must be a string value with each questions separated with | and the items info for each question separated with ). Such as 5) Memb02 | 6) | 9) 
 	'Use questions.exists() method to call individual dialog questions in the script.
@@ -489,53 +489,53 @@ function define_main_dialog()
 	    If page_display = show_pg_one_memb01_and_exp Then
 			Text 497, 17, 60, 10, "INTVW / CAF 1"
 
-			ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
-			ComboBox 120, 30, 75, 45, "Select or Type"+chr(9)+"Phone"+chr(9)+"In Office"+chr(9)+how_are_we_completing_the_interview, how_are_we_completing_the_interview
-			EditBox 120, 50, 50, 15, interview_date
-			ComboBox 120, 70, 340, 45, "No Interpreter Used"+chr(9)+"Language Line Interpreter Used"+chr(9)+"Interpreter through Henn Co. OMS (Office of Multi-Cultural Services)"+chr(9)+"Interviewer speaks Resident Language"+chr(9)+interpreter_information, interpreter_information
-			ComboBox 120, 90, 205, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian"+chr(9)+"Oromo"+chr(9)+"Vietnamese"+chr(9)+interpreter_language, interpreter_language
-            PushButton 330, 90, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
-            EditBox 120, 110, 340, 15, arep_interview_id_information
-			EditBox 10, 155, 450, 15, non_applicant_interview_info
+			'ComboBox 120, 10, 205, 45, all_the_clients+chr(9)+who_are_we_completing_the_interview_with, who_are_we_completing_the_interview_with
+			'ComboBox 120, 30, 75, 45, "Select or Type"+chr(9)+"Phone"+chr(9)+"In Office"+chr(9)+how_are_we_completing_the_interview, how_are_we_completing_the_interview
+			'EditBox 120, 50, 50, 15, interview_date
+			'ComboBox 120, 70, 340, 45, "No Interpreter Used"+chr(9)+"Language Line Interpreter Used"+chr(9)+"Interpreter through Henn Co. OMS (Office of Multi-Cultural Services)"+chr(9)+"Interviewer speaks Resident Language"+chr(9)+interpreter_information, interpreter_information
+			'ComboBox 120, 90, 205, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian"+chr(9)+"Oromo"+chr(9)+"Vietnamese"+chr(9)+interpreter_language, interpreter_language
+           ' PushButton 330, 90, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+            'EditBox 120, 110, 340, 15, arep_interview_id_information
+			'EditBox 10, 155, 450, 15, non_applicant_interview_info
 
-		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
-		    EditBox 325, 225, 50, 15, exp_q_2_assets_this_month
-		    EditBox 325, 245, 50, 15, exp_q_3_rent_this_month
-		    CheckBox 140, 265, 30, 10, "Heat", caf_exp_pay_heat_checkbox
-		    CheckBox 175, 265, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
-		    CheckBox 245, 265, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
-		    CheckBox 295, 265, 35, 10, "Phone", caf_exp_pay_phone_checkbox
-		    CheckBox 340, 265, 35, 10, "None", caf_exp_pay_none_checkbox
-		    DropListBox 260, 280, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
-		    DropListBox 380, 295, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
-		    EditBox 95, 315, 80, 15, exp_previous_assistance_when
-		    EditBox 215, 315, 85, 15, exp_previous_assistance_where
-		    EditBox 335, 315, 85, 15, exp_previous_assistance_what
-		    DropListBox 175, 335, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
-		    ComboBox 270, 335, 150, 45, all_the_clients, exp_pregnant_who
+		    EditBox 325, 40, 50, 15, exp_q_1_income_this_month
+		    EditBox 325, 60, 50, 15, exp_q_2_assets_this_month
+		    EditBox 325, 80, 50, 15, exp_q_3_rent_this_month
+		    CheckBox 140, 100, 30, 10, "Heat", caf_exp_pay_heat_checkbox
+		    CheckBox 175, 100, 65, 10, "Air Conditioning", caf_exp_pay_ac_checkbox
+		    CheckBox 245, 100, 45, 10, "Electricity", caf_exp_pay_electricity_checkbox
+		    CheckBox 295, 100, 35, 10, "Phone", caf_exp_pay_phone_checkbox
+		    CheckBox 340, 100, 35, 10, "None", caf_exp_pay_none_checkbox
+		    DropListBox 260, 115, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_migrant_seasonal_formworker_yn
+		    DropListBox 380, 130, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_received_previous_assistance_yn
+		    EditBox 95, 150, 80, 15, exp_previous_assistance_when
+		    EditBox 215, 150, 85, 15, exp_previous_assistance_where
+		    EditBox 335, 150, 85, 15, exp_previous_assistance_what
+		    DropListBox 175, 170, 40, 45, ""+chr(9)+"No"+chr(9)+"Yes", exp_pregnant_yn
+		    ComboBox 270, 170, 150, 45, all_the_clients, exp_pregnant_who
 
-		    Text 10, 15, 110, 10, "Who are you interviewing with?"
-			Text 65, 35, 55, 10, "Interview via"
-			Text 65, 55, 55, 10, "Interview date"
-			Text 30, 75, 85, 10, "Was an Interpreter Used?"
-			Text 75, 95, 35, 10, "Language"
-			Text 10, 115, 110, 10, "Detail AREP Identity Document"
-			Text 120, 130, 300, 10, "(Identity of AREP is required if the interview is being completed with the AREP.)"
-			Text 10, 145, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
+		   'Text 10, 15, 110, 10, "Who are you interviewing with?"
+			'Text 65, 35, 55, 10, "Interview via"
+			'Text 65, 55, 55, 10, "Interview date"
+			'Text 30, 75, 85, 10, "Was an Interpreter Used?"
+			'Text 75, 95, 35, 10, "Language"
+			'Text 10, 115, 110, 10, "Detail AREP Identity Document"
+			'Text 120, 130, 300, 10, "(Identity of AREP is required if the interview is being completed with the AREP.)"
+			'Text 10, 145, 300, 10, "If interview is NOT with a Household Adult, explain relationship and add any details:"
 
-		    GroupBox 25, 185, 400, 170, "CAF 1 Answers - Expedited Section"
-			Text 30, 195, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
-		    Text 35, 210, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
-		    Text 35, 230, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
-		    Text 35, 250, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
-		    Text 45, 265, 90, 10, "What utilities do you pay?"
-		    Text 35, 285, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
-		    Text 35, 300, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
-		    Text 45, 320, 50, 10, "If yes, When?"
-		    Text 185, 320, 30, 10, "Where?"
-		    Text 310, 320, 25, 10, "What?"
-		    Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
-		    Text 225, 340, 45, 10, "If yes, who?"
+		    GroupBox 25, 20, 400, 170, "CAF 1 Answers - Expedited Section"
+			Text 30, 30, 375, 10, "ENTER THE INFORMATION FROM THE CAF HERE."
+		    Text 35, 45, 270, 10, "1. How much income (cash or checks) did or will your household get this month?"
+		    Text 35, 65, 290, 10, "2. How much does your household (including children) have cash, checking or savings?"
+		    Text 35, 85, 225, 10, "3. How much does your household pay for rent/mortgage per month?"
+		    Text 45, 100, 90, 10, "What utilities do you pay?"
+		    Text 35, 120, 225, 10, "4. Is anyone in your household a migrant or seasonal farm worker?"
+		    Text 35, 135, 345, 10, "5. Has anyone in your household ever received cash assistance, commodities or SNAP benefits before?"
+		    Text 45, 155, 50, 10, "If yes, When?"
+		    Text 185, 155, 30, 10, "Where?"
+		    Text 310, 155, 25, 10, "What?"
+		    Text 35, 175, 135, 10, "6. Is anyone in your household pregnant?"
+		    Text 225, 175, 45, 10, "If yes, who?"
 			' GroupBox 5, 200, 475, 160, "Expedited Determination"
 		    ' Text 15, 210, 190, 10, "Confirm the Income received in the application month. "
 		    ' Text 20, 220, 230, 10, "What is the total of the income recevied in the month of application?"
@@ -718,22 +718,22 @@ function define_main_dialog()
 			CheckBox 125, 210, 65, 10, "Cash programs", HH_MEMB_ARRAY(cash_req_checkbox, selected_memb)
 			CheckBox 195, 210, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(emer_req_checkbox, selected_memb)
 			CheckBox 280, 210, 30, 10, "NONE", HH_MEMB_ARRAY(none_req_checkbox, selected_memb)
-			If selected_memb = 0 Then
-				DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
-			Else
-				DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not in HH", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
-			End If
-			EditBox 155, 265, 205, 15, HH_MEMB_ARRAY(imig_status, selected_memb)
-			DropListBox 365, 265, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(clt_has_sponsor, selected_memb)
+			'If selected_memb = 0 Then
+			'	DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
+			'Else
+			'	DropListBox 70, 265, 80, 45, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not in HH", HH_MEMB_ARRAY(intend_to_reside_in_mn, selected_memb)
+			'End If
+			EditBox 70, 265, 205, 15, HH_MEMB_ARRAY(imig_status, selected_memb)
+			DropListBox 70, 180, 55, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(clt_has_sponsor, selected_memb)
 			DropListBox 70, 295, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(client_verification, selected_memb)
 			EditBox 155, 295, 320, 15, HH_MEMB_ARRAY(client_verification_details, selected_memb)
 			EditBox 70, 325, 405, 15, HH_MEMB_ARRAY(client_notes, selected_memb)
 			If HH_MEMB_ARRAY(ref_number, selected_memb) = "" Then
 				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1
-				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & "  ---  Interview Questions"
+				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & "  ---  Reported Information"
 			Else
 				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb)
-				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Interview Questions"
+				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Reported Information"
 
 			End If
 			y_pos = 35
@@ -771,7 +771,7 @@ function define_main_dialog()
 			Text 330, 135, 35, 10, "Hispanic?"
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
-			Text 70, 255, 80, 10, "Intends to reside in MN"
+			'Text 70, 255, 80, 10, "Intends to reside in MN"
 			Text 155, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 285, 50, 10, "Verification"
@@ -9001,7 +9001,7 @@ Do
 		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
 		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
+		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
 		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
 		  EditBox 75, 85, 145, 15, worker_signature
@@ -9017,7 +9017,7 @@ Do
 		    PushButton 10, 300, 50, 15, "Instructions", msg_show_instructions_btn
 		    PushButton 60, 300, 70, 15, "Quick Start Guide", msg_show_quick_start_guide_btn
 		    PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
-		  Text 10, 10, 360, 10, "Start this script at the beginning of the interview and keep it running during the entire course of the interview."
+		  Text 10, 10, 360, 10, "This script is to be used for a SNAP waived interview. Do not use this script to complete a full interview."
 		  Text 20, 50, 50, 10, "Case number:"
 		  Text 10, 70, 60, 10, "Actual CAF Form:"
 		  Text 10, 90, 60, 10, "Worker Signature:"
@@ -9025,10 +9025,9 @@ Do
 		  Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
 		  Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
 		  Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
-		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to restore the information - just press YES!"
+		  Text 15, 155, 345, 20, "This happens in the background, without you knowing it. In order to get your work back run the script again on the SAME DAY for the SAME CASE and it will ask if you want to res"
 		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
-		  Text 80, 205, 220, 10, "You should have this script running DURING the entire interview."
-		  Text 90, 220, 195, 20, "You  are capturing BOTH the information written on the form AND the verbal responses in the script fields."
+		  Text 25, 205, 330, 35, "This script is designed to assist with determining if the SNAP portion of an application is complete. Other programs require an interview, and are not completely captured by this script. After completing the script, you must attempt to contact the client to gather any needed information identified while reviewing the application."
 		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
 		EndDialog
 
@@ -9040,8 +9039,7 @@ Do
 
 			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
 			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
-			If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
-            If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
+	        If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
 			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
 
 			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx"
@@ -9072,22 +9070,56 @@ If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Applicat
 If CAF_form = "MNbenefits" Then CAF_form_name = "MNbenefits Web Form"
 If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Combined Annual Renewal"
 
-If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
-
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 261, 160, "Unsupported Forms"
-	  Text 10, 10, 215, 20, "The following forms have slightly different phrasing from the primary application/recertification forms (like the CAF or HUF):"
-	  Text 25, 40, 195, 10, "SNAP App for Srs (DHS-5223F)"
-	  Text 25, 50, 190, 10, "Combined AR for Certain Pops (DHS-3727)"
-	  Text 10, 70, 240, 20, "We are developing new support for this script as use continues. Until then, the Interview script will function using the phrasing of the CAF form."
-	  Text 10, 95, 240, 40, "The requirements of the interview remain the same regardless of the form received. Many questions can be left blank as necessary, the important steps are to document all information received and discussed in the interview. Use the fields in the script to the best of your ability to document the details of the interview."
-	  ButtonGroup ButtonPressed
-		OkButton 205, 140, 50, 15
-	EndDialog
-
-	dialog Dialog1
-
+'The following sections assign the text for each question to be shown based on the application type
+'NOTE TO SELF: use if question_jobs_text <> "" to call each one, ditch the dictionary
+'OR make me a function, use an object or array for easy passing. May make assigning extra info tough 
+'!!!! MAKE THE DIALOG PORTIONS FUNCTIONS - generic one, then ones for jobs, etc. enter_question_into_dialog(question_type, app_type?), could then use if/thens for each app type to lay it out in order
+'Could then just use an array/ string thing or dictionary for the client contact, and have it use dictionary - if question_list.exists question_unea then call enter_question_into_dialog
+If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
+	Question_HH_comp_text = "This is a multiple member household, do all HH members eat with the applicant or are mandatory members?"
+	question_jobs_text = "1. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+	question_busi_text = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
+	question_unea_text = "3. Has anyone in the household applied for or does anyone get any of the following types of income?"
+	question_shel_text = "4. Does your household have the following housing expenses? Check yes or no for each item. "
+	question_hest_text = "5. Does your household have the following utility expenses any time during the year, including seasonal charges? Check yes or no for each item."
+	question_liheap_text = "5a. Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
+	question_dcex_text = "6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+	question_coex_text = "7. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
+	question_fmed_text = "8. Does anyone in the household have medical expenses? To get a medical deduction you must provide proof of all medical bills incurred by anyone in your household who is disabled or 60 years or older. Do not bring medical bills that are being paid for by any health care program, insurance or someone not living with you."
+	question_qual1_text = "9. Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the SNAP penalty warnings on page 2 of the instructions?"
+	question_qual2_text = "10. Has anyone in the household been convicted of making fraudulent statements about their place of residence to get SNAP benefits from more than one state?"
+	question_qual3_text = "11. Is anyone in your household hiding or running from the law to avoid prosecution, being taken into custody, or to avoid going to jail for a felony?"
+	question_qual4_text = "12. Has anyone in your household been convicted of a drug felony in the past 10 years?"
+	question_qual5_text = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
 End If
+
+If CAF_form = "CAF (DHS-5223)" OR If CAF_form = "MNbenefits" Then
+	Question_HH_comp_text = "1. Does everyone in your household buy, fix or eat food with you?"
+	question_eats_60_text = "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+	question_schl_text = "3. Is anyone in the household attending school?"
+	question_remo_text = "4. Is anyone in your household temporarily not living in your home?"
+	question_disa_text = "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
+	question_wreg_text = "6. Is anyone unable to work for reasons other than illness or disability?"
+	question_abps_text = "7. Do all children under the age of 19 have both parents living in the home?"
+	question_stwk_text = "8. In the last 60 days did anyone in the household:"
+	question_past_jobs_text = "9. Has anyone in the household had a job or been self-employed in the past 12 months?"
+	question_jobs_text = "10. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+	question_busi_text = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
+	question_income_change_text = "12. Do you expect any changes in income, expenses or work hours?"
+	question_unea_text = "13. Has anyone in the household applied for or does anyone get any of the following types of income?"
+	question_stin_text = "14. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school? "
+	question_shel_text = "15. Does your household have the following housing expenses? Check yes or no for each item."
+	question_hest_text = 
+	question_liheap_text 
+	question_dcex_text = 
+	question_coex_text = 
+	question_fmed_text = 
+	question_qual1_text =
+	question_qual2_text =
+	question_qual3_text =
+	question_qual4_text =
+	question_qual5_text =
+End If 
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
@@ -9203,7 +9235,7 @@ BeginDialog Dialog1, 0, 0, 311, 245, "Programs to Interview For"
   Text 10, 10, 265, 10, "We are going to start the interview based on the information listed on the form:"
   Text 20, 25, 155, 10, CAF_form_name
   Text 20, 45, 35, 10, "CAF Date:"
-  GroupBox 180, 25, 125, 30, "Programs marked on CAF"
+  GroupBox 180, 25, 125, 30, "Programs marked on Application"
   Text 15, 60, 295, 10, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
   Text 15, 75, 210, 10, "Confirm with the resident which programs should be assessed:"
   Text 25, 85, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
@@ -9236,7 +9268,7 @@ Do
 
 		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
 		If program_requested = False Then err_msg = err_msg & vbCr & "* We must indicate a program being requested on the form or verbally. Review the request details with the resident."
-
+		If SNAP_on_CAF_checkbox = unchecked THEN err_msg = err_msg & vbCr & "This script is only to be used for waived SNAP interviews. You did not select SNAP as a program requested on the application."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -9300,72 +9332,8 @@ If vars_filled = False Then
 	the_process_for_emer = "Application"
 End If
 
-dlg_len = 50
-y_pos = 25
-If cash_request = True Then dlg_len = dlg_len + 20
-If snap_request = True Then dlg_len = dlg_len + 20
-If emer_request = True Then dlg_len = dlg_len + 20
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
-  Text 10, 10, 35, 10, "Program"
-  Text 80, 10, 50, 10, "CAF Process"
-  Text 155, 10, 50, 10, "Recert MM/YY"
-  If cash_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "Cash"
-	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"Family"+chr(9)+"Adult", type_of_cash
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_cash
-	  EditBox 155, y_pos, 20, 15, next_cash_revw_mo
-	  EditBox 180, y_pos, 20, 15, next_cash_revw_yr
-	  y_pos = y_pos + 20
-  End If
-  If snap_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "SNAP"
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Renewal", the_process_for_snap
-	  EditBox 155, y_pos, 20, 15, next_snap_revw_mo
-	  EditBox 180, y_pos, 20, 15, next_snap_revw_yr
-	  y_pos = y_pos + 20
-  End If
-  If emer_request = True Then
-	  Text 10, y_pos + 5, 20, 10, "EMER"
-	  DropListBox 35, y_pos, 35, 45, "?"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
-	  DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application", the_process_for_emer
-	  y_pos = y_pos + 20
-  End If
-  y_pos = y_pos + 5
-  ButtonGroup ButtonPressed
-	OkButton 150, y_pos, 50, 15
-EndDialog
-
-Do
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-
-		If len(next_cash_revw_yr) = 4 AND left(next_cash_revw_yr, 2) = "20" Then next_cash_revw_yr = right(next_cash_revw_yr, 2)
-		If len(next_snap_revw_yr) = 4 AND left(next_snap_revw_yr, 2) = "20" Then next_snap_revw_yr = right(next_snap_revw_yr, 2)
-		If cash_request = True Then
-			If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or renewal."
-			If the_process_for_cash = "Renewal" AND (len(next_cash_revw_mo) <> 2 or len(next_cash_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at renewal, enter the footer month and year the of the renewal."
-		End If
-		If snap_request = True Then
-			If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or renewal."
-			If the_process_for_snap = "Renewal" AND (len(next_snap_revw_mo) <> 2 or len(next_snap_revw_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at renewal, enter the footer month and year the of the renewal."
-		End If
-		If emer_request = True Then
-			If type_of_emer = "?" Then r_msg = err_msg & vbNewLine & "*Indicate if EMER request in EA or EGA"
-		End If
-
-
-		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 If the_process_for_snap = "Application" Then expedited_determination_needed = True
 If snap_status = "PENDING" Then expedited_determination_needed = True
-If type_of_cash = "Adult" Then family_cash_case_yn = "No"
-If type_of_cash = "Family" Then family_cash_case_yn = "Yes"
 If vars_filled = TRUE Then show_known_addr = TRUE		'This is a setting for the address dialog to see the view
 
 Call convert_date_into_MAXIS_footer_month(CAF_datestamp, MAXIS_footer_month, MAXIS_footer_year)
@@ -9376,25 +9344,25 @@ original_footer_year = MAXIS_footer_year
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
 	intvw_msg_file = user_myDocs_folder & "interview message.txt"
-
-	With (CreateObject("Scripting.FileSystemObject"))
-		If .FileExists(intvw_msg_file) = False then
-			Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
-
-			'Write the contents of the text file
-			objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
-			objTextStream.WriteLine ""
-			objTextStream.WriteLine "- We are going to complete your required interview now."
-			objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
-			objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
-			objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
-			objTextStream.WriteLine ""
-			objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
-			objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
-
-			objTextStream.Close
-		End If
-	End With
+	'TODO delete below
+	'With (CreateObject("Scripting.FileSystemObject"))
+	'	If .FileExists(intvw_msg_file) = False then
+	'		Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
+'
+	'		'Write the contents of the text file
+	'		objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
+	'		objTextStream.WriteLine ""
+	'		objTextStream.WriteLine "- We are going to complete your required interview now."
+	'		objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
+	'		objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
+	'		objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
+	'		objTextStream.WriteLine ""
+	'		objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
+	'		objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
+'
+	'		objTextStream.Close
+	'	End If
+	'End With
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
@@ -9656,22 +9624,22 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	If forms_to_arep = "Y" Then arep_get_notices_checkbox = checked
 
 	show_known_addr = True
-
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 361, 130, "Interview Start Message"
-	  ButtonGroup ButtonPressed
-	    OkButton 305, 110, 50, 15
-	  Text 10, 10, 220, 10, "While the script gathers details about the case, tell the Resident:"
-	  Text 15, 25, 215, 10, "- We are going to complete your required interview now."
-	  Text 15, 40, 250, 10, "- I will ask you all of the questions you completed on the application:"
-	  Text 20, 50, 330, 10, "  - I know this may seem repetitive but we are required to confirm the information you entered."
-	  Text 20, 60, 210, 10, "  - Please answer these questions to the best of your ability."
-	  Text 10, 80, 275, 10, "If we cannot get all of the questions answered we cannot complete the interview."
-	  Text 10, 95, 290, 10, "Unless we complete the interview, your application/recertification can not be processed."
-	  Text 80, 115, 220, 10, "Press 'OK' when you have explained the interview to the resident."
-	EndDialog
-
-	dialog Dialog1
+	'TODO delete below
+	'Dialog1 = ""
+	'BeginDialog Dialog1, 0, 0, 361, 130, "Interview Start Message"
+	'  ButtonGroup ButtonPressed
+	'    OkButton 305, 110, 50, 15
+	'  Text 10, 10, 220, 10, "While the script gathers details about the case, tell the Resident:"
+	'  Text 15, 25, 215, 10, "- We are going to complete your required interview now."
+	'  Text 15, 40, 250, 10, "- I will ask you all of the questions you completed on the application:"
+	'  Text 20, 50, 330, 10, "  - I know this may seem repetitive but we are required to confirm the information you entered."
+	'  Text 20, 60, 210, 10, "  - Please answer these questions to the best of your ability."
+	'  Text 10, 80, 275, 10, "If we cannot get all of the questions answered we cannot complete the interview."
+	'  Text 10, 95, 290, 10, "Unless we complete the interview, your application/recertification can not be processed."
+	'  Text 80, 115, 220, 10, "Press 'OK' when you have explained the interview to the resident."
+	'EndDialog
+'
+	'dialog Dialog1
 
 	oExec.Terminate()
 End If
@@ -9861,7 +9829,7 @@ Do
 				Call assess_caf_1_expedited_questions(expedited_screening)
 				Call review_for_discrepancies
 				Call verification_dialog
-				Call check_for_errors(interview_questions_clear)
+				'Call check_for_errors(interview_questions_clear)
 				' If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
                 If ButtonPressed = interpreter_servicves_btn Then
                     run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
