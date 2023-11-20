@@ -4223,6 +4223,12 @@ If ex_parte_function = "Prep 2" Then
 	ObjExcel.Application.Quit
 	ObjExcel.Quit
 
+	email_header = "Ex Parte Members with a Date of Death is SVES"
+	email_body = "Hello Laura, " & vbCr & vbCr & "Here is the list of persons from cases on the 01-24 Ex Parte list that have a date of death listed in the TPQY response." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
+	email_attachment_array = Array(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
+	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "laura.larson@hennepin.us", email_recip_CC, email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
+
+
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
 
