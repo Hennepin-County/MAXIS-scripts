@@ -115,7 +115,7 @@ class script_bowie
 		' "https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/"			'OLD URL
         ' "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/"		'NEW URL'
 		If category = "NOTES" AND left(script_name, 5) = "LTC -" Then
-            SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/" & UCase(category) & "/LTC%20scripts/" & UCase(category) & "%20-%20" & replace(replace(ucase(script_name) & ".docx", " - ", "%20"), " ", "%20")
+            SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/Notes/" & UCase(category) & "%20-%20" & replace(replace(ucase(script_name) & ".docx", " - ", "%20"), " ", "%20")
 		ElseIf script_name = "Add WCOM" Then
 			SharePoint_instructions_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTICES/NOTICES%20-%20ADD%20WCOM.docx"
 		ElseIf left(script_name, 4) = "REPT" OR script_name = "DAIL Report" OR script_name = "EMPS" OR script_name = "LTC-GRH List Generator" Then
