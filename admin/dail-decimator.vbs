@@ -245,7 +245,7 @@ DIM DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
 all_dail_array = "*"    'setting up string to find duplicate DAIL messages. At times there is a glitch in the DAIL, and messages are reviewed a second time.
-false_count = 0 'testing code 
+false_count = 0
 
 'constants for array
 const worker_const	            = 0
@@ -309,6 +309,7 @@ For each worker in worker_array
 
 			'Accounting for duplicate DAIL messages 
 			dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
+			
             'If the case number is found in the string of case numbers, it's not added again.
             If instr(all_dail_array, "*" & dail_string & "*") then
                 If dail_type = "HIRE" then
@@ -318,11 +319,11 @@ For each worker in worker_array
 					false_count = false_count + 1 'testing code 
                 End if
             else
-				all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string
                 capture_message = True 
             End if
 
 			If capture_message = True then 
+				all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding dail_string to all_daily_array
                 IF actionable_dail = False then				
 			    	'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
 			    	objExcel.Cells(excel_row, 1).Value = worker
@@ -331,14 +332,8 @@ For each worker in worker_array
 			    	objExcel.Cells(excel_row, 4).Value = dail_month
 			    	objExcel.Cells(excel_row, 5).Value = dail_msg
 			    	excel_row = excel_row + 1
-    
-			    	Call write_value_and_transmit("D", dail_row, 3)
-			    	EMReadScreen other_worker_error, 13, 24, 2
-			    	If other_worker_error = "** WARNING **" then transmit
-			    	deleted_dails = deleted_dails + 1
 			    else
 			    	actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
-			    	dail_row = dail_row + 1
                     ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
                 	DAIL_array(worker_const,	           DAIL_count) = worker
                 	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
@@ -348,6 +343,16 @@ For each worker in worker_array
                     Dail_count = DAIL_count + 1
 			    End if
 			End if 
+
+			'Navigation handling for if a case is actionable or not. If actionable the dail_row needs to increment
+			If actionable_DAIL = False then
+				Call write_value_and_transmit("D", dail_row, 3)
+			    EMReadScreen other_worker_error, 13, 24, 2
+			    If other_worker_error = "** WARNING **" then transmit
+			    deleted_dails = deleted_dails + 1
+			Elseif actionable_DAIL = True then 
+				dail_row = dail_row + 1
+			End if 	
 
             EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
             If message_error = "NO MESSAGES" then exit do
@@ -378,6 +383,7 @@ objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average)
 objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
 objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
 objExcel.Cells(7, 7).Value = "Number of messages reviewed/DAIL messages remaining:"
+objExcel.Cells(8, 7).Value = "False count/duplicate DAIL Messages not counted:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(2, 8).Value = deleted_dails
 objExcel.Cells(3, 8).Value = STATS_manualtime
@@ -385,6 +391,7 @@ objExcel.Cells(4, 8).Value = STATS_counter * STATS_manualtime
 objExcel.Cells(5, 8).Value = timer - start_time
 objExcel.Cells(6, 8).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 objExcel.Cells(7, 8).Value = STATS_counter
+objExcel.Cells(8, 8).Value = false_count
 
 'Formatting the column width.
 FOR i = 1 to 8
@@ -434,7 +441,6 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " " & da
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
-'objExcel.Quit
-msgbox false_count ' testing code 
+objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
