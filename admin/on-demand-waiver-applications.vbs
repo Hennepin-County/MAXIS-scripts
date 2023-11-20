@@ -473,7 +473,7 @@ If first_item_date <> date Then
 				TODAYS_CASES_ARRAY(worker_ID, case_entry) = objRecordSet("WorkerID")
 				TODAYS_CASES_ARRAY(case_number, case_entry) = objRecordSet("CaseNumber")
 				Do
-					If left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) = "0" Then TODAYS_CASES_ARRAY(case_number, case_entry) = right(TODAYS_CASES_ARRAY(case_number, case_entry), len(TODAYS_CASES_ARRAY(case_number, case_entry)-1))
+					If left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) = "0" Then TODAYS_CASES_ARRAY(case_number, case_entry) = right(TODAYS_CASES_ARRAY(case_number, case_entry), len(TODAYS_CASES_ARRAY(case_number, case_entry))-1)
 				Loop until left(TODAYS_CASES_ARRAY(case_number, case_entry), 1) <> "0"
 				' TODAYS_CASES_ARRAY(excel_row, case_entry) = row
 				TODAYS_CASES_ARRAY(client_name, case_entry) = objRecordSet("CaseName")
