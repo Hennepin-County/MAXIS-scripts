@@ -172,7 +172,7 @@ Do
         objSelection.PageSetup.RightMargin = 50
         objSelection.PageSetup.TopMargin = 30
         objSelection.PageSetup.BottomMargin = 25
-        objSelection.Font.Name = "Montserrat"
+        objSelection.Font.Name = "Consolas"
         objSelection.Font.Size = "14"
         objSelection.TypeText poli_title & " - "
         objSelection.TypeText policy_info
