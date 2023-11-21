@@ -1002,7 +1002,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
       Text 20, y_pos, 300, 10, "No JOBS found."
       y_pos = y_pos + 20
   End If
-  Text 10, y_pos, 125, 10, "The script found the following unemployment income:"
+  Text 10, y_pos, 200, 10, "The script found the following unemployment income:"
   y_pos = y_pos + 15
   If UNEA_ARRAY(unea_type, 0) <> "" Then
       For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
@@ -1019,7 +1019,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
         y_pos = y_pos + 20
       Next
   Else
-      Text 20, y_pos, 300, 10, "No UNEA found."
+      Text 20, y_pos, 300, 10, "No unemployment income found."
       y_pos = y_pos + 20
   End If
   ButtonGroup ButtonPressed
