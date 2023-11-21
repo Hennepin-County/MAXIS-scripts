@@ -781,24 +781,25 @@ function define_main_dialog()
 			Text 510, 62, 60, 10, "Q. 1 - 6"
 			y_pos = 10
 
-			If questions.exists("1") THEN
-			GroupBox 5, y_pos, 475, 55, "1. Does everyone in your household buy, fix or eat food with you?"
-			y_pos = y_pos + 20
-			Text 15, y_pos, 40, 10, "CAF Answer"
-			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_1_yn
-			Text 95, y_pos, 25, 10, "write-in:"
-			If question_1_verif_yn = "" Then
-				EditBox 120, y_pos - 5, 355, 15, question_1_notes
-			Else
-				EditBox 120, y_pos - 5, 235, 15, question_1_notes
-				Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
-			End If
-			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Interview Notes:"
-			EditBox 75, y_pos - 5, 320, 15, question_1_interview_notes
-			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
-			y_pos = y_pos + 20
-			End If
+			call create_question_in_dialog(senior_hh_comp, y_pos)
+			'If questions.exists("1") THEN
+			'GroupBox 5, y_pos, 475, 55, "1. Does everyone in your household buy, fix or eat food with you?"
+			'y_pos = y_pos + 20
+			'Text 15, y_pos, 40, 10, "CAF Answer"
+			'DropListBox 55, y_pos - 5, 35, 45, question_answers, question_1_yn
+			'Text 95, y_pos, 25, 10, "write-in:"
+			'If question_1_verif_yn = "" Then
+			'	EditBox 120, y_pos - 5, 355, 15, question_1_notes
+			'Else
+			'	EditBox 120, y_pos - 5, 235, 15, question_1_notes
+			'	Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			'End If
+			'y_pos = y_pos + 20
+			'Text 15, y_pos, 60, 10, "Interview Notes:"
+			'EditBox 75, y_pos - 5, 320, 15, question_1_interview_notes
+			'PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			'y_pos = y_pos + 20
+			'End If
 
 			'TESTING CODE
 			'NEW QUESTION LAYOUT OPTION
@@ -9070,56 +9071,93 @@ If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Applicat
 If CAF_form = "MNbenefits" Then CAF_form_name = "MNbenefits Web Form"
 If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Combined Annual Renewal"
 
+function create_question_in_dialog(question, y_pos)
+IF question.question_type = "standard" Then
+				GroupBox 5, y_pos, 475, 55, question.text
+			y_pos = y_pos + 20
+			Text 15, y_pos, 40, 10, "CAF Answer"
+			DropListBox 55, y_pos - 5, 35, 45, question_answers, question_1_yn
+			Text 95, y_pos, 25, 10, "write-in:"
+			If question_1_verif_yn = "" Then
+				EditBox 120, y_pos - 5, 355, 15, question.interview_notes
+			Else
+				EditBox 120, y_pos - 5, 235, 15, question.interview_notes
+				Text 360, y_pos, 110, 10, "Q1 - Verification - " & question_1_verif_yn
+			End If
+			y_pos = y_pos + 20
+			Text 15, y_pos, 60, 10, "Interview Notes:"
+			EditBox 75, y_pos - 5, 320, 15, question_1_interview_notes
+			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", add_verif_1_btn
+			y_pos = y_pos + 20
+End If
+
+End Function
+
 'The following sections assign the text for each question to be shown based on the application type
 'NOTE TO SELF: use if question_jobs_text <> "" to call each one, ditch the dictionary
 'OR make me a function, use an object or array for easy passing. May make assigning extra info tough 
-'!!!! MAKE THE DIALOG PORTIONS FUNCTIONS - generic one, then ones for jobs, etc. enter_question_into_dialog(question_type, app_type?), could then use if/thens for each app type to lay it out in order
+'!!!! MAKE THE DIALOG PORTIONS FUNCTIONS - generic one, then ones for jobs, etc. enter_question_into_dialog(question_text, question_type, other_info), could then use if/thens for each app type to lay it out in order
 'Could then just use an array/ string thing or dictionary for the client contact, and have it use dictionary - if question_list.exists question_unea then call enter_question_into_dialog
-If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
-	Question_HH_comp_text = "This is a multiple member household, do all HH members eat with the applicant or are mandatory members?"
-	question_jobs_text = "1. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-	question_busi_text = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-	question_unea_text = "3. Has anyone in the household applied for or does anyone get any of the following types of income?"
-	question_shel_text = "4. Does your household have the following housing expenses? Check yes or no for each item. "
-	question_hest_text = "5. Does your household have the following utility expenses any time during the year, including seasonal charges? Check yes or no for each item."
-	question_liheap_text = "5a. Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
-	question_dcex_text = "6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
-	question_coex_text = "7. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
-	question_fmed_text = "8. Does anyone in the household have medical expenses? To get a medical deduction you must provide proof of all medical bills incurred by anyone in your household who is disabled or 60 years or older. Do not bring medical bills that are being paid for by any health care program, insurance or someone not living with you."
-	question_qual1_text = "9. Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the SNAP penalty warnings on page 2 of the instructions?"
-	question_qual2_text = "10. Has anyone in the household been convicted of making fraudulent statements about their place of residence to get SNAP benefits from more than one state?"
-	question_qual3_text = "11. Is anyone in your household hiding or running from the law to avoid prosecution, being taken into custody, or to avoid going to jail for a felony?"
-	question_qual4_text = "12. Has anyone in your household been convicted of a drug felony in the past 10 years?"
-	question_qual5_text = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-End If
+'TODO Read a series of question objects from the case note into an array 
+' Question text for the SNAP App for Srs (DHS-5223F)
+Class question
+	Public text 'The question text from the app to be displayed
+	Public interview_notes 'This stores the client's answer at interview
+	Public write_in 
+	Public y_n 
+	Public question_type
+End Class
 
-If CAF_form = "CAF (DHS-5223)" OR If CAF_form = "MNbenefits" Then
-	Question_HH_comp_text = "1. Does everyone in your household buy, fix or eat food with you?"
-	question_eats_60_text = "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
-	question_schl_text = "3. Is anyone in the household attending school?"
-	question_remo_text = "4. Is anyone in your household temporarily not living in your home?"
-	question_disa_text = "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
-	question_wreg_text = "6. Is anyone unable to work for reasons other than illness or disability?"
-	question_abps_text = "7. Do all children under the age of 19 have both parents living in the home?"
-	question_stwk_text = "8. In the last 60 days did anyone in the household:"
-	question_past_jobs_text = "9. Has anyone in the household had a job or been self-employed in the past 12 months?"
-	question_jobs_text = "10. Does anyone in the household have a job or expect to get income from a job this month or next month?"
-	question_busi_text = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-	question_income_change_text = "12. Do you expect any changes in income, expenses or work hours?"
-	question_unea_text = "13. Has anyone in the household applied for or does anyone get any of the following types of income?"
-	question_stin_text = "14. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school? "
-	question_shel_text = "15. Does your household have the following housing expenses? Check yes or no for each item."
-	question_hest_text = 
-	question_liheap_text 
-	question_dcex_text = 
-	question_coex_text = 
-	question_fmed_text = 
-	question_qual1_text =
-	question_qual2_text =
-	question_qual3_text =
-	question_qual4_text =
-	question_qual5_text =
-End If 
+Set senior_hh_comp = new question
+with senior_hh_comp
+	.text =  "This is a multiple member household, do all HH members eat with the applicant or are mandatory members?"
+	.interview_notes = ""
+	.write_in = ""
+	.y_n = ""
+	.question_type = "standard"
+End With
+	senior_jobs_text = "1. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+	senior_busi_text = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
+	senior_unea_text = "3. Has anyone in the household applied for or does anyone get any of the following types of income?"
+	senior_shel_text = "4. Does your household have the following housing expenses? Check yes or no for each item. "
+	senior_hest_text = "5. Does your household have the following utility expenses any time during the year, including seasonal charges? Check yes or no for each item."
+	senior_liheap_text = "5a. Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
+	senior_dcex_text = "6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+	senior_coex_text = "7. Does anyone in the household pay court-ordered child support, spousal support, child care support, medical support or contribute to a tax dependent who does not live in your home?"
+	senior_fmed_text = "8. Does anyone in the household have medical expenses? To get a medical deduction you must provide proof of all medical bills incurred by anyone in your household who is disabled or 60 years or older. Do not bring medical bills that are being paid for by any health care program, insurance or someone not living with you."
+	senior_qual1_text = "9. Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the SNAP penalty warnings on page 2 of the instructions?"
+	senior_qual2_text = "10. Has anyone in the household been convicted of making fraudulent statements about their place of residence to get SNAP benefits from more than one state?"
+	senior_qual3_text = "11. Is anyone in your household hiding or running from the law to avoid prosecution, being taken into custody, or to avoid going to jail for a felony?"
+	senior_qual4_text = "12. Has anyone in your household been convicted of a drug felony in the past 10 years?"
+	senior_qual5_text = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+'------------------------------------------------------------------------------------------------------------------------------------
+'CAF (DHS-5223) question text
+	caf_HH_comp_text = "1. Does everyone in your household buy, fix or eat food with you?"
+	caf_eats_60_text = "2. Is anyone in the household, who is age 60 or over or disabled, unable to buy or fix food due to a disability?"
+	caf_schl_text = "3. Is anyone in the household attending school?"
+	caf_remo_text = "4. Is anyone in your household temporarily not living in your home?"
+	caf_disa_text = "5. Is anyone blind, or does anyone have a physical or mental health condition that limits the ability to work or perform daily activities?"
+	caf_wreg_text = "6. Is anyone unable to work for reasons other than illness or disability?"
+	caf_abps_text = "7. Do all children under the age of 19 have both parents living in the home?"
+	caf_stwk_text = "8. In the last 60 days did anyone in the household:"
+	caf_past_jobs_text = "9. Has anyone in the household had a job or been self-employed in the past 12 months?"
+	caf_jobs_text = "10. Does anyone in the household have a job or expect to get income from a job this month or next month?"
+	caf_busi_text = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
+	caf_income_change_text = "12. Do you expect any changes in income, expenses or work hours?"
+	caf_unea_text = "13. Has anyone in the household applied for or does anyone get any of the following types of income?"
+	caf_stin_text = "14. Does anyone in the household have or expect to get any loans, scholarships or grants for attending school? "
+	caf_shel_text = "15. Does your household have the following housing expenses? Check yes or no for each item."
+	'caf_hest_text = 
+	'caf_liheap_text 
+	'caf_dcex_text = 
+	'caf_coex_text = 
+	'caf_fmed_text = 
+	'caf_qual1_text =
+	'caf_qual2_text =
+	'caf_qual3_text =
+	'caf_qual4_text =
+	'caf_qual5_text =
+'--------------------------------------------------------------------------------------------------------------------------------------
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
 If select_err_msg_handling = "Alert only once completing and leaving the final dialog." Then show_err_msg_during_movement = FALSE
