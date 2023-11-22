@@ -275,44 +275,52 @@ function get_list_of_members()
 
 	'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	DO
-		EMReadScreen client_PMI, 8, 4, 46													'reading the PMI from the panel we are currently on
-		client_PMI = trim(client_PMI)														'formatting and adding the leading 0s to the PMI because that is how it is recorded in the data table
-		client_PMI = RIGHT("00000000" & client_PMI, 8)
+		EMReadScreen access_denied_check, 13, 24, 2
+		If access_denied_check <> "ACCESS DENIED" Then
 
-		client_found = False																'looking to see if this member is already listed in the member array (from the data table elig list)
-		For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-			If client_PMI = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'if there is a match, we read some specific information
-				client_found = True															'setting that the client was found to a boolean for this loop
-				EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 2, 4, 33	'reading the members reference number
-				EMReadScreen clt_age, 3, 8, 76												'reading the client age and setting it into the array
-				MEMBER_INFO_ARRAY(memb_age_const, known_membs) = trim(clt_age)
-				EMReadScreen MEMBER_INFO_ARRAY(memb_smi_numb_const, known_membs), 9, 5, 46	'reading the SMI for the member
-				Exit For		'if we found the client, we can leave the loop
+			EMReadScreen client_PMI, 8, 4, 46													'reading the PMI from the panel we are currently on
+			client_PMI = trim(client_PMI)														'formatting and adding the leading 0s to the PMI because that is how it is recorded in the data table
+			client_PMI = RIGHT("00000000" & client_PMI, 8)
+
+			client_found = False																'looking to see if this member is already listed in the member array (from the data table elig list)
+			For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If client_PMI = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'if there is a match, we read some specific information
+					client_found = True															'setting that the client was found to a boolean for this loop
+					EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 2, 4, 33	'reading the members reference number
+					EMReadScreen clt_age, 3, 8, 76												'reading the client age and setting it into the array
+					MEMBER_INFO_ARRAY(memb_age_const, known_membs) = trim(clt_age)
+					EMReadScreen MEMBER_INFO_ARRAY(memb_smi_numb_const, known_membs), 9, 5, 46	'reading the SMI for the member
+					Exit For		'if we found the client, we can leave the loop
+				End If
+			Next
+
+			If client_found = False Then														'if the member is not already in the member array, we will need to resize the array and add the person
+				ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, client_count)					'resize the array
+
+				EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, client_count), 2, 4, 33		'gather the member information and add it to the array
+				MEMBER_INFO_ARRAY(memb_pmi_numb_const, client_count) = client_PMI
+				EMReadScreen SSN1, 3, 7, 42
+				EMReadScreen SSN2, 2, 7, 46
+				EMReadScreen SSN3, 4, 7, 49
+				MEMBER_INFO_ARRAY(memb_ssn_const, client_count) = SSN1 & SSN2 & SSN3
+				EMReadScreen clt_age, 3, 8, 76
+				MEMBER_INFO_ARRAY(memb_age_const, client_count) = trim(clt_age)
+				EMReadScreen last_name, 25, 6, 30
+				EMReadScreen first_name, 12, 6, 63
+				last_name = trim(replace(last_name, "_", ""))
+				first_name = trim(replace(first_name, "_", ""))
+				MEMBER_INFO_ARRAY(memb_name_const, client_count) = last_name & ", " & first_name
+				EMReadScreen MEMBER_INFO_ARRAY(memb_smi_numb_const, client_count), 9, 5, 46
+				MEMBER_INFO_ARRAY(memb_active_hc_const, client_count)	= False					'default the active hc boolean in the array as false
+
+				client_count = client_count + 1			'increment up the counter for the member array
 			End If
-		Next
-
-		If client_found = False Then														'if the member is not already in the member array, we will need to resize the array and add the person
-			ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, client_count)					'resize the array
-
-			EMReadScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, client_count), 2, 4, 33		'gather the member information and add it to the array
-			MEMBER_INFO_ARRAY(memb_pmi_numb_const, client_count) = client_PMI
-			EMReadScreen SSN1, 3, 7, 42
-			EMReadScreen SSN2, 2, 7, 46
-			EMReadScreen SSN3, 4, 7, 49
-			MEMBER_INFO_ARRAY(memb_ssn_const, client_count) = SSN1 & SSN2 & SSN3
-			EMReadScreen clt_age, 3, 8, 76
-			MEMBER_INFO_ARRAY(memb_age_const, client_count) = trim(clt_age)
-			EMReadScreen last_name, 25, 6, 30
-			EMReadScreen first_name, 12, 6, 63
-			last_name = trim(replace(last_name, "_", ""))
-			first_name = trim(replace(first_name, "_", ""))
-			MEMBER_INFO_ARRAY(memb_name_const, client_count) = last_name & ", " & first_name
-			EMReadScreen MEMBER_INFO_ARRAY(memb_smi_numb_const, client_count), 9, 5, 46
-			MEMBER_INFO_ARRAY(memb_active_hc_const, client_count)	= False					'default the active hc boolean in the array as false
-
-			client_count = client_count + 1			'increment up the counter for the member array
+			transmit								'go to the next member
+		Else
+			PF10
+			PF10
+			PF10
 		End If
-		transmit								'go to the next member
 		EMReadScreen edit_check, 7, 24, 2
 		loop_count = loop_count + 1
 		If loop_count > 40 Then Exit Do
@@ -2438,7 +2446,7 @@ If ex_parte_function = "Prep 1" Then
 		va_excel_row = 2
 		va_inc_count = 0
 
-		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objVAExcel.Range("A1:I" & va_excel_row - 1), xlYes).Name = "Table1"
+		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objVAExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	End If
@@ -2478,7 +2486,7 @@ If ex_parte_function = "Prep 1" Then
 		uc_excel_row = 2
 		uc_inc_count = 0
 
-		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objUCExcel.Range("A1:I" & uc_excel_row - 1), xlYes).Name = "Table1"
+		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objUCExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	End If
@@ -2518,7 +2526,7 @@ If ex_parte_function = "Prep 1" Then
 		rr_excel_row = 2
 		rr_inc_count = 0
 
-		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objRRExcel.Range("A1:I" & rr_excel_row - 1), xlYes).Name = "Table1"
+		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objRRExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
 	End If
@@ -3340,10 +3348,12 @@ If ex_parte_function = "Prep 2" Then
 			ObjExcel.Cells(1, i).Font.Bold = True		'bold font'
 		NEXT
 
+		ObjExcel.Cells(2, 1).Value = "Test"
 		'Formatting the table created in the list of date of death that is listed
-		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjExcel.Range("A1:H" & excel_row - 1), xlYes).Name = "Table1"
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, ObjExcel.Range("A1:H2"), xlYes).Name = "Table1"
 		ObjExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		ObjExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
+		ObjExcel.Cells(2, 1).Value = ""
 
 		excel_row = 2		'initializing the counter to move through the excel lines
 	End If
