@@ -50,7 +50,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'SCRIPT======================================================================================================================
-'EMConnect ""
+EMConnect ""
 
 'Read ELIG/HC to see if the case has been Approved
 'Identify if the approval is for today
@@ -69,6 +69,7 @@ changelog_display
 approval_exists = False
 created_and_approved_today = False
 LTC_case = False
+MEDI_exists = False
 
 'Find the footer month/year
 EMReadScreen cola_footer_month, 2, 6, 11
@@ -255,11 +256,20 @@ unea_count = 0
 
 EMWriteScreen "S", 6, 3                         'Navigates to CASE/CURR - maintaining tie to the DAIL for ease of processing
 transmit
+EMWriteScreen "MEMB", 20, 71
+transmit
+
+
+' MsgBox "In STAT?"
 
 'Creating a custom dialog for determining who the HH members are
 Call HH_member_custom_dialog(HH_member_array)
-
-Dim MEDI_PART_BE_ARRAY(UBound(HH_member_array))
+number_of_persons = UBound(HH_member_array)
+' MsgBox "number_of_persons - " & number_of_persons
+Dim MEDI_PART_B_ARRAY()
+ReDim MEDI_PART_B_ARRAY(number_of_persons)
+Dim NAME_ARRAY()
+ReDim NAME_ARRAY(number_of_persons)
 medi_count = 0
 
 'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -271,6 +281,8 @@ For each HH_member in HH_member_array
 	EMReadScreen first_name, 12, 6, 63
 	EMReadScreen last_name, 25, 6, 30
 	memb_name = replace(first_name, "_", "") & " " & replace(last_name, "_", "")
+	NAME_ARRAY(medi_count) = memb_name
+	' MsgBox "Name Done"
 
 	call navigate_to_MAXIS_screen("STAT", "UNEA")
 	EMWriteScreen HH_member, 20, 76
@@ -341,21 +353,32 @@ For each HH_member in HH_member_array
 			EMReadScreen warn_msg, 60, 24, 2
 			warn_msg = trim(warn_msg)
 		Loop Until warn_msg = "ENTER A VALID COMMAND OR PF-KEY"
-
 	End if
+	' MsgBox "UNEA Done"
 
-    call navigate_to_MAXIS_screen("STAT", "MEDI")
+	call navigate_to_MAXIS_screen("STAT", "MEDI")
 	EMWriteScreen HH_member, 20, 76
 	transmit
     EMReadScreen MEDI_total, 1, 2, 78
     If MEDI_total <> 0 then
+		MEDI_exists = True
         EMReadScreen medicare_part_B, 8, 7, 73
-		MEDI_PART_BE_ARRAY(medi_count) = trim(medicare_part_B)
+		MEDI_PART_B_ARRAY(medi_count) = trim(medicare_part_B)
     End if
 	medi_count = medi_count + 1
-
 Next
+' MsgBox "Pause here"
 PF3             'Back to DAIL
+
+EMReadScreen on_dail, 4, 2, 48
+If on_dail <> "DAIL" Then
+	Call back_to_SELF
+	EMWriteScreen "DAIL", 16, 43
+	EMWriteScreen "DAIL", 21, 70
+	transmit
+
+	Call write_value_and_transmit(MAXIS_case_number, 20, 38)
+End If
 
 'If this case has ANY UNEA income, we can see about adding information to CASE/NOTE
 If unea_count <> 0 Then
@@ -371,6 +394,7 @@ If unea_count <> 0 Then
 
 		EMReadScreen note_title, 55, note_row, 25               'reading the note header
 		note_title = trim(note_title)
+		' MsgBox "note_title - " & note_title & vbCr & "note_date - " & note_date
 
 		If left(note_title, 26) = "===COLA INCOME SUMMARY for" Then recent_cola_inocme_summary_found = True
 
@@ -386,25 +410,121 @@ If unea_count <> 0 Then
 		EMReadScreen next_note_date, 8, note_row, 6
 		if next_note_date = "        " then Exit Do
 	Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-
-
+	PF3             'Back to DAIL
 
 
 	If recent_cola_inocme_summary_found = False Then
+		dlg_len = 145
+		dlg_len = dlg_len + (UBound(UNEA_FROM_DAIL_RUN, 2)+1) * 20
+		If MEDI_exists = True Then
+			dlg_len = dlg_len + 30
+			For medi_count = 0 to UBound(HH_member_array)
+				If MEDI_PART_B_ARRAY(medi_count) <> "" Then dlg_len = dlg_len + 10
+			Next
+		End If
+
+		BeginDialog Dialog1, 0, 0, 436, dlg_len, "COLA Income Information"
+			Text 10, 10, 140, 10, "COLA Income Summary for " & MAXIS_footer_month & "/" & MAXIS_footer_year
+			Text 10, 20, 340, 10, "This information will be entered into CASE/NOTE to detail the updates from COLA on unearned income."
+			Text 10, 40, 165, 10, "This case has the following unearned income:"
+			y_pos = 55
+			For unea_info = 0 to UBound(UNEA_FROM_DAIL_RUN, 2)
+				Text 25, y_pos, 155, 10, "MEMB " & UNEA_FROM_DAIL_RUN(dail_memb_ref_const, unea_info) & " - " & UNEA_FROM_DAIL_RUN(dail_memb_name_const, unea_info)
+				Text 185, y_pos, 240, 10, "UNEA " & UNEA_FROM_DAIL_RUN(dail_memb_ref_const, unea_info) & " " & UNEA_FROM_DAIL_RUN(dail_unea_instance_const, unea_info) & " - " & UNEA_FROM_DAIL_RUN(dail_unea_type_code_const, unea_info) & " - " & UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_info)
+				Text 60, y_pos+10, 115, 10, "Prospective Amount $ " & UNEA_FROM_DAIL_RUN(dail_prosp_total_const, unea_info)
+				Text 185, y_pos+10, 135, 10, "COLA Disregard $ " & UNEA_FROM_DAIL_RUN(dail_cola_disregard_const, unea_info)
+				y_pos = y_pos + 20
+			Next
+			' Text 20, 55, 155, 10, "MEMB XX - NAME"
+			' Text 185, 55, 240, 10, "UNEA XX XX - TC - INFORMATION HERE"
+			' Text 60, 65, 115, 10, "Prospective Amount $ XXXX.XX"
+			' Text 185, 65, 135, 10, "COLA Disregard $ XXXX.XX"
+			' Text 20, 75, 155, 10, "MEMB XX - NAME"
+			' Text 185, 75, 240, 10, "UNEA XX XX - TC - INFORMATION HERE"
+			' Text 60, 85, 115, 10, "Prospective Amount $ XXXX.XX"
+			' Text 185, 85, 135, 10, "COLA Disregard $ XXXX.XX"
+			y_pos = y_pos + 10
+			Text 25, y_pos, 50, 10, "UNEA Notes:"
+			EditBox 70, y_pos-5, 360, 15, UNEA_notes
+			y_pos = y_pos + 15
 
 
+			If MEDI_exists = True Then
+				Text 10, y_pos, 95, 10, "This case has MEDICARE:"
+				y_pos = y_pos + 15
+
+				For medi_count = 0 to UBound(HH_member_array)
+					If MEDI_PART_B_ARRAY(medi_count) <> "" Then
+						Text 25, y_pos, 155, 10, "MEMB " & HH_member_array(medi_count) & " - " & NAME_ARRAY(medi_count)
+						Text 185, y_pos, 160, 10, "MEDICARE - Part B $ " & MEDI_PART_B_ARRAY(medi_count)
+						y_pos = y_pos + 10
+					End If
+				Next
+				y_pos = y_pos + 10
+				' Text 25, 150, 155, 10, "MEMB XX - NAME"
+				' Text 185, 150, 160, 10, "MEDICARE - Part B $ "
+				' Text 25, 160, 155, 10, "MEMB XX - NAME"
+				' Text 185, 160, 240, 10, "MEDICARE - Part B $ "
+
+				Text 25, y_pos, 50, 10, "MEDI Notes:"
+				EditBox 70, y_pos-5, 360, 15, MEDI_notes
+				y_pos = y_pos + 20
+
+			End If
+			Text 10, y_pos, 75, 10, "Additional Notes"
+			EditBox 10, y_pos+10, 420, 15, other_notes
+			y_pos = y_pos + 30
+
+			Text 10, y_pos+5, 65, 10, "Worker Signature"
+			EditBox 75, y_pos, 100, 15, worker_signature
+			ButtonGroup ButtonPressed
+				OkButton 325, y_pos, 50, 15
+				CancelButton 380, y_pos, 50, 15
+		EndDialog
+
+		Do
+			dialog Dialog1
+			cancel_confirmation
+
+			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Loop Until are_we_passworded_out = false					'loops until user passwords back in
+
+		EMReadScreen on_dail, 4, 2, 48
+		If on_dail = "DAIL" Then
+			EMWriteScreen "N", 6, 3                         'Navigates to CASE/CURR - maintaining tie to the DAIL for ease of processing
+			transmit
+		End If
 
 		call start_a_blank_CASE_NOTE
 		Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "===")
+		Call write_variable_in_CASE_NOTE("--- UNEARNED INCOME ---")
+		For unea_info = 0 to UBound(UNEA_FROM_DAIL_RUN, 2)
+			Call write_variable_in_CASE_NOTE("* MEMB " & UNEA_FROM_DAIL_RUN(dail_memb_ref_const, unea_info) & " - " & UNEA_FROM_DAIL_RUN(dail_memb_name_const, unea_info) & " - UNEA " & UNEA_FROM_DAIL_RUN(dail_memb_ref_const, unea_info) & " " & UNEA_FROM_DAIL_RUN(dail_unea_instance_const, unea_info))
+			Call write_variable_in_CASE_NOTE("  Unearned Income Type: " &UNEA_FROM_DAIL_RUN(dail_unea_type_code_const, unea_info) & " - " & UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_info))
+			Call write_variable_in_CASE_NOTE("  Prospective Amount: $ " & UNEA_FROM_DAIL_RUN(dail_prosp_total_const, unea_info) & "  -  COLA Disregard $ " & UNEA_FROM_DAIL_RUN(dail_cola_disregard_const, unea_info))
+		Next
+		Call write_bullet_and_variable_in_CASE_NOTE("UNEA Notes", UNEA_notes)
+		If MEDI_exists = True Then
+			Call write_variable_in_CASE_NOTE("--- MEDICARE PART B ---")
+			For medi_count = 0 to UBound(HH_member_array)
+				Call write_variable_in_CASE_NOTE("* MEMB " & HH_member_array(medi_count) & " - " & NAME_ARRAY(medi_count) & ": Medicare - Part B $ " & MEDI_PART_B_ARRAY(medi_count))
+			Next
+		End If
+		Call write_variable_in_CASE_NOTE("--- OTHER ---")
+		Call write_bullet_and_variable_in_CASE_NOTE("Notes", other_notes)
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+
+		MsgBox "STOP HERE NOW"
 	End If
 End If
 
-
+MsgBox "REALLY STOP"
 
 If approval_exists = TRUE Then
 
 
-    'Creates an array of all the HC approvals
+	'Creates an array of all the HC approvals
     Elig_Info_array = right(Elig_Info_array, len(Elig_Info_array) - 1)
     Elig_Info_array = Split(Elig_Info_array, "~")
 
