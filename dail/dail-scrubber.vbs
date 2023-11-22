@@ -251,6 +251,7 @@ If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW")
 
 If review_and_approve_from_COLA = TRUE Then
 	'NO CURRENT SUPPORT FOR COLA REVIEW AND APPROVE. WILL ADD COLA SUMMARY FOR NEXT COLA PROCESSING
+    call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
 End If
 
 'COLA SVES RESPONSE
