@@ -179,6 +179,8 @@ function check_for_errors(eval_questions_clear)
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'mandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being completed for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) = "" or (IsNumeric(HC_recertification_month) = False) or (LEN(HC_recertification_month) <> 2)Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Month is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb) = "" or (IsNumeric(HC_recertification_year) = False) or (LEN(HC_recertification_year) <> 2) Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Year is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
 				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligibility of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
@@ -2821,6 +2823,7 @@ function write_person_details_in_NOTE()
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
 			Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			Call write_variable_in_CASE_NOTE("     HC Recertification Date: " & HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb))
 			If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
 				Call write_variable_in_CASE_NOTE("     No Health Care Program.")
