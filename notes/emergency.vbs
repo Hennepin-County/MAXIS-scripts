@@ -266,18 +266,9 @@ If EGA_screening_check = 1 then
 	    Loop until left(household_size, 1) <> "0"
     End if
 
-    'determining  200% FPG per HH member---handles up to 20 members. Changes April 1 every year. CM0016.18.01 - 200 Percent of FPG
-    'state statute listed here: 'https://www.revisor.mn.gov/statutes/cite/256D.06
-    If DateDiff("d", application_date, #4/1/2023#) < 0 Then
-        'April 2022 Amounts
-        If household_size = 1 Then monthly_standard = 2265
-        If household_size = 2 Then monthly_standard = 3052
-    Else
-        'April 2021 Amounts
-        If household_size = 1 Then monthly_standard = 2147
-	    If household_size = 2 Then monthly_standard = 2903
-    End if
-
+    'determining 200% FPG per HH member. Info source for EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801 
+    Call determine_200_percent_of_FPG("EGA", application_date, household_size, monthly_standard)
+    
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
     'determining if client is potentially elig for EMER or not'
