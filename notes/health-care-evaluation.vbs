@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2023", "Added field to capture member specific HC recertification date.", "Megan Geissler, Hennepin County")
 call changelog_update("10/31/2023", "Fixed inhibiting bug related to IMIG panel for both members on case and/or applying for Health Care.##~##", "Dave Courtright, Hennepin County")
 call changelog_update("09/15/2023", "There was an error on Health Care Evaluation when a case either does not have Health Care on it or a household member with Health Care is not selected. The script will now stop if the case is missing a HCRE panel and will force the selection of a member to process on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2023", "Updated NOTES - Health Care Evaluation to include and reflect ex parte review process.", "Mark Riegel, Hennepin County")
