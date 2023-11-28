@@ -15903,30 +15903,30 @@ class emer_eligibility_detail
 				End If
 
 				If emer_program = "EA" Then
-					If household_size = 1 Then emer_fpg_limit = 2265
-					If household_size = 2 Then emer_fpg_limit = 3052
-					If household_size = 3 Then emer_fpg_limit = 3838
-					If household_size = 4 Then emer_fpg_limit = 4625
-					If household_size = 5 Then emer_fpg_limit = 5412
-					If household_size = 6 Then emer_fpg_limit = 6198
-					If household_size = 7 Then emer_fpg_limit = 6985
-					If household_size = 8 Then emer_fpg_limit = 7772
-					If household_size = 9 Then emer_fpg_limit = 8558
-					If household_size = 10 Then emer_fpg_limit = 9345
-					If household_size > 10 Then emer_fpg_limit = 9345 + ((household_size-10) * 787)
+					If household_size = 1 Then emer_fpg_limit = 2430
+					If household_size = 2 Then emer_fpg_limit = 3287
+					If household_size = 3 Then emer_fpg_limit = 4143
+					If household_size = 4 Then emer_fpg_limit = 5000
+					If household_size = 5 Then emer_fpg_limit = 5857
+					If household_size = 6 Then emer_fpg_limit = 6713
+					If household_size = 7 Then emer_fpg_limit = 7570
+					If household_size = 8 Then emer_fpg_limit = 8427
+					If household_size = 9 Then emer_fpg_limit = 9283
+					If household_size = 10 Then emer_fpg_limit = 10140
+					If household_size > 10 Then emer_fpg_limit = 10140 + ((household_size - 10) * 857)
 					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
 
-					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2265
-					If manual_hh_count = 2 Then emer_inelig_fpg_limit = 3052
-					If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3838
-					If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4625
-					If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5412
-					If manual_hh_count = 6 Then emer_inelig_fpg_limit = 6198
-					If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6985
-					If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7772
-					If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8558
-					If manual_hh_count = 10 Then emer_inelig_fpg_limit = 9345
-					If manual_hh_count > 10 Then emer_inelig_fpg_limit = 9345 + ((manual_hh_count-10) * 787)
+					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2430
+					If manual_hh_count = 2 Then emer_inelig_fpg_limit = 3287
+					If manual_hh_count = 3 Then emer_inelig_fpg_limit = 4143
+					If manual_hh_count = 4 Then emer_inelig_fpg_limit = 5000
+					If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5857
+					If manual_hh_count = 6 Then emer_inelig_fpg_limit = 6713
+					If manual_hh_count = 7 Then emer_inelig_fpg_limit = 7570
+					If manual_hh_count = 8 Then emer_inelig_fpg_limit = 8427
+					If manual_hh_count = 9 Then emer_inelig_fpg_limit = 9283
+					If manual_hh_count = 10 Then emer_inelig_fpg_limit = 10140
+					If manual_hh_count > 10 Then emer_inelig_fpg_limit = 10140 + ((manual_hh_count - 10) * 857)
 					emer_inelig_fpg_limit = FormatNumber(emer_inelig_fpg_limit, 2, -1, 0, -1)
 				End If
 
