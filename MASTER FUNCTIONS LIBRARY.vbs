@@ -5964,6 +5964,73 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 	End If
 end function
 
+function determine_200_percent_of_FPG(program_determination, application_date_variable, hh_size_variable, fpg_200_percent)
+'--- This function outputs the dollar amount (as a number) of 200% FPG based on program, application date, and HH size for EA, EGA, and SNAP. Info Source for SNAP: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906. Info source for EA/EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801 
+'~~~~~ program_determination: Enter the program variable - must be 'SNAP', 'EA', or 'EGA' 
+'~~~~~ application_date_variable: Enter the application date variable. If there is no application date or no application date variable, the function will default to the current year's 200% FPG guidelines for the indicated program
+'~~~~~ hh_size_variable: Enter the household size variable or the household size number in the unit
+'~~~~~ fpg_200_percent: NUMBER - this will output a number with the amount of 200% FPG based on the program, application date, and HH Size
+'===== Keywords: SNAP, EA, EGA, calculation, Income Test, FPG
+
+    'Date determination for 'EGA' and 'SNAP'. Must be updated each year in April
+    If program_determination = "EGA" Then
+        If IsDate(application_date_variable) = True Then
+            application_date_variable_diff = (DateDiff("d", application_date_variable, #4/1/2023#))
+        Else
+            no_application_date_variable = True
+        End If
+    ElseIf program_determination = "SNAP" Then
+        If IsDate(application_date_variable) = True Then
+            application_date_variable_diff = (DateDiff("d", application_date_variable, #10/1/2023#))
+        Else
+            no_application_date_variable = True
+        End If
+    End If
+
+    '200% FPG April 2023 for EA & 200% FPG October 2023 for SNAP 
+    If program_determination = "EA" or (program_determination = "SNAP" and application_date_variable_diff <= 0) OR (program_determination = "SNAP" and no_application_date_variable = True) Then
+        If hh_size_variable = 1 Then fpg_200_percent = 2430
+        If hh_size_variable = 2 Then fpg_200_percent = 3287
+        If hh_size_variable = 3 Then fpg_200_percent = 4143
+        If hh_size_variable = 4 Then fpg_200_percent = 5000
+        If hh_size_variable = 5 Then fpg_200_percent = 5857
+        If hh_size_variable = 6 Then fpg_200_percent = 6713
+        If hh_size_variable = 7 Then fpg_200_percent = 7570
+        If hh_size_variable = 8 Then fpg_200_percent = 8427
+        If hh_size_variable = 9 Then fpg_200_percent = 9283
+        If hh_size_variable = 10 Then fpg_200_percent = 10140
+        If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+
+    '200% FPG April 2022 & 200% FPG October 2022 for SNAP 
+    ElseIf (program_determination = "EGA" and application_date_variable_diff <= 0) OR (program_determination = "EGA" and no_application_date_variable = True) OR (program_determination = "SNAP" and application_date_variable_diff > 0) Then
+        If hh_size_variable = 1 Then fpg_200_percent = 2265
+        If hh_size_variable = 2 Then fpg_200_percent = 3052
+        If hh_size_variable = 3 Then fpg_200_percent = 3838
+        If hh_size_variable = 4 Then fpg_200_percent = 4625
+        If hh_size_variable = 5 Then fpg_200_percent = 5412
+        If hh_size_variable = 6 Then fpg_200_percent = 6198
+        If hh_size_variable = 7 Then fpg_200_percent = 6985
+        If hh_size_variable = 8 Then fpg_200_percent = 7772
+        If hh_size_variable = 9 Then fpg_200_percent = 8558
+        If hh_size_variable = 10 Then fpg_200_percent = 9345
+        If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+
+    '200% FPG April 2021
+    ElseIf program_determination = "EGA" and application_date_variable_diff > 0 Then
+        If hh_size_variable = 1 Then fpg_200_percent = 2147
+        If hh_size_variable = 2 Then fpg_200_percent = 2903
+        If hh_size_variable = 3 Then fpg_200_percent = 3660
+        If hh_size_variable = 4 Then fpg_200_percent = 4417
+        If hh_size_variable = 5 Then fpg_200_percent = 5173
+        If hh_size_variable = 6 Then fpg_200_percent = 5930
+        If hh_size_variable = 7 Then fpg_200_percent = 6687
+        If hh_size_variable = 8 Then fpg_200_percent = 7443
+        If hh_size_variable = 9 Then fpg_200_percent = 8200
+        If hh_size_variable = 10 Then fpg_200_percent = 8957
+        If hh_size_variable > 10 Then fpg_200_percent = 8957 + ((hh_size_variable - 10) * 757)
+    End If
+end function
+
 function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
