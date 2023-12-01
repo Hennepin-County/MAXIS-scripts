@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("12/01/2023", "Updated script to stop processing SNAP banked months into 2024", "Ilse Ferris, Hennepin County")
+call changelog_update("12/01/2023", "Updated script to stop processing SNAP banked months into 2024, but to code 01/24 as 30/10.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/08/2023", "Updated script to support up to 3 banked months.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/04/2023", "Fixed bug in saving STAT/WREG panel updates when FSET orientation is blank.", "Ilse Ferris, Hennepin County")
@@ -376,7 +376,8 @@ For item = 0 to ubound(footer_month_array)
 	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)
-		If footer_string = "01/24" then exit for 
+		If footer_string = "01/24" then banked_months_available = False 
+			
 		If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
 		    Call MAXIS_background_check
 		    Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -385,16 +386,20 @@ For item = 0 to ubound(footer_month_array)
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
 
-		    If banked_months_array(banked_mo_count_const, i) < 3 then 
-	        	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
-		    	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
-		    	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
-	        	EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code	    		
-	        	If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True 
-		    Else
-		    	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
-		    End If 
-		
+			If banked_months_available = False then 
+				EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+			Else
+		        If banked_months_array(banked_mo_count_const, i) < 3 then 
+	            	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
+		        	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
+		        	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
+	            	EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code	    		
+	            	If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True 
+		        Else
+		        	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+		        End If 
+			End if 
+
 			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
 		    'Only updating the ABAWD tracking record with manual entry for banked months IF the MAXIS mo/yr = CM mo/yr. If not the system will update upon approval. 
