@@ -376,7 +376,7 @@ For item = 0 to ubound(footer_month_array)
 	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)
-		If footer_string = "01/24" then banked_months_available = False 
+		
 			
 		If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
 		    Call MAXIS_background_check
@@ -386,8 +386,9 @@ For item = 0 to ubound(footer_month_array)
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
 
-			If banked_months_available = False then 
+			If footer_string = "01/24" then
 				EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+				BM_available = False 
 			Else
 		        If banked_months_array(banked_mo_count_const, i) < 3 then 
 	            	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
@@ -469,6 +470,7 @@ For i = 0 to Ubound(banked_months_array, 2)
         Call write_variable_in_case_note("* ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i))
         Call write_variable_in_case_note("* Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i))
 		stats_counter = STATS_counter + 1
+		If BM_available = False then Call write_variable_in_case_note("SNAP Banked Months have all been used (availability of banked months expires in 2023.) ")
         Call write_variable_in_case_note("--")
 	End if 
 Next 
