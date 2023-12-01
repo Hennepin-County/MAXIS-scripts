@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/01/2023", "Updated script to stop processing SNAP banked months into 2024", "Ilse Ferris, Hennepin County")
 call changelog_update("11/08/2023", "Updated script to support up to 3 banked months.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/04/2023", "Fixed bug in saving STAT/WREG panel updates when FSET orientation is blank.", "Ilse Ferris, Hennepin County")
@@ -372,8 +373,10 @@ For item = 0 to ubound(footer_month_array)
 	MAXIS_footer_month = datepart("m", footer_month_array(item)) 'Need to assign footer month / year each time through
 	If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(item)), 2)
+	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)
+		If footer_string = "01/24" then exit for 
 		If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
 		    Call MAXIS_background_check
 		    Call navigate_to_MAXIS_screen("STAT", "WREG")
