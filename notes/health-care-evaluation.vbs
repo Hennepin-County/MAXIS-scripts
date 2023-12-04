@@ -2822,11 +2822,13 @@ function write_person_details_in_NOTE()
 	Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-			Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
-			Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
 			If trim(HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb)) <> "" and trim(HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) <> "" Then 
-				Call write_variable_in_CASE_NOTE("     HC Recertification Date: " & HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb))
-			End If
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & (HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) & " " &  HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			Else
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			End If 
 			If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
 				Call write_variable_in_CASE_NOTE("     No Health Care Program.")
