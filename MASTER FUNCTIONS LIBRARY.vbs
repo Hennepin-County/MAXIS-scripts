@@ -138,34 +138,34 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-IF CM_mo = "01" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #01/19/2023#
-ELSEIF CM_mo = "02" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #02/16/2023#
-ELSEIF CM_mo = "03" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #03/21/2023#
-ELSEIF CM_mo = "04" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #04/20/2023#
-ELSEIF CM_mo = "05" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #05/19/2023#
-ELSEIF CM_mo = "06" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #06/20/2023#
-ELSEIF CM_mo = "07" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #07/20/2023#
-ELSEIF CM_mo = "08" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #08/21/2023#
-ELSEIF CM_mo = "09" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #09/20/2023#
-ELSEIF CM_mo = "10" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #10/19/2023#
+IF CM_mo = "01" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #01/19/2024#
+ELSEIF CM_mo = "02" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #02/16/2024#
+ELSEIF CM_mo = "03" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #03/21/2024#
+ELSEIF CM_mo = "04" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #04/18/2024#
+ELSEIF CM_mo = "05" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #05/21/2024#
+ELSEIF CM_mo = "06" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #06/20/2024#
+ELSEIF CM_mo = "07" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #07/19/2024#
+ELSEIF CM_mo = "08" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #08/21/2024#
+ELSEIF CM_mo = "09" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #09/19/2024#
+ELSEIF CM_mo = "10" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #10/21/2024#
+ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #11/19/2024#
+ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #12/19/2024#
 ELSEIF CM_mo = "11" AND CM_yr = "23" THEN
     ten_day_cutoff_date = #11/20/2023#
 ELSEIF CM_mo = "12" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #12/20/2023#
-ELSEIF CM_mo = "11" AND CM_yr = "22" THEN
-    ten_day_cutoff_date = #11/18/2022#
-ELSEIF CM_mo = "12" AND CM_yr = "22" THEN
-    ten_day_cutoff_date = #12/21/2022#                                'last month of current year
+    ten_day_cutoff_date = #12/20/2023#                              'last month of current year
 ELSE
 	MsgBox "You have entered a date (" & CM_mo & "/" & CM_yr & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 END IF
@@ -5845,34 +5845,34 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
             TIKL_mo = right("0" & DatePart("m",    TIKL_date), 2) 'Creating new month and year variables to determine which ten day cut off date to use
             TIKL_yr = right(      DatePart("yyyy", TIKL_date), 2)
 
-            IF TIKL_mo = "01" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #01/19/2023#
-            ELSEIF TIKL_mo = "02" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #02/16/2023#
-            ELSEIF TIKL_mo = "03" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #03/21/2023#
-            ELSEIF TIKL_mo = "04" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #04/20/2023#
-            ELSEIF TIKL_mo = "05" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #05/19/2023#
-            ELSEIF TIKL_mo = "06" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #06/20/2023#
-            ELSEIF TIKL_mo = "07" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #07/20/2023#
-            ELSEIF TIKL_mo = "08" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #08/21/2023#
-            ELSEIF TIKL_mo = "09" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #09/20/2023#
-            ELSEIF TIKL_mo = "10" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #10/19/2023#
+            IF TIKL_mo = "01" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #01/19/2024#
+            ELSEIF TIKL_mo = "02" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #02/16/2024#
+            ELSEIF TIKL_mo = "03" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #03/21/2024#
+            ELSEIF TIKL_mo = "04" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #04/18/2024#
+            ELSEIF TIKL_mo = "05" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #05/21/2024#
+            ELSEIF TIKL_mo = "06" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #06/20/2024#
+            ELSEIF TIKL_mo = "07" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #07/19/2024#
+            ELSEIF TIKL_mo = "08" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #08/21/2024#
+            ELSEIF TIKL_mo = "09" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #09/19/2024#
+            ELSEIF TIKL_mo = "10" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #10/21/2024#
+            ELSEIF TIKL_mo = "11" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #11/19/2024#
+            ELSEIF TIKL_mo = "12" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #12/19/2024#
             ELSEIF TIKL_mo = "11" AND TIKL_yr = "23" THEN
                 ten_day_cutoff = #11/20/2023#
             ELSEIF TIKL_mo = "12" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #12/20/2023#
-            ELSEIF TIKL_mo = "11" AND TIKL_yr = "22" THEN
-                ten_day_cutoff = #11/18/2022#
-            ELSEIF TIKL_mo = "12" AND TIKL_yr = "22" THEN
-                ten_day_cutoff = #12/21/2022#                                'last month of current year
+                ten_day_cutoff = #12/20/2023#                                'last month of current year
             ELSE
             	missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar.
             END IF
