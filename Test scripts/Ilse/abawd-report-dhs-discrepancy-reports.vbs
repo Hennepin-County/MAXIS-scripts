@@ -562,6 +562,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 							verified_wreg = verified_wreg & "23" & "|"
 						Elseif preg_verif = "N" then 
 							verified_wreg = verified_wreg & "23" & "|"
+						Elseif preg_verif = "?" then 
+							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption. 
 						Else 
 							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
 						End if
@@ -733,7 +735,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	End if
 	    End if  	
 
-	    If best_wreg_code = "30" then 
+	    If best_wreg_code = "30" or age_50 = True then 
 	    'Count all the ABAWD months
 	        Call navigate_to_MAXIS_screen("STAT","WREG")		'navigates to stat/wreg
 	        CALL write_value_and_transmit(member_number, 20, 76)
@@ -843,9 +845,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	    start_a_blank_CASE_NOTE
                 Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
 	    		Call write_variable_in_CASE_NOTE("---")
-	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from time limits.")
-	    		Call write_variable_in_CASE_NOTE("* Effective 09/23 SNAP Work Rules will need to be followed by persons meeting this exemption.")
-	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 03/01 until DHS system updates are in place.")
+	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
+	    		'Call write_variable_in_CASE_NOTE("* Effective 09/23 SNAP Work Rules will need to be followed by persons meeting this exemption.")
+	    		'Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 03/01 until DHS system updates are in place.")
+				Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	    		PF3
