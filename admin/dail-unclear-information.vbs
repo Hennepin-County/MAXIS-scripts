@@ -217,7 +217,7 @@ ObjExcel.Worksheets.Add().Name = "Case Details"
 objExcel.Cells(1, 1).Value = "Case Number"
 objExcel.Cells(1, 2).Value = "X Number"
 objExcel.Cells(1, 3).Value = "SNAP Status"
-objExcel.Cells(1, 4).Value = "Other Programs Present"
+objExcel.Cells(1, 4).Value = "SNAP Only"
 objExcel.Cells(1, 5).Value = "Reporting Status"
 objExcel.Cells(1, 6).Value = "SR Report Date"
 objExcel.Cells(1, 7).Value = "Recertification Date"
@@ -286,7 +286,7 @@ case_count = 0
 const case_maxis_case_number_const      = 0
 const case_worker_const	                = 1
 const snap_status_const                 = 2
-const other_programs_present_const      = 3
+const snap_only_const      = 3
 const reporting_status_const            = 4
 const sr_report_date_const              = 5
 const recertification_date_const        = 6
@@ -497,34 +497,14 @@ For each worker in worker_array
 
                             'Function (determine_program_and_case_status_from_CASE_CURR) sets dail_row equal to 4 so need to reset it.
                             dail_row = 6
+
                             
+                            If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
+                                'Active case, SNAP only, no other active or pending programs
+                                ' MsgBox "SNAP ONLY - case_status: " & case_status & " list_active_programs: " & list_active_programs & " list_pending_programs: " & list_pending_programs
+                                case_details_array(snap_only_const, case_count) = "SNAP Only"
 
-                            'If SNAP is not active, then the case is out-of-scope for Unclear Information.
-                            If snap_status <> "ACTIVE" then 
-                                case_details_array(processable_based_on_case_const, case_count) = False
-                                case_details_array(reporting_status_const, case_count) = "N/A"
-                                case_details_array(recertification_date_const, case_count) = "N/A"
-                                case_details_array(sr_report_date_const, case_count) = "N/A"
-                                case_details_array(case_processing_notes_const, case_count) = "N/A"
-                            End If
-
-                            'If other programs are active/pending then case does not fall under Unclear Information scope
-                            If ga_case = True OR _
-                                msa_case = True OR _
-                                mfip_case = True OR _
-                                dwp_case = True OR _
-                                grh_case = True OR _
-                                ma_case = True OR _
-                                msp_case = True then
-                                    case_details_array(other_programs_present_const, case_count) = True
-                                    case_details_array(processable_based_on_case_const, case_count) = False
-                            Else
-                                'No other programs are active or pending so set value to false
-                                case_details_array(other_programs_present_const, case_count) = False
-                            End if
-
-                            If snap_status = "ACTIVE" then
-                                'To do - check if background check is needed, may break connection to DAIL
+                                ' To do - check if background check is needed, may break connection to DAIL
                                 ' Call MAXIS_background_check
 
                                 'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
@@ -583,25 +563,29 @@ For each worker in worker_array
                                     case_details_array(reporting_status_const, case_count) = trim(reporting_status)
                                     case_details_array(recertification_date_const, case_count) = trim(recertification_date)
                                     case_details_array(sr_report_date_const, case_count) = trim(sr_report_date)
-                                End if
+                                End If
+
+
                             Else
+                                case_details_array(processable_based_on_case_const, case_count) = False
                                 case_details_array(reporting_status_const, case_count) = "N/A"
+                                case_details_array(recertification_date_const, case_count) = "N/A"
+                                case_details_array(sr_report_date_const, case_count) = "N/A"
+                                case_details_array(case_processing_notes_const, case_count) = "N/A"
+                                case_details_array(snap_only_const, case_count) = "Not SNAP Only"
+
                                 ' MsgBox "Updating the footer month and year"
                                 'Update the footer month and year to CM/CY on CASE/CURR before returning to DAIL
                                 'To do - is this necessary?
                                 EMWriteScreen MAXIS_footer_month, 20, 54
                                 EMWriteScreen MAXIS_footer_year, 20, 57
                                 ' MsgBox "did footer month year update?"
-                            End If 
 
-                            'To do - remove comments below after testing
-                            'Determine if processable_based_on_case is True (case is within scope, MAY act on DAIL message) or if processable_based_on_case is false (case is outside of scope, WILL NOT act on DAIL message)
-                            ' Msgbox "case_details_array(snap_status_const, case_count): " & case_details_array(snap_status_const, case_count)
-                            ' Msgbox "case_details_array(other_programs_present_const, case_count): " & case_details_array(other_programs_present_const, case_count)
-                            ' Msgbox "case_details_array(reporting_status_const, case_count): " & case_details_array(reporting_status_const, case_count)
+                            End If
+
                         End If    
                         
-                        If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(other_programs_present_const, case_count) = False AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" then
+                        If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(snap_only_const, case_count) = "SNAP Only" AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" then
                             case_details_array(processable_based_on_case_const, case_count) = True
                         Else
                             case_details_array(processable_based_on_case_const, case_count) = False
@@ -614,7 +598,7 @@ For each worker in worker_array
                         objExcel.Cells(case_excel_row, 1).Value = case_details_array(case_maxis_case_number_const, case_count)
                         objExcel.Cells(case_excel_row, 2).Value = case_details_array(case_worker_const, case_count)
                         objExcel.Cells(case_excel_row, 3).Value = case_details_array(snap_status_const, case_count)
-                        objExcel.Cells(case_excel_row, 4).Value = case_details_array(other_programs_present_const, case_count)
+                        objExcel.Cells(case_excel_row, 4).Value = case_details_array(snap_only_const, case_count)
                         objExcel.Cells(case_excel_row, 5).Value = case_details_array(reporting_status_const, case_count)
                         objExcel.Cells(case_excel_row, 6).Value = case_details_array(sr_report_date_const, case_count)
                         objExcel.Cells(case_excel_row, 7).Value = case_details_array(recertification_date_const, case_count)
