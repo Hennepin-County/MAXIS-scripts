@@ -1841,7 +1841,7 @@ For each worker in worker_array
                                                 If InStr(jobs_panel_check, "DOES NOT EXIST") Then
                                                     'There are no JOBS panels for this HH member. Updates the processing notes for the DAIL message to reflect this
                                                     msgbox "No jobs panels exist"
-                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for caregiver reference number: " & caregiver_ref_nbr & ".")
+                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for caregiver reference number: " & caregiver_ref_nbr & ". Message should be deleted.")
                                                 Else
                                                     'Read the employer name
                                                     EMReadScreen employer_name_jobs_panel, 30, 7, 42
