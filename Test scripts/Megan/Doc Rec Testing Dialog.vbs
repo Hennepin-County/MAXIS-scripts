@@ -46,6 +46,7 @@ add_button 			= 201
 all_forms 			= 202
 review_selections 	= 203
 clear_button		= 204
+next_btn			= 205
 
 asset_btn			= 400
 atr_btn				= 401
@@ -60,7 +61,6 @@ mtaf_btn			= 409
 psn_btn				= 410
 sf_btn				= 411
 diet_btn			= 412
-
 
 
 
