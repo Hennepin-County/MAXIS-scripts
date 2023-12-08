@@ -137,26 +137,81 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				y_pos = 95			'defining y_pos so that we can dynamically add forms to the dialog as they are selected
 				
 				'TODO: Handle for duplicate selection
-					'For/Next must be within the dialog so it knows where to write the information 
-					For form = 0 to UBound(form_type_array, 2) 'Pick a var to set to 0 to loop through do/loop. Var cannot be used anywhere esle. Using Dim 2 because this is the first line of data in a multi D array.
-					'MsgBox form_type_array(form_type_const, form)
+				'For/Next must be within the dialog so it knows where to write the information 
+				For form = 0 to UBound(form_type_array, 2) 'Pick a var to set to 0 to loop through do/loop. Var cannot be used anywhere esle. Using Dim 2 because this is the first line of data in a multi D array.
+					MsgBox form_type_array(form_type_const, form)
+					MsgBox form_type_array(btn_name_const, form)
+					MsgBox form_type_array(btn_number_const, form)
 					'MsgBox "Ubound" & UBound(form_type_array, 2)
-						Text 55, y_pos, 195, 10, form_type_array(form_type_const, form)	'Writing form name by incrementing to the next selection 
-						y_pos = y_pos + 10					'Increasing y_pos by 10 before the next form is written on the dialog
-					Next
-				EndDialog								'Dialog handling	
-				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-				cancel_confirmation
-				
+					Text 55, y_pos, 195, 10, form_type_array(form_type_const, form)	'Writing form name by incrementing to the next selection 
+					y_pos = y_pos + 10					'Increasing y_pos by 10 before the next form is written on the dialog
+				Next
+			EndDialog								'Dialog handling	
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+
+			
 			If ButtonPressed = add_button and form_type <> "" Then					'If statement to know when to store the information in the array
 				ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 				form_type_array(form_type_const, form_count) = Form_type			
-				form_type_array(btn_name_const, form_count) = btn_name               
-				form_type_array(btn_number_const, form_count) = btn_number  
+				'form_type_array(btn_name_const, form_count) = btn_name               
+				'form_type_array(btn_number_const, form_count) = btn_number  
+			
+				'Capturing form button name/label and button number information in array
+				If form_type = "Asset Statement" Then 
+					form_type_array(btn_name_const, form_count) = "ASSET"
+					form_type_array(btn_number_const, form_count) = 400
+				End If
+				If form_type = "Authorization to Release Information (ATR)" Then
+					form_type_array(btn_name_const, form_count) = "ATR"
+					form_type_array(btn_number_const, form_count) = 401
+				End If	
+				If form_type = "AREP (Authorized Rep)" Then
+					form_type_array(btn_name_const, form_count) = "AREP"
+					form_type_array(btn_number_const, form_count) = 402
+				End If
+				If form_type = "Change Report Form" Then
+					form_type_array(btn_name_const, form_count) = "CHNG"
+					form_type_array(btn_number_const, form_count) = 403
+				End If
+				If form_type = "Employment Verification Form (EVF)" Then
+					form_type_array(btn_name_const, form_count) = "EVF"
+					form_type_array(btn_number_const, form_count) = 404
+				End If
+				If form_type = "Hospice Transaction Form" Then
+					form_type_array(btn_name_const, form_count) = "HOSP"
+					form_type_array(btn_number_const, form_count) = 405
+				End If
+				If form_type = "Interim Assistance Agreement (IAA)" Then
+					form_type_array(btn_name_const, form_count) = "IAA"
+					form_type_array(btn_number_const, form_count) = 406
+				End If
+				If form_type = "Interim Assistance Authorization- SSI" Then
+					form_type_array(btn_name_const, form_count) = "IAA-SSI"
+					form_type_array(btn_number_const, form_count) = 407
+				End If
+				If form_type = "Medical Opinion Form (MOF)" Then
+					form_type_array(btn_name_const, form_count) = "MOF"
+					form_type_array(btn_number_const, form_count) = 408
+				End If 
+				IF form_type = "Minnesota Transition Application Form (MTAF)" Then
+					form_type_array(btn_name_const, form_count) = "MTAF"
+					form_type_array(btn_number_const, form_count) = 409
+				End If
+				If form_type = "Professional Statement of Need (PSN)" Then
+						form_type_array(btn_name_const, form_count) = "PSN"
+						form_type_array(btn_number_const, form_count) = 410
+				End If
+				If form_type = "Residence and Shelter Expenses Release Form" Then
+						form_type_array(btn_name_const, form_count) = "SF"
+						form_type_array(btn_number_const, form_count) = 411
+				End If
+				If form_type = "Special Diet Information Request (MFIP and MSA)" Then
+						form_type_array(btn_name_const, form_count) = "DIET"
+						form_type_array(btn_number_const, form_count) = 412
+				End If
 				form_count= form_count + 1 
 			End If
-
-		
 			If ButtonPressed = clear_button Then 
 				ReDim form_type_array(form_count)		'Clear button wipes out any selections already made so the user can reselect correct forms.
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
@@ -190,8 +245,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			Do
 				ReDim form_type_array(the_last_const, form_count)		'Reseting any selections already made so the user can reselect correct forms using different format.
 				form_type_array(form_type_const, form_count) = Form_type
-                form_type_array(btn_name_const, form_count) = btn_name      
-                form_type_array(btn_number_const, form_count) = btn_number  
+                'form_type_array(btn_name_const, form_count) = btn_name      
+                'form_type_array(btn_number_const, form_count) = btn_number  
                 form_count = 0							'Reseting the form count to 0 so that y_pos resets to 95. 
 				
 				
