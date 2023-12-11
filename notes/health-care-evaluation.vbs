@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/28/2023", "Added field to capture member specific HC recertification date.", "Megan Geissler, Hennepin County")
 call changelog_update("10/31/2023", "Fixed inhibiting bug related to IMIG panel for both members on case and/or applying for Health Care.##~##", "Dave Courtright, Hennepin County")
 call changelog_update("09/15/2023", "There was an error on Health Care Evaluation when a case either does not have Health Care on it or a household member with Health Care is not selected. The script will now stop if the case is missing a HCRE panel and will force the selection of a member to process on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2023", "Updated NOTES - Health Care Evaluation to include and reflect ex parte review process.", "Mark Riegel, Hennepin County")
@@ -176,14 +177,16 @@ end function
 
 function check_for_errors(eval_questions_clear)
 'This is a function specific to this script to see if there are dialog errors that prevent us from moving forward in the script.
-	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'maandatory fields related to specific persons on the case from the first dialog
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'mandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being completed for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) = (IsNumeric(HC_recertification_month) = False) or (LEN(HC_recertification_month) <> 2)Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Month (MM) is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb) = (IsNumeric(HC_recertification_year) = False) or (LEN(HC_recertification_year) <> 2) Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Year (YY) is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligibility of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligibility of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) = "None" and HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) = "None" Then err_msg = err_msg & "~!~" & "1 ^* HC/MSP Basis of Eligibility##~##   - At least one Major Program needs to be selected for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ", indicate if MA/EMA/or a MSP is being assessed.##~##"
 		End If
@@ -191,7 +194,7 @@ function check_for_errors(eval_questions_clear)
 	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then		'handling for mandatory fields ONLY if MA-BC is being processed
 		If trim(ma_bc_authorization_form) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Select authorization form needed##~##   - Select the form name needed for MA-BC Eligibility.##~##"
 		If ma_bc_authorization_form_missing_checkbox = checked and IsDate(ma_bc_authorization_form_date) = True Then err_msg = err_msg & "~!~" & "1 ^* Check here if the form is NOT received and still required.##~##   - You checked the box indicating that the MA-BC authorization form was missing but entered a date for when the form was received."
-		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authoriazation Form)##~##   - Enter the date the form for MA-BC Authorization was received."
+		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authorization Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
 
@@ -202,7 +205,7 @@ function check_for_errors(eval_questions_clear)
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - Indicate the status of the Health Care Evaluation for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
-			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verificaitons" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
+			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verifications" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - other" and trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Evaluation Notes##~##   - Explain the details of the Health Care Evaluation Status for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " as you have selected 'Other'.##~##- Add notes to 'Evaluation Notes' for further explanation.##~##"
 		End if
 	Next
@@ -305,8 +308,11 @@ function define_main_dialog()
 			GroupBox 10, 45, 465, 310, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
 			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
-			Text 300, 60, 80, 10, "Health Care Eval is at "
-			DropListBox 380, 55, 85, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			Text 155, 60, 80, 10, "Health Care Eval is at "
+			DropListBox 230, 55, 90, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			EditBox 420, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_month, selected_memb)
+ 			EditBox 445, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_year, selected_memb)
+ 			Text 330, 60, 85, 10, "HC Recertification MM/YY"
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
 			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
@@ -1737,7 +1743,7 @@ function define_main_dialog()
 				Text 20, y_pos, 400, 10, "NO Waiver or FACI information found for any Members you selected to process HC in this script run."
 				y_pos = y_pos + 20
 			End If
-			Text 20, y_pos, 70, 10, "LTC Eligiblity Notes:"
+			Text 20, y_pos, 70, 10, "LTC Eligibility Notes:"
 			y_pos = y_pos + 10
 			EditBox 20, y_pos, 445, 15, ltc_elig_notes
 			y_pos = y_pos + 25
@@ -1807,7 +1813,7 @@ function define_main_dialog()
 					Text 335, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 75, 10, "Health Care Eval: "
-					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
+					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verifications"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 70, 10, "Evaluation Notes:"
 					EditBox 95, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)
@@ -2816,8 +2822,13 @@ function write_person_details_in_NOTE()
 	Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-			Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
-			Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			If trim(HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb)) <> "" and trim(HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) <> "" Then 
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & (HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) & " " &  HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			Else
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			End If 
 			If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
 				Call write_variable_in_CASE_NOTE("     No Health Care Program.")
@@ -3800,7 +3811,9 @@ Const HC_major_prog_const				= 74
 Const MSP_major_prog_const				= 75
 Const LTC_waiver_notes_const			= 76
 Const LTC_facility_notes_const			= 77
-Const last_const						= 78
+Const HC_recertification_month			= 78
+Const HC_recertification_year			= 79
+Const last_const						= 80
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
@@ -5808,7 +5821,7 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 		Do
 			err_msg = ""
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligiblity"
+			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligibility"
   			  ButtonGroup ButtonPressed
 				DropListBox 195, 10, 180, 45, case_memb_list, ma_bc_member
 				EditBox 310, 30, 65, 15, temp_ma_auth_form_date
