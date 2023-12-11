@@ -2446,6 +2446,7 @@ If ex_parte_function = "Prep 1" Then
 		va_excel_row = 2
 		va_inc_count = 0
 
+		objVAExcel.Cells(2, 1).Value = "Test"
 		objVAExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objVAExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objVAExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objVAExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\VA Income Verifications\VA Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
@@ -2486,6 +2487,7 @@ If ex_parte_function = "Prep 1" Then
 		uc_excel_row = 2
 		uc_inc_count = 0
 
+		objUCExcel.Cells(2, 1).Value = "Test"
 		objUCExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objUCExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objUCExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objUCExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\UC Income Verifications\UC Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
@@ -2526,6 +2528,7 @@ If ex_parte_function = "Prep 1" Then
 		rr_excel_row = 2
 		rr_inc_count = 0
 
+		objRRExcel.Cells(2, 1).Value = "Test"
 		objRRExcel.ActiveSheet.ListObjects.Add(xlSrcRange, objRRExcel.Range("A1:I2"), xlYes).Name = "Table1"
 		objRRExcel.ActiveSheet.ListObjects("Table1").TableStyle = "TableStyleMedium2"
 		objRRExcel.ActiveWorkbook.SaveAs ex_parte_folder & "\RR Income Verifications\RR Income - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx"
