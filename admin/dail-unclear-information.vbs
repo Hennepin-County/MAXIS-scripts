@@ -426,7 +426,7 @@ For each worker in worker_array
             dail_msg = ""
             dail_month = ""
             MAXIS_case_number = ""
-            INFC_dail_msg = ""
+            actionable_dail = ""
 
             'To do - do we need to reset the full dail message or any other variables?
 
@@ -449,19 +449,103 @@ For each worker in worker_array
             EMReadScreen dail_type, 4, dail_row, 6
             dail_type = trim(dail_type)
 
-            'Determine the DAIL msg so that INFC messages can be excluded
+            'Reads the DAIL msg to determine if it is an out-of-scope message
             EMReadScreen dail_msg, 61, dail_row, 20
             dail_msg = trim(dail_msg)
-            If InStr(dail_msg, "INFC") then 
-                INFC_dail_msg = True
+            'List of out of scope messages pulled from non-actionable dails function
+            If instr(dail_msg, "AMT CHILD SUPP MOD/ORD") OR _
+                instr(dail_msg, "AP OF CHILD REF NBR:") OR _
+                instr(dail_msg, "ADDRESS DIFFERS W/ CS RECORDS:") OR _
+                instr(dail_msg, "AMOUNT AS UNEARNED INCOME IN LBUD IN THE MONTH") OR _
+                instr(dail_msg, "AMOUNT AS UNEARNED INCOME IN SBUD IN THE MONTH") OR _
+                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
+                instr(dail_msg, "CHILD SUPP PAYMT FREQUENCY IS MONTHLY FOR CHILD REF NBR") OR _
+                instr(dail_msg, "CHILD SUPP PAYMTS PD THRU THE COURT/AGENCY FOR CHILD") OR _
+                instr(dail_msg, "COMPLETE INFC PANEL") OR _
+                instr(dail_msg, "IS LIVING W/CAREGIVER") OR _
+                instr(dail_msg, "IS COOPERATING WITH CHILD SUPPORT") OR _
+                instr(dail_msg, "IS NOT COOPERATING WITH CHILD SUPPORT") OR _
+                instr(dail_msg, "NAME DIFFERS W/ CS RECORDS:") OR _
+                instr(dail_msg, "PATERNITY ON CHILD REF NBR") OR _
+                instr(dail_msg, "REPORTED NAME CHG TO:") OR _
+                instr(dail_msg, "BENEFITS RETURNED, IF IOC HAS NEW ADDRESS") OR _
+                instr(dail_msg, "CASE IS CATEGORICALLY ELIGIBLE") OR _
+                instr(dail_msg, "CASE NOT AUTO-APPROVED - HRF/SR/RECERT DUE") OR _
+                instr(dail_msg, "CHANGE IN BUDGET CYCLE") OR _
+                instr(dail_msg, "COMPLETE ELIG IN FIAT") OR _
+                instr(dail_msg, "COUNTED IN LBUD AS UNEARNED INCOME") OR _
+                instr(dail_msg, "COUNTED IN SBUD AS UNEARNED INCOME") OR _
+                instr(dail_msg, "HAS EARNED INCOME IN 6 MONTH BUDGET BUT NO DCEX PANEL") OR _
+                instr(dail_msg, "NEW DENIAL ELIG RESULTS EXIST") OR _
+                instr(dail_msg, "NEW ELIG RESULTS EXIST") OR _
+                instr(dail_msg, "POTENTIALLY CATEGORICALLY ELIGIBLE") OR _
+                instr(dail_msg, "WARNING MESSAGES EXIST") OR _
+                instr(dail_msg, "ADDR CHG*CHK SHEL") OR _
+                instr(dail_msg, "APPLCT ID CHNGD") OR _
+                instr(dail_msg, "CASE AUTOMATICALLY DENIED") OR _
+                instr(dail_msg, "CASE FILE INFORMATION WAS SENT ON") OR _
+                instr(dail_msg, "CASE NOTE ENTERED BY") OR _
+                instr(dail_msg, "CASE NOTE TRANSFER FROM") OR _
+                instr(dail_msg, "CASE VOLUNTARY WITHDRAWN") OR _
+                instr(dail_msg, "CASE XFER") OR _
+                instr(dail_msg, "CHANGE REPORT FORM SENT ON") OR _
+                instr(dail_msg, "DIRECT DEPOSIT STATUS") OR _
+                instr(dail_msg, "EFUNDS HAS NOTIFIED DHS THAT THIS CLIENT'S EBT CARD") OR _
+                instr(dail_msg, "MEMB:NEEDS INTERPRETER HAS BEEN CHANGED") OR _
+                instr(dail_msg, "MEMB:SPOKEN LANGUAGE HAS BEEN CHANGED") OR _
+                instr(dail_msg, "MEMB:RACE CODE HAS BEEN CHANGED FROM UNABLE") OR _
+                instr(dail_msg, "MEMB:SSN HAS BEEN CHANGED FROM") OR _
+                instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _
+                instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _
+                instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _
+                instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _
+                instr(dail_msg, "PMI MERGED") OR _
+                instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
+                instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
+                instr(dail_msg, "EMPL SERV REF DATE IS > 60 DAYS; CHECK ES PROVIDER RESPONSE") OR _
+                instr(dail_msg, "LAST GRADE COMPLETED") OR _
+                instr(dail_msg, "~*~*~CLIENT WAS SENT AN APPT LETTER") OR _
+                instr(dail_msg, "IF CLIENT HAS NOT COMPLETED RECERT, APPL CAF FOR") OR _
+                instr(dail_msg, "UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE") OR _
+                instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
+                instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
+                instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
+                instr(dail_msg, "GA: STATUS IS PENDING - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "GA: STATUS IS REIN OR SUSPEND - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
+                instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
+                instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
+                instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
+                instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
+                instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _
+                instr(dail_msg, "SDNH NEW JOB DETAILS FOR MEMB 00") OR _
+                instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
+                instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
+                instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") OR _
+                instr(dail_msg, "SSN DIFFERS W/ CS RECORDS") OR _
+                instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
+                instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
+                instr(dail_msg, "DWP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
+                instr(dail_msg, "IV-D NAME DISCREPANCY") OR _
+                instr(dail_msg, "CHECK HAS BEEN APPROVED") OR _
+                instr(dail_msg, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
+                instr(dail_msg, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") OR _
+                instr(dail_msg, "- TRANS #") OR _
+                instr(dail_msg, "RSDI UPDATED - (REF") OR _
+                instr(dail_msg, "SSI UPDATED - (REF") OR _
+                instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then 
+                    actionable_dail = False
             Else
-                INFC_dail_msg = False
+                actionable_dail = True
             End If
 
-            If (INFC_dail_msg = False AND dail_type = "CSES") OR dail_type = "HIRE" Then
+            If (actionable_dail = True AND dail_type = "CSES") OR dail_type = "HIRE" Then
                 'Read the MAXIS Case Number, if it is a new case number then pull case details. If it is not a new case number, then do not pull new case details.
                 
-                ' Msgbox "(INFC_dail_msg = False AND dail_type = 'CSES') OR dail_type = 'HIRE' Then"
+                ' Msgbox "(actionable_dail = False AND dail_type = 'CSES') OR dail_type = 'HIRE' Then"
 
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
