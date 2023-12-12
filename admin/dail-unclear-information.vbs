@@ -726,12 +726,7 @@ For each worker in worker_array
                             ' Script reads the full DAIL message so that it can process, or not process, as needed.
                             EMReadScreen full_dail_msg_line_1, 60, 9, 5
 
-                            full_dail_msg_line_1 = trim(full_dail_msg_line_1)
-                            ' Msgbox full_dail_msg_line_1
-
                             EMReadScreen full_dail_msg_line_2, 60, 10, 5
-                            full_dail_msg_line_2 = trim(full_dail_msg_line_2)
-                            ' Msgbox full_dail_msg_line_2
 
                             EMReadScreen full_dail_msg_line_3, 60, 11, 5
                             full_dail_msg_line_3 = trim(full_dail_msg_line_3)
@@ -741,7 +736,12 @@ For each worker in worker_array
                             full_dail_msg_line_4 = trim(full_dail_msg_line_4)
                             ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
 
-                            full_dail_msg = full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4
+                            If trim(full_dail_msg_line_2) = "" Then 
+                                MsgBox "empty!"
+                                full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                            End If
+
+                            full_dail_msg = trim(full_dail_msg_line_1 & full_dail_msg_line_2 & full_dail_msg_line_3 & full_dail_msg_line_4)
 
                             ' Msgbox full_dail_msg
 
@@ -942,22 +942,22 @@ For each worker in worker_array
                                                 'To do - may not need to double-check messages after fully tested
                                                 EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
 
-                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
                                                 ' MsgBox check_full_dail_msg_line_1
 
                                                 EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
                                                 ' MsgBox check_full_dail_msg_line_2
 
                                                 EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
                                                 ' MsgBox check_full_dail_msg_line_3
 
                                                 EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
                                                 ' MsgBox check_full_dail_msg_line_4
 
-                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                End If
+
+                                                check_full_dail_msg = trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
 
                                                 ' MsgBox check_full_dail_msg
                                                 ' MsgBox full_dail_msg
@@ -1254,22 +1254,22 @@ For each worker in worker_array
                                                 'To do - may not need to double-check messages after fully tested
                                                 EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
 
-                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
                                                 ' MsgBox check_full_dail_msg_line_1
 
                                                 EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
                                                 ' MsgBox check_full_dail_msg_line_2
 
                                                 EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
                                                 ' MsgBox check_full_dail_msg_line_3
 
                                                 EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
                                                 ' MsgBox check_full_dail_msg_line_4
 
-                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                End If
+
+                                                check_full_dail_msg = trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
 
                                                 ' MsgBox check_full_dail_msg
                                                 ' MsgBox full_dail_msg
@@ -1396,22 +1396,23 @@ For each worker in worker_array
                                                 'To do - may not need to double-check messages after fully tested
                                                 EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
 
-                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
                                                 ' MsgBox check_full_dail_msg_line_1
 
                                                 EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
                                                 ' MsgBox check_full_dail_msg_line_2
 
                                                 EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
                                                 ' MsgBox check_full_dail_msg_line_3
 
                                                 EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
                                                 ' MsgBox check_full_dail_msg_line_4
 
-                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    MsgBox "empty!"
+                                                    check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                End If
+
+                                                check_full_dail_msg = trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
 
                                                 ' MsgBox check_full_dail_msg
                                                 ' MsgBox full_dail_msg
@@ -1707,22 +1708,23 @@ For each worker in worker_array
                                                 'To do - may not need to double-check messages after fully tested
                                                 EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
 
-                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
                                                 ' MsgBox check_full_dail_msg_line_1
 
                                                 EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
                                                 ' MsgBox check_full_dail_msg_line_2
 
                                                 EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
                                                 ' MsgBox check_full_dail_msg_line_3
 
                                                 EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
                                                 ' MsgBox check_full_dail_msg_line_4
 
-                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    MsgBox "empty!"
+                                                    check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                End If
+
+                                                check_full_dail_msg = trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
 
                                                 ' MsgBox check_full_dail_msg
                                                 ' MsgBox full_dail_msg
@@ -1859,22 +1861,22 @@ For each worker in worker_array
                                                 'To do - may not need to double-check messages after fully tested
                                                 EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
 
-                                                check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
                                                 ' MsgBox check_full_dail_msg_line_1
 
                                                 EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                check_full_dail_msg_line_2 = trim(check_full_dail_msg_line_2)
                                                 ' MsgBox check_full_dail_msg_line_2
 
                                                 EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                check_full_dail_msg_line_3 = trim(check_full_dail_msg_line_3)
                                                 ' MsgBox check_full_dail_msg_line_3
 
                                                 EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                check_full_dail_msg_line_4 = trim(check_full_dail_msg_line_4)
                                                 ' MsgBox check_full_dail_msg_line_4
 
-                                                check_full_dail_msg = check_full_dail_msg_line_1 & " " & check_full_dail_msg_line_2 & " " & check_full_dail_msg_line_3 & " " & check_full_dail_msg_line_4
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
+                                                End If
+
+                                                check_full_dail_msg = trim(check_full_dail_msg_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
 
                                                 ' MsgBox check_full_dail_msg
                                                 ' MsgBox full_dail_msg
@@ -1901,10 +1903,14 @@ For each worker in worker_array
                                                 col = 1
                                                 EMSearch "REF NBR:", row, col
                                                 EMReadScreen employer_name_line_1, 65 - (col + 12), row, col + 12
+
+                                                If trim(check_full_dail_msg_line_2) = "" Then 
+                                                    employer_name_line_1 = trim(employer_name_line_1)
+                                                End If
                                             
                                                 MsgBox "employer_name_line_1: " & employer_name_line_1
 
-                                                employer_full_name = employer_name_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4
+                                                employer_full_name = trim(employer_name_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
                                                 MsgBox employer_full_name
                                                 
                                                 'Transmit back to DAIL message
