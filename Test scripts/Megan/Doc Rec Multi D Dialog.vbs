@@ -1,4 +1,3 @@
-'VERSION #1: DROPDOWN & CHECKBOX
 'STATS GATHERING=============================================================================================================
 name_of_script = "TYPE - PROJECT NOOB SCRIPT.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
 start_time = timer
@@ -46,7 +45,8 @@ EMConnect "" 'Connects to BlueZone
 const form_type_const   = 0
 const btn_name_const    = 1
 const btn_number_const	= 2
-const the_last_const	= 3
+const count_of_form		= 3
+const the_last_const	= 4
 
 'Defining array capturing form names, button names, button numbers
 Dim form_type_array()		'Defining 1D array
@@ -98,11 +98,9 @@ diet_btn			= 412
 
 'FUNCTIONS DEFINED===========================================================================
 function asset_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 			Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, asset_effective_date
+			EditBox 310, 20, 45, 15, asset_date_received
 			EditBox 30, 65, 270, 15, asset_Q1
 			EditBox 30, 85, 270, 15, asset_Q2
 			EditBox 30, 105, 270, 15, asset_Q3
@@ -118,15 +116,12 @@ function asset_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function atr_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, effective_date
-		EditBox 310, 20, 45, 15, date_received
+		EditBox 175, 20, 45, 15, atr_effective_date
+		EditBox 310, 20, 45, 15, atr_date_received
 		EditBox 30, 65, 270, 15, atr_Q1
 		EditBox 30, 85, 270, 15, atr_Q2
 		EditBox 30, 105, 270, 15, atr_Q3
@@ -142,15 +137,12 @@ function atr_dialog()
 		Text 15, 130, 15, 10, "Q4"
 		Text 15, 90, 15, 10, "Q2"
 		Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function arep_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, effective_date
-		EditBox 310, 20, 45, 15, date_received
+		EditBox 175, 20, 45, 15, arep_effective_date
+		EditBox 310, 20, 45, 15, arep_date_received
 		EditBox 30, 65, 270, 15, arep_Q1
 		EditBox 30, 85, 270, 15, arep_Q2
 		EditBox 30, 105, 270, 15, arep_Q3
@@ -165,12 +157,9 @@ function arep_dialog()
 		Text 15, 130, 15, 10, "Q4"
 		Text 15, 90, 15, 10, "Q2"
 		Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function change_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		EditBox 175, 15, 45, 15, effective_date
 		EditBox 310, 15, 45, 15, date_received		
 		EditBox 50, 45, 320, 15, address_notes
@@ -205,15 +194,12 @@ function change_dialog()
 		Text 180, 285, 90, 10, "The changes client reports:"
 		Text 15, 245, 60, 10, "Verifs Requested:"
 		CheckBox 10, 270, 140, 10, "Check if no notable changes reported.", checkbox_not_notable		'TODO: Need handling around this new checkbox and case note clearly if checked
-	'End Dialog
 end function
 
 function evf_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, evf_effective_date
+			EditBox 310, 20, 45, 15, evf_date_received
 			EditBox 30, 65, 270, 15, evf_Q1
 			EditBox 30, 85, 270, 15, evf_Q2
 			EditBox 30, 105, 270, 15, evf_Q3
@@ -229,15 +215,12 @@ function evf_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function 
 
 function hospice_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, hosp_effective_date
+			EditBox 310, 20, 45, 15, hosp_date_received
 			EditBox 30, 65, 270, 15, hosp_Q1
 			EditBox 30, 85, 270, 15, hosp_Q2
 			EditBox 30, 105, 270, 15, hosp_Q3
@@ -253,15 +236,12 @@ function hospice_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function 
 
 function iaa_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, effective_date
-		EditBox 310, 20, 45, 15, date_received
+		EditBox 175, 20, 45, 15, iaa_effective_date
+		EditBox 310, 20, 45, 15, iaa_date_received
 		EditBox 30, 65, 270, 15, iaa_Q1
 		EditBox 30, 85, 270, 15, iaa_Q2
 		EditBox 30, 105, 270, 15, iaa_Q3
@@ -277,15 +257,12 @@ function iaa_dialog()
 		Text 15, 130, 15, 10, "Q4"
 		Text 15, 90, 15, 10, "Q2"
 		Text 15, 150, 15, 10, ""
-	'End Dialog
 end function 
 
 function iaa_ssi_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, iaa_ssi_effective_date
+			EditBox 310, 20, 45, 15, iaa_ssi_date_received
 			EditBox 30, 65, 270, 15, iaa_ssi_Q1
 			EditBox 30, 85, 270, 15, iaa_ssi_Q2
 			EditBox 30, 105, 270, 15, iaa_ssi_Q3
@@ -301,15 +278,12 @@ function iaa_ssi_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function mof_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, mof_effective_date
+			EditBox 310, 20, 45, 15, mof_date_received
 			EditBox 30, 65, 270, 15, mof_Q1
 			EditBox 30, 85, 270, 15, mof_Q2
 			EditBox 30, 105, 270, 15, mof_Q3
@@ -325,15 +299,12 @@ function mof_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function 
 
 function mtaf_dialog()	
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, mtaf_effective_date
+			EditBox 310, 20, 45, 15, mtaf_date_received
 			EditBox 30, 65, 270, 15, mtaf_Q1
 			EditBox 30, 85, 270, 15, mtaf_Q2
 			EditBox 30, 105, 270, 15, mtaf_Q3
@@ -349,15 +320,12 @@ function mtaf_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function psn_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, psn_effective_date
+			EditBox 310, 20, 45, 15, psn_date_received
 			EditBox 30, 65, 270, 15, psn_Q1
 			EditBox 30, 85, 270, 15, psn_Q2
 			EditBox 30, 105, 270, 15, psn_Q3
@@ -373,15 +341,12 @@ function psn_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function 
 
 function sf_dialog()	
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, sf_effective_date
+			EditBox 310, 20, 45, 15, sf_date_received
 			EditBox 30, 65, 270, 15, sf_Q1
 			EditBox 30, 85, 270, 15, sf_Q2
 			EditBox 30, 105, 270, 15, sf_Q3
@@ -397,15 +362,12 @@ function sf_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
 function diet_dialog()
-	'Dialog1 = "" 'Blanking out previous dialog detail
-		'BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, effective_date
-			EditBox 310, 20, 45, 15, date_received
+			EditBox 175, 20, 45, 15, diet_effective_date
+			EditBox 310, 20, 45, 15, diet_date_received
 			EditBox 30, 65, 270, 15, diet_Q1
 			EditBox 30, 85, 270, 15, diet_Q2
 			EditBox 30, 105, 270, 15, diet_Q3
@@ -421,15 +383,13 @@ function diet_dialog()
 			Text 15, 130, 15, 10, "Q4"
 			Text 15, 90, 15, 10, "Q2"
 			Text 15, 150, 15, 10, ""
-	'End Dialog
 end function
 
-function dialog_movement()
-	'Button movement handling for buttons displayed on the individual form dialogs. 
+function dialog_movement() 	'Button movement handling for buttons displayed on the individual form dialogs. 
 	If ButtonPressed = -1 Then ButtonPressed = next_btn 	'If the enter button is selected the script will handle this as if Next was selected 
 	If ButtonPressed = next_btn Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed >= 400 Then 'All forms have been defined at 400 or greater 
-		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the buttons stored in the array.
+		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the correct dialog
 			If ButtonPressed = asset_btn and form_type_array(form_type_const, i) = "Asset Statement" Then form_count = i 
 			If ButtonPressed = atr_btn and form_type_array(form_type_const, i) = "Authorization to Release Information (ATR)" Then form_count = i 
 			If ButtonPressed = arep_btn and form_type_array(form_type_const, i) = "AREP (Authorized Rep)" Then form_count = i 
@@ -522,64 +482,11 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = add_button and form_type <> "" Then					'If statement to know when to store the information in the array
 				ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 				form_type_array(form_type_const, form_count) = Form_type			
-		
-				'Capturing form button name/label and button number in array based on drop down selections
-				If form_type = "Asset Statement" Then 
-					form_type_array(btn_name_const, form_count) = "ASSET"
-					form_type_array(btn_number_const, form_count) = 400
-				End If
-				If form_type = "Authorization to Release Information (ATR)" Then
-					form_type_array(btn_name_const, form_count) = "ATR"
-					form_type_array(btn_number_const, form_count) = 401
-				End If	
-				If form_type = "AREP (Authorized Rep)" Then
-					form_type_array(btn_name_const, form_count) = "AREP"
-					form_type_array(btn_number_const, form_count) = 402
-				End If
-				If form_type = "Change Report Form" Then
-					form_type_array(btn_name_const, form_count) = "CHNG"
-					form_type_array(btn_number_const, form_count) = 403
-				End If
-				If form_type = "Employment Verification Form (EVF)" Then
-					form_type_array(btn_name_const, form_count) = "EVF"
-					form_type_array(btn_number_const, form_count) = 404
-				End If
-				If form_type = "Hospice Transaction Form" Then
-					form_type_array(btn_name_const, form_count) = "HOSP"
-					form_type_array(btn_number_const, form_count) = 405
-				End If
-				If form_type = "Interim Assistance Agreement (IAA)" Then
-					form_type_array(btn_name_const, form_count) = "IAA"
-					form_type_array(btn_number_const, form_count) = 406
-				End If
-				If form_type = "Interim Assistance Authorization- SSI" Then
-					form_type_array(btn_name_const, form_count) = "IAA-SSI"
-					form_type_array(btn_number_const, form_count) = 407
-				End If
-				If form_type = "Medical Opinion Form (MOF)" Then
-					form_type_array(btn_name_const, form_count) = "MOF"
-					form_type_array(btn_number_const, form_count) = 408
-				End If 
-				IF form_type = "Minnesota Transition Application Form (MTAF)" Then
-					form_type_array(btn_name_const, form_count) = "MTAF"
-					form_type_array(btn_number_const, form_count) = 409
-				End If
-				If form_type = "Professional Statement of Need (PSN)" Then
-						form_type_array(btn_name_const, form_count) = "PSN"
-						form_type_array(btn_number_const, form_count) = 410
-				End If
-				If form_type = "Residence and Shelter Expenses Release Form" Then
-						form_type_array(btn_name_const, form_count) = "SF"
-						form_type_array(btn_number_const, form_count) = 411
-				End If
-				If form_type = "Special Diet Information Request (MFIP and MSA)" Then
-						form_type_array(btn_name_const, form_count) = "DIET"
-						form_type_array(btn_number_const, form_count) = 412
-				End If
 				form_count= form_count + 1 'incrementing in the array
 			End If
+				
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
-				ReDim form_type_array(form_count)		
+				ReDim form_type_array(the_last_const, form_count)		
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
 				asset_checkbox = unchecked				'Resetting checkboxes to unchecked
 				atr_checkbox = unchecked				'Resetting checkboxes to unchecked
@@ -609,6 +516,10 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				psn_count		= 0 
 				sf_count		= 0 
 				diet_count		= 0
+				MsgBox "form type" & form_type
+				MsgBox "button number const" & btn_number_const
+				'MsgBox "asset count" & asset_count 'TEST
+				'MsgBox "asset checkbox" & asset_checkbox 'TEST
 				MsgBox "Form selections cleared." & vbNewLine & "Please make new form selections."	'Notify end user that entries were cleared.
 			End If
 			
@@ -653,92 +564,68 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				If asset_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Asset Statement" 
-					form_type_array(btn_name_const, form_count) = "ASSET"
-					form_type_array(btn_number_const, form_count) = 400
+					MsgBox "asset in checkbox" & form_type_array(form_type_const, form_count)
 					form_count= form_count + 1 
 				End If
 				If atr_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)"
-					form_type_array(btn_name_const, form_count) = "ATR"
-					form_type_array(btn_number_const, form_count) = 401
+					MsgBox "atr in checkbox" & form_type_array(form_type_const, form_count)
 					form_count= form_count + 1 
 				End If
 				If arep_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)"
-					form_type_array(btn_name_const, form_count) = "AREP"
-					form_type_array(btn_number_const, form_count) = 402
 					form_count= form_count + 1 
 				End If
 				If change_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Change Report Form"
-					form_type_array(btn_name_const, form_count) = "CHNG"
-					form_type_array(btn_number_const, form_count) = 403
 					form_count= form_count + 1 
 				End If
 				If evf_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Employment Verification Form (EVF)"
-					form_type_array(btn_name_const, form_count) = "EVF"
-					form_type_array(btn_number_const, form_count) = 404
 					form_count= form_count + 1 
 				End If
 				If hospice_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Hospice Transaction Form"
-					form_type_array(btn_name_const, form_count) = "HOSP"
-					form_type_array(btn_number_const, form_count) = 405
 					form_count= form_count + 1 
 				End If
 				If iaa_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Interim Assistance Agreement (IAA)"
-					form_type_array(btn_name_const, form_count) = "IAA"
-					form_type_array(btn_number_const, form_count) = 406
 					form_count= form_count + 1 
 				End If
 				If iaa_ssi_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Interim Assistance Authorization- SSI"
-					form_type_array(btn_name_const, form_count) = "IAA-SSI"
-					form_type_array(btn_number_const, form_count) = 407
 					form_count= form_count + 1 
 				End If
 				If mof_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Medical Opinion Form (MOF)"
-					form_type_array(btn_name_const, form_count) = "MOF"
-					form_type_array(btn_number_const, form_count) = 408
 					form_count= form_count + 1 
 				End If
 				If mtaf_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Minnesota Transition Application Form (MTAF)"
-					form_type_array(btn_name_const, form_count) = "MTAF"
-					form_type_array(btn_number_const, form_count) = 409
 					form_count= form_count + 1 
 				End If
 				If psn_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Professional Statement of Need (PSN)"
-					form_type_array(btn_name_const, form_count) = "PSN"
-					form_type_array(btn_number_const, form_count) = 410
 					form_count= form_count + 1 
 				End If
 				If shelter_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Residence and Shelter Expenses Release Form"
-					form_type_array(btn_name_const, form_count) = "SF"
-					form_type_array(btn_number_const, form_count) = 411
 					form_count= form_count + 1 
 				End If
 				If diet_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)"
-					form_type_array(btn_name_const, form_count) = "DIET"
-					form_type_array(btn_number_const, form_count) = 412
 					form_count= form_count + 1 
 				End If
 								
@@ -751,7 +638,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If		
 Loop Until ButtonPressed = Ok
 
-'Capturing count of each form so we can iterate the necessary forms
+'Capturing count of each form so we can iterate the necessary form dialogs
 For form_added = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, form_added) = "Asset Statement" Then asset_count = asset_count + 1 
 	If form_type_array(form_type_const, form_added) = "Authorization to Release Information (ATR)" Then atr_count = atr_count + 1
@@ -774,7 +661,7 @@ MsgBox "checking count of each form" & vbcr & "Asset count" & asset_count & vbcr
 form_count = 0
 Do
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received - " & form_type_array(form_type_const, form_count)
+	BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 		If form_type_array(form_type_const, form_count) = "Asset Statement" then Call asset_dialog
 		If form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)" Then Call atr_dialog
 		If form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)" then Call arep_dialog
@@ -790,57 +677,90 @@ Do
 		If form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)" Then Call diet_dialog
 		
 		btn_pos = 45		'variable to iterate down for each necessary button
-		For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected. It also positions them from top down so there aren't weird spaces in between. 
-			If form_type_array(form_type_const, current_form) = "Asset Statement" then 
-				PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
+		'TODO: handle to uniquely identify multiples of the same form by adding count to the button name
+		For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
+			If form_type_array(form_type_const, current_form) = "Asset Statement" then
+				form_type_array(btn_name_const, form_count) = "ASSET"
+				form_type_array(btn_number_const, form_count) = 400
+				PushButton 395, btn_pos, 45, 15, "ASSET-" & asset_count, asset_btn 'TEST - example of adding number to name of button
 				btn_pos = btn_pos + 15
+				' MsgBox "asset name" & form_type_array(form_type_const, current_form) 'TEST
+				' MsgBox "asset btn" & form_type_array(btn_name_const, form_count)	'TEST
+				' MsgBox "asset numb" & form_type_array(btn_number_const, form_count) 'TEST
 			End If
 			If form_type_array(form_type_const, current_form) = "Authorization to Release Information (ATR)" Then 
-				PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
+				form_type_array(btn_name_const, form_count) = "ATR"
+				form_type_array(btn_number_const, form_count) = 401
+				PushButton 395, btn_pos, 45, 15, "ATR-" & asset_count, atr_btn
 				btn_pos = btn_pos + 15
+			' 	MsgBox "atr name" & form_type_array(form_type_const, current_form) 'TEST
+			' 	MsgBox "atr btn" & form_type_array(btn_name_const, form_count)	'TEST
+			' 	MsgBox "atr numb" & form_type_array(btn_number_const, form_count) 'TEST
 			End If
 			If form_type_array(form_type_const, current_form) = "AREP (Authorized Rep)" then 
-				PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
+				form_type_array(btn_name_const, form_count) = "AREP"
+				form_type_array(btn_number_const, form_count) = 402
+				PushButton 395, btn_pos, 45, 15, "AREP-" & asset_count, arep_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Change Report Form"  then 
-				PushButton 395, btn_pos, 45, 15, "CHNG", change_btn
+				form_type_array(btn_name_const, form_count) = "CHNG"
+				form_type_array(btn_number_const, form_count) = 403
+				PushButton 395, btn_pos, 45, 15, "CHNG-" & asset_count, change_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Employment Verification Form (EVF)"  then 
-				PushButton 395, btn_pos, 45, 15, "EVF", evf_btn
+				form_type_array(btn_name_const, form_count) = "EVF"
+				form_type_array(btn_number_const, form_count) = 404		
+				PushButton 395, btn_pos, 45, 15, "EVF-" & asset_count, evf_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Hospice Transaction Form"  then 
-				PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn
+				form_type_array(btn_name_const, form_count) = "HOSP"
+				form_type_array(btn_number_const, form_count) = 405
+				PushButton 395, btn_pos, 45, 15, "HOSP-" & asset_count, hospice_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Interim Assistance Agreement (IAA)"  then 
-				PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
+				form_type_array(btn_name_const, form_count) = "IAA"
+				form_type_array(btn_number_const, form_count) = 406
+				PushButton 395, btn_pos, 45, 15, "IAA-" & asset_count, iaa_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Interim Assistance Authorization- SSI" then 
-				PushButton 395, btn_pos, 45, 15, "IAA-SSI", iaa_ssi_btn
+				form_type_array(btn_name_const, form_count) = "IAA-SSI"
+				form_type_array(btn_number_const, form_count) = 407
+				PushButton 395, btn_pos, 45, 15, "IAA-SSI-" & asset_count, iaa_ssi_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Medical Opinion Form (MOF)" then 
-				PushButton 395, btn_pos, 45, 15, "MOF", mof_btn
+				form_type_array(btn_name_const, form_count) = "MOF"
+				form_type_array(btn_number_const, form_count) = 408
+				PushButton 395, btn_pos, 45, 15, "MOF-" & asset_count, mof_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Minnesota Transition Application Form (MTAF)" then 
-				PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
+				form_type_array(btn_name_const, form_count) = "MTAF"
+				form_type_array(btn_number_const, form_count) = 409
+				PushButton 395, btn_pos, 45, 15, "MTAF-" & asset_count, mtaf_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Professional Statement of Need (PSN)" then 
-				PushButton 395, btn_pos, 45, 15, "PSN", psn_btn
+				form_type_array(btn_name_const, form_count) = "PSN"
+				form_type_array(btn_number_const, form_count) = 410
+				PushButton 395, btn_pos, 45, 15, "PSN-" & asset_count, psn_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Residence and Shelter Expenses Release Form" then 
-				PushButton 395, btn_pos, 45, 15, "SF", sf_btn
+				form_type_array(btn_name_const, form_count) = "SF"
+				form_type_array(btn_number_const, form_count) = 411
+				PushButton 395, btn_pos, 45, 15, "SF-" & asset_count, sf_btn
 				btn_pos = btn_pos + 15
 			End If
 			If form_type_array(form_type_const, current_form) = "Special Diet Information Request (MFIP and MSA)" then 
-				PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
+				form_type_array(btn_name_const, form_count) = "DIET"
+				form_type_array(btn_number_const, form_count) = 412
+				PushButton 395, btn_pos, 45, 15, "DIET-" & asset_count, diet_btn
 				btn_pos = btn_pos + 15
 			End If
 			'MsgBox "Current form" & form_type_array(form_type_const, current_form)
