@@ -1,5 +1,5 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
-name_of_script = "DAIL - COLA Review and Approve.vbs"
+name_of_script = "DAIL - COLA REVIEW AND APPROVE.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at 1
 STATS_manualtime = 90          'manual run time in seconds
@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/13/2023", "COLA Review and Approve functionality has been updated to support actions taken from many COLA DAIL messages we receive. Here are some of the functionality supports added to the new release of this script ##~## - Ability to create CASE/NOTE of a UNEA Income Summary.##~## - Review SVES/TPQY for any member on the case. ##~## - Redirect to NOTES - Eligibility Summary to document completed approvals you have completed in the same day.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2019", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -102,9 +103,9 @@ function cola_summary_note()
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 	cola_summary_note_entered = True
-	' MsgBox "STOP HERE NOW"
-	' PF10	'TESTING
-	PF3
+	STATS_manualtime = STATS_manualtime + 90
+
+	PF3			'back to DAIL
 	PF3
 end function
 
@@ -417,6 +418,7 @@ If unea_count <> 0 Then
 				Call write_value_and_transmit("SVES", 20, 71)
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
+				STATS_manualtime = STATS_manualtime + 30
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 				EMReadScreen agreement_check, 9, 2, 24
@@ -434,8 +436,7 @@ Else
 
 	Do
 		Do
-
-			BeginDialog Dialog1, 0, 0, 300, dlg_len, "COLA Income Information"
+			BeginDialog Dialog1, 0, 0, 300, dlg_len, "Review SVES for Members"
 				EditBox 500, 600, 10, 10, dummy_box
 				Text 10, 10, 100, 10, "* * * SCRIPT OPERATION * * *"
 				Text 15, 25, 305, 10,  "The script can pull up SVES responses for the following members:"
@@ -473,6 +474,7 @@ Else
 				Call write_value_and_transmit("SVES", 20, 71)
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
+				STATS_manualtime = STATS_manualtime + 30
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 				EMReadScreen agreement_check, 9, 2, 24
@@ -483,3 +485,49 @@ Else
 End If
 
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------12/13/23
+'--Tab orders reviewed & confirmed----------------------------------------------12/13/23
+'--Mandatory fields all present & Reviewed--------------------------------------12/13/23
+'--All variables in dialog match mandatory fields-------------------------------N/A							There are no mandatory fields that are entered by the worker
+'Review dialog names for content and content fit in dialog----------------------12/13/23
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------12/13/23
+'--CASE:NOTE Header doesn't look funky------------------------------------------12/13/23
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A							Script operates on a loop - showing the dialog again after the NOTE
+'--write_variable_in_CASE_NOTE function:
+' confirm that proper punctuation is used --------------------------------------12/13/23
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A							DAIL supports should handle for this
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A							DAIL supports should handle for this
+'--Out-of-County handling reviewed----------------------------------------------N/A							DAIL supports should handle for this
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/13/23
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------12/13/23
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------12/13/23
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------12/13/23
+'--Script name reviewed---------------------------------------------------------12/13/23
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------12/13/23
+'--comment Code-----------------------------------------------------------------12/13/23
+'--Update Changelog for release/update------------------------------------------12/13/23
+'--Remove testing message boxes-------------------------------------------------12/13/23
+'--Remove testing code/unnecessary code-----------------------------------------12/13/23
+'--Review/update SharePoint instructions----------------------------------------12/13/23
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
