@@ -234,11 +234,12 @@ NEXT
 ObjExcel.Worksheets.Add().Name = "Stats"
 
 STATS_counter = STATS_counter - 1
+dail_msg_deleted_count = 0
 'Enters info about runtime for the benefit of folks using the script
 'To do - update to reflect actual stats needed/wanted
-objExcel.Cells(1, 1).Value = "Number of DAIL Messages Added to List:"
-objExcel.Cells(2, 1).Value = "Average time to find/select/copy/paste one line (in seconds):"
-objExcel.Cells(3, 1).Value = "Estimated manual processing time (lines x average):"
+objExcel.Cells(1, 1).Value = "Number of Cases Evaluated:"
+objExcel.Cells(2, 1).Value = "Number of DAIL Messages Evaluated:"
+objExcel.Cells(3, 1).Value = "Number of DAIL Messages Deleted:"
 objExcel.Cells(4, 1).Value = "Script run time (in seconds):"
 objExcel.Cells(5, 1).Value = "Estimated time savings by using script (in minutes):"
 
@@ -764,6 +765,8 @@ For each worker in worker_array
                             'To do - Add handling here for deleting DAIL messages
                             ' MsgBox "This message is on the delete list. It would normally be deleted"
                             'To do - remove adding dail to row because it would happen automatically if deleted
+
+                            dail_msg_deleted_count = dail_msg_deleted_count + 1
                             ' MsgBox "Where is the dail row? Should it be increased?"
                             ' dail_row = dail_row + 1
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
@@ -2254,8 +2257,8 @@ For each worker in worker_array
                                                                 End If
                                                                 GroupBox 5, 160, 310, 65, "Employer Match Verification"
                                                                 Text 10, 175, 110, 10, "Indicate if any Employers Match:"
-                                                                DropListBox 120, 175, 110, 15, "[Select Option]"+chr(9)+"Exact Match Found - Delete Message"+chr(9)+"Potential Match(es) - Flag for Review"+chr(9)+"No Exact Match - Create New JOBS Panel", employer_match_determination
-                                                                Text 10, 195, 235, 10, "If 'One Panel Matches' ONLY, select the matching panel:"
+                                                                DropListBox 120, 175, 190, 15, "[Select Option]"+chr(9)+"No Exact Match - Create New JOBS Panel"+chr(9)+"Potential Match(es) - Flag for Review"+chr(9)+"Exact Match Found - Delete Message", employer_match_determination
+                                                                Text 10, 195, 235, 10, "Select the matching panel or indicate N/A:"
                                                                 'To do - use cleaner code once workaround for no item in array is found
                                                                 If UBound(list_of_employers_on_jobs_panels) = 4 Then
                                                                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2)+chr(9)+list_of_employers_on_jobs_panels(3)+chr(9)+list_of_employers_on_jobs_panels(4), matching_employer_panel
@@ -2641,7 +2644,7 @@ For each worker in worker_array
 
             'Add in handling to determine DAIL details
 
-            'Increment the stats counter
+            ' 'Increment the stats counter
             stats_counter = stats_counter + 1
             
             ' MsgBox "dail increases by 1"
@@ -2676,8 +2679,10 @@ Next
 'Update Stats Info
 'Activate the stats sheet
 objExcel.Worksheets("Stats").Activate
-objExcel.Cells(1, 2).Value = STATS_counter
-objExcel.Cells(2, 2).Value = STATS_manualtime
-objExcel.Cells(3, 2).Value = STATS_counter * STATS_manualtime
+objExcel.Cells(1, 2).Value = case_excel_row - 2
+objExcel.Cells(2, 2).Value = dail_excel_row - 2
+objExcel.Cells(3, 2).Value = dail_msg_deleted_count
 objExcel.Cells(4, 2).Value = timer - start_time
 objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+
+script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
