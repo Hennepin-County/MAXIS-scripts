@@ -249,10 +249,9 @@ If InStr(full_message, "PERSON HAS MAINTENANCE NEEDS ALLOWANCE - REVIEW MEDICAL"
 If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") <> 0 Then review_and_approve_from_COLA = TRUE
 If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") <> 0 Then review_and_approve_from_COLA = TRUE
 If InStr(full_message, "COLA DISREGARD AMOUNT NOT UPDATED") <> 0 Then review_and_approve_from_COLA = TRUE
-If InStr(full_message, "SSI UNEA NOT UPDATED - REVIEW SVES RESPONSE") <> 0 Then review_and_approve_from_COLA = TRUE
-If InStr(full_message, "RSDI UNEA NOT UPDATED - REVIEW SVES RESPONSE") <> 0 Then review_and_approve_from_COLA = TRUE
-If InStr(full_message, "NOT MATCHED - REVIEW CLAIM NUMBER") <> 0 Then review_and_approve_from_COLA = TRUE
-' If InStr(full_message, ) <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW SVES RESPONSE") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "REVIEW CLAIM NUMBER") <> 0 Then review_and_approve_from_COLA = TRUE
+If InStr(full_message, "NOT AUTO-APPROVED") <> 0 Then review_and_approve_from_COLA = TRUE
 ' If InStr(full_message, ) <> 0 Then review_and_approve_from_COLA = TRUE
 ' If InStr(full_message, ) <> 0 Then review_and_approve_from_COLA = TRUE
 
