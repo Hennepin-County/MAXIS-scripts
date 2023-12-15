@@ -2203,7 +2203,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		cases_to_alert_BZST = cases_to_alert_BZST & ", " & MAXIS_case_number
 	End If
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = True Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
-
+	If Instr(WORKING_LIST_CASES_ARRAY(error_notes, case_entry),"PRIVILEGED CASE") <> 0 and Instr(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry),"PRIVILEGED CASE") = 0 Then WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) & "PRIVILEGED CASE."
 
 	If WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then
 		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date
