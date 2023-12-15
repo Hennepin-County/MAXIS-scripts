@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2023", "BUG FIX: MA FIATer for MSA/GRH cases was erroring when dealing the SSI income, which is excluded as it also tried to add COLA. This has been resolved, however if there are other types of excluded income with COLA amounts, the script may error again, please send a report to us with the case number for review.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -1284,7 +1285,7 @@ FOR i = 0 TO ubound(income_array)
 			transmit
 			PF3
 			'Write the COLA if appropriate'
-			IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 THEN
+			IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_array(i).income_type_code <> "03" THEN
 				EMWriteScreen "X", 11, 3
 				transmit
 				EMWriteScreen income_array(i).COLA_amount, 14, 43
@@ -1335,7 +1336,7 @@ FOR i = 0 TO ubound(income_array)
 			transmit
 			PF3
 			'Write the COLA if appropriate'
-			IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 THEN
+			IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_array(i).income_type_code <> "03" THEN
 				EMWriteScreen "X", 11, 3
 				transmit
 				EMWriteScreen income_array(i).COLA_amount, 14, 43
