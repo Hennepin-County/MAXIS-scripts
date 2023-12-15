@@ -9046,6 +9046,7 @@ Do
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+Call check_for_MAXIS(False)
 
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
@@ -9073,6 +9074,7 @@ If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Cert
 	EndDialog
 
 	dialog Dialog1
+	Call check_for_MAXIS(False)
 
 End If
 
@@ -9229,6 +9231,7 @@ Do
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 save_your_work
+Call check_for_MAXIS(False)
 
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
 too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
@@ -9348,6 +9351,7 @@ Do
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 If the_process_for_snap = "Application" Then expedited_determination_needed = True
 If snap_status = "PENDING" Then expedited_determination_needed = True
@@ -9659,6 +9663,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	EndDialog
 
 	dialog Dialog1
+	Call check_for_MAXIS(False)
 
 	oExec.Terminate()
 End If
@@ -9875,7 +9880,8 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
-'TODO - add a check_for_MAXIS here once GH 1166 is done and the dialog call doesn't break the interview
+
+Call check_for_MAXIS(False)
 
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
@@ -9921,6 +9927,8 @@ If ButtonPressed = incomplete_interview_btn Then
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+
+	Call check_for_MAXIS(False)
 
 	If create_incomplete_doc_checkbox = checked Then
 
@@ -10050,6 +10058,7 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+Call check_for_MAXIS(False)
 
 call back_to_SELF
 
@@ -11430,6 +11439,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 	Loop until are_we_passworded_out = FALSE
 End If
 save_your_work
+Call check_for_MAXIS(False)
 
 CAF_MONTH_DATE = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 CAF_MONTH_DATE = DateAdd("d", 0, CAF_MONTH_DATE)
@@ -11645,6 +11655,7 @@ If update_revw = True OR update_prog = True Then
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
+	Call check_for_MAXIS(False)
 
 	intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
 	intv_day = DatePart("d", interview_date)
