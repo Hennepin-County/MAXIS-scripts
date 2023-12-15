@@ -562,6 +562,8 @@ Function BULK_ABAWD_FSET_exemption_finder()
 							verified_wreg = verified_wreg & "23" & "|"
 						Elseif preg_verif = "N" then 
 							verified_wreg = verified_wreg & "23" & "|"
+						Elseif preg_verif = "?" then 
+							verified_wreg = verified_wreg & "23" & "|"	'expedited coding is fine for the exemption. 
 						Else 
 							possible_exemptions = possible_exemptions & vbcr & "Appears to have an unverified active pregnancy."
 						End if
@@ -686,54 +688,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		next_month = CM_plus_1_mo & "/" & CM_plus_1_yr
 		If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP Review Next Month."
 	
-	    '----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
-		If age_50 = True then
-	    	If best_wreg_code = "30" then 
-				'changing codes per temp policy 
-				best_wreg_code = "16"
-				best_abawd_code = "03"
-	    		Call navigate_to_MAXIS_screen("STAT", "WREG")
-            	Call write_value_and_transmit(member_number, 20, 76)
-            	PF9
-	    		'Updating wreg to 16/03 
-				EMWriteScreen best_wreg_code, 8, 50
-				EMWriteScreen best_abawd_code, 13, 50
-				If best_wreg_code = "30" then
-				    EmWriteScreen "N", 8, 80
-				Else
-				    EMWriteScreen "_", 8, 80
-				End if
-	    		
-	    		'Update tracking record
-	    		ATR_updates = array("D","M")
-	    		For each update_code in ATR_updates
-					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
-	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
-        		    bene_yr_row = 10
-			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
-					PF3 'to go back to WREG/Panel
-	    		Next 
-	    		transmit ' to save 
-				EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
-				If orientation_warning = "WARNING" then transmit 
-	        	PF3 'to save and exit to stat/wrap
-	    		
-	    		start_a_blank_CASE_NOTE
-                Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
-				Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
-	    		Call write_variable_in_CASE_NOTE("---")
-	    		Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
-	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
-                Call write_variable_in_CASE_NOTE("---")
-                Call write_variable_in_CASE_NOTE(Worker_Signature)
-	    		PF3
-	    		'case note workaround
-				ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
-				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
-	    	End if
-	    End if  	
-
-	    If best_wreg_code = "30" then 
+	    If best_wreg_code = "30" or age_50 = True then 
 	    'Count all the ABAWD months
 	        Call navigate_to_MAXIS_screen("STAT","WREG")		'navigates to stat/wreg
 	        CALL write_value_and_transmit(member_number, 20, 76)
@@ -797,29 +752,76 @@ Function BULK_ABAWD_FSET_exemption_finder()
         		LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
         		PF3	' to exit tracking record 
     
-				banked_months = False 
-	    		If abawd_counted_months => 3 then 
-					banked_months = True 
-	    			If banked_months_count = 0 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 1st Banked Month on STAT/WREG next month."
-	    			If banked_months_count = 1 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 2nd Banked Month on STAT/WREG next month."
-	    			If banked_months_count = 2 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Case has used all banked months."
-	    		End if
+				'banked_months = False 
+	    		'If abawd_counted_months => 3 then 
+				'	banked_months = True 
+	    		'	If banked_months_count = 0 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 1st Banked Month on STAT/WREG next month."
+	    		'	If banked_months_count = 1 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Code 2nd Banked Month on STAT/WREG next month."
+	    		'	If banked_months_count = 2 then ObjExcel.Cells(excel_row, notes_col).Value = "Case has " & abawd_counted_months & " counted months. Case has used all banked months."
+	    		'End if
 			End if 
         End if 
 
 		'Ensuring that Banked Months codes are not overwritten when the best wreg/abawd status is determined to be 30/10. 
-		If banked_months = True then 
-			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Review/Update Banked Months."
-		    If (best_wreg_code = "30" and best_abawd_code = "10") then 
-		    	EMReadScreen abawd_code, 2, 13, 50
-		    	If abawd_code = "13" then 
-		    		If banked_months_count = 0 then best_abawd_code = "10" 'coding 
-		    		If banked_months_count = 1 then best_abawd_code = "13"
-		    		If banked_months_count = 2 then best_abawd_code = "13"
-		    		If banked_months_count > 2 then best_abawd_code = "10"
-		    	End if 
-			End if 
-		End if
+		'If banked_months = True then 
+		'	ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Review/Update Banked Months."
+		'    If (best_wreg_code = "30" and best_abawd_code = "10") then 
+		'    	EMReadScreen abawd_code, 2, 13, 50
+		'    	If abawd_code = "13" then 
+		'    		If banked_months_count = 0 then best_abawd_code = "10" 'coding 
+		'    		If banked_months_count = 1 then best_abawd_code = "13"
+		'    		If banked_months_count = 2 then best_abawd_code = "13"
+		'    		If banked_months_count > 2 then best_abawd_code = "10"
+		'    	End if 
+		'	End if 
+		'End if
+
+		    '----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
+		If age_50 = True then
+	    	If best_wreg_code = "30" then 
+				'changing codes per temp policy 
+				best_wreg_code = "16"
+				best_abawd_code = "03"
+	    		Call navigate_to_MAXIS_screen("STAT", "WREG")
+            	Call write_value_and_transmit(member_number, 20, 76)
+            	PF9
+	    		'Updating wreg to 16/03 
+				EMWriteScreen best_wreg_code, 8, 50
+				EMWriteScreen best_abawd_code, 13, 50
+				If best_wreg_code = "30" then
+				    EmWriteScreen "N", 8, 80
+				Else
+				    EMWriteScreen "_", 8, 80
+				End if
+	    		
+	    		'Update tracking record
+	    		ATR_updates = array("D","M")
+	    		For each update_code in ATR_updates
+					Call write_value_and_transmit("X", 13, 57) 'Pulls up the WREG tracker'        	    
+	    		    bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))		'col to search starts at 15, increased by 4 for each footer month
+        		    bene_yr_row = 10
+			    	Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+					PF3 'to go back to WREG/Panel
+	    		Next 
+	    		transmit ' to save 
+				EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
+				If orientation_warning = "WARNING" then transmit 
+	        	PF3 'to save and exit to stat/wrap
+	    		
+	    		'start_a_blank_CASE_NOTE
+                'Call write_variable_in_CASE_NOTE("--SNAP Time Limited Recipient: Age " & cl_age & "--")	
+				'Call write_variable_in_CASE_NOTE("TLR member #" & member_number)
+	    		'Call write_variable_in_CASE_NOTE("---")
+	    		'Call write_variable_in_CASE_NOTE("* Effective 10/23 50-52 year olds are no longer exempt from SNAP time limits due solely to age.")
+	    		'Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 16/03 until DHS system updates are in place. ABAWD Tracking record has been updated for this month as a counted month per policy.")
+                'Call write_variable_in_CASE_NOTE("---")
+                'Call write_variable_in_CASE_NOTE(Worker_Signature)
+	    		'PF3
+	    		'case note workaround
+				ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
+				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
+	    	End if
+	    End if  
 
         If updates_needed = True then
             'script will update the WREG panel for the member if an update
@@ -843,9 +845,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	    start_a_blank_CASE_NOTE
                 Call write_variable_in_CASE_NOTE("--SNAP Time Limited Exempt: Homelessness--")	
 	    		Call write_variable_in_CASE_NOTE("---")
-	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from time limits.")
-	    		Call write_variable_in_CASE_NOTE("* Effective 09/23 SNAP Work Rules will need to be followed by persons meeting this exemption.")
-	    		Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 03/01 until DHS system updates are in place.")
+	    		Call write_variable_in_CASE_NOTE("* Case is code as homeless on ADDR, and has applicable living situation which exempts this case from SNAP Work Rules and time limits.")
+	    		'Call write_variable_in_CASE_NOTE("* Effective 09/23 SNAP Work Rules will need to be followed by persons meeting this exemption.")
+	    		'Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes continue to be 03/01 until DHS system updates are in place.")
+				Call write_variable_in_CASE_NOTE("* FSET/ABAWD codes are 03/01 for members whom meet this exemption.")
                 Call write_variable_in_CASE_NOTE("---")
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	    		PF3
