@@ -1284,8 +1284,8 @@ FOR i = 0 TO ubound(income_array)
 			EMWriteScreen income_exclusion_code, fiat_unea_row, 58
 			transmit
 			PF3
-			'Write the COLA if appropriate'
-			IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_array(i).income_type_code <> "03" THEN
+			'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+			IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_exclusion_code = "N" THEN
 				EMWriteScreen "X", 11, 3
 				transmit
 				EMWriteScreen income_array(i).COLA_amount, 14, 43
@@ -1335,8 +1335,8 @@ FOR i = 0 TO ubound(income_array)
 			END IF
 			transmit
 			PF3
-			'Write the COLA if appropriate'
-			IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_array(i).income_type_code <> "03" THEN
+			'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+			IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_exclusion_code = "N" THEN
 				EMWriteScreen "X", 11, 3
 				transmit
 				EMWriteScreen income_array(i).COLA_amount, 14, 43
