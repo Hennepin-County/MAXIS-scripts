@@ -1042,7 +1042,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/23/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE COMPLETING_AN_INTER-AGENCY_CASE_TRANSFER 02.08.133", "SHAREPOINT Transfer_to_Another_County https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it

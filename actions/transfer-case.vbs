@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/15/2023", "Updated resource links.", "Megan Geissler, Hennepin County.")
 call changelog_update("11/07/2023", "Fixed bug when case is a MA Excluded Time case.", "Ilse Ferris, Hennepin County.")
 call changelog_update("05/24/2023", "Updated date validation and error messages for dialog to ensure consistent entry.", "Mark Riegel, Hennepin County.")
 call changelog_update("10/26/2022", "Updated several functionalities to support enhanced experience for both inner and inter county transfer.", "Ilse Ferris, Hennepin County.")
@@ -74,17 +75,16 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
 Call Check_for_MAXIS(false)                         'Ensuring we are in MAXIS
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 191, 85, "Transfer Case"
-  Text 20, 10, 50, 10, "Case Number:"
-  EditBox 70, 5, 45, 15, MAXIS_case_number
-  Text 30, 30, 110, 10, "Servicing Worker (transferring to):"
-  EditBox 140, 25, 45, 15, transfer_to_worker
-  Text 10, 50, 60, 10, "Worker Signature:"
-  EditBox 70, 45, 115, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 226, 70, "Transfer Case"
+   Text 55, 10, 50, 10, "Case Number:"
+  EditBox 105, 5, 45, 15, MAXIS_case_number
+  EditBox 105, 25, 45, 15, transfer_to_worker
+  Text 10, 55, 60, 10, "Worker Signature:"
+  EditBox 70, 50, 150, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 90, 65, 45, 15
-    CancelButton 140, 65, 45, 15
-    PushButton 120, 5, 65, 15, "HSR - Transfers", HSR_manual_button
+    OkButton 175, 5, 45, 15
+    CancelButton 175, 25, 45, 15
+  Text 5, 30, 100, 10, "Transfer to Servicing Worker:"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -99,12 +99,7 @@ DO
             IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
             IF UCASE(trim(transfer_to_worker)) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case is will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-            If ButtonPressed = HSR_manual_button Then               'Pulling up the hsr page if the button was pressed.
-                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
-                err_msg = "LOOP"
-            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-    		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-            End If
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
@@ -160,7 +155,7 @@ Else
     script_end_procedure_with_error_report("Success! Case transfer has been completed to: " & transfer_to_worker & ".")
 End if
 
-'----------------------------------------------------------------------------------------------------Out-of-County Case Trasnfer
+'----------------------------------------------------------------------------------------------------Out-of-County Case Transfer
 Call write_value_and_transmit("X", 7, 3) ' navigating to read the worker information from REPT/USER
 EMReadScreen worker_name, 43, 8, 27       'reading the worker ALIAS name 1st
 worker_name = trim(worker_name)
@@ -202,48 +197,50 @@ Do
         'Inside the do...loop for the calculate_button
         Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 346, 260, "Out-of-County Case Transfer for #" & MAXIS_case_number
-        Text 10, 10, 70, 10, "Resident Move Date:"
-        EditBox 80, 5, 45, 15, resident_move_date
-        Text 135, 10, 55, 10, "Excluded time?"
-        DropListBox 190, 5, 45, 15, "Select:"+chr(9)+"No"+chr(9)+"Yes", excluded_time_dropdown
-        Text 245, 10, 40, 10, "Begin Date:"
-        EditBox 285, 5, 45, 15, excluded_time_begin_date
-        Text 30, 35, 45, 10, "METS Status:"
-        DropListBox 80, 30, 45, 15, "Select:"+chr(9)+"active"+chr(9)+"inactive"+chr(9)+"pending"+chr(9)+"N/A", mets_status_dropdown
-        Text 140, 35, 50, 10, "METS Case #:"
-        EditBox 190, 30, 45, 15, METS_case_number
-        Text 5, 60, 70, 10, "Reason For Transfer:"
-        EditBox 80, 55, 260, 15, transfer_reason
-        Text 15, 80, 60, 10, "Outstanding Work:"
-        EditBox 80, 75, 260, 15, outstanding_work
-        Text 5, 100, 135, 10, "List All Requested/Pending Verifications:"
-        EditBox 140, 95, 200, 15, requested_verifs
-        Text 5, 120, 195, 10, "Note any expected changes in household's circumstances:"
-        EditBox 200, 115, 140, 15, expected_changes
-        Text 5, 140, 45, 10, "Other Notes:"
-        EditBox 50, 135, 290, 15, other_notes
-        GroupBox 5, 155, 335, 60, "County of Financial Responsibility(CFR) - Complete if not excluded time."
-        Text 15, 175, 100, 10, "Cash Programs  - Current CFR:"
-        EditBox 115, 170, 20, 15, cash_cfr
-        Text 25, 195, 85, 10, "Health Care - Current CFR:"
-        EditBox 115, 190, 20, 15, hc_cfr
-        Text 160, 175, 75, 10, "Change Date (MM YY):"
-        EditBox 235, 170, 20, 15, cash_cfr_month
-        EditBox 260, 170, 20, 15, cash_cfr_year
-        Text 160, 195, 75, 10, "Change Date (MM YY):"
-        EditBox 235, 190, 20, 15, hc_cfr_month
-        EditBox 260, 190, 20, 15, hc_cfr_year
-        ButtonGroup ButtonPressed
-            PushButton 290, 175, 40, 25, "Calculate", calculate_button
-            OkButton 235, 235, 50, 15
-            CancelButton 290, 235, 50, 15
-        GroupBox 5, 220, 220, 35, "Navigation:"
-        ButtonGroup ButtonPressed
-            PushButton 15, 235, 60, 15, "TE02.08.133", POLI_TEMP_button
-            PushButton 85, 235, 60, 15, "SPEC/XFER", XFER_button
-            PushButton 155, 235, 60, 15, "Use Form", useform_xfer_button
-        Text 10, 285, 45, 10, "Current CFR:"
-        Text 85, 285, 75, 10, "Change Date (MM YY)"
+            Text 10, 10, 70, 10, "Resident Move Date:"
+            EditBox 80, 5, 45, 15, resident_move_date
+            Text 135, 10, 55, 10, "Excluded time?"
+            DropListBox 190, 5, 45, 15, "Select:"+chr(9)+"No"+chr(9)+"Yes", excluded_time_dropdown
+            Text 245, 10, 40, 10, "Begin Date:"
+            EditBox 285, 5, 45, 15, excluded_time_begin_date
+            Text 30, 35, 45, 10, "METS Status:"
+            DropListBox 80, 30, 45, 15, "Select:"+chr(9)+"active"+chr(9)+"inactive"+chr(9)+"pending"+chr(9)+"N/A", mets_status_dropdown
+            Text 140, 35, 50, 10, "METS Case #:"
+            EditBox 190, 30, 45, 15, METS_case_number
+            Text 5, 60, 70, 10, "Reason For Transfer:"
+            EditBox 80, 55, 260, 15, transfer_reason
+            Text 15, 80, 60, 10, "Outstanding Work:"
+            EditBox 80, 75, 260, 15, outstanding_work
+            Text 5, 100, 135, 10, "List All Requested/Pending Verifications:"
+            EditBox 140, 95, 200, 15, requested_verifs
+            Text 5, 120, 195, 10, "Note any expected changes in household's circumstances:"
+            EditBox 200, 115, 140, 15, expected_changes
+            Text 5, 140, 45, 10, "Other Notes:"
+            EditBox 50, 135, 290, 15, other_notes
+            GroupBox 5, 155, 335, 60, "County of Financial Responsibility(CFR) - Complete if not excluded time."
+            Text 15, 175, 100, 10, "Cash Programs  - Current CFR:"
+            EditBox 115, 170, 20, 15, cash_cfr
+            Text 25, 195, 85, 10, "Health Care - Current CFR:"
+            EditBox 115, 190, 20, 15, hc_cfr
+            Text 160, 175, 75, 10, "Change Date (MM YY):"
+            EditBox 235, 170, 20, 15, cash_cfr_month
+            EditBox 260, 170, 20, 15, cash_cfr_year
+            Text 160, 195, 75, 10, "Change Date (MM YY):"
+            EditBox 235, 190, 20, 15, hc_cfr_month
+            EditBox 260, 190, 20, 15, hc_cfr_year
+            ButtonGroup ButtonPressed
+                PushButton 290, 175, 40, 25, "Calculate", calculate_button
+                OkButton 235, 235, 50, 15
+                CancelButton 290, 235, 50, 15
+            GroupBox 5, 220, 220, 35, "Navigation:"
+            ButtonGroup ButtonPressed
+                PushButton 15, 235, 50, 15, "TE02.08.133", POLI_TEMP_button
+                PushButton 65, 235, 50, 15, "SPEC/XFER", XFER_button
+                PushButton 115, 235, 50, 15, "Use Form", useform_xfer_button
+                PushButton 165, 235, 50, 15, "HSRM-XFER", hsrm_xfer_button
+                           Text 10, 285, 45, 10, "Current CFR:"
+            Text 85, 285, 75, 10, "Change Date (MM YY)"
+            ButtonGroup ButtonPressed
         EndDialog
 
 		err_msg = ""
@@ -277,9 +274,10 @@ Do
             End if
         End if
 
-        IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "133", "") 'POLI TEMP Completing an Inter-County Case Transfer
+        IF ButtonPressed = POLI_TEMP_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%202/TE%2002.08.133%20COMPLETING%20AN%20INTER-AGENCY%20CASE%20TRANSFER.pdf?csf=1&web=1&e=tc4EUc"
         IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
-        IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
+        IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
+        IF ButtonPressed = hsrm_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
         If ButtonPressed = calculate_button then
             'Determining the CFR based on the date of move.
             CM_plus_3_mo =  right("0" &  DatePart("m",    DateAdd("m", 3, date)), 2)
@@ -297,13 +295,13 @@ Do
             hc_cfr_year = cash_cfr_year
         End if
 
-        IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button or ButtonPressed = calculate_button THEN
+        IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button or ButtonPressed = calculate_button or ButtonPressed = hsrm_xfer_button THEN
             err_msg = "LOOP"
         Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         End If
     Loop until err_msg = ""
-    IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button THEN call back_to_self ' this is for if the worker has used the POLI/TEMP navigation
+    IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button or ButtonPressed = hsrm_xfer_button THEN call back_to_self ' this is for if the worker has used the POLI/TEMP navigation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
 
