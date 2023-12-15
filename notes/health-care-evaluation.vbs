@@ -1627,10 +1627,10 @@ function define_main_dialog()
 				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True THEN
 					match = ""
 					For match_search = 0 to Ubound(HEALTH_CARE_MEMBERS, 2) 'This loop checks the two arrays - HH members and HC members, and links the member numbers together
-						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, match_search) THEN 
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, match_search) THEN
 						match = match_search
 						End If
-					Next 
+					Next
 					If match <> "" Then
 						If HEALTH_CARE_MEMBERS(show_hc_detail_const, match) = True Then 'If the member number matches, and that member number indicates we show HC info
 							Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
@@ -2822,13 +2822,13 @@ function write_person_details_in_NOTE()
 	Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-			If trim(HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb)) <> "" and trim(HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) <> "" Then 
+			If trim(HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb)) <> "" and trim(HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) <> "" Then
 				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & (HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) & " " &  HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
 				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
 			Else
 				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
 				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
-			End If 
+			End If
 			If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
 				Call write_variable_in_CASE_NOTE("     No Health Care Program.")
@@ -6513,6 +6513,7 @@ Do
 								 "Press 'Yes' to confinue to the final part of the interivew (forms)." & vbCr &_
 								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Health Care Evaluation?")
 		If proceed_confirm = vbCancel then cancel_confirmation
+		If proceed_confirm = vbNo Then leave_loop = False			'if the worker presses no, we need to reset to not try to leave the loop above every time.
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)			'make sure we are not passworded out
 Loop until are_we_passworded_out = FALSE
