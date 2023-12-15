@@ -109,7 +109,7 @@ function asset_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -130,7 +130,7 @@ function atr_dialog()
 		Text 125, 25, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 		Text 5, 25, 50, 10, "Case Number:"
 		Text 395, 35, 45, 10, "    --Forms--"
 		Text 15, 110, 10, 10, "Q3"
@@ -151,7 +151,7 @@ function arep_dialog()
 		Text 125, 25, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 		Text 5, 25, 50, 10, "Case Number:"
 		Text 15, 110, 10, 10, "Q3"
 		Text 15, 130, 15, 10, "Q4"
@@ -208,7 +208,7 @@ function evf_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -229,7 +229,7 @@ function hospice_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -250,7 +250,7 @@ function iaa_dialog()
 		Text 125, 25, 50, 10, "Effective Date:"
 		Text 15, 70, 10, 10, "Q1"
 		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 		Text 5, 25, 50, 10, "Case Number:"
 		Text 395, 35, 45, 10, "    --Forms--"
 		Text 15, 110, 10, 10, "Q3"
@@ -271,7 +271,7 @@ function iaa_ssi_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -292,7 +292,7 @@ function mof_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -313,7 +313,7 @@ function mtaf_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -334,7 +334,7 @@ function psn_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -355,7 +355,7 @@ function sf_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -376,7 +376,7 @@ function diet_dialog()
 			Text 125, 25, 50, 10, "Effective Date:"
 			Text 15, 70, 10, 10, "Q1"
 			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Reponses to form questions captured here"
+			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
 			Text 5, 25, 50, 10, "Case Number:"
 			Text 395, 35, 45, 10, "    --Forms--"
 			Text 15, 110, 10, 10, "Q3"
@@ -385,10 +385,10 @@ function diet_dialog()
 			Text 15, 150, 15, 10, ""
 end function
 
-function dialog_movement() 	'Button movement handling for buttons displayed on the individual form dialogs. 
+function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
 	If ButtonPressed = -1 Then ButtonPressed = next_btn 	'If the enter button is selected the script will handle this as if Next was selected 
 	If ButtonPressed = next_btn Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
-	If ButtonPressed >= 400 Then 'All forms have been defined at 400 or greater 
+	If ButtonPressed >= 400 Then 'All forms are in the 400 range
 		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the correct dialog
 			If ButtonPressed = asset_btn and form_type_array(form_type_const, i) = "Asset Statement" Then form_count = i 
 			If ButtonPressed = atr_btn and form_type_array(form_type_const, i) = "Authorization to Release Information (ATR)" Then form_count = i 
@@ -476,13 +476,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					y_pos = y_pos + 10					'Increasing y_pos by 10 before the next form is written on the dialog
 				Next
 				EndDialog								'Dialog handling	
-				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+				dialog Dialog1 							'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation
 				
-			If ButtonPressed = add_button and form_type <> "" Then					'If statement to know when to store the information in the array
+			If ButtonPressed = add_button and form_type <> "" Then				'If statement to know when to store the information in the array
 				ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
-				form_type_array(form_type_const, form_count) = Form_type			
-				form_count= form_count + 1 'incrementing in the array
+				form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
+				form_count= form_count + 1 										'incrementing in the array
 			End If
 				
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
@@ -516,11 +516,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				psn_count		= 0 
 				sf_count		= 0 
 				diet_count		= 0
-				MsgBox "form type" & form_type
-				MsgBox "button number const" & btn_number_const
-				'MsgBox "asset count" & asset_count 'TEST
-				'MsgBox "asset checkbox" & asset_checkbox 'TEST
-				MsgBox "Form selections cleared." & vbNewLine & "Please make new form selections."	'Notify end user that entries were cleared.
+				'MsgBox "form type" & form_type 'TEST
+				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
 			End If
 			
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
@@ -564,13 +561,11 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				If asset_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Asset Statement" 
-					MsgBox "asset in checkbox" & form_type_array(form_type_const, form_count)
 					form_count= form_count + 1 
 				End If
 				If atr_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)"
-					MsgBox "atr in checkbox" & form_type_array(form_type_const, form_count)
 					form_count= form_count + 1 
 				End If
 				If arep_checkbox = checked Then 
