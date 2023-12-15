@@ -10058,7 +10058,6 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
-Call check_for_MAXIS(False)
 
 call back_to_SELF
 
