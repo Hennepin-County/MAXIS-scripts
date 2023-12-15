@@ -100,6 +100,7 @@ assigned_closed_recently_resolve = ""
 assigned_out_of_county = ""
 assigned_out_of_county_resolve = ""
 assigned_tracking_notes = ""
+assigned_case_is_priv = ""
 case_review_notes = ""
 case_on_hold = False
 case_in_progress = False
@@ -1123,6 +1124,7 @@ function set_variables_from_SQL()
     assigned_out_of_county                  = objRecordSet("StartedOutOfCounty")
     assigned_out_of_county_resolve          = objRecordSet("StartedOutOfCountyNotes")
     assigned_tracking_notes                 = objRecordSet("TrackingNotes")
+	assigned_case_is_priv					= False
 
     case_review_notes = replace(assigned_tracking_notes, "STS-NR", "")
     case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
@@ -1131,6 +1133,10 @@ function set_variables_from_SQL()
     case_review_notes = replace(case_review_notes, "STS-RC", "")
     case_review_notes = replace(case_review_notes, "STS-NL", "")
     case_review_notes = trim(case_review_notes)
+	If Instr(case_review_notes,"PRIVILEGED CASE.") <> 0 Then
+		' case_review_notes = replace(case_review_notes, "PRIVILEGED CASE.", "")
+		assigned_case_is_priv = True
+	End If
 
     date_zero =  #1/1/1900#
     If IsDate(table_application_date) = True Then
@@ -1947,6 +1953,7 @@ If worker_on_task = True Then
 	          Text 185, 10, 60, 10, "Case in Review"
 	          GroupBox 10, 20, 230, 75, "Case Information"
 	          Text 20, 35, 85, 10, " Case Number: " & MAXIS_case_number
+			  If assigned_case_is_priv = True Then Text 20, 105, 85, 10, "CASE IS PRIVILEGED"
 	          Text 30, 45, 210, 10, "Case Name: " & assigned_case_name
 	          Text 15, 60, 120, 10, "Application Date: " & assigned_application_date
 	          Text 20, 70, 75, 10, " Days Pending: " & assigned_rept_pnd2_days
