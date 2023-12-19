@@ -762,13 +762,46 @@ For each worker in worker_array
                         'To do - consider more robust handling, should we validate that case number matches? That dail month matches? These could be added to the string - i.e. *123456 - CS DISB Type 36....*
                         If Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") Then
                             'If the full dail message is within the list of dail messages to delete then the message should be deleted
-                            'To do - Add handling here for deleting DAIL messages
-                            ' MsgBox "This message is on the delete list. It would normally be deleted"
-                            'To do - remove adding dail to row because it would happen automatically if deleted
+                            'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards
+                            EMReadScreen last_dail_check, 12, 3, 67
 
+                            last_dail_check = split(trim(last_dail_check), " ")
+
+                            'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+                            If last_dail_check(0) = last_dail_check(2) then 
+                                MsgBox "Script is about to delete the LAST message. Script should exit do loop"
+                                all_done = true
+                            End If
+
+                            'Delete the message
+                            'To do - update to write value and transmit once confident it is deleting correct message
+                            ' Call write_value_and_transmit("D", dail_row, 3)
+                            EMWriteScreen "D", dail_row, 3
+                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE1" 
+                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE2" 
+                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE - LAST CHANCE" 
+                            
+                            MsgBox "It will now clear out the delete message"
+                            EMWriteScreen " ", dail_row, 3
+                            MsgBox "Confirm it cleared out the 'D'"
+                            MsgBox "Confirm it cleared out the 'D'"
+                            MsgBox "Confirm it cleared out the 'D'"
+
+                            transmit
+
+                            MsgBox "It would have been deleted"
+
+                            dail_row = dail_row - 1
+                            
+                            'To do - is this needed?
+                            EMReadScreen other_worker_error, 13, 24, 2
+                            If other_worker_error = "** WARNING **" then 
+                                MsgBox "There was a NAT ERROR - check script issues"
+                                transmit
+                            End If
+                            
                             dail_msg_deleted_count = dail_msg_deleted_count + 1
-                            ' MsgBox "Where is the dail row? Should it be increased?"
-                            ' dail_row = dail_row + 1
+
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                             'If the full message is on the list of dail messages to skip then the message should be skipped
                             'To do - Add handling for messages to skip
@@ -2162,6 +2195,8 @@ For each worker in worker_array
 
                                                             'It adds the employer name to the list of employers so that it can be displayed on the dialog for verification
                                                             list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+
+                                                            no_exact_JOBS_panel_matches = True
 
                                                         
                                                         
