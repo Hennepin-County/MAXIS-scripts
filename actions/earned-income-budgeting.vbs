@@ -1399,7 +1399,6 @@ If vars_filled = False Then
 					beginning_month = right("00"&beginning_month, 2)                'creating 2 digit month and year variables
 					beginning_year = right(beginning_year, 2)
 
-					MsgBox "beginning_month - " & beginning_month & vbCr & "beginning_year - " & beginning_year & vbCr & "first_check - " & first_check
 					If DateDiff("m", first_check, date) > 12 Then                   'if the first check to be entered on the panel is more that 12 months from the current date
 																					'script will confirm the month and year to add the panel in MAXIS
 						'PROCEDURE CLARIFICATION - allowing workers to adjust the month and year the panel is entered
@@ -4297,7 +4296,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                     this_month_checks_array = Array(checks_list)
                 End If
 
-
                 'List of the retro months for this month'
                 retro_month_checks_array = ""
                 checks_list = ""
@@ -4378,7 +4376,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 ElseIf EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then
                     the_date = DateValue(EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel))
                     Do
-                        ' MsgBox "The Date - " & the_date & vbNewLine & "RETRO - " & RETRO_month
                         If DatePart("m", the_date) = DatePart("m", RETRO_month) AND DatePart("yyyy", the_date) = DatePart("yyyy", RETRO_month) Then
                             checks_list = checks_list & "~" & the_date
                         End If
@@ -4465,7 +4462,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
 						Loop until ButtonPressed = panel_navigated_to_btn or ButtonPressed = skip_this_month_btn
 
-                        ' MsgBox "The panel for " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel) & " could not be found in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It may have been deleted. The script will not attempt to update this or any future month for this panel."
                         If ButtonPressed = skip_this_month_btn Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE     'setting this to NOT update
 						If ButtonPressed = panel_navigated_to_btn Then
                             old_instance = EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel)
@@ -4695,7 +4691,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                     PF19
 
                                     EMReadScreen beg_of_list_check, 10, 20, 18
-                                    ' MsgBox beg_of_list_check
                                     list_row = 9
                                 End If
                                 If number_of_loops = 30 Then Exit Do
@@ -4719,7 +4714,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                                 month_lumped = MAXIS_footer_month & "/" & MAXIS_footer_year     'formatting for readability
 								reason_lumped = "first month of new job"
-                                ' MsgBox "Ave inc - " & EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) & vbNewLine & "Ave hrs - " & EARNED_INCOME_PANELS_ARRAY(ave_hrs_per_pay, ei_panel)
                                 For each this_date in this_month_checks_array           'this array was set at the begining of this month's loop - it will get us all our pay dates
                                     If IsDate(this_date) = TRUE Then
                                     	the_start_date_to_use = EARNED_INCOME_PANELS_ARRAY(income_start_dt, ei_panel)
@@ -4779,7 +4773,6 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 EMWriteScreen appl_month_gross, 9, 25
                                 appl_month_hours = FormatNumber(appl_month_hours, 2, -1, 0, 0)
                                 EMWriteScreen appl_month_hours, 9, 35
-                                ' MsgBox "Check PIC"
                                 updates_to_display = updates_to_display & vbNewLine & "Actual Pay: Date - " & MAXIS_footer_month & "/01/" & MAXIS_footer_year & " - $" & appl_month_gross & " - " & appl_month_hours & " hrs." & vbNewLine
 
                                 If checks_lumped <> "" Then     'formatting the lists of the checks that we included for the CNote
@@ -4823,14 +4816,16 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                                                     updates_to_display = updates_to_display & LIST_OF_INCOME_ARRAY(view_pay_date, all_income) & " - $" & net_amount & " - " & LIST_OF_INCOME_ARRAY(hours, all_income) & " hrs." & vbNewLine
                                                     list_row = list_row + 1         'next line of the PIC'
-                                                    If list_row = 14 Then
-														Do
-															EMWaitReady 0, 0
-															PF20
-															EMWaitReady 0, 0
-															EMReadScreen top_check_blank, 8, 9, 25
-														Loop until top_check_blank = "________"
-                                                        list_row = 9
+													If MX_region <> "INQUIRY DB" Then
+														If list_row = 14 Then
+															Do
+																EMWaitReady 0, 0
+																PF20
+																EMWaitReady 0, 0
+																EMReadScreen top_check_blank, 8, 9, 25
+															Loop until top_check_blank = "________"
+															list_row = 9
+														End If
                                                     End If
                                                 End If
                                             End If
@@ -4839,11 +4834,14 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                                 End If
                             End If
-                            transmit            'saving the PIC
-                            transmit
-							PF3
 
-                        End If          'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen'
+							Do
+								transmit            'saving the PIC
+								EMReadScreen escape_route, 26, 20, 6
+								If escape_route = "CHANGE DATA OR PF3 TO EXIT" Then PF3
+								EMReadScreen pic_menu, 43, 3, 22
+							Loop until pic_menu <> "Food Support Prospective Income Calculation"
+						End If          'If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = checked THen'
 
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = checked Then            'now for GRH
                             STATS_manualtime = STATS_manualtime + 145
@@ -4895,9 +4893,12 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 next
                             End If
 
-                            transmit            'saving the PIC
-                            transmit
-                            PF3
+							Do
+								transmit            'saving the PIC
+								EMReadScreen escape_route, 26, 18, 5
+								If escape_route = "CHANGE DATA OR PF3 TO EXIT" Then PF3
+								EMReadScreen pic_menu, 34, 2, 25
+							Loop until pic_menu <> "GRH Prospective Income Calculation"
 						End If
 
                         If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then         'now on to the health care
@@ -4910,8 +4911,13 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                                 EMWriteScreen "        ", 11, 63        'blanking it out
                                 EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel) = FormatNumber(EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 2, -1, 0, 0)
                                 EMWriteScreen EARNED_INCOME_PANELS_ARRAY(ave_inc_per_pay, ei_panel), 11, 63         'writing it in
-                                transmit        'saving the information
-                                transmit
+
+								Do
+									transmit            'saving the PIC
+									EMReadScreen escape_route, 26, 16, 24
+									If escape_route = "CHANGE DATA OR PF3 TO EXIT" Then PF3
+									EMReadScreen pic_menu, 18, 9, 43
+								Loop until pic_menu <> "HC Income Estimate"
                             End If
                         End If      'If EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = checked Then
 
@@ -5087,6 +5093,7 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
                 'If this panel is should to update months after the initial month, this is saved for the next loop to have it updated
                 'FUTURE FUNCTIONALITY - if we need to change how we handle the future month updates thing or dealing with STWK - this would be here
                 If EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel) = unchecked Then EARNED_INCOME_PANELS_ARRAY(update_this_month, ei_panel) = FALSE
+
             End If          'If EARNED_INCOME_PANELS_ARRAY(income_received, ei_panel) = TRUE Then
             EMWriteScreen "SUMM", 20, 71        'go back to SUMM'
             transmit
