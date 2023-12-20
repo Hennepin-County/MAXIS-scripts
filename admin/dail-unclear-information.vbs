@@ -2439,7 +2439,8 @@ For each worker in worker_array
                                                                             
                                                                             'PF3 to save the CASE/NOTE
                                                                             PF3
-
+                                                                        End If
+                                                                        
                                                                         'PF3 to STAT/WRAP
                                                                         PF3
 
