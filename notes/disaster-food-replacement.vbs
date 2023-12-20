@@ -56,6 +56,29 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
+'Initial dialog to determine food benefit replacement option and action
+BeginDialog Dialog1, 0, 0, 201, 85, "Food Benefits Replacement"
+  Text 5, 5, 175, 10, "Select the food benefits replacement process below:"
+  DropListBox 5, 15, 190, 50, "Food Destroyed in Misfortune/Disaster"+chr(9)+"Replacing Stolen EBT Food - Client Notified"+chr(9)+"Replacing Stolen EBT Food - Client Requests", benefit_replacement_process
+  Text 5, 35, 165, 10, "Select the action to take below:"
+  DropListBox 5, 45, 190, 30, "Enter CASE/NOTE regarding request"+chr(9)+"Send SPEC/MEMO regarding decision on request", benefit_replacement_action
+  ButtonGroup ButtonPressed
+    OkButton 95, 65, 50, 15
+    CancelButton 145, 65, 50, 15
+EndDialog
+
+'Dialog validation
+Do
+  Do
+    err_msg = ""
+    DIALOG dialog1
+    Cancel_confirmation
+    If benefit_replacement_process = "[Select Process]" or benefit_replacement_action = "[Select Process]" Then err_msg = err_msg & vbCr & "* You must select the food benefit replacement process and action." 
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+  LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 'Initial Dialog Box
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
