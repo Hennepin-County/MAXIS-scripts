@@ -57,14 +57,20 @@ Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial dialog to determine food benefit replacement option and action
-BeginDialog Dialog1, 0, 0, 201, 85, "Food Benefits Replacement"
-  Text 5, 5, 175, 10, "Select the food benefits replacement process below:"
-  DropListBox 5, 15, 190, 50, "Select Option:"+chr(9)+"Food Destroyed in Misfortune/Disaster"+chr(9)+"Replacing Stolen EBT Food - Client Notified"+chr(9)+"Replacing Stolen EBT Food - Client Requests", benefit_replacement_process
-  Text 5, 35, 165, 10, "Select the action to take below:"
-  DropListBox 5, 45, 190, 30, "Select Option:"+chr(9)+"Enter CASE/NOTE regarding request"+chr(9)+"Send SPEC/MEMO regarding decision on request", benefit_replacement_action
+BeginDialog Dialog1, 0, 0, 201, 150, "Food Benefits Replacement"
+  Text 5, 10, 50, 10, "Case number: "
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  Text 5, 30, 45, 10, "Footer Month:"
+  EditBox 55, 25, 15, 15, MAXIS_footer_month
+  Text 85, 30, 20, 10, "Year:"
+  EditBox 105, 25, 15, 15, MAXIS_footer_year
+  Text 5, 50, 175, 10, "Select the food benefits replacement process below:"
+  DropListBox 5, 65, 190, 50, "Select Option:"+chr(9)+"Food Destroyed in Misfortune/Disaster"+chr(9)+"Replacing Stolen EBT Food - Client Notified"+chr(9)+"Replacing Stolen EBT Food - Client Requests", benefit_replacement_process
+  Text 5, 90, 165, 10, "Select the action to take below:"
+  DropListBox 5, 100, 190, 30, "Select Option:"+chr(9)+"Enter CASE/NOTE regarding request"+chr(9)+"Send SPEC/MEMO regarding decision on request", benefit_replacement_action
   ButtonGroup ButtonPressed
-    OkButton 95, 65, 50, 15
-    CancelButton 145, 65, 50, 15
+    OkButton 95, 130, 50, 15
+    CancelButton 145, 130, 50, 15
 EndDialog
 
 'Dialog validation
@@ -74,6 +80,8 @@ Do
     DIALOG dialog1
     Cancel_confirmation
     If benefit_replacement_process = "[Select Process]" or benefit_replacement_action = "[Select Process]" Then err_msg = err_msg & vbCr & "* You must select the food benefit replacement process and action." 
+    Call validate_MAXIS_case_number(err_msg, "*")
+    Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
   LOOP UNTIL err_msg = ""									'loops until all errors are resolved
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
