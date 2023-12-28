@@ -777,31 +777,57 @@ For each worker in worker_array
                             'To do - update to write value and transmit once confident it is deleting correct message
                             ' Call write_value_and_transmit("D", dail_row, 3)
                             EMWriteScreen "D", dail_row, 3
-                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE1" 
-                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE2" 
                             MsgBox "It wrote DELETE to the message - is it correct? STOP HERE - LAST CHANCE" 
                             
-                            MsgBox "It will now clear out the delete message"
-                            EMWriteScreen " ", dail_row, 3
-                            MsgBox "Confirm it cleared out the 'D'"
-                            MsgBox "Confirm it cleared out the 'D'"
-                            MsgBox "Confirm it cleared out the 'D'"
-
                             transmit
 
-                            MsgBox "It would have been deleted"
-
-                            dail_row = dail_row - 1
-                            
-                            'To do - is this needed?
+                            'Handling for deleting message under someone else's x number
                             EMReadScreen other_worker_error, 13, 24, 2
-                            If other_worker_error = "** WARNING **" then 
-                                MsgBox "There was a NAT ERROR - check script issues"
-                                transmit
-                            End If
-                            
-                            dail_msg_deleted_count = dail_msg_deleted_count + 1
 
+                            'Handling to check if message actually deleted
+                            total_dail_msg_count_before = last_dail_check(2) * 1
+                            EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+                            total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+                            If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                                ' MsgBox "last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted without error/warning"
+                                dail_row = dail_row - 1
+                                dail_msg_deleted_count = dail_msg_deleted_count + 1
+                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+
+                            ElseIf other_worker_error = "** WARNING **" then 
+                                
+                                'Transmit again to delete the message
+                                transmit
+
+                                'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                                EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+                                total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                                total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+                                If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                                    ' MsgBox "After warning about other worker x number, last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted."
+                                    dail_row = dail_row - 1
+                                    dail_msg_deleted_count = dail_msg_deleted_count + 1
+                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                Else
+                                    MsgBox "Something went wrong when attempting to delete after *** warning ***"
+                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                End If
+
+                                
+                            Else
+                                MsgBox "Something went wrong when attempting to delete the message. The number didn't decrease by 1 and there was no warning" 
+                                msgbox "last_dail_check(2) - 1" & last_dail_check(2) - 1
+                                msgbox "total_dail_msg_count_after(2) " & total_dail_msg_count_after(2)
+                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            End If
+
+
+                            MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                             'If the full message is on the list of dail messages to skip then the message should be skipped
                             'To do - Add handling for messages to skip
@@ -1189,7 +1215,7 @@ For each worker in worker_array
                                                                     'To do - add flagging that the panel exists?
                                                                     'If it is a type 36 panel then it does not need to read the other panels
                                                                     ' Msgbox "unea_type: " & unea_type
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 36) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                 Else
                                                                     'Check how many panels exist for the HH member
                                                                     EMReadScreen unea_panels_count, 1, 2, 78
@@ -1198,7 +1224,7 @@ For each worker in worker_array
 
                                                                     If unea_panels_count = "1" Then
                                                                         'If there is only one UNEA panel and it is not a Type 36 then it will update processing notes
-                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 36) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                         
                                                                         
                                                                     ElseIf unea_panels_count <> "1" Then
@@ -1220,7 +1246,7 @@ For each worker in worker_array
                                                                                 'To do - add flagging that the panel exists?
                                                                                 'If it is a type 36 panel then it does not need to read the other panels
                                                                                 ' Msgbox "unea_type: " & unea_type
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 36) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                                 ' msgbox "1093 it is about to exit do"
                                                                                 Exit Do
                                                                             End if
@@ -1231,8 +1257,7 @@ For each worker in worker_array
 
                                                                             'If the loop has reached the final panel without encountering a Type 36 message, then it updates the processing notes accordingly
                                                                             If panel_count = unea_panels_count Then
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
-                                                                                msgbox "Line 1099 - It worked. panel_count = unea_panels_count"
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 36) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                                 Exit Do
                                                                             End If
                                                                         Loop
@@ -1249,13 +1274,15 @@ For each worker in worker_array
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+
+                                                        dail_row = dail_row - 1
                                                     End If
 
 
@@ -1267,7 +1294,7 @@ For each worker in worker_array
 
                                                     'Update the excel spreadsheet with processing notes
                                                     'Ensure this is at correct spot
-                                                    objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 End If
 
@@ -1353,7 +1380,7 @@ For each worker in worker_array
                                                         'To do - add flagging that the panel exists?
                                                         'If it is a type 37 panel then it does not need to read the other panels
                                                         ' Msgbox "unea_type: " & unea_type
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 37) exists for caregiver M" & caregiver_ref_nbr & "."
                                                     Else
                                                         'Check how many panels exist for the HH member
                                                         EMReadScreen unea_panels_count, 1, 2, 78
@@ -1362,7 +1389,7 @@ For each worker in worker_array
                                                         
                                                         If unea_panels_count = "1" Then
                                                             'If there is only one UNEA panel and it is not a Type 37 then it will update processing notes
-                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 37) exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
 
                                                         
                                                         ElseIf unea_panels_count <> "1" Then
@@ -1384,7 +1411,7 @@ For each worker in worker_array
                                                                     'To do - add flagging that the panel exists?
                                                                     'If it is a type 36 panel then it does not need to read the other panels
                                                                     ' Msgbox "unea_type: " & unea_type
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 37) exists for caregiver M" & caregiver_ref_nbr & "."
                                                                     Exit Do
                                                                 End if
 
@@ -1394,8 +1421,7 @@ For each worker in worker_array
 
                                                                 'If the loop has reached the final panel without encountering a Type 37 message, then it updates the processing notes accordingly
                                                                 If panel_count = unea_panels_count Then
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
-                                                                    MsgBox "line 1246 it works here. Panel_count = unea_panels_count"
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 37) exists for caregiver M" & caregiver_ref_nbr & "."
                                                                     Exit Do
                                                                 End If
                                                             Loop
@@ -1410,13 +1436,15 @@ For each worker in worker_array
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+
+                                                        dail_row = dail_row - 1
                                                     End If
 
                                                 'PF3 back to DAIL
@@ -1644,7 +1672,7 @@ For each worker in worker_array
                                                                     'To do - add flagging that the panel exists?
                                                                     'If it is a type 39 panel then it does not need to read the other panels
                                                                     ' Msgbox "unea_type: " & unea_type
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 39) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                 Else
                                                                     'Check how many panels exist for the HH member
                                                                     EMReadScreen unea_panels_count, 1, 2, 78
@@ -1653,7 +1681,7 @@ For each worker in worker_array
 
                                                                     If unea_panels_count = "1" Then
                                                                         'If there is only one UNEA panel and it is not a Type 39 then it will update processing notes
-                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 39) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                         
                                                                     'If there are more than just a single UNEA panel, loop through them all to check for Type 39
                                                                     ElseIf unea_panels_count <> "1" Then
@@ -1674,8 +1702,7 @@ For each worker in worker_array
                                                                                 'To do - add flagging that the panel exists?
                                                                                 'If it is a type 39 panel then it does not need to read the other panels
                                                                                 ' Msgbox "unea_type: " & unea_type
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
-                                                                                ' msgbox "1093 it is about to exit do"
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " A UNEA panel (Type 39) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                                 Exit Do
                                                                             End if
 
@@ -1685,8 +1712,7 @@ For each worker in worker_array
 
                                                                             'If the loop has reached the final panel without encountering a Type 39 message, then it updates the processing notes accordingly
                                                                             If panel_count = unea_panels_count Then
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
-                                                                                msgbox "Line 1099 - It worked. panel_count = unea_panels_count"
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No UNEA panel (Type 39) exists for M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                                                 Exit Do
                                                                             End If
                                                                         Loop
@@ -1703,13 +1729,15 @@ For each worker in worker_array
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 39 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+
+                                                        dail_row = dail_row - 1
                                                     End If
 
 
@@ -1721,7 +1749,7 @@ For each worker in worker_array
 
                                                     'Update the excel spreadsheet with processing notes
                                                     'Ensure this is at correct spot
-                                                    objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 End If
 
@@ -1808,7 +1836,7 @@ For each worker in worker_array
                                                         'To do - add flagging that the panel exists?
                                                         'If it is a type 40 panel then it does not need to read the other panels
                                                         ' Msgbox "unea_type: " & unea_type
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type 40) exists for caregiver M" & caregiver_ref_nbr & "."
                                                     Else
                                                         'Check how many panels exist for the HH member
                                                         EMReadScreen unea_panels_count, 1, 2, 78
@@ -1816,7 +1844,7 @@ For each worker in worker_array
                                                         ' MsgBox "IsNumeric(unea_panels_count): " & IsNumeric(unea_panels_count)
                                                         If unea_panels_count = "1" Then
                                                             'If there is only one UNEA panel and it is not a Type 40 then it will update processing notes
-                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
+                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type 40) exists for caregiver M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & "."
                                                         
                                                         ElseIf unea_panels_count <> "1" Then
                                                             'If there are more than just a single UNEA panel, loop through them all to check for Type 40
@@ -1837,7 +1865,7 @@ For each worker in worker_array
                                                                     'To do - add flagging that the panel exists?
                                                                     'If it is a type 40 panel then it does not need to read the other panels
                                                                     ' Msgbox "unea_type: " & unea_type
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A UNEA panel (Type 40) exists for caregiver M" & caregiver_ref_nbr & "."
                                                                     Exit Do
                                                                 End if
 
@@ -1847,7 +1875,7 @@ For each worker in worker_array
                                                                 
                                                                 'If the loop has reached the final panel without encountering a Type 40 message, then it updates the processing notes accordingly
                                                                 If panel_count = unea_panels_count Then
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type " & unea_type & ") exists for caregiver M" & caregiver_ref_nbr & "."
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "No UNEA panel (Type 40) exists for caregiver M" & caregiver_ref_nbr & "."
                                                                     ' msgbox "Line 1426. It worked. panel_count = unea_panels_count BUT HAD TO CONVERT TO NUMBERS FOR SOME REASON"
                                                                     Exit Do
                                                                 End If
@@ -1863,19 +1891,32 @@ For each worker in worker_array
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 40 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+
+                                                        dail_row = dail_row - 1
                                                     End If
 
                                                 'PF3 back to DAIL
                                                 PF3
 
                                             ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
+
+                                                'No action on these, simply note in spreadsheet that QI team to review
+
+                                                ' MsgBox "REPORTED: CHILD REF NBR:" & dail_msg
+                                                
+                                                ' DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Ignore for now."
+
+                                                ' list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                ' 'To do - ensure this is at the correct spot
+                                                ' 'Update the excel spreadsheet with processing notes
+                                                ' objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                 'Reset the caregiver reference number
                                                 caregiver_ref_nbr = ""
@@ -2509,7 +2550,7 @@ For each worker in worker_array
                                                         'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                         'Update the excel spreadsheet with processing notes
-                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
                                                         'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
@@ -2520,7 +2561,7 @@ For each worker in worker_array
                                                 'PF3 back to DAIL
                                                 PF3
 
-                                                MsgBox "The message has been processed and script will navigate back to DAIL now."
+                                                ' MsgBox "The message has been processed and script will navigate back to DAIL now."
 
                                             ElseIf InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
                                                 'No action on these, simply note in spreadsheet that QI team to review
@@ -2532,7 +2573,7 @@ For each worker in worker_array
                                                 list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
-                                                objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                             Else
                                                 'To do - add handling for CSES type messages that are not in scope
                                                 msgbox "Something went wrong - line 2189ish." & "dail_msg: " & dail_msg 
@@ -2558,7 +2599,7 @@ For each worker in worker_array
                                                 list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
-                                                objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                             ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
                                                 'Add logic here
@@ -2573,7 +2614,7 @@ For each worker in worker_array
                                                 list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
-                                                objExcel.Cells(dail_excel_row, 7).Value = "Message added to skip list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                             Else
                                                 ' msgbox "Something went wrong - line 1964"
                                             End If
