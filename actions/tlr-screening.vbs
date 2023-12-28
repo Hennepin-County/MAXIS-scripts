@@ -74,6 +74,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call MAXIS_footer_month_confirmation	'making sure we're getting to current month/year
+Call MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privileged, and you do not have access. The script will now end.")
 
@@ -231,7 +232,7 @@ Do
           Text 5, 65, 315, 10, "=============================================================================="
           Text 60, 80, 190, 10, "Select ALL applicable exemptions for this member below"
           Text 5, 95, 315, 10, "=============================================================================="
-          CheckBox 5, 110, 120, 10, "Younger than 18 OR 53 or older?*", age_exempt_checkbox
+          CheckBox 5, 110, 120, 10, "Age 53 or older?*", age_exempt_checkbox
           CheckBox 5, 125, 125, 10, "Child under 18 in your SNAP unit?*", minor_hh_checkbox
           CheckBox 5, 140, 155, 10, "16-17 and NOT living with parent/caregiver?*", minor_wo_caregiver_checkbox
           CheckBox 5, 155, 45, 10, "Pregnant?*", PX_checkbox
@@ -263,122 +264,160 @@ Loop
 'Adding up the checks to see if we need to move onto the next dialog 
 exempt_reasons = 0  'defaulting to 0
 exempt_text = ""
+verified_wreg = ""
 
+'SNAP Work Rules & TLR Rules
 If disa_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Physical illness, injury, disability or limitation.|" 
+    verified_wreg = verified_wreg & "03|"
 End if 
 If perm_disa_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Temp or Perm DISA from SSA, VA, Work Comp, etc.|"
+    verified_wreg = verified_wreg & "03|"
 End if 
 If sub_abuse_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Substance abuse or addiction dependency.|"
+    verified_wreg = verified_wreg & "03|"
 End if 
 If mental_illness_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Mental illness, disorder, etc.|"
+    verified_wreg = verified_wreg & "03|"
 End if 
 If homeless_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Homeless.|"
+    verified_wreg = verified_wreg & "03|"
 End if 
 If dom_violence_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- A victim of domestic violence.|"
+    verified_wreg = verified_wreg & "03|"
 End if 
 If care_of_hh_memb_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1   'case note who requires care 
     exempt_text = exempt_text & "- Caring for person who needs help caring for themselves.|"
-End if 
-If care_child_six_checkbox = 1 then 
-    exempt_reasons = exempt_reasons + 1   'case note multiple people who need exemption AND if child under 6 is not in the HH
-    exempt_text = exempt_text & "- Responsible for the care of a child under 6.|"
+    verified_wreg = verified_wreg & "04|"
 End if 
 If age_sixty_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Age 60 or older.|"
+    verified_wreg = verified_wreg & "05|"
 End if 
 If under_sixteen_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Under the age of 16.|"
+    verified_wreg = verified_wreg & "06|"
 End if 
 If sixteen_seventeen_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Aged 16 or 17 living w/ parent or caregiver.|"
+    verified_wreg = verified_wreg & "07|"
+End if 
+If care_child_six_checkbox = 1 then 
+    exempt_reasons = exempt_reasons + 1   'case note multiple people who need exemption AND if child under 6 is not in the HH
+    exempt_text = exempt_text & "- Responsible for the care of a child under 6.|"
+    verified_wreg = verified_wreg & "08|"
 End if 
 If employed_thirty_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Employed 30 hours/week or grossing at least $217.50/week ($935.25/month).|"
-End if 
-If unemployment_checkbox = 1 then 
-    exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Receiving or applied for unemployment insurance.|"
+    verified_wreg = verified_wreg & "09|"
 End if 
 If matching_grant_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Receiving Matching Grant.|"
+    verified_wreg = verified_wreg & "10|"
 End if 
-If DWP_checkbox = 1 then 
+If unemployment_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Receiving DWP and in compliance with Employment Services.|"
-End if 
-If MFIP_checkbox = 1 then 
-    exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Receiving MFIP and in compliance with Employment Services.|"
+    exempt_text = exempt_text & "- Receiving or applied for unemployment insurance.|"
+    verified_wreg = verified_wreg & "11|"
 End if 
 If enrolled_school_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Enrolled in school, training program, or higher education at least half time.\"
+    verified_wreg = verified_wreg & "12|"
 End if 
 If CD_program_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Participating in drug or alcohol addiction treatment program.|"
+    verified_wreg = verified_wreg & "13|"
 End if 
-If age_exempt_checkbox = 1 then 
+If MFIP_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "-  Younger than 18 OR 53 or older.|"
-End if 
-If minor_hh_checkbox = 1 then 
+    exempt_text = exempt_text & "- Receiving MFIP and in compliance with Employment Services.|"
+    verified_wreg = verified_wreg & "14|"
+End if
+If DWP_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "-  Child under 18 in your SNAP unit.|"
+    exempt_text = exempt_text & "- Receiving DWP and in compliance with Employment Services.|"
+    verified_wreg = verified_wreg & "20|"
 End if 
+
+'Needs to follow SNAP Work Rules, but TLR exempt 
 If minor_wo_caregiver_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- 16-17 and NOT living with parent/caregiver.|"
-End if 
-If PX_checkbox = 1 then 
+    verified_wreg = verified_wreg & "15|"
+End if
+If age_exempt_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Pregnant.|"
-End if 
-If veteran_checkbox = 1 then 
-    exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Served in the US Military.|"
-End if 
-If foster_care_checkbox = 1 then
-    exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- In foster care on 18th birthday AND under age 25.|"
+    exempt_text = exempt_text & "-  Child under 18 in your SNAP unit.|"
+    verified_wreg = verified_wreg & "16|"
 End if 
 If RCA_checkbox = 1 then
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- RCA recipient and participating in Refugee Employment Services 1/2 time.|"
+    verified_wreg = verified_wreg & "17|"
+End if 
+If minor_hh_checkbox = 1 then 
+    exempt_reasons = exempt_reasons + 1
+    exempt_text = exempt_text & "-  Child under 18 in your SNAP unit.|"
+    verified_wreg = verified_wreg & "21|"
+End if 
+If PX_checkbox = 1 then 
+    exempt_reasons = exempt_reasons + 1
+    exempt_text = exempt_text & "- Pregnant.|"
+    verified_wreg = verified_wreg & "23|"
 End if 
 If dependent_child_checkbox = 1 then
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Responsible for the care of a dependent child.|"
+    verified_wreg = verified_wreg & "21|"
+End if 
+If veteran_checkbox = 1 then 
+    exempt_reasons = exempt_reasons + 1
+    exempt_text = exempt_text & "- Served in the US Military.|"
+    verified_wreg = verified_wreg & "30|"
+    verified_abawd = "09"
+End if 
+If foster_care_checkbox = 1 then
+    exempt_reasons = exempt_reasons + 1
+    exempt_text = exempt_text & "- In foster care on 18th birthday AND under age 25.|"
+    verified_wreg = verified_wreg & "30|"
+    verified_abawd = "09"
 End if 
 IF working_20_checkbox = 1 then
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Employed/Self-employed at least 20 hours/week or 80 hours/month.|"
+    verified_wreg = verified_wreg & "30|"
+    verified_abawd = "06"
 End if 
 IF approved_work_checkbox = 1 then
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Participating in an approved work/training program at least 20 hours/month.|"
+    verified_wreg = verified_wreg & "30|"
+    verified_abawd = "08"
 End if
 IF combo_work_checkbox = 1 then
     exempt_reasons = exempt_reasons + 1
     exempt_text = exempt_text & "- Volunteering OR combo of work, training, or volunteering at least 80 hours/month.|"
+    verified_wreg = verified_wreg & "30|"
+    verified_abawd = "08"
 End if
 
 exemption_array = split(exempt_text, "|")  'Splitting out array for final dialog 
@@ -511,8 +550,73 @@ If exempt_reasons > 0 then
 End if 
 
 If update_wreg_checkbox = 1 then 
-  msgbox "Update WREG here!"
-  'TODO: Add actions for update_wreg_checkbox here
+    
+	'filter the list here for best_wreg_code
+	If trim(verified_wreg) = "" then 
+        best_wreg_code = "30"
+	Elseif len(verified_wreg) = 3 then
+		best_wreg_code = replace(verified_wreg, "|", "")
+	Else
+        wreg_hierarchy = array("03","04","05","06","07","08","09","10","11","12","13","14","20","15","16","21","17","23","30")
+        for each code in wreg_hierarchy
+            If instr(verified_wreg, code) then
+                best_wreg_code = code
+                exit for
+            End if
+        next
+	End if
+
+	If best_wreg_code = "03" or _
+		best_wreg_code = "04" or _
+		best_wreg_code = "05" or _
+		best_wreg_code = "06" or _
+		best_wreg_code = "07" or _
+		best_wreg_code = "08" or _
+		best_wreg_code = "09" or _ 
+		best_wreg_code = "10" or _
+		best_wreg_code = "11" or _
+		best_wreg_code = "12" or _
+		best_wreg_code = "13" or _
+		best_wreg_code = "14" or _
+		best_wreg_code = "20" then
+		    best_abawd_code = "01"
+	End if
+
+	If best_wreg_code = "15" then best_abawd_code = "02"
+	If best_wreg_code = "16" then best_abawd_code = "03"
+	If best_wreg_code = "21" then best_abawd_code = "04"
+	If best_wreg_code = "17" then best_abawd_code = "12"
+	If best_wreg_code = "23" then best_abawd_code = "05"
+
+    'needs handling since the vets and foster care folks and 30/06 and 30/08 people also use this code 
+    If best_wreg_code = "30" then 
+		If verified_abawd = "" then
+			best_abawd_code = "10"
+		Else
+			best_abawd_code = verified_abawd 'this is determined in the user selections 
+        End if 
+    End if 
+
+	Call MAXIS_background_check
+    Call navigate_to_MAXIS_screen("STAT", "WREG")
+    Call write_value_and_transmit(member_number, 20, 76)
+    PF9
+	EMWriteScreen best_wreg_code, 8, 50
+	EMWriteScreen best_abawd_code, 13, 50
+	If best_wreg_code = "30" then
+        If best_abawd_code = "09" then 
+            EMWriteScreen "Y", 8, 80
+        Else 
+	        EMWriteScreen "N", 8, 80
+        End if 
+	Else
+	    EMWriteScreen "_", 8, 80
+	End if
+    msgbox "did it update?"
+	
+	EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
+	If orientation_warning = "WARNING" then transmit 
+	PF3 'to save and exit to stat/wrap
 End if 
 
 '----------------------------------------------------------------------------------------------------CASE/NOTE
@@ -540,7 +644,7 @@ If abawd_counted_months => 3 then
     Call write_variable_in_CASE_NOTE("* Member has used all available counted TLR/ABAWD months.")
     Call write_variable_in_CASE_NOTE("* Member" & ss_elig_text & "eligible for TLR/ABAWD 2nd set months.")
 End if 
-'If update_wreg_checkbox = 1 then Call write_variable_in_CASE_NOTE("---")
+If update_wreg_checkbox = 1 then Call write_variable_in_CASE_NOTE("* STAT/WREG panel has been updated with FSET/ABAWD codes: " & best_wreg_code & "/" & best_abawd_code & ".") 
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
