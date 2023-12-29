@@ -38,9 +38,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'Dialogs===================================================================================================================
 EMConnect ""
-
 Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 MAXIS_footer_month = CM_mo
@@ -550,7 +561,6 @@ If exempt_reasons > 0 then
 End if 
 
 If update_wreg_checkbox = 1 then 
-    
 	'filter the list here for best_wreg_code
 	If trim(verified_wreg) = "" then 
         best_wreg_code = "30"
@@ -655,3 +665,48 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("Success! This member has been assessed for time-limited SNAP.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs --------------------------------------------------12/29/2023
+'--Tab orders reviewed & confirmed-----------------------------------------------12/29/2023
+'--Mandatory fields all present & Reviewed---------------------------------------12/29/2023
+'--All variables in dialog match mandatory fields--------------------------------12/29/2023
+'Review dialog names for content and content fit in dialog-----------------------12/29/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)----------------------------------12/29/2023
+'--CASE:NOTE Header doesn't look funky-------------------------------------------12/29/2023
+'--Leave CASE:NOTE in edit mode if applicable------------------------------------12/29/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-12/29/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed---------------------------------------12/29/2023
+'--MAXIS_background_check reviewed (if applicable)-------------------------------12/29/2023
+'--PRIV Case handling reviewed --------------------------------------------------12/29/2023
+'--Out-of-County handling reviewed-----------------------------------------------12/29/2023---------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)-----------------------------12/29/2023
+'--BULK - review output of statistics and run time/count (if applicable)---------12/29/2023---------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")------------12/29/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed ---------------------------------------------------12/29/2023
+'--Incrementors reviewed (if necessary)------------------------------------------12/29/2023
+'--Denomination reviewed --------------------------------------------------------12/29/2023
+'--Script name reviewed----------------------------------------------------------12/29/2023
+'--BULK - remove 1 incrementor at end of script reviewed-------------------------12/29/2023---------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------12/29/2023
+'--comment Code------------------------------------------------------------------12/29/2023
+'--Update Changelog for release/update-------------------------------------------12/29/2023
+'--Remove testing message boxes--------------------------------------------------12/29/2023
+'--Remove testing code/unnecessary code------------------------------------------12/29/2023
+'--Review/update SharePoint instructions-----------------------------------------12/29/2023
+'--Other SharePoint sites review (HSR Manual, etc.)------------------------------12/29/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Will add at release
+'--COMPLETE LIST OF SCRIPTS update policy references-----------------------------Will add at release
+'--Complete misc. documentation (if applicable)----------------------------------12/29/2023
+'--Update project team/issue contact (if applicable)-----------------------------12/29/2023
