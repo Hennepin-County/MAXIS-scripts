@@ -78,7 +78,7 @@ Call MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privileged, and you do not have access. The script will now end.")
 
-Call write_value_and_transmit(member, 20, 76)
+Call write_value_and_transmit(member_number, 20, 76)
 EmReadScreen first_name, 12, 6, 63
 first_name = replace(first_name, "_", "")
 EmReadScreen last_name, 25, 6, 30
@@ -88,7 +88,7 @@ member_info = member_number & " - " & first_name & " " & last_name
 
 Call navigate_to_MAXIS_screen("STAT", "WREG")
 Call write_value_and_transmit(member_number, 20, 76)
-EMReadScreen WREG_MEMB_check, 6, 24, 2
+EMReadScreen WREG_MEMB_check, 14, 24, 2
 IF WREG_MEMB_check = "REFERE" OR WREG_MEMB_check = "MEMBER" THEN script_end_procedure("The member number that you entered is not valid.  Please check the member number, and start the script again.")
 
 EMReadScreen panel_exists, 1, 2, 78
@@ -187,7 +187,7 @@ Do
           Text 15, 20, 210, 10, "Counted TLR Months: " & abawd_info
           Text 15, 40, 230, 10, "Counted 2nd Set: " & second_set_info
           Text 5, 65, 315, 10, "=============================================================================="
-          Text 60, 80, 190, 10, "Select ALL applicable exemptions for this member below"
+          Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 1 of 2)"
           Text 5, 95, 315, 10, "=============================================================================="
           GroupBox 5, 110, 315, 55, "Unfit for Employment:"
           CheckBox 20, 120, 170, 10, "Physical illness, injury, disability or limitation?*", disa_checkbox
@@ -230,9 +230,9 @@ Do
           Text 15, 20, 210, 10, "Counted TLR Months: " & abawd_info
           Text 15, 40, 230, 10, "Counted 2nd Set: " & second_set_info
           Text 5, 65, 315, 10, "=============================================================================="
-          Text 60, 80, 190, 10, "Select ALL applicable exemptions for this member below"
+          Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 2 of 2)"
           Text 5, 95, 315, 10, "=============================================================================="
-          CheckBox 5, 110, 120, 10, "Age 53 or older?*", age_exempt_checkbox
+          CheckBox 5, 110, 120, 10, "Age 53 - 59?*", age_exempt_checkbox
           CheckBox 5, 125, 125, 10, "Child under 18 in your SNAP unit?*", minor_hh_checkbox
           CheckBox 5, 140, 155, 10, "16-17 and NOT living with parent/caregiver?*", minor_wo_caregiver_checkbox
           CheckBox 5, 155, 45, 10, "Pregnant?*", PX_checkbox
@@ -339,7 +339,7 @@ If unemployment_checkbox = 1 then
 End if 
 If enrolled_school_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "- Enrolled in school, training program, or higher education at least half time.\"
+    exempt_text = exempt_text & "- Enrolled in school, training program, or higher education at least half time.|"
     verified_wreg = verified_wreg & "12|"
 End if 
 If CD_program_checkbox = 1 then 
@@ -366,7 +366,7 @@ If minor_wo_caregiver_checkbox = 1 then
 End if
 If age_exempt_checkbox = 1 then 
     exempt_reasons = exempt_reasons + 1
-    exempt_text = exempt_text & "-  Child under 18 in your SNAP unit.|"
+    exempt_text = exempt_text & "-  Age 53 - 59|"
     verified_wreg = verified_wreg & "16|"
 End if 
 If RCA_checkbox = 1 then
@@ -508,7 +508,7 @@ If exempt_reasons > 0 then
       Text 5, 175, 315, 10, "=============================================================================="
       y_pos = 180
         For each exemption in exemption_array
-            Text 15, (y_pos + 15), 220, 10, exemption
+            Text 15, (y_pos + 15), 275, 10, exemption
             y_pos = y_pos + 15
             If exemption = "- Caring for person who needs help caring for themselves." then 
                 Text 20, y_pos + 15, 170, 10, "Name of person whom care is provided for:"  
@@ -600,7 +600,14 @@ If update_wreg_checkbox = 1 then
 	Call MAXIS_background_check
     Call navigate_to_MAXIS_screen("STAT", "WREG")
     Call write_value_and_transmit(member_number, 20, 76)
-    PF9
+    EMReadScreen panel_exists, 1, 2, 78
+    If panel_exists = "0" then 
+        Call write_value_and_transmit("NN", 20, 79) 'Adding new WREG panel 
+        EMWriteScreen "Y", 6, 68 'defaulting PWE to Y if blank panel 
+    Else 
+        PF9
+    End if 
+
 	EMWriteScreen best_wreg_code, 8, 50
 	EMWriteScreen best_abawd_code, 13, 50
 	If best_wreg_code = "30" then
@@ -612,7 +619,6 @@ If update_wreg_checkbox = 1 then
 	Else
 	    EMWriteScreen "_", 8, 80
 	End if
-    msgbox "did it update?"
 	
 	EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
 	If orientation_warning = "WARNING" then transmit 
