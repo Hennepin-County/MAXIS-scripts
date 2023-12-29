@@ -1906,11 +1906,8 @@ For each worker in worker_array
                                                 PF3
 
                                             ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
-
-                                                'No action on these, simply note in spreadsheet that QI team to review
-
-                                                ' MsgBox "REPORTED: CHILD REF NBR:" & dail_msg
-                                                
+                                              
+                                                ' Comment/uncomment for testing purposes
                                                 ' DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Ignore for now."
 
                                                 ' list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
