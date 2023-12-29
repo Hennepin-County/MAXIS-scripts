@@ -428,6 +428,7 @@ For each worker in worker_array
             dail_month = ""
             MAXIS_case_number = ""
             actionable_dail = ""
+            renewal_6_month_check = ""
 
             'To do - do we need to reset the full dail message or any other variables?
 
@@ -626,21 +627,42 @@ For each worker in worker_array
                                         Call write_value_and_transmit(vers_number, 18, 54)
                                         Call write_value_and_transmit("FSSM", 19, 70)
                                         EmReadscreen reporting_status, 12, 8, 31
-                                        EmReadscreen recertification_date, 8, 11, 31
-                                        'Converts date from string to date
-                                        recertification_date = DateAdd("m", 0, recertification_date)
+                                        reporting_status = trim(reporting_status)
 
-                                        If InStr(reporting_status, "SIX MONTH") Then 
-                                            sr_report_date = DateAdd("m", -6, recertification_date)
-                                        Else
-                                            sr_report_date = "N/A"
+                                        'Navigate to STAT/REVW to confirm recertification and SR report date
+                                        EMWriteScreen "STAT", 19, 22
+                                        Call write_value_and_transmit("REVW", 19, 70)
+                                        'Open the FS screen
+                                        Call write_value_and_transmit("X", 5, 58)
+
+                                        EmReadscreen sr_report_date, 8, 9, 26
+                                        EmReadscreen recertification_date, 8, 9, 64
+
+                                        'Adds slashes to dates then converts to datedate from string to date
+                                        recertification_date = replace(recertification_date, " ", "/")
+                                        recertification_date = DateAdd("m", 0, recertification_date)
+                                        sr_report_date = replace(sr_report_date, " ", "/")
+                                        sr_report_date = DateAdd("m", 0, sr_report_date)
+                                        
+                                        renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
+
+                                        If reporting_status = "SIX MONTH" Then
+                                            If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
+                                                renewal_6_month_check = True
+                                            Else 
+                                                renewal_6_month_check = False
+                                                case_details_array(case_processing_notes_const, case_count) = "SR Report Date and Recertification are not 6 months apart"
+                                            End if
                                         End If
+                                        'Close the FS screen
+                                        transmit
+
                                         ' MsgBox "Updating the footer month and year"
                                         'Change the footer month and year back to CM/CY otherwise the DAIL will carry forward footer month and year from previous DAIL message as it moves to the next one and could cause error
                                         'To do - is this necessary?
-                                        EMWriteScreen MAXIS_footer_month, 19, 54
-                                        EMWriteScreen MAXIS_footer_year, 19, 57
-                                        ' MsgBox "did footer month year update?"
+                                        ' EMWriteScreen MAXIS_footer_month, 19, 54
+                                        ' EMWriteScreen MAXIS_footer_year, 19, 57
+                                        ' ' MsgBox "did footer month year update?"
                                     End if
                                     
                                     ' MsgBox "Updating the case_details_array"
@@ -659,18 +681,18 @@ For each worker in worker_array
                                 case_details_array(case_processing_notes_const, case_count) = "N/A"
                                 case_details_array(snap_only_const, case_count) = "Not SNAP Only"
 
-                                ' MsgBox "Updating the footer month and year"
-                                'Update the footer month and year to CM/CY on CASE/CURR before returning to DAIL
-                                'To do - is this necessary?
-                                EMWriteScreen MAXIS_footer_month, 20, 54
-                                EMWriteScreen MAXIS_footer_year, 20, 57
-                                ' MsgBox "did footer month year update?"
+                                ' ' MsgBox "Updating the footer month and year"
+                                ' 'Update the footer month and year to CM/CY on CASE/CURR before returning to DAIL
+                                ' 'To do - is this necessary?
+                                ' EMWriteScreen MAXIS_footer_month, 20, 54
+                                ' EMWriteScreen MAXIS_footer_year, 20, 57
+                                ' ' MsgBox "did footer month year update?"
 
                             End If
 
                         End If    
                         
-                        If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(snap_only_const, case_count) = "SNAP Only" AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" then
+                        If case_details_array(snap_status_const, case_count) = "ACTIVE" AND case_details_array(snap_only_const, case_count) = "SNAP Only" AND case_details_array(reporting_status_const, case_count) = "SIX MONTH" and renewal_6_month_check = True then
                             case_details_array(processable_based_on_case_const, case_count) = True
                         Else
                             case_details_array(processable_based_on_case_const, case_count) = False
@@ -693,6 +715,13 @@ For each worker in worker_array
 
                         'Return to DAIL by PF3
                         PF3
+
+                        'Reset the footer month/year to CM through CASE/CURR
+                        Call write_value_and_transmit("H", dail_row, 3)
+                        EMWriteScreen MAXIS_footer_month, 20, 54
+                        EMWriteScreen MAXIS_footer_year, 20, 57
+                        PF3
+                        ' ' MsgBox "did footer month year update?"
                       
                         'Increment the case_count for updating the array
                         case_count = case_count + 1
@@ -763,71 +792,71 @@ For each worker in worker_array
                         If Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") Then
                             'If the full dail message is within the list of dail messages to delete then the message should be deleted
                             'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards
-                            EMReadScreen last_dail_check, 12, 3, 67
+                            ' EMReadScreen last_dail_check, 12, 3, 67
 
-                            last_dail_check = split(trim(last_dail_check), " ")
+                            ' last_dail_check = split(trim(last_dail_check), " ")
 
-                            'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
-                            If last_dail_check(0) = last_dail_check(2) then 
-                                MsgBox "Script is about to delete the LAST message. Script should exit do loop"
-                                all_done = true
-                            End If
+                            ' 'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+                            ' If last_dail_check(0) = last_dail_check(2) then 
+                            '     MsgBox "Script is about to delete the LAST message. Script should exit do loop"
+                            '     all_done = true
+                            ' End If
 
-                            'Delete the message
-                            'To do - update to write value and transmit once confident it is deleting correct message
-                            ' Call write_value_and_transmit("D", dail_row, 3)
-                            EMWriteScreen "D", dail_row, 3
-                            MsgBox "It wrote DELETE to the message - is it correct? STOP HERE - LAST CHANCE" 
+                            ' 'Delete the message
+                            ' 'To do - update to write value and transmit once confident it is deleting correct message
+                            ' ' Call write_value_and_transmit("D", dail_row, 3)
+                            ' EMWriteScreen "D", dail_row, 3
+                            ' MsgBox "It wrote DELETE to the message - is it correct? STOP HERE - LAST CHANCE" 
                             
-                            transmit
+                            ' transmit
 
-                            'Handling for deleting message under someone else's x number
-                            EMReadScreen other_worker_error, 13, 24, 2
+                            ' 'Handling for deleting message under someone else's x number
+                            ' EMReadScreen other_worker_error, 13, 24, 2
 
-                            'Handling to check if message actually deleted
-                            total_dail_msg_count_before = last_dail_check(2) * 1
-                            EMReadScreen total_dail_msg_count_after, 12, 3, 67
+                            ' 'Handling to check if message actually deleted
+                            ' total_dail_msg_count_before = last_dail_check(2) * 1
+                            ' EMReadScreen total_dail_msg_count_after, 12, 3, 67
 
-                            total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
-                            total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+                            ' total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            ' total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
 
-                            If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                ' MsgBox "last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted without error/warning"
-                                dail_row = dail_row - 1
-                                dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            ' If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                            '     ' MsgBox "last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted without error/warning"
+                            '     dail_row = dail_row - 1
+                            '     dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
 
-                            ElseIf other_worker_error = "** WARNING **" then 
+                            ' ElseIf other_worker_error = "** WARNING **" then 
                                 
-                                'Transmit again to delete the message
-                                transmit
+                            '     'Transmit again to delete the message
+                            '     transmit
 
-                                'Reads the total number of DAILS after deleting to determine if it decreased by 1
-                                EMReadScreen total_dail_msg_count_after, 12, 3, 67
+                            '     'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                            '     EMReadScreen total_dail_msg_count_after, 12, 3, 67
 
-                                total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
-                                total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+                            '     total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            '     total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
 
-                                If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                    ' MsgBox "After warning about other worker x number, last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted."
-                                    dail_row = dail_row - 1
-                                    dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                Else
-                                    MsgBox "Something went wrong when attempting to delete after *** warning ***"
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                End If
+                            '     If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                            '         ' MsgBox "After warning about other worker x number, last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted."
+                            '         dail_row = dail_row - 1
+                            '         dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '     Else
+                            '         MsgBox "Something went wrong when attempting to delete after *** warning ***"
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '     End If
 
                                 
-                            Else
-                                MsgBox "Something went wrong when attempting to delete the message. The number didn't decrease by 1 and there was no warning" 
-                                msgbox "last_dail_check(2) - 1" & last_dail_check(2) - 1
-                                msgbox "total_dail_msg_count_after(2) " & total_dail_msg_count_after(2)
-                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                            End If
+                            ' Else
+                            '     MsgBox "Something went wrong when attempting to delete the message. The number didn't decrease by 1 and there was no warning" 
+                            '     msgbox "last_dail_check(2) - 1" & last_dail_check(2) - 1
+                            '     msgbox "total_dail_msg_count_after(2) " & total_dail_msg_count_after(2)
+                            '     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            ' End If
 
 
-                            MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+                            ' MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
                             'If the full message is on the list of dail messages to skip then the message should be skipped
                             'To do - Add handling for messages to skip
@@ -897,11 +926,13 @@ For each worker in worker_array
                                     If case_details_array(processable_based_on_case_const, each_case) = False Then
                                         
                                         ' Msgbox "case_details_array(processable_based_on_case_const, each_case) = False"
-                                        
-                                        'To do - can delete, no longer needed
-                                        ' DAIL_message_array(renewal_month_determination_const, dail_count) = "N/A"
-                                        DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details"
 
+                                        If case_details_array(case_processing_notes_const, each_case) = "SR Report Date and Recertification are not 6 months apart" Then
+                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed. SR Report Date and Recertification are not 6 months apart."
+                                        Else
+                                            DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details"
+                                        End If
+                                        
                                         'The dail message should not be processed due to case details
                                         process_dail_message = False
 
