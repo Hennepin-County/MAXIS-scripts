@@ -10647,7 +10647,7 @@ If qual_questions_yes = TRUE Then
 		PF3
 End If
 'Entering the case/notes
-
+PF3
 call write_app_review_CASE_NOTE()
 PF3
 Call write_verification_CASE_NOTE(create_verif_note)
