@@ -204,7 +204,11 @@ If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and ben
   CALL write_variable_in_Case_Note("----")
   CALL write_variable_in_Case_Note(worker_signature)
   PF3
+  
+  If request_decision = "Pending Additional Information" Then script_end_procedure_with_error_report("The CASE/NOTE has been created. Please run this script again to provide updates as the request is reviewed and a decision is made on the request.")
+  If request_decision = "Request Approved" Then script_end_procedure_with_error_report("The CASE/NOTE has been created please be sure to send verifications to ECF and submit a TSS BENE request (webform) through SIR.")
+  If request_decision = "Request Denied" Then script_end_procedure_with_error_report("The CASE/NOTE has been created. Please ensure that it includes a detailed explanation for why the request does not meet the policy criteria in 0024.06.03.15.")
+
 End If
 
 
-script_end_procedure_with_error_report("The case note has been created please be sure to send verifications to ECF and submit a TSS BENE request (webform) through SIR.")
