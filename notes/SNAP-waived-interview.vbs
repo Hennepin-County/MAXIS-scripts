@@ -2694,58 +2694,58 @@ function display_expedited_dialog()
 			 
 
 		exp_unea_count = 0
-		If IsNumeric(questions_array(unea_q)(14)) = True Then
+		If (questions_array(unea_q)(14)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "RSDI"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(14)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(14)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(16)) = True Then
+		If (questions_array(unea_q)(16)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "SSI"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(16)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(16)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(18)) = True Then
+		If (questions_array(unea_q)(18)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "VA Benefit"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(18)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(18)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(20)) = True Then
+		If (questions_array(unea_q)(20)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Unemployment"
-			EXP_UNEA_ARRAY(unea_weekly_earnings_const, exp_unea_count) = questions_array(i)(20)
+			EXP_UNEA_ARRAY(unea_weekly_earnings_const, exp_unea_count) = questions_array(unea_q)(20)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(22)) = True Then
+		If (questions_array(unea_q)(22)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Workers Comp"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(22)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(22)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(24)) = True Then
+		If (questions_array(unea_q)(24)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Retirement Benefits"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(24)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(24)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(26)) = True Then
+		If (questions_array(unea_q)(26)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Tribal Payment"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(26)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(26)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(28)) = True Then
+		If (questions_array(unea_q)(28)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = "Child Support"
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(28)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(28)
 			exp_unea_count = exp_unea_count + 1
 		End If
-		If IsNumeric(questions_array(unea_q)(30)) = True Then
+		If (questions_array(unea_q)(30)) <> "" Then
 			ReDim Preserve EXP_UNEA_ARRAY(unea_notes_const, exp_unea_count)
 			EXP_UNEA_ARRAY(unea_info_const, exp_unea_count) = ""
-			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(i)(30)
+			EXP_UNEA_ARRAY(unea_monthly_earnings_const, exp_unea_count) = questions_array(unea_q)(30)
 			exp_unea_count = exp_unea_count + 1
 		End If
 		If exp_unea_count > 0 Then unea_income_yn = "Yes"
