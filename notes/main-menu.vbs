@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/02/2024", "A new script is available: SNAP Waived Interview supports screening a SNAP application for the application interview waiver and documenting any information needed. Process information is available on sharepoint under temporary program changes for SNAP.", "Dave Courtright, Hennepin County")
 call changelog_update("11/20/2023", "The LTC button has been removed from the menu. LTC: 5181, Asset Assessment, Hospice Form Received and Transfer Penalty are now found under the standard alpha menus with other note scripts.", "Megan Geissler, Hennepin County")
 call changelog_update("11/07/2023", "Retired the scripts:##~##NOTES - LTC Intake Approval##~## This functionality is now contained in NOTES - HC Evaluation.", "Dave Courtright, Hennepin County")
 call changelog_update("10/16/2023", "Retired the scripts:##~##NOTES - LTC COLA Summary##~##NOTES - LTC MA Approval##~##", "Casey Love, Hennepin County")
