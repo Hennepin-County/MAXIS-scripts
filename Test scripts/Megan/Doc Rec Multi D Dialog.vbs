@@ -227,25 +227,36 @@ function evf_dialog()
 end function 
 
 function hospice_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, hosp_effective_date
-			EditBox 310, 20, 45, 15, hosp_date_received
-			EditBox 30, 65, 270, 15, hosp_Q1
-			EditBox 30, 85, 270, 15, hosp_Q2
-			EditBox 30, 105, 270, 15, hosp_Q3
-			EditBox 30, 125, 270, 15, hosp_Q4			
-			Text 5, 5, 220, 10, "Hospice Transaction Form"
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+  EditBox 175, 20, 45, 15, hosp_effective_date
+  EditBox 310, 20, 45, 15, hosp_date_received		
+  DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
+  EditBox 100, 65, 205, 15, hosp_name
+  EditBox 100, 85, 80, 15, hops_npi_number
+  EditBox 100, 105, 50, 15, hosp_entry_date
+  EditBox 205, 105, 50, 15, hosp_exit_date
+  EditBox 100, 125, 50, 15, hosp_mmis_updated_date
+  EditBox 30, 160, 275, 15, hosp_reason_not_updated
+  EditBox 30, 190, 275, 15, hosp_other_notes
+  ButtonGroup ButtonPressed
+    PushButton 5, 280, 50, 15, "TE 02.07.081", hosp_TE0207081
+    PushButton 65, 280, 50, 15, "MA-Hospice", hosp_SP_hospice
+  Text 5, 5, 220, 10, "HOSPICE TRANSACTION FORM"
+  Text 5, 25, 50, 10, "Case Number:"
+  Text 125, 25, 50, 10, "Effective Date:"
+  Text 245, 25, 60, 10, "Document Date:"
+  Text 50, 50, 45, 10, "Client Name:"
+  Text 35, 70, 60, 10, "Name of Hospice:"
+  Text 50, 90, 45, 10, "NPI Number:"
+  Text 55, 110, 40, 10, "Entry Date:"
+  Text 170, 110, 35, 10, "Exit Date:"
+  Text 30, 130, 70, 10, "MMIS Updated as of "
+  Text 30, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
+  Text 30, 180, 50, 10, "Other Notes:"
+  Text 60, 25, 45, 10, "MAXIS_case_number"
+  Text 395, 35, 45, 10, "    --Forms--"		
 end function 
+
+Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hops_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081, hosp_SP_hospice
 
 function iaa_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -399,31 +410,33 @@ end function
 function diet_dialog()
 	EditBox 175, 15, 45, 15, diet_effective_date
 	EditBox 310, 15, 45, 15, diet_date_received		
-	DropListBox 55, 35, 65, 15, "", diet_member_number 'TODO: Need to populate member number here
-	EditBox 55, 55, 290, 15, diet_diagnosis
-	DropListBox 55, 85, 110, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_1_dropdown
+	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 'TODO: Need to populate member number here
+	EditBox 50, 55, 290, 15, diet_diagnosis
+	DropListBox 55, 85, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_1_dropdown
 	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_1_dropdown
-	DropListBox 55, 100, 110, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_2_dropdown
+	DropListBox 55, 100, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_2_dropdown
 	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_2_dropdown
-	DropListBox 55, 115, 110, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_3_dropdown
+	DropListBox 55, 115, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_3_dropdown
 	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_3_dropdown
-	DropListBox 55, 130, 110, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_4_dropdown
+	DropListBox 55, 130, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_4_dropdown
 	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_4_dropdown
 	EditBox 75, 160, 55, 15, diet_date_last_exam
 	DropListBox 130, 180, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown
 	EditBox 270, 180, 55, 15, diet_length_diet
-	DropListBox 105, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied", diet_approved_denied_dropdown
+	DropListBox 105, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown		'TODO: Handling for each scenario- each has it's own notification process/steps
 	EditBox 50, 220, 290, 15, diet_prognosis
 	EditBox 50, 240, 290, 15, diet_comments
+	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
+    PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
 	Text 395, 35, 45, 10, "    --Forms--"
 	Text 5, 5, 220, 10, "SPECIAL DIET INFORMATION REQUEST (MFIP and MSA)"
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, "MAXIS_case_number"
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
-	Text 20, 40, 35, 10, "Member"
-	Text 20, 60, 35, 10, "Diagnosis"
-	Text 55, 75, 85, 10, "Select Applicable Diet"
+	Text 20, 40, 30, 10, "Member"
+	Text 15, 60, 35, 10, "Diagnosis"
+	Text 55, 75, 85, 10, "Select applicable diet"
 	Text 185, 75, 95, 10, "Relationship between diets"
 	Text 30, 85, 20, 10, "Diet 1"
 	Text 30, 100, 20, 10, "Diet 2"
@@ -432,12 +445,12 @@ function diet_dialog()
 	Text 15, 165, 60, 10, "Date of last exam"
 	Text 15, 185, 115, 10, "Is person following treament plan?"
 	Text 185, 185, 85, 10, "Length of Prescribed Diet"
-	Text 15, 205, 85, 10, "Diet approved or denied?"
+	Text 15, 205, 100, 10, "Diet approved, denied, incomplete?"
 	Text 15, 225, 35, 10, "Prognosis"
 	Text 15, 245, 35, 10, "Comments"
 end function
 
-Dim diet_effective_date, diet_date_received, diet_member_number, diet_diagnosis, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_approved_denied_dropdown, diet_length_diet, diet_prognosis, diet_comments	'Special Diet Variables
+Dim diet_effective_date, diet_date_received, diet_member_number, diet_diagnosis, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_prognosis, diet_comments	'Special Diet Variables
 
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
@@ -500,6 +513,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
+Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 
 
 'DIALOGS COLLECTING FORM SELECTION===========================================================================
@@ -699,6 +713,90 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If		
 Loop Until ButtonPressed = Ok
 
+'TODO: Add in any additonal readscreens etc.
+'MAXIS NAV: Hospice Read Screen ===========================================================================
+For maxis_panel_read = 0 to Ubound(form_type_array, 2)
+	If form_type_array(form_type_const, form_added) = "Hospice Transaction Form" Then
+		Call navigate_to_MAXIS_screen("CASE", "NOTE")
+		note_row = 5                                'beginning of listed case notes
+		one_year_ago = DateAdd("yyyy", -1, date)    'we will look back 1 year
+		Do
+			EMReadScreen note_date, 8, note_row, 6      'reading the date
+			EMReadScreen note_title, 55, note_row, 25   'reading the header
+			note_title = trim(note_title)
+
+			If left(note_title, 41) = "*** HOSPICE TRANSACTION FORM RECEIVED ***" Then      'if the note is for a Hospice form
+				EmWriteScreen "X", note_row, 3      'open the note
+				transmit
+
+				this_row = 5            'this MAXIS is the top of the note body
+				Do
+					EMReadScreen note_line, 78, this_row, 3     'reading each line
+					note_line = trim(note_line)                 'Each of the lines will have the header look at to see if we can autofill information
+
+					If  left(note_line, 9) = "* Client:" Then
+						hosp_resident_name = right(note_line, len(note_line) - 9)
+						hosp_resident_name = trim(hosp_resident_name)
+
+					ElseIf left(note_line, 15) = "* Hospice Name:" Then
+						hosp_name = right(note_line, len(note_line) - 15)
+						hosp_name = trim(hosp_name)
+
+					ElseIf left(note_line, 13) = "* NPI Number:" Then
+						hosp_npi_number = right(note_line, len(note_line) - 13)
+						hosp_npi_number = trim(hosp_npi_number)
+
+					ElseIf left(note_line, 16) = "* Date of Entry:" Then
+						hosp_entry_date = right(note_line, len(note_line) - 16)
+						hosp_entry_date = trim(hosp_entry_date)
+
+					ElseIf left(note_line, 12) = "* Exit Date:" Then
+						hosp_exit_date = right(note_line, len(note_line) - 12)
+						hosp_exit_date = trim(hosp_exit_date)
+
+					ElseIf left(note_line, 26) = "* MMIS not updated due to:" Then
+						hosp_reason_not_updated = right(note_line, len(note_line) - 26)
+						hosp_reason_not_updated = trim(hosp_reason_not_updated)
+					End If
+					If this_row = 18 Then       'this is the bottom of the note, will go to the next page if possible
+						PF8
+						EMReadScreen check_for_end, 9, 24, 14   'if we try to PF8 and it doesn't go down, a message happens at the bottom
+						If check_for_end = "LAST PAGE" Then
+							PF3             'leaving the note
+							Exit Do         'don't need to look at any more of the note
+						End If
+						this_row = 4        'if the message isn't there reset the row to the top
+					End If
+					this_row = this_row + 1     'go to the next row
+					If note_line = "" Then PF3  'if it is blank - the note is over and we need to leave the note
+				Loop until note_line = ""
+
+				Exit Do     'if a HOSPICE note is found, we don't need to look at more notes
+			End If
+			IF note_date = "        " then Exit Do      'if the end of the list is reached we leave the loop
+			note_row = note_row + 1
+			IF note_row = 19 THEN       'going to the next page of notes
+				PF8
+				note_row = 5
+			END IF
+			EMReadScreen next_note_date, 8, note_row, 6
+			IF next_note_date = "        " then Exit Do
+		Loop until datevalue(next_note_date) < one_year_ago 'looking ahead at the next case note kicking out the dates before app'
+
+		If hospice_exit_date <> "" Then     'if there is an exit date in the note found then we don't want to use the information from that note
+			hosp_resident_name = ""          'since if they exited already - the HOSPICE will be different - resetting these variables to NOT fill
+			hosp_name = ""
+			hosp_npi_number = ""
+			hosp_entry_date = ""
+			hosp_exit_date = ""
+			hosp_reason_not_updated = ""
+		End If
+		Call navigate_to_MAXIS_screen ("STAT", "MEMB")      'Going to MEMB for M01 to see if there is a date of death - as that would be the exit date
+		EMReadScreen date_of_death, 10, 19, 42
+		date_of_death = replace(date_of_death, " ", "/")
+		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
+	End If
+Next
 
 
 
@@ -724,9 +822,9 @@ Loop Until ButtonPressed = Ok
 'DIALOG DISPLAYING FORM SPECIFIC INFORMATION===========================================================================
 'Displays individual dialogs for each form selected via checkbox or dropdown. Do/Loops allows us to jump around/are more flexible than For/Next 
 form_count = 0
-Do
-	' Do
-	' 	Do
+Do	
+	Do
+		Do
 			err_msg = ""
 			Dialog1 = "" 'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
@@ -857,29 +955,61 @@ Do
 				
 				PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one. TODO: Determine if we need  more handling around this. 
 				PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. TODO: Determine if we need more handling around this. 
-				EndDialog
-				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
-				cancel_confirmation
-				
-'TODO: error handling 
-	
-		Call dialog_movement	'function to move throughout the dialogs
-	
+			EndDialog
+			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
+			cancel_confirmation
+			
+			'TODO: error handling 
+			' Special diet: 
+				'If denied, state reason for ineligibility and date benefits are no longer issued in Comments field or create an additional field
+				'Buttons	
+				' If IsDate(diet_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
+				' If IsDate(diet_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				' If diet_member_number = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident for special diet."
+				' If diet_diagnosis = "" Then err_msg = err_msg & vbNewLine & "* Enter diagnosis"
+				' If diet_1_dropdown <>"" and diet_relationship_1_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 1 relationship"
+				' If diet_2_dropdown <>"" and diet_relationship_2_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 2 relationship"
+				' If diet_3_dropdown <>"" and diet_relationship_3_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 3 relationship"
+				' If diet_4_dropdown <>"" and diet_relationship_4_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 4 relationship"
 
-'MsgBox "i" & i  TEST
-'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
-Loop until form_count > Ubound(form_type_array, 2)
+				' If diet_relationship_1_dropdown <>"" and diet_1_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 1 diet"
+				' If diet_relationship_2_dropdown <>"" and diet_2_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 2 diet"
+				' If diet_relationship_3_dropdown <>"" and diet_3_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 3 diet"
+				' If diet_relationship_4_dropdown <>"" and diet_4_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 4 diet"
+				' If diet_length_diet = "" Then err_msg = err_msg & vbNewLine & "* Enter length of prescribed diet"
+				' If diet_status_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet Status"
+				' If ButtonPressed = diet_link_CM_special_diet Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_002312"
+				' If ButtonPressed = diet_SP_referrals Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Processing_Special_Diet_Referral.aspx"
+		
 
+			'Hospice 
+				' If ButtonPressed = hosp_TE0207081 Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E07%2E081%20HOSPICE%20CASES%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
+				' If ButtonPressed = hosp_SP_hospice Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
+				' If IsDate(hosp_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
+				' If IsDate(hosp_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
+				' If hosp_resident_name = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
+				' If trim(hosp_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
+				' If IsDate(hosp_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
+				' If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+						
+						
+			Call dialog_movement	'function to move throughout the dialogs
+						
+						'MsgBox "i" & i  TEST
+						'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
+							
+		Loop until err_msg = ""
+	Loop until form_count > Ubound(form_type_array, 2)
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
 
-
-'TODO: Case Notes for each dialog
 'CASE NOTE===========================================================================
+'TODO: Case Notes for each dialog
+'TODO- Hospice: Must keep the same header otherwise reading of past case notes won't work/continue -explore how to create separate case notes for each form
 
 Call start_a_blank_case_note	'Navigates to case note
 CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what else to add to the header
-
-
 
 'Casenote template
 	' CALL write_bullet_and_variable_in_case_note()
@@ -899,23 +1029,35 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 'ATR Case Notes
 'AREP Case Notes
 'Change Reported Case Note
-	CALL write_bullet_and_variable_in_case_note("CHANGE REPORTED--Date Effective", chng_effective_date)
-	CALL write_bullet_and_variable_in_case_note("  Notable changes reported", chng_notable_change)
-	CALL write_bullet_and_variable_in_case_note("  Date Received", chng_date_received)
-	CALL write_bullet_and_variable_in_case_note("  Address", chng_address_notes)
-	CALL write_bullet_and_variable_in_case_note("  Household Members", chng_household_notes)
-	CALL write_bullet_and_variable_in_case_note("  Assets", chng_asset_notes)
-	CALL write_bullet_and_variable_in_case_note("  Vehicles", chng_vehicles_notes)
-	CALL write_bullet_and_variable_in_case_note("  Income", chng_income_notes)
-	CALL write_bullet_and_variable_in_case_note("  Shelter", chng_shelter_notes)
-	CALL write_bullet_and_variable_in_case_note("  Other", chng_other_change_notes)
-	CALL write_bullet_and_variable_in_case_note("  Action Taken", chng_actions_taken)
-	CALL write_bullet_and_variable_in_case_note("  Other Notes", chng_other_notes)
-	CALL write_bullet_and_variable_in_case_note("  Verifs Requested", chng_verifs_requested)
-	CALL write_bullet_and_variable_in_case_note("  The changes client reports", chng_changes_continue)
+	CALL write_variable_in_CASE_NOTE("CHANGE REPORTED--Date Effective", chng_effective_date)
+	CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
+	CALL write_bullet_and_variable_in_case_note("Date Received", chng_date_received)
+	CALL write_bullet_and_variable_in_case_note("Address", chng_address_notes)
+	CALL write_bullet_and_variable_in_case_note("Household Members", chng_household_notes)
+	CALL write_bullet_and_variable_in_case_note("Assets", chng_asset_notes)
+	CALL write_bullet_and_variable_in_case_note("Vehicles", chng_vehicles_notes)
+	CALL write_bullet_and_variable_in_case_note("Income", chng_income_notes)
+	CALL write_bullet_and_variable_in_case_note("Shelter", chng_shelter_notes)
+	CALL write_bullet_and_variable_in_case_note("Other", chng_other_change_notes)
+	CALL write_bullet_and_variable_in_case_note("Action Taken", chng_actions_taken)
+	CALL write_bullet_and_variable_in_case_note("Other Notes", chng_other_notes)
+	CALL write_bullet_and_variable_in_case_note("Verifs Requested", chng_verifs_requested)
+	CALL write_bullet_and_variable_in_case_note("The changes client reports", chng_changes_continue)
 	CALL write_variable_in_case_note("   ")
+
 'EVF Case Notes
 'Hospice Case Notes
+	Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
+	Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
+	Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
+	Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
+	Call write_bullet_and_variable_in_CASE_NOTE("Date of Entry", hosp_entry_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Exit Date", hosp_exit_date)
+	'Call write_bullet_and_variable_in_MMIS_NOTE("Exit due to", exit_cause)         'This field is not currently in use so commented out - workers are testing, may add it back in
+	Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
+	Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
+
 'IAA Case Notes
 'IAA-SSI Case Notes
 'LTC 1503 Case Notes
@@ -924,26 +1066,32 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 'PSN Case Notes
 'SF Case Notes
 'Special Diet Case Notes
-	CALL write_bullet_and_variable_in_case_note("SPECIAL DIET--Date Effective", diet_effective_date)	
-	CALL write_bullet_and_variable_in_case_note("  Date Received", diet_date_received)					
-	CALL write_bullet_and_variable_in_case_note("  Member", diet_member_number)							'required
-	CALL write_bullet_and_variable_in_case_note("  Diagnosis", diet_diagnosis)
-	CALL write_bullet_and_variable_in_case_note("    Diet 1", diet_1_dropdown & diet_relationship_1_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("    Diet 2", diet_2_dropdown & diet_relationship_2_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("    Diet 3", diet_3_dropdown & diet_relationship_3_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("    Diet 4", diet_4_dropdown & diet_relationship_4_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("  Last exam date", diet_date_last_exam)
-	CALL write_bullet_and_variable_in_case_note("  Diet Length", diet_length_diet)							'required
-	CALL write_bullet_and_variable_in_case_note("  Person following treatment plan", diet_treatment_plan_dropdown)
-	CALL write_bullet_and_variable_in_case_note("  Diet approved/denied", diet_approved_denied_dropdown)
-	CALL write_bullet_and_variable_in_case_note("  Prognosis", diet_prognosis)
-	CALL write_bullet_and_variable_in_case_note("  Comments",diet_comments)
+	CALL write_variable_in_CASE_NOTE("SPECIAL DIET--Date Effective", diet_effective_date)	
+	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)					
+	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
+	CALL write_bullet_and_variable_in_case_note("Diagnosis", diet_diagnosis)
+	CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
+	CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
+	CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
+	If diet_status_dropdown = "Incomplete" then
+		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown & "- form returned to client")
+	Else
+		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown)
+	End If 
+	CALL write_bullet_and_variable_in_case_note("Prognosis", diet_prognosis)
+	CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
+	CALL write_variable_in_case_note("   ")
+	
+	CALL write_variable_in_case_note("---")
+	CALL write_variable_in_case_note(worker_signature)
 
 
 
-CALL write_variable_in_case_note("---")
-CALL write_variable_in_case_note(worker_signature)
-
+'TODO- look at what script this was for
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 IF tikl_nav_check = 1 THEN
 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
