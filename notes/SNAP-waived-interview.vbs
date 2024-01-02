@@ -6000,7 +6000,7 @@ function verification_dialog()
 
 end function
 function write_needed_info_CASE_NOTE(needed_info_array) 'TODO Add the header and footer, page handling, whatever
-	STATS_manualtime = STATS_manualtime + 600
+	STATS_manualtime = STATS_manualtime + 30
 	Call start_a_blank_case_note
 	If contact_status = "complete" Then
 		Call write_variable_in_CASE_NOTE("*SNAP waived interview info provided by resident.*")
@@ -6021,6 +6021,7 @@ function write_needed_info_CASE_NOTE(needed_info_array) 'TODO Add the header and
 		'TODO - somewhere else, run through the array and determine if there are mandatory, optional, and verifs, set booleans
 		For i = 1 to ubound(needed_info_array)
 			If needed_info_array(i)(2) = "mandatory" Then call write_interview_question_in_CASE_NOTE(needed_info_array(i))
+			STATS_manualtime = STATS_manualtime + 25
 		Next
 		optional_info = false
 		For i = 1 to ubound(needed_info_array)
@@ -6033,6 +6034,7 @@ function write_needed_info_CASE_NOTE(needed_info_array) 'TODO Add the header and
 		If TIKL_for_approval = true Then Call write_variable_in_CASE_NOTE("TIKL set for " & TIKL_date & " to approve SNAP without optional info/deductions.")
 		For i = 1 to ubound(needed_info_array)
 			If needed_info_array(i)(2) = "optional" Then call write_interview_question_in_CASE_NOTE(needed_info_array(i))
+			STATS_manualtime = STATS_manualtime + 25
 		Next
 	End If
 	Call write_variable_in_CASE_NOTE("---")
@@ -10771,3 +10773,49 @@ Call script_end_procedure_with_error_report(end_msg)
 ' Answer section page 64
 ' 1) On what form do you record information from the interview?
 ' Information from the interview must be recorded on the CAF and in MAXIS CASE/NOTES, in sufficient detail for other workers and supervisors to follow the adequacy of the certification process and the accuracy of your decisions.
+
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------1/1/2024
+'--Tab orders reviewed & confirmed----------------------------------------------1/1/2024
+'--Mandatory fields all present & Reviewed--------------------------------------1/1/2024
+'--All variables in dialog match mandatory fields-------------------------------1/1/2024
+'Review dialog names for content and content fit in dialog----------------------1/1/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------1/1/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------1/1/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------12/31/24
+'--MAXIS_background_check reviewed (if applicable)------------------------------12/31/24
+'--PRIV Case handling reviewed -------------------------------------------------12/01/24
+'--Out-of-County handling reviewed----------------------------------------------12/01/24
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/31/24
+'--BULK - review output of statistics and run time/count (if applicable)--------n/a
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------n/a
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/01/24
+'--Incrementors reviewed (if necessary)-----------------------------------------n/a
+'--Denomination reviewed -------------------------------------------------------n/a
+'--Script name reviewed---------------------------------------------------------12/29/24
+'--BULK - remove 1 incrementor at end of script reviewed------------------------n/a
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------01/01/24
+'--Remove testing code/unnecessary code-----------------------------------------01/01/24
+'--Review/update SharePoint instructions----------------------------------------12/31/24
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------12/31/24
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
