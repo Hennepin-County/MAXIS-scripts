@@ -8874,7 +8874,6 @@ If vars_filled = False Then
 		EMReadScreen CAF_datestamp, 8, pnd2_row, 38
 		CAF_datestamp = replace(CAF_datestamp, " ", "/")
 
-
 		If unknown_cash_pending = True Then CASH_on_CAF_checkbox = checked
 		If ga_status = "PENDING" Then CASH_on_CAF_checkbox = checked
 		If msa_status = "PENDING" Then CASH_on_CAF_checkbox = checked
@@ -8940,62 +8939,30 @@ If vars_filled = False Then
 	If snap_revw = True Then SNAP_on_CAF_checkbox = checked
 End If
 
-'BeginDialog Dialog1, 0, 0, 311, 245, "Programs to Interview For"
-'  EditBox 55, 40, 80, 15, CAF_datestamp
-'  CheckBox 185, 40, 30, 10, "CASH", CASH_on_CAF_checkbox
-'  CheckBox 225, 40, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-'  CheckBox 265, 40, 35, 10, "EMER", EMER_on_CAF_checkbox
-'  EditBox 40, 135, 260, 15, cash_other_req_detail
-'  EditBox 40, 155, 260, 15, snap_other_req_detail
-'  EditBox 40, 175, 260, 15, emer_other_req_detail
-'  ButtonGroup ButtonPressed
-    OkButton 200, 225, 50, 15
-    CancelButton 255, 225, 50, 15
-'  Text 10, 10, 265, 10, "We are going to start the interview based on the information listed on the form:"
-'  Text 20, 25, 155, 10, CAF_form_name
-'  Text 20, 45, 35, 10, "CAF Date:"
-'  GroupBox 180, 25, 125, 30, "Programs marked on Application"
-'  Text 15, 60, 295, 10, "As a part of the interview, we need to confirm the programs requested (or being reviewed)."
-'  Text 15, 75, 210, 10, "Confirm with the resident which programs should be assessed:"
-'  Text 25, 85, 250, 10, "-Update the checkboxes above to reflect what is marked on the CAF Form"
-'  Text 25, 95, 200, 10, "-Add any verbal request information in the boxes below."
-'  GroupBox 5, 110, 300, 85, "OTHER Program Requests (not marked on CAF)"
-'  Text 40, 125, 130, 10, "Explain how the program was requested."
-'  Text 15, 140, 20, 10, "Cash:"
-'  Text 15, 160, 20, 10, "SNAP:"
-'  Text 15, 180, 25, 10, "EMER:"
-'  Text 10, 200, 295, 25, "We need to know what programs we are assessing in the interview. Take time with the resident to ensure they understand the requests and we complete all information necesssary to complete the interview."
-'EndDialog
-'DELETE HERE
-'Do
-'	DO
-'		err_msg = ""
-'		Dialog Dialog1
-'		cancel_confirmation
-'
-'		cash_other_req_detail = trim(cash_other_req_detail)
-'	    snap_other_req_detail = trim(snap_other_req_detail)
-'	    emer_other_req_detail = trim(emer_other_req_detail)
-'
-'		program_requested = False
-'		If CASH_on_CAF_checkbox = checked Then program_requested = True
-'		If SNAP_on_CAF_checkbox = checked Then program_requested = True
-'		If EMER_on_CAF_checkbox = checked Then program_requested = True
-'		If cash_other_req_detail <> "" Then program_requested = True
-'		If snap_other_req_detail <> "" Then program_requested = True
-'		If emer_other_req_detail <> "" Then program_requested = True
-'
-'		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
-'		If program_requested = False Then err_msg = err_msg & vbCr & "* We must indicate a program being requested on the form or verbally. Review the request details with the resident."
-'		If SNAP_on_CAF_checkbox = unchecked THEN err_msg = err_msg & vbCr & "This script is only to be used for waived SNAP interviews. You did not select SNAP as a program requested on the application."
-'		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-'	LOOP UNTIL err_msg = ""
-'	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-'LOOP UNTIL are_we_passworded_out = false
-'save_your_work
 
+If isdate(CAF_datestamp) = false Then
+	Dialog1 = ""
+	CAF_datestamp = ""
+	BeginDialog Dialog1, 0, 0, 191, 105, "Application Date"
+	  OkButton 80, 85, 50, 15
+	  CancelButton 135, 85, 50, 15
+	  TextBox 80, 55, 55, 15, CAF_datestamp
+	  Text 10, 10, 170, 30, "Due to system limitations the script was unable to locate the SNAP application date. Please enter below."
+	  Text 10, 60, 65, 10, "Application Date:"
+	EndDialog
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+	LOOP UNTIL err_msg = ""
+End if 
+
+save_your_work
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
+too_old_date = DateAdd("D", -1, CAF_datestamp)   'We don't need to read notes from before the CAF date
+          
 
 Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)
 
