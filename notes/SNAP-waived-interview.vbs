@@ -151,7 +151,6 @@ Function create_needed_info_array(questions_array, needed_info_array)
 	'ReDim Preserve needed_info_array(info_count)
 	For current_question = 0 to ubound(questions_array)
 		If questions_array(current_question)(7) = "Yes" or trim(questions_array(current_question)(5)) <> "" then 
-			msgbox current_question
 			ReDim Preserve needed_info_array(info_count)
 			needed_info_array(info_count) = questions_array(current_question)
 			info_count = info_count + 1
@@ -580,6 +579,7 @@ Function display_work_rules() 'a dialog showing the general work rules for SNAP
 exemptions_button = 3701
 continue_button = 3702
 work_rules_reviewed_button = 3703
+return_to_info_btn = 3704
 
 			BeginDialog Dialog1, 0, 0, 385, 300, "SNAP General Work Rules"
 				 Text 15, 25, 350, 10, "Unless all members of the unit meet an exemption, you must review the SNAP general work rules below."
@@ -599,6 +599,7 @@ work_rules_reviewed_button = 3703
 				 PushButton 20, 250, 145, 15, "Press here to review a list of exemptions.", exemptions_button
   				 PushButton 210, 230, 145, 15, "Press here to continue without reviewing.", continue_button
   				 PushButton 20, 230, 145, 15, "Press here if you reviewed with resident.", work_rules_reviewed_button
+				 PushButton 210, 250, 145, 15, "Press here to return to the previous dialog.", return_to_info_btn
 			EndDialog
 
 
@@ -1599,6 +1600,7 @@ function define_main_dialog(questions_array)
 				call create_waiver_question_in_dialog(caf(12), questions_array, 12)
 				call create_waiver_question_in_dialog(caf(13), questions_array, 13)
 			ElseIf form_type = "MNBenefits" Then
+				Text 505, 92, 60, 10, "Q. 12 - 14"
 				call create_waiver_question_in_dialog(mnb(12), questions_array, 12)
 				call create_waiver_question_in_dialog(mnb(13), questions_array, 13)
 				call create_waiver_question_in_dialog(mnb(14), questions_array, 14)
@@ -1650,7 +1652,11 @@ function define_main_dialog(questions_array)
 		ElseIf page_display = show_qual Then
 			Text 10, 10, 395, 15, "Qualifying Questions are listed at the end of the CAF form and are completed by the resident. Indicate the answers to those questions here. If any are 'Yes' then indicate which household member to which the question refers."
 			y_pos = 35
-			Text 500, 152, 60, 10, "CAF QUAL Q"
+			If form_type = "senior" Then
+				Text 500, 107, 60, 10, "CAF QUAL Q" 
+			Else
+				Text 500, 152, 60, 10, "CAF QUAL Q"
+			End If 
 			If form_type = "senior" Then
 				call create_waiver_question_in_dialog(senior(10), questions_array, 10)
 				call create_waiver_question_in_dialog(senior(11), questions_array, 11)
@@ -1671,7 +1677,11 @@ function define_main_dialog(questions_array)
 				call create_waiver_question_in_dialog(mnb(29), questions_array, 29)
 			End If 
 		ElseIf page_display = show_pg_last Then
-			Text 498, 167, 60, 10, "CAF Last Page"
+			If form_type = "senior" Then
+				Text 498, 122, 60, 10, "CAF Last Page"
+			Else
+				Text 498, 167, 60, 10, "CAF Last Page"
+			End If 
 
 			GroupBox 5, 5, 475, 60, "Confirm Authorized Representative"
 
@@ -8054,7 +8064,7 @@ Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method t
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
-dim y_pos, form_type
+dim y_pos, form_type, contact_status
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
@@ -9744,27 +9754,41 @@ If info_needed = True Then  'There is info needed, call the resident
 	
 	
 	Do
-		Do	
-			Do 
-				Dialog1 = ""
-				err_msg = ""
-				call needed_info_dialog(needed_info_array)
-				Dialog Dialog1
-				cancel_confirmation
-				call dialog_movement
-			Loop Until err_msg = ""
-			
-			Call check_for_password(are_we_passworded_out)
-		Loop Until contact_status <> ""
-		If ButtonPressed = contact_completed Then
-			Do
-				call display_work_rules()
-				Dialog Dialog1
-				cancel_confirmation
-				If ButtonPressed = exemptions_button Then call display_exemptions()
-				If ButtonPressed = work_rules_reviewed_button Then work_rules_reviewed = true
-			Loop until ButtonPressed <> 3701
-		End If 
+		Do
+			Do	
+				Do 
+
+
+					Dialog1 = ""
+					err_msg = ""
+					call needed_info_dialog(needed_info_array)
+					Dialog Dialog1
+					cancel_confirmation
+
+					previous_button_pressed = ButtonPressed
+				Loop Until err_msg = ""
+				call dialog_movement			
+			Loop Until contact_status <> ""
+		
+			If ButtonPressed = contact_completed Then
+				Do
+					call display_work_rules()
+					Dialog Dialog1
+					cancel_confirmation
+					If ButtonPressed = exemptions_button Then call display_exemptions()
+					If ButtonPressed = work_rules_reviewed_button Then work_rules_reviewed = true
+					If ButtonPressed = return_to_info_btn Then contact_complete = false
+				Loop until ButtonPressed <> 3701
+			ElseIf ButtonPressed = no_contact Then
+				proceed_confirm = MsgBox("Are you sure you wish to proceed?" & vbCr & vbCr &_
+									 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE." & vbCr & vbCr &_
+									 "Press 'No' now to return to the dialog if you are still attempting to contact the resident." & vbCr &_
+									 "Press 'Yes' if the resident or AREP cannot be reached via all available numbers, and continue to case noting." & vbCr &_
+									 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "")
+				If proceed_confirm = vbCancel then cancel_confirmation
+			End If 
+		Loop Until proceed_confirm <> vbNo AND ButtonPressed <> 3704
+		Call check_for_password(are_we_passworded_out)
 	Loop Until are_we_passworded_out = false
 	
 
