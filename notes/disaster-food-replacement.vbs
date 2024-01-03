@@ -211,4 +211,155 @@ If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and ben
 
 End If
 
+'If Food Destroyed in Disaster/Misfortune and SPEC/MEMO options selected
+If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
+  MsgBox "Functionality to be added"
 
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Food Destroyed in a Disaster"
+    Text 15, 40, 50, 10, "Case number:"
+    EditBox 75, 35, 40, 15, MAXIS_case_number
+    Text 15, 335, 60, 10, "Worker Signature: "
+    EditBox 80, 330, 165, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 255, 330, 35, 15
+      CancelButton 295, 330, 35, 15
+  EndDialog
+
+  'Validation for dialog fields
+  Do
+    Do
+      err_msg = ""
+      DIALOG dialog1
+      Cancel_confirmation
+      'Validation handling
+
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+End If
+
+'If Replacing Stolen EBT Food - Client Notified and CASE/NOTE options selected
+If benefit_replacement_process = "Replacing Stolen EBT Food - Client Notified" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
+  MsgBox "Functionality to be added"
+
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Notified"
+    Text 15, 40, 50, 10, "Case number:"
+    EditBox 75, 35, 40, 15, MAXIS_case_number
+    Text 15, 335, 60, 10, "Worker Signature: "
+    EditBox 80, 330, 165, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 255, 330, 35, 15
+      CancelButton 295, 330, 35, 15
+  EndDialog
+
+  'Validation for dialog fields
+  Do
+    Do
+      err_msg = ""
+      DIALOG dialog1
+      Cancel_confirmation
+      'Validation handling
+
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+End If
+
+'If Replacing Stolen EBT Food - Client Notified and SPEC/MEMO options selected
+If benefit_replacement_process = "Replacing Stolen EBT Food - Client Notified" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
+  MsgBox "Functionality to be added"
+
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Notified"
+    Text 15, 40, 50, 10, "Case number:"
+    EditBox 75, 35, 40, 15, MAXIS_case_number
+    Text 15, 335, 60, 10, "Worker Signature: "
+    EditBox 80, 330, 165, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 255, 330, 35, 15
+      CancelButton 295, 330, 35, 15
+  EndDialog
+
+  'Validation for dialog fields
+  Do
+    Do
+      err_msg = ""
+      DIALOG dialog1
+      Cancel_confirmation
+      'Validation handling
+
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+End If
+
+'If Replacing Stolen EBT Food - Client Requests and CASE/NOTE options selected
+If benefit_replacement_process = "Replacing Stolen EBT Food - Client Requests" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
+  MsgBox "Functionality to be added"
+
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Requests"
+    Text 15, 40, 50, 10, "Case number:"
+    EditBox 75, 35, 40, 15, MAXIS_case_number
+    Text 15, 335, 60, 10, "Worker Signature: "
+    EditBox 80, 330, 165, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 255, 330, 35, 15
+      CancelButton 295, 330, 35, 15
+  EndDialog
+
+  'Validation for dialog fields
+  Do
+    Do
+      err_msg = ""
+      DIALOG dialog1
+      Cancel_confirmation
+      'Validation handling
+
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+End If
+
+'If Replacing Stolen EBT Food - Client Requests and SPEC/MEMO options selected
+If benefit_replacement_process = "Replacing Stolen EBT Food - Client Requests" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
+  MsgBox "Functionality to be added"
+
+  Dialog1 = "" 'Blanking out previous dialog detail
+  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Requests"
+    Text 15, 40, 50, 10, "Case number:"
+    EditBox 75, 35, 40, 15, MAXIS_case_number
+    Text 15, 335, 60, 10, "Worker Signature: "
+    EditBox 80, 330, 165, 15, worker_signature
+    ButtonGroup ButtonPressed
+      OkButton 255, 330, 35, 15
+      CancelButton 295, 330, 35, 15
+  EndDialog
+
+  'Validation for dialog fields
+  Do
+    Do
+      err_msg = ""
+      DIALOG dialog1
+      Cancel_confirmation
+      'Validation handling
+
+      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Loop until are_we_passworded_out = false					'loops until user passwords back in
+  
+End If
