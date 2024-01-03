@@ -180,7 +180,7 @@ function change_dialog()
 	DropListBox 270, 280, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", chng_changes_continue
 	Text 5, 5, 220, 10, "CHANGE REPORT FORM"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 60, 20, 45, 10, "MAXIS_case_number"
+	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	GroupBox 5, 35, 370, 150, "CHANGES REPORTED"
@@ -227,81 +227,93 @@ function evf_dialog()
 end function 
 
 function hospice_dialog()
-  EditBox 175, 20, 45, 15, hosp_effective_date
-  EditBox 310, 20, 45, 15, hosp_date_received		
-  DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
-  EditBox 100, 65, 205, 15, hosp_name
-  EditBox 100, 85, 80, 15, hops_npi_number
-  EditBox 100, 105, 50, 15, hosp_entry_date
-  EditBox 205, 105, 50, 15, hosp_exit_date
-  EditBox 100, 125, 50, 15, hosp_mmis_updated_date
-  EditBox 30, 160, 275, 15, hosp_reason_not_updated
-  EditBox 30, 190, 275, 15, hosp_other_notes
-  ButtonGroup ButtonPressed
-    PushButton 5, 280, 50, 15, "TE 02.07.081", hosp_TE0207081
-    PushButton 65, 280, 50, 15, "MA-Hospice", hosp_SP_hospice
-  Text 5, 5, 220, 10, "HOSPICE TRANSACTION FORM"
-  Text 5, 25, 50, 10, "Case Number:"
-  Text 125, 25, 50, 10, "Effective Date:"
-  Text 245, 25, 60, 10, "Document Date:"
-  Text 50, 50, 45, 10, "Client Name:"
-  Text 35, 70, 60, 10, "Name of Hospice:"
-  Text 50, 90, 45, 10, "NPI Number:"
-  Text 55, 110, 40, 10, "Entry Date:"
-  Text 170, 110, 35, 10, "Exit Date:"
-  Text 30, 130, 70, 10, "MMIS Updated as of "
-  Text 30, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
-  Text 30, 180, 50, 10, "Other Notes:"
-  Text 60, 25, 45, 10, "MAXIS_case_number"
-  Text 395, 35, 45, 10, "    --Forms--"		
+	EditBox 175, 20, 45, 15, hosp_effective_date
+	EditBox 310, 20, 45, 15, hosp_date_received		
+	DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
+	EditBox 100, 65, 205, 15, hosp_name
+	EditBox 100, 85, 80, 15, hops_npi_number
+	EditBox 100, 105, 50, 15, hosp_entry_date
+	EditBox 205, 105, 50, 15, hosp_exit_date
+	EditBox 100, 125, 50, 15, hosp_mmis_updated_date
+	EditBox 30, 160, 275, 15, hosp_reason_not_updated
+	EditBox 30, 190, 275, 15, hosp_other_notes
+	ButtonGroup ButtonPressed
+		PushButton 5, 280, 50, 15, "TE 02.07.081", hosp_TE0207081_btn
+		PushButton 65, 280, 50, 15, "MA-Hospice", hosp_SP_hospice_btn
+	Text 5, 5, 220, 10, "HOSPICE TRANSACTION FORM"
+	Text 5, 25, 50, 10, "Case Number:"
+	Text 125, 25, 50, 10, "Effective Date:"
+	Text 245, 25, 60, 10, "Document Date:"
+	Text 50, 50, 45, 10, "Client Name:"
+	Text 35, 70, 60, 10, "Name of Hospice:"
+	Text 50, 90, 45, 10, "NPI Number:"
+	Text 55, 110, 40, 10, "Entry Date:"
+	Text 170, 110, 35, 10, "Exit Date:"
+	Text 30, 130, 70, 10, "MMIS Updated as of "
+	Text 30, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
+	Text 30, 180, 50, 10, "Other Notes:"
+	Text 60, 25, 45, 10, MAXIS_case_number
+	Text 395, 35, 45, 10, "    --Forms--"		
 end function 
 
-Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hops_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081, hosp_SP_hospice
+Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hops_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, iaa_effective_date
-		EditBox 310, 20, 45, 15, iaa_date_received
-		EditBox 30, 65, 270, 15, iaa_Q1
-		EditBox 30, 85, 270, 15, iaa_Q2
-		EditBox 30, 105, 270, 15, iaa_Q3
-		EditBox 30, 125, 270, 15, iaa_Q4		
-		Text 5, 5, 220, 10, "Interim Assistance Agreement (IAA)"
-		Text 125, 25, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-		Text 5, 25, 50, 10, "Case Number:"
-		Text 395, 35, 45, 10, "    --Forms--"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, ""
+	EditBox 175, 15, 45, 15, iaa_effective_date
+	EditBox 310, 15, 45, 15, iaa_date_received		
+	DropListBox 55, 45, 110, 15, HH_Memb_DropDown, iaa_member_dropdown
+	DropListBox 265, 45, 60, 15, ""+chr(9)+"Initial claim"+chr(9)+"Post-eligibility", iaa_type_assistance
+	CheckBox 30, 70, 295, 15, "Signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_within_30_checkbox
+	CheckBox 30, 85, 310, 15, "NOT signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_outside_30_checkbox
+	EditBox 50, 125, 145, 15, iaa_benefits_1
+	EditBox 50, 145, 145, 15, iaa_benefits_2
+	EditBox 205, 125, 145, 15, iaa_benefits_3
+	EditBox 205, 145, 145, 15, iaa_benefits_4
+	EditBox 50, 180, 300, 15, iaa_comments
+	ButtonGroup ButtonPressed
+		PushButton 5, 280, 95, 15, "IAA Maxis Instructions", iaa_sp_btn
+	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION"
+	Text 5, 20, 50, 10, "Case Number:"
+	Text 60, 20, 45, 10, "MAXIS_case_number"
+	Text 125, 20, 50, 10, "Effective Date:"
+	Text 245, 20, 60, 10, "Document Date:"
+	Text 20, 50, 30, 10, "Member"
+	Text 175, 50, 90, 10, "Type of interim assistance"
+	Text 20, 115, 130, 10, "Other benefits you may be eligible for"
+	Text 15, 185, 35, 10, "Comments"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function 
 
+Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_within_30_checkbox, iaa_outside_30_checkbox, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_comments, iaa_sp_btn
+
+
 function iaa_ssi_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, iaa_ssi_effective_date
-			EditBox 310, 20, 45, 15, iaa_ssi_date_received
-			EditBox 30, 65, 270, 15, iaa_ssi_Q1
-			EditBox 30, 85, 270, 15, iaa_ssi_Q2
-			EditBox 30, 105, 270, 15, iaa_ssi_Q3
-			EditBox 30, 125, 270, 15, iaa_ssi_Q4			
-			Text 5, 5, 220, 10, "Interim Assistance Authorization- SSI"
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+	EditBox 175, 20, 45, 15, iaa_ssi_effective_date
+	EditBox 310, 20, 45, 15, iaa_ssi_date_received		
+	DropListBox 55, 45, 110, 15, HH_Memb_DropDown, iaa_ssi_member_dropdown 
+	DropListBox 265, 45, 95, 20, ""+chr(9)+"General Assistance (GA)"+chr(9)+"Housing Support (HS)", iaa_ssi_type_assistance
+	CheckBox 30, 70, 295, 15, "Signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_ssi_within_30_checkbox
+	CheckBox 30, 85, 310, 15, "NOT signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_ssi_outside_30_checkbox
+	EditBox 55, 105, 300, 15, iaa_ssi_comments
+	ButtonGroup ButtonPressed
+	PushButton 5, 280, 50, 15, "CM12.12.03", iaa_ssi_CM121203_btn
+	PushButton 65, 280, 95, 15, "IAA-SSI Maxis Instructions", iaa_ssi_sp_btn
+	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION- SSI"
+	Text 5, 25, 50, 10, "Case Number:"
+	Text 60, 25, 45, 10, MAXIS_case_number
+	Text 125, 25, 50, 10, "Effective Date:"
+	Text 245, 25, 60, 10, "Document Date:"
+	Text 5, 5, 220, 10, "Interim Assistance Authorization- SSI"
+	Text 20, 50, 30, 10, "Member"
+	Text 175, 50, 90, 10, "Type of interim assistance"
+	Text 20, 110, 35, 10, "Comments"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function
 
+Dim iaa_ssi_effective_date, iaa_ssi_date_received, iaa_ssi_member_dropdown, iaa_ssi_type_assistance, iaa_ssi_within_30_checkbox, iaa_ssi_outside_30_checkbox, iaa_ssi_comments, iaa_ssi_CM121203_btn, iaa_ssi_sp_btn
+
 function ltc_1503_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
+			Text 60, 25, 45, 10, MAXIS_case_number
 			EditBox 175, 20, 45, 15, ltc_1503_effective_date
 			EditBox 310, 20, 45, 15, ltc_1503_date_received
 			EditBox 30, 65, 270, 15, ltc_1503_Q1
@@ -423,7 +435,7 @@ function diet_dialog()
 	EditBox 75, 160, 55, 15, diet_date_last_exam
 	DropListBox 130, 180, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown
 	EditBox 270, 180, 55, 15, diet_length_diet
-	DropListBox 105, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown		'TODO: Handling for each scenario- each has it's own notification process/steps
+	DropListBox 130, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown		'TODO: Handling for each scenario- each has it's own notification process/steps
 	EditBox 50, 220, 290, 15, diet_prognosis
 	EditBox 50, 240, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
@@ -431,7 +443,7 @@ function diet_dialog()
 	Text 395, 35, 45, 10, "    --Forms--"
 	Text 5, 5, 220, 10, "SPECIAL DIET INFORMATION REQUEST (MFIP and MSA)"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 60, 20, 45, 10, "MAXIS_case_number"
+	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	Text 20, 40, 30, 10, "Member"
@@ -445,7 +457,7 @@ function diet_dialog()
 	Text 15, 165, 60, 10, "Date of last exam"
 	Text 15, 185, 115, 10, "Is person following treament plan?"
 	Text 185, 185, 85, 10, "Length of Prescribed Diet"
-	Text 15, 205, 100, 10, "Diet approved, denied, incomplete?"
+	Text 15, 205, 120, 10, "Diet approved, denied, incomplete?"
 	Text 15, 225, 35, 10, "Prognosis"
 	Text 15, 245, 35, 10, "Comments"
 end function
@@ -983,16 +995,29 @@ Do
 		
 
 			'Hospice 
-				' If ButtonPressed = hosp_TE0207081 Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E07%2E081%20HOSPICE%20CASES%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
-				' If ButtonPressed = hosp_SP_hospice Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
+				' If ButtonPressed = hosp_TE0207081_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E07%2E081%20HOSPICE%20CASES%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
+				' If ButtonPressed = hosp_SP_hospice_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
 				' If IsDate(hosp_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
 				' If IsDate(hosp_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
-				' If hosp_resident_name = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
+				' If hosp_resident_name = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident that is in hospice."
 				' If trim(hosp_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
 				' If IsDate(hosp_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
 				' If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 						
-						
+			'IAA-SSI
+				'If iaa_ssi_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
+				'If iaa_ssi_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
+				'TODO: handling for checkboxes iaa_ssi_within_30_checkbox, iaa_ssi_outside_30_checkbox,
+				'If ButtonPressed = iaa_ssi_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
+				'If ButtonPressed = iaa_ssi_sp_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+			
+
+			' IAA
+				'If iaa_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
+				'If iaa_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
+				'TODO: handling for checkboxes iaa_within_30_checkbox, iaa_outside_30_checkbox,
+				'If ButtonPressed = iaa_sp_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+
 			Call dialog_movement	'function to move throughout the dialogs
 						
 						'MsgBox "i" & i  TEST
@@ -1029,7 +1054,7 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 'ATR Case Notes
 'AREP Case Notes
 'Change Reported Case Note
-	CALL write_variable_in_CASE_NOTE("CHANGE REPORTED--Date Effective", chng_effective_date)
+	CALL write_bullet_and_variable_in_CASE_NOTE("CHANGE REPORTED--Date Effective", chng_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
 	CALL write_bullet_and_variable_in_case_note("Date Received", chng_date_received)
 	CALL write_bullet_and_variable_in_case_note("Address", chng_address_notes)
@@ -1047,7 +1072,7 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 
 'EVF Case Notes
 'Hospice Case Notes
-	Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
+	Call write_bullet_and_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***", hosp_effective_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
@@ -1059,18 +1084,36 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
 
 'IAA Case Notes
+	CALL write_bullet_and_variable_in_case_note("INTERIM ASSISTANCE AGREEMENT", iaa_effective_date)
+	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_date_received)
+	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_member_dropdown)
+	'If iaa_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+	'If iaa_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
+	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
+
+
 'IAA-SSI Case Notes
+	CALL write_bullet_and_variable_in_case_note("INTERIM ASSISTANCE AGREEMENT-SSI", iaa_ssi_effective_date)
+	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_ssi_date_received)
+	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_ssi_member_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Assistance Type", iaa_ssi_type_assistance)
+	'If iaa_ssi_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+	'If iaa_ssi_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+	CALL write_bullet_and_variable_in_case_note("Notes", iaa_ssi_comments)
+
+
 'LTC 1503 Case Notes
 'MOF Case Notes
 'MTAF Case Notes
 'PSN Case Notes
 'SF Case Notes
 'Special Diet Case Notes
-	CALL write_variable_in_CASE_NOTE("SPECIAL DIET--Date Effective", diet_effective_date)	
+	CALL write_bullet_and_variable_in_CASE_NOTE("SPECIAL DIET--Date Effective", diet_effective_date)	
 	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)					
 	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
 	CALL write_bullet_and_variable_in_case_note("Diagnosis", diet_diagnosis)
-	CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required	'TODO: figure out why this populates on every casenote
 	CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
 	CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
 	CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
@@ -1107,6 +1150,7 @@ script_end_procedure ("Success! The script has ended. ")
 'Define Count Var
 'Define BTN Var
 'Define Dialog Function 
+'Dim Variables
 'Dialog Movement- BTN and Form Name
 'Drop Down Selection Dialog
 'Checkbox VAR
