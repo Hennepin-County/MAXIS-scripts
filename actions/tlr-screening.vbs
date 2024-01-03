@@ -656,6 +656,7 @@ Else
         End if   
     Next 
 End if 
+Call write_bullet_and_variable_in_CASE_NOTE("Exemption Notes", exemption_notes)
 If abawd_counted_months => 3 then 
     Call write_variable_in_CASE_NOTE("* Member has used all available counted TLR/ABAWD months.")
     Call write_variable_in_CASE_NOTE("* Member" & ss_elig_text & "eligible for TLR/ABAWD 2nd set months.")
