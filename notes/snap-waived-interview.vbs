@@ -260,7 +260,7 @@ Function needed_info_dialog(needed_info_array)
 
 End Function
 function create_info_needed_in_dialog(needed_info)
-		IF needed_info(1) = "standard" Then
+	If needed_info(1) = "standard" Then
 		GroupBox 5, y_pos, 475, 75, needed_info(0) 'question text
 		y_pos = y_pos + 10
 		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
@@ -782,15 +782,16 @@ function check_for_errors(interview_questions_clear)
 		qual_memb_five = trim(qual_memb_five)
 		If form_type = "full CAF" or form_type = "MNBenefits" Then
 		For qual_q = 25 to 29
-			If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_1)(14) = "" OR questions_array(qual_1)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
+			If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_q)(14) = "" OR questions_array(qual_q)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
 				err_msg = err_msg & "~!~" & "10^*" & questions_array(qual_1)(0) 'Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 			'	If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 				err_msg = err_msg & "##~##   - This question was answered Yes or left blank, you should indicate that more information is needed."
 			End If
 		Next
 		ElseIf form_type = "senior" Then
-			For qual_q = 10 to 14
-				If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_1)(14) = "" OR questions_array(qual_1)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
+			For qual_q = 11 to 15
+				'if 	clt_count > 1 Then qual_q = qual_q +1
+				If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_q)(14) = "" OR questions_array(qual_q)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
 				err_msg = err_msg & "~!~" & "10^*" & questions_array(qual_1)(0) 'Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 				err_msg = err_msg & "##~##   - This question was answered Yes or left blank, you should indicate that more information is needed."
 			End If
@@ -926,9 +927,9 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
-		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'this_question(7)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
 		Text 115, y_pos, 40, 10, "Details:"
-		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'this_question(5)
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 20
 	ElseIf this_question(1) = "unea" Then
@@ -991,10 +992,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		Text 105, y_pos, 40, 10, "Details:"
-		EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 25
 	ElseIf this_question(1) = "shel" Then 
@@ -1034,10 +1036,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		Text 105, y_pos, 40, 10, "Details:"
-		EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 25
 	ElseIf this_question(1) = "jobs" Then
@@ -1054,10 +1057,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 95, y_pos, 25, 10, "write-in:"
 			EditBox 120, y_pos - 5, 350, 15, questions_array(question_count)(4)
 			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Info needed?"
-			DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-			Text 105, y_pos, 40, 10, "Details:"
-			EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+			Text 15, y_pos, 50, 10, "Info needed?"
+			PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+			DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+			Text 115, y_pos, 40, 10, "Details:"
+			EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 			' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
 			' y_pos = y_pos + 20
@@ -1116,9 +1120,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(7)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info Needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		EditBox 105, y_pos - 5, 290, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 100, 10, "Does phone have an expense?"
@@ -1535,10 +1541,10 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 510, 62, 60, 10, "Q. 1 - 3"
-				If clt_count > 1 Then call create_waiver_question_in_dialog(senior_eats, questions_array, 10)
-				call create_waiver_question_in_dialog(senior(1), questions_array, 1)
+				If clt_count > 1 Then call create_waiver_question_in_dialog(senior(1), questions_array, 1)
 				call create_waiver_question_in_dialog(senior(2), questions_array, 2)
 				call create_waiver_question_in_dialog(senior(3), questions_array, 3)
+				call create_waiver_question_in_dialog(senior(4), questions_array, 4)
 			ElseIf form_type = "full CAF" Then
 				Text 510, 62, 60, 10, "Q. 1 - 6"
 				call create_waiver_question_in_dialog(caf(1), questions_array, 1)
@@ -1562,8 +1568,8 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 508, 77, 60, 10, "Q. 4-5"
-				call create_waiver_question_in_dialog(senior(4), questions_array, 4)
 				call create_waiver_question_in_dialog(senior(5), questions_array, 5)
+				call create_waiver_question_in_dialog(senior(6), questions_array, 6)
 
 			Elseif form_type = "full CAF" Then
 			Text 508, 77, 60, 10, "Q. 7 - 11"
@@ -1584,10 +1590,10 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 505, 92, 60, 10, "Q. 6 - 8"
-				call create_waiver_question_in_dialog(senior(6), questions_array, 6)
 				call create_waiver_question_in_dialog(senior(7), questions_array, 7)
 				call create_waiver_question_in_dialog(senior(8), questions_array, 8)
 				call create_waiver_question_in_dialog(senior(9), questions_array, 9)
+				call create_waiver_question_in_dialog(senior(10), questions_array, 10)
 			ElseIf form_type = "full CAF" Then
 				Text 505, 92, 60, 10, "Q. 12 - 13"
 				call create_waiver_question_in_dialog(caf(12), questions_array, 12)
@@ -1651,11 +1657,11 @@ function define_main_dialog(questions_array)
 				Text 500, 152, 60, 10, "CAF QUAL Q"
 			End If 
 			If form_type = "senior" Then
-				call create_waiver_question_in_dialog(senior(10), questions_array, 10)
 				call create_waiver_question_in_dialog(senior(11), questions_array, 11)
 				call create_waiver_question_in_dialog(senior(12), questions_array, 12)
 				call create_waiver_question_in_dialog(senior(13), questions_array, 13)
 				call create_waiver_question_in_dialog(senior(14), questions_array, 14)
+				call create_waiver_question_in_dialog(senior(15), questions_array, 15)
 			Elseif form_type = "full CAF" Then
 				call create_waiver_question_in_dialog(caf(25), questions_array, 25)
 				call create_waiver_question_in_dialog(caf(26), questions_array, 26)
@@ -2178,45 +2184,24 @@ function dialog_movement()
             selected_memb = 0
         End If
 	Next
-	'If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
-	'If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
-	'If ButtonPressed = add_verif_3_btn Then Call verif_details_dlg(3)
-	'If ButtonPressed = add_verif_4_btn Then Call verif_details_dlg(4)
-	'If ButtonPressed = add_verif_5_btn Then Call verif_details_dlg(5)
-	'If ButtonPressed = add_verif_6_btn Then Call verif_details_dlg(6)
-	'If ButtonPressed = add_verif_7_btn Then Call verif_details_dlg(7)
-	'If ButtonPressed = add_verif_8_btn Then Call verif_details_dlg(8)
-	'If ButtonPressed = add_verif_9_btn Then Call verif_details_dlg(9)
-	'If ButtonPressed = add_verif_10_btn Then Call verif_details_dlg(10)
-	'If ButtonPressed = add_verif_11_btn Then Call verif_details_dlg(11)
-	'If ButtonPressed = add_verif_12_btn Then Call verif_details_dlg(12)
-	'If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
-	'If ButtonPressed = add_verif_14_btn Then Call verif_details_dlg(14)
-	'If ButtonPressed = add_verif_15_btn Then Call verif_details_dlg(15)
-	'If ButtonPressed = add_verif_16_btn Then Call verif_details_dlg(16)
-	'If ButtonPressed = add_verif_17_btn Then Call verif_details_dlg(17)
-	'If ButtonPressed = add_verif_18_btn Then Call verif_details_dlg(18)
-	'If ButtonPressed = add_verif_19_btn Then Call verif_details_dlg(19)
-	'If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
-	'If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
-	'If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
-	'If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
-	'If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
 	
-	'TODO
+	For i = 1 to ubound(questions_array)'find question number for each question type
+		If questions_array(i)(1) = "shel" then shel_q = i
+		If questions_array(i)(1) = "hest" then hest_q = i
+		If questions_array(i)(1) = "asset" then cash_q = i
+		If questions_array(i)(1) = "unea" Then unea_q = i
+	next
+
+	
 	If ButtonPressed = SHEL_all_no_btn Then
 		For i = 13 to 19
-			If form_type = "senior" Then questions_array(4)(i) = "No"
-			If form_type = "full CAF" Then questions_array(15)(i) = "No"
-			If form_type = "MNBenefits" Then questions_arrray(14)(i) = "No"
+		questions_array(shel_q)(i) = "No"
 		Next
 	End If
 
 	If ButtonPressed = UNEA_all_no_btn Then 
 		For i = 13 to 29 step 2
-			If form_type = "senior" Then questions_array(3)(i) = "No"
-			If form_type = "full CAF" Then questions_array(13)(i) = "No"
-			If form_type = "MNBenefits" Then questions_arrray(12)(i) = "No"
+			questions_array(unea_q)(i) = "No"
 		Next
 	End If 
 	If ubound(questions_array) > 1 Then
@@ -5391,7 +5376,7 @@ end function
 Function member_info_needed_dialog()
 	
 
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 396, 95, "Household or Member info Needed"
 	  
 	  Text 5, 5, 360, 15, "Explain what information about members or household comp needs to be collected from the resident below."
@@ -5416,12 +5401,14 @@ Function member_info_needed_dialog()
 				Redim preserve questions_array(q_num) 'Add one more question to the questions array
 				questions_array(q_num) = memb_question
 				questions_array(q_num)(5) = item_1
+				questions_array(q_num)(3) = "N/A"
 			End If 
 			If item_2 <> "" Then 
 				q_num = ubound(questions_array) + 1
 				Redim preserve questions_array(q_num) 'Add one more question to the questions array
 				questions_array(q_num) = memb_question
 				questions_array(q_num)(5) = item_2
+				questions_array(q_num)(3) = "N/A"
 			End If 
 		End IF
 		
@@ -5432,7 +5419,7 @@ End Function
 
 function verif_details_dlg(question_number)
 
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 396, 95, "Add Verification"
 	  DropListBox 60, 35, 75, 45, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File"+chr(9)+"Verbal Attestation", questions_array(question_number)(6)
 	  EditBox 60, 55, 330, 15, questions_array(question_number)(12)
@@ -5647,7 +5634,7 @@ function verification_dialog()
             bank_verif_time = "[Enter Time Frame]"
             second_call = TRUE
         End If
-
+		Dialog1 = ""
         Do
             verif_err_msg = ""
 			' BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
@@ -7755,7 +7742,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 
 		If ask_more_questions = True AND ongoing_snap_approved_yn = "No" AND prev_post_verifs_recvd_yn = "No" Then
 			case_has_previously_postponed_verifs_that_prevent_exp_snap = True
-
+			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 291, 145, "Case Previously Received EXP SNAP with Postponed Verifications"
 			  GroupBox 5, 5, 280, 60, "EXPEDITED APPROVAL MUST BE DELAYED"
 			  Text 20, 20, 100, 10, "Based on this case situation"
@@ -8398,89 +8385,89 @@ qualification_help = "More information is needed for any qualification question 
 
 ' Question text for the SNAP App for Srs (DHS-5223F)
 'dim senior(10)
-dim senior(14)
+dim senior(15)
 dim senior_eats(12)
 senior_eats(0) =  "This is a multiple member household, do all HH members eat with the applicant or are mandatory members?"
 senior_eats(1) = "standard"
 senior_eats(2) = "mandatory"
 senior_eats(9) = eats_help
-senior(0) = senior_eats
+senior(1) = senior_eats
 dim senior_1(12)
 senior_1(0) =  "1. Does anyone in the household have a job or expect to get income from a job this month or next month?"
 senior_1(1) = "jobs"
 senior_1(2) = "mandatory"
 senior_1(9) = jobs_help
-senior(1) = senior_1
+senior(2) = senior_1
 dim senior_2(12)
 senior_2(0) = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 senior_2(1) = "standard"
 senior_2(2) = "mandatory"
 senior_2(9) = busi_help
-senior(2) = senior_2
+senior(3) = senior_2
 dim senior_3(30)
 senior_3(0) = "3. Has anyone in the household applied for or does anyone get any of the following types of income?" 
 senior_3(1) = "unea"
 senior_3(2) = "mandatory"
 senior_3(9) = unea_help
-senior(3) = senior_3
+senior(4) = senior_3
 dim senior_4(20)
 senior_4(0)= "4. Does your household have the following housing expenses? Check yes or no for each item. " 
 senior_4(1) = "shel"
 senior_4(2) = "optional"
 senior_4(9) = shel_help
-senior(4) = senior_4 
+senior(5) = senior_4 
 dim senior_5(20)
 senior_5(0) = "5. Does your household have the following utility expenses any time during the year, including seasonal charges? Check yes or no for each item."
 senior_5(1) = "hest"
 senior_5(2) = "optional"
 senior_5(9) = hest_help
-senior(5) = senior_5
+senior(6) = senior_5
 dim senior_5a(12)
 senior_5a(0)= "5a. Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
 senior_5a(1)= "standard"
 senior_5a(2)= "optional"
 senior_5a(9) = hest_help
-senior(6) = senior_5a
+senior(7) = senior_5a
 dim senior_6(12)
 senior_6(0)= "6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 senior_6(1)= "standard"
 senior_6(2)= "optional"
 senior_6(9) = deduct_help
-senior(7) = senior_6
+senior(8) = senior_6
 dim senior_7(12)
 senior_7(0)= "7. Does anyone in the household pay court-ordered child support, spousal support, child care support, or medical support?"
 senior_7(1)= "standard"
 senior_7(2)= "optional"
 senior_7(9) = deduct_help
-senior(8) = senior_7
+senior(9) = senior_7
 dim senior_8(12)
 senior_8(0)= "8. Does anyone in the household have medical expenses? "
 senior_8(1)= "standard"
 senior_8(2)= "optional"
 senior_8(9) = fmed_help
-senior(9) = senior_8
+senior(10) = senior_8
 dim senior_9(14)
 senior_9(0)= "9. Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the SNAP penalty warnings on page 2 of the instructions?"
 'senior_9(1)= "qual"
 'senior_9(2)= "mandatory"
 'senior_9(9) = qualification_help
-senior(10) = senior_9
+senior(11) = senior_9
 dim senior_10(14)
 senior_10(0) = "10. Has anyone in the household been convicted of making fraudulent statements about their place of residence to get SNAP benefits from more than one state?"
 'senior_10(1)=
 'senior_10(2)=	
 'senior_10(9)=	
-senior(11) = senior_10
+senior(12) = senior_10
 dim senior_11(14)
 senior_11(0) = "11. Is anyone in your household hiding or running from the law to avoid prosecution, being taken into custody, or to avoid going to jail for a felony?"
-senior(12) = senior_11
+senior(13) = senior_11
 dim senior_12(14)
 senior_12(0) = "12. Has anyone in your household been convicted of a drug felony in the past 10 years?"
-senior(13) = senior_12
+senior(14) = senior_12
 dim senior_13(14)
 senior_13(0) = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-senior(14) = senior_13
-for i = 10 to 14
+senior(15) = senior_13
+for i = 11 to 15
 	senior(i)(1) = "qual"
 	senior(i)(2) = "mandatory"
 	senior(i)(9) =  qualification_help
@@ -9491,8 +9478,8 @@ pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 interview_questions_clear = False
 'These statements resize and populate the array of questions based on application type		
 If form_type = "senior"	Then	
-	redim preserve questions_array(14)			
-	For i = 1 to 14
+	redim preserve questions_array(15)			
+	For i = 1 to 15
 		questions_array(i) = senior(i)
 	Next
 ElseIf form_type = "full CAF" Then
@@ -9512,7 +9499,7 @@ Do
 			Do
 				' MsgBox page_display
 				' MsgBox update_arep & " - before define dlg"
-				Dialog1 = Empty
+				Dialog1 = ""
 				call define_main_dialog(questions_array)
 
 				err_msg = ""
@@ -9943,7 +9930,7 @@ If update_revw = True OR update_prog = True Then
 	If prog_emer_status = "PEND" AND prog_emer_intvw_date = "" Then prog_update_emer_checkbox = checked
 	If prog_grh_status = "PEND" AND prog_grh_intvw_date = "" Then prog_update_grh_checkbox = checked
 	If prog_snap_status = "PEND" AND prog_snap_intvw_date = "" Then prog_update_snap_checkbox = checked
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 251, dlg_len, "Update Interview Date in STAT"
 	  Text 10, 10, 235, 25, "It appears that the interview date needs to be added to STAT panels. Since the interview is now completed, the script can upate the correct panels with the interview date."
 	  If update_revw = True Then
@@ -10586,7 +10573,7 @@ If form_type = "full CAF" or form_type = "MNBenefits" Then 'look through the qua
 		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 ElseIf form_type = "senior" Then 
-	For i = 10 to 14
+	For i = 11 to 15
 		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 End If 
