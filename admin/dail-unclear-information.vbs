@@ -2733,4 +2733,25 @@ objExcel.Cells(3, 2).Value = dail_msg_deleted_count
 objExcel.Cells(4, 2).Value = timer - start_time
 objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
+'Finding the right folder to automatically save the file
+this_month = CM_mo & " " & CM_yr
+month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+unclear_info_folder = replace(this_month, " ", "-") & " DAIL Unclear Info"
+report_date = replace(date, "/", "-")
+
+'saving the Excel file
+If CSES_messages = 1 and HIRE_messages = 1 Then 
+    file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "CSES and HIRE" & " " & dail_msg_deleted_count
+ElseIf CSES_messages = 0 and HIRE_messages = 1 Then 
+    file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "HIRE" & " " & dail_msg_deleted_count
+ElseIf CSES_messages = 1 and HIRE_messages = 0 Then 
+    file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "CSES" & " " & dail_msg_deleted_count
+End if
+
+'Saves and closes the most recent Excel workbook with the Task based cases to process.
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
 script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
