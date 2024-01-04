@@ -1608,9 +1608,9 @@ function define_main_dialog(questions_array)
 				call create_waiver_question_in_dialog(caf(15), questions_array, 15)
 				call create_waiver_question_in_dialog(caf(16), questions_array, 16)
 			ElseIf form_type = "MNBenefits" Then
-				call create_waiver_question_in_dialog(mnb(15), questions_array, 12)
-				call create_waiver_question_in_dialog(mnb(16), questions_array, 13)
-				call create_waiver_question_in_dialog(mnb(17), questions_array, 14)
+				call create_waiver_question_in_dialog(mnb(15), questions_array, 15)
+				call create_waiver_question_in_dialog(mnb(16), questions_array, 16)
+				call create_waiver_question_in_dialog(mnb(17), questions_array, 17)
 			End If
 
 		ElseIf page_display = q_page_5 Then
