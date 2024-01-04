@@ -123,7 +123,7 @@ const emps_exemption_code_const     = 66
 const choice_form_done_const        = 67
 const orientation_notes             = 68
 const last_const					= 69
-const help_button					= 70
+
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
 Dim ButtonPressed
@@ -260,7 +260,7 @@ Function needed_info_dialog(needed_info_array)
 
 End Function
 function create_info_needed_in_dialog(needed_info)
-		IF needed_info(1) = "standard" Then
+	If needed_info(1) = "standard" Then
 		GroupBox 5, y_pos, 475, 75, needed_info(0) 'question text
 		y_pos = y_pos + 10
 		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
@@ -782,15 +782,16 @@ function check_for_errors(interview_questions_clear)
 		qual_memb_five = trim(qual_memb_five)
 		If form_type = "full CAF" or form_type = "MNBenefits" Then
 		For qual_q = 25 to 29
-			If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_1)(14) = "" OR questions_array(qual_1)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
+			If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_q)(14) = "" OR questions_array(qual_q)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
 				err_msg = err_msg & "~!~" & "10^*" & questions_array(qual_1)(0) 'Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 			'	If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 				err_msg = err_msg & "##~##   - This question was answered Yes or left blank, you should indicate that more information is needed."
 			End If
 		Next
 		ElseIf form_type = "senior" Then
-			For qual_q = 10 to 14
-				If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_1)(14) = "" OR questions_array(qual_1)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
+			For qual_q = 11 to 15
+				'if 	clt_count > 1 Then qual_q = qual_q +1
+				If (questions_array(qual_q)(13) = "?" OR (questions_array(qual_q)(13) = "Yes" AND (questions_array(qual_q)(14) = "" OR questions_array(qual_q)(14) = "Select or Type"))) AND (questions_array(qual_q)(7) = "" OR questions_array(qual_q)(7) = "No") Then
 				err_msg = err_msg & "~!~" & "10^*" & questions_array(qual_1)(0) 'Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 				err_msg = err_msg & "##~##   - This question was answered Yes or left blank, you should indicate that more information is needed."
 			End If
@@ -926,9 +927,9 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
-		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'this_question(7)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
 		Text 115, y_pos, 40, 10, "Details:"
-		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'this_question(5)
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 20
 	ElseIf this_question(1) = "unea" Then
@@ -991,10 +992,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		Text 105, y_pos, 40, 10, "Details:"
-		EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 25
 	ElseIf this_question(1) = "shel" Then 
@@ -1034,10 +1036,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		Text 105, y_pos, 40, 10, "Details:"
-		EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 25
 	ElseIf this_question(1) = "jobs" Then
@@ -1054,10 +1057,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 95, y_pos, 25, 10, "write-in:"
 			EditBox 120, y_pos - 5, 350, 15, questions_array(question_count)(4)
 			y_pos = y_pos + 20
-			Text 15, y_pos, 60, 10, "Info needed?"
-			DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-			Text 105, y_pos, 40, 10, "Details:"
-			EditBox 130, y_pos - 5, 260, 15, questions_array(question_count)(5)
+			Text 15, y_pos, 50, 10, "Info needed?"
+			PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+			DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+			Text 115, y_pos, 40, 10, "Details:"
+			EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 			PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 			' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
 			' y_pos = y_pos + 20
@@ -1116,9 +1120,11 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(7)
 		End If
 		y_pos = y_pos + 20
-		Text 15, y_pos, 60, 10, "Info Needed?"
-		DropListBox 65, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)
-		EditBox 105, y_pos - 5, 290, 15, questions_array(question_count)(5)
+		Text 15, y_pos, 50, 10, "Info needed?"
+		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
+		DropListBox 75, y_pos - 5, 35, 45, yes_no, questions_array(question_count)(7)'info_needed yes/no
+		Text 115, y_pos, 40, 10, "Details:"
+		EditBox 140, y_pos - 5, 250, 15, questions_array(question_count)(5) 'info_needed details
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 100, 10, "Does phone have an expense?"
@@ -1197,7 +1203,6 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		text_height = 20
 		if len(this_question(0)) > 140 Then text_height = 30
 		If len(this_question(0)) > 200 Then text_height = 40
-		'msgbox len(this_question(0)) '& " \ 200 = " & (len(this_question(0))\60)
 		Text 15, y_pos, 200, text_height, this_question(0)
 		DropListBox 220, y_pos, 30, 45, "?"+chr(9)+"No"+chr(9)+"Yes", questions_array(question_count)(13)
 		ComboBox 340, y_pos, 105, 45, all_the_clients, questions_array(question_count)(14)
@@ -1217,25 +1222,9 @@ End Function
 
 
 function define_main_dialog(questions_array)
-			'Assigning questions to the array based on question list
-		
-'		If form_type = "senior"	Then	
-'			redim preserve questions_array(14)			
-'			For i = 1 to 14
-'				questions_array(i) = senior(i)
-'			Next
-'		ElseIf form_type = "full CAF" Then
-'			redim preserve questions_array(29)			
-'			For i = 1 to 29
-'				questions_array(i) = caf(i)
-'			Next
-'		ElseIf form_type = "MNBenefits" Then
-'			redim preserve questions_array(29)
-'			For i = 1 to 29
-'				questions_array(i) = mnb(i)
-'			Next
-'		End If 
 
+
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Waived Interview Screening"
 
 	  ButtonGroup ButtonPressed
@@ -1363,7 +1352,6 @@ function define_main_dialog(questions_array)
 				ComboBox 255, 255, 120, 45, county_list+chr(9)+resi_addr_county, resi_addr_county
 				PushButton 290, 300, 95, 15, "Save Information", save_information_btn
 			End If
-
 			PushButton 325, 145, 50, 10, "CLEAR", clear_mail_addr_btn
 			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
 			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
@@ -1392,7 +1380,6 @@ function define_main_dialog(questions_array)
 			Text 504, 47, 60, 10, "CAF MEMBs"
 			Text 10, 5, 400, 10, "Review information for ALL household members, ensuring the information is accurate."
 			Text 10, 15, 400, 10, "You must click on each Person button below and on the left to view each person."
-
 			If update_pers = FALSE Then
 				Text 70, 45, 90, 15, HH_MEMB_ARRAY(last_name_const, selected_memb)
 				Text 165, 45, 75, 15, HH_MEMB_ARRAY(first_name_const, selected_memb)
@@ -1420,22 +1407,21 @@ function define_main_dialog(questions_array)
 				Else
 					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
 				End If
-
-						' CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
-						' CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
-						' CheckBox 330, 185, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
-						' CheckBox 330, 195, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
-						' CheckBox 330, 205, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
-						' CheckBox 70, 200, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
-						' CheckBox 125, 200, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
-						' CheckBox 195, 200, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
-						' CheckBox 280, 200, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
-						' DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
-						' EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
-						' DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
-						' DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
-						' EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
-						' EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
+					'	 CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
+					'	 CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
+					'	 CheckBox 330, 185, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
+					'	 CheckBox 330, 195, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
+					'	 CheckBox 330, 205, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
+					'	 CheckBox 70, 200, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
+					'	 CheckBox 125, 200, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
+					'	 CheckBox 195, 200, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
+					'	 CheckBox 280, 200, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
+					'	 DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
+					'	 EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
+					'	 DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
+					'	 DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
+					'	 EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
+					'	 EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 				Text 330, 225, 100, 20, "Press here to update the displayed info above:"
 				PushButton 415, 230, 65, 15, "Update Information", update_information_btn
 				Text 65, 225, 150, 20, "Press here if info on HH comp or member info is needed from the resident:"
@@ -1460,7 +1446,6 @@ function define_main_dialog(questions_array)
 				EditBox 140, 165, 120, 15, HH_MEMB_ARRAY(written_lang, selected_memb)
 				DropListBox 330, 145, 40, 45, ""+chr(9)+"Yes"+chr(9)+"No", HH_MEMB_ARRAY(ethnicity_yn, selected_memb)
 				DropListBox 70, 185, 110, 45, ""+chr(9)+id_droplist_info, HH_MEMB_ARRAY(id_verif, selected_memb)
-
 				PushButton 385, 225, 95, 15, "Save Information", save_information_btn
 			End If
 			CheckBox 330, 170, 30, 10, "Asian", HH_MEMB_ARRAY(race_a_checkbox, selected_memb)
@@ -1488,7 +1473,6 @@ function define_main_dialog(questions_array)
 			Else
 				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb)
 				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Reported Information"
-
 			End If
 			y_pos = 35
 			For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -1526,7 +1510,7 @@ function define_main_dialog(questions_array)
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
 			'Text 70, 255, 80, 10, "Intends to reside in MN"
-			Text 155, 255, 65, 10, "Immigration Status"
+			Text 70, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 285, 50, 10, "Verification"
 			Text 155, 285, 65, 10, "Verification Details"
@@ -1535,10 +1519,10 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 510, 62, 60, 10, "Q. 1 - 3"
-				If clt_count > 1 Then call create_waiver_question_in_dialog(senior_eats, questions_array, 10)
-				call create_waiver_question_in_dialog(senior(1), questions_array, 1)
+				If clt_count > 1 Then call create_waiver_question_in_dialog(senior(1), questions_array, 1)
 				call create_waiver_question_in_dialog(senior(2), questions_array, 2)
 				call create_waiver_question_in_dialog(senior(3), questions_array, 3)
+				call create_waiver_question_in_dialog(senior(4), questions_array, 4)
 			ElseIf form_type = "full CAF" Then
 				Text 510, 62, 60, 10, "Q. 1 - 6"
 				call create_waiver_question_in_dialog(caf(1), questions_array, 1)
@@ -1562,8 +1546,8 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 508, 77, 60, 10, "Q. 4-5"
-				call create_waiver_question_in_dialog(senior(4), questions_array, 4)
 				call create_waiver_question_in_dialog(senior(5), questions_array, 5)
+				call create_waiver_question_in_dialog(senior(6), questions_array, 6)
 
 			Elseif form_type = "full CAF" Then
 			Text 508, 77, 60, 10, "Q. 7 - 11"
@@ -1584,10 +1568,10 @@ function define_main_dialog(questions_array)
 			y_pos = 10
 			If form_type = "senior" Then
 				Text 505, 92, 60, 10, "Q. 6 - 8"
-				call create_waiver_question_in_dialog(senior(6), questions_array, 6)
 				call create_waiver_question_in_dialog(senior(7), questions_array, 7)
 				call create_waiver_question_in_dialog(senior(8), questions_array, 8)
 				call create_waiver_question_in_dialog(senior(9), questions_array, 9)
+				call create_waiver_question_in_dialog(senior(10), questions_array, 10)
 			ElseIf form_type = "full CAF" Then
 				Text 505, 92, 60, 10, "Q. 12 - 13"
 				call create_waiver_question_in_dialog(caf(12), questions_array, 12)
@@ -1608,9 +1592,9 @@ function define_main_dialog(questions_array)
 				call create_waiver_question_in_dialog(caf(15), questions_array, 15)
 				call create_waiver_question_in_dialog(caf(16), questions_array, 16)
 			ElseIf form_type = "MNBenefits" Then
-				call create_waiver_question_in_dialog(mnb(15), questions_array, 12)
-				call create_waiver_question_in_dialog(mnb(16), questions_array, 13)
-				call create_waiver_question_in_dialog(mnb(17), questions_array, 14)
+				call create_waiver_question_in_dialog(mnb(15), questions_array, 15)
+				call create_waiver_question_in_dialog(mnb(16), questions_array, 16)
+				call create_waiver_question_in_dialog(mnb(17), questions_array, 17)
 			End If
 
 		ElseIf page_display = q_page_5 Then
@@ -1651,11 +1635,11 @@ function define_main_dialog(questions_array)
 				Text 500, 152, 60, 10, "CAF QUAL Q"
 			End If 
 			If form_type = "senior" Then
-				call create_waiver_question_in_dialog(senior(10), questions_array, 10)
 				call create_waiver_question_in_dialog(senior(11), questions_array, 11)
 				call create_waiver_question_in_dialog(senior(12), questions_array, 12)
 				call create_waiver_question_in_dialog(senior(13), questions_array, 13)
 				call create_waiver_question_in_dialog(senior(14), questions_array, 14)
+				call create_waiver_question_in_dialog(senior(15), questions_array, 15)
 			Elseif form_type = "full CAF" Then
 				call create_waiver_question_in_dialog(caf(25), questions_array, 25)
 				call create_waiver_question_in_dialog(caf(26), questions_array, 26)
@@ -1795,15 +1779,15 @@ function define_main_dialog(questions_array)
 			'	DropListBox 115, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", family_cash_case_yn
 			'	y_pos = y_pos + 20
 			'	If family_cash_case_yn = "?" OR family_cash_case_yn = "Yes" Then
-					Text 15, y_pos, 175, 10, "Is there an Absent Parent for any children on this case?"
-					DropListBox 190, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", absent_parent_yn
-					Text 255, y_pos, 115, 10, "Is this a relative caregiver case?"
-					DropListBox 370, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", relative_caregiver_yn
-					y_pos = y_pos + 20
-
-					Text 15, y_pos, 150, 10, "Are there any minor caregivers on this case?"
-					DropListBox 165, y_pos - 5, 135, 45, "No - all cargivers are over 20"+chr(9)+"Yes - Caregiver is 18 - 20 years old"+chr(9)+"Yes - Caregiver is under 18", minor_caregiver_yn
-					y_pos = y_pos + 20
+				'	Text 15, y_pos, 175, 10, "Is there an Absent Parent for any children on this case?"
+				'	DropListBox 190, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", absent_parent_yn
+				'	Text 255, y_pos, 115, 10, "Is this a relative caregiver case?"
+				'	DropListBox 370, y_pos - 5, 50, 45, "?"+chr(9)+"Yes"+chr(9)+"No", relative_caregiver_yn
+				'	y_pos = y_pos + 20
+'
+				'	Text 15, y_pos, 150, 10, "Are there any minor caregivers on this case?"
+				'	DropListBox 165, y_pos - 5, 135, 45, "No - all cargivers are over 20"+chr(9)+"Yes - Caregiver is 18 - 20 years old"+chr(9)+"Yes - Caregiver is under 18", minor_caregiver_yn
+				'	y_pos = y_pos + 20
 			'	End If
 '
 			'End If
@@ -1947,93 +1931,93 @@ function define_main_dialog(questions_array)
 			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verbal"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate written document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
 			PushButton 395, 292, 85, 13, "Save AREP Detail", save_information_btn
 
-		ElseIf page_display = discrepancy_questions Then
-			btn_pos = 180
-			Text 504, clarif_pos + 2, 60, 10, "Clarifications"
-
-			y_pos = 10
-			If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "No Phone Number, Review Phone Contact"
-				Text 20, y_pos + 20, 165, 10, "Confirm with the resident about phone contact."
-				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
-				Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
-				ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "No Phone Number Listed, Phone Expense Indicated"
-				Text 20, y_pos + 20, 165, 10, "Clarify a phone number or explain expense:"
-				ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Paying phone for somone outside the home."+chr(9)+"Lost phone, number is changing."+chr(9)+"Getting a new number."+chr(9)+disc_no_phone_yes_expense_confirmation, disc_no_phone_yes_expense_confirmation
-				y_pos = y_pos + 40
-			End If
-			If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
-				grp_len = 80
-				If mail_addr_street_full <> "" Then grp_len = 95
-				GroupBox 10, y_pos, 455, grp_len, "Homeless, Review Mailing Options"
-				Text 20, y_pos + 10, 435, 40, "Explain that actions on the case are going to come officially through the mail. General Delivery can work as a mail option, but you need to collect your mail very regularly, at least once a week, to ensure you get your informaiton and notifications timely. If you have a trusted address you can use as a mailing address, maybe a friend or family member, that is often easier to navigate. Know that much of our mail must be responded to right away, we may need to receive verification within days of a mailing."
-				Text 25, y_pos + 45, 400, 10, "RESIDENCE ADDR: " & resi_addr_street_full & " " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip
-				y_pos = y_pos + 65
-				If mail_addr_street_full <> "" Then
-					Text 25, y_pos - 5, 400, 10, "MAILING ADDR: " & mail_addr_street_full & " " & mail_addr_city & ", " & left(mail_addr_state, 2) & " " & mail_addr_zip
-					y_pos = y_pos + 15
-				End If
-				' y_pos = y_pos + 5
-				Text 20, Y_pos, 200, 10, "Confirm you have discussed the difficulties/issues with mail"
-				ComboBox 210, Y_pos - 5, 245, 10, "Select or Type"+chr(9)+"Confirmed Understanding of General Delivery"+chr(9)+"Added a Trusted Mailing Address"+chr(9)+"Resident will look for a new Solution and Communicate"+chr(9)+disc_homeless_confirmation,disc_homeless_confirmation
-				y_pos = y_pos + 20
-			End If
-			If disc_out_of_county = "EXISTS" OR disc_out_of_county = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 35, "Residence is Out of County. Review Case Transfer"
-				PushButton 305, y_pos - 2, 150, 13, "HSR Manual - Transfer to Another County", open_hsr_manual_transfer_page_btn
-				Text 20, y_pos + 20, 150, 10, "Confirm Out of County process discussed:"
-				ComboBox 165, y_pos + 15, 290, 45, "Select or Type"+chr(9)+"Discussion Completed"+chr(9)+"County of Residence Updated"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
-				y_pos = y_pos + 40
-
-			End If
-			If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 65, "CAF Answers for Housing Expense do not Match, Review and Clarify"
-				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
-				Text 20, y_pos + 30, 400, 10, "Question 14 Housing Expense: " & question_14_summary
-
-				Text 20, y_pos + 50, 110, 10, "Confirm Housing Expense Detail: "
-				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_rent_amounts_confirmation, disc_rent_amounts_confirmation
-				y_pos = y_pos + 70
-			End If
-			If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
-				GroupBox 10, y_pos, 455, 65, "CAF Answers for Utility Expense do not Match, Review and Clarify"
-				Text 20, y_pos + 15, 400, 10, "CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary
-				Text 20, y_pos + 30, 400, 10, "Question 15 Utility Expense: " & disc_utility_q_15_summary
-
-				Text 20, y_pos + 50, 110, 10, "Confirm Utility Expense Detail: "
-				ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Household pays for Heat"+chr(9)+"Household pays for AC"+chr(9)+"Houshold pays Electricity which INCLUDES AC"+chr(9)+"Houshold pays Electricity which INCLUDES Heat"+chr(9)+"Houshold pays Electricity which INCLUDES AC and Heat"+chr(9)+"Houshold pays Electricity, but this does not include Heat or AC"+chr(9)+"Houshold pays Electricity and Phone"+chr(9)+"Houshold pays Phone Only"+chr(9)+"Houshold pays NO Utility Expenses"+chr(9)+disc_utility_amounts_confirmation, disc_utility_amounts_confirmation
-				y_pos = y_pos + 70
-			End If
-			Text 15, 330, 100, 20, "If info/clarification is needed for the above, enter details here:"
-			EditBox 120, 330, 340, 15, other_info
-		ElseIf page_display = expedited_determination Then
-			btn_pos = 180
-			If discrepancies_exist = True Then btn_pos = btn_pos + 15
-			Text 505, btn_pos+2, 60, 10, "EXPEDITED"
-
-
+		'ElseIf page_display = discrepancy_questions Then
+		'	btn_pos = 180
+		'	Text 504, clarif_pos + 2, 60, 10, "Clarifications"
+'
+		'	y_pos = 10
+		'	If disc_no_phone_number = "EXISTS" OR disc_no_phone_number = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 35, "No Phone Number, Review Phone Contact"
+		'		Text 20, y_pos + 20, 165, 10, "Confirm with the resident about phone contact."
+		'		ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Confirmed No good phone contact"+chr(9)+"Added a Message Only Number"+chr(9)+"Added a Phone Number"+chr(9)+"Resident will Contact with a Phone Number once Obtained"+chr(9)+disc_phone_confirmation, disc_phone_confirmation
+		'		y_pos = y_pos + 40
+		'	End If
+		'	If disc_yes_phone_no_expense = "EXISTS" OR disc_yes_phone_no_expense = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 35, "Phone Number listed, NO Phone Expense"
+		'		Text 20, y_pos + 20, 100, 10, "Clarify how phone is paid:"
+		'		ComboBox 120, y_pos + 15, 335, 45, "Select or Type"+chr(9)+"Phone paid by Government Free Phone Program with no expense."+chr(9)+"Phone is paid by someone out of the home, billed directly to them."+chr(9)+"Phone is a community line available for messages only."+chr(9)+"Phone is a community line in the building/residence the resident stays at."+chr(9)+disc_yes_phone_no_expense_confirmation, disc_yes_phone_no_expense_confirmation
+		'		y_pos = y_pos + 40
+		'	End If
+		'	If disc_no_phone_yes_expense = "EXISTS" OR disc_no_phone_yes_expense = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 35, "No Phone Number Listed, Phone Expense Indicated"
+		'		Text 20, y_pos + 20, 165, 10, "Clarify a phone number or explain expense:"
+		'		ComboBox 185, y_pos + 15, 270, 45, "Select or Type"+chr(9)+"Paying phone for somone outside the home."+chr(9)+"Lost phone, number is changing."+chr(9)+"Getting a new number."+chr(9)+disc_no_phone_yes_expense_confirmation, disc_no_phone_yes_expense_confirmation
+		'		y_pos = y_pos + 40
+		'	End If
+		'	If disc_homeless_no_mail_addr = "EXISTS" OR disc_homeless_no_mail_addr = "RESOLVED" Then
+		'		grp_len = 80
+		'		If mail_addr_street_full <> "" Then grp_len = 95
+		'		GroupBox 10, y_pos, 455, grp_len, "Homeless, Review Mailing Options"
+		'		Text 20, y_pos + 10, 435, 40, "Explain that actions on the case are going to come officially through the mail. General Delivery can work as a mail option, but you need to collect your mail very regularly, at least once a week, to ensure you get your informaiton and notifications timely. If you have a trusted address you can use as a mailing address, maybe a friend or family member, that is often easier to navigate. Know that much of our mail must be responded to right away, we may need to receive verification within days of a mailing."
+		'		Text 25, y_pos + 45, 400, 10, "RESIDENCE ADDR: " & resi_addr_street_full & " " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip
+		'		y_pos = y_pos + 65
+		'		If mail_addr_street_full <> "" Then
+		'			Text 25, y_pos - 5, 400, 10, "MAILING ADDR: " & mail_addr_street_full & " " & mail_addr_city & ", " & left(mail_addr_state, 2) & " " & mail_addr_zip
+		'			y_pos = y_pos + 15
+		'		End If
+		'		' y_pos = y_pos + 5
+		'		Text 20, Y_pos, 200, 10, "Confirm you have discussed the difficulties/issues with mail"
+		'		ComboBox 210, Y_pos - 5, 245, 10, "Select or Type"+chr(9)+"Confirmed Understanding of General Delivery"+chr(9)+"Added a Trusted Mailing Address"+chr(9)+"Resident will look for a new Solution and Communicate"+chr(9)+disc_homeless_confirmation,disc_homeless_confirmation
+		'		y_pos = y_pos + 20
+		'	End If
+		'	If disc_out_of_county = "EXISTS" OR disc_out_of_county = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 35, "Residence is Out of County. Review Case Transfer"
+		'		PushButton 305, y_pos - 2, 150, 13, "HSR Manual - Transfer to Another County", open_hsr_manual_transfer_page_btn
+		'		Text 20, y_pos + 20, 150, 10, "Confirm Out of County process discussed:"
+		'		ComboBox 165, y_pos + 15, 290, 45, "Select or Type"+chr(9)+"Discussion Completed"+chr(9)+"County of Residence Updated"+chr(9)+disc_out_of_county_confirmation, disc_out_of_county_confirmation
+		'		y_pos = y_pos + 40
+'
+		'	End If
+		'	If disc_rent_amounts = "EXISTS" OR disc_rent_amounts = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 65, "CAF Answers for Housing Expense do not Match, Review and Clarify"
+		'		Text 20, y_pos + 15, 400, 10, "CAF Page 1 Housing Expense: " & exp_q_3_rent_this_month
+		'		Text 20, y_pos + 30, 400, 10, "Question 14 Housing Expense: " & question_14_summary
+'
+		'		Text 20, y_pos + 50, 110, 10, "Confirm Housing Expense Detail: "
+		'		ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Houshold DOES have Housing Expense"+chr(9)+"Household has NO Housing expense"+chr(9)+"Houshold has an ongoing Housing Expense but NONE in the Application month"+chr(9)+"Houshold has Housing Expense in the application months but NONE ongoing"+chr(9)+disc_rent_amounts_confirmation, disc_rent_amounts_confirmation
+		'		y_pos = y_pos + 70
+		'	End If
+		'	If disc_utility_amounts = "EXISTS" OR disc_utility_amounts = "RESOLVED" Then
+		'		GroupBox 10, y_pos, 455, 65, "CAF Answers for Utility Expense do not Match, Review and Clarify"
+		'		Text 20, y_pos + 15, 400, 10, "CAF Page 1 Utility Expense: " & disc_utility_caf_1_summary
+		'		Text 20, y_pos + 30, 400, 10, "Question 15 Utility Expense: " & disc_utility_q_15_summary
+'
+		'		Text 20, y_pos + 50, 110, 10, "Confirm Utility Expense Detail: "
+		'		ComboBox 125, y_pos + 45, 330, 45, "Select or Type"+chr(9)+"Household pays for Heat"+chr(9)+"Household pays for AC"+chr(9)+"Houshold pays Electricity which INCLUDES AC"+chr(9)+"Houshold pays Electricity which INCLUDES Heat"+chr(9)+"Houshold pays Electricity which INCLUDES AC and Heat"+chr(9)+"Houshold pays Electricity, but this does not include Heat or AC"+chr(9)+"Houshold pays Electricity and Phone"+chr(9)+"Houshold pays Phone Only"+chr(9)+"Houshold pays NO Utility Expenses"+chr(9)+disc_utility_amounts_confirmation, disc_utility_amounts_confirmation
+		'		y_pos = y_pos + 70
+		'	End If
+		'	Text 15, 330, 100, 20, "If info/clarification is needed for the above, enter details here:"
+		'	EditBox 120, 330, 340, 15, other_info
+		'ElseIf page_display = expedited_determination Then
+		'	btn_pos = 180
+		'	If discrepancies_exist = True Then btn_pos = btn_pos + 15
+		'	Text 505, btn_pos+2, 60, 10, "EXPEDITED"
+'
+'
 		End If
 		If form_type = "full CAF" Then 'TODO handling for HUF - shouldn't be used as an application, add section for certain pops
-			Text 485, 5, 75, 10, "---   DIALOGS   ---"
-			Text 485, 17, 10, 10, "1"
-			Text 485, 32, 10, 10, "2"
-			Text 485, 47, 10, 10, "3"
-			Text 485, 62, 10, 10, "4"
-			Text 485, 77, 10, 10, "5"
-			Text 485, 92, 10, 10, "6"
-			Text 485, 107, 10, 10, "7"
-			Text 485, 122, 10, 10, "8"
-			Text 485, 137, 10, 10, "9"
-			Text 485, 152, 10, 10, "10"
-			Text 485, 167, 10, 10, "11"
+			'Text 485, 5, 75, 10, "---   DIALOGS   ---"
+			'Text 485, 17, 10, 10, "1"
+			'Text 485, 32, 10, 10, "2"
+			'Text 485, 47, 10, 10, "3"
+			'Text 485, 62, 10, 10, "4"
+			'Text 485, 77, 10, 10, "5"
+			'Text 485, 92, 10, 10, "6"
+			'Text 485, 107, 10, 10, "7"
+			'Text 485, 122, 10, 10, "8"
+			'Text 485, 137, 10, 10, "9"
+			'Text 485, 152, 10, 10, "10"
+			'Text 485, 167, 10, 10, "11"
 			If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 			If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 			If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
@@ -2047,16 +2031,16 @@ function define_main_dialog(questions_array)
 			If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
 			btn_pos = 180
 		ElseIf form_type = "senior" Then 
-			Text 485, 5, 75, 10, "---   DIALOGS   ---"
-			Text 485, 17, 10, 10, "1"
-			Text 485, 32, 10, 10, "2"
-			Text 485, 47, 10, 10, "3"
-			Text 485, 62, 10, 10, "4"
-			Text 485, 77, 10, 10, "5"
-			Text 485, 92, 10, 10, "6"
-			Text 485, 107, 10, 10, "7"
-			Text 485, 122, 10, 10, "8"
-			Text 485, 137, 10, 10, "9"
+			'Text 485, 5, 75, 10, "---   DIALOGS   ---"
+			'Text 485, 17, 10, 10, "1"
+			'Text 485, 32, 10, 10, "2"
+			'Text 485, 47, 10, 10, "3"
+			'Text 485, 62, 10, 10, "4"
+			'Text 485, 77, 10, 10, "5"
+			'Text 485, 92, 10, 10, "6"
+			'Text 485, 107, 10, 10, "7"
+			'Text 485, 122, 10, 10, "8"
+			'Text 485, 137, 10, 10, "9"
 			If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 			If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 			If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
@@ -2068,18 +2052,18 @@ function define_main_dialog(questions_array)
 			btn_pos = 135
 			question_number = 9
 		ElseIf form_type = "MNBenefits" Then 
-			Text 485, 5, 75, 10, "---   DIALOGS   ---"
-			Text 485, 17, 10, 10, "1"
-			Text 485, 32, 10, 10, "2"
-			Text 485, 47, 10, 10, "3"
-			Text 485, 62, 10, 10, "4"
-			Text 485, 77, 10, 10, "5"
-			Text 485, 92, 10, 10, "6"
-			Text 485, 107, 10, 10, "7"
-			Text 485, 122, 10, 10, "8"
-			Text 485, 137, 10, 10, "9"
-			Text 485, 152, 10, 10, "10"
-			Text 485, 167, 10, 10, "11"
+			'Text 485, 5, 75, 10, "---   DIALOGS   ---"
+			'Text 485, 17, 10, 10, "1"
+			'Text 485, 32, 10, 10, "2"
+			'Text 485, 47, 10, 10, "3"
+			'Text 485, 62, 10, 10, "4"
+			'Text 485, 77, 10, 10, "5"
+			'Text 485, 92, 10, 10, "6"
+			'Text 485, 107, 10, 10, "7"
+			'Text 485, 122, 10, 10, "8"
+			'Text 485, 137, 10, 10, "9"
+			'Text 485, 152, 10, 10, "10"
+			'Text 485, 167, 10, 10, "11"
 			If page_display <> show_pg_one_memb01_and_exp 	Then PushButton 495, 15, 55, 13, "INTVW / CAF 1", caf_page_one_btn
 			If page_display <> show_pg_one_address 			Then PushButton 495, 30, 55, 13, "CAF ADDR", caf_addr_btn
 			If page_display <> show_pg_memb_list 			Then PushButton 495, 45, 55, 13, "CAF MEMBs", caf_membs_btn
@@ -2093,13 +2077,13 @@ function define_main_dialog(questions_array)
 			If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
 			btn_pos = 180
 		End If 
-			If discrepancies_exist = True Then
-				Text 485, btn_pos + 2, 10, 10, question_number
-				If page_display <> discrepancy_questions 	Then PushButton 495, btn_pos, 55, 13, "Clarifications", discrepancy_questions_btn
-				clarif_pos = btn_pos
-				btn_pos = btn_pos + 15
-				question_number = question_number + 1
-			End If
+			'If discrepancies_exist = True Then
+			'	Text 485, btn_pos + 2, 10, 10, question_number
+			'	If page_display <> discrepancy_questions 	Then PushButton 495, btn_pos, 55, 13, "Clarifications", discrepancy_questions_btn
+			'	clarif_pos = btn_pos
+			'	btn_pos = btn_pos + 15
+			'	question_number = question_number + 1
+			'End If
 			If expedited_determination_needed = True Then
 				Text 485, btn_pos + 2, 10, 10, question_number
 				If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
@@ -2117,8 +2101,7 @@ function define_main_dialog(questions_array)
 end function
 
 function dialog_movement()
-	' case_has_imig = FALSE
-	' MsgBox ButtonPressed
+
 	If page_display = show_arep_page Then
 		arep_exists = True
 		If arep_in_MAXIS = True Then
@@ -2168,8 +2151,6 @@ function dialog_movement()
 	If CAF_arep_name = arep_name Then arep_and_CAF_arep_match = True
 
 	For i = 0 to Ubound(HH_MEMB_ARRAY, 2)
-		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
-		' MsgBox HH_MEMB_ARRAY(i).button_one
 		If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then
 			If page_display = show_pg_memb_list Then selected_memb = i
 		End If
@@ -2178,54 +2159,34 @@ function dialog_movement()
             selected_memb = 0
         End If
 	Next
-	'If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
-	'If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
-	'If ButtonPressed = add_verif_3_btn Then Call verif_details_dlg(3)
-	'If ButtonPressed = add_verif_4_btn Then Call verif_details_dlg(4)
-	'If ButtonPressed = add_verif_5_btn Then Call verif_details_dlg(5)
-	'If ButtonPressed = add_verif_6_btn Then Call verif_details_dlg(6)
-	'If ButtonPressed = add_verif_7_btn Then Call verif_details_dlg(7)
-	'If ButtonPressed = add_verif_8_btn Then Call verif_details_dlg(8)
-	'If ButtonPressed = add_verif_9_btn Then Call verif_details_dlg(9)
-	'If ButtonPressed = add_verif_10_btn Then Call verif_details_dlg(10)
-	'If ButtonPressed = add_verif_11_btn Then Call verif_details_dlg(11)
-	'If ButtonPressed = add_verif_12_btn Then Call verif_details_dlg(12)
-	'If ButtonPressed = add_verif_13_btn Then Call verif_details_dlg(13)
-	'If ButtonPressed = add_verif_14_btn Then Call verif_details_dlg(14)
-	'If ButtonPressed = add_verif_15_btn Then Call verif_details_dlg(15)
-	'If ButtonPressed = add_verif_16_btn Then Call verif_details_dlg(16)
-	'If ButtonPressed = add_verif_17_btn Then Call verif_details_dlg(17)
-	'If ButtonPressed = add_verif_18_btn Then Call verif_details_dlg(18)
-	'If ButtonPressed = add_verif_19_btn Then Call verif_details_dlg(19)
-	'If ButtonPressed = add_verif_20_btn Then Call verif_details_dlg(20)
-	'If ButtonPressed = add_verif_21_btn Then Call verif_details_dlg(21)
-	'If ButtonPressed = add_verif_22_btn Then Call verif_details_dlg(22)
-	'If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
-	'If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
 	
-	'TODO
+	For fq = 1 to ubound(questions_array)'find question number for each question type
+		If questions_array(fq)(1) = "shel" then shel_q = fq
+		If questions_array(fq)(1) = "hest" then hest_q = fq
+		If questions_array(fq)(1) = "asset" then cash_q = fq
+		If questions_array(fq)(1) = "unea" Then unea_q = fq
+		if questions_array(fq)(1) = "jobs" Then jobs_q = fq
+	next
+
+	
 	If ButtonPressed = SHEL_all_no_btn Then
-		For i = 13 to 19
-			If form_type = "senior" Then questions_array(4)(i) = "No"
-			If form_type = "full CAF" Then questions_array(15)(i) = "No"
-			If form_type = "MNBenefits" Then questions_arrray(14)(i) = "No"
+		For shl = 13 to 19
+		questions_array(shel_q)(shl) = "No"
 		Next
 	End If
 
 	If ButtonPressed = UNEA_all_no_btn Then 
-		For i = 13 to 29 step 2
-			If form_type = "senior" Then questions_array(3)(i) = "No"
-			If form_type = "full CAF" Then questions_array(13)(i) = "No"
-			If form_type = "MNBenefits" Then questions_arrray(12)(i) = "No"
+		For une = 13 to 29 step 2
+			questions_array(unea_q)(une) = "No"
 		Next
 	End If 
 	If ubound(questions_array) > 1 Then
-	For i = 1 to Ubound(questions_array)
-		If ButtonPressed = questions_array(i)(11) Then 
-			Call verif_details_dlg(i)
+	For ver = 1 to Ubound(questions_array)
+		If ButtonPressed = questions_array(ver)(11) Then 
+			Call verif_details_dlg(ver)
 		End If
-		If ButtonPressed = questions_array(i)(10) Then 	'Help button handling
-			msgbox questions_array(i)(9)
+		If ButtonPressed = questions_array(ver)(10) Then 	'Help button handling
+			msgbox questions_array(ver)(9)
 		End If
 	Next
 	If ButtonPressed = member_info_needed_btn Then call member_info_needed_dialog()
@@ -2339,10 +2300,10 @@ function dialog_movement()
 		End If 
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
 		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
-		If discrepancies_exist = True Then
-			If page_display = show_pg_last 				Then ButtonPressed = discrepancy_questions_btn
-			If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
-		End If
+		'If discrepancies_exist = True Then
+		'	If page_display = show_pg_last 				Then ButtonPressed = discrepancy_questions_btn
+		'	If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
+		'End If
 		If expedited_determination_needed = True Then
 			If expedited_determination_completed = False Then
 				If discrepancies_exist = False AND page_display = show_pg_last Then ButtonPressed = expedited_determination_btn
@@ -2433,7 +2394,6 @@ function dialog_movement()
 	End If
 
 	If ButtonPressed = incomplete_interview_btn Then
-		' MsgBox "ARE YOU SURE?"
 		confirm_interview_incomplete = MsgBox("You have pressed the button that indicates that the interview was ended but is incomplete." & vbCr & vbCr & "This option is used to end the interview script while clarifying that all interview requirements have not been met." & vbCr & vbCr & "Is this what you want to do?" & vbCr & "(Another dialog will allow you to detail some information about the portion completed.)", vbQuesiton + vbYesNo, "End Interview as Incomplete")
 		If confirm_interview_incomplete = vbNo Then
 			ButtonPressed = previous_button_pressed
@@ -2531,7 +2491,6 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 				If page_display = discrepancy_questions Then page_to_review = "12"
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
-				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
 				If current_listing = page_to_review Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
 					If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 					If current_listing = "2"  Then tagline = ": CAF ADDR"
@@ -2553,7 +2512,6 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 			End If
         Next
 		If error_message = "" then the_err_msg = ""
-		' MsgBox error_message
         'This is the display of all of the messages.
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
@@ -3034,9 +2992,6 @@ function display_expedited_dialog()
 
 		Dialog Dialog1
 
-		' cancel_confirmation
-		' MsgBox "1 - ButtonPressed is " & ButtonPressed
-
 		If ButtonPressed = -1 Then
 			If exp_page_display <> show_exp_pg_review then ButtonPressed = next_btn
 			If exp_page_display = show_exp_pg_review then ButtonPressed = finish_btn
@@ -3059,11 +3014,6 @@ function display_expedited_dialog()
 		End If
 		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp("02", "10", "01", "")
 
-		' MsgBox "2 - ButtonPressed is " & ButtonPressed
-
-		' If page_display = show_exp_pg_amounts Then
-		'
-		' End If
 		If exp_page_display = show_exp_pg_determination Then
 			delay_due_to_interview = False
 			do_we_have_applicant_id = "UNKNOWN"
@@ -3134,9 +3084,6 @@ function display_expedited_dialog()
 			If postponed_verifs_yn = "Yes" AND trim(list_postponed_verifs) = "" Then err_msg = err_msg & vbCr & "* Since you have Postponed Verifications indicated, list what they are for the NOTE."
 		End If
 
-		' MsgBox "3 - ButtonPressed is " & ButtonPressed
-
-
 		If ButtonPressed = next_btn AND err_msg = "" Then exp_page_display = exp_page_display + 1
 		If ButtonPressed = amounts_btn Then exp_page_display = show_exp_pg_amounts
 		If ButtonPressed = determination_btn AND err_msg = "" Then exp_page_display = show_exp_pg_determination
@@ -3151,7 +3098,6 @@ function display_expedited_dialog()
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 		If ButtonPressed = 0 then err_msg = ""
-		' MsgBox "4 - ButtonPressed is " & ButtonPressed
 
 		If ButtonPressed >= 1000 Then
 			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
@@ -5391,7 +5337,7 @@ end function
 Function member_info_needed_dialog()
 	
 
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 396, 95, "Household or Member info Needed"
 	  
 	  Text 5, 5, 360, 15, "Explain what information about members or household comp needs to be collected from the resident below."
@@ -5416,12 +5362,14 @@ Function member_info_needed_dialog()
 				Redim preserve questions_array(q_num) 'Add one more question to the questions array
 				questions_array(q_num) = memb_question
 				questions_array(q_num)(5) = item_1
+				questions_array(q_num)(3) = "N/A"
 			End If 
 			If item_2 <> "" Then 
 				q_num = ubound(questions_array) + 1
 				Redim preserve questions_array(q_num) 'Add one more question to the questions array
 				questions_array(q_num) = memb_question
 				questions_array(q_num)(5) = item_2
+				questions_array(q_num)(3) = "N/A"
 			End If 
 		End IF
 		
@@ -5432,7 +5380,7 @@ End Function
 
 function verif_details_dlg(question_number)
 
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 396, 95, "Add Verification"
 	  DropListBox 60, 35, 75, 45, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File"+chr(9)+"Verbal Attestation", questions_array(question_number)(6)
 	  EditBox 60, 55, 330, 15, questions_array(question_number)(12)
@@ -5562,7 +5510,7 @@ function jobs_details_dlg(this_jobs)
 
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
-		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(25)
+		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(jobs_q)
 		If ButtonPressed = clear_job_btn Then
 			JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 			JOBS_ARRAY(jobs_hourly_wage, this_jobs) = ""
@@ -5647,7 +5595,7 @@ function verification_dialog()
             bank_verif_time = "[Enter Time Frame]"
             second_call = TRUE
         End If
-
+		Dialog1 = ""
         Do
             verif_err_msg = ""
 			' BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
@@ -6002,42 +5950,49 @@ function verification_dialog()
     End If
 
 end function
-function write_needed_info_CASE_NOTE(needed_info_array) 'TODO Add the header and footer, page handling, whatever
+function write_needed_info_CASE_NOTE(needed_info_array) 
 	STATS_manualtime = STATS_manualtime + 30
 	Call start_a_blank_case_note
+	
 	If contact_status = "complete" Then
 		Call write_variable_in_CASE_NOTE("*SNAP waived interview info provided by resident.*")
 		Call write_variable_in_CASE_NOTE("Obtained the following information from the resident regarding their SNAP application:")
-		For i = 1 to ubound(needed_info_array)
-			 
-			 call write_interview_question_in_CASE_NOTE(needed_info_array(i))
+		For comp_q = 1 to ubound(needed_info_array)
+			 call write_interview_question_in_CASE_NOTE(needed_info_array(comp_q))
 		Next
 		If work_rules_reviewed = true Then Call write_variable_in_CASE_NOTE("SNAP general work rules reviewed with resident during contact.")
 	Else
 		Call write_variable_in_CASE_NOTE("----Info Needed for SNAP application----")
 		Call write_variable_in_CASE_NOTE("Contact is needed from the client to answer the following regarding their SNAP application.")
+		Call write_variable_in_CASE_NOTE("Applied with: " & CAF_form & " on " & CAF_datestamp )
 		mandatory_info = false
-		For i = 1 to ubound(needed_info_array)
-			If needed_info_array(i)(2) = "mandatory" Then mandatory_info = true
+		For mand_q = 1 to ubound(needed_info_array)
+			If needed_info_array(mand_q)(2) = "mandatory" Then mandatory_info = true
 		Next
 		If mandatory_info = true Then Call write_variable_in_CASE_NOTE("--Mandatory info before the SNAP application can be approved--")
 		'TODO - somewhere else, run through the array and determine if there are mandatory, optional, and verifs, set booleans
-		For i = 1 to ubound(needed_info_array)
-			If needed_info_array(i)(2) = "mandatory" Then call write_interview_question_in_CASE_NOTE(needed_info_array(i))
-			STATS_manualtime = STATS_manualtime + 25
+		For mand_q = 1 to ubound(needed_info_array)
+			If needed_info_array(mand_q)(2) = "mandatory" Then 
+				write_variable_in_CASE_NOTE("~~" & needed_info_array(mand_q)(0)) 'question text
+				write_variable_in_CASE_NOTE("     Details: " & needed_info_array(mand_q)(5)) 'details on info needed
+				STATS_manualtime = STATS_manualtime + 25
+			End If 
 		Next
 		optional_info = false
-		For i = 1 to ubound(needed_info_array)
-			If needed_info_array(i)(2) = "optional" Then optional_info = true
+		For opt = 1 to ubound(needed_info_array)
+			If needed_info_array(opt)(2) = "optional" Then optional_info = true
 		Next
 		If optional_info = true Then 
 			Call write_variable_in_CASE_NOTE("----The following information is optional-----")
 			Call write_variable_in_CASE_NOTE("SNAP can be approved without these items if all mandatory info and verifications have been provided.")
 		End If 
 		If TIKL_for_approval = true Then Call write_variable_in_CASE_NOTE("TIKL set for " & TIKL_date & " to approve SNAP without optional info/deductions.")
-		For i = 1 to ubound(needed_info_array)
-			If needed_info_array(i)(2) = "optional" Then call write_interview_question_in_CASE_NOTE(needed_info_array(i))
-			STATS_manualtime = STATS_manualtime + 25
+		For opt_q = 1 to ubound(needed_info_array)
+			If needed_info_array(opt_q)(2) = "optional" Then 
+				write_variable_in_CASE_NOTE("~~" & needed_info_array(opt_q)(0)) 'question text
+				write_variable_in_CASE_NOTE("     Details: " & needed_info_array(opt_q)(5)) 'details on info needed
+				STATS_manualtime = STATS_manualtime + 25
+			End If 
 		Next
 	End If
 	Call write_variable_in_CASE_NOTE("---")
@@ -6045,7 +6000,7 @@ function write_needed_info_CASE_NOTE(needed_info_array) 'TODO Add the header and
 end function
 
 function write_interview_question_in_CASE_NOTE(interview_question)
-	If interview_question(1) = "standard" Then	
+	If interview_question(1) = "standard" OR interview_question(1) = "qual" Then	
     	If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR interview_question(6) <> "" OR trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE(interview_question(0))
     	q_1_input = "    CAF Answer - " & interview_question(3)
 		'If interview_question(3) <> "" OR trim(interview_question(4)) <> "" Then q_1_input = q_1_input & " (Confirmed)"
@@ -6059,9 +6014,9 @@ function write_interview_question_in_CASE_NOTE(interview_question)
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
 	ElseIf interview_question(1) = "unea" Then
 		unea_content = false
-		For i = 3 to 30
-			if i < 10 or i > 11 Then 'items 10 and 11 are buttons
-				If interview_question(i) <> "" Then unea_content = true
+		For un = 3 to 30
+			if un < 9 or i > 11 Then 'items 10 and 11 are buttons
+				If interview_question(un) <> "" Then unea_content = true
 			End if 
 		Next
 		If unea_content = True Then 'q_12_totally_false
@@ -6099,7 +6054,7 @@ function write_interview_question_in_CASE_NOTE(interview_question)
     	If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
 		If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8)) 'Interview Notes
 	ElseIf interview_question(1) = "jobs" Then
-		If interview_question(3) <> "" OR trim(interview_question(4)) <> "" Then 
+		If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR trim(interview_question(5)) <> "" OR trim(interview_question(8)) <> "" Then 
 			Call write_variable_in_CASE_NOTE(interview_question(0)) 'writes question verbiage
 			CALL write_variable_in_CASE_NOTE("    CAF Answer - " & interview_question(3)) 'Add handling for "comfirmed answer when porting this to interview scritp"
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
@@ -6117,7 +6072,7 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
 		If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8)) 'Interview Notes
 	ElseIf interview_question(1) = "busi" Then 'Self employment question type
-    	If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR interview_question(6) <> "" OR trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE(interview_question(0))
+    	If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR trim(interview_question(5)) <> "" OR interview_question(6) <> "" OR trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE(interview_question(0))
 		busi_input = "    CAF Answer - " & interview_question(3)
 		If trim(interview_question(13)) <> "" Then busi_input = busi_input & " Gross Monthly Earnings: " & interview_question(13)
 		'If interview_question(3) <> "" OR trim(interview_question(4)) <> "" Then q_10_input = q_10_input & " (Confirmed)" 'This is to be added when porting to interview
@@ -6131,9 +6086,9 @@ function write_interview_question_in_CASE_NOTE(interview_question)
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
 	ElseIf interview_question(1) = "shel" Then 'Shelter expense question type
 		shel_content = false
-		For i = 3 to ubound(interview_question)
-			if i < 10 or i > 11 Then 'items 10 and 11 are buttons
-				if interview_question(i) <> "" Then shel_content = true
+		For sh = 3 to ubound(interview_question)
+			if sh < 9 or sh > 11 Then 'items 9 - 11 are buttons or default answers
+				if interview_question(sh) <> "" Then shel_content = true
 			End if
 		Next
 		If shel_content = True Then
@@ -6173,9 +6128,9 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If 
 	ElseIf interview_question(1) = "hest" Then 'Utility expense question type
 		has_content = false
-		For i = 3 to ubound(interview_question)
-			if i < 10 or i > 11 Then 'items 10 and 11 are buttons
-				if interview_question(i) <> "" Then has_content = true
+		For hst = 3 to ubound(interview_question)
+			if hst < 9 or hst > 11 Then 'items 10 and 11 are buttons
+				if interview_question(hst) <> "" Then has_content = true
 			End if
 		Next
 		If has_content = true Then
@@ -6208,9 +6163,9 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If
 	ElseIf interview_question(1) = "assets" Then
 		has_content = false
-		For i = 3 to ubound(interview_question)
-			if i < 10 or i > 11 Then 'items 10 and 11 are buttons
-				if interview_question(i) <> "" Then has_content = true
+		For ast = 3 to ubound(interview_question)
+			if ast < 9 or ast > 11 Then 'items 10 and 11 are buttons
+				if interview_question(ast) <> "" Then has_content = true
 			End if
 		Next
 		If has_content = true Then
@@ -6234,9 +6189,9 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
 	ElseIf interview_question(1) = "msa" Then
 		has_content = false
-		For i = 3 to ubound(interview_question)
-			if i < 10 or i > 11 Then 'items 10 and 11 are buttons
-				if interview_question(i) <> "" Then has_content = true
+		For ms = 3 to ubound(interview_question)
+			if ms < 9 or ms > 11 Then 'items 10 and 11 are buttons
+				if interview_question(ms) <> "" Then has_content = true
 			End if
 		Next
 		If has_content = true Then
@@ -6403,7 +6358,7 @@ function create_verifs_needed_list(verifs_selected, verifs_needed)
 	
 	For i = 1 to ubound(questions_Array)
 		If questions_array(i)(6) = "Requested" Then
-			verifs_needed = verifs_needed & "; CAF Q" & left(questions_array(i)(0), 1) & " Information"
+			verifs_needed = verifs_needed & "; CAF Q" & left(questions_array(i)(0), 2) & " Information"
 			If trim(questions_array(i)(12)) <> "" Then verifs_needed = verifs_needed & " - " & questions_array(i)(12)
 		End If 
 	Next
@@ -7755,7 +7710,7 @@ function previous_postponed_verifs_detail(case_has_previously_postponed_verifs_t
 
 		If ask_more_questions = True AND ongoing_snap_approved_yn = "No" AND prev_post_verifs_recvd_yn = "No" Then
 			case_has_previously_postponed_verifs_that_prevent_exp_snap = True
-
+			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 291, 145, "Case Previously Received EXP SNAP with Postponed Verifications"
 			  GroupBox 5, 5, 280, 60, "EXPEDITED APPROVAL MUST BE DELAYED"
 			  Text 20, 20, 100, 10, "Based on this case situation"
@@ -8057,7 +8012,7 @@ Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method t
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
-dim y_pos, form_type, contact_status
+dim y_pos, form_type, contact_status, jobs_q, hest_q, unea_q, shel_q, qual_q
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
@@ -8398,92 +8353,92 @@ qualification_help = "More information is needed for any qualification question 
 
 ' Question text for the SNAP App for Srs (DHS-5223F)
 'dim senior(10)
-dim senior(14)
+dim senior(15)
 dim senior_eats(12)
 senior_eats(0) =  "This is a multiple member household, do all HH members eat with the applicant or are mandatory members?"
 senior_eats(1) = "standard"
 senior_eats(2) = "mandatory"
 senior_eats(9) = eats_help
-senior(0) = senior_eats
+senior(1) = senior_eats
 dim senior_1(12)
 senior_1(0) =  "1. Does anyone in the household have a job or expect to get income from a job this month or next month?"
 senior_1(1) = "jobs"
 senior_1(2) = "mandatory"
 senior_1(9) = jobs_help
-senior(1) = senior_1
+senior(2) = senior_1
 dim senior_2(12)
 senior_2(0) = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 senior_2(1) = "standard"
 senior_2(2) = "mandatory"
 senior_2(9) = busi_help
-senior(2) = senior_2
+senior(3) = senior_2
 dim senior_3(30)
 senior_3(0) = "3. Has anyone in the household applied for or does anyone get any of the following types of income?" 
 senior_3(1) = "unea"
 senior_3(2) = "mandatory"
 senior_3(9) = unea_help
-senior(3) = senior_3
+senior(4) = senior_3
 dim senior_4(20)
 senior_4(0)= "4. Does your household have the following housing expenses? Check yes or no for each item. " 
 senior_4(1) = "shel"
 senior_4(2) = "optional"
 senior_4(9) = shel_help
-senior(4) = senior_4 
+senior(5) = senior_4 
 dim senior_5(20)
 senior_5(0) = "5. Does your household have the following utility expenses any time during the year, including seasonal charges? Check yes or no for each item."
 senior_5(1) = "hest"
 senior_5(2) = "optional"
 senior_5(9) = hest_help
-senior(5) = senior_5
+senior(6) = senior_5
 dim senior_5a(12)
 senior_5a(0)= "5a. Did you or anyone in your household receive energy assistance of more than $20 in the past 12 months?"
 senior_5a(1)= "standard"
 senior_5a(2)= "optional"
 senior_5a(9) = hest_help
-senior(6) = senior_5a
+senior(7) = senior_5a
 dim senior_6(12)
 senior_6(0)= "6. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 senior_6(1)= "standard"
 senior_6(2)= "optional"
 senior_6(9) = deduct_help
-senior(7) = senior_6
+senior(8) = senior_6
 dim senior_7(12)
 senior_7(0)= "7. Does anyone in the household pay court-ordered child support, spousal support, child care support, or medical support?"
 senior_7(1)= "standard"
 senior_7(2)= "optional"
 senior_7(9) = deduct_help
-senior(8) = senior_7
+senior(9) = senior_7
 dim senior_8(12)
 senior_8(0)= "8. Does anyone in the household have medical expenses? "
 senior_8(1)= "standard"
 senior_8(2)= "optional"
 senior_8(9) = fmed_help
-senior(9) = senior_8
+senior(10) = senior_8
 dim senior_9(14)
 senior_9(0)= "9. Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the SNAP penalty warnings on page 2 of the instructions?"
 'senior_9(1)= "qual"
 'senior_9(2)= "mandatory"
 'senior_9(9) = qualification_help
-senior(10) = senior_9
+senior(11) = senior_9
 dim senior_10(14)
 senior_10(0) = "10. Has anyone in the household been convicted of making fraudulent statements about their place of residence to get SNAP benefits from more than one state?"
 'senior_10(1)=
 'senior_10(2)=	
 'senior_10(9)=	
-senior(11) = senior_10
+senior(12) = senior_10
 dim senior_11(14)
 senior_11(0) = "11. Is anyone in your household hiding or running from the law to avoid prosecution, being taken into custody, or to avoid going to jail for a felony?"
-senior(12) = senior_11
+senior(13) = senior_11
 dim senior_12(14)
 senior_12(0) = "12. Has anyone in your household been convicted of a drug felony in the past 10 years?"
-senior(13) = senior_12
+senior(14) = senior_12
 dim senior_13(14)
 senior_13(0) = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-senior(14) = senior_13
-for i = 10 to 14
-	senior(i)(1) = "qual"
-	senior(i)(2) = "mandatory"
-	senior(i)(9) =  qualification_help
+senior(15) = senior_13
+for sen = 11 to 15
+	senior(sen)(1) = "qual"
+	senior(sen)(2) = "mandatory"
+	senior(sen)(9) =  qualification_help
 next
 
 
@@ -8571,7 +8526,7 @@ caf_16(1) = "hest"
 caf_16(2) = "optional"
 caf_16(9) = hest_help
 dim caf_17(12)
-caf_17(0) = "17. Do you or anyone living with you have costs for care of a child(ren)because you or they are working, looking for work or going to school?"
+caf_17(0) = "17. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
 caf_17(1) = "standard"
 caf_17(2) = "optional"
 caf_17(9) = deduct_help
@@ -8656,10 +8611,10 @@ caf(26) = caf_26
 caf(27) = caf_27
 caf(28) = caf_28
 caf(29) = caf_29
-for i = 25 to 29
-	caf(i)(1) = "qual"
-	caf(i)(2) = "mandatory"
-	caf(i)(9) =  qualification_help
+ for cf =25 to 29
+	caf(cf)(1) = "qual"
+	caf(cf)(2) = "mandatory"
+	caf(cf)(9) =  qualification_help
 next
 '-----------------------------
 'Questions for MNBenefits / 11/16 version of CAF
@@ -8744,7 +8699,7 @@ mnb_15(1) = "hest"
 mnb_15(2) = "optional"
 mnb_15(9) = hest_help
 dim mnb_16(12)
-mnb_16(0) = "16. Do you or anyone living with you have costs for care of a child(ren)because you or they are working, looking for work or going to school?"
+mnb_16(0) = "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
 mnb_16(1) = "standard"
 mnb_16(2) = "optional"
 mnb_16(9) = deduct_help
@@ -8798,7 +8753,7 @@ dim mnb_28(14)
 mnb_28(0) = "Has anyone in your household been convicted of a drug felony in the past 10 years?"
 dim mnb_29(14)
 mnb_29(0) = "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-dim mnb(29)
+dim mnb(29) 'array of questions on the mnbenefits app
 mnb(1) = mnb_1
 mnb(2) = mnb_2
 mnb(3) = mnb_3
@@ -8833,11 +8788,12 @@ mnb(26) = mnb_26
 mnb(27) = mnb_27
 mnb(28) = mnb_28
 mnb(29) = mnb_29
-for i = 25 to 29
-	mnb(i)(1) = "qual"
-	mnb(i)(2) = "mandatory"
-	mnb(i)(9) =  qualification_help
+for mnq = 25 to 29
+	mnb(mnq)(1) = "qual"
+	mnb(mnq)(2) = "mandatory"
+	mnb(mnq)(9) =  qualification_help
 next
+
 '--------------------------------------------------------------------------------------------------------------------------------------
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
@@ -9077,7 +9033,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 		Emreadscreen edit_check, 7, 24, 2 'looking to see if we are at the last member
 		member_count = member_count + 1
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-	' MsgBox client_array
+
 	client_array = split(client_array, "|")
 
 	clt_count = 0
@@ -9491,35 +9447,51 @@ pick_a_client = replace(all_the_clients, "Select or Type", "Select One...")
 interview_questions_clear = False
 'These statements resize and populate the array of questions based on application type		
 If form_type = "senior"	Then	
-	redim preserve questions_array(14)			
-	For i = 1 to 14
-		questions_array(i) = senior(i)
+	redim preserve questions_array(15)			
+	For sn = 1 to 15
+		questions_array(sn) = senior(sn)
 	Next
 ElseIf form_type = "full CAF" Then
 	redim preserve questions_array(29)			
-	For i = 1 to 29
-		questions_array(i) = caf(i)
+	For cf = 1 to 29
+		questions_array(cf) = caf(cf)
 	Next
 ElseIf form_type = "MNBenefits" Then
 	redim preserve questions_array(29)
-	For i = 1 to 29
-		questions_array(i) = mnb(i)
+	For mb = 1 to 29
+		questions_array(mb) = mnb(mb)
 	Next
 End If 
+For quest = 1 to ubound(questions_array) 'This makes sure there is a variable assigned to null spots in the arrays to help the dialogs. 
+	For vari = 3 to 8 
+		questions_array(quest)(vari) = ""
+	next
+	For vari = 12 to ubound(questions_array(quest))
+		questions_array(quest)(vari) = ""
+	Next
+Next
+'Defaulting the qual questions for MNBenefits app
+If form_type = "MNBenefits" Then
+	for qq = 25 to 29
+		If qq <> 28 Then
+			questions_array(qq)(7) = "Yes"
+			questions_array(qq)(5) = "Question not answered on application."
+		End if
+	Next
+End If 
+
+
 Do
 	Do
 		Do
 			Do
-				' MsgBox page_display
-				' MsgBox update_arep & " - before define dlg"
-				Dialog1 = Empty
+				
 				call define_main_dialog(questions_array)
 
 				err_msg = ""
 
 				prev_page = page_display
 				previous_button_pressed = ButtonPressed
-				' MsgBox update_arep & " - before display dlg"
 
 				dialog Dialog1
 				save_your_work
@@ -9697,7 +9669,6 @@ dim info_needed
 info_needed = false
 call create_needed_info_array(questions_array, needed_info_array)
 
-
 If info_needed = True Then  'There is info needed, call the resident
 	If cash_request = true Then MSgbox "This app has requested cash. If you reach the resident and they wish to complete the interview, press no contact made on the next dialog to case note the screening then run NOTES - Interview to complete a full interview for all programs."
 	page_display = q_page_1
@@ -9763,8 +9734,6 @@ End If
 'TODO: handling for verifs needed
 
 save_your_work
-
-
 
 ' Call provide_resources_information(case_number_known, create_case_note, note_detail_array, allow_cancel)
 'Call provide_resources_information(True, False, note_detail_array, False)
@@ -9943,7 +9912,7 @@ If update_revw = True OR update_prog = True Then
 	If prog_emer_status = "PEND" AND prog_emer_intvw_date = "" Then prog_update_emer_checkbox = checked
 	If prog_grh_status = "PEND" AND prog_grh_intvw_date = "" Then prog_update_grh_checkbox = checked
 	If prog_snap_status = "PEND" AND prog_snap_intvw_date = "" Then prog_update_snap_checkbox = checked
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 251, dlg_len, "Update Interview Date in STAT"
 	  Text 10, 10, 235, 25, "It appears that the interview date needs to be added to STAT panels. Since the interview is now completed, the script can upate the correct panels with the interview date."
 	  If update_revw = True Then
@@ -10582,12 +10551,12 @@ intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
 '
 qual_questions_yes = FALSE
 If form_type = "full CAF" or form_type = "MNBenefits" Then 'look through the qual questions for a yes answer
-	For i = 25 to 29
-		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
+	For quqal = 25 to 29
+		If questions_array(quqal)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 ElseIf form_type = "senior" Then 
-	For i = 10 to 14
-		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
+	For i = 11 to 15
+		If questions_array(quqal)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 End If 
 
