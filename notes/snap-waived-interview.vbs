@@ -6373,7 +6373,7 @@ function create_verifs_needed_list(verifs_selected, verifs_needed)
 	
 	For i = 1 to ubound(questions_Array)
 		If questions_array(i)(6) = "Requested" Then
-			verifs_needed = verifs_needed & "; CAF Q" & left(questions_array(i)(0), 1) & " Information"
+			verifs_needed = verifs_needed & "; CAF Q" & left(questions_array(i)(0), 2) & " Information"
 			If trim(questions_array(i)(12)) <> "" Then verifs_needed = verifs_needed & " - " & questions_array(i)(12)
 		End If 
 	Next
