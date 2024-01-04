@@ -918,12 +918,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 15, y_pos, 40, 10, "CAF Answer"
 		DropListBox 55, y_pos - 5, 35, 45, question_answers, questions_array(question_count)(3) 'application answer
 		Text 95, y_pos, 25, 10, "write-in:"
-		If questions_array(question_count)(6) = "" Then
-			EditBox 120, y_pos - 5, 355, 15, questions_array(question_count)(4) 'write-in from caf
-		Else
-			EditBox 120, y_pos - 5, 235, 15, questions_array(question_count)(4)  'write-in from caf
-			Text 360, y_pos, 110, 10, left(this_question(0), 2 ) & " Verification - " & this_question(6) 'verif yes/no
-		End If
+		EditBox 120, y_pos - 5, 355, 15, questions_array(question_count)(4) 'write-in from caf
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -985,12 +980,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		EditBox 		col_3_3, 	y_pos, 		35, 15, questions_array(question_count)(30)
 		y_pos = y_pos + 25
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_12_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1029,12 +1019,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_14_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1151,12 +1136,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_20_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1186,12 +1166,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_24_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
