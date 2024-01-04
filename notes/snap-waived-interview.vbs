@@ -2169,8 +2169,8 @@ function dialog_movement()
 
 	
 	If ButtonPressed = SHEL_all_no_btn Then
-		For i = 13 to 19
-		questions_array(shel_q)(i) = "No"
+		For shl = 13 to 19
+		questions_array(shel_q)(shl) = "No"
 		Next
 	End If
 
@@ -8434,10 +8434,10 @@ senior(14) = senior_12
 dim senior_13(14)
 senior_13(0) = "13. Is anyone in your household currently violating a condition of parole, probation or supervised release?"
 senior(15) = senior_13
-for i = 11 to 15
-	senior(i)(1) = "qual"
-	senior(i)(2) = "mandatory"
-	senior(i)(9) =  qualification_help
+for sen = 11 to 15
+	senior(sen)(1) = "qual"
+	senior(sen)(2) = "mandatory"
+	senior(sen)(9) =  qualification_help
 next
 
 
@@ -8610,10 +8610,10 @@ caf(26) = caf_26
 caf(27) = caf_27
 caf(28) = caf_28
 caf(29) = caf_29
-for i = 25 to 29
-	caf(i)(1) = "qual"
-	caf(i)(2) = "mandatory"
-	caf(i)(9) =  qualification_help
+ for cf =25 to 29
+	caf(cf)(1) = "qual"
+	caf(cf)(2) = "mandatory"
+	caf(cf)(9) =  qualification_help
 next
 '-----------------------------
 'Questions for MNBenefits / 11/16 version of CAF
@@ -8787,10 +8787,10 @@ mnb(26) = mnb_26
 mnb(27) = mnb_27
 mnb(28) = mnb_28
 mnb(29) = mnb_29
-for i = 25 to 29
-	mnb(i)(1) = "qual"
-	mnb(i)(2) = "mandatory"
-	mnb(i)(9) =  qualification_help
+for mnq = 25 to 29
+	mnb(mnq)(1) = "qual"
+	mnb(mnq)(2) = "mandatory"
+	mnb(mnq)(9) =  qualification_help
 next
 
 '--------------------------------------------------------------------------------------------------------------------------------------
@@ -10550,12 +10550,12 @@ intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
 '
 qual_questions_yes = FALSE
 If form_type = "full CAF" or form_type = "MNBenefits" Then 'look through the qual questions for a yes answer
-	For i = 25 to 29
-		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
+	For quqal = 25 to 29
+		If questions_array(quqal)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 ElseIf form_type = "senior" Then 
 	For i = 11 to 15
-		If questions_array(i)(3) = "Yes" Then qual_questions_yes = TRUE
+		If questions_array(quqal)(3) = "Yes" Then qual_questions_yes = TRUE
 	Next
 End If 
 
