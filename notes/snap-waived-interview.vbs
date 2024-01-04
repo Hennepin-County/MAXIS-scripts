@@ -1510,7 +1510,7 @@ function define_main_dialog(questions_array)
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
 			'Text 70, 255, 80, 10, "Intends to reside in MN"
-			Text 155, 255, 65, 10, "Immigration Status"
+			Text 70, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 285, 50, 10, "Verification"
 			Text 155, 285, 65, 10, "Verification Details"
@@ -2165,6 +2165,7 @@ function dialog_movement()
 		If questions_array(fq)(1) = "hest" then hest_q = fq
 		If questions_array(fq)(1) = "asset" then cash_q = fq
 		If questions_array(fq)(1) = "unea" Then unea_q = fq
+		if questions_array(fq)(1) = "jobs" Then jobs_q = fq
 	next
 
 	
@@ -5509,7 +5510,7 @@ function jobs_details_dlg(this_jobs)
 
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
-		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(25)
+		If ButtonPressed = add_verif_jobs_btn Then Call verif_details_dlg(jobs_q)
 		If ButtonPressed = clear_job_btn Then
 			JOBS_ARRAY(jobs_employee_name, this_jobs) = ""
 			JOBS_ARRAY(jobs_hourly_wage, this_jobs) = ""
@@ -8011,7 +8012,7 @@ Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method t
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
 
 'Dimming all the variables because they are defined and set within functions
-dim y_pos, form_type, contact_status
+dim y_pos, form_type, contact_status, jobs_q, hest_q, unea_q, shel_q, qual_q
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
 Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
@@ -8525,7 +8526,7 @@ caf_16(1) = "hest"
 caf_16(2) = "optional"
 caf_16(9) = hest_help
 dim caf_17(12)
-caf_17(0) = "17. Do you or anyone living with you have costs for care of a child(ren)because you or they are working, looking for work or going to school?"
+caf_17(0) = "17. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
 caf_17(1) = "standard"
 caf_17(2) = "optional"
 caf_17(9) = deduct_help
@@ -8698,7 +8699,7 @@ mnb_15(1) = "hest"
 mnb_15(2) = "optional"
 mnb_15(9) = hest_help
 dim mnb_16(12)
-mnb_16(0) = "16. Do you or anyone living with you have costs for care of a child(ren)because you or they are working, looking for work or going to school?"
+mnb_16(0) = "16. Do you or anyone living with you have costs for care of a child(ren) because you or they are working, looking for work or going to school?"
 mnb_16(1) = "standard"
 mnb_16(2) = "optional"
 mnb_16(9) = deduct_help
