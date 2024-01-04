@@ -1222,24 +1222,8 @@ End Function
 
 
 function define_main_dialog(questions_array)
-			'Assigning questions to the array based on question list
-		
-'		If form_type = "senior"	Then	
-'			redim preserve questions_array(14)			
-'			For i = 1 to 14
-'				questions_array(i) = senior(i)
-'			Next
-'		ElseIf form_type = "full CAF" Then
-'			redim preserve questions_array(29)			
-'			For i = 1 to 29
-'				questions_array(i) = caf(i)
-'			Next
-'		ElseIf form_type = "MNBenefits" Then
-'			redim preserve questions_array(29)
-'			For i = 1 to 29
-'				questions_array(i) = mnb(i)
-'			Next
-'		End If 
+
+
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Waived Interview Screening"
 
@@ -5994,8 +5978,8 @@ function write_needed_info_CASE_NOTE(needed_info_array)
 			End If 
 		Next
 		optional_info = false
-		For i = 1 to ubound(needed_info_array)
-			If needed_info_array(i)(2) = "optional" Then optional_info = true
+		For opt = 1 to ubound(needed_info_array)
+			If needed_info_array(opt)(2) = "optional" Then optional_info = true
 		Next
 		If optional_info = true Then 
 			Call write_variable_in_CASE_NOTE("----The following information is optional-----")
@@ -8768,7 +8752,7 @@ dim mnb_28(14)
 mnb_28(0) = "Has anyone in your household been convicted of a drug felony in the past 10 years?"
 dim mnb_29(14)
 mnb_29(0) = "Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-dim mnb(29)
+dim mnb(29) 'array of questions on the mnbenefits app
 mnb(1) = mnb_1
 mnb(2) = mnb_2
 mnb(3) = mnb_3
@@ -9484,13 +9468,23 @@ For quest = 1 to ubound(questions_array) 'This makes sure there is a variable as
 	For vari = 12 to ubound(questions_array(quest))
 		questions_array(quest)(vari) = ""
 	Next
-
 Next
+'Defaulting the qual questions for MNBenefits app
+If form_type = "MNBenefits" Then
+	for qq = 25 to 29
+		If qq <> 28 Then
+			questions_array(qq)(7) = "Yes"
+			questions_array(qq)(5) = "Question not answered on application."
+		End if
+	Next
+End If 
+
+
 Do
 	Do
 		Do
 			Do
-				Dialog1 = ""
+				
 				call define_main_dialog(questions_array)
 
 				err_msg = ""
