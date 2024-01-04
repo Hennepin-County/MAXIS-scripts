@@ -709,16 +709,16 @@ function check_for_errors(interview_questions_clear)
 	' If  Then err_msg = err_msg & "~!~" & "1^* FIELD##~##   - "
 	' page_display = show_pg_one_memb01_and_exp
 	' If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
-	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
-	'If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
-	'If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
-	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
-		If interpreter_language = "English" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, the lanuage should be something other than English. Indicate the language the resident used in the interivew.##~##"
-		If trim(interpreter_language) = "" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, enter the language the resident used in the interview in the 'Language' field.##~##"
-	End If
-	If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
-		If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
-	End If
+	'who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
+	''If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
+	''If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
+	'If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
+	'	If interpreter_language = "English" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, the lanuage should be something other than English. Indicate the language the resident used in the interivew.##~##"
+	'	If trim(interpreter_language) = "" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, enter the language the resident used in the interview in the 'Language' field.##~##"
+	'End If
+	'If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
+	'	If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
+	'End If
 	' If snap_status <> "ACTIVE" Then
 	' 	intv_app_month_income = trim(intv_app_month_income)
 	' 	intv_app_month_asset = trim(intv_app_month_asset)
@@ -747,18 +747,18 @@ function check_for_errors(interview_questions_clear)
 		'If IMIG Statis is not blank - require sponsor information
 		'require 'intends to reside in MN
 		'ID for 01? Other caregiver?
-	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-            HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
-    		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
-    		'If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
-        End If
-	Next
+	'For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+	'	If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+    '        HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
+    '		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
+    '		'If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
+    '		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identity Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+    '    End If
+	'Next
 
 	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
 		'if children in home - school notes need detail
-	question_3_interview_notes = trim(question_3_interview_notes)
+	'question_3_interview_notes = trim(question_3_interview_notes)
 	'If school_age_children_in_hh = True AND question_3_interview_notes = "" Then err_msg = err_msg & "~!~" & "4 ^* 3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
 	'TODO - could figure out school question from array/form type and use this one
 	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
@@ -9520,7 +9520,7 @@ Do
 								 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE." & vbCr & vbCr &_
 								 "Following this point the script will check eDRS and bring up the list of questions with more info needed." & vbCr & vbCr &_
 								 "Press 'No' now if you have additional notes to make or information to review/enter. This will bring you back to the main dialogs." & vbCr &_
-								 "Press 'Yes' to continue to the final part of the interivew (forms)." & vbCr &_
+								 "Press 'Yes' to continue to contacting the resident and/or case noting." & vbCr &_
 								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Interview Completed")
 		If proceed_confirm = vbCancel then cancel_confirmation
 
