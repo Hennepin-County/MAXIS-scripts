@@ -634,8 +634,11 @@ For each worker in worker_array
                                             'Navigate to STAT/REVW to confirm recertification and SR report date
                                             EMWriteScreen "STAT", 19, 22
                                             Call write_value_and_transmit("REVW", 19, 70)
+                                            'Pause here as it sometimes errors
+                                            EMWaitReady 0, 0
                                             'Open the FS screen
                                             Call write_value_and_transmit("X", 5, 58)
+                                            EMWaitReady 0, 0
 
                                             EmReadscreen sr_report_date, 8, 9, 26
                                             EmReadscreen recertification_date, 8, 9, 64
