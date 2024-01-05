@@ -142,20 +142,20 @@ If arep_exists = "1" then
         If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
             arep_phone_one = ""
         ELSE
-            arep_phone_one = replace(arep_phone_one, "(", "")   'If not blank update the formatting
-            arep_phone_one = replace(arep_phone_one, ")", "")
-            arep_phone_one = trim(arep_phone_one)
-            arep_phone_one = replace(arep_phone_one, " ", "-")
+            EMReadScreen arep_first_phone, 3, 8, 34
+            EMReadScreen arep_mid_phone, 3, 8, 40
+            EMReadScreen arep_last_phone, 4, 8, 44
+            arep_phone_one = arep_first_phone & "-" & arep_mid_phone & "-" & arep_last_phone
             phone_number_list = phone_number_list & trim(arep_phone_one) & "|" 'add to the phone_number_list that staff can choose from
         End if
     EmReadscreen arep_phone_two, 16, 9, 32
     If arep_phone_two = "( ___ ) ___ ____" then         'If an arep phone number #2 is not present, then establish as ""
         arep_phone_two = ""
     ELSE
-        arep_phone_two = replace(arep_phone_two, "(", "")   'If not blank update the formatting
-        arep_phone_two = replace(arep_phone_two, ")", "")
-        arep_phone_two = trim(arep_phone_two)
-        arep_phone_two = replace(arep_phone_two, " ", "-")
+        EMReadScreen arep2_first_phone, 3, 9, 34
+        EMReadScreen arep2_mid_phone, 3, 9, 40
+        EMReadScreen arep2_last_phone, 4, 9, 44
+        arep_phone_two = arep2_first_phone & "-" & arep2_mid_phone & "-" & arep2_last_phone
         phone_number_list = phone_number_list & trim(arep_phone_two) & "|" 'add to the phone_number_list that staff can choose from
     End if
 End if
@@ -171,10 +171,10 @@ If SWKR_exists = "1" then
     If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
         SWKR_phone = ""
     ELSE
-        SWKR_phone = replace(SWKR_phone, "(", "")   'If not blank update the formatting
-        SWKR_phone = replace(SWKR_phone, ")", "")
-        SWKR_phone = trim(SWKR_phone)
-        SWKR_phone = replace(SWKR_phone, " ", "-")
+        EMReadScreen SWKR_first_phone, 3, 12, 34
+        EMReadScreen SWKR_mid_phone, 3, 12, 40
+        EMReadScreen SWKR_last_phone, 4, 12, 44
+        SWKR_phone = SWKR_first_phone & "-" & SWKR_mid_phone & "-" & SWKR_last_phone
         phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
     End if
 End if     
