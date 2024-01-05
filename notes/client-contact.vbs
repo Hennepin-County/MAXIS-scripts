@@ -82,82 +82,106 @@ EMConnect ""
 get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 
-If trim(MAXIS_case_number) <> "" then
-    'Gathering the phone numbers
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+'Initial dialog for CLIENT CONTACT, gasp!
+Dialog1 = ""    
+BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 75, 45, 45, 15
+    CancelButton 125, 45, 45, 15
+  EditBox 75, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 25, 95, 15, worker_signature
+  Text 20, 10, 50, 10, "Case Number:"
+  Text 10, 30, 60, 10, "Worker Signature:"
+EndDialog
 
-    phone_number_list = "Select or Type|"
-    If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
-    If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
-    If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
+'Runs the first dialog - which confirms the case number
+Do
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+      	Call validate_MAXIS_case_number(err_msg, "*")
+        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-    '----------------------------------------------------------------------------------------------------MEMB 01 Name Collection
-    Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string. 
-    Call navigate_to_MAXIS_screen("STAT", "MEMB")       'navigating to STAT/MEMB. No other handling for member selection since M 01 is the default.
-    EMReadScreen memb_01_check, 2, 4, 33                'ensuring it's M 01 we're reading.
-    If memb_01_check = "01" then 
-        EMReadScreen first_name, 12, 6, 63
-        Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable 
-    End if
-    
-    '----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
-    case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
-    Call navigate_to_MAXIS_screen("STAT", "AREP")
-    EmReadscreen arep_exists, 1, 2, 73                  
-    If arep_exists = "1" then
-        EmReadscreen arep_name, 37, 4, 32               'If an arep panel exists read the name
-        case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable 
+Call check_for_MAXIS(False)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
 
-        EmReadscreen arep_phone_one, 16, 8, 32
-            If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
-                arep_phone_one = ""
-            ELSE
-                arep_phone_one = replace(arep_phone_one, "(", "")   'If not blank update the formatting
-                arep_phone_one = replace(arep_phone_one, ")", "")
-                arep_phone_one = trim(arep_phone_one)
-                arep_phone_one = replace(arep_phone_one, " ", "-")
-                phone_number_list = phone_number_list & trim(arep_phone_one) & "|" 'add to the phone_number_list that staff can choose from
-            End if
+EmReadscreen county_code, 4, 21, 21
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE/NOTE. The script will now stop.")
 
-        EmReadscreen arep_phone_two, 16, 9, 32
-        If arep_phone_two = "( ___ ) ___ ____" then         'If an arep phone number #2 is not present, then establish as ""
-            arep_phone_two = ""
-        ELSE
-            arep_phone_two = replace(arep_phone_two, "(", "")   'If not blank update the formatting
-            arep_phone_two = replace(arep_phone_two, ")", "")
-            arep_phone_two = trim(arep_phone_two)
-            arep_phone_two = replace(arep_phone_two, " ", "-")
-            phone_number_list = phone_number_list & trim(arep_phone_two) & "|" 'add to the phone_number_list that staff can choose from
-        End if
-    End if
-
-    '----------------------------------------------------------------------------------------------------SWKR Name/Phone Number Collection
-    case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string. 
-    Call navigate_to_MAXIS_screen("STAT", "SWKR")
-    EmReadscreen SWKR_exists, 1, 2, 73                  
-    If SWKR_exists = "1" then
-        EmReadscreen SWKR_name, 35, 6, 32               'If an SWKR panel exists read the name
-        case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable 
-
-        EmReadscreen SWKR_phone, 16, 12, 32
-        If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
-            SWKR_phone = ""
-        ELSE
-            SWKR_phone = replace(SWKR_phone, "(", "")   'If not blank update the formatting
-            SWKR_phone = replace(SWKR_phone, ")", "")
-            SWKR_phone = trim(SWKR_phone)
-            SWKR_phone = replace(SWKR_phone, " ", "-")
-            phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
-        End if
-    End if     
-
-    phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
-
-    Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
-    Call navigate_to_MAXIS_screen("STAT", "ADDR")   'navigating back to STAT/ADDR for staff to verify resident information
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+phone_number_list = "Select or Type|"
+If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
+If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
+If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
+'----------------------------------------------------------------------------------------------------MEMB 01 Name Collection
+Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string. 
+Call navigate_to_MAXIS_screen("STAT", "MEMB")       'navigating to STAT/MEMB. No other handling for member selection since M 01 is the default.
+EMReadScreen memb_01_check, 2, 4, 33                'ensuring it's M 01 we're reading.
+If memb_01_check = "01" then 
+    EMReadScreen first_name, 12, 6, 63
+    Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable 
 End if
+
+'----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
+case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
+Call navigate_to_MAXIS_screen("STAT", "AREP")
+EmReadscreen arep_exists, 1, 2, 73                  
+If arep_exists = "1" then
+    EmReadscreen arep_name, 37, 4, 32               'If an arep panel exists read the name
+    case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable 
+    EmReadscreen arep_phone_one, 16, 8, 32
+        If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
+            arep_phone_one = ""
+        ELSE
+            arep_phone_one = replace(arep_phone_one, "(", "")   'If not blank update the formatting
+            arep_phone_one = replace(arep_phone_one, ")", "")
+            arep_phone_one = trim(arep_phone_one)
+            arep_phone_one = replace(arep_phone_one, " ", "-")
+            phone_number_list = phone_number_list & trim(arep_phone_one) & "|" 'add to the phone_number_list that staff can choose from
+        End if
+    EmReadscreen arep_phone_two, 16, 9, 32
+    If arep_phone_two = "( ___ ) ___ ____" then         'If an arep phone number #2 is not present, then establish as ""
+        arep_phone_two = ""
+    ELSE
+        arep_phone_two = replace(arep_phone_two, "(", "")   'If not blank update the formatting
+        arep_phone_two = replace(arep_phone_two, ")", "")
+        arep_phone_two = trim(arep_phone_two)
+        arep_phone_two = replace(arep_phone_two, " ", "-")
+        phone_number_list = phone_number_list & trim(arep_phone_two) & "|" 'add to the phone_number_list that staff can choose from
+    End if
+End if
+
+'----------------------------------------------------------------------------------------------------SWKR Name/Phone Number Collection
+case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string. 
+Call navigate_to_MAXIS_screen("STAT", "SWKR")
+EmReadscreen SWKR_exists, 1, 2, 73                  
+If SWKR_exists = "1" then
+    EmReadscreen SWKR_name, 35, 6, 32               'If an SWKR panel exists read the name
+    case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable 
+    EmReadscreen SWKR_phone, 16, 12, 32
+    If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
+        SWKR_phone = ""
+    ELSE
+        SWKR_phone = replace(SWKR_phone, "(", "")   'If not blank update the formatting
+        SWKR_phone = replace(SWKR_phone, ")", "")
+        SWKR_phone = trim(SWKR_phone)
+        SWKR_phone = replace(SWKR_phone, " ", "-")
+        phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
+    End if
+End if     
+phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
+Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
+
+Call navigate_to_MAXIS_screen("STAT", "ADDR")   'navigating back to STAT/ADDR for staff to verify resident information
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
@@ -193,7 +217,7 @@ Do
     Do
         err_msg = ""
         Do
-            BeginDialog Dialog1, 0, 0, 391, 355, "Client Contact"
+            BeginDialog Dialog1, 0, 0, 391, 355, "Client Contact for #" & MAXIS_case_number
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
@@ -202,7 +226,6 @@ Do
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
                 CheckBox 15, 105, 230, 10, "Check here if a phone interview was attempted but NOT completed.", phone_interview_attempt_checkbox
-                EditBox 75, 120, 45, 15, MAXIS_case_number
                 PushButton 130, 120, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
                 EditBox 315, 120, 65, 15, METS_IC_number
                 EditBox 75, 140, 305, 15, contact_reason
@@ -215,7 +238,6 @@ Do
                 CheckBox 5, 300, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
                 CheckBox 270, 275, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
                 EditBox 340, 285, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-                EditBox 70, 335, 205, 15, worker_signature
                 OkButton 280, 335, 50, 15
                 CancelButton 335, 335, 50, 15
                 PushButton 10, 15, 25, 10, "ADDR", ADDR_button
@@ -228,13 +250,11 @@ Do
                 PushButton 250, 15, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
                 PushButton 300, 15, 40, 10, "MEMO", MEMO_button
                 PushButton 340, 15, 40, 10, "WCOM", WCOM_button
-                Text 20, 125, 50, 10, "Case number: "
                 Text 10, 145, 65, 10, "Reason for contact:"
                 Text 20, 170, 50, 10, "Actions taken: "
                 GroupBox 5, 190, 380, 75, "Additional information about case (not mandatory):"
                 Text 10, 210, 50, 10, "Verifs needed: "
                 Text 15, 230, 45, 10, "Case status: "
-                Text 10, 340, 60, 10, "Worker signature:"
                 GroupBox 5, 5, 135, 25, "STAT Navigation"
                 GroupBox 5, 40, 380, 120, "Contact Information:"
                 Text 30, 55, 40, 10, "Contact type"
@@ -271,7 +291,7 @@ Do
                 ButtonPressed = 100
             End If
         Loop until ButtonPressed = -1 
-        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
         If trim(contact_reason) = "" then err_msg = err_msg & vbcr & "* Enter the reason for contact."
@@ -290,18 +310,11 @@ Do
 		If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
         If follow_up_needed_checkbox = 1 and trim(ticket_number) = "" then err_msg = err_msg & vbcr & "* Enter the Q-Flow ticket number."
         If follow_up_needed_checkbox = 0 and trim(ticket_number) <> "" then err_msg = err_msg & vbcr & "* Check the follow up box or clear the Q-flow ticket field if follow up is not needed."
-        If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
+        
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-'checking for an active MAXIS session
-Call check_for_MAXIS(False)
-Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
-If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
-EmReadscreen county_code, 4, 21, 14
-If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
