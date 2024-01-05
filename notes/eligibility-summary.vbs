@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/05/2024", "Verification Requests can be sent less than 10 days ago if the program is also ineligible for 'FAIL TO FILE' for a HRF or REVW process in the month being assessed.##~## ##~##All other instances still require that verifications reqests are given at least 10 days from the date being sent for a case to be approved as ineligible for failing verifications.##~## ##~##This is also true if a program is ineligible for other reasons, as long as verifications are failed, we need to give residents at least 10 days before denying for failing verification requirements.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/19/2023", "BUG FIX for GRH cases. Previously not all payement information was being entered into CASE/NOTE. You will now see each month of vendor information entered into the CASE/NOTE. This may cause GRH CASE/NOTEs to be much longer than they were before.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/18/2023", "BUG FIX for for EGA ineligble results. Case note was reflecting incorrect 200% FPG. This is now resolved.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/21/2022", "Additional Program Support Added: ELIG/DWP - for DWP Approvals.##~####~##The script can now support determinations made in: ##~##ELIG/DWP ##~##ELIG/HC ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##All programs are now supported by Eligibility Summary. Please continue to provide feedback and report any concerns.", "Casey Love, Hennepin County")
@@ -25767,7 +25768,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file <> "FAILED" Then
 							'TODO add functionality to allow less than 10 days for a FAIL to FILE - MFIP_ELIG_APPROVALS(approval).mfip_case_test_fail_file ="FAILED"
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
@@ -26198,7 +26199,7 @@ If enter_CNOTE_for_MSA = True Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
+						If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 						End If
@@ -26512,7 +26513,7 @@ If enter_CNOTE_for_GA = True Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", GA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
+						If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 						End If
@@ -27196,7 +27197,7 @@ If enter_CNOTE_for_GRH = True Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
+						If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 						End If
@@ -27855,10 +27856,8 @@ If enter_CNOTE_for_EMER = True Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", emer_verif_request_date, date) < 10 AND confirm_emer_budget_selection = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
-							err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_request_date & " is less than 10 days ago and we should not be taking action yet."
-							confirm_emer_budget_selection = "No - I need to complete a new Approval"
-						End If
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_request_date & " is less than 10 days ago and we should not be taking action yet."
+						confirm_emer_budget_selection = "No - I need to complete a new Approval"
 					End If
 				End If
 			End If
@@ -28155,7 +28154,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-						If expedited_package_approved = False Then
+						If expedited_package_approved = False and SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 						End If
