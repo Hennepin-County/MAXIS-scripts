@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/05/2024", "Added initial dialog which contains the MAXIS Case Number and Worker Signature. Removed this information from the main dialog, and moved the 'Display Benefits' button into the space where the 'Case Number' field used to be.", "Ilse Ferris, Hennepin County")
 Call changelog_update("11/20/2023", "Added checkbox to indicate a phone interview was attempted but not completed, which will add a specific CASE/NOTE with this information. Added handling to prevent use of script for interviews.", "Mark Riegel, Hennepin County")
 Call changelog_update("05/15/2023", "Added phone # & name autofilling in 'who was contacted' drop list AREP's and/or SWKR's, & added name for MEMB 01. Removed text opt out option (retired process), updated the Q-flow verbiage from N/A to NO Q-FLOW POPULATION.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Added button to view issuance details for a case from the main dialog. This will support providing information to the resident while talking to them. This functionality does not interrupt the script run.##~####~##Look for the button that says 'Display Benefits'.##~##", "Casey Love, Hennepin County")
@@ -348,11 +349,11 @@ script_end_procedure_with_error_report(end_msg)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------05/13/2023
-'--Tab orders reviewed & confirmed----------------------------------------------05/13/2023
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/05/2024
+'--Tab orders reviewed & confirmed----------------------------------------------01/05/2024
 '--Mandatory fields all present & Reviewed--------------------------------------05/13/2023
 '--All variables in dialog match mandatory fields-------------------------------05/13/2023
-'Review dialog names for content and content fit in dialog----------------------05/13/2023
+'Review dialog names for content and content fit in dialog----------------------01/05/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------05/13/2023
@@ -361,10 +362,10 @@ script_end_procedure_with_error_report(end_msg)
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-05/13/2023
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/13/2023
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/05/2024
 '--MAXIS_background_check reviewed (if applicable)------------------------------05/13/2023--------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------05/13/2023
-'--Out-of-County handling reviewed----------------------------------------------05/13/2023
+'--PRIV Case handling reviewed -------------------------------------------------01/05/2024
+'--Out-of-County handling reviewed----------------------------------------------01/05/2024
 '--script_end_procedures (w/ or w/o error messaging)----------------------------05/13/2023
 '--BULK - review output of statistics and run time/count (if applicable)--------05/13/2023--------------------N/A
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/13/2023
@@ -382,9 +383,9 @@ script_end_procedure_with_error_report(end_msg)
 '--Update Changelog for release/update------------------------------------------05/13/2023
 '--Remove testing message boxes-------------------------------------------------05/13/2023
 '--Remove testing code/unnecessary code-----------------------------------------05/13/2023
-'--Review/update SharePoint instructions----------------------------------------05/13/2023---------------Updated with new dialog & removed Text out option
+'--Review/update SharePoint instructions----------------------------------------01/05/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/13/2023
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/13/2023
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/13/2023----------------direct committing to Master branch
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/13/2023
 '--Complete misc. documentation (if applicable)---------------------------------05/13/2023
 '--Update project team/issue contact (if applicable)----------------------------05/13/2023
