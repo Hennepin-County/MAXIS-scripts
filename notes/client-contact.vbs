@@ -226,7 +226,8 @@ Do
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
                 CheckBox 15, 105, 230, 10, "Check here if a phone interview was attempted but NOT completed.", phone_interview_attempt_checkbox
-                PushButton 130, 120, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+                PushButton 20, 120, 85, 15, "Display Benefits", display_benefits_btn
+                PushButton 130, 120, 120, 15, "Open Interpreter Services Link", interpreter_services_btn
                 EditBox 315, 120, 65, 15, METS_IC_number
                 EditBox 75, 140, 305, 15, contact_reason
                 EditBox 70, 165, 310, 15, actions_taken
@@ -264,29 +265,25 @@ Do
                 Text 230, 70, 15, 10, "Re:"
                 GroupBox 145, 5, 240, 25, "CASE Navigation"
                 Text 15, 90, 50, 10, "Phone Number:"
-                Text 15, 240, 40, 10, "Other notes:"
+                Text 15, 250, 40, 10, "Other notes:"
                 GroupBox 260, 305, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 280, 315, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 285, 290, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 170, 90, 75, 10, "Date/Time of Contact:"
                 Text 255, 125, 60, 10, "METS IC number:"
-                PushButton 300, 35, 85, 15, "Display Benefits", display_benefits_btn
+                
             EndDialog
 
 		    DIALOG Dialog1
 		    cancel_confirmation
             MAXIS_dialog_navigation
-            If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
+            If ButtonPressed = interpreter_services_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
             If ButtonPressed = display_benefits_btn Then
                 display_ben_err_msg = ""
-                Call validate_MAXIS_case_number(display_ben_err_msg, "*")
-
                 If display_ben_err_msg = "" Then
                     If months_to_go_back = "" Then months_to_go_back = 3
                     run_from_client_contact = True
                     Call gather_case_benefits_details(months_to_go_back, run_from_client_contact)
-                Else
-                    MsgBox "Cannot display benefits details as the Case Number is not entered." & vbCr &  display_ben_err_msg
                 End If
                 ButtonPressed = 100
             End If
