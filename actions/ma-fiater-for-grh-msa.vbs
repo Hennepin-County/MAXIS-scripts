@@ -1268,86 +1268,90 @@ FOR i = 0 TO ubound(income_array)
 
 	'first check which month we're budgeting
 	EMReadScreen current_budg_month, 5, 6, 11
-	current_budg_month = cdate(left(current_budg_month, 3) & "01/" & right(current_budg_month, 2)) 'convert to a date'
-	If IsObject(income_array(i)) = True Then
-		if income_array(i).budget_month = current_budg_month and income_array(i).monthly_income_amt <> 0 THEN 'only write values from the month we're in
-		IF income_array(i).income_category = "UNEARNED" THEN
-			CALL write_value_and_transmit("X", 8, 3)
-			fiat_unea_row = 8
-			DO
-				EMReadScreen blank_space_for_writing, 2, fiat_unea_row, 8
-				IF blank_space_for_writing = "__" THEN EXIT DO
-				fiat_unea_row = fiat_unea_row + 1
-			LOOP
-			EMWriteScreen income_array(i).income_type_code, fiat_unea_row, 8
-			EMWriteScreen income_array(i).monthly_income_amt, fiat_unea_row, 43
-			EMWriteScreen income_exclusion_code, fiat_unea_row, 58
-			transmit
-			PF3
-			'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
-			IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_exclusion_code = "N" THEN
-				EMWriteScreen "X", 11, 3
-				transmit
-				EMWriteScreen income_array(i).COLA_amount, 14, 43
+	' MsgBox "current_budg_month - " & current_budg_month & vbCr & InStr(current_budg_month, "/")
+	If InStr(current_budg_month, "/") = 3 Then
+		' MsgBox "budg month appears to be date"
+		current_budg_month = cdate(left(current_budg_month, 3) & "01/" & right(current_budg_month, 2)) 'convert to a date'
+		If IsObject(income_array(i)) = True Then
+			if income_array(i).budget_month = current_budg_month and income_array(i).monthly_income_amt <> 0 THEN 'only write values from the month we're in
+			IF income_array(i).income_category = "UNEARNED" THEN
+				CALL write_value_and_transmit("X", 8, 3)
+				fiat_unea_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_unea_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_unea_row = fiat_unea_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_unea_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_unea_row, 43
+				EMWriteScreen income_exclusion_code, fiat_unea_row, 58
 				transmit
 				PF3
-			END IF
-		ELSEIF income_array(i).income_category = "EARNED" THEN
-			CALL write_value_and_transmit("X", 8, 43)
-			fiat_earn_row = 8
-			DO
-				EMReadScreen blank_space_for_writing, 2, fiat_earn_row, 8
-				IF blank_space_for_writing = "__" THEN EXIT DO
-				fiat_earn_row = fiat_earn_row + 1
-			LOOP
-			EMWriteScreen income_array(i).income_type_code, fiat_earn_row, 8
-			EMWriteScreen income_array(i).monthly_income_amt, fiat_earn_row, 43
-			EMWriteScreen income_exclusion_code, fiat_earn_row, 59
-			transmit
-			PF3
-		ELSEIF income_array(i).income_category = "DEEMED EARNED" THEN
-			CALL write_value_and_transmit("X", 9, 43)
-			fiat_deem_earn_row = 8
-			DO
-				EMReadScreen blank_space_for_writing, 2, fiat_deem_earn_row, 8
-				IF blank_space_for_writing = "__" THEN EXIT DO
-				fiat_deem_earn_row = fiat_deem_earn_row + 1
-			LOOP
-			EMWriteScreen income_array(i).income_type_code, fiat_deem_earn_row, 8
-			EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_earn_row, 43
-			EMWriteScreen "N", fiat_deem_earn_row, 59
-			transmit
-			PF3
-		ELSEIF income_array(i).income_category = "DEEMED UNEARNED" THEN
-			CALL write_value_and_transmit("X", 9, 3)
-			fiat_deem_unea_row = 8
-			DO
-				EMReadScreen blank_space_for_writing, 2, fiat_deem_unea_row, 8
-				IF blank_space_for_writing = "__" THEN EXIT DO
-				fiat_deem_unea_row = fiat_deem_unea_row + 1
-			LOOP
-			EMWriteScreen income_array(i).income_type_code, fiat_deem_unea_row, 8
-			EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_unea_row, 43
-			IF income_array(i).income_type_code = "03" THEN
-				EMWriteScreen "Y", fiat_deem_unea_row, 58 'If this is SSI, code excluded'
-			ELSE
-			EMWriteScreen "N", fiat_deem_unea_row, 58
-			END IF
-			transmit
-			PF3
-			'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
-			IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_exclusion_code = "N" THEN
-				EMWriteScreen "X", 11, 3
-				transmit
-				EMWriteScreen income_array(i).COLA_amount, 14, 43
+				'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+				IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_exclusion_code = "N" THEN
+					EMWriteScreen "X", 11, 3
+					transmit
+					EMWriteScreen income_array(i).COLA_amount, 14, 43
+					transmit
+					PF3
+				END IF
+			ELSEIF income_array(i).income_category = "EARNED" THEN
+				CALL write_value_and_transmit("X", 8, 43)
+				fiat_earn_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_earn_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_earn_row = fiat_earn_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_earn_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_earn_row, 43
+				EMWriteScreen income_exclusion_code, fiat_earn_row, 59
 				transmit
 				PF3
+			ELSEIF income_array(i).income_category = "DEEMED EARNED" THEN
+				CALL write_value_and_transmit("X", 9, 43)
+				fiat_deem_earn_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_deem_earn_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_deem_earn_row = fiat_deem_earn_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_deem_earn_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_earn_row, 43
+				EMWriteScreen "N", fiat_deem_earn_row, 59
+				transmit
+				PF3
+			ELSEIF income_array(i).income_category = "DEEMED UNEARNED" THEN
+				CALL write_value_and_transmit("X", 9, 3)
+				fiat_deem_unea_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_deem_unea_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_deem_unea_row = fiat_deem_unea_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_deem_unea_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_unea_row, 43
+				IF income_array(i).income_type_code = "03" THEN
+					EMWriteScreen "Y", fiat_deem_unea_row, 58 'If this is SSI, code excluded'
+				ELSE
+				EMWriteScreen "N", fiat_deem_unea_row, 58
+				END IF
+				transmit
+				PF3
+				'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+				IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_exclusion_code = "N" THEN
+					EMWriteScreen "X", 11, 3
+					transmit
+					EMWriteScreen income_array(i).COLA_amount, 14, 43
+					transmit
+					PF3
+				END IF
+			END IF
 			END IF
 		END IF
-		END IF
-	END IF
+	End If
 NEXT
-transmit
+If IsDate(current_budg_month) = True Then transmit
 
 NEXT 'closing out the chicken loop'
 
@@ -1357,6 +1361,7 @@ NEXT 'closing out the chicken loop'
 For i = 1 to 6 'mark the person tests'
 EMWriteScreen "X", 7, (i*11) + 6
 Next
+MsgBox "PERS TESTS ARE CHECKED?"
 transmit
 
 DO ' This loop goes through each available MAPT screen and enters the assets on the popup '
