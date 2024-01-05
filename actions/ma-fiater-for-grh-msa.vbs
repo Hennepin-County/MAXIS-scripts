@@ -1361,7 +1361,6 @@ NEXT 'closing out the chicken loop'
 For i = 1 to 6 'mark the person tests'
 EMWriteScreen "X", 7, (i*11) + 6
 Next
-MsgBox "PERS TESTS ARE CHECKED?"
 transmit
 
 DO ' This loop goes through each available MAPT screen and enters the assets on the popup '
