@@ -332,6 +332,7 @@ For each worker in worker_array
 			    	objExcel.Cells(excel_row, 4).Value = dail_month
 			    	objExcel.Cells(excel_row, 5).Value = dail_msg
 			    	excel_row = excel_row + 1
+                    deleted_dails = deleted_dails + 1
 			    else
 			    	actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
                     ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
@@ -349,7 +350,6 @@ For each worker in worker_array
 				Call write_value_and_transmit("D", dail_row, 3)
 			    EMReadScreen other_worker_error, 13, 24, 2
 			    If other_worker_error = "** WARNING **" then transmit
-			    deleted_dails = deleted_dails + 1
 			Elseif actionable_DAIL = True then
 				dail_row = dail_row + 1
 			End if
