@@ -233,18 +233,24 @@ NEXT
 'Creates sheet to track stats for the script
 ObjExcel.Worksheets.Add().Name = "Stats"
 
+'Setting counters at 0
 STATS_counter = STATS_counter - 1
+not_processable_msg_count = 0
 dail_msg_deleted_count = 0
+QI_flagged_msg_count = 0
+
 'Enters info about runtime for the benefit of folks using the script
 'To do - update to reflect actual stats needed/wanted
-objExcel.Cells(1, 1).Value = "Number of Cases Evaluated:"
-objExcel.Cells(2, 1).Value = "Number of DAIL Messages Evaluated:"
-objExcel.Cells(3, 1).Value = "Number of DAIL Messages Deleted:"
-objExcel.Cells(4, 1).Value = "Script run time (in seconds):"
-objExcel.Cells(5, 1).Value = "Estimated time savings by using script (in minutes):"
+objExcel.Cells(1, 1).Value = "Cases Evaluated:"
+objExcel.Cells(2, 1).Value = "Evaluated DAIL Messages:"
+objExcel.Cells(3, 1).Value = "Unprocessable DAIL Messages:"
+objExcel.Cells(4, 1).Value = "Deleted DAIL Messages:"
+objExcel.Cells(5, 1).Value = "QI Flagged Messages:"
+objExcel.Cells(6, 1).Value = "Script run time (in seconds):"
+objExcel.Cells(7, 1).Value = "Estimated time savings by using script (in minutes):"
 
 
-FOR i = 1 to 5		'formatting the cells'
+FOR i = 1 to 7		'formatting the cells'
     objExcel.Cells(i, 1).Font.Bold = True		'bold font'
     ObjExcel.rows(i).NumberFormat = "@" 		'formatting as text
     objExcel.columns(1).AutoFit()				'sizing the columns'
@@ -825,105 +831,105 @@ For each worker in worker_array
                             'If the full dail message is within the list of dail messages to delete then the message should be deleted
 
                             'Resetting variables so they do not carry forward
-                            last_dail_check = ""
-                            other_worker_error = ""
-                            total_dail_msg_count_before = ""
-                            total_dail_msg_count_after = ""
-                            all_done = ""
-                            final_dail_error = ""
+                            ' last_dail_check = ""
+                            ' other_worker_error = ""
+                            ' total_dail_msg_count_before = ""
+                            ' total_dail_msg_count_after = ""
+                            ' all_done = ""
+                            ' final_dail_error = ""
                             
-                            'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
-                            EMReadScreen last_dail_check, 12, 3, 67
-                            last_dail_check = trim(last_dail_check)
+                            ' 'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
+                            ' EMReadScreen last_dail_check, 12, 3, 67
+                            ' last_dail_check = trim(last_dail_check)
 
-                            'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
-                            last_dail_check = split(last_dail_check, " ")
+                            ' 'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+                            ' last_dail_check = split(last_dail_check, " ")
 
-                            If last_dail_check(0) = last_dail_check(2) then 
-                                'The script is about to delete the LAST message in the DAIL so script will exit do loop after deletion, also works if it is about to delete the ONLY message in the DAIL
-                                all_done = true
-                            End If
+                            ' If last_dail_check(0) = last_dail_check(2) then 
+                            '     'The script is about to delete the LAST message in the DAIL so script will exit do loop after deletion, also works if it is about to delete the ONLY message in the DAIL
+                            '     all_done = true
+                            ' End If
 
-                            'Delete the message
-                            Call write_value_and_transmit("D", dail_row, 3)
+                            ' 'Delete the message
+                            ' Call write_value_and_transmit("D", dail_row, 3)
 
-                            'Handling for deleting message under someone else's x number
-                            EMReadScreen other_worker_error, 25, 24, 2
-                            other_worker_error = trim(other_worker_error)
+                            ' 'Handling for deleting message under someone else's x number
+                            ' EMReadScreen other_worker_error, 25, 24, 2
+                            ' other_worker_error = trim(other_worker_error)
 
-                            If other_worker_error = "ALL MESSAGES WERE DELETED" Then
-                                'Script deleted the final message in the DAIL
-                                dail_row = dail_row - 1
-                                dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                'Exit do loop as all messages are deleted
-                                all_done = true
+                            ' If other_worker_error = "ALL MESSAGES WERE DELETED" Then
+                            '     'Script deleted the final message in the DAIL
+                            '     dail_row = dail_row - 1
+                            '     dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '     'Exit do loop as all messages are deleted
+                            '     all_done = true
 
-                            ElseIf other_worker_error = "" Then
-                                'Script appears to have deleted the message but there was no warning, checking DAIL counts to confirm deletion
+                            ' ElseIf other_worker_error = "" Then
+                            '     'Script appears to have deleted the message but there was no warning, checking DAIL counts to confirm deletion
 
-                                'Handling to check if message actually deleted
-                                total_dail_msg_count_before = last_dail_check(2) * 1
-                                EMReadScreen total_dail_msg_count_after, 12, 3, 67
+                            '     'Handling to check if message actually deleted
+                            '     total_dail_msg_count_before = last_dail_check(2) * 1
+                            '     EMReadScreen total_dail_msg_count_after, 12, 3, 67
 
-                                total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
-                                total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+                            '     total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            '     total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
 
-                                If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                    'The total DAILs decreased by 1, message deleted successfully
-                                    dail_row = dail_row - 1
-                                    dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                Else
-                                    'The total DAILs did not decrease by 1, something went wrong
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                    script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 881.")
-                                End If
+                            '     If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                            '         'The total DAILs decreased by 1, message deleted successfully
+                            '         dail_row = dail_row - 1
+                            '         dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '     Else
+                            '         'The total DAILs did not decrease by 1, something went wrong
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '         script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 881.")
+                            '     End If
 
-                            ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+                            ' ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
                                 
-                                'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
-                                transmit
+                            '     'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
+                            '     transmit
 
-                                'Reads the total number of DAILS after deleting to determine if it decreased by 1
-                                EMReadScreen total_dail_msg_count_after, 12, 3, 67
+                            '     'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                            '     EMReadScreen total_dail_msg_count_after, 12, 3, 67
 
-                                'Checks if final DAIL message deleted
-                                EMReadScreen final_dail_error, 25, 24, 2
+                            '     'Checks if final DAIL message deleted
+                            '     EMReadScreen final_dail_error, 25, 24, 2
 
-                                If final_dail_error = "ALL MESSAGES WERE DELETED" Then
-                                    'All DAIL messages deleted so indicates deletion a success
-                                    dail_row = dail_row - 1
-                                    dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                    'No more DAIL messages so exit do loop
-                                    all_done = True
-                                ElseIf trim(final_dail_error) = "" Then
-                                    'Handling to check if message actually deleted
-                                    total_dail_msg_count_before = last_dail_check(2) * 1
+                            '     If final_dail_error = "ALL MESSAGES WERE DELETED" Then
+                            '         'All DAIL messages deleted so indicates deletion a success
+                            '         dail_row = dail_row - 1
+                            '         dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '         'No more DAIL messages so exit do loop
+                            '         all_done = True
+                            '     ElseIf trim(final_dail_error) = "" Then
+                            '         'Handling to check if message actually deleted
+                            '         total_dail_msg_count_before = last_dail_check(2) * 1
 
-                                    total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
-                                    total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+                            '         total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            '         total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
 
-                                    If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                        'The total DAILs decreased by 1, message deleted successfully
-                                        dail_row = dail_row - 1
-                                        dail_msg_deleted_count = dail_msg_deleted_count + 1
-                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                    Else
-                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                        script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 915.")
-                                    End If
+                            '         If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                            '             'The total DAILs decreased by 1, message deleted successfully
+                            '             dail_row = dail_row - 1
+                            '             dail_msg_deleted_count = dail_msg_deleted_count + 1
+                            '             objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '         Else
+                            '             objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '             script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 915.")
+                            '         End If
 
-                                Else
-                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                    script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 920.")
-                                End if
+                            '     Else
+                            '         objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '         script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 920.")
+                            '     End if
                                 
-                            Else
-                                objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
-                                script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 925.")
-                            End If
+                            ' Else
+                            '     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                            '     script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 925.")
+                            ' End If
 
                             ' MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
@@ -998,10 +1004,13 @@ For each worker in worker_array
 
                                         If case_details_array(case_processing_notes_const, each_case) = "SR Report Date and Recertification are not 6 months apart" Then
                                             DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed. SR Report Date and Recertification are not 6 months apart."
+                                            QI_flagged_msg_count = QI_flagged_msg_count + 1
                                         ElseIf case_details_array(case_processing_notes_const, each_case) = "SR Report Date and/or Recertification Date is missing" Then
                                             DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed. SR Report Date and/or Recertification Date is missing."
+                                            QI_flagged_msg_count = QI_flagged_msg_count + 1
                                         Else
                                             DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable based on Case Details"
+                                            not_processable_msg_count = not_processable_msg_count + 1
                                         End If
                                         
                                         'The dail message should not be processed due to case details
@@ -1044,6 +1053,7 @@ For each worker in worker_array
 
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
+                                                    not_processable_msg_count = not_processable_msg_count + 1
 
                                                     'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
@@ -1067,6 +1077,7 @@ For each worker in worker_array
                                                     'To do - update language once finalized
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not Processable due to DAIL Month & Recert/Renewal. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
+                                                    not_processable_msg_count = not_processable_msg_count + 1
 
                                                     'The dail message cannot be processed due to timing of recertification or SR report date
                                                     process_dail_message = False
@@ -1378,13 +1389,13 @@ For each worker in worker_array
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-
                                                         dail_row = dail_row - 1
                                                     End If
 
@@ -1398,7 +1409,7 @@ For each worker in worker_array
                                                     'Update the excel spreadsheet with processing notes
                                                     'Ensure this is at correct spot
                                                     objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-
+                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                 End If
 
                                                 'To do - ensure this is at the correct spot
@@ -1540,6 +1551,7 @@ For each worker in worker_array
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
@@ -1833,6 +1845,7 @@ For each worker in worker_array
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 39 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
@@ -1853,6 +1866,7 @@ For each worker in worker_array
                                                     'Update the excel spreadsheet with processing notes
                                                     'Ensure this is at correct spot
                                                     objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
 
                                                 End If
 
@@ -1995,6 +2009,7 @@ For each worker in worker_array
                                                         'To do - ensure this is at the correct spot
                                                         'Update the excel spreadsheet with processing notes
                                                         objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                         'All of the identified HH members have a corresponding Type 40 UNEA panel. The message can be deleted.
                                                         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
@@ -2017,6 +2032,7 @@ For each worker in worker_array
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
                                                 objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
 
                                                 ' 'Reset the caregiver reference number
                                                 ' caregiver_ref_nbr = ""
@@ -2651,6 +2667,7 @@ For each worker in worker_array
                                                 '         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                 '         'Update the excel spreadsheet with processing notes
                                                 '         objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                '         QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                 '     ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
                                                 '         'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
                                                 '         list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
@@ -2674,6 +2691,7 @@ For each worker in worker_array
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
                                                 objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
                                             Else
                                                 'To do - add handling for CSES type messages that are not in scope
                                                 msgbox "Something went wrong - line 2189ish." & "dail_msg: " & dail_msg 
@@ -2700,7 +2718,7 @@ For each worker in worker_array
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
                                                 objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
                                             ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
                                                 'Add logic here
                                                 ' MsgBox "SDNH NEW JOB DETAILS: " & dail_msg
@@ -2715,6 +2733,7 @@ For each worker in worker_array
                                                 'To do - ensure this is at the correct spot
                                                 'Update the excel spreadsheet with processing notes
                                                 objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                QI_flagged_msg_count = QI_flagged_msg_count + 1
                                             Else
                                                 ' msgbox "Something went wrong - line 1964"
                                             End If
@@ -2801,9 +2820,11 @@ Next
 objExcel.Worksheets("Stats").Activate
 objExcel.Cells(1, 2).Value = case_excel_row - 2
 objExcel.Cells(2, 2).Value = dail_excel_row - 2
-objExcel.Cells(3, 2).Value = dail_msg_deleted_count
-objExcel.Cells(4, 2).Value = timer - start_time
-objExcel.Cells(5, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+objExcel.Cells(3, 2).Value = not_processable_msg_count
+objExcel.Cells(4, 2).Value = dail_msg_deleted_count
+objExcel.Cells(5, 2).Value = QI_flagged_msg_count
+objExcel.Cells(6, 2).Value = timer - start_time
+objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
 'Finding the right folder to automatically save the file
 this_month = CM_mo & " " & CM_yr
