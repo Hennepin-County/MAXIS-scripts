@@ -10557,7 +10557,7 @@ PF3
 Call write_verification_CASE_NOTE(create_verif_note)
 PF3
 If info_needed = true Then call write_needed_info_CASE_NOTE(needed_info_array)
-If contact_status = "completed" Then
+If contact_status = "complete" Then
 	end_msg = "Application review and resident contact completed. Process and approve the SNAP if possible at this time or request needed verifications."
 ElseIf contact_status = "no contact" Then
 	end_msg = "Application review completed. Send the resident a request for needed information and any verifications needed if applicable. The resident will need to provide the needed information before a determination can be made."
