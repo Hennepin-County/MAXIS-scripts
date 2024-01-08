@@ -1268,7 +1268,8 @@ For each worker in worker_array
                                                     If trim(no_unea_panels_exist) = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
                                                         'If no UNEA panels exist for the case, then the case needs to be flagged for QI
                                                         ' Msgbox "no_unea_panels_exist: " & no_unea_panels_exist
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = " No UNEA panels exist for any member on the case."
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = " No UNEA panels exist for any member on the case." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        
 
                                                         'To do - confirm, could be problematic that originally PF3 here instead of at end, it would back out of DAIL
                                                         ' ' Add full dail msg to list of dail messages to skip
@@ -1725,7 +1726,7 @@ For each worker in worker_array
                                                     If trim(no_unea_panels_exist) = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
                                                         'If no UNEA panels exist for the case, then the case needs to be flagged for QI
                                                         ' Msgbox "no_unea_panels_exist: " & no_unea_panels_exist
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = " No UNEA panels exist for any member on the case."
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = " No UNEA panels exist for any member on the case." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                         'To do - confirm, seems like this could be problematic if PF3 here and later
                                                         ' ' Add full dail msg to list of dail messages to skip
