@@ -823,70 +823,107 @@ For each worker in worker_array
                         'To do - consider more robust handling, should we validate that case number matches? That dail month matches? These could be added to the string - i.e. *123456 - CS DISB Type 36....*
                         If Instr(list_of_DAIL_messages_to_delete, "*" & full_dail_msg & "*") Then
                             'If the full dail message is within the list of dail messages to delete then the message should be deleted
-                            'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards
-                            EMReadScreen last_dail_check, 12, 3, 67
 
-                            last_dail_check = split(trim(last_dail_check), " ")
+                            'Resetting variables so they do not carry forward
+                            last_dail_check = ""
+                            other_worker_error = ""
+                            total_dail_msg_count_before = ""
+                            total_dail_msg_count_after = ""
+                            all_done = ""
+                            final_dail_error = ""
+                            
+                            'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
+                            EMReadScreen last_dail_check, 12, 3, 67
+                            last_dail_check = trim(last_dail_check)
 
                             'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+                            last_dail_check = split(last_dail_check, " ")
+
                             If last_dail_check(0) = last_dail_check(2) then 
-                                ' MsgBox "Script is about to delete the LAST message. Script should exit do loop"
+                                'The script is about to delete the LAST message in the DAIL so script will exit do loop after deletion, also works if it is about to delete the ONLY message in the DAIL
                                 all_done = true
                             End If
 
                             'Delete the message
-                            'To do - update to write value and transmit once confident it is deleting correct message
-                            ' Call write_value_and_transmit("D", dail_row, 3)
-                            EMWriteScreen "D", dail_row, 3
-                            ' MsgBox "It wrote DELETE to the message - is it correct? STOP HERE - LAST CHANCE" 
-                            
-                            transmit
+                            Call write_value_and_transmit("D", dail_row, 3)
 
                             'Handling for deleting message under someone else's x number
-                            EMReadScreen other_worker_error, 13, 24, 2
+                            EMReadScreen other_worker_error, 25, 24, 2
+                            other_worker_error = trim(other_worker_error)
 
-                            'Handling to check if message actually deleted
-                            total_dail_msg_count_before = last_dail_check(2) * 1
-                            EMReadScreen total_dail_msg_count_after, 12, 3, 67
-
-                            total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
-                            total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
-
-                            If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                ' MsgBox "last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted without error/warning"
+                            If other_worker_error = "ALL MESSAGES WERE DELETED" Then
+                                'Script deleted the final message in the DAIL
                                 dail_row = dail_row - 1
                                 dail_msg_deleted_count = dail_msg_deleted_count + 1
                                 objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                'Exit do loop as all messages are deleted
+                                all_done = true
 
-                            ElseIf other_worker_error = "** WARNING **" then 
-                                
-                                'Transmit again to delete the message
-                                transmit
+                            ElseIf other_worker_error = "" Then
+                                'Script appears to have deleted the message but there was no warning, checking DAIL counts to confirm deletion
 
-                                'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                                'Handling to check if message actually deleted
+                                total_dail_msg_count_before = last_dail_check(2) * 1
                                 EMReadScreen total_dail_msg_count_after, 12, 3, 67
 
                                 total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
                                 total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
 
                                 If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
-                                    ' MsgBox "After warning about other worker x number, last_dail_check(2) - 1 = total_dail_msg_count_after(2). Message deleted."
+                                    'The total DAILs decreased by 1, message deleted successfully
                                     dail_row = dail_row - 1
                                     dail_msg_deleted_count = dail_msg_deleted_count + 1
                                     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
                                 Else
-                                    MsgBox "Something went wrong when attempting to delete after *** warning ***"
+                                    'The total DAILs did not decrease by 1, something went wrong
                                     objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                    script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 881.")
                                 End If
 
+                            ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+                                
+                                'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
+                                transmit
+
+                                'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                                EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+                                'Checks if final DAIL message deleted
+                                EMReadScreen final_dail_error, 25, 24, 2
+
+                                If final_dail_error = "ALL MESSAGES WERE DELETED" Then
+                                    'All DAIL messages deleted so indicates deletion a success
+                                    dail_row = dail_row - 1
+                                    dail_msg_deleted_count = dail_msg_deleted_count + 1
+                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                    'No more DAIL messages so exit do loop
+                                    all_done = True
+                                ElseIf trim(final_dail_error) = "" Then
+                                    'Handling to check if message actually deleted
+                                    total_dail_msg_count_before = last_dail_check(2) * 1
+
+                                    total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                                    total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+                                    If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                                        'The total DAILs decreased by 1, message deleted successfully
+                                        dail_row = dail_row - 1
+                                        dail_msg_deleted_count = dail_msg_deleted_count + 1
+                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message successfully deleted. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                    Else
+                                        objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                        script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 915.")
+                                    End If
+
+                                Else
+                                    objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                    script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 920.")
+                                End if
                                 
                             Else
-                                MsgBox "Something went wrong when attempting to delete the message. The number didn't decrease by 1 and there was no warning" 
-                                ' msgbox "last_dail_check(2) - 1" & last_dail_check(2) - 1
-                                ' msgbox "total_dail_msg_count_after(2) " & total_dail_msg_count_after(2)
                                 objExcel.Cells(dail_excel_row - 1, 7).Value = "Message deletion failed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count - 1)
+                                script_end_procedure_with_error_report("Script end error - something went wrong with deleting the message at line 925.")
                             End If
-
 
                             ' MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
                         ElseIf Instr(list_of_DAIL_messages_to_skip, "*" & full_dail_msg & "*") Then
