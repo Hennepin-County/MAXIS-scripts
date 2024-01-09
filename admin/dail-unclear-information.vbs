@@ -2756,6 +2756,9 @@ For each worker in worker_array
                                     'Increment dail_count for the dail array
                                     dail_count = dail_count + 1
 
+                                    'In instances where the case details are not the final item in the array, need to exit the for loop
+                                    Exit For
+
                                     ' dail_excel_row = dail_excel_row + 1
                                 End If 
                                 'To do - validate placement of dail count incrementor
