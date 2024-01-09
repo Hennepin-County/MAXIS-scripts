@@ -52,6 +52,9 @@ const the_last_const	= 4
 Dim form_type_array()		'Defining 1D array
 ReDim form_type_array(the_last_const, 0)	'Redefining array so we can resize it 
 form_count = 0				'Counter for array should start with 0
+all_form_array = "*"
+false_count = 0 
+
 
 'Dim/ReDim Array for form checkbox selections
 Dim unchecked, checked		'Defining unchecked/checked 
@@ -555,18 +558,41 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					'MsgBox form_type_array(btn_name_const, form) 'TEST
 					'MsgBox form_type_array(btn_number_const, form) 'TEST
 					'MsgBox "Ubound" & UBound(form_type_array, 2) 'TEST
-					Text 55, y_pos, 195, 10, form_type_array(form_type_const, form)
-					y_pos = y_pos + 10					'Increasing y_pos by 10 before the next form is written on the dialog
+						Text 55, y_pos, 195, 10, form_type_array(form_type_const, form)
+						y_pos = y_pos + 10					'Increasing y_pos by 10 before the next form is written on the dialog
 				Next
 				EndDialog								'Dialog handling	
 				dialog Dialog1 							'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation
 				
-			If ButtonPressed = add_button and form_type <> "" Then				'If statement to know when to store the information in the array
-				ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
-				form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
-				form_count= form_count + 1 										'incrementing in the array
+			'This limits the quantity of each form to 1. Only adds the form name to the array if it's not already in there. If it's already in the array, it does not add it to the array. 
+			If ButtonPressed = add_button Then 	'Add button kicks off this evaluation 
+				If form_type <> "" Then 		'Must have a form selected
+				Form_string = form_type 		'Setting the form name equal to a string
+					If instr(all_form_array, "*" & form_string & "*") Then	
+						add_to_array = false	'If the string is found in the array, it won't add the form to the array
+					Else 
+						add_to_array = true 	'If the string is not found in the array, it will add the form to the array
+					End If
+				End If
+			
+				If add_to_array = True Then			'Defining the steps to take if the form should be added to the array
+					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
+					form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
+					form_count = form_count + 1 	
+					all_form_array = trim(all_form_array & form_string & "*") 'Adding form name to form name string
+				ElseIF add_to_array = False then 
+					form_count = form_count
+					false_count = false_count + 1
+				End If 
 			End If
+
+			'This work for handling the adding of each form - this allows you to add more than one of each form 
+			' If ButtonPressed = add_button and form_type <> "" Then				'If statement to know when to store the information in the array
+			' 	ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
+			' 	form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
+			' 	form_count= form_count + 1 										'incrementing in the array
+			' End If
 				
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
 				ReDim form_type_array(the_last_const, form_count)		
@@ -601,12 +627,31 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				psn_count		= 0 
 				sf_count		= 0 
 				diet_count		= 0
-				MsgBox "form type" & form_type 'TEST
+				Form_string = ""
+				MsgBox "form string" & form_string
+				MsgBox "all form array" & all_form
+			'	MsgBox "form type" & form_type 'TEST
 				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
 			End If
+
+
 			
+			
+
+			' If add_to_array = false Then
+			' 	If form_type = "" Then 
+			' 		If ButtonPressed <> all_forms Then
+			' 			err_msg = err_msg & "-No form selected- select a form name, then select Add"
+			' 		End If
+			' 	End If 
+				
+			' 	If form_type <> "" Then
+			' 		If ButtonPressed <> clear_button Then err_msg = err_msg & "-Form already added, select a different form"
+			' 		If ButtonPressed = clear_button Then err_msg = err_msg & "-Form selections cleared."
+			' 	End If 
+			' End If
+
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
-			'TODO - Limit to one of each form max 
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
@@ -644,13 +689,18 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation
 
+
 				'Capturing form name in array based on checkboxes selected 
-				If asset_checkbox = checked Then 
+				If asset_checkbox = checked Then
+					form_string = "Asset Statement"
+					all_form_array = trim(all_form_array & form_string & "*")
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Asset Statement" 
 					form_count= form_count + 1 
 				End If
-				If atr_checkbox = checked Then 
+				If atr_checkbox = checked Then
+					form_string = "Authorization to Release Information (ATR)"
+					all_form_array = trim(all_form_array & form_string & "*")
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)"
 					form_count= form_count + 1 
@@ -685,7 +735,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_type_const, form_count) = "Interim Assistance Authorization- SSI"
 					form_count= form_count + 1 
 				End If
-				If ltc_1503_checkbox = checked Then 
+				If ltc_1503_checkbox = checked Then
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "LTC-1503"
 					form_count= form_count + 1 
@@ -715,7 +765,12 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)"
 					form_count= form_count + 1 
 				End If
-								
+				
+
+
+
+				MsgBox "form string" & form_string
+				MsgBox "all form array" & all_form
 				If asset_checkbox = unchecked and arep_checkbox = unchecked and atr_checkbox = unchecked and change_checkbox = unchecked and evf_checkbox = unchecked and hospice_checkbox = unchecked and iaa_checkbox = unchecked and iaa_ssi_checkbox = unchecked and ltc_1503_checkbox = unchecked and mof_checkbox = unchecked and mtaf_checkbox = unchecked and psn_checkbox = unchecked and shelter_checkbox = unchecked and diet_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "-Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
 				If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 			Loop until err_msg = ""	
@@ -812,7 +867,7 @@ Next
 
 
 
-' 'Capturing count of each form so we can iterate the necessary form dialogs
+' 'Capturing count of each form so we can iterate the necessary form dialogs -This works well to have after all of the form selection dialogs. Then it doesn't count weird in the do/loop.
 ' For form_added = 0 to Ubound(form_type_array, 2)
 ' 	If form_type_array(form_type_const, form_added) = "Asset Statement" Then asset_count = asset_count + 1 
 ' 	If form_type_array(form_type_const, form_added) = "Authorization to Release Information (ATR)" Then atr_count = atr_count + 1
