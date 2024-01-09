@@ -274,9 +274,6 @@ function create_info_needed_in_dialog(needed_info)
 		y_pos = y_pos + 20
 	ElseIf needed_info(1) = "unea" Then
 		GroupBox 5, y_pos, 475, 135, needed_info(0)
-		' y_pos = y_pos + 15
-		PushButton 365, y_pos + 5, 110, 13, "ALL UNEA types Answered 'No'", UNEA_all_no_btn
-
 		y_pos = y_pos + 20
 		col_1_1 = 15
 		col_1_2 = 55
@@ -328,16 +325,16 @@ function create_info_needed_in_dialog(needed_info)
 		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5)
-		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
+		PushButton 400, y_pos - 5, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 60, 10, "Info Provided: "
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
 		y_pos = y_pos + 25
 	Elseif needed_info(1) = "jobs" Then
-		grp_len = 75
+		grp_len = 80
 		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 			' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
+			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 25
 		next
 		GroupBox 5, y_pos, 475, grp_len, needed_info(0)
 		PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
@@ -348,7 +345,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 450, 10, "Details: " & needed_info(5)
-		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 10
 	
 		' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
@@ -364,7 +361,7 @@ function create_info_needed_in_dialog(needed_info)
 					First_job = FALSE
 					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
 					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
-					PushButton 450, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
+					PushButton 450, y_pos-5, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 15
 				End If
 			next
@@ -375,7 +372,6 @@ function create_info_needed_in_dialog(needed_info)
 			
 	ElseIf needed_info(1) = "shel" Then 
 		GroupBox 5, y_pos, 475, 140, needed_info(0)
-		PushButton 385, y_pos + 5, 90, 13, "ALL SHEL Answered 'No'", SHEL_all_no_btn
 		y_pos = y_pos + 15
 		col_1_1 = 15
 		col_1_2 = 85
