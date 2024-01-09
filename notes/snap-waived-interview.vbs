@@ -325,14 +325,10 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 		col_3_3, 	y_pos, 		35, 15, needed_info(30)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If needed_info(6) = "" Then
-			Text 45, y_pos, 425, 15, needed_info(4)
-		Else
-			Text 40, y_pos, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 60, 10, "Info Provided: "
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
@@ -349,12 +345,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 15, y_pos, 70, 10, "CAF Answer: " & needed_info(3)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 350, 20, "write-in:" 
-		If needed_info(6) = "" Then
-			Text 45, y_pos, 425, 15, needed_info(4)
-		Else
-			Text 40, y_pos, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 450, 10, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
@@ -412,12 +403,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
 		y_pos = y_pos + 15
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_14_verif_yn = "" Then
-			Text 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			Text 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 380, 20, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -456,7 +442,6 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_1_2, y_pos, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
 		y_pos = y_pos + 15
 		Text 15, y_pos, 340, 10, "Write-in: " & needed_info(4) 
-		If needed_info(6) = "" Then Text 360, y_pos, 110, 10, "Verification - " & needed_info(7)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 435, 25, "Details: " & needed_info(5)
 		y_pos = y_pos + 25
@@ -487,12 +472,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_20_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info Provided:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(8)
@@ -519,12 +499,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_24_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Interview Notes:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(5)
@@ -5371,8 +5346,8 @@ function verif_details_dlg(question_number)
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
 		If ButtonPressed = clear_btn Then
-			verif_selection = "Not Needed"
-			verif_detials = ""
+			questions_array(question_number)(6) = "Not Needed"
+			questions_array(question_number)(12) = ""
 		End If
 	Loop until ButtonPressed = return_btn
 
