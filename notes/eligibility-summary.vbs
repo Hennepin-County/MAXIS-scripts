@@ -428,7 +428,7 @@ function define_dwp_elig_dialog()
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
 			GroupBox 5, 10, 450, 45, "DWP Closed "
 			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
-			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
+			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " there are no more months of DWP available."
 
 		Else
 			If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
@@ -25461,7 +25461,7 @@ If enter_CNOTE_for_DWP = True Then
 				End If
 			End If
 
-			If show_pact = True Then
+			If show_pact = True and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" and DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
 				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" Then
 					err_msg = err_msg & vbNewLine & "* Since PACT was used to approve this DWP benefit as ineligible, list the reasons for ineligibility."
 				ElseIf len(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then
