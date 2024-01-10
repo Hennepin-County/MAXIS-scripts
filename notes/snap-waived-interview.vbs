@@ -1113,14 +1113,14 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 	col_1_1, 		y_pos, 40, 10, "CAF Answer"
 		Text 	col_2_1, 		y_pos, 40, 10, "CAF Answer"
 		y_pos = y_pos + 15
-		DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(8)
+		DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(13)
 		Text 			col_1_2, y_pos, 	70, 10, "Cash"
-		DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(9)
+		DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(14)
 		Text 			col_2_2, y_pos, 	175, 10, "Bank accounts (savings, checking, debit card, etc.)"
 		y_pos = y_pos + 15
-		DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(10)
+		DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(15)
 		Text 			col_1_2, y_pos, 	125, 10, "Stocks, bonds, annuities, 401k, etc."
-		DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(11)
+		DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, questions_array(question_count)(16)
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
@@ -2126,7 +2126,7 @@ function dialog_movement()
 	For fq = 1 to ubound(questions_array)'find question number for each question type
 		If questions_array(fq)(1) = "shel" then shel_q = fq
 		If questions_array(fq)(1) = "hest" then hest_q = fq
-		If questions_array(fq)(1) = "asset" then cash_q = fq
+		If questions_array(fq)(1) = "assets" then cash_q = fq
 		If questions_array(fq)(1) = "unea" Then unea_q = fq
 		if questions_array(fq)(1) = "jobs" Then jobs_q = fq
 	next
@@ -2601,7 +2601,7 @@ function display_expedited_dialog()
 		For i = 1 to ubound(questions_array)'find question number for each question type
 			If questions_array(i)(1) = "shel" then shel_q = i
 			If questions_array(i)(1) = "hest" then hest_q = i
-			If questions_array(i)(1) = "asset" then cash_q = i
+			If questions_array(i)(1) = "assets" then cash_q = i
 			If questions_array(i)(1) = "unea" Then unea_q = i
 		next
 
@@ -8459,7 +8459,7 @@ caf_10(0) = "10. Does anyone in the household have a job or expect to get income
 caf_10(1) = "jobs"
 caf_10(2) = "mandatory"
 caf_10(9) = jobs_help
-dim caf_11(12)
+dim caf_11(14)
 caf_11(0) = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
 caf_11(1) = "busi"
 caf_11(2) = "mandatory"
