@@ -272,6 +272,23 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 20
+	ElseIf needed_info(1) = "busi" Then
+		GroupBox 5, y_pos, 475, 95, needed_info(0) 'question text
+		y_pos = y_pos + 10
+		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
+		Text 95, y_pos, 350, 20, "write-in: " & needed_info(4) 'application write-in
+		y_pos = y_pos + 20
+		Text 15, y_pos, 350, 20, "Details: " & needed_info(5) 'detail from app
+		y_pos = y_pos + 30
+		Text 15, y_pos, 60, 10, "Info Provided:"
+		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
+		y_pos = y_pos + 20
+		Text 15, y_pos, 70, 10, "Monthly gross income: "
+		EditBox 90, y_pos - 5, 50, 15, needed_info(13)
+		Text 150, y_pos, 100, 10, "Budgeting method chosen: "
+		DropListBox 260, y_pos -5, 65, 45, ""+chr(9)+"50%"+chr(9)+"Taxable", needed_info(14)
+		y_pos = y_pos + 20 
 	ElseIf needed_info(1) = "unea" Then
 		GroupBox 5, y_pos, 475, 135, needed_info(0)
 		y_pos = y_pos + 20
@@ -331,7 +348,7 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
 		y_pos = y_pos + 25
 	Elseif needed_info(1) = "jobs" Then
-		grp_len = 80
+		grp_len = 75
 		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 			' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 25
@@ -359,8 +376,8 @@ function create_info_needed_in_dialog(needed_info)
 				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 					If First_job = TRUE Then y_pos = y_pos + 20
 					First_job = FALSE
-					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
+					Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
+					'If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
 					PushButton 450, y_pos-5, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 15
 				End If
@@ -883,7 +900,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 	'redim preserve questions_array(question_count)
 	
 	'questions_array(question_count) = this_question
-	IF this_question(1) = "standard" Then
+	IF this_question(1) = "standard" OR this_question(1) = "busi" Then
 		GroupBox 5, y_pos, 475, 55, this_question(0) 'question text
 		y_pos = y_pos + 20
 		Text 15, y_pos, 40, 10, "CAF Answer"
@@ -6020,7 +6037,6 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 	ElseIf interview_question(1) = "busi" Then 'Self employment question type
     	If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR trim(interview_question(5)) <> "" OR interview_question(6) <> "" OR trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE(interview_question(0))
 		busi_input = "    CAF Answer - " & interview_question(3)
-		If trim(interview_question(13)) <> "" Then busi_input = busi_input & " Gross Monthly Earnings: " & interview_question(13)
 		'If interview_question(3) <> "" OR trim(interview_question(4)) <> "" Then q_10_input = q_10_input & " (Confirmed)" 'This is to be added when porting to interview
 		If busi_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(busi_input)
 		If trim(interview_question(4)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & interview_question(4))
@@ -6030,6 +6046,8 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
+		If trim(interview_question(13)) <> "" Then CALL write_variable_in_CASE_NOTE("     Gross Monthly Earnings: " & interview_question(13))
+		If trim(interview_question(14)) <> "" Then CALL write_variable_in_CASE_NOTE("     Budgeting Method Chosen: " & interview_question(14))
 	ElseIf interview_question(1) = "shel" Then 'Shelter expense question type
 		shel_content = false
 		For sh = 3 to ubound(interview_question)
@@ -8312,9 +8330,9 @@ senior_1(1) = "jobs"
 senior_1(2) = "mandatory"
 senior_1(9) = jobs_help
 senior(2) = senior_1
-dim senior_2(12)
+dim senior_2(14)
 senior_2(0) = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-senior_2(1) = "standard"
+senior_2(1) = "busi"
 senior_2(2) = "mandatory"
 senior_2(9) = busi_help
 senior(3) = senior_2
@@ -8443,7 +8461,7 @@ caf_10(2) = "mandatory"
 caf_10(9) = jobs_help
 dim caf_11(12)
 caf_11(0) = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-caf_11(1) = "standard"
+caf_11(1) = "busi"
 caf_11(2) = "mandatory"
 caf_11(9) = busi_help
 dim caf_12(12)
@@ -9409,12 +9427,17 @@ ElseIf form_type = "MNBenefits" Then
 	Next
 End If 
 For quest = 1 to ubound(questions_array) 'This makes sure there is a variable assigned to null spots in the arrays to help the dialogs. 
-	For vari = 3 to 8 
-		questions_array(quest)(vari) = ""
+	For vari = 3 to ubound(questions_array(quest))
+		If vari <> 9 Then '9 is policy info, don't change it 
+			If vari = 10  Then 
+				questions_array(quest)(vari) = 1910 + quest 'Setting buttons to a number to reduce errors. 
+			Elseif vari = 11 Then 
+				questions_array(quest)(vari) = 1941 + quest 'Setting buttons to a number to reduce errors. 
+			Else 
+				questions_array(quest)(vari) = "" 'All other values get set to "" 
+			End If 
+		End If 
 	next
-	For vari = 12 to ubound(questions_array(quest))
-		questions_array(quest)(vari) = ""
-	Next
 Next
 'Defaulting the qual questions for MNBenefits app
 If form_type = "MNBenefits" Then
@@ -9643,6 +9666,14 @@ If info_needed = True Then  'There is info needed, call the resident
 					cancel_confirmation
 
 					previous_button_pressed = ButtonPressed
+				If ButtonPressed = contact_completed Then
+					blank_answers = false
+					For answer = 1 to ubound(needed_info_array)
+						If needed_info_array(answer)(8) = "" Then blank_answers = true 'Interview notes field should not be blank if we finished contact
+					Next
+					If blank_answers = true then err_msg = err_msg & vbCR & "You have pressed contact completed, but did not note the info provided by the resident on 1 or more questions. Update the info provided or select 'No Contact Made' if you were unable to reach the resident."
+				End if 
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 				Loop Until err_msg = ""
 				call dialog_movement			
 			Loop Until contact_status <> ""
