@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("01/10/2024", "The script has had several bug fixes and minor enhancements to streamline dialogs, as well as pre-filling qualification questions on the MNBenefits apps. Please continue to report further issues as this script is in testing.", "Dave Courtright, Hennepin County")
 call changelog_update("12/02/2023", "Initial version.", "Dave Courtright, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -272,11 +272,25 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 20
+	ElseIf needed_info(1) = "busi" Then
+		GroupBox 5, y_pos, 475, 95, needed_info(0) 'question text
+		y_pos = y_pos + 10
+		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
+		Text 95, y_pos, 350, 20, "write-in: " & needed_info(4) 'application write-in
+		y_pos = y_pos + 20
+		Text 15, y_pos, 350, 20, "Details: " & needed_info(5) 'detail from app
+		y_pos = y_pos + 30
+		Text 15, y_pos, 60, 10, "Info Provided:"
+		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
+		y_pos = y_pos + 20
+		Text 15, y_pos, 70, 10, "Monthly gross income: "
+		EditBox 90, y_pos - 5, 50, 15, needed_info(13)
+		Text 150, y_pos, 100, 10, "Budgeting method chosen: "
+		DropListBox 260, y_pos -5, 65, 45, ""+chr(9)+"50%"+chr(9)+"Taxable", needed_info(14)
+		y_pos = y_pos + 20 
 	ElseIf needed_info(1) = "unea" Then
 		GroupBox 5, y_pos, 475, 135, needed_info(0)
-		' y_pos = y_pos + 15
-		PushButton 365, y_pos + 5, 110, 13, "ALL UNEA types Answered 'No'", UNEA_all_no_btn
-
 		y_pos = y_pos + 20
 		col_1_1 = 15
 		col_1_2 = 55
@@ -325,14 +339,10 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 		col_3_3, 	y_pos, 		35, 15, needed_info(30)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If needed_info(6) = "" Then
-			Text 45, y_pos, 425, 15, needed_info(4)
-		Else
-			Text 40, y_pos, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5)
+		PushButton 400, y_pos - 5, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 60, 10, "Info Provided: "
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
@@ -341,7 +351,7 @@ function create_info_needed_in_dialog(needed_info)
 		grp_len = 75
 		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 			' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
+			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 25
 		next
 		GroupBox 5, y_pos, 475, grp_len, needed_info(0)
 		PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
@@ -349,15 +359,10 @@ function create_info_needed_in_dialog(needed_info)
 		Text 15, y_pos, 70, 10, "CAF Answer: " & needed_info(3)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 350, 20, "write-in:" 
-		If needed_info(6) = "" Then
-			Text 45, y_pos, 425, 15, needed_info(4)
-		Else
-			Text 40, y_pos, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 45, y_pos, 425, 15, needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 450, 10, "Details: " & needed_info(5)
-		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", questions_array(question_count)(11)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 10
 	
 		' Text 360, y_pos, 110, 10, "Q9 - Verification - " & question_9_verif_yn
@@ -371,9 +376,9 @@ function create_info_needed_in_dialog(needed_info)
 				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 					If First_job = TRUE Then y_pos = y_pos + 20
 					First_job = FALSE
-					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
-					PushButton 450, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
+					Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
+					'If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
+					PushButton 450, y_pos-5, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 15
 				End If
 			next
@@ -384,7 +389,6 @@ function create_info_needed_in_dialog(needed_info)
 			
 	ElseIf needed_info(1) = "shel" Then 
 		GroupBox 5, y_pos, 475, 140, needed_info(0)
-		PushButton 385, y_pos + 5, 90, 13, "ALL SHEL Answered 'No'", SHEL_all_no_btn
 		y_pos = y_pos + 15
 		col_1_1 = 15
 		col_1_2 = 85
@@ -412,12 +416,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
 		y_pos = y_pos + 15
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_14_verif_yn = "" Then
-			Text 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			Text 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		Text 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 380, 20, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -456,7 +455,6 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_1_2, y_pos, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
 		y_pos = y_pos + 15
 		Text 15, y_pos, 340, 10, "Write-in: " & needed_info(4) 
-		If needed_info(6) = "" Then Text 360, y_pos, 110, 10, "Verification - " & needed_info(7)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 435, 25, "Details: " & needed_info(5)
 		y_pos = y_pos + 25
@@ -487,12 +485,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_20_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info Provided:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(8)
@@ -519,12 +512,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_24_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, needed_info(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, needed_info(4)
-			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Interview Notes:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(5)
@@ -709,16 +697,16 @@ function check_for_errors(interview_questions_clear)
 	' If  Then err_msg = err_msg & "~!~" & "1^* FIELD##~##   - "
 	' page_display = show_pg_one_memb01_and_exp
 	' If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
-	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
-	'If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
-	'If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
-	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
-		If interpreter_language = "English" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, the lanuage should be something other than English. Indicate the language the resident used in the interivew.##~##"
-		If trim(interpreter_language) = "" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, enter the language the resident used in the interview in the 'Language' field.##~##"
-	End If
-	If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
-		If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
-	End If
+	'who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
+	''If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
+	''If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
+	'If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
+	'	If interpreter_language = "English" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, the lanuage should be something other than English. Indicate the language the resident used in the interivew.##~##"
+	'	If trim(interpreter_language) = "" Then err_msg = err_msg & "~!~" & "1 ^* Language##~##   - Since there is information about interpreter usage, enter the language the resident used in the interview in the 'Language' field.##~##"
+	'End If
+	'If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
+	'	If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
+	'End If
 	' If snap_status <> "ACTIVE" Then
 	' 	intv_app_month_income = trim(intv_app_month_income)
 	' 	intv_app_month_asset = trim(intv_app_month_asset)
@@ -747,18 +735,18 @@ function check_for_errors(interview_questions_clear)
 		'If IMIG Statis is not blank - require sponsor information
 		'require 'intends to reside in MN
 		'ID for 01? Other caregiver?
-	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-            HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
-    		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
-    		'If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
-        End If
-	Next
+	'For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+	'	If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+    '        HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
+    '		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
+    '		'If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
+    '		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Ver Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identity Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+    '    End If
+	'Next
 
 	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
 		'if children in home - school notes need detail
-	question_3_interview_notes = trim(question_3_interview_notes)
+	'question_3_interview_notes = trim(question_3_interview_notes)
 	'If school_age_children_in_hh = True AND question_3_interview_notes = "" Then err_msg = err_msg & "~!~" & "4 ^* 3. Is anyone in the household attending school? Interview Notes:##~##   - Additional detail about school is needed since this household has children. Gather information about child(ren)'s grade level, district/school, and status.'##~##"
 	'TODO - could figure out school question from array/form type and use this one
 	' If current_listing = "5"  Then tagline = ": Q. 7 - 11"
@@ -912,18 +900,13 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 	'redim preserve questions_array(question_count)
 	
 	'questions_array(question_count) = this_question
-	IF this_question(1) = "standard" Then
+	IF this_question(1) = "standard" OR this_question(1) = "busi" Then
 		GroupBox 5, y_pos, 475, 55, this_question(0) 'question text
 		y_pos = y_pos + 20
 		Text 15, y_pos, 40, 10, "CAF Answer"
 		DropListBox 55, y_pos - 5, 35, 45, question_answers, questions_array(question_count)(3) 'application answer
 		Text 95, y_pos, 25, 10, "write-in:"
-		If questions_array(question_count)(6) = "" Then
-			EditBox 120, y_pos - 5, 355, 15, questions_array(question_count)(4) 'write-in from caf
-		Else
-			EditBox 120, y_pos - 5, 235, 15, questions_array(question_count)(4)  'write-in from caf
-			Text 360, y_pos, 110, 10, left(this_question(0), 2 ) & " Verification - " & this_question(6) 'verif yes/no
-		End If
+		EditBox 120, y_pos - 5, 355, 15, questions_array(question_count)(4) 'write-in from caf
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -985,12 +968,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		EditBox 		col_3_3, 	y_pos, 		35, 15, questions_array(question_count)(30)
 		y_pos = y_pos + 25
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_12_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1029,12 +1007,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_14_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 50, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1151,12 +1124,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_20_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -1186,12 +1154,7 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 		Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
 		y_pos = y_pos + 20
 		Text 15, y_pos, 25, 10, "Write-in:"
-		If question_24_verif_yn = "" Then
-			EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
-		Else
-			EditBox 40, y_pos - 5, 315, 15, questions_array(question_count)(4)
-			Text 360, y_pos, 110, 10, "Verification - " & questions_array(question_count)(6)
-		End If
+		EditBox 40, y_pos - 5, 435, 15, questions_array(question_count)(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info needed?"
 		PushButton 60, y_pos -5, 10, 15, "!", questions_array(question_count)(10)
@@ -5396,8 +5359,8 @@ function verif_details_dlg(question_number)
 		dialog Dialog1
 		If ButtonPressed = -1 Then ButtonPressed = return_btn
 		If ButtonPressed = clear_btn Then
-			verif_selection = "Not Needed"
-			verif_detials = ""
+			questions_array(question_number)(6) = "Not Needed"
+			questions_array(question_number)(12) = ""
 		End If
 	Loop until ButtonPressed = return_btn
 
@@ -6074,7 +6037,6 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 	ElseIf interview_question(1) = "busi" Then 'Self employment question type
     	If interview_question(3) <> "" OR trim(interview_question(4)) <> "" OR trim(interview_question(5)) <> "" OR interview_question(6) <> "" OR trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE(interview_question(0))
 		busi_input = "    CAF Answer - " & interview_question(3)
-		If trim(interview_question(13)) <> "" Then busi_input = busi_input & " Gross Monthly Earnings: " & interview_question(13)
 		'If interview_question(3) <> "" OR trim(interview_question(4)) <> "" Then q_10_input = q_10_input & " (Confirmed)" 'This is to be added when porting to interview
 		If busi_input <> "    CAF Answer - " Then CALL write_variable_in_CASE_NOTE(busi_input)
 		If trim(interview_question(4)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & interview_question(4))
@@ -6084,6 +6046,8 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
+		If trim(interview_question(13)) <> "" Then CALL write_variable_in_CASE_NOTE("     Gross Monthly Earnings: " & interview_question(13))
+		If trim(interview_question(14)) <> "" Then CALL write_variable_in_CASE_NOTE("     Budgeting Method Chosen: " & interview_question(14))
 	ElseIf interview_question(1) = "shel" Then 'Shelter expense question type
 		shel_content = false
 		For sh = 3 to ubound(interview_question)
@@ -8366,9 +8330,9 @@ senior_1(1) = "jobs"
 senior_1(2) = "mandatory"
 senior_1(9) = jobs_help
 senior(2) = senior_1
-dim senior_2(12)
+dim senior_2(14)
 senior_2(0) = "2. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-senior_2(1) = "standard"
+senior_2(1) = "busi"
 senior_2(2) = "mandatory"
 senior_2(9) = busi_help
 senior(3) = senior_2
@@ -8497,7 +8461,7 @@ caf_10(2) = "mandatory"
 caf_10(9) = jobs_help
 dim caf_11(12)
 caf_11(0) = "11. Is anyone in the household self-employed or does anyone expect to get income from self-employment this month or next month?"
-caf_11(1) = "standard"
+caf_11(1) = "busi"
 caf_11(2) = "mandatory"
 caf_11(9) = busi_help
 dim caf_12(12)
@@ -9463,12 +9427,17 @@ ElseIf form_type = "MNBenefits" Then
 	Next
 End If 
 For quest = 1 to ubound(questions_array) 'This makes sure there is a variable assigned to null spots in the arrays to help the dialogs. 
-	For vari = 3 to 8 
-		questions_array(quest)(vari) = ""
+	For vari = 3 to ubound(questions_array(quest))
+		If vari <> 9 Then '9 is policy info, don't change it 
+			If vari = 10  Then 
+				questions_array(quest)(vari) = 1910 + quest 'Setting buttons to a number to reduce errors. 
+			Elseif vari = 11 Then 
+				questions_array(quest)(vari) = 1941 + quest 'Setting buttons to a number to reduce errors. 
+			Else 
+				questions_array(quest)(vari) = "" 'All other values get set to "" 
+			End If 
+		End If 
 	next
-	For vari = 12 to ubound(questions_array(quest))
-		questions_array(quest)(vari) = ""
-	Next
 Next
 'Defaulting the qual questions for MNBenefits app
 If form_type = "MNBenefits" Then
@@ -9520,7 +9489,7 @@ Do
 								 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE." & vbCr & vbCr &_
 								 "Following this point the script will check eDRS and bring up the list of questions with more info needed." & vbCr & vbCr &_
 								 "Press 'No' now if you have additional notes to make or information to review/enter. This will bring you back to the main dialogs." & vbCr &_
-								 "Press 'Yes' to continue to the final part of the interivew (forms)." & vbCr &_
+								 "Press 'Yes' to continue to contacting the resident and/or case noting." & vbCr &_
 								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Interview Completed")
 		If proceed_confirm = vbCancel then cancel_confirmation
 
@@ -9697,6 +9666,14 @@ If info_needed = True Then  'There is info needed, call the resident
 					cancel_confirmation
 
 					previous_button_pressed = ButtonPressed
+				If ButtonPressed = contact_completed Then
+					blank_answers = false
+					For answer = 1 to ubound(needed_info_array)
+						If needed_info_array(answer)(8) = "" Then blank_answers = true 'Interview notes field should not be blank if we finished contact
+					Next
+					If blank_answers = true then err_msg = err_msg & vbCR & "You have pressed contact completed, but did not note the info provided by the resident on 1 or more questions. Update the info provided or select 'No Contact Made' if you were unable to reach the resident."
+				End if 
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 				Loop Until err_msg = ""
 				call dialog_movement			
 			Loop Until contact_status <> ""
@@ -10582,7 +10559,7 @@ PF3
 Call write_verification_CASE_NOTE(create_verif_note)
 PF3
 If info_needed = true Then call write_needed_info_CASE_NOTE(needed_info_array)
-If contact_status = "completed" Then
+If contact_status = "complete" Then
 	end_msg = "Application review and resident contact completed. Process and approve the SNAP if possible at this time or request needed verifications."
 ElseIf contact_status = "no contact" Then
 	end_msg = "Application review completed. Send the resident a request for needed information and any verifications needed if applicable. The resident will need to provide the needed information before a determination can be made."
