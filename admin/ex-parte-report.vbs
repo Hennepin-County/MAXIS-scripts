@@ -2421,10 +2421,7 @@ If ex_parte_function = "Prep 1" Then
 		va_inc_count = 0
 		Do
 			listed_case_numb = trim(objVAExcel.Cells(va_excel_row, 1).value)
-			If listed_case_numb <> "" Then
-				va_excel_row = va_excel_row + 1
-				va_inc_count = va_inc_count + 1
-			End If
+			If listed_case_numb <> "" Then va_excel_row = va_excel_row + 1
 		Loop until listed_case_numb = ""
 	Else												'If the file does not exists, we create it and set to writing the file
 		'set the Excel sheet up for VA
@@ -2462,10 +2459,7 @@ If ex_parte_function = "Prep 1" Then
 		uc_inc_count = 0
 		Do
 			listed_case_numb = trim(objUCExcel.Cells(uc_excel_row, 1).value)
-			If listed_case_numb <> "" Then
-				uc_excel_row = uc_excel_row + 1
-				uc_inc_count = uc_inc_count + 1
-			End If
+			If listed_case_numb <> "" Then uc_excel_row = uc_excel_row + 1
 		Loop until listed_case_numb = ""
 	Else
 		'set the Excel sheet up for UC
@@ -2503,10 +2497,7 @@ If ex_parte_function = "Prep 1" Then
 		rr_inc_count = 0
 		Do
 			listed_case_numb = trim(objRRExcel.Cells(rr_excel_row, 1).value)
-			If listed_case_numb <> "" Then
-				rr_excel_row = rr_excel_row + 1
-				rr_inc_count = rr_inc_count + 1
-			End If
+			If listed_case_numb <> "" Then rr_excel_row = rr_excel_row + 1
 		Loop until listed_case_numb = ""
 	Else
 		'set the Excel sheet up for RR
