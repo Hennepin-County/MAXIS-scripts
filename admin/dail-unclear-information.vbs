@@ -780,45 +780,66 @@ For each worker in worker_array
                         'Script opens the entire DAIL message to evaluate if it is a new message or not
                         Call write_value_and_transmit("X", dail_row, 3)
 
-                        'Check if the full message is displayed
-                        EMReadScreen full_message_check, 36, 24, 2
-                        If InStr(full_message_check, "THE ENTIRE MESSAGE TEXT") Then
-                            ' MsgBox "entire message is displayed"
-                            EMReadScreen dail_msg, 61, dail_row, 20
-                            dail_msg = trim(dail_msg)
-                            full_dail_msg = dail_msg
-                            'Remove x from dail message
-                            EMWriteScreen " ", dail_row, 3
-                        Else
-                            
-                            ' Script reads the full DAIL message so that it can process, or not process, as needed.
-                            EMReadScreen full_dail_msg_line_1, 60, 9, 5
+                        'Handling for reading full dail message depends on message type
 
-                            EMReadScreen full_dail_msg_line_2, 60, 10, 5
+                        If dail_type = "CSES" Then
 
-                            EMReadScreen full_dail_msg_line_3, 60, 11, 5
-                            full_dail_msg_line_3 = trim(full_dail_msg_line_3)
-                            ' If full_dail_msg_line_3 <> "" Then Msgbox full_dail_msg_line_3
+                            'Check if the full message is displayed
+                            EMReadScreen full_message_check, 36, 24, 2
+                            If InStr(full_message_check, "THE ENTIRE MESSAGE TEXT") Then
+                                ' MsgBox "entire message is displayed"
+                                EMReadScreen dail_msg, 61, dail_row, 20
+                                dail_msg = trim(dail_msg)
+                                full_dail_msg = dail_msg
+                                'Remove x from dail message
+                                EMWriteScreen " ", dail_row, 3
+                            Else
+                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                EMReadScreen full_dail_msg_line_1, 60, 9, 5
 
-                            EMReadScreen full_dail_msg_line_4, 60, 12, 5
-                            full_dail_msg_line_4 = trim(full_dail_msg_line_4)
-                            ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
+                                EMReadScreen full_dail_msg_line_2, 60, 10, 5
 
-                            If trim(full_dail_msg_line_2) = "" Then 
-                                ' MsgBox "empty!"
-                                full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                                EMReadScreen full_dail_msg_line_3, 60, 11, 5
+                                full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+                                ' If full_dail_msg_line_3 <> "" Then Msgbox full_dail_msg_line_3
+
+                                EMReadScreen full_dail_msg_line_4, 60, 12, 5
+                                full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+                                ' If full_dail_msg_line_4 <> "" Then Msgbox full_dail_msg_line_4
+
+                                If trim(full_dail_msg_line_2) = "" Then 
+                                    ' MsgBox "empty!"
+                                    full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                                End If
+
+                                full_dail_msg = trim(full_dail_msg_line_1 & full_dail_msg_line_2 & full_dail_msg_line_3 & full_dail_msg_line_4)
+
+                                ' Msgbox full_dail_msg
+
+                                'Transmit back to dail
+                                transmit
+
                             End If
+                        ElseIf dail_type = "HIRE" Then
+                            ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                EMReadScreen full_dail_msg_line_1, 60, 9, 5
+                                full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+                                EMReadScreen full_dail_msg_line_2, 60, 10, 5
+                                full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+                                EMReadScreen full_dail_msg_line_3, 60, 11, 5
+                                full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+                                EMReadScreen full_dail_msg_line_4, 60, 12, 5
+                                full_dail_msg_line_4 = trim(full_dail_msg_line_4)
 
-                            full_dail_msg = trim(full_dail_msg_line_1 & full_dail_msg_line_2 & full_dail_msg_line_3 & full_dail_msg_line_4)
+                                full_dail_msg = trim(full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4)
 
-                            ' Msgbox full_dail_msg
+                                ' Msgbox full_dail_msg
 
-                            'Transmit back to dail
-                            transmit
-
+                                'Transmit back to dail
+                                transmit
+                        Else
+                            MsgBox "Dail type is neither CSES or HIRE. Something went wrong. Dail type is " & dail_type
                         End If
-
-                        
 
                         'Confirming that dail message lists are updating properly
                         ' Msgbox "list_of_DAIL_messages_to_delete: " & list_of_DAIL_messages_to_delete
