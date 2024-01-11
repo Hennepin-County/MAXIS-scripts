@@ -82,10 +82,11 @@ diet_count		= 0
 'Button Defined
 add_button 			= 201
 all_forms 			= 202
-review_selections 	= 203
+'review_selections 	= 203
 clear_button		= 204
 next_btn			= 205
 previous_btn		= 206
+complete_btn		= 207
 
 asset_btn			= 400
 atr_btn				= 401
@@ -492,7 +493,6 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 	End If 
 end function 
 
-
 'Check for case number & footer
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
@@ -580,12 +580,14 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
 					form_count = form_count + 1 	
-					all_form_array = trim(all_form_array & form_string & "*") 'Adding form name to form name string
+					all_form_array = all_form_array & form_string & "*" 'Adding form name to form name string
 				ElseIF add_to_array = False then 
-					form_count = form_count
 					false_count = false_count + 1
 				End If 
 			End If
+
+			
+			MsgBox "all form array string" & all_form_array '= split(all_form_array, "*")
 
 			'This work for handling the adding of each form - this allows you to add more than one of each form 
 			' If ButtonPressed = add_button and form_type <> "" Then				'If statement to know when to store the information in the array
@@ -613,6 +615,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				diet_checkbox = unchecked				'Resetting checkboxes to unchecked
 				form_type = ""							'Resetting dropdown to blank
 
+
+				'MsgBox "form string" & form_string
+				'MsgBox "all form array" & all_form_array
 				asset_count 	= 0 
 				atr_count 		= 0 
 				arep_count 		= 0 
@@ -628,16 +633,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				sf_count		= 0 
 				diet_count		= 0
 				Form_string = ""
-				MsgBox "form string" & form_string
-				MsgBox "all form array" & all_form
+				all_form_array = ""
+				MsgBox "all form array" & all_form_array
 			'	MsgBox "form type" & form_type 'TEST
 				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
 			End If
 
-
-			
-			
-
+			'TODO: Error handling
 			' If add_to_array = false Then
 			' 	If form_type = "" Then 
 			' 		If ButtonPressed <> all_forms Then
@@ -663,7 +665,26 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				ReDim form_type_array(the_last_const, form_count)		'Resetting any selections already made so the user can reselect correct forms using different format.
 				form_type_array(form_type_const, form_count) = Form_type
                 form_count = 0							'Resetting the form count to 0 so that y_pos resets to 95. 
-		
+				Form_string = ""						'Resetting string to nothing 
+				all_form_array = ""						'Resetting list of strings to nothing 
+
+				'Future Iteration - carries values selected from drop down through to checkbox feature
+				' If instr(all_form_array, "Asset Statement") Then asset_checkbox = checked 
+				' If instr(all_form_array, "Authorization to Release Information (ATR)") Then atr_checkbox = checked 
+				' If instr(all_form_array, "AREP (Authorized Rep)") Then arep_checkbox = checked 
+				' If instr(all_form_array, "Change Report Form") Then change_checkbox = checked 
+				' If instr(all_form_array, "Employment Verification Form (EVF)") Then evf_checkbox = checked 
+				' If instr(all_form_array, "Hospice Transaction Form") Then hospice_checkbox = checked 
+				' If instr(all_form_array, "Interim Assistance Agreement (IAA)") Then iaa_checkbox = checked 
+				' If instr(all_form_array, "Interim Assistance Authorization- SSI") Then iaa_ssi_checkbox = checked 
+				' If instr(all_form_array, "LTC-1503") Then ltc_1503_checkbox = checked 
+				' If instr(all_form_array, "Medical Opinion Form (MOF)") Then mof_checkbox = checked 
+				' If instr(all_form_array, "Minnesota Transition Application Form (MTAF)") Then mtaf_checkbox = checked 
+				' If instr(all_form_array, "Professional Statement of Need (PSN)") Then psn_checkbox = checked 
+				' If instr(all_form_array, "Residence and Shelter Expenses Release Form") Then shelter_checkbox = checked 
+				' If instr(all_form_array, "Special Diet Information Request (MFIP and MSA)") Then diet_checkbox = checked 
+
+
 				err_msg = ""
 				Dialog1 = "" 'Blanking out previous dialog detail
 				BeginDialog Dialog1, 0, 0, 196, 200, "Document Selection"
@@ -682,30 +703,24 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 140, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
 					CheckBox 15, 150, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
 					ButtonGroup ButtonPressed
-						PushButton 70, 180, 70, 15, "Review Selections", review_selections
+						'PushButton 70, 180, 70, 15, "Review Selections", review_selections
+						OkButton 95, 180, 45, 15
 						CancelButton 150, 180, 40, 15
-					Text 5, 5, 200, 10, "Select documents received, then Review Selections."
+					Text 5, 5, 200, 10, "Select documents received, then Ok."
 				EndDialog
 				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 				cancel_confirmation
 
-
+				
+				
 				'Capturing form name in array based on checkboxes selected 
 				If asset_checkbox = checked Then
-					form_string = "Asset Statement"
-					all_form_array = trim(all_form_array & form_string & "*")
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Asset Statement" 
 					form_count= form_count + 1 
 				End If
+
 				If atr_checkbox = checked Then
-					form_string = "Authorization to Release Information (ATR)"
-					all_form_array = trim(all_form_array & form_string & "*")
-					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
-					form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)"
-					form_count= form_count + 1 
-				End If
-				If arep_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)"
 					form_count= form_count + 1 
@@ -765,12 +780,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)"
 					form_count= form_count + 1 
 				End If
-				
-
-
-
-				MsgBox "form string" & form_string
-				MsgBox "all form array" & all_form
+			
+				'MsgBox "all form array string" & all_form_array 
+					
 				If asset_checkbox = unchecked and arep_checkbox = unchecked and atr_checkbox = unchecked and change_checkbox = unchecked and evf_checkbox = unchecked and hospice_checkbox = unchecked and iaa_checkbox = unchecked and iaa_ssi_checkbox = unchecked and ltc_1503_checkbox = unchecked and mof_checkbox = unchecked and mtaf_checkbox = unchecked and psn_checkbox = unchecked and shelter_checkbox = unchecked and diet_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "-Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
 				If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 			Loop until err_msg = ""	
@@ -866,8 +878,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 Next
 
 
-
-' 'Capturing count of each form so we can iterate the necessary form dialogs -This works well to have after all of the form selection dialogs. Then it doesn't count weird in the do/loop.
+'Future Iteration -Capturing count of each form so we can iterate the necessary form dialogs -This works well to have after all of the form selection dialogs. Then it doesn't count weird in the do/loop.
 ' For form_added = 0 to Ubound(form_type_array, 2)
 ' 	If form_type_array(form_type_const, form_added) = "Asset Statement" Then asset_count = asset_count + 1 
 ' 	If form_type_array(form_type_const, form_added) = "Authorization to Release Information (ATR)" Then atr_count = atr_count + 1
@@ -885,6 +896,7 @@ Next
 ' 	If form_type_array(form_type_const, form_added) = "Special Diet Information Request (MFIP and MSA)" Then diet_count = diet_count + 1 
 ' Next
 ' MsgBox "checking count of each form" & vbcr & "Asset count " & asset_count & vbcr & "ATR count " & atr_count & vbcr & "AREP " & arep_count & vbcr & "chng " & change_count & vbcr & "evf " & evf_count & vbcr & "hosp " & hosp_count & vbcr & "iaa " & iaa_count & vbcr & "iaa-ssi " & iaa_ssi_count & vbcr & "ltc-1503 " & ltc_1503_count & vbcr & "mof " & mof_count & vbcr & "mtaf " & mtaf_count & vbcr & "psn " & psn_count & vbcr & "sf " & sf_count & vbcr & "diet " & diet_count	'TEST
+
 
 'DIALOG DISPLAYING FORM SPECIFIC INFORMATION===========================================================================
 'Displays individual dialogs for each form selected via checkbox or dropdown. Do/Loops allows us to jump around/are more flexible than For/Next 
@@ -911,7 +923,7 @@ Do
 				If form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)" Then Call diet_dialog
 				
 				btn_pos = 45		'variable to iterate down for each necessary button
-				'TODO: handle to uniquely identify multiples of the same form by adding count to the button name
+				''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
 				For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
 					If form_type_array(form_type_const, current_form) = "Asset Statement" then
 						form_type_array(btn_name_const, form_count) = "ASSET"
@@ -1020,8 +1032,10 @@ Do
 					'MsgBox "Current form" & form_type_array(form_type_const, current_form)
 				Next
 				
-				PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one. TODO: Determine if we need  more handling around this. 
-				PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. TODO: Determine if we need more handling around this. 
+				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
+				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
+				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
+				
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
