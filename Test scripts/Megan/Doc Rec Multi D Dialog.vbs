@@ -126,25 +126,48 @@ function asset_dialog()
 end function
 
 function atr_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, atr_effective_date
-		EditBox 310, 20, 45, 15, atr_date_received
-		EditBox 30, 65, 270, 15, atr_Q1
-		EditBox 30, 85, 270, 15, atr_Q2
-		EditBox 30, 105, 270, 15, atr_Q3
-		EditBox 30, 125, 270, 15, atr_Q4
-		Text 5, 5, 220, 10, "AUTHORIZATION TO RELEASE INFORMATION (ATR)"
-		Text 125, 25, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-		Text 5, 25, 50, 10, "Case Number:"
-		Text 395, 35, 45, 10, "    --Forms--"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, ""
+	EditBox 175, 15, 45, 15, atr_effective_date
+	EditBox 300, 15, 45, 15, atr_date_received		
+	DropListBox 50, 40, 100, 15, HH_Memb_DropDown, atr_member_dropdown
+	EditBox 205, 40, 45, 15, atr_start_date
+	EditBox 300, 40, 45, 15, atr_end_date
+	DropListBox 80, 60, 70, 15, ""+chr(9)+"Verbal"+chr(9)+"Written", atr_authorization_type
+	DropListBox 65, 95, 60, 15, ""+chr(9)+"Organization"+chr(9)+"Person", atr_contact_type
+	EditBox 160, 95, 170, 15, atr_name
+	EditBox 70, 115, 175, 15, atr_address
+	EditBox 35, 135, 85, 15, atr_city
+	DropListBox 155, 135, 30, 15, ""+chr(9)+"AL"+chr(9)+"AK"+chr(9)+"AZ"+chr(9)+"AR"+chr(9)+"CA"+chr(9)+"CO"+chr(9)+"CT"+chr(9)+"DE"+chr(9)+"DC"+chr(9)+"FL"+chr(9)+"GA"+chr(9)+"HI"+chr(9)+"ID"+chr(9)+"IL"+chr(9)+"IN"+chr(9)+"IA"+chr(9)+"KS"+chr(9)+"KY"+chr(9)+"LA"+chr(9)+"ME"+chr(9)+"MD"+chr(9)+"MA"+chr(9)+"MI"+chr(9)+"MN"+chr(9)+"MS"+chr(9)+"MO"+chr(9)+"MT"+chr(9)+"NE"+chr(9)+"NV"+chr(9)+"NH"+chr(9)+"NJ"+chr(9)+"NM"+chr(9)+"NY"+chr(9)+"NC"+chr(9)+"ND"+chr(9)+"OH"+chr(9)+"OK"+chr(9)+"OR"+chr(9)+"PA"+chr(9)+"RI"+chr(9)+"SC"+chr(9)+"SD"+chr(9)+"TN"+chr(9)+"TX"+chr(9)+"UT"+chr(9)+"VT"+chr(9)+"VA"+chr(9)+"WA"+chr(9)+"WV"+chr(9)+"WI"+chr(9)+"WY", atr_state
+	EditBox 230, 135, 35, 15, atr_zipcode
+	EditBox 70, 160, 75, 15, atr_phone_number
+	CheckBox 35, 200, 170, 10, "to continue evaluation or treatment", atr_eval_treat_checkbox
+	CheckBox 35, 210, 170, 10, "to coordinate services", atr_coor_serv_checkbox
+	CheckBox 35, 220, 170, 10, "to determine eligibility for assistance/service", atr_elig_serv_checkbox
+	CheckBox 35, 230, 170, 10, "for court proceedings", atr_court_checkbox
+	CheckBox 35, 240, 80, 10, "other (specify below)", atr_other_checkbox
+	EditBox 50, 250, 90, 15, atr_other
+	EditBox 50, 280, 230, 15, atr_comments
+	Text 5, 5, 220, 10, "ATR- AUTHORIZATION TO RELEASE"
+	Text 5, 20, 50, 10, "Case Number:"
+	Text 60, 20, 45, 10, MAXIS_case_number
+	Text 125, 20, 50, 10, "Effective Date:"
+	Text 245, 20, 55, 10, "Document Date:"
+	Text 15, 45, 30, 10, "Member"
+	Text 170, 45, 35, 10, "Start Date"
+	Text 265, 45, 30, 10, "End Date"
+	Text 15, 65, 65, 10, "Authorization Type"
+	GroupBox 10, 85, 340, 95, "Contact Person/Organization"
+	Text 20, 100, 45, 10, "Contact Type"
+	Text 140, 100, 20, 10, "Name"
+	Text 20, 120, 50, 10, "Street Address"
+	Text 20, 140, 15, 10, "City"
+	Text 135, 140, 20, 10, "State"
+	Text 200, 140, 30, 10, "Zip code"
+	Text 20, 165, 50, 10, "Phone Number"
+	GroupBox 10, 190, 335, 80, "Record requested will be used: "
+	Text 10, 285, 35, 10, "Comments"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function
+Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_address, atr_city, atr_state, atr_zipcode, atr_phone_number, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -722,9 +745,16 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 
 				If atr_checkbox = checked Then
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
+					form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)"
+					form_count= form_count + 1 
+				End If
+
+				If arep_checkbox = checked Then
+					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)"
 					form_count= form_count + 1 
 				End If
+
 				If change_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
 					form_type_array(form_type_const, form_count) = "Change Report Form"
@@ -1031,10 +1061,11 @@ Do
 					End If
 					'MsgBox "Current form" & form_type_array(form_type_const, current_form)
 				Next
-				
+
 				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
 				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
 				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
+
 				
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
@@ -1086,6 +1117,24 @@ Do
 				'If iaa_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
 				'TODO: handling for checkboxes iaa_within_30_checkbox, iaa_outside_30_checkbox,
 				'If ButtonPressed = iaa_sp_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+			'ATR 
+				'If IsDate(atr_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
+				' If IsDate(atr_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				' If atr_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select a member from the Member dropdown."
+				'If IsDate(atr_start_date) = FALSE Then Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Start Date."
+				'If IsDate(atr_end_date) = FALSE Then Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the End Date."
+				'If atr_authorization_type = "" Then err_msg = err_msg & vbNewLine & "* Select a valid authorization type from the dropdown"
+				'If atr_contact_type = "" Then err_msg = err_msg & vbNewLine & "* Select a valid contact type from the dropdown"
+				'If atr_name = "" Then err_msg = err_msg & vbNewLine & "* Enter contact name"
+				'If atr_address = "" Then err_msg = err_msg & vbNewLine & "* Enter address"
+				'If atr_city = "" Then err_msg = err_msg & vbNewLine & "* Enter city"
+				'If atr_state = "" Then err_msg = err_msg & vbNewLine & "* Select a state"
+				'If atr_zipcode = "" Then err_msg = err_msg & vbNewLine & "* Enter zip code"
+				'If atr_phone_number = "" Then err_msg = err_msg & vbNewLine & "* Enter phone number"
+				'If atr_eval_treat_checkbox and atr_coor_serv_checkbox and atr_elig_serv_checkbox and atr_court_checkbox and atr_other_checkbox and atr_other = "" Then err_msg = err_msg & vbNewLine & "* At least one checkbox must be checked indicating the use of the requested records"
+				'If atr_other_checkbox = checked and atr_comments <> "" Then err_msg = err_msg & vbNewLine & "* Other checkbox was checked. You are required to specify details in the box below."
+			' change TODO 
+
 
 			Call dialog_movement	'function to move throughout the dialogs
 						
@@ -1093,37 +1142,67 @@ Do
 						'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
 							
 		Loop until err_msg = ""
-	Loop until form_count > Ubound(form_type_array, 2)
+	'Loop until form_count > Ubound(form_type_array, 2)
+	Loop until ButtonPressed = complete_btn
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
 
 'CASE NOTE===========================================================================
-'TODO: Case Notes for each dialog
 'TODO- Hospice: Must keep the same header otherwise reading of past case notes won't work/continue -explore how to create separate case notes for each form
-
-Call start_a_blank_case_note	'Navigates to case note
-CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what else to add to the header
-
-'Casenote template
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-	' CALL write_bullet_and_variable_in_case_note()
-
+		'Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
+		
 'Asset Statement Case Notes
-'ATR Case Notes
+If form_type_array(form_type_const, form_count) = "Asset Statement" then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** ASSET STATEMENT RECEIVED ***")
+End If
+' 'ATR Case Notes
+If form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** ATR RECEIVED FOR" & atr_name & " ***")
+	CALL write_bullet_and_variable_in_case_note("Effective Date", atr_effective_date)
+	CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
+	CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
+	CALL write_bullet_and_variable_in_case_note("End Date", atr_end_date)
+	CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
+	CALL write_bullet_and_variable_in_case_note("Contact Type", atr_contact_type)
+	CALL write_bullet_and_variable_in_case_note("  Contact Name", atr_name)
+	CALL write_bullet_and_variable_in_case_note("  Address", atr_address)
+	CALL write_bullet_and_variable_in_case_note("  City", atr_city)
+	CALL write_bullet_and_variable_in_case_note("  State", atr_state)
+	CALL write_bullet_and_variable_in_case_note("  Zip Code", atr_zipcode)
+	CALL write_bullet_and_variable_in_case_note("  Phone Number", atr_phone_number)
+
+	If atr_eval_treat_checkbox = checked Then
+		CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
+	End If
+	If atr_coor_serv_checkbox = checked Then
+		CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
+	End If
+	If atr_elig_serv_checkbox = checked Then
+		CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
+	End If
+	If atr_court_checkbox = checked Then
+		CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
+	End If
+	If atr_other_checkbox = checked Then
+		CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
+	End If
+	CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
+End If
+
 'AREP Case Notes
+If form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)" then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** AREP Received ***")
+End If
 'Change Reported Case Note
-	CALL write_bullet_and_variable_in_CASE_NOTE("CHANGE REPORTED--Date Effective", chng_effective_date)
+If form_type_array(form_type_const, form_count) = "Change Report Form" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** CHANGE REPORT FORM RECEIVED ***")
+	CALL write_bullet_and_variable_in_case_note("Change Effective Date", chng_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
 	CALL write_bullet_and_variable_in_case_note("Date Received", chng_date_received)
 	CALL write_bullet_and_variable_in_case_note("Address", chng_address_notes)
@@ -1138,10 +1217,18 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 	CALL write_bullet_and_variable_in_case_note("Verifs Requested", chng_verifs_requested)
 	CALL write_bullet_and_variable_in_case_note("The changes client reports", chng_changes_continue)
 	CALL write_variable_in_case_note("   ")
+End If
 
 'EVF Case Notes
+If form_type_array(form_type_const, form_count) = "Employment Verification Form (EVF)" Then 
+	Call start_a_blank_case_note
+	Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
+End If
 'Hospice Case Notes
-	Call write_bullet_and_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***", hosp_effective_date)
+If form_type_array(form_type_const, form_count) = "Hospice Transaction Form" Then 
+	Call start_a_blank_case_note
+	Call write_variable_in_case_note("*** HOSPICE TRANSACTION FORM RECEIVED ***")
+	Call write_bullet_and_variable_in_CASE_NOTE("Effective Date", hosp_effective_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
@@ -1151,34 +1238,68 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
-
+End If
 'IAA Case Notes
-	CALL write_bullet_and_variable_in_case_note("INTERIM ASSISTANCE AGREEMENT", iaa_effective_date)
+If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement (IAA)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** INTERIM ASSISTANCE AGREEMENT RECEIVED ***")
+	CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_member_dropdown)
 	'If iaa_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	'If iaa_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
-
+End If
 
 'IAA-SSI Case Notes
-	CALL write_bullet_and_variable_in_case_note("INTERIM ASSISTANCE AGREEMENT-SSI", iaa_ssi_effective_date)
+If form_type_array(form_type_const, form_count) = "Interim Assistance Authorization- SSI" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** INTERIM ASSISTANCE AGREEMENT-SSI RECEIVED ***")
+	CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_ssi_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_ssi_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_ssi_member_dropdown)
 	CALL write_bullet_and_variable_in_case_note("Assistance Type", iaa_ssi_type_assistance)
 	'If iaa_ssi_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	'If iaa_ssi_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_ssi_comments)
-
+End If
 
 'LTC 1503 Case Notes
+If form_type_array(form_type_const, form_count) = "LTC-1503" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** LTC-1503 FORM RECEIVED ***")
+End IF
+
 'MOF Case Notes
+If form_type_array(form_type_const, form_count) = "Medical Opinion Form (MOF)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** MEDICAL OPINION FORM RECEIVED ***")
+End If
+
 'MTAF Case Notes
+If form_type_array(form_type_const, form_count) = "Minnesota Transition Application Form (MTAF)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** MINNESOTA TRANSITION APPLICATION RECEIVED ***")
+End If
+
 'PSN Case Notes
+If form_type_array(form_type_const, form_count) = "Professional Statement of Need (PSN)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
+End If
+
 'SF Case Notes
+If form_type_array(form_type_const, form_count) = "Residence and Shelter Expenses Release Form" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** SHELTER FORM RECEIVED ***")
+End If
+
 'Special Diet Case Notes
-	CALL write_bullet_and_variable_in_CASE_NOTE("SPECIAL DIET--Date Effective", diet_effective_date)	
+If form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)" Then 
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
+	CALL write_bullet_and_variable_in_case_note("Date Effective", diet_effective_date)					
 	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)					
 	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
 	CALL write_bullet_and_variable_in_case_note("Diagnosis", diet_diagnosis)
@@ -1200,16 +1321,16 @@ CALL write_variable_in_case_note ("--Docs Received--")		'TODO: determine what el
 	
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
-
+End If
 
 
 'TODO- look at what script this was for
 'If we checked to TIKL out, it goes to TIKL and sends a TIKL
-IF tikl_nav_check = 1 THEN
-	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	EMSetCursor 9, 3
-END IF
+' IF tikl_nav_check = 1 THEN
+' 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+' 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+' 	EMSetCursor 9, 3
+' END IF
 
 script_end_procedure ("Success! The script has ended. ")
 
