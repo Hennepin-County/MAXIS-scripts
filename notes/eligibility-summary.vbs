@@ -10494,6 +10494,10 @@ class mfip_eligibility_detail
 				elig_memb_count = elig_memb_count + 1
 				EMReadScreen next_ref_numb, 2, row, 6
 				' MsgBox "row: " & row
+                If row = 18 then 
+                    PF8    
+                    row = 7
+                End if 
 			Loop until next_ref_numb = "  "
 
 			transmit			'MFCR
