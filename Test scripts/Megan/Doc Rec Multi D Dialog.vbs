@@ -233,25 +233,32 @@ Dim chng_effective_date, chng_date_received, chng_address_notes, chng_household_
 
 
 function evf_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, evf_effective_date
-			EditBox 310, 20, 45, 15, evf_date_received
-			EditBox 30, 65, 270, 15, evf_Q1
-			EditBox 30, 85, 270, 15, evf_Q2
-			EditBox 30, 105, 270, 15, evf_Q3
-			EditBox 30, 125, 270, 15, evf_Q4
-			Text 5, 5, 220, 10, "Employment Verification Form (EVF)"
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+	Text 60, 25, 45, 10, MAXIS_case_number
+	EditBox 175, 20, 45, 15, evf_effective_date
+	EditBox 310, 20, 45, 15, evf_date_received		
+	ComboBox 75, 50, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
+	EditBox 75, 70, 210, 15, evf_employer
+	DropListBox 75, 95, 210, 45, HH_Memb_DropDown, evf_client
+	DropListBox 80, 145, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", evf_info
+	EditBox 225, 145, 60, 15, evf_info_date
+	EditBox 80, 165, 60, 15, evf_request_info
+	CheckBox 165, 170, 105, 10, "Create TIKL for additional info", EVF_TIKL_checkbox
+	EditBox 75, 195, 210, 15, evf_actions_taken
+	Text 5, 5, 220, 10, "EMPLOYMENT VERIFICATION FORM (EVF)"
+	Text 5, 25, 50, 10, "Case Number:"
+	Text 125, 25, 50, 10, "Effective Date:"
+	Text 245, 25, 60, 10, "Document Date:"
+	Text 30, 55, 40, 10, "EVF Status:"
+	Text 15, 75, 55, 10, "Employer name:"
+	Text 10, 95, 60, 10, "Household Memb:"
+	GroupBox 10, 130, 285, 60, "Is additional information needed?"
+	Text 15, 150, 60, 10, "Addt'l Info Reqstd:"
+	Text 165, 150, 55, 10, "Date Requested:"
+	Text 15, 170, 65, 10, "Info Requested via:"
+	Text 20, 200, 50, 10, "Actions taken:"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function 
+Dim evf_effective_date, evf_date_received, EVF_status_dropdown, evf_employer, evf_client, evf_info, evf_info_date, evf_request_info, EVF_TIKL_checkbox, evf_actions_taken
 
 function hospice_dialog()
 	EditBox 175, 20, 45, 15, hosp_effective_date
@@ -1133,7 +1140,29 @@ Do
 				'If atr_phone_number = "" Then err_msg = err_msg & vbNewLine & "* Enter phone number"
 				'If atr_eval_treat_checkbox and atr_coor_serv_checkbox and atr_elig_serv_checkbox and atr_court_checkbox and atr_other_checkbox and atr_other = "" Then err_msg = err_msg & vbNewLine & "* At least one checkbox must be checked indicating the use of the requested records"
 				'If atr_other_checkbox = checked and atr_comments <> "" Then err_msg = err_msg & vbNewLine & "* Other checkbox was checked. You are required to specify details in the box below."
-			' change TODO 
+			' Change  
+				' If IsDate(trim(effective_date)) = False OR Len(trim(effective_date)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Effective field cannot be blank and must be in the MM/DD/YYYY format."  ' Validate that Date Effective field is not empty and is in a proper date format
+				' If IsDate(trim(date_received)) = False OR Len(trim(date_received)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Change Reported/Received field cannot be blank and must be in the MM/DD/YYYY format."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
+				' If trim(address_notes) = "" AND trim(household_notes) = "" AND trim(asset_notes) = "" AND trim(vehicles_notes) = "" AND trim(income_notes) = "" AND trim(shelter_notes) = "" AND trim(other_change_notes) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
+				' If trim(actions_taken) = "" AND trim(other_notes) = "" AND trim(verifs_requested) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."  ' Validate the Actions fields to ensure that at least one field is filled in
+				' If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."  ' Validate that worker selects option from dropdown list as to how long change will last
+			'EVF
+				' IF IsDate(evf_date_recvd) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
+				' If EVF_status_dropdown = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
+				' IF employer = "" THEN err_msg = err_msg & vbCr & "* You must enter the employers name."  'checks if the employer name has been entered
+				' IF evf_client = "Select One..." THEN err_msg = err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
+				' IF info = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
+				' IF info = "yes" and IsDate(info_date) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
+				' IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
+				' If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
+				' If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
+				' If EVF_TIKL_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
+				' If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+				' If skip_evf = TRUE Then
+				' 	evf_form_received_checkbox = unchecked
+				' 	err_msg = ""
+				' 	EVF_TIKL_checkbox = unchecked
+				' End If
 
 
 			Call dialog_movement	'function to move throughout the dialogs
@@ -1223,12 +1252,23 @@ End If
 If form_type_array(form_type_const, form_count) = "Employment Verification Form (EVF)" Then 
 	Call start_a_blank_case_note
 	Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
+
+    Call write_variable_in_CASE_NOTE("* EVF received " & evf_date_received & ": " & EVF_status_dropdown & "*")
+    Call write_variable_in_CASE_NOTE("  - Employer Name: " & evf_employer)
+  '  Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
+    'for additional information needed
+    IF evf_info = "yes" then
+        Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & evf_info & " on " & evf_info_date & " by " & evf_request_info)
+    	'If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
+    Else
+        Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
+    END IF
 End If
 'Hospice Case Notes
 If form_type_array(form_type_const, form_count) = "Hospice Transaction Form" Then 
 	Call start_a_blank_case_note
 	Call write_variable_in_case_note("*** HOSPICE TRANSACTION FORM RECEIVED ***")
-	Call write_bullet_and_variable_in_CASE_NOTE("Effective Date", hosp_effective_date)
+	'Call write_bullet_and_variable_in_CASE_NOTE("Effective Date", hosp_effective_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
 	Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
@@ -1246,8 +1286,12 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement 
 	CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_member_dropdown)
-	'If iaa_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
-	'If iaa_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+	If iaa_within_30_checkbox = checked Then 
+		CALL write_variable_in_case_note("* Signed within 30 days of receiving Combined Application Form or Change Report Form.")
+	End If
+	If iaa_outside_30_checkbox = checked Then 
+		CALL write_variable_in_case_note("* NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")
+	End If
 	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
 End If
@@ -1324,14 +1368,43 @@ If form_type_array(form_type_const, form_count) = "Special Diet Information Requ
 End If
 
 
-'TODO- look at what script this was for
-'If we checked to TIKL out, it goes to TIKL and sends a TIKL
-' IF tikl_nav_check = 1 THEN
-' 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-' 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-' 	EMSetCursor 9, 3
-' END IF
+'change  
+	'If we checked to TIKL out, it goes to TIKL and sends a TIKL
+	' IF tikl_nav_check = 1 THEN
+	' 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
+	' 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
+	' 	EMSetCursor 9, 3
+	' END IF
 
+'EVF 
+
+	' if evf_form_received_checkbox = checked Then
+	' 	evf_ref_numb = left(evf_client, 2)
+	' 	docs_rec = docs_rec & ", EVF for M" & evf_ref_numb
+
+	' 	'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
+	' 	If EVF_TIKL_checkbox = checked Then
+	' 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+	' 		Call create_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action.", 10, date, True, TIKL_note_text)
+	' 		'Success message
+	' 		end_msg = end_msg & vbNewLine & "Additional detail added about EVF." & vbNewLine & "TIKL has been sent for 10 days from now for the additional information requested."
+	' 	Else
+	' 		end_msg = end_msg & vbNewLine & "Additional detail added about EVF."
+	' 	End If
+	' End If
+
+	' If evf_form_received_checkbox = checked Then
+    ' call write_variable_in_CASE_NOTE("* EVF received " & evf_date_recvd & ": " & EVF_status_dropdown & "*")
+    ' Call write_variable_in_CASE_NOTE("  - Employer Name: " & employer)
+    ' Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
+    ' 'for additional information needed
+    ' IF info = "yes" then
+    '     Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
+    ' 	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
+    ' Else
+    '     Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
+    ' END IF
+	
 script_end_procedure ("Success! The script has ended. ")
 
 
