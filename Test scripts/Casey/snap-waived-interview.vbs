@@ -263,7 +263,7 @@ Function needed_info_dialog(needed_info_array)
 		Text 100, 320, 30, 10, "From/To"
 		DropListBox 90, 330, 45, 10, "from"+chr(9)+"to", contact_direction
 		Text 140, 320, 65, 10, "Who was contacted"
-		ComboBox 140, 330, 85, 15, "Select or Type"+chr(9)+Memb_01+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+case_swkr+chr(9)+who_contacted, who_contacted
+		ComboBox 140, 330, 85, 15, all_the_clients+chr(9)+who_contacted, who_contacted
 
 		Text 245, 320, 75, 10, "Date/Time of Contact:"
         EditBox 245, 330, 135, 15, when_contact_was_made
@@ -5972,8 +5972,12 @@ function write_needed_info_CASE_NOTE(needed_info_array)
 	STATS_manualtime = STATS_manualtime + 30
 	Call start_a_blank_case_note
 
-	If contact_status = "complete" Then
+	If contact_status = "complete" or run_return_contact = True Then
 		Call write_variable_in_CASE_NOTE("*SNAP waived interview info provided by resident.*")
+		If run_return_contact = True Then
+			CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted)
+			CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
+		End If
 		Call write_variable_in_CASE_NOTE("Obtained the following information from the resident regarding their SNAP application:")
 		For comp_q = 1 to ubound(needed_info_array)
 			 call write_interview_question_in_CASE_NOTE(needed_info_array(comp_q))
@@ -8453,7 +8457,7 @@ mnb_16(1) = "standard"
 mnb_16(2) = "optional"
 mnb_16(9) = deduct_help
 dim mnb_17(12)
-mnb_17(0) =  "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
+mnb_17(0) = "17. Do you or anyone living with you have costs for care of an ill or disabled adult because you or they are working, looking for work or going to school?"
 mnb_17(1) = "standard"
 mnb_17(2) = "optional"
 mnb_17(9) = deduct_help
@@ -9079,13 +9083,19 @@ Do
 			End If
 
 			If left(note_line, 2) = "~~" Then
-				question_phrasing = right(note_line, len(note_line)-5)
-				question_phrasing = trim(question_phrasing) & " "
-				question_number = left(note_line, 5)
-				question_number = replace(question_number, "~", "")
-				question_number = replace(question_number, ".", "")
-				question_number = trim(question_number)
-				question_detials = ""
+				If InStr(left(note_line, 5), ".") = 0 Then
+					question_phrasing = right(note_line, len(note_line)-2)
+					question_phrasing = trim(question_phrasing) & " "
+					question_number = ""
+				Else
+					question_phrasing = right(note_line, len(note_line)-5)
+					question_phrasing = trim(question_phrasing) & " "
+					question_number = left(note_line, 5)
+					question_number = replace(question_number, "~", "")
+					question_number = replace(question_number, ".", "")
+					question_number = trim(question_number)
+					question_detials = ""
+				End If
 
 				in_note_row = in_note_row + 1
 				reading_details = False
@@ -9116,99 +9126,123 @@ Do
 				Loop Until left(note_line, 2) = "~~"
 
 				If note_questions_1(phrasing) = "" Then
-					note_questions_1(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_1(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_1(phrasing) = question_number & ". " & question_phrasing
 					note_questions_1(details) = question_detials
 					questions_found = 1
 				ElseIf note_questions_2(phrasing) = "" Then
-					note_questions_2(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_2(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_2(phrasing) = question_number & ". " & question_phrasing
 					note_questions_2(details) = question_detials
 					questions_found = 2
 				ElseIf note_questions_3(phrasing) = "" Then
-					note_questions_3(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_3(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_3(phrasing) = question_number & ". " & question_phrasing
 					note_questions_3(details) = question_detials
 					questions_found = 3
 				ElseIf note_questions_4(phrasing) = "" Then
-					note_questions_4(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_4(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_4(phrasing) = question_number & ". " & question_phrasing
 					note_questions_4(details) = question_detials
 					questions_found = 4
 				ElseIf note_questions_5(phrasing) = "" Then
-					note_questions_5(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_5(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_5(phrasing) = question_number & ". " & question_phrasing
 					note_questions_5(details) = question_detials
 					questions_found = 5
 				ElseIf note_questions_6(phrasing) = "" Then
-					note_questions_6(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_6(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_6(phrasing) = question_number & ". " & question_phrasing
 					note_questions_6(details) = question_detials
 					questions_found = 6
 				ElseIf note_questions_7(phrasing) = "" Then
-					note_questions_7(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_7(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_7(phrasing) = question_number & ". " & question_phrasing
 					note_questions_7(details) = question_detials
 					questions_found = 7
 				ElseIf note_questions_8(phrasing) = "" Then
-					note_questions_8(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_8(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_8(phrasing) = question_number & ". " & question_phrasing
 					note_questions_8(details) = question_detials
 					questions_found = 8
 				ElseIf note_questions_9(phrasing) = "" Then
-					note_questions_9(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_9(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_9(phrasing) = question_number & ". " & question_phrasing
 					note_questions_9(details) = question_detials
 					questions_found = 9
 				ElseIf note_questions_10(phrasing) = "" Then
-					note_questions_10(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_10(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_10(phrasing) = question_number & ". " & question_phrasing
 					note_questions_10(details) = question_detials
 					questions_found = 10
 				ElseIf note_questions_11(phrasing) = "" Then
-					note_questions_11(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_11(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_11(phrasing) = question_number & ". " & question_phrasing
 					note_questions_11(details) = question_detials
 					questions_found = 11
 				ElseIf note_questions_12(phrasing) = "" Then
-					note_questions_12(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_12(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_12(phrasing) = question_number & ". " & question_phrasing
 					note_questions_12(details) = question_detials
 					questions_found = 12
 				ElseIf note_questions_13(phrasing) = "" Then
-					note_questions_13(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_13(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_13(phrasing) = question_number & ". " & question_phrasing
 					note_questions_13(details) = question_detials
 					questions_found = 13
 				ElseIf note_questions_14(phrasing) = "" Then
-					note_questions_14(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_14(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_14(phrasing) = question_number & ". " & question_phrasing
 					note_questions_14(details) = question_detials
 					questions_found = 14
 				ElseIf note_questions_15(phrasing) = "" Then
-					note_questions_15(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_15(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_15(phrasing) = question_number & ". " & question_phrasing
 					note_questions_15(details) = question_detials
 					questions_found = 15
 				ElseIf note_questions_16(phrasing) = "" Then
-					note_questions_16(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_16(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_16(phrasing) = question_number & ". " & question_phrasing
 					note_questions_16(details) = question_detials
 					questions_found = 16
 				ElseIf note_questions_17(phrasing) = "" Then
-					note_questions_17(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_17(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_17(phrasing) = question_number & ". " & question_phrasing
 					note_questions_17(details) = question_detials
 					questions_found = 17
 				ElseIf note_questions_18(phrasing) = "" Then
-					note_questions_18(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_18(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_18(phrasing) = question_number & ". " & question_phrasing
 					note_questions_18(details) = question_detials
 					questions_found = 18
 				ElseIf note_questions_19(phrasing) = "" Then
-					note_questions_19(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_19(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_19(phrasing) = question_number & ". " & question_phrasing
 					note_questions_19(details) = question_detials
 					questions_found = 19
 				ElseIf note_questions_20(phrasing) = "" Then
-					note_questions_20(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_20(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_20(phrasing) = question_number & ". " & question_phrasing
 					note_questions_20(details) = question_detials
 					questions_found = 20
 				ElseIf note_questions_21(phrasing) = "" Then
-					note_questions_21(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_21(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_21(phrasing) = question_number & ". " & question_phrasing
 					note_questions_21(details) = question_detials
 					questions_found = 21
 				ElseIf note_questions_22(phrasing) = "" Then
-					note_questions_22(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_22(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_22(phrasing) = question_number & ". " & question_phrasing
 					note_questions_22(details) = question_detials
 					questions_found = 22
 				ElseIf note_questions_23(phrasing) = "" Then
-					note_questions_23(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_23(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_23(phrasing) = question_number & ". " & question_phrasing
 					note_questions_23(details) = question_detials
 					questions_found = 23
 				ElseIf note_questions_24(phrasing) = "" Then
-					note_questions_24(phrasing) = question_number & ". " & question_phrasing
+					If question_number = "" Then note_questions_24(phrasing) = question_phrasing
+					If question_number <> "" Then note_questions_24(phrasing) = question_number & ". " & question_phrasing
 					note_questions_24(details) = question_detials
 					questions_found = 24
 				End If
@@ -9244,6 +9278,7 @@ Do
 	' IF note_title = "~ Client has not completed application interview, NOMI" then nomi_date = note_date
 	' IF note_title = "~ Client has not completed CASH APP interview, NOMI sen" then nomi_date = note_date
 	' IF note_title = "* A notice was previously sent to client with detail ab" then nomi_date = note_date
+	If questions_found <> 0 Then Exit Do
 
 	IF note_date = "        " then Exit Do
 	note_row = note_row + 1
@@ -9253,7 +9288,7 @@ Do
 	END IF
 	EMReadScreen next_note_date, 8, note_row, 6
 	IF next_note_date = "        " then Exit Do
-Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
 ' PF3
 
 If questions_found <> 0 Then
@@ -9315,11 +9350,12 @@ If questions_found <> 0 Then
 	For found_quest = 1 to UBound(needed_info_array)
 		For match_question = 1 to UBound(questions_array)
 			' MsgBox "needed_info_array - " & trim(mid(needed_info_array(found_quest)(phrasing), 3, 33)) & vbCr & "questions_array - " & trim(mid(questions_array(match_question)(phrasing), 3, 33))
-			If trim(mid(needed_info_array(found_quest)(phrasing), 3, 33)) = trim(mid(questions_array(match_question)(phrasing), 3, 33)) Then
+			If trim(mid(needed_info_array(found_quest)(phrasing), 3, 63)) = trim(mid(questions_array(match_question)(phrasing), 3, 63)) Then
 				' msgbox "MATCH"
 				needed_info_array(found_quest)(question_type) = questions_array(match_question)(question_type)
 				needed_info_array(found_quest)(answer_needed) = questions_array(match_question)(answer_needed)
 				needed_info_array(found_quest)(help_info) = questions_array(match_question)(help_info)
+				' MsgBox "needed_info_array - " & trim(mid(needed_info_array(found_quest)(phrasing), 3, 33)) & vbCr & "questions_array - " & trim(mid(questions_array(match_question)(phrasing), 3, 33)) & vbCr & vbCr & needed_info_array(found_quest)(question_type)
 				If needed_info_array(found_quest)(question_type) = "jobs" Then job_array_for_info_needed = True
 
 				Exit For
@@ -9339,7 +9375,8 @@ If questions_found <> 0 Then
 End If
 
 If run_return_contact = True Then
-
+	MAXIS_footer_month = CM_plus_1_mo
+	MAXIS_footer_year = CM_plus_1_yr
 	' If cash_request = true Then MSgbox "This app has requested cash. If you reach the resident and they wish to complete the interview, press no contact made on the next dialog to case note the screening then run NOTES - Interview to complete a full interview for all programs."
 	' page_display = q_page_1
 	' q_page_6				= 10
@@ -9396,7 +9433,13 @@ If run_return_contact = True Then
 		info_needed_job_count = -1
 	End If
 
-	MsgBox "Next we will read for the CAF answers"
+	Call back_to_SELF
+
+	Call generate_client_list(all_the_clients, "Select or Type")				'Here we read for the clients and add it to a droplist
+	list_for_array = right(all_the_clients, len(all_the_clients) - 15)			'Then we create an array of the the full hh list for looping purpoases
+	full_hh_list = Split(list_for_array, chr(9))
+
+
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
 	note_row = 5            'resetting the variables on the loop
 	note_date = ""
@@ -9406,6 +9449,8 @@ If run_return_contact = True Then
 	reached_end_of_notes = False
 	notes_is_continued = False
 	question_answers_reached = False
+	continue_a_current_question = False
+	resume_question_number = ""
 	Do
 		Do
 			EMReadScreen note_date, 8, note_row, 6      'reading the note date
@@ -9426,6 +9471,7 @@ If run_return_contact = True Then
 				Do
 					EMReadScreen note_line, 78, in_note_row, 3
 					' MsgBox "note_line - " & note_line & vbCr & "1"
+					' MsgBox "in_note_row - " & in_note_row & vbCr & "1"
 					note_line = trim(note_line)
 					If InStr(note_line, "-----  CAF Information and Notes -----") Then
 						question_answers_reached = True
@@ -9449,21 +9495,24 @@ If run_return_contact = True Then
 					If question_answers_reached = True Then
 						For found_quest = 1 to UBound(needed_info_array)
 							' MsgBox "note_line - " & note_line & vbCr & "array prase - " & needed_info_array(found_quest)(phrasing) & vbCr & vbCr & in_note_row & vbCr & vbCr & InStr(note_line, trim(mid(needed_info_array(found_quest)(phrasing), 3, 33)))
-							If InStr(note_line, trim(mid(needed_info_array(found_quest)(phrasing), 3, 33))) <> 0 Then
+							If InStr(note_line, trim(mid(needed_info_array(found_quest)(phrasing), 3, 33))) <> 0 or (continue_a_current_question = True and resume_question_number = found_quest) Then
 								' MsgBox "MATCH FOUND"
 								' MsgBox "note_line - " & note_line & vbCr & "array prase - " & needed_info_array(found_quest)(phrasing) & vbCr & vbCr & in_note_row & vbCr & vbCr & InStr(note_line, trim(mid(needed_info_array(found_quest)(phrasing), 3, 33))) & vbCr & vbCr & needed_info_array(found_quest)(question_type)
 								reading_write_in = False
 								reading_verif_details = False
 								reading_a_job = False
+								continue_a_current_question = False
+								resume_question_number = ""
 								Do
 									EMReadScreen note_line, 78, in_note_row, 3
 									' MsgBox "note_line - " & note_line & vbCr & "2" & vbCR & vbCr & needed_info_array(found_quest)(question_type) & vbCr & needed_info_array(found_quest)(phrasing)
+									' MsgBox "in_note_row - " & in_note_row & vbCr & "2"
 									note_line = trim(note_line)
 
 									For match_question = 1 to UBound(questions_array)
-										' If left(note_line,3) = "15." Then MsgBox "note_line - " & note_line & vbCr & "Array phrase - " & questions_array(match_question)(phrasing) & vbCr & vbCr & "PARTIAL - " & mid(questions_array(match_question)(phrasing), 3, 53)
-										If trim(mid(needed_info_array(found_quest)(phrasing), 3, 53)) <> trim(mid(questions_array(match_question)(phrasing), 3, 53)) Then
-											If InStr(note_line, trim(mid(questions_array(match_question)(phrasing), 3, 53))) <> 0 Then Exit Do
+										' If left(note_line,3) = "17." Then MsgBox "note_line - " & note_line & vbCr & "Array phrase - " & questions_array(match_question)(phrasing) & vbCr & vbCr & "PARTIAL - " & mid(questions_array(match_question)(phrasing), 3, 53)
+										If trim(mid(needed_info_array(found_quest)(phrasing), 3, 63)) <> trim(mid(questions_array(match_question)(phrasing), 3, 63)) Then
+											If InStr(note_line, trim(mid(questions_array(match_question)(phrasing), 3, 63))) <> 0 Then Exit Do
 										End If
 									Next
 
@@ -9815,12 +9864,15 @@ If run_return_contact = True Then
 									End if
 
 									in_note_row = in_note_row + 1
+									' MsgBox "in_note_row - " & in_note_row & vbCr & "3"
 									' MsgBox "in_note_row - " & in_note_row
-									If in_note_row = 18 Then
+									If in_note_row >= 18 Then
 										PF8
 										EMReadScreen end_of_note, 9, 24, 14
 										If end_of_note = "LAST PAGE" Then
 											reached_end_of_notes = True
+											continue_a_current_question = True
+											resume_question_number = found_quest
 											Exit Do
 										End If
 										in_note_row = 4
@@ -9847,7 +9899,9 @@ If run_return_contact = True Then
 							End If
 						Next
 
+						If continue_a_current_question = True Then Exit Do
 						in_note_row = in_note_row + 1
+						' MsgBox "in_note_row - " & in_note_row & vbCr & "4"
 						If in_note_row = 18 Then
 							PF8
 							EMReadScreen end_of_note, 9, 24, 14
@@ -9862,6 +9916,7 @@ If run_return_contact = True Then
 						next_note_line = trim(next_note_line)
 					Else
 						in_note_row = in_note_row + 1
+						' MsgBox "in_note_row - " & in_note_row & vbCr & "5"
 						If in_note_row = 18 Then
 							PF8
 							EMReadScreen end_of_note, 9, 24, 14
@@ -9875,9 +9930,10 @@ If run_return_contact = True Then
 						next_note_line = trim(next_note_line)
 					End If
 				Loop until next_note_line = ""
-				PF3
+					PF3
 			End If
 			If form_answers_filled = True and reached_end_of_notes = False Then Exit Do
+			' If continue_a_current_question = True Then Exit Do
 
 			' MsgBox "reached_end_of_notes - " & reached_end_of_notes & vbCr & "note_row - " & note_row
 
@@ -9892,7 +9948,7 @@ If run_return_contact = True Then
 				EMReadScreen next_note_date, 8, note_row, 6
 				IF next_note_date = "        " then Exit Do
 			End If
-		Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+		Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
 		If reached_end_of_notes = True Then
 			note_row = note_row - 1
 			EMReadScreen prev_note_title, 55, note_row, 25   'reading the note header
@@ -9916,7 +9972,10 @@ If run_return_contact = True Then
 	'Message to tell the worker to attempt contact with the resident, yes/no, leave teh script running while doing so.
 	'Bring up the dialog with the necessary questions
 	'page_display = info_1
-
+	when_contact_was_made = date & " " & time
+	contact_type = ""
+	contact_direction = ""
+	who_contacted = ""
 
 	Do
 		Do
@@ -9956,7 +10015,11 @@ If run_return_contact = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop Until are_we_passworded_out = false
 
+	call write_needed_info_CASE_NOTE(needed_info_array)
 
+	name_of_script = "NOTES - SNAP Waived Interview - Return Contact.vbs"
+	end_msg = "CASE/NOTE created with details from the Contact with the Resident to resolve any additional information needed for the SNAP request."
+	Call script_end_procedure_with_error_report(end_msg)
 End If
 
 MsgBox "WAIT HERE"
@@ -10187,7 +10250,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'With (CreateObject("Scripting.FileSystemObject"))
 	'	If .FileExists(intvw_msg_file) = False then
 	'		Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
-'
+	'
 	'		'Write the contents of the text file
 	'		objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
 	'		objTextStream.WriteLine ""
@@ -10198,7 +10261,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'		objTextStream.WriteLine ""
 	'		objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
 	'		objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
-'
+	'
 	'		objTextStream.Close
 	'	End If
 	'End With
