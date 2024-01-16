@@ -679,6 +679,14 @@ If caf_script_reported = True Then
 		End if
 	End With
 End If
+If earned_income_budgeting_script_reported = True Then
+	local_earned_income_save_work_path = user_myDocs_folder & "earned-income-detail-" & MAXIS_case_number & "-info.txt"
+	With objFSO
+		If .FileExists(local_earned_income_save_work_path) = True then
+			attachment_here = local_earned_income_save_work_path
+		End if
+	End With
+End If
 
 email_body = "~~This email is generated from completion of the 'Report to the BZST' Script.~~" & vbCr & vbCr & email_body
 Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, True, attachment_here, True)
