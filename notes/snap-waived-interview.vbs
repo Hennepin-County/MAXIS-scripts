@@ -277,7 +277,7 @@ function create_info_needed_in_dialog(needed_info)
 		GroupBox 5, y_pos, 475, 75, needed_info(0) 'question text
 		y_pos = y_pos + 10
 		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
-		Text 95, y_pos, 350, 20, "write-in: " & needed_info(4) 'application write-in
+		Text 95, y_pos, 350, 20, "Write-in: " & needed_info(4) 'application write-in
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5) 'detail from app
 		y_pos = y_pos + 30
@@ -289,7 +289,7 @@ function create_info_needed_in_dialog(needed_info)
 		GroupBox 5, y_pos, 475, 95, needed_info(0) 'question text
 		y_pos = y_pos + 10
 		Text 15, y_pos, 80, 10, "CAF Answer: " & needed_info(3) 'application answer
-		Text 95, y_pos, 350, 20, "write-in: " & needed_info(4) 'application write-in
+		Text 95, y_pos, 350, 20, "Write-in: " & needed_info(4) 'application write-in
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5) 'detail from app
 		y_pos = y_pos + 30
@@ -351,8 +351,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_3_2, 	y_pos + 5, 	110, 10, "Other unearned       $"
 		EditBox 		col_3_3, 	y_pos, 		35, 15, needed_info(30)
 		y_pos = y_pos + 20
-		Text 15, y_pos, 25, 10, "Write-in:"
-		Text 45, y_pos, 425, 15, needed_info(4)
+		Text 15, y_pos, 450, 10, "Write-in: " & needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 350, 20, "Details: " & needed_info(5)
 		PushButton 400, y_pos - 5, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -371,8 +370,7 @@ function create_info_needed_in_dialog(needed_info)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 70, 10, "CAF Answer: " & needed_info(3)
 		y_pos = y_pos + 15
-		Text 15, y_pos, 350, 20, "write-in:"
-		Text 45, y_pos, 425, 15, needed_info(4)
+		Text 15, y_pos, 460, 20, "Write-in: " & needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 450, 10, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -428,8 +426,7 @@ function create_info_needed_in_dialog(needed_info)
 		DropListBox 	col_1_1, y_pos - 5, 60, 45, question_answers, needed_info(19)
 		Text 			col_1_2, y_pos, 	100, 10, "Real estate taxes"
 		y_pos = y_pos + 15
-		Text 15, y_pos, 25, 10, "Write-in:"
-		Text 40, y_pos - 5, 435, 15, needed_info(4)
+		Text 15, y_pos, 460, 10, "Write-in: " & needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 380, 20, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -467,7 +464,7 @@ function create_info_needed_in_dialog(needed_info)
 		DropListBox 	col_1_1, y_pos - 5, 35, 45, question_answers, needed_info(19)
 		Text 			col_1_2, y_pos, 375, 10, "Did you or anyone in your household receive LIHEAP (energy assistance) of more than $20 in the past 12 months?"
 		y_pos = y_pos + 15
-		Text 15, y_pos, 340, 10, "Write-in: " & needed_info(4)
+		Text 15, y_pos, 460, 10, "Write-in: " & needed_info(4)
 		y_pos = y_pos + 15
 		Text 15, y_pos, 435, 25, "Details: " & needed_info(5)
 		y_pos = y_pos + 25
@@ -496,9 +493,11 @@ function create_info_needed_in_dialog(needed_info)
 		Text 			col_1_2, y_pos, 	125, 10, "Stocks, bonds, annuities, 401k, etc."
 		DropListBox 	col_2_1, y_pos - 5, 60, 45, question_answers, needed_info(16)
 		Text 			col_2_2, y_pos, 	180, 10, "Vehicles (cars, trucks, motorcycles, campers, trailers)"
-		y_pos = y_pos + 20
-		Text 15, y_pos, 25, 10, "Write-in:"
-		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
+		y_pos = y_pos + 15
+		Text 15, y_pos, 460, 10, "Write-in: " & needed_info(4)
+		y_pos = y_pos + 15
+		Text 15, y_pos, 435, 25, "Details: " & needed_info(5)
+		' EditBox 40, y_pos - 5, 435, 15, needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info Provided:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(8)
@@ -524,8 +523,7 @@ function create_info_needed_in_dialog(needed_info)
 		DropListBox col_2_1, y_pos - 5, 60, 45, question_answers, needed_info(16)
 		Text 		col_2_2, y_pos, 	105, 10, "High housing costs"
 		y_pos = y_pos + 20
-		Text 15, y_pos, 25, 10, "Write-in:"
-		EditBox 40, y_pos - 5, 435, 15, needed_info(4)
+		Text 15, y_pos, 460, 10, "Write-in: " & needed_info(4)
 		y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Interview Notes:"
 		EditBox 75, y_pos - 5, 320, 15, needed_info(5)
@@ -539,7 +537,7 @@ function create_info_needed_in_dialog(needed_info)
 		Text 15, y_pos + 5, 80, 10, "CAF Answer: " & needed_info(13) 'application answer
 		ComboBox 185, y_pos, 105, 45, all_the_clients, needed_info(14)
 		Text 110, y_pos + 5, 70, 10, "Household Member:"
-		y_pos = y_pos + 15
+		y_pos = y_pos + 20
 		Text 15, y_pos, 435, 25, "Details: " & needed_info(5)
 		y_pos = y_pos + 30
 		Text 15, y_pos, 60, 10, "Info Provided: "
