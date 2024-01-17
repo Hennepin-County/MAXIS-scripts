@@ -11938,6 +11938,14 @@ function script_end_procedure_with_error_report(closing_message)
 					End if
 				End With
 			End If
+			If name_of_script = "ACTIONS - EARNED INCOME BUDGETING.vbs" Then
+				local_earned_income_save_work_path = user_myDocs_folder & "earned-income-detail-" & MAXIS_case_number & "-info.txt"
+				With objFSO
+					If .FileExists(local_earned_income_save_work_path) = True then
+						attachment_here = local_earned_income_save_work_path
+					End if
+				End With
+			End If
 			Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
