@@ -9311,7 +9311,7 @@ If questions_found <> 0 Then
 	' 	MsgBox "phrasing - " & needed_info_array(found_quest)(phrasing) & vbCr & "question_type - " & needed_info_array(found_quest)(question_type) & vbCr & "answer_needed - " & needed_info_array(found_quest)(answer_needed) & vbCr & "details - " & needed_info_array(found_quest)(details) & vbCr & "help_info - " & needed_info_array(found_quest)(help_info)
 	' Next
 
-	follow_up_contact = MsgBox("It appears the application form (CAF) was reviewed for this case on " & info_note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
+	follow_up_contact = MsgBox("It appears the application form (CAF) was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
 							   "Are you in contact with the resident now and would like to address the items we previously determined will need follow-up?", vbQuestion + vbYesNoCancel, "CAF Review Info Note Found")
 
 	If follow_up_contact = vbCancel Then script_end_procedure("~PT: user pressed cancel")
