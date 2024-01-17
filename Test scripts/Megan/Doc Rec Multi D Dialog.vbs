@@ -170,24 +170,62 @@ end function
 Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_address, atr_city, atr_state, atr_zipcode, atr_phone_number, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, arep_effective_date
-		EditBox 310, 20, 45, 15, arep_date_received
-		EditBox 30, 65, 270, 15, arep_Q1
-		EditBox 30, 85, 270, 15, arep_Q2
-		EditBox 30, 105, 270, 15, arep_Q3
-		EditBox 30, 125, 270, 15, arep_Q4		
-		Text 5, 5, 220, 10, "AREP (Authorized Rep)"
-		Text 125, 25, 50, 10, "Effective Date:"
-		Text 15, 70, 10, 10, "Q1"
-		Text 245, 25, 60, 10, "Document Date:"
-		GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-		Text 5, 25, 50, 10, "Case Number:"
-		Text 15, 110, 10, 10, "Q3"
-		Text 15, 130, 15, 10, "Q4"
-		Text 15, 90, 15, 10, "Q2"
-		Text 15, 150, 15, 10, ""
+	Text 60, 25, 45, 10, MAXIS_case_number
+	EditBox 175, 20, 45, 15, arep_effective_date
+	EditBox 310, 20, 45, 15, arep_date_received		
+	EditBox 45, 55, 185, 15, arep_name
+	EditBox 45, 75, 185, 15, arep_street
+	EditBox 45, 95, 85, 15, arep_city
+	EditBox 160, 95, 20, 15, arep_state
+	EditBox 200, 95, 30, 15, arep_zip
+	EditBox 45, 115, 50, 15, arep_phone_one
+	EditBox 115, 115, 20, 15, arep_ext_one
+	EditBox 45, 135, 50, 15, arep_phone_two
+	EditBox 115, 135, 20, 15, arep_ext_two
+	CheckBox 20, 160, 60, 10, "Forms to AREP", arep_forms_to_arep_checkbox
+	CheckBox 95, 160, 75, 10, "MMIS Mail to AREP", arep_mmis_mail_to_arep_checkbox
+	CheckBox 20, 175, 185, 10, "Check here to have the script update the AREP Panel", arep_update_AREP_panel_checkbox
+	EditBox 120, 200, 50, 15, AREP_recvd_date
+	CheckBox 20, 220, 75, 10, "ID on file for AREP?", AREP_ID_check
+	CheckBox 20, 235, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", arep_TIKL_check
+	EditBox 140, 250, 65, 15, arep_signature_date
+	CheckBox 255, 55, 115, 10, "AREP Req - MHCP - DHS-3437", arep_dhs_3437_checkbox
+	CheckBox 255, 75, 105, 10, "AREP Req - HC12729", arep_HC_12729_checkbox
+	CheckBox 255, 95, 100, 10, "SNAP AREP Choice - D405", arep_D405_checkbox
+	CheckBox 255, 115, 105, 10, "AREP on CAF", arep_CAF_AREP_page_checkbox
+	CheckBox 255, 135, 100, 10, "AREP on any HC App", arep_HCAPP_AREP_checkbox
+	CheckBox 255, 155, 75, 10, "Power of Attorney", arep_power_of_attorney_checkbox
+	CheckBox 265, 215, 35, 10, "SNAP", arep_SNAP_AREP_checkbox
+	CheckBox 265, 225, 50, 10, "Health Care", arep_HC_AREP_checkbox
+	CheckBox 265, 235, 30, 10, "Cash", arep_CASH_AREP_checkbox
+	Text 5, 5, 220, 10, "AREP (Authorized Rep)"
+	Text 5, 25, 50, 10, "Case Number:"
+	Text 125, 25, 50, 10, "Effective Date:"
+	Text 245, 25, 60, 10, "Document Date:"
+	GroupBox 10, 45, 225, 145, "Panel Information"
+	Text 20, 60, 25, 10, "Name:"
+	Text 20, 80, 25, 10, "Street:"
+	Text 25, 100, 15, 10, "City:"
+	Text 140, 100, 20, 10, "State:"
+	Text 185, 100, 15, 10, "Zip:"
+	Text 20, 120, 25, 10, "Phone:"
+	Text 100, 120, 15, 10, "Ext."
+	Text 20, 140, 25, 10, "Phone:"
+	Text 100, 140, 15, 10, "Ext."
+	Text 20, 205, 95, 10, "Date of AREP Form Received"
+	Text 20, 255, 115, 10, "Date form was signed (MM/DD/YY):"
+	GroupBox 245, 45, 125, 155, "Specific FORM Received"
+	Text 275, 65, 50, 10, "(HC)"
+	Text 275, 85, 60, 10, "(Cash and SNAP)"
+	Text 275, 105, 75, 10, "(SNAP and EBT Card)"
+	Text 275, 125, 60, 10, "(Cash and SNAP)"
+	Text 275, 145, 50, 10, "(HC)"
+	Text 275, 165, 60, 10, "(HC, SNAP, Cash)"
+	Text 250, 175, 110, 20, "Checking the FORM will indicate the programs in the CASE/NOTE"
+	Text 255, 205, 85, 10, "Programs Authorized for:"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function
+Dim arep_effective_date, arep_date_received, arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
 
 function change_dialog()
 	EditBox 175, 15, 45, 15, chng_effective_date
@@ -227,8 +265,6 @@ function change_dialog()
 	Text 395, 35, 45, 10, "    --Forms--"
 
 end function
-
-'Dimming all the variables because they are defined and set within functions
 Dim chng_effective_date, chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
 
 
@@ -236,26 +272,26 @@ function evf_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
 	EditBox 175, 20, 45, 15, evf_effective_date
 	EditBox 310, 20, 45, 15, evf_date_received		
-	ComboBox 75, 50, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
-	EditBox 75, 70, 210, 15, evf_employer
-	DropListBox 75, 95, 210, 45, HH_Memb_DropDown, evf_client
-	DropListBox 80, 145, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", evf_info
-	EditBox 225, 145, 60, 15, evf_info_date
-	EditBox 80, 165, 60, 15, evf_request_info
-	CheckBox 165, 170, 105, 10, "Create TIKL for additional info", EVF_TIKL_checkbox
-	EditBox 75, 195, 210, 15, evf_actions_taken
+	ComboBox 95, 50, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
+	EditBox 95, 70, 210, 15, evf_employer
+	DropListBox 95, 95, 210, 45, HH_Memb_DropDown, evf_client
+	DropListBox 100, 145, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", evf_info
+	EditBox 245, 145, 60, 15, evf_info_date
+	EditBox 100, 165, 60, 15, evf_request_info
+	CheckBox 185, 170, 105, 10, "Create TIKL for additional info", EVF_TIKL_checkbox
+	EditBox 95, 205, 210, 15, evf_actions_taken
 	Text 5, 5, 220, 10, "EMPLOYMENT VERIFICATION FORM (EVF)"
 	Text 5, 25, 50, 10, "Case Number:"
 	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
-	Text 30, 55, 40, 10, "EVF Status:"
-	Text 15, 75, 55, 10, "Employer name:"
-	Text 10, 95, 60, 10, "Household Memb:"
-	GroupBox 10, 130, 285, 60, "Is additional information needed?"
-	Text 15, 150, 60, 10, "Addt'l Info Reqstd:"
-	Text 165, 150, 55, 10, "Date Requested:"
-	Text 15, 170, 65, 10, "Info Requested via:"
-	Text 20, 200, 50, 10, "Actions taken:"
+	Text 50, 55, 40, 10, "EVF Status:"
+	Text 35, 75, 55, 10, "Employer name:"
+	Text 30, 95, 60, 10, "Household Memb:"
+	GroupBox 30, 130, 285, 60, "Is additional information needed?"
+	Text 35, 150, 60, 10, "Addt'l Info Reqstd:"
+	Text 185, 150, 55, 10, "Date Requested:"
+	Text 35, 170, 65, 10, "Info Requested via:"
+	Text 40, 210, 50, 10, "Actions taken:"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
 Dim evf_effective_date, evf_date_received, EVF_status_dropdown, evf_employer, evf_client, evf_info, evf_info_date, evf_request_info, EVF_TIKL_checkbox, evf_actions_taken
@@ -289,7 +325,6 @@ function hospice_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
 	Text 395, 35, 45, 10, "    --Forms--"		
 end function 
-
 Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hops_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
@@ -308,7 +343,7 @@ function iaa_dialog()
 		PushButton 5, 280, 95, 15, "IAA Maxis Instructions", iaa_sp_btn
 	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 60, 20, 45, 10, "MAXIS_case_number"
+	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	Text 20, 50, 30, 10, "Member"
@@ -317,7 +352,6 @@ function iaa_dialog()
 	Text 15, 185, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-
 Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_within_30_checkbox, iaa_outside_30_checkbox, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_comments, iaa_sp_btn
 
 
@@ -343,29 +377,58 @@ function iaa_ssi_dialog()
 	Text 20, 110, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-
 Dim iaa_ssi_effective_date, iaa_ssi_date_received, iaa_ssi_member_dropdown, iaa_ssi_type_assistance, iaa_ssi_within_30_checkbox, iaa_ssi_outside_30_checkbox, iaa_ssi_comments, iaa_ssi_CM121203_btn, iaa_ssi_sp_btn
 
 function ltc_1503_dialog()
-			Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, ltc_1503_effective_date
-			EditBox 310, 20, 45, 15, ltc_1503_date_received
-			EditBox 30, 65, 270, 15, ltc_1503_Q1
-			EditBox 30, 85, 270, 15, ltc_1503_Q2
-			EditBox 30, 105, 270, 15, ltc_1503_Q3
-			EditBox 30, 125, 270, 15, ltc_1503_Q4			
-			Text 5, 5, 220, 10, "LTC-1503"
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+	Text 60, 25, 45, 10, MAXIS_case_number
+	EditBox 175, 20, 45, 15, ltc_1503_effective_date
+	EditBox 310, 20, 45, 15, ltc_1503_date_received
+	EditBox 60, 50, 110, 15, ltc_1503_FACI_1503
+	DropListBox 230, 50, 70, 15, ""+chr(9)+"30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", ltc_1503_length_of_stay
+	DropListBox 105, 70, 40, 15, ""+chr(9)+"SNF"+chr(9)+"NF"+chr(9)+"ICF-DD"+chr(9)+"RTC", ltc_1503_level_of_care
+	DropListBox 205, 70, 80, 15, ""+chr(9)+"acute-care hospital"+chr(9)+"home"+chr(9)+"RTC"+chr(9)+"other SNF or NF"+chr(9)+"ICF-DD", ltc_1503_admitted_from
+	EditBox 60, 90, 90, 15, ltc_1503_hospital_admitted_from
+	EditBox 210, 90, 45, 15, ltc_1503_admit_date
+	EditBox 320, 90, 45, 15, ltc_1503_discharge_date
+	CheckBox 15, 110, 155, 10, "If you've processed this 1503, check here.", ltc_1503_processed_1503_checkbox
+	CheckBox 10, 145, 65, 10, "Updated RLVA?", ltc_1503_updated_RLVA_checkbox
+	CheckBox 80, 145, 60, 10, "Updated FACI?", ltc_1503_updated_FACI_checkbox
+	CheckBox 145, 145, 50, 10, "Need 3543?", ltc_1503_need_3543_checkbox
+	CheckBox 205, 145, 55, 10, "Need 3531?", ltc_1503_need_3531_checkbox
+	CheckBox 265, 145, 95, 10, "Need asset assessment?", ltc_1503_need_asset_assessment_checkbox
+	EditBox 125, 155, 210, 15, ltc_1503_verifs_needed
+	CheckBox 10, 180, 85, 10, "Sent 3050 back to LTCF", ltc_1503_sent_3050_checkbox
+	CheckBox 105, 180, 70, 10, "Sent verif req? To:", ltc_1503_sent_verif_request_checkbox
+	ComboBox 175, 175, 60, 15, ""+chr(9)+"client"+chr(9)+"AREP"+chr(9)+"Client & AREP", ltc_1503_sent_request_to
+	CheckBox 245, 180, 120, 10, "Sent DHS-5181 to Case Manager", ltc_1503_sent_5181_checkbox
+	CheckBox 10, 210, 255, 10, "Check here to have the script TIKL out to contact the FACI re: length of stay.", ltc_1503_TIKL_checkbox
+	CheckBox 10, 225, 155, 10, "Check here to have the script update HCMI.", ltc_1503_HCMI_update_checkbox
+	CheckBox 10, 240, 150, 10, "Check here to have the script update FACI.", ltc_1503_FACI_update_checkbox
+	EditBox 100, 260, 25, 15, ltc_1503_faci_footer_month
+	EditBox 130, 260, 25, 15, ltc_1503_faci_footer_year
+	EditBox 245, 260, 75, 15, ltc_1503_mets_case_number
+	EditBox 30, 280, 330, 15, ltc_1503_notes
+	Text 5, 5, 220, 10, "LTC 1503	"
+	Text 5, 25, 50, 10, "Case Number:"
+	Text 125, 25, 50, 10, "Effective Date:"
+	Text 245, 25, 60, 10, "Document Date:"
+	GroupBox 0, 40, 370, 85, "Facility Info"
+	Text 10, 55, 50, 10, "Facility name:"
+	Text 175, 55, 50, 10, "Length of stay:"
+	Text 10, 75, 95, 10, "Recommended level of care:"
+	Text 155, 75, 50, 10, "Admitted from:"
+	Text 10, 95, 50, 10, "Hospital Name"
+	Text 155, 95, 55, 10, "Admission Date:"
+	Text 265, 95, 55, 10, "Discharge Date:"
+	GroupBox 5, 135, 365, 60, "Actions/Proofs"
+	Text 10, 160, 115, 10, "Other proofs needed (if applicable):"
+	GroupBox 0, 200, 370, 55, "Script actions"
+	Text 5, 265, 95, 10, "Facility Update Month/Year:"
+	Text 165, 265, 75, 10, "METS Case Number:"
+	Text 5, 285, 25, 10, "Notes:"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function
+Dim ltc_1503_effective_date, ltc_1503_date_received, ltc_1503_FACI_1503, ltc_1503_length_of_stay, ltc_1503_level_of_care, ltc_1503_admitted_from, ltc_1503_hospital_admitted_from, ltc_1503_admit_date, ltc_1503_discharge_date, ltc_1503_processed_1503_checkbox, ltc_1503_updated_RLVA_checkbox, ltc_1503_updated_FACI_checkbox, ltc_1503_need_3543_checkbox, ltc_1503_need_3531_checkbox, ltc_1503_need_asset_assessment_checkbox, ltc_1503_verifs_needed, ltc_1503_sent_3050_checkbox, ltc_1503_sent_verif_request_checkbox, ltc_1503_sent_request_to, ltc_1503_sent_5181_checkbox, ltc_1503_TIKL_checkbox, ltc_1503_HCMI_update_checkbox, ltc_1503_FACI_update_checkbox, ltc_1503_faci_footer_month, ltc_1503_faci_footer_year, ltc_1503_mets_case_number, ltc_1503_notes
 
 function mof_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -451,8 +514,6 @@ function sf_dialog()
 			Text 15, 150, 15, 10, ""
 end function
 
-
-
 function diet_dialog()
 	EditBox 175, 15, 45, 15, diet_effective_date
 	EditBox 310, 15, 45, 15, diet_date_received		
@@ -495,9 +556,17 @@ function diet_dialog()
 	Text 15, 225, 35, 10, "Prognosis"
 	Text 15, 245, 35, 10, "Comments"
 end function
-
 Dim diet_effective_date, diet_date_received, diet_member_number, diet_diagnosis, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_prognosis, diet_comments	'Special Diet Variables
 
+function get_footer_month_from_date(footer_month_variable, footer_year_variable, date_variable)
+
+    footer_month_variable = DatePart("m", date_variable)
+    footer_month_variable = Right("00" & footer_month_variable, 2)
+
+    footer_year_variable = DatePart("yyyy", date_variable)
+    footer_year_variable = Right(footer_year_variable, 2)
+end function
+'TODO- do i need to dim anything in this fuction?
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
 	If ButtonPressed = -1 Then ButtonPressed = next_btn 	'If the enter button is selected the script will handle this as if Next was selected 
@@ -617,7 +686,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			End If
 
 			
-			MsgBox "all form array string" & all_form_array '= split(all_form_array, "*")
+			'MsgBox "all form array string" & all_form_array '= split(all_form_array, "*")
 
 			'This work for handling the adding of each form - this allows you to add more than one of each form 
 			' If ButtonPressed = add_button and form_type <> "" Then				'If statement to know when to store the information in the array
@@ -629,6 +698,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
 				ReDim form_type_array(the_last_const, form_count)		
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
+
 				asset_checkbox = unchecked				'Resetting checkboxes to unchecked
 				atr_checkbox = unchecked				'Resetting checkboxes to unchecked
 				arep_checkbox = unchecked				'Resetting checkboxes to unchecked
@@ -648,6 +718,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 
 				'MsgBox "form string" & form_string
 				'MsgBox "all form array" & all_form_array
+				'
 				asset_count 	= 0 
 				atr_count 		= 0 
 				arep_count 		= 0 
@@ -664,25 +735,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				diet_count		= 0
 				Form_string = ""
 				all_form_array = ""
-				MsgBox "all form array" & all_form_array
+				'MsgBox "all form array" & all_form_array
 			'	MsgBox "form type" & form_type 'TEST
 				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
 			End If
 
-			'TODO: Error handling
-			' If add_to_array = false Then
-			' 	If form_type = "" Then 
-			' 		If ButtonPressed <> all_forms Then
-			' 			err_msg = err_msg & "-No form selected- select a form name, then select Add"
-			' 		End If
-			' 	End If 
-				
-			' 	If form_type <> "" Then
-			' 		If ButtonPressed <> clear_button Then err_msg = err_msg & "-Form already added, select a different form"
-			' 		If ButtonPressed = clear_button Then err_msg = err_msg & "-Form selections cleared."
-			' 	End If 
-			' End If
-
+			'If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
+			If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 		Loop until err_msg = ""
@@ -733,7 +792,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 140, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
 					CheckBox 15, 150, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
 					ButtonGroup ButtonPressed
-						'PushButton 70, 180, 70, 15, "Review Selections", review_selections
+						PushButton 40, 180, 45, 15, "Clear", clear_button
 						OkButton 95, 180, 45, 15
 						CancelButton 150, 180, 40, 15
 					Text 5, 5, 200, 10, "Select documents received, then Ok."
@@ -830,9 +889,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 Loop Until ButtonPressed = Ok
 
 'TODO: Add in any additonal readscreens etc.
-'MAXIS NAV: Hospice Read Screen ===========================================================================
+'MAXIS NAVIGATION ===========================================================================
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
-	If form_type_array(form_type_const, form_added) = "Hospice Transaction Form" Then
+	If form_type_array(form_type_const, maxis_panel_read) = "Hospice Transaction Form" Then	'MAXIS NAVIGATION FOR HOSPICE READ SCREEN
 		Call navigate_to_MAXIS_screen("CASE", "NOTE")
 		note_row = 5                                'beginning of listed case notes
 		one_year_ago = DateAdd("yyyy", -1, date)    'we will look back 1 year
@@ -911,6 +970,58 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		EMReadScreen date_of_death, 10, 19, 42
 		date_of_death = replace(date_of_death, " ", "/")
 		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
+	End If
+
+	If form_type_array(form_type_const, maxis_panel_read) = "AREP (Authorized Rep)" Then 'MAXIS NAVIGATION FOR AREP
+		Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+		arep_update_AREP_panel_checkbox = checked
+		AREP_recvd_date = arep_date_received
+
+		EMReadScreen arep_name, 37, 4, 32
+		arep_name = replace(arep_name, "_", "")
+		If arep_name <> "" Then
+			EMReadScreen arep_street_one, 22, 5, 32
+			EMReadScreen arep_street_two, 22, 6, 32
+			EMReadScreen arep_city, 15, 7, 32
+			EMReadScreen arep_state, 2, 7, 55
+			EMReadScreen arep_zip, 5, 7, 64
+
+			arep_street_one = replace(arep_street_one, "_", "")
+			arep_street_two = replace(arep_street_two, "_", "")
+			arep_street = arep_street_one & " " & arep_street_two
+			arep_street = trim(arep_street)
+			arep_city = replace(arep_city, "_", "")
+			arep_state = replace(arep_state, "_", "")
+			arep_zip = replace(arep_zip, "_", "")
+
+			EMReadScreen arep_phone_one, 14, 8, 34
+			EMReadScreen arep_ext_one, 3, 8, 55
+			EMReadScreen arep_phone_two, 14, 9, 34
+			EMReadScreen arep_ext_two, 3, 8, 55
+
+			arep_phone_one = replace(arep_phone_one, ")", "")
+			arep_phone_one = replace(arep_phone_one, "  ", "-")
+			arep_phone_one = replace(arep_phone_one, " ", "-")
+			If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+			arep_phone_two = replace(arep_phone_two, ")", "")
+			arep_phone_two = replace(arep_phone_two, "  ", "-")
+			arep_phone_two = replace(arep_phone_two, " ", "-")
+			If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+			arep_ext_one = replace(arep_ext_one, "_", "")
+			arep_ext_two = replace(arep_ext_two, "_", "")
+
+			EMReadScreen arep_forms_to_arep, 1, 10, 45
+			EMReadScreen arep_mmis_mail_to_arep, 1, 10, 77
+
+			If arep_forms_to_arep = "Y" Then arep_forms_to_arep_checkbox = checked
+			If arep_mmis_mail_to_arep = "Y" Then arep_mmis_mail_to_arep_checkbox = checked
+
+			arep_update_AREP_panel_checkbox = unchecked
+			MsgBox "pause after read screen"
+		End If
 	End If
 Next
 
@@ -1077,7 +1188,8 @@ Do
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
-			
+			MsgBox "arep rec date" & AREP_recvd_date
+			MsgBox "arep sig" & arep_signature_date
 			'TODO: error handling 
 			' Special diet: 
 				'If denied, state reason for ineligibility and date benefits are no longer issued in Comments field or create an additional field
@@ -1163,7 +1275,39 @@ Do
 				' 	err_msg = ""
 				' 	EVF_TIKL_checkbox = unchecked
 				' End If
+			'arep
+				' If trim(arep_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the AREP's name."
+				' If arep_update_AREP_panel_checkbox = checked Then
+				' 	If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then err_msg = err_msg & vbNewLine & "* Enter the street address of the AREP."
+				' 	If len(arep_name) > 37 Then err_msg = err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
+				' 	If len(arep_street) > 44 Then err_msg = err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
+				' 	If len(arep_city) > 15 Then err_msg = err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
+				' 	If len(arep_state) > 2 Then err_msg = err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
+				' 	If len(arep_zip) > 5 Then err_msg = err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
+				' End If
+				' If dhs_3437_checkbox = Checked Then arep_HC_AREP_checkbox = checked
+				' If HC_12729_checkbox = checked Then
+				' 	arep_SNAP_AREP_checkbox = checked
+				' 	arep_CASH_AREP_checkbox = checked
+				' End If
+				' If D405_checkbox = checked Then arep_SNAP_AREP_checkbox = checked
+				' If CAF_AREP_page_checkbox = checked Then
+				' 	arep_SNAP_AREP_checkbox = checked
+				' 	arep_CASH_AREP_checkbox = Checked
+				' End If
+				' If HCAPP_AREP_checkbox = checked Then arep_HC_AREP_checkbox = checked
+				' If power_of_attorney_checkbox = checked Then
+				' 	arep_SNAP_AREP_checkbox = checked
+				' 	arep_CASH_AREP_checkbox = Checked
+				' 	arep_HC_AREP_checkbox = checked
+				' End If
+				' If IsDate(AREP_recvd_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the form was received."
+				' IF arep_SNAP_AREP_checkbox <> checked AND arep_HC_AREP_checkbox <> checked AND arep_CASH_AREP_checkbox <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
+				' IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
+				' IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
+				' If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
 
+			'LTC 1503 -- didn't appear to be any error handling 
 
 			Call dialog_movement	'function to move throughout the dialogs
 						
@@ -1177,6 +1321,185 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
 
+'WRITE IN MAXIS===========================================================================
+For maxis_panel_write = 0 to Ubound(form_type_array, 2)	
+	If form_type_array(form_type_const, maxis_panel_write) = "AREP (Authorized Rep)" then 	' WRITE FOR AREP
+		end_msg = end_msg & vbNewLine & "AREP Information entered."
+		'formatting programs into one variable to write in case note
+		IF arep_SNAP_AREP_checkbox = checked THEN AREP_programs = "SNAP"
+		IF arep_HC_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", HC"
+		IF arep_CASH_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", CASH"
+		If left(AREP_programs, 1) = "," Then AREP_programs = right(AREP_programs, len(AREP_programs)-2)
+
+		docs_rec = docs_rec & ", AREP Form"
+
+		If arep_update_AREP_panel_checkbox = checked Then
+			Call MAXIS_background_check
+
+			MsgBox "arep sig date" & arep_signature_date
+
+			If IsDate(arep_signature_date) = TRUE Then
+				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
+			Else
+				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, AREP_recvd)
+			End If
+			MsgBox "arep sig ft mo/yr" & get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
+			MsgBox "doc date ft mo/yr" &get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_date_received)
+			Call back_to_SELF
+			MsgBox "am i back to self?"
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "AREP")
+				EMReadScreen panel_check, 4, 2, 53
+			Loop until panel_check = "AREP"
+
+			EMReadScreen arep_version, 1, 2, 73
+			If arep_version = "1" Then PF9
+			If arep_version = "0" Then Call write_value_and_transmit("NN", 20, 79)
+
+			'Writing to the panel
+			EMWriteScreen "                                     ", 4, 32
+			EMWriteScreen "                      ", 5, 32
+			EMWriteScreen "                      ", 6, 32
+			EMWriteScreen "               ", 7, 32
+			EMWriteScreen "  ", 7, 55
+			EMWriteScreen "     ", 7, 64
+
+			MsgBox "street" & arep_street
+
+			EMWriteScreen arep_name, 4, 32
+			arep_street = trim(arep_street)
+			If len(arep_street) > 22 Then
+				arep_street_one = ""
+				arep_street_two = ""
+				street_array = split(arep_street, " ")
+				For each word in street_array
+					If len(arep_street_one & word) > 22 Then
+						arep_street_two = arep_street_two & word & " "
+					Else
+						arep_street_one = arep_street_one & word & " "
+					End If
+				Next
+			Else
+				arep_street_one = arep_street
+			End If
+			EMWriteScreen arep_street_one, 5, 32
+			EMWriteScreen arep_street_two, 6, 32
+			EMWriteScreen arep_city, 7, 32
+			EMWriteScreen arep_state, 7, 55
+			EMWriteScreen arep_zip, 7, 64
+			EMWriteScreen "N", 5, 77
+
+			If arep_phone_one <> "" Then
+				write_phone_one = replace(arep_phone_one, "(", "")
+				write_phone_one = replace(write_phone_one, ")", "")
+				write_phone_one = replace(write_phone_one, "-", "")
+				write_phone_one = trim(write_phone_one)
+
+				EMWriteScreen left(write_phone_one, 3), 8, 34
+				EMwriteScreen right(left(write_phone_one, 6), 3), 8, 40
+				EMWriteScreen right(write_phone_one, 4), 8, 44
+
+				If arep_ext_one = "" Then
+					EMWriteScreen "   ", 8, 55
+				Else
+					EMWriteScreen arep_ext_one, 8, 55
+				End If
+			End If
+
+			If arep_phone_two <> "" Then
+				write_phone_two = replace(arep_phone_two, "(", "")
+				write_phone_two = replace(write_phone_two, ")", "")
+				write_phone_two = replace(write_phone_two, "-", "")
+				write_phone_two = trim(write_phone_two)
+
+				EMWriteScreen left(write_phone_two, 3), 8, 34
+				EMwriteScreen right(left(write_phone_two, 6), 3), 8, 40
+				EMWriteScreen right(write_phone_two, 4), 8, 44
+
+				If arep_ext_two = "" Then
+					EMWriteScreen "   ", 8, 55
+				Else
+					EMWriteScreen arep_ext_two, 8, 55
+				End If
+			End If
+
+			If arep_forms_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 45
+			If arep_forms_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 45
+			If arep_mmis_mail_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 77
+			If arep_mmis_mail_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 77
+
+			transmit
+		End If
+    End If
+
+	If form_type_array(form_type_const, maxis_panel_write) = "LTC-1503" then 	' WRITE FOR LTC 1503
+		end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
+		Original_footer_month = MAXIS_footer_month
+		Original_footer_year = MAXIS_footer_year
+		MAXIS_footer_month = faci_footer_month
+		MAXIS_footer_year = faci_footer_year
+		'LTC 1503 gets it's own case note
+		'navigating the script to the correct footer month
+		back_to_self
+		EMWriteScreen MAXIS_footer_month, 20, 43
+		EMWriteScreen MAXIS_footer_year, 20, 46
+		call navigate_to_MAXIS_screen("STAT", "FACI")
+		MsgBox "are we in faci?"
+		'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
+		'FACI
+		If ltc_1503_FACI_update_checkbox = checked then
+			call navigate_to_MAXIS_screen("STAT", "FACI")
+			EMReadScreen panel_max_check, 1, 2, 78
+			IF panel_max_check = "5" THEN
+				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerunit with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
+				If stop_or_continue = vbCancel Then script_end_procedure("~PT User Pressed Cancel")
+				If stop_or_continue = vbOk Then ltc_1503_FACI_update_checkbox = unchecked
+			ELSE
+				EMWriteScreen "NN", 20, 79
+				transmit
+			END IF
+		End If
+		If ltc_1503_FACI_update_checkbox = checked then
+			updated_FACI_checkbox = checked
+			EMWriteScreen ltc_1503_FACI_1503, 6, 43
+			If ltc_1503_level_of_care = "NF" then EMWriteScreen "42", 7, 43
+			If ltc_1503_level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+			If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+			If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+			If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+			if ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+			If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "44", 7, 43
+			If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+			If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+			If ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+			EMWriteScreen "N", 8, 43
+			MsgBox "pause to look at screen"
+			Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_admit_date, 0, 14, 47)
+			If ltc_1503_discharge_date<> "" then
+				Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_discharge_date, 0, 14, 71)
+				transmit
+				transmit
+			End if
+		End if
+
+		'HCMI
+		If ltc_1503_HCMI_update_checkbox = checked THEN
+			call navigate_to_MAXIS_screen("STAT", "HCMI")
+			EMReadScreen HCMI_panel_check, 1, 2, 78
+			IF HCMI_panel_check <> "0" Then
+				PF9
+			ELSE
+				EMWriteScreen "NN", 20, 79
+				transmit
+			END IF
+			EMWriteScreen "DP", 10, 57
+			transmit
+			transmit
+		END IF
+	End If
+Next
+
+
 'CASE NOTE===========================================================================
 'TODO- Hospice: Must keep the same header otherwise reading of past case notes won't work/continue -explore how to create separate case notes for each form
 		'Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
@@ -1185,6 +1508,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If form_type_array(form_type_const, form_count) = "Asset Statement" then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** ASSET STATEMENT RECEIVED ***")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 ' 'ATR Case Notes
 If form_type_array(form_type_const, form_count) = "Authorization to Release Information (ATR)" Then 
@@ -1220,12 +1546,41 @@ If form_type_array(form_type_const, form_count) = "Authorization to Release Info
 		CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
 	End If
 	CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'AREP Case Notes
 If form_type_array(form_type_const, form_count) = "AREP (Authorized Rep)" then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** AREP Received ***")
+    call write_variable_in_CASE_NOTE("* Received: " & AREP_recvd_date & ". AREP: " & arep_name)
+    If arep_dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
+    If arep_HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
+    If arep_D405_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
+        Call write_variable_in_CASE_NOTE("  - AREP also authorixed to get and use EBT Card.")
+    End If
+    If arep_CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
+    If arep_HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
+    If arep_power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
+    If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
+    If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
+    Call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
+    IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
+    IF arep_TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
+    If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
+'LTC Related I think
+' call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+' call write_bullet_and_variable_in_case_note("FACI", FACI)
+' call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+' call write_bullet_and_variable_in_case_note("DISA", DISA)
+
+
 End If
 'Change Reported Case Note
 If form_type_array(form_type_const, form_count) = "Change Report Form" Then 
@@ -1246,6 +1601,8 @@ If form_type_array(form_type_const, form_count) = "Change Report Form" Then
 	CALL write_bullet_and_variable_in_case_note("Verifs Requested", chng_verifs_requested)
 	CALL write_bullet_and_variable_in_case_note("The changes client reports", chng_changes_continue)
 	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'EVF Case Notes
@@ -1254,16 +1611,22 @@ If form_type_array(form_type_const, form_count) = "Employment Verification Form 
 	Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
 
     Call write_variable_in_CASE_NOTE("* EVF received " & evf_date_received & ": " & EVF_status_dropdown & "*")
+	evf_ref_numb = left(evf_client, 2)
+    docs_rec = docs_rec & ", EVF for M" & evf_ref_numb
     Call write_variable_in_CASE_NOTE("  - Employer Name: " & evf_employer)
-  '  Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
+  	Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
     'for additional information needed
     IF evf_info = "yes" then
-        Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & evf_info & " on " & evf_info_date & " by " & evf_request_info)
+        Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & evf_info & "-on " & evf_info_date & " by " & evf_request_info)
     	'If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
     Else
         Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
     END IF
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
+
 'Hospice Case Notes
 If form_type_array(form_type_const, form_count) = "Hospice Transaction Form" Then 
 	Call start_a_blank_case_note
@@ -1278,6 +1641,9 @@ If form_type_array(form_type_const, form_count) = "Hospice Transaction Form" The
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 'IAA Case Notes
 If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement (IAA)" Then 
@@ -1294,6 +1660,9 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement 
 	End If
 	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'IAA-SSI Case Notes
@@ -1307,36 +1676,85 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Authorizat
 	'If iaa_ssi_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	'If iaa_ssi_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_ssi_comments)
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'LTC 1503 Case Notes
 If form_type_array(form_type_const, form_count) = "LTC-1503" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** LTC-1503 FORM RECEIVED ***")
-End IF
+    If ltc_1503_processed_1503_checkbox = checked then
+      	call write_variable_in_CASE_NOTE("***Processed 1503 from " & ltc_1503_FACI_1503 & "***")
+    Else
+      	call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & ltc_1503_FACI_1503 & ", DID NOT PROCESS***")
+    End if
+    Call write_bullet_and_variable_in_case_note("Length of stay", ltc_1503_length_of_stay)
+    Call write_bullet_and_variable_in_case_note("Recommended level of care", ltc_1503_level_of_care)
+    Call write_bullet_and_variable_in_case_note("Admitted from", ltc_1503_admitted_from)
+    Call write_bullet_and_variable_in_case_note("Hospital admitted from", ltc_1503_hospital_admitted_from)
+    Call write_bullet_and_variable_in_case_note("Admit date", ltc_1503_admit_date)
+    Call write_bullet_and_variable_in_case_note("Discharge date", ltc_1503_discharge_date)
+    Call write_variable_in_CASE_NOTE("---")
+    If ltc_1503_updated_RLVA_checkbox = checked and ltc_1503_updated_FACI_checkbox = checked then
+    	Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
+    Else
+      	If ltc_1503_updated_RLVA_checkbox = checked then Call write_variable_in_case_note("* Updated RLVA.")
+      	If ltc_1503_updated_FACI_checkbox = checked then Call write_variable_in_case_note("* Updated FACI.")
+    End if
+    If ltc_1503_need_3543_checkbox = checked then Call write_variable_in_case_note("* A 3543 is needed for the client.")
+    If ltc_1503_need_3531_checkbox = checked then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
+    If ltc_1503_need_asset_assessment_checkbox = checked then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
+    If ltc_1503_sent_3050_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+    If ltc_1503_sent_5181_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
+    Call write_bullet_and_variable_in_case_note("Verifs needed", ltc_1503_verifs_needed)
+    If ltc_1503_sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & ltc_1503_sent_request_to)
+    If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+    If ltc_1503_TIKL_checkbox = checked then Call write_variable_in_case_note("TIKL'd for " & ltc_1503_TIKL_multiplier & " days to check length of stay.")
+    Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", ltc_1503_mets_case_number)
+    Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
+	CALL write_variable_in_case_note("   ")
+    Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
+    MAXIS_footer_month = Original_footer_month
+    MAXIS_footer_year = Original_footer_year
+End If
 
 'MOF Case Notes
 If form_type_array(form_type_const, form_count) = "Medical Opinion Form (MOF)" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** MEDICAL OPINION FORM RECEIVED ***")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'MTAF Case Notes
 If form_type_array(form_type_const, form_count) = "Minnesota Transition Application Form (MTAF)" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** MINNESOTA TRANSITION APPLICATION RECEIVED ***")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'PSN Case Notes
 If form_type_array(form_type_const, form_count) = "Professional Statement of Need (PSN)" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'SF Case Notes
 If form_type_array(form_type_const, form_count) = "Residence and Shelter Expenses Release Form" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** SHELTER FORM RECEIVED ***")
+	CALL write_variable_in_case_note("   ")
+	Call write_variable_in_case_note("---")
+    Call write_variable_in_case_note(worker_signature)
 End If
 
 'Special Diet Case Notes
@@ -1378,10 +1796,6 @@ End If
 
 'EVF 
 
-	' if evf_form_received_checkbox = checked Then
-	' 	evf_ref_numb = left(evf_client, 2)
-	' 	docs_rec = docs_rec & ", EVF for M" & evf_ref_numb
-
 	' 	'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
 	' 	If EVF_TIKL_checkbox = checked Then
 	' 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
@@ -1393,17 +1807,14 @@ End If
 	' 	End If
 	' End If
 
-	' If evf_form_received_checkbox = checked Then
-    ' call write_variable_in_CASE_NOTE("* EVF received " & evf_date_recvd & ": " & EVF_status_dropdown & "*")
-    ' Call write_variable_in_CASE_NOTE("  - Employer Name: " & employer)
-    ' Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
-    ' 'for additional information needed
-    ' IF info = "yes" then
-    '     Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & info & " on " & info_date & " by " & request_info)
-    ' 	If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
-    ' Else
-    '     Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
-    ' END IF
+'LTC 1503 
+    ' If length_of_stay = "30 days or less"   then TIKL_multiplier = 30
+    ' If length_of_stay = "31 to 90 days"     then TIKL_multiplier = 90
+    ' If length_of_stay = "91 to 180 days"    then TIKL_multiplier = 180
+    ' 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    ' If TIKL_checkbox = checked then Call create_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.", TIKL_multiplier, admit_date, False, TIKL_note_text)
+
+  
 	
 script_end_procedure ("Success! The script has ended. ")
 
