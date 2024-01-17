@@ -9428,9 +9428,9 @@ If run_return_contact = True Then
 										End If
 									ElseIf needed_info_array(found_quest)(question_type) = "unea" Then
 										If InStr(note_line, "RSDI - ") <> 0 Then
-											rsdi_start = InStr(note_line, "RSDI - ")
-											ui_start = InStr(note_line, "UI - ")
-											tribal_start = InStr(note_line, "Tribal - ")
+											rsdi_start = InStr(note_line, "RSDI -")
+											ui_start = InStr(note_line, "UI -")
+											tribal_start = InStr(note_line, "Tribal -")
 											needed_info_array(found_quest)(rsdi_caf_answer) = trim(mid(note_line, rsdi_start+7, 5))
 											If InStr(note_line, "$") <> 0 AND InStr(note_line, "$") < ui_start Then needed_info_array(found_quest)(rsdi_caf_amount) = trim(mid(note_line, InStr(note_line, "$"), ui_start-InStr(note_line, "$")))
 											needed_info_array(found_quest)(ui_caf_answer) = trim(mid(note_line, ui_start+5, 5))
@@ -9443,9 +9443,9 @@ If run_return_contact = True Then
 											' 		"mid(note_line, ui_start+5, 5) - " & mid(note_line, ui_start+5, 5) & vbCr &_
 											' 		"mid(note_line, tribal_start+9, 5) - " & mid(note_line, tribal_start+9, 5) & vbCr
 										ElseIf InStr(note_line, "SSI - ") <> 0 Then
-											ssi_start = InStr(note_line, "SSI - ")
-											wc_start = InStr(note_line, "WC - ")
-											cses_start = InStr(note_line, "CSES - ")
+											ssi_start = InStr(note_line, "SSI -")
+											wc_start = InStr(note_line, "WC -")
+											cses_start = InStr(note_line, "CSES -")
 											needed_info_array(found_quest)(ssi_caf_answer) = trim(mid(note_line, ssi_start+6, 5))
 											If InStr(note_line, "$") <> 0 AND InStr(note_line, "$") < wc_start Then needed_info_array(found_quest)(ssi_caf_amount) = trim(mid(note_line, InStr(note_line, "$"), wc_start-InStr(note_line, "$")))
 											needed_info_array(found_quest)(wc_caf_answer) = trim(mid(note_line, wc_start+5, 5))
@@ -9453,9 +9453,9 @@ If run_return_contact = True Then
 											needed_info_array(found_quest)(cses_caf_answer) = trim(mid(note_line, cses_start+7, 5))
 											If InStr(cses_start, note_line, "$") <> 0 Then needed_info_array(found_quest)(cses_caf_amount) = trim(mid(note_line, InStr(cses_start, note_line, "$"), len(note_line)-InStr(cses_start, note_line, "$")))
 										ElseIf InStr(note_line, "VA - ") <> 0 Then
-											va_start = InStr(note_line, "VA - ")
-											ret_start = InStr(note_line, "Ret - ")
-											other_start = InStr(note_line, "Other - ")
+											va_start = InStr(note_line, "VA -")
+											ret_start = InStr(note_line, "Ret -")
+											other_start = InStr(note_line, "Other -")
 											needed_info_array(found_quest)(va_caf_answer) = trim(mid(note_line, va_start+5, 5))
 											If InStr(note_line, "$") <> 0 AND InStr(note_line, "$") < ret_start Then needed_info_array(found_quest)(va_caf_amount) = trim(mid(note_line, InStr(note_line, "$"), ret_start-InStr(note_line, "$")))
 											needed_info_array(found_quest)(ret_caf_answer) = trim(mid(note_line, ret_start+6, 5))
