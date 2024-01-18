@@ -301,7 +301,7 @@ function hospice_dialog()
 	EditBox 310, 20, 45, 15, hosp_date_received		
 	DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
 	EditBox 100, 65, 205, 15, hosp_name
-	EditBox 100, 85, 80, 15, hops_npi_number
+	EditBox 100, 85, 80, 15, hosp_npi_number
 	EditBox 100, 105, 50, 15, hosp_entry_date
 	EditBox 205, 105, 50, 15, hosp_exit_date
 	EditBox 100, 125, 50, 15, hosp_mmis_updated_date
@@ -325,7 +325,7 @@ function hospice_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
 	Text 395, 35, 45, 10, "    --Forms--"		
 end function 
-Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hops_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
+Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
 	EditBox 175, 15, 45, 15, iaa_effective_date
@@ -698,50 +698,52 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
 				ReDim form_type_array(the_last_const, form_count)		
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
-
-				asset_checkbox = unchecked				'Resetting checkboxes to unchecked
-				atr_checkbox = unchecked				'Resetting checkboxes to unchecked
-				arep_checkbox = unchecked				'Resetting checkboxes to unchecked
-				change_checkbox = unchecked				'Resetting checkboxes to unchecked
-				evf_checkbox = unchecked				'Resetting checkboxes to unchecked
-				hospice_checkbox = unchecked			'Resetting checkboxes to unchecked
-				iaa_checkbox = unchecked				'Resetting checkboxes to unchecked
-				iaa_ssi_checkbox = unchecked			'Resetting checkboxes to unchecked
-				ltc_1503_checkbox = unchecked			'Resetting checkboxes to unchecked
-				mof_checkbox = unchecked				'Resetting checkboxes to unchecked
-				mtaf_checkbox = unchecked				'Resetting checkboxes to unchecked
-				psn_checkbox = unchecked				'Resetting checkboxes to unchecked
-				shelter_checkbox = unchecked			'Resetting checkboxes to unchecked
-				diet_checkbox = unchecked				'Resetting checkboxes to unchecked
-				form_type = ""							'Resetting dropdown to blank
+				Form_string = ""
+				all_form_array = ""
+				 
+				'Future Iteration: Counting quantity of each form
+				' asset_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' atr_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' arep_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' change_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' evf_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' hospice_checkbox = unchecked			'Resetting checkboxes to unchecked
+				' iaa_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' iaa_ssi_checkbox = unchecked			'Resetting checkboxes to unchecked
+				' ltc_1503_checkbox = unchecked			'Resetting checkboxes to unchecked
+				' mof_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' mtaf_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' psn_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' shelter_checkbox = unchecked			'Resetting checkboxes to unchecked
+				' diet_checkbox = unchecked				'Resetting checkboxes to unchecked
+				' form_type = ""							'Resetting dropdown to blank
 
 
 				'MsgBox "form string" & form_string
 				'MsgBox "all form array" & all_form_array
 				'
-				asset_count 	= 0 
-				atr_count 		= 0 
-				arep_count 		= 0 
-				change_count 	= 0
-				evf_count		= 0 
-				hosp_count		= 0 
-				iaa_count		= 0 
-				iaa_ssi_count	= 0
-				ltc_1503_count	= 0
-				mof_count		= 0 
-				mtaf_count		= 0 
-				psn_count		= 0 
-				sf_count		= 0 
-				diet_count		= 0
-				Form_string = ""
-				all_form_array = ""
+				'Future Iteration: Counting quantity of each form
+				' asset_count 	= 0 
+				' atr_count 		= 0 
+				' arep_count 		= 0 
+				' change_count 	= 0
+				' evf_count		= 0 
+				' hosp_count		= 0 
+				' iaa_count		= 0 
+				' iaa_ssi_count	= 0
+				' ltc_1503_count	= 0
+				' mof_count		= 0 
+				' mtaf_count		= 0 
+				' psn_count		= 0 
+				' sf_count		= 0 
+				' diet_count		= 0
+				
 				'MsgBox "all form array" & all_form_array
 			'	MsgBox "form type" & form_type 'TEST
 				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
 			End If
-
 			'If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
-			If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
+		'	If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 		Loop until err_msg = ""
@@ -752,7 +754,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 		Do
 			Do
 				ReDim form_type_array(the_last_const, form_count)		'Resetting any selections already made so the user can reselect correct forms using different format.
-				form_type_array(form_type_const, form_count) = Form_type
+				'form_type_array(form_type_const, form_count) = Form_type
                 form_count = 0							'Resetting the form count to 0 so that y_pos resets to 95. 
 				Form_string = ""						'Resetting string to nothing 
 				all_form_array = ""						'Resetting list of strings to nothing 
@@ -792,7 +794,6 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 140, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
 					CheckBox 15, 150, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
 					ButtonGroup ButtonPressed
-						PushButton 40, 180, 45, 15, "Clear", clear_button
 						OkButton 95, 180, 45, 15
 						CancelButton 150, 180, 40, 15
 					Text 5, 5, 200, 10, "Select documents received, then Ok."
@@ -901,8 +902,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			note_title = trim(note_title)
 
 			If left(note_title, 41) = "*** HOSPICE TRANSACTION FORM RECEIVED ***" Then      'if the note is for a Hospice form
-				EmWriteScreen "X", note_row, 3      'open the note
-				transmit
+				Call write_value_and_transmit("X", note_row, 3)	'open the note
 
 				this_row = 5            'this MAXIS is the top of the note body
 				Do
@@ -1188,8 +1188,8 @@ Do
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
-			MsgBox "arep rec date" & AREP_recvd_date
-			MsgBox "arep sig" & arep_signature_date
+			'MsgBox "arep rec date" & AREP_recvd_date
+			'MsgBox "arep sig" & arep_signature_date
 			'TODO: error handling 
 			' Special diet: 
 				'If denied, state reason for ineligibility and date benefits are no longer issued in Comments field or create an additional field
@@ -1335,18 +1335,12 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 		If arep_update_AREP_panel_checkbox = checked Then
 			Call MAXIS_background_check
-
-			MsgBox "arep sig date" & arep_signature_date
-
 			If IsDate(arep_signature_date) = TRUE Then
 				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
 			Else
 				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, AREP_recvd)
 			End If
-			MsgBox "arep sig ft mo/yr" & get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
-			MsgBox "doc date ft mo/yr" &get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_date_received)
 			Call back_to_SELF
-			MsgBox "am i back to self?"
 			Do
 				Call navigate_to_MAXIS_screen("STAT", "AREP")
 				EMReadScreen panel_check, 4, 2, 53
@@ -1398,7 +1392,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				EMWriteScreen left(write_phone_one, 3), 8, 34
 				EMwriteScreen right(left(write_phone_one, 6), 3), 8, 40
 				EMWriteScreen right(write_phone_one, 4), 8, 44
-
 				If arep_ext_one = "" Then
 					EMWriteScreen "   ", 8, 55
 				Else
@@ -1412,14 +1405,13 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				write_phone_two = replace(write_phone_two, "-", "")
 				write_phone_two = trim(write_phone_two)
 
-				EMWriteScreen left(write_phone_two, 3), 8, 34
-				EMwriteScreen right(left(write_phone_two, 6), 3), 8, 40
-				EMWriteScreen right(write_phone_two, 4), 8, 44
-
+				EMWriteScreen left(write_phone_two, 3), 9, 34
+				EMwriteScreen right(left(write_phone_two, 6), 3), 9, 40
+				EMWriteScreen right(write_phone_two, 4), 9, 44
 				If arep_ext_two = "" Then
-					EMWriteScreen "   ", 8, 55
+					EMWriteScreen "   ", 9, 55
 				Else
-					EMWriteScreen arep_ext_two, 8, 55
+					EMWriteScreen arep_ext_two, 9, 55
 				End If
 			End If
 
@@ -1436,8 +1428,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 		end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
 		Original_footer_month = MAXIS_footer_month
 		Original_footer_year = MAXIS_footer_year
-		MAXIS_footer_month = faci_footer_month
-		MAXIS_footer_year = faci_footer_year
+		MAXIS_footer_month = ltc_1503_faci_footer_month
+		MAXIS_footer_year = ltc_1503_faci_footer_year
 		'LTC 1503 gets it's own case note
 		'navigating the script to the correct footer month
 		back_to_self
@@ -1451,7 +1443,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			call navigate_to_MAXIS_screen("STAT", "FACI")
 			EMReadScreen panel_max_check, 1, 2, 78
 			IF panel_max_check = "5" THEN
-				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerunit with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
+				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerun it with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
 				If stop_or_continue = vbCancel Then script_end_procedure("~PT User Pressed Cancel")
 				If stop_or_continue = vbOk Then ltc_1503_FACI_update_checkbox = unchecked
 			ELSE
@@ -1473,9 +1465,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
 			If ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
 			EMWriteScreen "N", 8, 43
-			MsgBox "pause to look at screen"
 			Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_admit_date, 0, 14, 47)
-			If ltc_1503_discharge_date<> "" then
+			If ltc_1503_discharge_date <> "" then
 				Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_discharge_date, 0, 14, 71)
 				transmit
 				transmit
@@ -1656,7 +1647,7 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement 
 		CALL write_variable_in_case_note("* Signed within 30 days of receiving Combined Application Form or Change Report Form.")
 	End If
 	If iaa_outside_30_checkbox = checked Then 
-		CALL write_variable_in_case_note("* NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")
+		CALL write_variable_in_case_note("* NOT signed within 30 days of receiving Combined Application Form or Change Report Form. IAA forms signed by the applicant/participant more than 30 days before they submit a signed Combined Application Form (CAF) or Change Report Form (if participant is already open on other cash assistance) are invalid.")
 	End If
 	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
@@ -1673,8 +1664,13 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Authorizat
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_ssi_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_ssi_member_dropdown)
 	CALL write_bullet_and_variable_in_case_note("Assistance Type", iaa_ssi_type_assistance)
-	'If iaa_ssi_within_30_checkbox = checked Then CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
-	'If iaa_ssi_outside_30_checkbox = checked Then CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.")	'TODO FIX
+
+	If iaa_ssi_within_30_checkbox = checked Then 
+		CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	
+	End If
+	If iaa_ssi_outside_30_checkbox = checked Then 
+		CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.IAA forms signed by the applicant/participant more than 30 days before they submit a signed Combined Application Form (CAF) or Change Report Form (if participant is already open on other cash assistance) are invalid.")
+	End If
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_ssi_comments)
 	CALL write_variable_in_case_note("   ")
 	Call write_variable_in_case_note("---")
@@ -1816,7 +1812,7 @@ End If
 
   
 	
-script_end_procedure ("Success! The script has ended. ")
+script_end_procedure_with_error_report(end_msg)
 
 
 
