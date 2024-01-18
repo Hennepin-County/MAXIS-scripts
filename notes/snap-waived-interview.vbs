@@ -264,6 +264,10 @@ Function needed_info_dialog(needed_info_array)
 
 		Text 245, 320, 75, 10, "Date/Time of Contact:"
         EditBox 245, 330, 135, 15, when_contact_was_made
+
+		If previous_verif_found = False Then Text 20, 355, 250, 10, "No Previous Verification Information Found"
+		If previous_verif_found = False Then Text 20, 365, 250, 10, "Check ECF or CASE/NOTEs to ensure all previous verifications are known."
+		If previous_verif_found = True Then PushButton 20, 350, 125, 15, "View Previous Verifications", view_previous_verifs_btn
 	End If
 	PushButton 345, 350, 75, 15, "Complete Contact", contact_completed
 	If last_page <> page_display Then PushButton 290, 350, 50, 15, "Next", next_btn
@@ -360,17 +364,23 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
 		y_pos = y_pos + 25
 	Elseif needed_info(1) = "jobs" Then
-		grp_len = 75
+		grp_len = 90
 		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 			' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 25
+			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
 		next
 		GroupBox 5, y_pos, 475, grp_len, needed_info(0)
 		PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
 		y_pos = y_pos + 15
 		Text 15, y_pos, 70, 10, "CAF Answer: " & needed_info(3)
 		y_pos = y_pos + 15
-		Text 15, y_pos, 460, 20, "Write-in: " & needed_info(4)
+		Text 15, y_pos, 350, 20, "write-in:"
+		If needed_info(6) = "" Then
+			Text 45, y_pos, 425, 15, needed_info(4)
+		Else
+			Text 40, y_pos, 315, 15, needed_info(4)
+			Text 360, y_pos, 110, 10, "Verification - " & needed_info(6)
+		End If
 		y_pos = y_pos + 15
 		Text 15, y_pos, 450, 10, "Details: " & needed_info(5)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
@@ -385,18 +395,21 @@ function create_info_needed_in_dialog(needed_info)
 			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 				' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
 				If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-					If First_job = TRUE Then y_pos = y_pos + 20
+					If First_job = TRUE Then y_pos = y_pos + 10
 					First_job = FALSE
-					Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
-					'If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 395, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
-					PushButton 450, y_pos-5, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
+					If JOBS_ARRAY(verif_yn, each_job) = "" Then Text 15, y_pos, 440, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job)
+					If JOBS_ARRAY(verif_yn, each_job) <> "" Then Text 15, y_pos, 440, 10, "Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & "   - Verification - " & JOBS_ARRAY(verif_yn, each_job)
+					PushButton 455, y_pos, 20, 10, "EDIT", JOBS_ARRAY(jobs_edit_btn, each_job)
 					y_pos = y_pos + 15
 				End If
 			next
-			If First_job = TRUE Then y_pos = y_pos + 10
+			y_pos = y_pos + 10
+			' If First_job = True Then
+			' If First_job = FALSE Then y_pos = y_pos + 20
 		Text 15, y_pos, 60, 10, "Info Provided: "
 		EditBox 60, y_pos - 5, 405, 15, needed_info(8)
 		y_pos = y_pos + 20
+		If First_job = FALSE Then y_pos = y_pos + 10
 
 	ElseIf needed_info(1) = "shel" Then
 		GroupBox 5, y_pos, 475, 140, needed_info(0)
@@ -6381,11 +6394,11 @@ function write_verification_CASE_NOTE(create_verif_note)
 
 	    Call start_a_blank_CASE_NOTE
 
-	    If run_return_contact = True Then 
+	    If run_return_contact = True Then
 			Call write_variable_in_CASE_NOTE("ADDITIONAL VERIFICATIONS REQUESTED")
 		Else
 			Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
-		End If 
+		End If
 
 	    Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
 
@@ -8793,6 +8806,7 @@ open_cs_7635_doc				= 726
 work_rules 						= 727
 contact_completed 				= 728
 no_contact						= 729
+view_previous_verifs_btn		= 730
 btn_placeholder = 4000
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
@@ -8858,7 +8872,7 @@ Do
 		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
 		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog" 
+		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
 		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"No Form - Return Contact" +chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", CAF_form '"HUF (DHS-8107)"+chr(9)++chr(9)+"Combined AR for Certain Pops (DHS-3727)"
 		  EditBox 75, 85, 145, 15, worker_signature
@@ -9232,10 +9246,10 @@ Do
 	IF next_note_date = "        " then Exit Do
 Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
 
-If questions_found = 0 AND CAF_form = "No Form - Return Contact" Then 
+If questions_found = 0 AND CAF_form = "No Form - Return Contact" Then
 	end_msg = "                  ***Info needed case note not found!***" & vbCr & "You selected return contact functionality, but the script was unable to locate an Info Needed case note from a previous application screening. Please try again and select the form type you are screening, or run a different script for the action you are taking."
 	script_end_procedure(end_msg)
-End If 
+End If
 ' PF3
 
 If questions_found <> 0 Then
@@ -9319,12 +9333,15 @@ If questions_found <> 0 Then
 	' 	MsgBox "phrasing - " & needed_info_array(found_quest)(phrasing) & vbCr & "question_type - " & needed_info_array(found_quest)(question_type) & vbCr & "answer_needed - " & needed_info_array(found_quest)(answer_needed) & vbCr & "details - " & needed_info_array(found_quest)(details) & vbCr & "help_info - " & needed_info_array(found_quest)(help_info)
 	' Next
 
-	follow_up_contact = MsgBox("It appears the application form (CAF) was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
-							   "Are you in contact with the resident now and would like to address the items we previously determined will need follow-up?", vbQuestion + vbYesNoCancel, "CAF Review Info Note Found")
+	If CAF_form = "No Form - Return Contact" Then
+		run_return_contact = True
+	Else
+		follow_up_contact = MsgBox("It appears the application form (CAF) was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
+								"Are you in contact with the resident now and would like to address the items we previously determined will need follow-up?", vbQuestion + vbYesNoCancel, "CAF Review Info Note Found")
 
-	If follow_up_contact = vbCancel Then script_end_procedure("~PT: user pressed cancel")
-	If follow_up_contact = vbYes Then run_return_contact = True
-
+		If follow_up_contact = vbCancel Then script_end_procedure("~PT: user pressed cancel")
+		If follow_up_contact = vbYes Then run_return_contact = True
+	End If
 End If
 
 If run_return_contact = True Then
@@ -9507,9 +9524,9 @@ If run_return_contact = True Then
 											employer_start = InStr(note_line, "Employer:")
 											employee_start = InStr(note_line, "for ")
 											earnings_start = InStr(note_line, "monthly earnings $")
-											JOBS_ARRAY(jobs_employer_name, info_needed_job_count) = trim(mid(note_line, employer_start+10, employee_start-employer_start+10))
-											JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(note_line, employee_start+4, earnings_start-employee_start+4))
-											JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(note_line, earnings_start+18, len(note_line)-employeearnings_starte_start+18))
+											JOBS_ARRAY(jobs_employer_name, info_needed_job_count) = trim(mid(note_line, employer_start+10, employee_start-employer_start-10))
+											JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(note_line, employee_start+4, earnings_start-employee_start-4))
+											JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(note_line, earnings_start+18, len(note_line)-employeearnings_starte_start-18))
 										ElseIf InStr(note_line, "WriteIn Answer -") <> 0 Then
 											reading_write_in = True
 											reading_verif_details = False
@@ -9833,6 +9850,216 @@ If run_return_contact = True Then
 
 	Loop until notes_is_continued = False
 
+	Call navigate_to_MAXIS_screen("CASE", "NOTE")
+	note_row = 5            'resetting the variables on the loop
+	note_date = ""
+	note_title = ""
+	verifs_in_case_note = ""
+	Do
+		EMReadScreen note_date, 8, note_row, 6      'reading the note date
+		EMReadScreen note_title, 55, note_row, 25   'reading the note header
+		note_title = trim(note_title)
+		open_note = False
+		If InStr(note_title, "~ SNAP application reviewed") <> 0 Then Exit Do
+
+		If InStr(note_title, "Application Check") <> 0 Then
+			Call write_value_and_transmit("X", note_row, 3)
+			in_note_row = 4
+
+			Do
+				EMReadScreen note_header, 24, in_note_row, 3
+
+				If note_header = "* Pending Verifications:" Then
+					verifs_in_case_note = verifs_in_case_note & vbCr & "CASE NOTE from " & note_date & "-------------------------------------------------------" & vbCr
+					Do
+						EMReadScreen case_note_line, 78, in_note_row, 3
+						enter_new_line = False
+						' If right(case_note_line, 2) = "  " Then enter_new_line = True
+						' If right(case_note_line, 2) = ". " Then enter_new_line = True
+						' If right(case_note_line, 1) = "." Then enter_new_line = True
+						verifs_in_case_note = verifs_in_case_note & "" & trim(replace(case_note_line, "* Pending Verifications:", ""))
+						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & vbCr
+
+						in_note_row = in_note_row + 1
+						If in_note_row >= 18 Then
+							PF8
+							in_note_row = 4
+							EMReadScreen end_of_notes, 9, 24, 14
+							If end_of_notes = "LAST PAGE" Then Exit Do
+						End if
+						EMReadScreen next_header, 2, in_note_row, 3
+					Loop until next_header = "* " or next_header = "--"
+				End If
+
+				If verifs_in_case_note <> "" Then
+					verifs_in_case_note = verifs_in_case_note & vbCr & "----------------------------------------------------------------------------------------" & vbCr & vbCr
+					' MsgBox verifs_in_case_note & vbCr & "1"
+					Exit Do
+				End If
+				in_note_row = in_note_row + 1
+				If in_note_row >= 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+			Loop until trim(next_case_note_line) = ""
+
+			PF3
+		End If
+
+		If InStr(note_title, ">>>Verifications Requested<<<") <> 0 or InStr(note_title, ">>>POSTPONED VERIFICATIONS REQUESTED") <> 0 or InStr(note_title, "***Verifications Still Needed***") <> 0 Then
+			Call write_value_and_transmit("X", note_row, 3)
+			in_note_row = 4
+			verifs_in_case_note = verifs_in_case_note & vbCr & "CASE NOTE from " & note_date & "-------------------------------------------------------" & vbCr
+
+			Do
+
+				EMReadScreen case_note_line, 78, in_note_row, 3
+				if trim(case_note_line) = "---" Then Exit Do
+
+				verifs_in_case_note = verifs_in_case_note & "" & case_note_line & vbCr
+
+				in_note_row = in_note_row + 1
+				If in_note_row >= 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+			Loop until trim(next_case_note_line) = ""
+			verifs_in_case_note = verifs_in_case_note & "----------------------------------------------------------------------------------------" & vbCr & vbCr
+			' MsgBox verifs_in_case_note & vbCr & "2"
+
+			PF3
+		End If
+
+		If InStr(note_title, "VERIFICATIONS REQUESTED") <> 0 Then
+
+			Call write_value_and_transmit("X", note_row, 3)
+			in_note_row = 4
+
+			Do
+				EMReadScreen note_header, 36, in_note_row, 3
+				' MsgBox "note_header - " & note_header & vbCr & vbCr & "verifs_in_case_note - " & verifs_in_case_note
+				If note_header = "List of all verifications requested:" Then
+					verifs_in_case_note = verifs_in_case_note & vbCr & "CASE NOTE from " & note_date & "-------------------------------------------------------" & vbCr
+					in_note_row = in_note_row + 1
+					Do
+						EMReadScreen case_note_line, 78, in_note_row, 3
+						' MsgBox "case_note_line - " & case_note_line & vbCr & vbCr & "verifs_in_case_note - " & verifs_in_case_note
+						enter_new_line = False
+						' If right(case_note_line, 2) = "  " Then enter_new_line = True
+						' If right(case_note_line, 2) = ". " Then enter_new_line = True
+						' If right(case_note_line, 1) = "." Then enter_new_line = True
+						verifs_in_case_note = verifs_in_case_note & "" & trim(case_note_line) & vbCr
+						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & vbCr
+
+						in_note_row = in_note_row + 1
+						If in_note_row >= 18 Then
+							PF8
+							in_note_row = 4
+							EMReadScreen end_of_notes, 9, 24, 14
+							' MsgBox "end_of_notes - " & end_of_notes'' & vbCr & "in_note_row - "
+							If end_of_notes = "LAST PAGE" Then Exit Do
+						End if
+						EMReadScreen next_header, 3, in_note_row, 3
+					Loop until next_header = "---"
+
+					verifs_in_case_note = verifs_in_case_note & vbCr &"----------------------------------------------------------------------------------------" & vbCr & vbCr
+					' MsgBox verifs_in_case_note & vbCr & "3"
+
+				End If
+				' MsgBox "verifs_in_case_note: ~" & verifs_in_case_note & "~" & vbCr & "in_note_row - " & in_note_row
+				If verifs_in_case_note <> "" Then
+					Exit Do
+				End If
+				in_note_row = in_note_row + 1
+				If in_note_row >= 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+				' MsgBox "next_case_note_line - " & next_case_note_line
+			Loop until trim(next_case_note_line) = ""
+
+			PF3
+
+
+
+		End If
+
+		If verifs_in_case_note <> "" Then
+			verifs_in_case_note = trim(verifs_in_case_note)
+			Do
+				verifs_in_case_note = replace(verifs_in_case_note, "  ", " ")
+			Loop until InStr(verifs_in_case_note, "  ") = 0
+			' If right(verifs_in_case_note, 1)  =";" Then
+			' 	verifs_in_case_note = verifs_in_case_note & " "
+			' ElseIf right(verifs_in_case_note, 2)  <>"; " Then
+			' 	verifs_in_case_note = verifs_in_case_note & "; "
+			' End If
+			Exit Do
+		End if
+
+		IF note_date = "        " then Exit Do
+		note_row = note_row + 1
+		IF note_row = 19 THEN
+			PF8
+			note_row = 5
+		END IF
+		EMReadScreen next_note_date, 8, note_row, 6
+		IF next_note_date = "        " then Exit Do
+	Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
+
+	previous_verifs_message = "These are the Verifications that were requested with the initial review of the SNAP Application:" & vbCr & vbCr
+	' previous_verifs_message = previous_verifs_message & ""
+	previous_verif_found = False
+	For found_quest = 1 to UBound(needed_info_array)
+		' MsgBox "QUESTION - " & needed_info_array(found_quest)(phrasing)  & vbCr & vbCr & "VERIF - " & needed_info_array(found_quest)(verif_select)
+		If needed_info_array(found_quest)(verif_select) <> "" Then
+			previous_verifs_message = previous_verifs_message & needed_info_array(found_quest)(phrasing) & vbCr
+			previous_verifs_message = previous_verifs_message & "- CAF Answer: " & needed_info_array(found_quest)(caf_answer) & vbCr
+			previous_verifs_message = previous_verifs_message & "    * Verification: " & needed_info_array(found_quest)(verif_select) & vbCr
+			previous_verifs_message = previous_verifs_message & "      Detail: " & needed_info_array(found_quest)(verif_detail) & vbCr & vbCr
+			' previous_verifs_message = previous_verifs_message & ""
+			' previous_verifs_message = previous_verifs_message & ""
+			previous_verif_found = True
+		End If
+		If needed_info_array(found_quest)(question_type) = "jobs" Then
+			job_with_verif = False
+			for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
+				If JOBS_ARRAY(verif_yn, each_job) <> "" Then
+					If job_with_verif = False Then previous_verifs_message = previous_verifs_message & "- CAF Answer: " & needed_info_array(found_quest)(caf_answer) & vbCr & vbCr
+					job_with_verif = True
+					previous_verifs_message = previous_verifs_message & "    Employer: " & JOBS_ARRAY(jobs_employer_name, each_job) & "  - Employee: " & JOBS_ARRAY(jobs_employee_name, each_job) & "   - Gross Monthly Earnings: $ " & JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) & vbCr
+					previous_verifs_message = previous_verifs_message & "    * Verification: " & JOBS_ARRAY(verif_yn, each_job) & vbCr
+					previous_verifs_message = previous_verifs_message & "      Detail: " & JOBS_ARRAY(verif_details, each_job) & vbCr & vbCr
+
+				End If
+			next
+		End If
+		If needed_info_array(found_quest)(question_type) = "qual" Then
+			If InStr(previous_verifs_message, "CAF Qualifying Questions need to be answered.") = 0 Then
+				previous_verifs_message = previous_verifs_message & "CAF Qualifying Questions need to be answered." & vbCr & vbCr
+			End If
+			previous_verif_found = True
+		End If
+	Next
+	If verifs_in_case_note <> "" Then
+		previous_verifs_message = previous_verifs_message & "Verifications listed in CASE/NOTE" & vbCr & vbCr & verifs_in_case_note & vbCr & vbCr
+
+		previous_verif_found = True
+	End If
+
+	Do
+		If right(previous_verifs_message, 1) = vbCr Then previous_verifs_message = left(previous_verifs_message, len(previous_verifs_message)-1)
+	Loop until right(previous_verifs_message, 1) <> vbCr
+
 	If cash_request = true Then MSgbox "This app has requested cash. If you reach the resident and they wish to complete the interview, press no contact made on the next dialog to case note the screening then run NOTES - Interview to complete a full interview for all programs."
 	page_display = q_page_1
 	q_page_6				= 10
@@ -9865,6 +10092,9 @@ If run_return_contact = True Then
 					previous_button_pressed = ButtonPressed
 				Loop Until err_msg = ""
 				call dialog_movement
+				If ButtonPressed = view_previous_verifs_btn Then
+					MsgBox previous_verifs_message
+				End If
 			Loop Until contact_status <> ""
 
 			If ButtonPressed = contact_completed Then
