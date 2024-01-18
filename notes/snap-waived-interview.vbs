@@ -6381,7 +6381,11 @@ function write_verification_CASE_NOTE(create_verif_note)
 
 	    Call start_a_blank_CASE_NOTE
 
-	    Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
+	    If run_return_contact = True Then 
+			Call write_variable_in_CASE_NOTE("ADDITIONAL VERIFICATIONS REQUESTED")
+		Else
+			Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
+		End If 
 
 	    Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
 
@@ -9298,6 +9302,7 @@ If questions_found <> 0 Then
 				needed_info_array(found_quest)(question_type) = questions_array(match_question)(question_type)
 				needed_info_array(found_quest)(answer_needed) = questions_array(match_question)(answer_needed)
 				needed_info_array(found_quest)(help_info) = questions_array(match_question)(help_info)
+				needed_info_array(found_quest)(verif_btn) = questions_array(match_question)(verif_btn)
 				' MsgBox "needed_info_array - " & trim(mid(needed_info_array(found_quest)(phrasing), 3, 33)) & vbCr & "questions_array - " & trim(mid(questions_array(match_question)(phrasing), 3, 33)) & vbCr & vbCr & needed_info_array(found_quest)(question_type)
 				If needed_info_array(found_quest)(question_type) = "jobs" Then job_array_for_info_needed = True
 
@@ -9879,6 +9884,8 @@ If run_return_contact = True Then
 	Loop Until are_we_passworded_out = false
 
 	call write_needed_info_CASE_NOTE(needed_info_array)
+	PF3
+	Call write_verification_CASE_NOTE(create_verif_note)
 
 	name_of_script = "NOTES - SNAP Waived Interview - Return Contact.vbs"
 	end_msg = "CASE/NOTE created with details from the Contact with the Resident to resolve any additional information needed for the SNAP request."
