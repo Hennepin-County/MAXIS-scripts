@@ -8858,9 +8858,9 @@ Do
 		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
 		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog"
+		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog" 
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
-		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", CAF_form '"HUF (DHS-8107)"+chr(9)++chr(9)+"Combined AR for Certain Pops (DHS-3727)"
+		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"No Form - Return Contact" +chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", CAF_form '"HUF (DHS-8107)"+chr(9)++chr(9)+"Combined AR for Certain Pops (DHS-3727)"
 		  EditBox 75, 85, 145, 15, worker_signature
 		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
 		  ButtonGroup ButtonPressed
@@ -9231,6 +9231,11 @@ Do
 	EMReadScreen next_note_date, 8, note_row, 6
 	IF next_note_date = "        " then Exit Do
 Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
+
+If questions_found = 0 AND CAF_form = "No Form - Return Contact" Then 
+	end_msg = "                  ***Info needed case note not found!***" & vbCr & "You selected return contact functionality, but the script was unable to locate an Info Needed case note from a previous application screening. Please try again and select the form type you are screening, or run a different script for the action you are taking."
+	script_end_procedure(end_msg)
+End If 
 ' PF3
 
 If questions_found <> 0 Then
