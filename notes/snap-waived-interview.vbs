@@ -367,7 +367,7 @@ function create_info_needed_in_dialog(needed_info)
 		grp_len = 90
 		for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 			' If JOBS_ARRAY(jobs_employer_name, each_job) <> "" AND JOBS_ARRAY(jobs_employee_name, each_job) <> "" AND JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" AND JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then
-			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 20
+			If JOBS_ARRAY(jobs_employer_name, each_job) <> "" OR JOBS_ARRAY(jobs_employee_name, each_job) <> "" OR JOBS_ARRAY(jobs_gross_monthly_earnings, each_job) <> "" OR JOBS_ARRAY(jobs_hourly_wage, each_job) <> "" Then grp_len = grp_len + 15
 		next
 		GroupBox 5, y_pos, 475, grp_len, needed_info(0)
 		PushButton 425, y_pos, 55, 10, "ADD JOB", add_job_btn
@@ -9524,9 +9524,32 @@ If run_return_contact = True Then
 											employer_start = InStr(note_line, "Employer:")
 											employee_start = InStr(note_line, "for ")
 											earnings_start = InStr(note_line, "monthly earnings $")
-											JOBS_ARRAY(jobs_employer_name, info_needed_job_count) = trim(mid(note_line, employer_start+10, employee_start-employer_start-10))
-											JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(note_line, employee_start+4, earnings_start-employee_start-4))
-											JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(note_line, earnings_start+18, len(note_line)-employeearnings_starte_start-18))
+											If employer_start <> 0 and employee_start <> 0 and earnings_start <> 0 Then
+												JOBS_ARRAY(jobs_employer_name, info_needed_job_count) = trim(mid(note_line, employer_start+10, employee_start-employer_start-10))
+												JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(note_line, employee_start+4, earnings_start-employee_start-4))
+												JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(note_line, earnings_start+18, len(note_line)-employeearnings_starte_start-18))
+											Else
+												in_note_row = in_note_row + 1
+												If in_note_row = 18 Then
+													PF8
+													EMReadScreen end_of_note, 9, 24, 14
+													If end_of_note = "LAST PAGE" Then
+														reached_end_of_notes = True
+														continue_a_current_question = True
+														resume_question_number = found_quest
+														Exit Do
+													End If
+													in_note_row = 4
+												End If
+												EMReadscreen next_note_line, 78, in_note_row, 3
+												full_note_line = trim(note_line) & " " & trim(next_note_line)
+												employer_start = InStr(full_note_line, "Employer:")
+												employee_start = InStr(full_note_line, "for ")
+												earnings_start = InStr(full_note_line, "monthly earnings $")
+												JOBS_ARRAY(jobs_employer_name, info_needed_job_count) = trim(mid(full_note_line, employer_start+10, employee_start-employer_start-10))
+												JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(full_note_line, employee_start+4, earnings_start-employee_start-4))
+												JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(full_note_line, earnings_start+18, len(full_note_line)-employeearnings_starte_start-18))
+											End If
 										ElseIf InStr(note_line, "WriteIn Answer -") <> 0 Then
 											reading_write_in = True
 											reading_verif_details = False
