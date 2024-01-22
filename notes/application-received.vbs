@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("01/22/2023", "BUG FIX - the script would error anytime an apostrophe (') was in the case name when loading into a data table at the very end. This fix will resolve this error by substituting a dash in place of the apostrophe.", "Casey Love, Hennepin County")
 call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 CALL changelog_update("04/24/2023", "Changed the CASE/NOTE for the Expedited Screening to a standard number format and align for easier viewing.", "Casey Love, Hennepin County")
@@ -165,6 +166,7 @@ IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is
 MAXIS_background_check      'Making sure we are out of background.
 EMReadScreen initial_pw_for_data_table, 7, 21, 17
 EMReadScreen case_name_for_data_table, 20, 21, 46
+case_name_for_data_table = replace(case_name_for_data_table, "'", "-")
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
