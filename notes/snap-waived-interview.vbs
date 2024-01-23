@@ -8024,6 +8024,30 @@ const cses_caf_amount	= 28
 const other_caf_answer	= 29
 const other_caf_amount	= 30
 
+'Text for question help popups
+eats_help	= "This info is mandatory if answered No or blank and there are optional unit members in the household."
+q_2_help 	= "This info is mandatory if answer is yes, and it is a multi-member unit with members over 60 or potentially disabled based on MAXIS or application info."
+schl_help = "This info is mandatory if answer is yes, and information about who in the household is a student is needed."
+temp_help = "This info is not required, there are no temporary absence provisions for SNAP."
+tlr_help = "This info is needed if the answer is yes and we do not have information about the status or which members. The information is mandatory if needed to determine eligibility, such as for a TLR exemption."
+stwk_help = "This info is mandatory if answered is yes or the application indicates that a job ended or was refused in the last 60 days."
+jobs_past_help = "This info is optional and should be requested if answered yes and the info is needed to remove past counted TLR months. A job ending within the last 60 days is mandatory information."
+jobs_help = "This information is mandatory if the client selects yes, or the existence of earned income is indicated in maxis or elsewhere in the case file."
+busi_help = "If answered yes, information on expected income is mandatory."
+changes_help = "If answered yes, information on expected income changes is mandatory."
+pwe_help = "See CM 28.03.06 For info on determining the PWE when one is not designated."
+unea_help = "Unearned income information is mandatory if any of the income types are marked yes and we do not have sufficient information on file to determine eligibility. VerifyMN can be used to obtain needed info for RSDI/SSI. "
+stin_help = "Information on student income is mandatory if this question is marked yes or other information indicates a unit member is a higher-ed student."
+shel_help = "Information is needed if any shelter expenses are marked yes or were indicated on CAF1. This is optional information."
+hest_help = "More information is needed if the question is blank, to determine if the resident may be eligible for a deduction including due to past receipt of LIHEAP funds. This is optional information."
+deduct_help = "More information is needed if marked yes. This is optional information."
+fmed_help = "More information is needed if marked yes, and there are unit members that would potentially qualify for the deduction. This is optional information."
+asset_help = "More information is needed only if yes is selected for any LIQUID assets (Cash, Bank accounts, electronic payment card) AND that information is necessary to determine whether the case is expedited for purposes of postponing verifications"
+not_snap_help = "Not a required question for SNAP applications."
+recert_help = "More information is needed only if marked yes and the application is being used for a recertification."
+arep_help = "Information is not required, but more information is needed if an arep is indicated but all info is not provided."
+qualification_help = "More information is needed for any qualification question left blank or marked yes. All CAFs received through MNBenefits will have some of these questions blank and require more information."
+
 
 ' Question text for the SNAP App for Srs (DHS-5223F)
 'dim senior(10)
@@ -8285,7 +8309,7 @@ caf(26) = caf_26
 caf(27) = caf_27
 caf(28) = caf_28
 caf(29) = caf_29
- for cf =25 to 29
+for cf = 25 to 29
 	caf(cf)(1) = "qual"
 	caf(cf)(2) = "mandatory"
 	caf(cf)(9) =  qualification_help
@@ -8947,37 +8971,6 @@ If CAF_form = "CAF (DHS-5223)" OR CAF_form = "HUF (DHS-8107)" OR CAF_Form = "Com
 If CAF_form = "SNAP App for Srs (DHS-5223F)" Then form_type = "senior"
 If CAF_form = "MNbenefits" Then form_type= "MNBenefits"
 
-
-'The following sections assign the text for each question to be shown based on the application type
-'NOTE TO SELF: use if question_jobs_text <> "" to call each one, ditch the dictionary
-'OR make me a function, use an object or array for easy passing. May make assigning extra info tough
-'!!!! MAKE THE DIALOG PORTIONS FUNCTIONS - generic one, then ones for jobs, etc. enter_question_into_dialog(question_text, question_type, other_info), could then use if/thens for each app type to lay it out in order
-'Could then just use an array/ string thing or dictionary for the client contact, and have it use dictionary - if question_list.exists question_unea then call enter_question_into_dialog
-'TODO Read a series of question objects from the case note into an array
-
-'Text for question help popups
-eats_help	= "This info is mandatory if answered No or blank and there are optional unit members in the household."
-q_2_help 	= "This info is mandatory if answer is yes, and it is a multi-member unit with members over 60 or potentially disabled based on MAXIS or application info."
-schl_help = "This info is mandatory if answer is yes, and information about who in the household is a student is needed."
-temp_help = "This info is not required, there are no temporary absence provisions for SNAP."
-tlr_help = "This info is needed if the answer is yes and we do not have information about the status or which members. The information is mandatory if needed to determine eligibility, such as for a TLR exemption."
-stwk_help = "This info is mandatory if answered is yes or the application indicates that a job ended or was refused in the last 60 days."
-jobs_past_help = "This info is optional and should be requested if answered yes and the info is needed to remove past counted TLR months. A job ending within the last 60 days is mandatory information."
-jobs_help = "This information is mandatory if the client selects yes, or the existence of earned income is indicated in maxis or elsewhere in the case file."
-busi_help = "If answered yes, information on expected income is mandatory."
-changes_help = "If answered yes, information on expected income changes is mandatory."
-pwe_help = "See CM 28.03.06 For info on determining the PWE when one is not designated."
-unea_help = "Unearned income information is mandatory if any of the income types are marked yes and we do not have sufficient information on file to determine eligibility. VerifyMN can be used to obtain needed info for RSDI/SSI. "
-stin_help = "Information on student income is mandatory if this question is marked yes or other information indicates a unit member is a higher-ed student."
-shel_help = "Information is needed if any shelter expenses are marked yes or were indicated on CAF1. This is optional information."
-hest_help = "More information is needed if the question is blank, to determine if the resident may be eligible for a deduction including due to past receipt of LIHEAP funds. This is optional information."
-deduct_help = "More information is needed if marked yes. This is optional information."
-fmed_help = "More information is needed if marked yes, and there are unit members that would potentially qualify for the deduction. This is optional information."
-asset_help = "More information is needed only if yes is selected for any LIQUID assets (Cash, Bank accounts, electronic payment card) AND that information is necessary to determine whether the case is expedited for purposes of postponing verifications"
-not_snap_help = "Not a required question for SNAP applications."
-recert_help = "More information is needed only if marked yes and the application is being used for a recertification."
-arep_help = "Information is not required, but more information is needed if an arep is indicated but all info is not provided."
-qualification_help = "More information is needed for any qualification question left blank or marked yes. All CAFs received through MNBenefits will have some of these questions blank and require more information."
 
 
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
