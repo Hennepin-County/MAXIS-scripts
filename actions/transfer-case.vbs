@@ -491,12 +491,13 @@ End if
 '
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------01/23/2024
-'--comment Code-----------------------------------------------------------------10/26/2022
-'--Update Changelog for release/update------------------------------------------10/26/2022
-'--Remove testing message boxes-------------------------------------------------10/26/2022
-'--Remove testing code/unnecessary code-----------------------------------------10/26/2022
+'--comment Code-----------------------------------------------------------------01/23/2024
+'--Update Changelog for release/update------------------------------------------01/23/2024
+'--Remove testing message boxes-------------------------------------------------01/23/2024
+'--Remove testing code/unnecessary code-----------------------------------------01/23/2024
 '--Review/update SharePoint instructions----------------------------------------01/23/2024
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/26/2022------------------N/A
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/26/2022
-'--Complete misc. documentation (if applicable)---------------------------------10/26/2022
-'--Update project team/issue contact (if applicable)----------------------------10/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/23/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/23/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/23/2024
+'--Complete misc. documentation (if applicable)---------------------------------01/23/2024
+'--Update project team/issue contact (if applicable)----------------------------01/23/2024
