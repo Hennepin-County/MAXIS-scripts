@@ -669,7 +669,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from a job that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO JOBS, add any notes here that are relevant:"
@@ -802,7 +802,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from self employment that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO SELF EMPLOYMENT, add any notes here that are relevant:"
@@ -935,7 +935,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from an unearned income source that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO UNEARNED INCOME, add any notes here that are relevant:"
@@ -1124,7 +1124,7 @@ function define_main_dialog()
 				'TODO - DEAL WITH OTHR panel
 			Next
 			If y_pos = 90 Then
-				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1225,7 +1225,7 @@ function define_main_dialog()
 				End If
 			Next
 			If y_pos = 25 Then
-				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1286,7 +1286,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = start_y_pos Then
-				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1463,7 +1463,7 @@ function define_main_dialog()
 			GroupBox 10, 10, 465, grp_len, "Expenses"
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there are expenses that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 
@@ -1585,7 +1585,7 @@ function define_main_dialog()
 			If acci_exists = False and insa_exists = False and faci_exists = False Then
 				grp_len = grp_len + 75
 
-				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
