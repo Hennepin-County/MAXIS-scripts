@@ -142,15 +142,15 @@ IF left(transfer_to_worker, 4) <> "X127" THEN
 Else
     '----------------------------------------------------------------------------------------------------In-county transfer
     'Staff need to confirm that they've transferred the case in ECF Next 1st
-    Do 
-        Do         
+    Do
+        Do
             transfer_confirmation = MsgBox("Has this case been transferred in ECF Next?", vbQuestion + vbYesNo, "Tranfer Case Reminder")
             If transfer_confirmation = vbNo then msgbox "This case needs to be transferred in ECF Next first." & vbcr & vbcr & "Transfer the case in ECF Next now."
-            If transfer_confirmation = vbYes then exit do 
-        Loop 
+            If transfer_confirmation = vbYes then exit do
+        Loop
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-    
+
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
     Call write_value_and_transmit("X", 7, 16)              'transfer within county option
     PF9                                                    'putting the transfer in edit mode
@@ -164,8 +164,14 @@ Else
     STATS_manualtime = 120                      'manual run time in seconds
     'Script low down for inner county transfer
     script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Error Message at transfer: " & vbCr & error_message
-    If servicing_worker <> transfer_to_worker THEN script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
-    script_end_procedure_with_error_report("Success! " & transfer_message)
+    If servicing_worker <> transfer_to_worker THEN
+		end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
+		end_msg = end_msg & vbCr & vbCr & "Message from MAXIS on XFER screen:" & vbCr & transfer_message
+		script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
+	End If
+	end_msg = "Success!"
+	end_msg = end_msg & vbCr & vbCr & "Message from MAXIS on XFER screen:" & vbCr & transfer_message
+    script_end_procedure_with_error_report(end_msg)
 End if
 
 '----------------------------------------------------------------------------------------------------Out-of-County Case Transfer
@@ -261,9 +267,9 @@ Do
 		cancel_confirmation
         IF IsDate(resident_move_date) = False OR Len(resident_move_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for resident move."
         If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Indicate if this is an excluded time case."
-        IF excluded_time_dropdown = "Yes" then 
+        IF excluded_time_dropdown = "Yes" then
             If IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absence is due to excluded time."
-        End if      
+        End if
             IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
             IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Supports is always an excluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
         END IF
