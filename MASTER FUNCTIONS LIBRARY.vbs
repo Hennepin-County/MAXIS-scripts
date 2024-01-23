@@ -4962,6 +4962,49 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
+function collect_script_usage_data(script_to_record, closing_message, reset_timer)
+'--- This function records script runs into the usage log and can be used for functionality runs, not just completed scripts.
+'~~~~~ script_to_record: this would be the 'name_of_script' for completed script runs, but can be adjusted if run on functionality instead of the completed script
+'~~~~~ closing_message: information about the script run should be passed through this variable, for completed script runs, this would be the closing message
+'===== Keywords: MAXIS, MMIS, script, statistics
+	stop_time = timer
+	script_run_end_time = time
+	script_run_end_date = date
+	script_run_time = stop_time - start_time
+
+	'Getting user name
+	Set objNet = CreateObject("WScript.NetWork")
+	user_ID = objNet.UserName
+
+	'Setting constants
+	Const adOpenStatic = 3
+	Const adLockOptimistic = 3
+
+	'Defaulting script success to successful
+	SCRIPT_success = -1
+
+	'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
+	IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+	closing_message = replace(closing_message, "'", "")
+
+	'Opening DB
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+
+	objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+	"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & script_to_record & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+
+	'Closing the connection
+	objConnection.Close
+
+	If reset_timer = True Then start_time = timer				'possibly need to reset the timer for workflows- for each unique functionality
+end function
+
 function confirm_docs_accepted_in_ecf(closing_msg)
 '--- This function asks the worker if they have accepted in ECF the documents processed while using a script.
 '~~~~~ closing_msg: the end message for display at the script end
@@ -5543,11 +5586,11 @@ end function
 
 function create_mainframe_friendly_date(date_variable, screen_row, screen_col, variable_length)
 '--- This function creates a mainframe friendly date. This can be used for all field lengths, spacings, and year formats in MAXIS and MMIS.
-'	 The function tabs through the date fields to determine formatting. Handles full dates with 2 or 4 digit year, as well as month/year fields. 
+'	 The function tabs through the date fields to determine formatting. Handles full dates with 2 or 4 digit year, as well as month/year fields.
 '~~~~~ date_variable: the name of the variable to output
 '~~~~~ screen_row: row to start writing date
 '~~~~~ screen_col: column to start writing date
-'~~~~~ variable length: the number of days to add to the date_variable for output. 
+'~~~~~ variable length: the number of days to add to the date_variable for output.
 '      entering any non-numeric variable will result in 0 days added. This is for backward compatibility with scripts that used this variable for year format
 '===== Keywords: MAXIS, PRISM, MMIS, date, create
 'Year type is now variable length. This is a date offset calculation in days.
@@ -5562,7 +5605,7 @@ function create_mainframe_friendly_date(date_variable, screen_row, screen_col, v
 	var_year = datepart("yyyy", date_variable)
 
 	'This section reads the location we're entering the date and determines format
-	EMREadScreen date_space, 14, screen_row, screen_col 
+	EMREadScreen date_space, 14, screen_row, screen_col
 	EMReadScreen MMIS_check, 5, 1, 2
 	'This section determines what fields we're dealing with
 	EMSetCursor screen_row, screen_col
@@ -5614,7 +5657,7 @@ function create_mainframe_friendly_date(date_variable, screen_row, screen_col, v
 		End If
 	Else
 		MsgBox "Something went wrong. The script has encountered an unsupported date field or format."
-	End If 
+	End If
 
 end function
 
@@ -5965,8 +6008,8 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 end function
 
 function determine_200_percent_of_FPG(program_determination, application_date_variable, hh_size_variable, fpg_200_percent)
-'--- This function outputs the dollar amount (as a number) of 200% FPG based on program, application date, and HH size for EA, EGA, and SNAP. Info Source for SNAP: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906. Info source for EA/EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801 
-'~~~~~ program_determination: Enter the program variable - must be 'SNAP', 'EA', or 'EGA' 
+'--- This function outputs the dollar amount (as a number) of 200% FPG based on program, application date, and HH size for EA, EGA, and SNAP. Info Source for SNAP: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906. Info source for EA/EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801
+'~~~~~ program_determination: Enter the program variable - must be 'SNAP', 'EA', or 'EGA'
 '~~~~~ application_date_variable: Enter the application date variable. If there is no application date or no application date variable, the function will default to the current year's 200% FPG guidelines for the indicated program
 '~~~~~ hh_size_variable: Enter the household size variable or the household size number in the unit
 '~~~~~ fpg_200_percent: NUMBER - this will output a number with the amount of 200% FPG based on the program, application date, and HH Size
@@ -5987,7 +6030,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
         End If
     End If
 
-    '200% FPG April 2023 for EA & 200% FPG October 2023 for SNAP 
+    '200% FPG April 2023 for EA & 200% FPG October 2023 for SNAP
     If program_determination = "EA" or (program_determination = "SNAP" and application_date_variable_diff <= 0) OR (program_determination = "SNAP" and no_application_date_variable = True) Then
         If hh_size_variable = 1 Then fpg_200_percent = 2430
         If hh_size_variable = 2 Then fpg_200_percent = 3287
@@ -6001,7 +6044,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
         If hh_size_variable = 10 Then fpg_200_percent = 10140
         If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
 
-    '200% FPG April 2022 & 200% FPG October 2022 for SNAP 
+    '200% FPG April 2022 & 200% FPG October 2022 for SNAP
     ElseIf (program_determination = "EGA" and application_date_variable_diff <= 0) OR (program_determination = "EGA" and no_application_date_variable = True) OR (program_determination = "SNAP" and application_date_variable_diff > 0) Then
         If hh_size_variable = 1 Then fpg_200_percent = 2265
         If hh_size_variable = 2 Then fpg_200_percent = 3052
@@ -11691,12 +11734,15 @@ function script_end_procedure(closing_message)
 '--- This function is how all user stats are collected when a script ends.
 '~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
 '===== Keywords: MAXIS, MMIS, PRISM, end, script, statistics, stopscript
-	stop_time = timer
-	script_run_end_time = time
-	script_run_end_date = date
+	stop_time = timer				'TODO - delete when the new data recording function is in place
+	script_run_end_time = time		'TODO - delete when the new data recording function is in place
+	script_run_end_date = date		'TODO - delete when the new data recording function is in place
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then MsgBox closing_message '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
 	script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
+
+		' function collect_script_usage_data(name_of_script, closing_message)		'TODO - uncomment and remove the rest of the information in the if statement when we are ready to use the new functionality
+
 		'Getting user name
 		Set objNet = CreateObject("WScript.NetWork")
 		user_ID = objNet.UserName
