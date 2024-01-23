@@ -198,7 +198,10 @@ function check_for_errors(eval_questions_clear)
 		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authorization Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
-
+	baseline_date = trim(baseline_date)
+	If baseline_date  <> "" Then
+		If IsDate(baseline_date) = False Then  err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* The baseline date should be a date if information is entered. Leave blank if it is not relevant to the case."
+	End If
 	'last page errors
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
@@ -1878,6 +1881,7 @@ function define_main_dialog()
 
 		ElseIf page_display = ltc_intake_page Then
 			GroupBox 10, 5, 465, 125, "LTC Intake Information"
+			Text 325, 5, 150, 10, "Health Care Application Date: " & hc_application_date
 			Text 20, 20, 60, 10, "Month MA to start:"
 			EditBox 85, 15, 45, 15, month_MA_starts
 			Text 135, 20, 110, 10, "Is the client is in the community?"
@@ -6681,7 +6685,10 @@ Next
 'LTC Cases at application have the possiblity of creating a MA LTC Intake note
 'The variable ltc_app_case_note_option can be used to determine which of the notes (this or the main one) is entered in these situations
 If ltc_waiver_request_yn = "Yes" and processing_an_application = True and InStr(ltc_app_case_note_option, "MA-LTC Intake Info NOTE") <> 0 Then
-	If application_date <> "" then lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(application_date))) & ""
+	If hc_application_date <> "" then
+		lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(hc_application_date))) & ""
+		end_of_lookback = dateadd("d", -1, cdate(hc_application_date)) & ""
+	End If
 	If baseline_date <> "" then
 		lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
 		end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
@@ -6693,7 +6700,7 @@ If ltc_waiver_request_yn = "Yes" and processing_an_application = True and InStr(
 
 	Call write_variable_in_CASE_NOTE("====================== MA & LTC Date Details =======================")
 
-	call write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
+	call write_bullet_and_variable_in_CASE_NOTE("Application date", hc_application_date)
 	call write_bullet_and_variable_in_CASE_NOTE("LTCC date", LTCC_date)
 	call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
 	call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
