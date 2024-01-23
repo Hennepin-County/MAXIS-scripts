@@ -751,6 +751,7 @@ Dim client_array
 
 DO
 	' Getting the individual on the case
+	client_array = ""
 	CALL HH_member_custom_dialog(HH_member_array)
 	IF ubound(HH_member_array) <> 0 THEN MsgBox "Please pick one and only one person for this."
 LOOP UNTIL ubound(HH_member_array) = 0
@@ -1113,24 +1114,24 @@ ELSEIF is_there_income_deeming = vbYes THEN
 		If left(all_clients_array(i, 0), 2) <> hc_memb Then all_clients_array(x, 1) = 1
 	NEXT
 
+	' Getting the individual on the case
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "Deeming Member Selection"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+		Text 10, 5, 105, 10, "Whose Income Deems?"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			If left(all_clients_array(i, 0), 2) = hc_memb Then
+				Text 21, (20 + (i * 15)), 160, 10, all_clients_array(i, 0)
+			Else
+				IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			End If
+		NEXT
+		ButtonGroup ButtonPressed
+			OkButton 185, 10, 50, 15
+			CancelButton 185, 30, 50, 15
+	EndDialog
 
 	DO
 		DO
-			' Getting the individual on the case
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "Deeming Member Selection"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-				Text 10, 5, 105, 10, "Whose Income Deems?"
-				FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-					If left(all_clients_array(i, 0), 2) = hc_memb Then
-						Text 21, (20 + (i * 15)), 160, 10, all_clients_array(i, 0)
-					Else
-						IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-					End If
-				NEXT
-				ButtonGroup ButtonPressed
-					OkButton 185, 10, 50, 15
-					CancelButton 185, 30, 50, 15
-			EndDialog
 
 			'runs the dialog that has been dynamically created. Streamlined with new functions.
 			Dialog Dialog1
