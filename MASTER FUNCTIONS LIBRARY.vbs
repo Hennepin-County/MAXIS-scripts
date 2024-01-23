@@ -4962,15 +4962,16 @@ function clear_line_of_text(row, start_column)
   EMWaitReady 0, 0
 end function
 
-function collect_script_usage_data(script_to_record, closing_message, reset_timer)
+function collect_script_usage_data(script_to_record, closing_message, timer_begin)
 '--- This function records script runs into the usage log and can be used for functionality runs, not just completed scripts.
 '~~~~~ script_to_record: this would be the 'name_of_script' for completed script runs, but can be adjusted if run on functionality instead of the completed script
 '~~~~~ closing_message: information about the script run should be passed through this variable, for completed script runs, this would be the closing message
+'~~~~~ timer_begin: passes the timer variable through to the data usage to record script run time. This allows for different timers to be set and reset based on the specific script functionality
 '===== Keywords: MAXIS, MMIS, script, statistics
 	stop_time = timer
 	script_run_end_time = time
 	script_run_end_date = date
-	script_run_time = stop_time - start_time
+	script_run_time = stop_time - timer_begin
 
 	'Getting user name
 	Set objNet = CreateObject("WScript.NetWork")
@@ -5001,8 +5002,6 @@ function collect_script_usage_data(script_to_record, closing_message, reset_time
 
 	'Closing the connection
 	objConnection.Close
-
-	If reset_timer = True Then start_time = timer				'possibly need to reset the timer for workflows- for each unique functionality
 end function
 
 function confirm_docs_accepted_in_ecf(closing_msg)
@@ -11741,7 +11740,7 @@ function script_end_procedure(closing_message)
 	script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
 
-		' function collect_script_usage_data(name_of_script, closing_message)		'TODO - uncomment and remove the rest of the information in the if statement when we are ready to use the new functionality
+		' function collect_script_usage_data(name_of_script, closing_message, start_time)		'TODO - uncomment and remove the rest of the information in the if statement when we are ready to use the new functionality
 
 		'Getting user name
 		Set objNet = CreateObject("WScript.NetWork")
