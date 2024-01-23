@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/23/2024", "Added reminder to inner-county option to transfer cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 call changelog_update("12/15/2023", "Updated resource links.", "Megan Geissler, Hennepin County.")
 call changelog_update("11/07/2023", "Fixed bug when case is a MA Excluded Time case.", "Ilse Ferris, Hennepin County.")
 call changelog_update("05/24/2023", "Updated date validation and error messages for dialog to ensure consistent entry.", "Mark Riegel, Hennepin County.")
@@ -135,11 +136,21 @@ DO
     IF active_worker_found = FALSE THEN msgbox err_msg
 LOOP UNTIL active_worker_found = TRUE
 
-transfer_out_of_county = FALSE                                          'setting varible to false
+transfer_out_of_county = FALSE                                          'setting variable to false
 IF left(transfer_to_worker, 4) <> "X127" THEN
     transfer_out_of_county = TRUE 'setting the out of county BOOLEAN
 Else
     '----------------------------------------------------------------------------------------------------In-county transfer
+    'Staff need to confirm that they've transferred the case in ECF Next 1st
+    Do 
+        Do         
+            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next?", vbQuestion + vbYesNo, "Tranfer Case Reminder")
+            If transfer_confirmation = vbNo then msgbox "This case needs to be transferred in ECF Next first." & vbcr & vbcr & "Transfer the case in ECF Next now."
+            If transfer_confirmation = vbYes then exit do 
+        Loop 
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+    
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
     Call write_value_and_transmit("X", 7, 16)              'transfer within county option
     PF9                                                    'putting the transfer in edit mode
@@ -147,12 +158,14 @@ Else
     IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
     Call write_value_and_transmit(transfer_to_worker, 18, 61)           'entering the worker information & saving - this should then take us to the transfer menu
     EMReadScreen servicing_worker, 7, 24, 30  'if it is not the transfer_to_worker - the transfer failed.
+    EMReadScreen transfer_message, 79, 24, 2
+    transfer_message = trim(transfer_message)
 
     STATS_manualtime = 120                      'manual run time in seconds
-    'Script low down for innercounty transfer
+    'Script low down for inner county transfer
     script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Error Message at transfer: " & vbCr & error_message
     If servicing_worker <> transfer_to_worker THEN script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
-    script_end_procedure_with_error_report("Success! Case transfer has been completed to: " & transfer_to_worker & ".")
+    script_end_procedure_with_error_report("Success! " & transfer_message)
 End if
 
 '----------------------------------------------------------------------------------------------------Out-of-County Case Transfer
@@ -477,12 +490,12 @@ End if
 '--BULK - remove 1 incrementor at end of script reviewed------------------------10/26/2022------------------N/A
 '
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------10/26/2022
+'--Confirm all GitHub tasks are complete----------------------------------------01/23/2024
 '--comment Code-----------------------------------------------------------------10/26/2022
 '--Update Changelog for release/update------------------------------------------10/26/2022
 '--Remove testing message boxes-------------------------------------------------10/26/2022
 '--Remove testing code/unnecessary code-----------------------------------------10/26/2022
-'--Review/update SharePoint instructions----------------------------------------10/26/2022
+'--Review/update SharePoint instructions----------------------------------------01/23/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/26/2022------------------N/A
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/26/2022
 '--Complete misc. documentation (if applicable)---------------------------------10/26/2022
