@@ -405,8 +405,8 @@ If unea_count <> 0 Then
 			err_msg = ""
 
 			dialog Dialog1
-			If ButtonPressed = finish_script_btn Then ButtonPressed = 0
-			cancel_confirmation
+			If ButtonPressed = finish_script_btn Then call script_end_procedure("")
+			cancel_without_confirmation
 
 			err_msg = "LOOP"										'this is a little weird, we are just always looping
 
