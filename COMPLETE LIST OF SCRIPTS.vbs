@@ -4048,7 +4048,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE SPEC_XFER_For_Inter-Agency_Case_Transfers 02.08.134", "SHAREPOINT Transfer_To_Another_County https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx")						'SEE Line 58 for format'
 script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
