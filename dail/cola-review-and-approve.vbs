@@ -1,6 +1,7 @@
 'GATHERING STATS----------------------------------------------------------------------------------------------------
 name_of_script = "DAIL - COLA REVIEW AND APPROVE.vbs"
 start_time = timer
+functionality_time = timer
 STATS_counter = 1              'sets the stats counter at 1
 STATS_manualtime = 90          'manual run time in seconds
 STATS_denomination = "C"       'C is for each case
@@ -424,7 +425,8 @@ If unea_count <> 0 Then
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
 				STATS_manualtime = STATS_manualtime + 30
-				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), False)		'record script FUNCTIONALITY usage in SQL
+				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
+				functionality_time = timer
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 				EMReadScreen agreement_check, 9, 2, 24
@@ -435,10 +437,11 @@ If unea_count <> 0 Then
 		If ButtonPressed = cola_summary_note_btn Then
 			functionality_info = ""			'this variable will be used to capture information to pass to the usage log
 			Call cola_summary_note			'Button to create the CASE/NOTE
-			call collect_script_usage_data(name_of_script & " - COLA Summary Note Created", functionality_info, False)		'record script FUNCTIONALITY usage in SQL
+			call collect_script_usage_data(name_of_script & " - COLA Summary Note Created", functionality_info, functionality_time)		'record script FUNCTIONALITY usage in SQL
+			functionality_time = timer
 		End If
 		If ButtonPressed = run_elig_summ_btn Then
-			Call collect_script_usage_data(name_of_script & " - REDIRECT to Elig Summary", "", False)		'record script FUNCTIONALITY usage in SQL
+			Call collect_script_usage_data(name_of_script & " - REDIRECT to Elig Summary", "", functionality_time)		'record script FUNCTIONALITY usage in SQL
 			Call run_from_GitHub(script_repository & "notes/eligibility-summary.vbs")		'Button to run Eligibility Summary
 		End If
 	Loop until err_msg = ""
@@ -488,7 +491,8 @@ Else
 				EMWaitReady 0,0
 				Call write_value_and_transmit("TPQY", 20, 70)
 				STATS_manualtime = STATS_manualtime + 30
-				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), False)		'record script FUNCTIONALITY usage in SQL
+				call collect_script_usage_data(name_of_script & " - INFC-SVES Viewed ", "SVES for " & NAME_ARRAY(i), functionality_time)		'record script FUNCTIONALITY usage in SQL
+				functionality_time = timer
 
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 				EMReadScreen agreement_check, 9, 2, 24
