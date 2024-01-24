@@ -328,56 +328,86 @@ end function
 Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
+	Text 60, 20, 45, 10, MAXIS_case_number
 	EditBox 175, 15, 45, 15, iaa_effective_date
 	EditBox 310, 15, 45, 15, iaa_date_received		
-	DropListBox 55, 45, 110, 15, HH_Memb_DropDown, iaa_member_dropdown
-	DropListBox 265, 45, 60, 15, ""+chr(9)+"Initial claim"+chr(9)+"Post-eligibility", iaa_type_assistance
-	CheckBox 30, 70, 295, 15, "Signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_within_30_checkbox
-	CheckBox 30, 85, 310, 15, "NOT signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_outside_30_checkbox
-	EditBox 50, 125, 145, 15, iaa_benefits_1
-	EditBox 50, 145, 145, 15, iaa_benefits_2
-	EditBox 205, 125, 145, 15, iaa_benefits_3
-	EditBox 205, 145, 145, 15, iaa_benefits_4
-	EditBox 50, 180, 300, 15, iaa_comments
+	DropListBox 55, 45, 140, 15, HH_Memb_DropDown, iaa_member_dropdown
+	DropListBox 305, 45, 60, 15, ""+chr(9)+"Initial claim"+chr(9)+"Post-eligibility", iaa_type_assistance
+	EditBox 50, 80, 145, 15, iaa_benefits_1
+	EditBox 220, 80, 145, 15, iaa_benefits_3
+	EditBox 50, 100, 145, 15, iaa_benefits_2
+	EditBox 220, 100, 145, 15, iaa_benefits_4
+	DropListBox 95, 140, 115, 15, ""+chr(9)+"01-RSDI"+chr(9)+"02-SSI"+chr(9)+"06-Child Support"+chr(9)+"07-Alimony"+chr(9)+"08-VA Disability"+chr(9)+"09-VA Pension"+chr(9)+"10-VA Dependent Educational"+chr(9)+"11-VA Dependent Other"+chr(9)+"12-Unemployment Insurance"+chr(9)+"13-Worker's Comp"+chr(9)+"14-RR Retirement"+chr(9)+"15-Other Ret"+chr(9)+"16-Military Allot"+chr(9)+"17-EITC"+chr(9)+"18-Strike Pay"+chr(9)+"19-Other"+chr(9)+"21-SMRT", iaa_benefit_type
+	EditBox 310, 140, 55, 15, iaa_referral_date
+	DropListBox 95, 160, 115, 15, ""+chr(9)+"1-Copy of Chkstb"+chr(9)+"2-Award Letters"+chr(9)+"4-Coltrl Stmt"+chr(9)+"5-Other Document"+chr(9)+"N-No Ver Prvd", iaa_verification_dropdown
+	EditBox 310, 160, 55, 15, iaa_date_applied_pben
+	DropListBox 95, 180, 115, 15, ""+chr(9)+"A-Appealing"+chr(9)+"D-Denied"+chr(9)+"E-Eligible"+chr(9)+"P-Pending"+chr(9)+"N-Not Appl Yet"+chr(9)+"R-Refused To Accept", iaa_disposition_code_dropdown
+	EditBox 310, 180, 55, 15, iaa_date
+	CheckBox 20, 215, 310, 15, "NOT signed within 30 days of receiving CAF or Change Report Form. Casenote invalid IAA.", iaa_not_signed_30_checkbox
+	CheckBox 20, 235, 225, 10, "Check here to have the script update PBEN", iaa_update_pben_checkbox
+	EditBox 50, 255, 315, 15, iaa_comments
 	ButtonGroup ButtonPressed
-		PushButton 5, 280, 95, 15, "IAA Maxis Instructions", iaa_sp_btn
+		PushButton 5, 280, 50, 15, "CM12.12.03", iaa_CM121203_btn
+		PushButton 65, 280, 50, 15, "TE02.12.14", iaa_te021214_btn
+		PushButton 125, 280, 70, 15, "HSRM- PBEN Panel", iaa_sp_pben_btn
 	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	Text 20, 50, 30, 10, "Member"
-	Text 175, 50, 90, 10, "Type of interim assistance"
-	Text 20, 115, 130, 10, "Other benefits you may be eligible for"
-	Text 15, 185, 35, 10, "Comments"
+	Text 215, 50, 90, 10, "Type of interim assistance"
+	Text 20, 70, 130, 10, "Other benefits you may be eligible for"
+	GroupBox 15, 125, 360, 75, "PBEN Fields"
+	Text 50, 145, 45, 10, "Benefit Type"
+	Text 265, 145, 45, 10, "Referral Date"
+	Text 50, 165, 40, 10, "Verification"
+	Text 235, 165, 75, 10, "Date Applied for PBEN"
+	Text 35, 185, 60, 10, "Disposition Code"
+	Text 280, 185, 30, 10, "IAA Date"
+	GroupBox 15, 205, 360, 40, "Actions"
+	Text 15, 260, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_within_30_checkbox, iaa_outside_30_checkbox, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_comments, iaa_sp_btn
+Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_date, iaa_not_signed_30_checkbox, iaa_update_pben_checkbox, iaa_comments, iaa_CM121203_btn, iaa_te021214_btn, iaa_sp_pben_btn
 
 
 function iaa_ssi_dialog()
-	EditBox 175, 20, 45, 15, iaa_ssi_effective_date
-	EditBox 310, 20, 45, 15, iaa_ssi_date_received		
-	DropListBox 55, 45, 110, 15, HH_Memb_DropDown, iaa_ssi_member_dropdown 
-	DropListBox 265, 45, 95, 20, ""+chr(9)+"General Assistance (GA)"+chr(9)+"Housing Support (HS)", iaa_ssi_type_assistance
-	CheckBox 30, 70, 295, 15, "Signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_ssi_within_30_checkbox
-	CheckBox 30, 85, 310, 15, "NOT signed within 30 days of receiving Combined Application Form or Change Report Form.", iaa_ssi_outside_30_checkbox
-	EditBox 55, 105, 300, 15, iaa_ssi_comments
+	Text 60, 20, 45, 10, MAXIS_case_number
+	EditBox 175, 15, 45, 15, iaa_ssi_effective_date
+	EditBox 310, 15, 45, 15, iaa_ssi_date_received		
+	DropListBox 50, 40, 120, 15, HH_Memb_DropDown, iaa_ssi_member_dropdown 
+	DropListBox 275, 40, 95, 20, ""+chr(9)+"General Assistance (GA)"+chr(9)+"Housing Support (HS)", iaa_ssi_type_of_interim_assistance
+	DropListBox 100, 75, 120, 15, ""+chr(9)+"01-RSDI"+chr(9)+"02-SSI"+chr(9)+"06-Child Support"+chr(9)+"07-Alimony"+chr(9)+"08-VA Disability"+chr(9)+"09-VA Pension"+chr(9)+"10-VA Dependent Educational"+chr(9)+"11-VA Dependent Other"+chr(9)+"12-Unemployment Insurance"+chr(9)+"13-Worker's Comp"+chr(9)+"14-RR Retirement"+chr(9)+"15-Other Ret"+chr(9)+"16-Military Allot"+chr(9)+"17-EITC"+chr(9)+"18-Strike Pay"+chr(9)+"19-Other"+chr(9)+"21-SMRT", iaa_ssi_benefit_type
+	EditBox 315, 75, 55, 15, iaa_ssi_referral_date
+	DropListBox 100, 95, 120, 15, ""+chr(9)+"1-Copy of Chkstb"+chr(9)+"2-Award Letters"+chr(9)+"4-Coltrl Stmt"+chr(9)+"5-Other Document"+chr(9)+"N-No Ver Prvd", iaa_ssi_verification_dropdown
+	EditBox 315, 95, 55, 15, iaa_ssi_date_applied_pben
+	DropListBox 100, 115, 120, 15, ""+chr(9)+"A-Appealing"+chr(9)+"D-Denied"+chr(9)+"E-Eligible"+chr(9)+"P-Pending"+chr(9)+"N-Not Appl Yet"+chr(9)+"R-Refused To Accept", iaa_ssi_disposition_code_dropdown
+	EditBox 315, 115, 55, 15, iaa_ssi_iaa_date
+	CheckBox 30, 155, 225, 10, "Check here to have the script update PBEN", iaa_ssi_update_pben_checkbox
+	CheckBox 30, 165, 310, 15, "NOT signed within 30 days of receiving CAF or Change Report Form. Casenote invalid IAA.", iaa_ssi_not_signed_30days_checkbox
+	EditBox 55, 195, 315, 15, iaa_ssi_comments
 	ButtonGroup ButtonPressed
-	PushButton 5, 280, 50, 15, "CM12.12.03", iaa_ssi_CM121203_btn
-	PushButton 65, 280, 95, 15, "IAA-SSI Maxis Instructions", iaa_ssi_sp_btn
+		PushButton 5, 280, 50, 15, "CM12.12.03", iaa_ssi_CM121203_btn
+		PushButton 65, 280, 50, 15, "TE02.12.14", iaa_ssi_te021214_btn
+		PushButton 125, 280, 75, 15, "HSRM- PBEN Panel", iaa_ssi_sp_pben_btn
 	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION- SSI"
-	Text 5, 25, 50, 10, "Case Number:"
-	Text 60, 25, 45, 10, MAXIS_case_number
-	Text 125, 25, 50, 10, "Effective Date:"
-	Text 245, 25, 60, 10, "Document Date:"
-	Text 5, 5, 220, 10, "Interim Assistance Authorization- SSI"
-	Text 20, 50, 30, 10, "Member"
-	Text 175, 50, 90, 10, "Type of interim assistance"
-	Text 20, 110, 35, 10, "Comments"
+	Text 5, 20, 50, 10, "Case Number:"
+	Text 125, 20, 50, 10, "Effective Date:"
+	Text 245, 20, 60, 10, "Document Date:"
+	Text 15, 45, 30, 10, "Member"
+	Text 185, 45, 90, 10, "Type of interim assistance"
+	GroupBox 20, 60, 360, 75, "PBEN Fields"
+	Text 55, 80, 45, 10, "Benefit Type"
+	Text 270, 80, 45, 10, "Referral Date"
+	Text 55, 100, 40, 10, "Verification"
+	Text 240, 100, 75, 10, "Date Applied for PBEN"
+	Text 40, 120, 60, 10, "Disposition Code"
+	Text 285, 120, 30, 10, "IAA Date"
+	GroupBox 20, 145, 360, 40, "Actions"
+	Text 20, 200, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim iaa_ssi_effective_date, iaa_ssi_date_received, iaa_ssi_member_dropdown, iaa_ssi_type_assistance, iaa_ssi_within_30_checkbox, iaa_ssi_outside_30_checkbox, iaa_ssi_comments, iaa_ssi_CM121203_btn, iaa_ssi_sp_btn
+Dim iaa_ssi_effective_date, iaa_ssi_date_received, iaa_ssi_member_dropdown, iaa_ssi_type_of_interim_assistance, iaa_ssi_benefit_type, iaa_ssi_referral_date, iaa_ssi_verification_dropdown, iaa_ssi_date_applied_pben, iaa_ssi_disposition_code_dropdown, iaa_ssi_iaa_date, iaa_ssi_update_pben_checkbox, iaa_ssi_not_signed_30days_checkbox, iaa_ssi_comments, iaa_ssi_CM121203_btn, iaa_ssi_te021214_btn, iaa_ssi_sp_pben_btn
 
 function ltc_1503_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
@@ -892,6 +922,58 @@ Loop Until ButtonPressed = Ok
 'TODO: Add in any additonal readscreens etc.
 'MAXIS NAVIGATION ===========================================================================
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
+	If form_type_array(form_type_const, maxis_panel_read) = "AREP (Authorized Rep)" Then 'MAXIS NAVIGATION FOR AREP
+		Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+		arep_update_AREP_panel_checkbox = checked
+		AREP_recvd_date = arep_date_received
+
+		EMReadScreen arep_name, 37, 4, 32
+		arep_name = replace(arep_name, "_", "")
+		If arep_name <> "" Then
+			EMReadScreen arep_street_one, 22, 5, 32
+			EMReadScreen arep_street_two, 22, 6, 32
+			EMReadScreen arep_city, 15, 7, 32
+			EMReadScreen arep_state, 2, 7, 55
+			EMReadScreen arep_zip, 5, 7, 64
+
+			arep_street_one = replace(arep_street_one, "_", "")
+			arep_street_two = replace(arep_street_two, "_", "")
+			arep_street = arep_street_one & " " & arep_street_two
+			arep_street = trim(arep_street)
+			arep_city = replace(arep_city, "_", "")
+			arep_state = replace(arep_state, "_", "")
+			arep_zip = replace(arep_zip, "_", "")
+
+			EMReadScreen arep_phone_one, 14, 8, 34
+			EMReadScreen arep_ext_one, 3, 8, 55
+			EMReadScreen arep_phone_two, 14, 9, 34
+			EMReadScreen arep_ext_two, 3, 8, 55
+
+			arep_phone_one = replace(arep_phone_one, ")", "")
+			arep_phone_one = replace(arep_phone_one, "  ", "-")
+			arep_phone_one = replace(arep_phone_one, " ", "-")
+			If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+			arep_phone_two = replace(arep_phone_two, ")", "")
+			arep_phone_two = replace(arep_phone_two, "  ", "-")
+			arep_phone_two = replace(arep_phone_two, " ", "-")
+			If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+			arep_ext_one = replace(arep_ext_one, "_", "")
+			arep_ext_two = replace(arep_ext_two, "_", "")
+
+			EMReadScreen arep_forms_to_arep, 1, 10, 45
+			EMReadScreen arep_mmis_mail_to_arep, 1, 10, 77
+
+			If arep_forms_to_arep = "Y" Then arep_forms_to_arep_checkbox = checked
+			If arep_mmis_mail_to_arep = "Y" Then arep_mmis_mail_to_arep_checkbox = checked
+
+			arep_update_AREP_panel_checkbox = unchecked
+			MsgBox "pause after read screen"
+		End If
+	End If
+
 	If form_type_array(form_type_const, maxis_panel_read) = "Hospice Transaction Form" Then	'MAXIS NAVIGATION FOR HOSPICE READ SCREEN
 		Call navigate_to_MAXIS_screen("CASE", "NOTE")
 		note_row = 5                                'beginning of listed case notes
@@ -972,57 +1054,10 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
 	End If
 
-	If form_type_array(form_type_const, maxis_panel_read) = "AREP (Authorized Rep)" Then 'MAXIS NAVIGATION FOR AREP
-		Call navigate_to_MAXIS_screen("STAT", "AREP")
+	
+	
+	
 
-		arep_update_AREP_panel_checkbox = checked
-		AREP_recvd_date = arep_date_received
-
-		EMReadScreen arep_name, 37, 4, 32
-		arep_name = replace(arep_name, "_", "")
-		If arep_name <> "" Then
-			EMReadScreen arep_street_one, 22, 5, 32
-			EMReadScreen arep_street_two, 22, 6, 32
-			EMReadScreen arep_city, 15, 7, 32
-			EMReadScreen arep_state, 2, 7, 55
-			EMReadScreen arep_zip, 5, 7, 64
-
-			arep_street_one = replace(arep_street_one, "_", "")
-			arep_street_two = replace(arep_street_two, "_", "")
-			arep_street = arep_street_one & " " & arep_street_two
-			arep_street = trim(arep_street)
-			arep_city = replace(arep_city, "_", "")
-			arep_state = replace(arep_state, "_", "")
-			arep_zip = replace(arep_zip, "_", "")
-
-			EMReadScreen arep_phone_one, 14, 8, 34
-			EMReadScreen arep_ext_one, 3, 8, 55
-			EMReadScreen arep_phone_two, 14, 9, 34
-			EMReadScreen arep_ext_two, 3, 8, 55
-
-			arep_phone_one = replace(arep_phone_one, ")", "")
-			arep_phone_one = replace(arep_phone_one, "  ", "-")
-			arep_phone_one = replace(arep_phone_one, " ", "-")
-			If arep_phone_one = "___-___-____" Then arep_phone_one = ""
-
-			arep_phone_two = replace(arep_phone_two, ")", "")
-			arep_phone_two = replace(arep_phone_two, "  ", "-")
-			arep_phone_two = replace(arep_phone_two, " ", "-")
-			If arep_phone_two = "___-___-____" Then arep_phone_two = ""
-
-			arep_ext_one = replace(arep_ext_one, "_", "")
-			arep_ext_two = replace(arep_ext_two, "_", "")
-
-			EMReadScreen arep_forms_to_arep, 1, 10, 45
-			EMReadScreen arep_mmis_mail_to_arep, 1, 10, 77
-
-			If arep_forms_to_arep = "Y" Then arep_forms_to_arep_checkbox = checked
-			If arep_mmis_mail_to_arep = "Y" Then arep_mmis_mail_to_arep_checkbox = checked
-
-			arep_update_AREP_panel_checkbox = unchecked
-			MsgBox "pause after read screen"
-		End If
-	End If
 Next
 
 
@@ -1225,17 +1260,21 @@ Do
 						
 			'IAA-SSI
 				'If iaa_ssi_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
-				'If iaa_ssi_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
-				'TODO: handling for checkboxes iaa_ssi_within_30_checkbox, iaa_ssi_outside_30_checkbox,
+				'If iaa_ssi_type_of_interim_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
+				'TODO: handling for checkboxes 
 				'If ButtonPressed = iaa_ssi_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
-				'If ButtonPressed = iaa_ssi_sp_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
-			
+				'If ButtonPressed = iaa_ssi_sp_pben_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+				'If ButtonPressed = iaa_ssi_te021214_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E12%2E14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
+		
 
 			' IAA
 				'If iaa_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
 				'If iaa_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
-				'TODO: handling for checkboxes iaa_within_30_checkbox, iaa_outside_30_checkbox,
-				'If ButtonPressed = iaa_sp_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+				'TODO: handling for checkboxes 
+				'If ButtonPressed = iaa_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
+				'If ButtonPressed = iaa_sp_pben_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+				'If ButtonPressed = iaa_te021214_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E12%2E14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
+		
 			'ATR 
 				'If IsDate(atr_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				' If IsDate(atr_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
@@ -1313,7 +1352,7 @@ Do
 						
 						'MsgBox "i" & i  TEST
 						'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
-							
+			MsgBox "IAA pben checkox" & iaa_update_pben_checkbox
 		Loop until err_msg = ""
 	'Loop until form_count > Ubound(form_type_array, 2)
 	Loop until ButtonPressed = complete_btn
@@ -1423,6 +1462,180 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			transmit
 		End If
     End If
+
+	If form_type_array(form_type_const, maxis_panel_write) = "Interim Assistance Agreement (IAA)" Then	'MAXIS NAVIGATION FOR IAA read/write SCREEN		'TODO: Do we need this for IAA form and IAA-SSI form? Should there be different options for the IAA form?
+		If iaa_update_pben_checkbox = checked Then 
+			Do
+				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
+				EMReadScreen nav_check, 4, 2, 49
+			Loop until nav_check = "PBEN"
+			
+			iaa_referral_date_month = right("00" & DatePart("m", iaa_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
+			iaa_referral_date_day = right("00" & DatePart("d", iaa_referral_date), 2)
+			iaa_referral_date_year = right(DatePart("yyyy", iaa_referral_date), 2)
+			
+			iaa_date_applied_pben_month = right("00" & DatePart("m", iaa_date_applied_pben), 2)		'Setting up the parts of the date for MaXIS fields	
+			iaa_date_applied_pben_day = right("00" & DatePart("d", iaa_date_applied_pben), 2)
+			iaa_date_applied_pben_year = right(DatePart("yyyy", iaa_date_applied_pben), 2)
+			
+			iaa_date_month = right("00" & DatePart("m", iaa_date), 2)		'Setting up the parts of the date for MAXIS fields	
+			iaa_date_day = right("00" & DatePart("d", iaa_date), 2)
+			iaa_date_year = right(DatePart("yyyy", iaa_date), 2)
+			pben_member_number = Left(iaa_member_dropdown, 2)
+			
+			Call write_value_and_transmit(pben_member_number, 20, 76)			'Go to the correct member 
+			
+			pben_row = 8
+			'pben_disp_code_string = "*"
+
+			Do 
+				EMReadScreen pben_exist, 2, pben_row, 24
+				If pben_exist = "__" Then 										
+					EMReadScreen numb_of_panels, 1, 2, 78
+					IF numb_of_panels = "0" Then 						'If PBEN panel does not exist, create a panel, write dialog entries into fields
+						Call write_value_and_transmit("NN", 20, 79)								
+					Else
+						PF9												'If PBEN panel exists but benefit type is empty, write dialog entries into fields
+					End IF
+					EMWaitReady 0, 0
+					EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24
+					EMWriteScreen iaa_referral_date_month, pben_row, 40
+					EMWriteScreen iaa_referral_date_day, pben_row, 43
+					EMWriteScreen iaa_referral_date_year, pben_row, 46
+					EMWriteScreen iaa_date_applied_pben_month, pben_row, 51
+					EMWriteScreen iaa_date_applied_pben_day, pben_row, 54
+					EMWriteScreen iaa_date_applied_pben_year, pben_row, 57
+					EMWriteScreen Left(iaa_verification_dropdown, 1), pben_row, 62
+					EMWriteScreen iaa_date_month, pben_row, 66
+					EMWriteScreen iaa_date_day, pben_row, 69
+					EMWriteScreen iaa_date_year, pben_row, 72
+					EMWriteScreen Left(iaa_disposition_code_dropdown, 1), pben_row, 77
+					Exit Do
+
+				ElseIf pben_exist = "02" Then 
+					If Left(iaa_benefit_type, 2) = "02" Then
+						MsgBox "benefit type" & Left(iaa_benefit_type, 2)
+						EMReadScreen pben_benefit_type, 2, pben_row, 24
+						EMReadScreen pben_referral_date, 8, pben_row, 40
+						EMReadScreen pben_date_applied, 8, pben_row, 51
+						EMReadScreen pben_verification, 1, pben_row, 62
+						EMReadScreen pben_iaa_date, 8, pben_row, 66
+						EMReadScreen pben_disp_code, 1, pben_row, 77
+						pben_disp_code_string = pben_disp_code_string & pben_disp_code		
+				
+						If Instr(pben_disp_code_string, "A") or Instr(pben_disp_code_string, "E") or Instr(pben_disp_code_string, "P") or Instr(pben_disp_code_string, "N") Then 
+							MsgBox "instring contains AEPN"
+							If Left(iaa_disposition_code_dropdown, 1) = "A" or Left(iaa_disposition_code_dropdown, 1) = "E" or Left(iaa_disposition_code_dropdown, 1) = "P" or Left(iaa_disposition_code_dropdown, 1) = "N" Then 
+								MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
+								iaa_update_pben_checkbox = unchecked
+								Exit Do 
+							Else 
+								pben_row = pben_row + 1
+							End If
+						Else 
+							pben_row = pben_row + 1
+						End IF 
+					Else 
+						pben_row = pben_row + 1
+					End If
+				Else 
+					pben_row = pben_row + 1
+				End If
+			Loop Until pben_row = 14
+			If pben_row = 14 Then 
+				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
+				iaa_update_pben_checkbox = unchecked
+			End If
+		End If
+	End If 
+
+
+	If form_type_array(form_type_const, maxis_panel_write) = "Interim Assistance Authorization- SSI" Then	'MAXIS NAVIGATION FOR IAA-SSI read/write SCREEN
+		If iaa_ssi_update_pben_checkbox = checked Then 
+			Do
+				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
+				EMReadScreen nav_check, 4, 2, 49
+			Loop until nav_check = "PBEN"
+			
+			iaa_ssi_referral_date_month = right("00" & DatePart("m", iaa_ssi_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
+			iaa_ssi_referral_date_day = right("00" & DatePart("d", iaa_ssi_referral_date), 2)
+			iaa_ssi_referral_date_year = right(DatePart("yyyy", iaa_ssi_referral_date), 2)
+			
+			iaa_ssi_date_applied_pben_month = right("00" & DatePart("m", iaa_ssi_date_applied_pben), 2)		'Setting up the parts of the date for MaXIS fields	
+			iaa_ssi_date_applied_pben_day = right("00" & DatePart("d", iaa_ssi_date_applied_pben), 2)
+			iaa_ssi_date_applied_pben_year = right(DatePart("yyyy", iaa_ssi_date_applied_pben), 2)
+			
+			iaa_ssi_iaa_date_month = right("00" & DatePart("m", iaa_ssi_iaa_date), 2)		'Setting up the parts of the date for MAXIS fields	
+			iaa_ssi_iaa_date_day = right("00" & DatePart("d", iaa_ssi_iaa_date), 2)
+			iaa_ssi_iaa_date_year = right(DatePart("yyyy", iaa_ssi_iaa_date), 2)
+			pben_ssi_member_number = Left(iaa_ssi_member_dropdown, 2)
+			
+			Call write_value_and_transmit(pben_ssi_member_number, 20, 76)			'Go to the correct member 
+			
+			pben_row = 8
+			'pben_disp_code_string = "*"
+
+			Do 
+				EMReadScreen pben_exist, 2, pben_row, 24
+				If pben_exist = "__" Then 										
+					EMReadScreen numb_of_panels, 1, 2, 78
+					IF numb_of_panels = "0" Then 						'If PBEN panel does not exist, create a panel, write dialog entries into fields
+						Call write_value_and_transmit("NN", 20, 79)								
+					Else
+						PF9												'If PBEN panel exists but benefit type is empty, write dialog entries into fields
+					End IF
+					EMWaitReady 0, 0
+					EMWriteScreen Left(iaa_ssi_benefit_type, 2), pben_row, 24
+					EMWriteScreen iaa_ssi_referral_date_month, pben_row, 40
+					EMWriteScreen iaa_ssi_referral_date_day, pben_row, 43
+					EMWriteScreen iaa_ssi_referral_date_year, pben_row, 46
+					EMWriteScreen iaa_ssi_date_applied_pben_month, pben_row, 51
+					EMWriteScreen iaa_ssi_date_applied_pben_day, pben_row, 54
+					EMWriteScreen iaa_ssi_date_applied_pben_year, pben_row, 57
+					EMWriteScreen Left(iaa_ssi_verification_dropdown, 1), pben_row, 62
+					EMWriteScreen iaa_ssi_iaa_date_month, pben_row, 66
+					EMWriteScreen iaa_ssi_iaa_date_day, pben_row, 69
+					EMWriteScreen iaa_ssi_iaa_date_year, pben_row, 72
+					EMWriteScreen Left(iaa_ssi_disposition_code_dropdown, 1), pben_row, 77
+					Exit Do
+					
+				ElseIf pben_exist = "02" Then 
+					If Left(iaa_ssi_benefit_type, 2) = "02" Then
+						MsgBox "benefit type" & Left(iaa_ssi_benefit_type, 2)
+						EMReadScreen pben_benefit_type, 2, pben_row, 24
+						EMReadScreen pben_referral_date, 8, pben_row, 40
+						EMReadScreen pben_date_applied, 8, pben_row, 51
+						EMReadScreen pben_verification, 1, pben_row, 62
+						EMReadScreen pben_iaa_date, 8, pben_row, 66
+						EMReadScreen pben_disp_code, 1, pben_row, 77
+						pben_ssi_disp_code_string = pben_ssi_disp_code_string & pben_disp_code		
+				
+						If Instr(pben_ssi_disp_code_string, "A") or Instr(pben_ssi_disp_code_string, "E") or Instr(pben_ssi_disp_code_string, "P") or Instr(pben_ssi_disp_code_string, "N") Then 
+							MsgBox "instring contains AEPN"
+							If Left(iaa_ssi_disposition_code_dropdown, 1) = "A" or Left(iaa_ssi_disposition_code_dropdown, 1) = "E" or Left(iaa_ssi_disposition_code_dropdown, 1) = "P" or Left(iaa_ssi_disposition_code_dropdown, 1) = "N" Then 
+								MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
+								iaa_ssi_update_pben_checkbox = unchecked
+								Exit Do 
+							Else 
+								pben_row = pben_row + 1
+							End If
+						Else 
+							pben_row = pben_row + 1
+						End IF 
+					Else 
+						pben_row = pben_row + 1
+					End If
+				Else 
+					pben_row = pben_row + 1
+				End If
+			Loop Until pben_row = 14
+			If pben_row = 14 Then 
+				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
+				iaa_ssi_update_pben_checkbox = unchecked
+			End IF
+		End If
+	End If 
+
 
 	If form_type_array(form_type_const, maxis_panel_write) = "LTC-1503" then 	' WRITE FOR LTC 1503
 		end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
@@ -1643,18 +1856,30 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Agreement 
 	CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_member_dropdown)
-	If iaa_within_30_checkbox = checked Then 
-		CALL write_variable_in_case_note("* Signed within 30 days of receiving Combined Application Form or Change Report Form.")
-	End If
-	If iaa_outside_30_checkbox = checked Then 
+	CALL write_bullet_and_variable_in_CASE_NOTE("Assistance Type", iaa_type_assistance)
+	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Benefit type", iaa_benefit_type)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verification", iaa_verification_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Disposition Code", iaa_disposition_code_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Date Applied PBEN", iaa_date_applied_pben)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", iaa_referral_date)
+	CALL write_bullet_and_variable_in_CASE_NOTE("IAA Date", iaa_date)
+	If iaa_not_signed_30_checkbox = checked Then 
 		CALL write_variable_in_case_note("* NOT signed within 30 days of receiving Combined Application Form or Change Report Form. IAA forms signed by the applicant/participant more than 30 days before they submit a signed Combined Application Form (CAF) or Change Report Form (if participant is already open on other cash assistance) are invalid.")
 	End If
-	CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
+	If iaa_update_pben_checkbox = checked Then 
+		CALL write_variable_in_case_note("* PBEN Panel updated")
+	End If
+
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
 	CALL write_variable_in_case_note("   ")
 	Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
 End If
+
+
+
+
 
 'IAA-SSI Case Notes
 If form_type_array(form_type_const, form_count) = "Interim Assistance Authorization- SSI" Then 
@@ -1663,13 +1888,19 @@ If form_type_array(form_type_const, form_count) = "Interim Assistance Authorizat
 	CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_ssi_effective_date)
 	CALL write_bullet_and_variable_in_case_note("Date Received", iaa_ssi_date_received)
 	CALL write_bullet_and_variable_in_case_note("Household Member", iaa_ssi_member_dropdown)
-	CALL write_bullet_and_variable_in_case_note("Assistance Type", iaa_ssi_type_assistance)
+	CALL write_bullet_and_variable_in_case_note("Assistance Type", iaa_ssi_type_of_interim_assistance)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Benefit type", iaa_ssi_benefit_type)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Verification", iaa_ssi_verification_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Disposition Code", iaa_ssi_disposition_code_dropdown)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Date Applied PBEN", iaa_ssi_date_applied_pben)
+	CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", iaa_ssi_referral_date)
+	CALL write_bullet_and_variable_in_CASE_NOTE("IAA Date", iaa_ssi_iaa_date)
 
-	If iaa_ssi_within_30_checkbox = checked Then 
-		CALL write_variable_in_case_note("Signed within 30 days of receiving Combined Application Form or Change Report Form.")	
+	If iaa_ssi_not_signed_30days_checkbox = checked Then 
+		CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form. IAA forms signed by the applicant/participant more than 30 days before they submit a signed Combined Application Form (CAF) or Change Report Form (if participant is already open on other cash assistance) are invalid.")
 	End If
-	If iaa_ssi_outside_30_checkbox = checked Then 
-		CALL write_variable_in_case_note("NOT signed within 30 days of receiving Combined Application Form or Change Report Form.IAA forms signed by the applicant/participant more than 30 days before they submit a signed Combined Application Form (CAF) or Change Report Form (if participant is already open on other cash assistance) are invalid.")
+	If iaa_ssi_update_pben_checkbox = checked Then 
+		CALL write_variable_in_case_note("* PBEN Panel updated")
 	End If
 	CALL write_bullet_and_variable_in_case_note("Notes", iaa_ssi_comments)
 	CALL write_variable_in_case_note("   ")
