@@ -54,21 +54,23 @@ changelog_display
 EMConnect ""
 Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
+Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 member_number = "01"
 
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 181, 100, "Case & Member Number Selection"
+BeginDialog Dialog1, 0, 0, 181, 110, "Case & Member Number Selection"
   Text 20, 15, 50, 10, "Case Number: "
-  EditBox 75, 10, 50, 15, MAXIS_case_number
+  EditBox 75, 10, 45, 15, MAXIS_case_number
   Text 10, 35, 60, 10, "Member Number:"
   EditBox 75, 30, 30, 15, member_number
-  Text 10, 55, 60, 10, "Worker Signature:"
-  EditBox 75, 50, 100, 15, worker_signature
+  Text 5, 55, 65, 10, "Footer month/year:"
+  EditBox 75, 50, 20, 15, MAXIS_footer_month
+  EditBox 100, 50, 20, 15, MAXIS_footer_year
+  Text 10, 75, 60, 10, "Worker Signature:"
+  EditBox 75, 70, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 40, 75, 50, 15
-    CancelButton 95, 75, 50, 15
+    OkButton 75, 90, 45, 15
+    CancelButton 130, 90, 45, 15
 EndDialog
 
 Do
@@ -77,6 +79,7 @@ Do
   		Dialog Dialog1
   		Cancel_without_confirmation
   		Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit member number."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
   	    If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
