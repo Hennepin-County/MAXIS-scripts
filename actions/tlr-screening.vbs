@@ -513,7 +513,7 @@ If exempt_reasons > 0 then
       EditBox 70, 90, 250, 15, exemption_notes
       Text 10, 115, 60, 10, "Exemption basis:"
       ComboBox 70, 110, 100, 15, "Select OR Type..."+chr(9)+"Conversation w/ resident"+chr(9)+"Observational"+chr(9)+"Verified", exemption_basis
-      CheckBox 10, 130, 205, 10, "Check here to update STAT/WREG with highest exemption.", update_wreg_checkbox
+      CheckBox 10, 130, 245, 10, "Update STAT/WREG with highest exemption for selected month - CM +1.", update_wreg_checkbox
       ButtonGroup ButtonPressed
         OkButton 215, 110, 50, 15
         CancelButton 270, 110, 50, 15
@@ -610,32 +610,41 @@ If update_wreg_checkbox = 1 then
         End if 
     End if 
 
-	Call MAXIS_background_check
-    Call navigate_to_MAXIS_screen("STAT", "WREG")
-    Call write_value_and_transmit(member_number, 20, 76)
-    EMReadScreen panel_exists, 1, 2, 78
-    If panel_exists = "0" then 
-        Call write_value_and_transmit("NN", 20, 79) 'Adding new WREG panel 
-        EMWriteScreen "Y", 6, 68 'defaulting PWE to Y if blank panel 
-    Else 
-        PF9
-    End if 
+    Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
+    
+    For item = 0 to ubound(footer_month_array)
+	    MAXIS_footer_month = datepart("m", footer_month_array(item)) 'Need to assign footer month / year each time through
+	    If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	    MAXIS_footer_year = right(datepart("YYYY", footer_month_array(item)), 2)
+	    footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
-	EMWriteScreen best_wreg_code, 8, 50
-	EMWriteScreen best_abawd_code, 13, 50
-	If best_wreg_code = "30" then
-        If best_abawd_code = "09" then 
-            EMWriteScreen "Y", 8, 80
+        Call MAXIS_background_check
+        Call navigate_to_MAXIS_screen("STAT", "WREG")
+        Call write_value_and_transmit(member_number, 20, 76)
+        EMReadScreen panel_exists, 1, 2, 78
+        If panel_exists = "0" then 
+            Call write_value_and_transmit("NN", 20, 79) 'Adding new WREG panel 
+            EMWriteScreen "Y", 6, 68 'defaulting PWE to Y if blank panel 
         Else 
-	        EMWriteScreen "N", 8, 80
+            PF9
         End if 
-	Else
-	    EMWriteScreen "_", 8, 80
-	End if
-	
-	EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
-	If orientation_warning = "WARNING" then transmit 
-	PF3 'to save and exit to stat/wrap
+    
+	    EMWriteScreen best_wreg_code, 8, 50
+	    EMWriteScreen best_abawd_code, 13, 50
+	    If best_wreg_code = "30" then
+            If best_abawd_code = "09" then 
+                EMWriteScreen "Y", 8, 80
+            Else 
+	            EMWriteScreen "N", 8, 80
+            End if 
+	    Else
+	        EMWriteScreen "_", 8, 80
+	    End if
+	    
+	    EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
+	    If orientation_warning = "WARNING" then transmit 
+	    PF3 'to save and exit to stat/wrap
+    Next 
 End if 
 
 '----------------------------------------------------------------------------------------------------CASE/NOTE
