@@ -87,7 +87,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 
 'Initial dialog for CLIENT CONTACT, gasp!
-Dialog1 = ""    
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
   ButtonGroup ButtonPressed
     OkButton 75, 45, 45, 15
@@ -118,27 +118,105 @@ If is_this_priv = True then script_end_procedure("This case is privileged and ca
 EmReadscreen county_code, 4, 21, 21
 If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE/NOTE. The script will now stop.")
 
+'This is where we search CASE/NOTE for any follow up information or actions needed during a client contact.
+Call navigate_to_MAXIS_screen("CASE", "NOTE")
+too_old_date = DateAdd("d", -60, date)			'we are only looking 60 days in the past at this point.
+
+note_row = 5            'resetting the variables on the loop
+note_date = ""
+note_title = ""
+appt_date = ""
+SNAP_Waived_interview_return_contact_needed = False						'this identifies if a CAF screening was completed and follow up information is needed
+
+Do
+	EMReadScreen note_date, 8, note_row, 6      'reading the note date
+	EMReadScreen note_title, 55, note_row, 25   'reading the note header
+	note_title = trim(note_title)
+
+	If InStr(note_title, "*SNAP waived interview info provided by resident") <> 0 Then Exit Do		'this note indicates that we already discussed the follow up information from the application
+
+	If InStr(note_title, "----Info Needed for SNAP application----") <> 0 Then						'this is the note with the details of follow up
+		Call write_value_and_transmit("X", note_row, 3)			'open the note
+
+		in_note_row = 4
+		Do
+			EMReadScreen note_line, 78, in_note_row, 3			'read each line
+			note_line = trim(note_line)
+			If note_line = "---" Then Exit Do					'end of the note
+
+			If left(note_line, 13) = "Applied with:" Then		'This reads the form type
+				app_date = right(note_title, 8)
+				If InStr(app_date, "/") <> 0 Then
+					app_date = DateAdd("d", 0, app_date)
+				Else
+					app_date = ""
+				End If
+				If InStr(UCase(note_line), "SNAP APP FOR SRS (DHS-5223F)") <> 0 Then form_used = "SNAP APP FOR SRS (DHS-5223F)"
+				If InStr(UCase(note_line), "CAF (DHS-5223)") <> 0 Then form_used = "CAF (DHS-5223)"
+				If InStr(UCase(note_line), "MNBENEFITS") <> 0 Then form_used = "MNBenefits"
+			End If
+
+			If left(note_line, 2) = "~~" Then					'This indicates a question listed in the case note
+				SNAP_Waived_interview_return_contact_needed = True
+			End If
+			If SNAP_Waived_interview_return_contact_needed = True Then Exit Do		'once we find a question, we can leave the note, we don't need more information
+
+			in_note_row = in_note_row + 1						'go to the next row in the note
+			If in_note_row = 18 Then
+				PF8
+				EMReadScreen end_of_note, 9, 24, 14
+				If end_of_note = "LAST PAGE" Then Exit Do
+				in_note_row = 4
+			End If
+			EMReadScreen next_note_line, 78, in_note_row, 3
+			next_note_line = trim(next_note_line)
+
+		Loop until next_note_line = ""
+		PF3			'exit out of the case note
+	End If
+	If SNAP_Waived_interview_return_contact_needed = True Then Exit Do
+
+	IF note_date = "        " then Exit Do
+	note_row = note_row + 1
+	IF note_row = 19 THEN
+		PF8
+		note_row = 5
+	END IF
+	EMReadScreen next_note_date, 8, note_row, 6
+	IF next_note_date = "        " then Exit Do
+Loop until datevalue(next_note_date) < too_old_date 'looking ahead at the next case note kicking out the dates before app'
+
+'if we have found a case note with snap waived interview follow up contact, a message box with appear to ask if they want to redirect to the return contact functionality of SNAP waived interview
+If SNAP_Waived_interview_return_contact_needed = True Then
+
+	follow_up_contact = MsgBox("This case appears to have a SNAP Waived Interview Screening completed and missing information is needed." & vbCr & vbCr &_
+							"It appears the application form (" & form_used & ") was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
+							"Are you in contact with the resident now and can address the items we previously determined will need follow-up?", vbQuestion + vbYesNo, "CAF Review Info Note Found")
+
+	If follow_up_contact = vbYes Then call run_from_GitHub(script_repository & "notes\snap-waived-interview.vbs")
+End If
+
 Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 phone_number_list = "Select or Type|"
 If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
 If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
 If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
 '----------------------------------------------------------------------------------------------------MEMB 01 Name Collection
-Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string. 
+Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string.
 Call navigate_to_MAXIS_screen("STAT", "MEMB")       'navigating to STAT/MEMB. No other handling for member selection since M 01 is the default.
 EMReadScreen memb_01_check, 2, 4, 33                'ensuring it's M 01 we're reading.
-If memb_01_check = "01" then 
+If memb_01_check = "01" then
     EMReadScreen first_name, 12, 6, 63
-    Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable 
+    Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable
 End if
 
 '----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
-case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
+case_arep = "AREP"                                  'setting value of variable, defaulting to string.
 Call navigate_to_MAXIS_screen("STAT", "AREP")
-EmReadscreen arep_exists, 1, 2, 73                  
+EmReadscreen arep_exists, 1, 2, 73
 If arep_exists = "1" then
     EmReadscreen arep_name, 37, 4, 32               'If an arep panel exists read the name
-    case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable 
+    case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable
     EmReadscreen arep_phone_one, 16, 8, 32
         If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
             arep_phone_one = ""
@@ -162,12 +240,12 @@ If arep_exists = "1" then
 End if
 
 '----------------------------------------------------------------------------------------------------SWKR Name/Phone Number Collection
-case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string. 
+case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string.
 Call navigate_to_MAXIS_screen("STAT", "SWKR")
-EmReadscreen SWKR_exists, 1, 2, 73                  
+EmReadscreen SWKR_exists, 1, 2, 73
 If SWKR_exists = "1" then
     EmReadscreen SWKR_name, 35, 6, 32               'If an SWKR panel exists read the name
-    case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable 
+    case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable
     EmReadscreen SWKR_phone, 16, 12, 32
     If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
         SWKR_phone = ""
@@ -178,7 +256,7 @@ If SWKR_exists = "1" then
         SWKR_phone = SWKR_first_phone & "-" & SWKR_mid_phone & "-" & SWKR_last_phone
         phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
     End if
-End if     
+End if
 phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
 Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
 
@@ -272,7 +350,7 @@ Do
                 Text 285, 290, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 170, 90, 75, 10, "Date/Time of Contact:"
                 Text 255, 125, 60, 10, "METS IC number:"
-                
+
             EndDialog
 
 		    DIALOG Dialog1
@@ -288,7 +366,7 @@ Do
                 End If
                 ButtonPressed = 100
             End If
-        Loop until ButtonPressed = -1 
+        Loop until ButtonPressed = -1
 
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
@@ -297,18 +375,18 @@ Do
             If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number."
         End if
         If trim(contact_type) <> "Phone call" AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted phone interview should only be checked for the phone call contact type."
-        If phone_interview_attempt_checkbox <> checked Then 
-            If inStr(ucase(trim(regarding)), "INTERVIEW") or inStr(ucase(trim(regarding)), "INTVW") or inStr(ucase(trim(regarding)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Re:' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
-            If inStr(ucase(trim(contact_reason)), "INTERVIEW") or inStr(ucase(trim(contact_reason)), "INTVW") or inStr(ucase(trim(contact_reason)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Reason for contact' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
-            If inStr(ucase(trim(actions_taken)), "INTERVIEW") or inStr(ucase(trim(actions_taken)), "INTVW") or inStr(ucase(trim(actions_taken)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Actions taken' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
-            If inStr(ucase(trim(verifs_needed)), "INTERVIEW") or inStr(ucase(trim(verifs_needed)), "INTVW") or inStr(ucase(trim(verifs_needed)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Verifs needed' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
-            If inStr(ucase(trim(case_status)), "INTERVIEW") or inStr(ucase(trim(case_status)), "INTVW") or inStr(ucase(trim(case_status)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Case status' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
-            If inStr(ucase(trim(other_notes)), "INTERVIEW") or inStr(ucase(trim(other_notes)), "INTVW") or inStr(ucase(trim(other_notes)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Other notes' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered." 
+        If phone_interview_attempt_checkbox <> checked Then
+            If inStr(ucase(trim(regarding)), "INTERVIEW") or inStr(ucase(trim(regarding)), "INTVW") or inStr(ucase(trim(regarding)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Re:' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
+            If inStr(ucase(trim(contact_reason)), "INTERVIEW") or inStr(ucase(trim(contact_reason)), "INTVW") or inStr(ucase(trim(contact_reason)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Reason for contact' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
+            If inStr(ucase(trim(actions_taken)), "INTERVIEW") or inStr(ucase(trim(actions_taken)), "INTVW") or inStr(ucase(trim(actions_taken)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Actions taken' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
+            If inStr(ucase(trim(verifs_needed)), "INTERVIEW") or inStr(ucase(trim(verifs_needed)), "INTVW") or inStr(ucase(trim(verifs_needed)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Verifs needed' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
+            If inStr(ucase(trim(case_status)), "INTERVIEW") or inStr(ucase(trim(case_status)), "INTVW") or inStr(ucase(trim(case_status)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Case status' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
+            If inStr(ucase(trim(other_notes)), "INTERVIEW") or inStr(ucase(trim(other_notes)), "INTVW") or inStr(ucase(trim(other_notes)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Other notes' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
         End If
 		If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
         If follow_up_needed_checkbox = 1 and trim(ticket_number) = "" then err_msg = err_msg & vbcr & "* Enter the Q-Flow ticket number."
         If follow_up_needed_checkbox = 0 and trim(ticket_number) <> "" then err_msg = err_msg & vbcr & "* Check the follow up box or clear the Q-flow ticket field if follow up is not needed."
-        
+
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
