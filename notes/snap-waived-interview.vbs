@@ -8882,79 +8882,84 @@ msg_show_faq_btn = 107
 interpreter_servicves_btn = 108
 
 'Showing the case number dialog
-Do
-	DO
-		err_msg = ""
+If SNAP_Waived_interview_return_contact_needed <> True Then		'if this script was redirected from Client Contact, we do not need the initial dialog, we already have CASE Number, Worker Signature, and can automatically select the form type - skipping the initial dialog
 
-		' EditBox 245, 50, 50, 15, CAF_datestamp
-		' CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
-		' CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-		' CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
-		' Text 155, 55, 90, 10, "Date Application Received:"
-		' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
+	Do
+		DO
+			err_msg = ""
 
-		' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
-		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
-		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
-		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog"
-		  EditBox 75, 45, 60, 15, MAXIS_case_number
-		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"No Form - Return Contact" +chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", CAF_form '"HUF (DHS-8107)"+chr(9)++chr(9)+"Combined AR for Certain Pops (DHS-3727)"
-		  EditBox 75, 85, 145, 15, worker_signature
-		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
-		  ButtonGroup ButtonPressed
-		    OkButton 260, 300, 50, 15
-		    CancelButton 315, 300, 50, 15
-            PushButton 220, 65, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
-			PushButton 80, 165, 210, 15, "Press HERE for process documentation.", msg_show_quick_start_guide_btn
-	    	PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
-		    PushButton 10, 300, 75, 15, "Script Instructions", msg_show_instructions_btn
-		    'PushButton 60, 300, 70, 15, "Complete Application", msg_show_quick_start_guide_btn
-		    'PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
-		  Text 10, 10, 360, 10, "This script is to be used for a SNAP waived interview. Do not use this script to complete a full interview."
-		  Text 20, 50, 50, 10, "Case number:"
-		  Text 10, 70, 60, 10, "Actual CAF Form:"
-		  Text 10, 90, 60, 10, "Worker Signature:"
-		  'Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
-		  'Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
-		  'Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
-		  'Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
-		  Text 45, 105, 300, 10, "Utilize this script to review a SNAP application for complete information and verifications. "
-		  Text 55, 120, 300, 10, "Review ECF and MAXIS for additional information or inconsistent info."
-		  Text 20, 135, 330, 20, "Once completed reviewing, the script will prompt you to contact the resident if more information is needed, and will provide only those questions that need to be asked to complete the SNAP app."
+			' EditBox 245, 50, 50, 15, CAF_datestamp
+			' CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
+			' CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+			' CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
+			' Text 155, 55, 90, 10, "Date Application Received:"
+			' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
 
-		  GroupBox 10, 190, 355, 105, "How to interact with this Script"
-		  Text 25, 205, 330, 35, "This script contains multiple dialogs covering all portions of the application. The script will assist you by checking for errors and missing information on each dialog. Choose below how you would like that error handling to occur."
-		  Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
-		EndDialog
+			' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
+			' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
+			' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 371, 320, "SNAP Waived Interview Case number dialog"
+			EditBox 75, 45, 60, 15, MAXIS_case_number
+			DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"No Form - Return Contact" +chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", CAF_form '"HUF (DHS-8107)"+chr(9)++chr(9)+"Combined AR for Certain Pops (DHS-3727)"
+			EditBox 75, 85, 145, 15, worker_signature
+			DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
+			ButtonGroup ButtonPressed
+				OkButton 260, 300, 50, 15
+				CancelButton 315, 300, 50, 15
+				PushButton 220, 65, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+				PushButton 80, 165, 210, 15, "Press HERE for process documentation.", msg_show_quick_start_guide_btn
+				PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
+				PushButton 10, 300, 75, 15, "Script Instructions", msg_show_instructions_btn
+				'PushButton 60, 300, 70, 15, "Complete Application", msg_show_quick_start_guide_btn
+				'PushButton 130, 300, 30, 15, "FAQ", msg_show_faq_btn
+			Text 10, 10, 360, 10, "This script is to be used for a SNAP waived interview. Do not use this script to complete a full interview."
+			Text 20, 50, 50, 10, "Case number:"
+			Text 10, 70, 60, 10, "Actual CAF Form:"
+			Text 10, 90, 60, 10, "Worker Signature:"
+			'Text 145, 105, 105, 10, "*!*!*!*  DID YOU KNOW *!*!*!*"
+			'Text 110, 120, 185, 10, "This script SAVES the information you enter as it runs!"
+			'Text 75, 135, 255, 10, "This means that IF the script errors, fails, is cancelled, the network goes down."
+			'Text 135, 145, 125, 10, "YOU CAN GET YOUR WORK BACK!!!"
+			Text 45, 105, 300, 10, "Utilize this script to review a SNAP application for complete information and verifications. "
+			Text 55, 120, 300, 10, "Review ECF and MAXIS for additional information or inconsistent info."
+			Text 20, 135, 330, 20, "Once completed reviewing, the script will prompt you to contact the resident if more information is needed, and will provide only those questions that need to be asked to complete the SNAP app."
 
-		Dialog Dialog1
-		cancel_without_confirmation
+			GroupBox 10, 190, 355, 105, "How to interact with this Script"
+			Text 25, 205, 330, 35, "This script contains multiple dialogs covering all portions of the application. The script will assist you by checking for errors and missing information on each dialog. Choose below how you would like that error handling to occur."
+			Text 20, 265, 315, 10, "How do you want to be alerted to updates needed to answers/information in following dialogs?"
+			EndDialog
 
-		If ButtonPressed > 100 Then
-			err_msg = "LOOP"
+			Dialog Dialog1
+			cancel_without_confirmation
 
-			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
-			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
-	        If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
-		    If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
-			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
+			If ButtonPressed > 100 Then
+				err_msg = "LOOP"
 
-			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20SNAP%20WAIVED%20INTERVIEW.docx"
-			If ButtonPressed = msg_show_quick_start_guide_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/SitePages/Processing-SNAP-Applications-with-Waived-Interviews.aspx"
-			If ButtonPressed = msg_show_faq_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20FAQ.docx"
-		Else
-			Call validate_MAXIS_case_number(err_msg, "*")
-			If no_case_number_checkbox = checked Then err_msg = ""
-			' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-			If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
-			' If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		End If
-	LOOP UNTIL err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+				If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
+				If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
+				If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
+				If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
+				If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
+
+				If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20SNAP%20WAIVED%20INTERVIEW.docx"
+				If ButtonPressed = msg_show_quick_start_guide_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/SitePages/Processing-SNAP-Applications-with-Waived-Interviews.aspx"
+				If ButtonPressed = msg_show_faq_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20FAQ.docx"
+			Else
+				Call validate_MAXIS_case_number(err_msg, "*")
+				If no_case_number_checkbox = checked Then err_msg = ""
+				' Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+				If CAF_form = "Select One:" Then err_msg = err_msg & vbCr & "* Select which form that was received that we are using for the interview."
+				' If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+				IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+			End If
+		LOOP UNTIL err_msg = ""
+		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	LOOP UNTIL are_we_passworded_out = false
+Else
+	CAF_form = "No Form - Return Contact"		'setting the form type if the script was redirected from Client Contact
+End If
 
 Do
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
