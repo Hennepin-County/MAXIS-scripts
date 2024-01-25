@@ -341,7 +341,7 @@ ObjExcel.Cells(1, col_to_use).Value = now
 ObjExcel.Cells(2, col_to_use - 1).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, col_to_use).Value = timer - query_start_time
 
-is_not_blank_excel_string = chr(34) & "<>" & chr(34)
+is_not_blank_excel_string = chr(34) & "P" & chr(34)
 
 'SNAP info
 If SNAP_check = checked then
@@ -350,7 +350,7 @@ If SNAP_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the SNAP stat takes up two rows
 End if
@@ -362,7 +362,7 @@ If cash_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of cash cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & cash_letter_col & ":" & cash_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the cash stat takes up two rows
 End if
@@ -374,7 +374,7 @@ If HC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of HC cases pending over 45 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">45" & Chr(34) & ", " & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & HC_letter_col & ":" & HC_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the HC stat takes up two rows
 End if
@@ -386,7 +386,7 @@ If EA_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of EA cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & EA_letter_col & ":" & EA_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the EA stat takes up two rows
 End if
@@ -398,7 +398,7 @@ If GRH_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of GRH cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & GRH_letter_col & ":" & GRH_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the GRH stat takes up two rows
 End if
@@ -410,7 +410,7 @@ If IVE_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & IVE_letter_col & ":" & IVE_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the IVE stat takes up two rows
 End if
@@ -422,7 +422,7 @@ If CC_check = checked then
 	ObjExcel.Cells(row_to_use, col_to_use).Value = "=COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & ")"	'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use - 1).Value = "Percentage of SNAP cases pending over 30 days:"	'Row header
 	objExcel.Cells(row_to_use + 1, col_to_use - 1).Font.Bold = TRUE								'Row header should be bold
-	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & "))/(COUNTIF(" & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & ") -1)" 'Excel formula
+	ObjExcel.Cells(row_to_use + 1, col_to_use).Value = "=(COUNTIFS(E:E, " & Chr(34) & ">30" & Chr(34) & ", " & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & "))/COUNTIF(" & CC_letter_col & ":" & CC_letter_col & ", " & is_not_blank_excel_string & ")" 'Excel formula
 	ObjExcel.Cells(row_to_use + 1, col_to_use).NumberFormat = "0.00%"		'Formula should be percent
 	row_to_use = row_to_use + 2	'It's two rows we jump, because the CC stat takes up two rows
 End if
@@ -459,8 +459,8 @@ If SNAP_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & SNAP_letter_col & ":" & SNAP_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -502,8 +502,8 @@ If cash_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & cash_letter_col & ":" & cash_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -545,8 +545,8 @@ If HC_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=45" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=45" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & HC_letter_col & ":" & HC_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -588,8 +588,8 @@ If EA_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & EA_letter_col & ":" & EA_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -630,8 +630,8 @@ If GRH_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & GRH_letter_col & ":" & GRH_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -673,8 +673,8 @@ If IVE_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & IVE_letter_col & ":" & IVE_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
@@ -716,8 +716,8 @@ If CC_check = checked then
 	'Writes each worker from the worker_array in the Excel spreadsheet
 	For x = 0 to ubound(worker_array)
 		ObjExcel.Cells(x + 3, 1) = worker_array(x)
-		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
-		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
+		ObjExcel.Cells(x + 3, 2) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ", 'Case information'!E:E, " & Chr(34) & "<=30" & Chr(34) & ")"
+		ObjExcel.Cells(x + 3, 3) = "=COUNTIFS('Case information'!" & CC_letter_col & ":" & CC_letter_col & ", " & Chr(34) & "P" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'Case information'!A:A, A" & x + 3 & ")"
 		ObjExcel.Cells(x + 3, 4) = "=B" & x + 3 & "/C" & x + 3
 		ObjExcel.Cells(x + 3, 4).NumberFormat = "0.00%"		'Formula should be percent
 		ObjExcel.Cells(x + 3, 5) = "=C" & x + 3 & "/SUM(C:C)"
