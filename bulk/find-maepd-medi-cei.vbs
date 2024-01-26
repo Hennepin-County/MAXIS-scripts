@@ -110,7 +110,7 @@ BeginDialog Dialog1, 0, 0, 211, 65, "Find MA-EPD Medicare CEI"
   ButtonGroup ButtonPressed
     OkButton 100, 45, 50, 15
     CancelButton 155, 45, 50, 15
-  Text 5, 15, 115, 10, "X Numbers, seperated by comma:"
+  Text 5, 15, 115, 10, "X Numbers, separated by comma:"
   Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
 EndDialog
 Do
@@ -130,10 +130,6 @@ Call MAXIS_footer_month_confirmation
 
 current_month = MAXIS_footer_month & "/" & MAXIS_footer_year    'Establishing current month to check for MA-EPD elig in actual current month in ELIG/HC
 
-msp_col = 5
-prem_col = 6
-reim_elig_col = 7
-
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
 objExcel.Visible = True
@@ -146,11 +142,29 @@ objExcel.Cells(1, 4).Value = "NEXT REVW"
 objExcel.Cells(1, 5).Value = "MSP ACTIVE?"
 objExcel.Cells(1, 6).Value = "PART B PREM"
 objExcel.Cells(1, 7).Value = "REIMBURSEMENT ELIG?"
+objExcel.Cells(1, 8).Value = "FPG %?"
+objExcel.Cells(1, 9).Value = "Total UNEA Income"
+objExcel.Cells(1, 10).Value = "Total Earned Income"
+objExcel.Cells(1, 11).Value = "Excluded EI"
+objExcel.Cells(1, 12).Value = "Total Net Income"
+objExcel.Cells(1, 13).Value = "Income for Prem Calculation"
 
-FOR i = 1 to 7		'formatting the cells'
+
+FOR i = 1 to 13		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
+
+'setting column constants for 
+msp_col = 5
+prem_col = 6
+reim_elig_col = 7
+fpg_col = 8
+unea_col = 9
+EI_col = 10
+excluded_income_col = 11
+net_income_col = 12
+prem_income_col = 13
 
 CALL navigate_to_MAXIS_screen("REPT", "ACTV")						'navigating to rept actv for requested user
 rept_row = 7                                                        'setting variables for first run through
@@ -197,7 +211,7 @@ DO
 	MAXIS_case_number = objExcel.Cells(excel_row, 2).Value					'reading case number from excel spreadsheet
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = True then
-        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("Privilged Case.")
+        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("Privileged Case.")
     Else
 		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
         objExcel.Cells(excel_row, msp_col).Value = msp_case
@@ -205,7 +219,7 @@ DO
 	    hhmm_row = 8	                                                         'setting starting point to review all HH members in ELIG HC
         notes = ""
         MaEPD_found = ""
-	    DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type.
+	    DO																		'the script will now navigate to ELIG HC and begin to search for MA cases with DP as the elig type.
 	    	EMReadScreen hc_type, 2, hhmm_row, 28
 	    	IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
                 EMReadScreen hh_memb_num, 2, hhmm_row, 3
@@ -221,11 +235,11 @@ DO
                 If row = 0 then
                     'For cases without current HC elig
                     objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review.")
-                    For col = 1 to 7
+                    For col = 1 to 13
                         objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                     Next
                 else
-                     'Chekcing for MA-EPD results in the current month
+                     'Checking for MA-EPD results in the current month
 	    		    EMReadScreen elig_type, 2, 12, col - 2
 	    		    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
                         'For cases without current MA-EPD
@@ -243,21 +257,40 @@ DO
                         EmReadscreen x_budget, 1, 13, col + 2       'Added supports for X budget cases as they cannot enter the budget on line 250
                         If x_budget = "X" then
                             objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " has X budget. Review eligibility.")  'writing eligibility status in spreadsheet
-                            For col = 1 to 7
+                            For col = 1 to 13
                                 objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
                             Next
                         Else
                             Call write_value_and_transmit("X", 9, col + 2)
-	    			        EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
+                            'Reading Budget Information 
+
+                            EMReadScreen gross_unea_income, 11, 9, 31
+                            objExcel.Cells(excel_row, unea_col).Value = trim(gross_unea_income)
+
+                            EMReadScreen earned_income, 11, 13, 31
+                            objExcel.Cells(excel_row, EI_col).Value = trim(earned_income)
+
+                            EMReadScreen excluded_income, 11, 15, 31
+                            objExcel.Cells(excel_row, excluded_income_col).Value = trim(excluded_income)
+
+                            EMReadScreen net_income, 11, 16, 31
+                            objExcel.Cells(excel_row, net_income_col).Value = trim(net_income)
+
+                            EMReadScreen prem_income, 11, 9, 68
+                            objExcel.Cells(excel_row, prem_income_col).Value = trim(prem_income)
+
+                            EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percent of FPG client is at.
 	    			        pct_fpg = trim(pct_fpg)
+                            objExcel.Cells(excel_row, fpg_col).Value = pct_fpg  
+
                             If pct_fpg = "" then
                                 objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
-                                For col = 1 to 7
+                                For col = 1 to 13
             	            		objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
             	                Next
                             Else
                                 pct_fpg = pct_fpg * 1
-	    			            IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
+	    			            IF pct_fpg < 200 THEN										'If the client is 200% or under they may eligible for reimbursement - https://hcopub.dhs.state.mn.us/epm/2_3_5_4_1.htm
 	    			            	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
 	    			            	PF3
                                     'Grabbing the Medicare Part B premium
@@ -277,7 +310,7 @@ DO
                                    EmReadscreen medi_premium, 8, 7, 73
                                    objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
 
-	    			            	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
+	    			            	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior authorization area
 
                                     DO
 	    			            		EMReadScreen RKEY, 4, 1, 52
@@ -372,7 +405,7 @@ DO
 	    	END IF
 	    	IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen.
 	    		PF8																'pf8 will cause elig hc to move to the next set of HH members if that page is full
-	    		EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
+	    		EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaluating this case
 	    	END IF
 	    LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
     End if
