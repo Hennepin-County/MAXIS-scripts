@@ -190,14 +190,6 @@ Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
 End if
 
-'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
-If all_check = 1 then
-    dail_end_msg = "NO MESSAGES WORK"
-Else
-    'all specified selection(s) will get this ending user message.
-    dail_end_msg = "NO MESSAGES TYPE"
-End if
-
 'This for...next contains each worker indicated above
 For each worker in worker_array
 	EMWriteScreen worker, 21, 6
@@ -284,21 +276,14 @@ For each worker in worker_array
 			End if
 
             dail_row = dail_row + 1
-			'...going to the next page if necessary
-			EMReadScreen next_dail_check, 4, dail_row, 4
-			If trim(next_dail_check) = "" then
-				PF8
-                EMReadScreen last_page_check, 16, 24, 2
-                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
-                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
-					all_done = true
-					exit do
-				Else
-					dail_row = 6
-				End if
+            'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
+			EMReadScreen next_dail_check, 7, dail_row, 3
+			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                last_case = true
+				exit do
 			End if
 		LOOP
-		IF all_done = true THEN exit do
+		IF last_case = true THEN exit do
 	LOOP
 Next
 
