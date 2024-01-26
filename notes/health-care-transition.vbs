@@ -319,27 +319,7 @@ If initial_option = "MAXIS to METS Migration" then
 
     'THE MEMO----------------------------------------------------------------------------------------------------
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
-    If METS_OR_PR_number = "" then
-        Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
-        Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
-        Call write_variable_in_SPEC_MEMO ("You can still apply for health care coverage. To apply, you must go to http://www.mnsure.org and complete an online application. If you cannot apply online, you can complete a paper application.")
-        Call write_variable_in_SPEC_MEMO ("NOTE: If you already applied for coverage for this person through MNsure or your county human services agency and got an approval notice, you do not have to apply again.")
-        Call write_variable_in_SPEC_MEMO ("If you have questions or want to ask for a paper application, call your county human services agency at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
-        Call write_variable_in_SPEC_MEMO ("You can also get help through a navigator. To find one, go to http://www.mnsure.org. Click the ""Get Help"" tab on the home page. Then click the ""Find an assister"" link and use the assister directory to find a navigator near you. Your county human services agency can also help you find a navigator in your area.")
-        Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
-    Else
-        'has METS affliated case
-        Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". Your eligibility for health care coverage needs to be redetermined. We are redetermining your eligibility under a new process using the MNsure system.")
-        Call write_variable_in_SPEC_MEMO ("")
-        Call write_variable_in_SPEC_MEMO ("MNsure is the system that determines health care eligibility. Our records indicate that you are a member of an active case on the MNsure system. Your coverage will be redetermined on that active case.")
-        Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
-        Call write_variable_in_SPEC_MEMO ("")
-        Call write_variable_in_SPEC_MEMO ("If we have all the information we need, you will get another health care notice. It will tell you which health care program you are eligible for. If you have already received this notice, no further action is needed. If we need more information, we will contact you.")
-        Call write_variable_in_SPEC_MEMO ("If you have questions, call your worker at 612-596-1300. You can also call the DHS Minnesota Health Care Programs (MHCP) Member Help Desk at 651-431-2670 or 800-657-3739. Or call using your preferred relay service.")
-        Call write_variable_in_SPEC_MEMO ("")
-        Call write_variable_in_SPEC_MEMO ("You have the right to appeal. Visit this website for more information: https://www.hennepin.us/residents/health-medical/health-care-assistance")
-    End if
-
+    Call write_variable_in_SPEC_MEMO(trim(client_name_list) & "You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.")
     PF4
     stats_counter = stats_counter + 1
 End if
