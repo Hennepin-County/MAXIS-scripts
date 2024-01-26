@@ -145,18 +145,7 @@ Else
     If LTC_checkbox = 1 then worker_numbers = worker_numbers & LTC_plus_baskets
     If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
 
-    x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
-
-	'Need to add the worker_county_code to each one
-	For each x1_number in x1s_from_dialog
-		If worker_array = "" then
-			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
-		Else
-			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-		End if
-	Next
-	'Split worker_array
-	worker_array = split(worker_array, ",")
+    worker_array = split(worker_numbers, ",")
 End if
 
 '----------------------------------------------------------------------------------------------------Setting up and valueing the array
@@ -225,14 +214,14 @@ For each worker in worker_array
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
-		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				Call write_value_and_transmit("T", dail_row, 3)
-				dail_row = 6
-			ELSEIF new_case = "CASE NBR" THEN
+		    IF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
-				dail_row = 6
+			ELSEIF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				Call write_value_and_transmit("T", dail_row, 3)
 			End if
+
+            dail_row = 6    'resetting DAIL_row to 6
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -248,6 +237,7 @@ For each worker in worker_array
 
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+            
             'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties. 
             If instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then actionable_dail = False
 
