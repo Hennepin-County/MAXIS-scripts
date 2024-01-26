@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2024", "Added the form 'Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)' to the form selection options in the script as this form can be used for Health Care processing.", "Casey Love, Hennepin County")
 call changelog_update("01/23/2024", "BUG FIX - updated the handling for LTC Application cases to better handle in dealing with the baseline date and lookback period.", "Casey Love, Hennepin County")
 call changelog_update("12/15/2023", "BUG FIX - previously if the dialog review was 'Complete' but then selected 'No' to return, the script would ask after every button push to 'Complete' updated to stop this from happening until 'Complete' is pressed again.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2023", "Added field to capture member specific HC recertification date.", "Megan Geissler, Hennepin County")
@@ -3867,6 +3868,7 @@ form_selection_options = form_selection_options+chr(9)+"MNsure Application for H
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal (DHS-3418)"
 form_selection_options = form_selection_options+chr(9)+"Combined Annual Renewal for Certain Populations (DHS-3727)"
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
+form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)"
 form_selection_options = form_selection_options+chr(9)+"Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
@@ -6750,9 +6752,10 @@ End If
 'creating a name that is easier to read
 If HC_form_name = "Health Care Programs Application for Certain Populations (DHS-3876)" Then short_form = "HC Certain Pops App"
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
-If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal"
+If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal Form"
 If HC_form_name = "Combined Annual Renewal for Certain Populations (DHS-3727)" Then short_form = "Combined AR"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
+If HC_form_name = "Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)" Then short_form = "HC Renewal Form for Families"
 If HC_form_name = "Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)" Then short_form = "LTC Renewal"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"
