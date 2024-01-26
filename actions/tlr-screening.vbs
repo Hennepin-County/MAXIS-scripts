@@ -513,7 +513,7 @@ If exempt_reasons > 0 then
       EditBox 70, 90, 250, 15, exemption_notes
       Text 10, 115, 60, 10, "Exemption basis:"
       ComboBox 70, 110, 100, 15, "Select OR Type..."+chr(9)+"Conversation w/ resident"+chr(9)+"Observational"+chr(9)+"Verified", exemption_basis
-      CheckBox 10, 130, 245, 10, "Update STAT/WREG with highest exemption for selected month - CM +1.", update_wreg_checkbox
+      CheckBox 10, 130, 310, 10, "Check here to update STAT/WREG with highest exemption for selected month - CM +1.", update_wreg_checkbox
       ButtonGroup ButtonPressed
         OkButton 215, 110, 50, 15
         CancelButton 270, 110, 50, 15
