@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("01/30/2024", "The Client Contact script has been updated to support gathering additional information about SNAP applications if additional information is needed. ##~## ##~##This update supports processing cases during the SNAP Waived Interview. This will connect NOTES - SNAP Waived Interview script functionality with Client Contact and will pull up specific functionality that will list the application questions with follow up informatation required. This will allow for better SNAP processing and make following up on pending SNAP applications easier.##~##", "Casey Love, Hennepin County")
 Call changelog_update("01/05/2024", "Added initial dialog which contains the MAXIS Case Number and Worker Signature. Removed this information from the main dialog, and moved the 'Display Benefits' button into the space where the 'Case Number' field used to be.", "Ilse Ferris, Hennepin County")
 Call changelog_update("11/20/2023", "Added checkbox to indicate a phone interview was attempted but not completed, which will add a specific CASE/NOTE with this information. Added handling to prevent use of script for interviews.", "Mark Riegel, Hennepin County")
 Call changelog_update("05/15/2023", "Added phone # & name autofilling in 'who was contacted' drop list AREP's and/or SWKR's, & added name for MEMB 01. Removed text opt out option (retired process), updated the Q-flow verbiage from N/A to NO Q-FLOW POPULATION.", "Ilse Ferris, Hennepin County")
@@ -193,6 +194,7 @@ If SNAP_Waived_interview_return_contact_needed = True Then
 							"It appears the application form (" & form_used & ") was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
 							"Are you in contact with the resident now and can address the items we previously determined will need follow-up?", vbQuestion + vbYesNo, "CAF Review Info Note Found")
 
+	'Running SNAP Waived Interview for return contact detail
 	If follow_up_contact = vbYes Then call run_from_GitHub(script_repository & "notes\snap-waived-interview.vbs")
 End If
 
