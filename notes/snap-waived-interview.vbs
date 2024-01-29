@@ -10999,35 +10999,6 @@ prog_snap_intvw_date = ""
 update_prog = False
 If case_pending = True Then
 	Call navigate_to_MAXIS_screen("STAT", "PROG")
-
-	EMReadScreen prog_cash_1_status, 4, 6, 74
-	If prog_cash_1_status = "PEND" Then
-		EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
-		prog_cash_1_intvw_date = replace(prog_cash_1_intvw_date, " ", "/")
-		If prog_cash_1_intvw_date = "__/__/__" Then prog_cash_1_intvw_date = ""
-		If prog_cash_1_intvw_date = "" Then update_prog = True
-	End If
-	EMReadScreen prog_cash_2_status, 4, 7, 74
-	If prog_cash_2_status = "PEND" Then
-		EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
-		prog_cash_2_intvw_date = replace(prog_cash_2_intvw_date, " ", "/")
-		If prog_cash_2_intvw_date = "__/__/__" Then prog_cash_2_intvw_date = ""
-		If prog_cash_2_intvw_date = "" Then update_prog = True
-	End If
-	EMReadScreen prog_emer_status, 4, 8, 74
-	If prog_emer_status = "PEND" Then
-		EMReadScreen prog_emer_intvw_date, 8, 8, 55
-		prog_emer_intvw_date = replace(prog_emer_intvw_date, " ", "/")
-		If prog_emer_intvw_date = "__/__/__" Then prog_emer_intvw_date = ""
-		If prog_emer_intvw_date = "" Then update_prog = True
-	End If
-	EMReadScreen prog_grh_status, 4, 9, 74
-	If prog_grh_status = "PEND" Then
-		EMReadScreen prog_grh_intvw_date, 8, 9, 55
-		prog_grh_intvw_date = replace(prog_grh_intvw_date, " ", "/")
-		If prog_grh_intvw_date = "__/__/__" Then prog_grh_intvw_date = ""
-		If prog_grh_intvw_date = "" Then update_prog = True
-	End If
 	EMReadScreen prog_snap_status, 4, 10, 74
 	If prog_snap_status = "PEND" Then
 		EMReadScreen prog_snap_intvw_date, 8, 10, 55
@@ -11038,43 +11009,43 @@ If case_pending = True Then
 End If
 
 update_revw = False
-If cash_revw_due = True OR snap_revw_due = True Then
-	Call back_to_SELF
-	If cash_revw_due = True Then
-		MAXIS_footer_month = CASH_NEXT_REVW_MONTH
-		MAXIS_footer_year = CASH_NEXT_REVW_YEAR
-		Call navigate_to_MAXIS_screen("STAT", "REVW")
-
-		EMReadScreen cash_revw_status_code, 1, 7, 40
-		If cash_revw_status_code = "N" OR cash_revw_status_code = "I" OR cash_revw_status_code = "U" Then
-			EMReadScreen revw_panel_interview_date, 8, 15, 37
-			revw_panel_interview_date = replace(revw_panel_interview_date, " ", "/")
-			If revw_panel_interview_date = "__/__/__" Then revw_panel_interview_date = ""
-			If revw_panel_interview_date = "" Then update_revw = True
-		End If
-
-		MAXIS_footer_month = original_footer_month
-		MAXIS_footer_year = original_footer_year
-	End If
-
-	Call back_to_SELF
-	If snap_revw_due = True Then
-		MAXIS_footer_month = SNAP_NEXT_REVW_MONTH
-		MAXIS_footer_year = SNAP_NEXT_REVW_YEAR
-		Call navigate_to_MAXIS_screen("STAT", "REVW")
-
-		EMReadScreen snap_revw_status_code, 1, 7, 60
-		If snap_revw_status_code = "N" OR snap_revw_status_code = "I" OR snap_revw_status_code = "U" Then
-			EMReadScreen revw_panel_interview_date, 8, 15, 37
-			revw_panel_interview_date = replace(revw_panel_interview_date, " ", "/")
-			If revw_panel_interview_date = "__/__/__" Then revw_panel_interview_date = ""
-			If revw_panel_interview_date = "" Then update_revw = True
-		End If
-
-		MAXIS_footer_month = original_footer_month
-		MAXIS_footer_year = original_footer_year
-	End If
-End If
+'If cash_revw_due = True OR snap_revw_due = True Then
+'	Call back_to_SELF
+'	If cash_revw_due = True Then
+'		MAXIS_footer_month = CASH_NEXT_REVW_MONTH
+'		MAXIS_footer_year = CASH_NEXT_REVW_YEAR
+'		Call navigate_to_MAXIS_screen("STAT", "REVW")
+'
+'		EMReadScreen cash_revw_status_code, 1, 7, 40
+'		If cash_revw_status_code = "N" OR cash_revw_status_code = "I" OR cash_revw_status_code = "U" Then
+'			EMReadScreen revw_panel_interview_date, 8, 15, 37
+'			revw_panel_interview_date = replace(revw_panel_interview_date, " ", "/")
+'			If revw_panel_interview_date = "__/__/__" Then revw_panel_interview_date = ""
+'			If revw_panel_interview_date = "" Then update_revw = True
+'		End If
+'
+'		MAXIS_footer_month = original_footer_month
+'		MAXIS_footer_year = original_footer_year
+'	End If
+'
+'	Call back_to_SELF
+'	If snap_revw_due = True Then
+'		MAXIS_footer_month = SNAP_NEXT_REVW_MONTH
+'		MAXIS_footer_year = SNAP_NEXT_REVW_YEAR
+'		Call navigate_to_MAXIS_screen("STAT", "REVW")
+'
+'		EMReadScreen snap_revw_status_code, 1, 7, 60
+'		If snap_revw_status_code = "N" OR snap_revw_status_code = "I" OR snap_revw_status_code = "U" Then
+'			EMReadScreen revw_panel_interview_date, 8, 15, 37
+'			revw_panel_interview_date = replace(revw_panel_interview_date, " ", "/")
+'			If revw_panel_interview_date = "__/__/__" Then revw_panel_interview_date = ""
+'			If revw_panel_interview_date = "" Then update_revw = True
+'		End If
+'
+'		MAXIS_footer_month = original_footer_month
+'		MAXIS_footer_year = original_footer_year
+'	End If
+'End If
 Call back_to_SELF
 
 ' 'TESTING CODE - this is inplace so that the script doesn't error trying to update PROG.
@@ -11098,76 +11069,7 @@ Call back_to_SELF
 ' update_revw = False
 ' update_prog = False
 
-If update_revw = True OR update_prog = True Then
-	If update_revw = True OR update_prog = True Then dlg_len = 300
-	If update_revw = False OR update_prog = True Then dlg_len = 170
-	If update_revw = True OR update_prog = False Then dlg_len = 190
-	y_pos = 40
-	confirm_update_revw = 0
-	confirm_update_prog = 0
-
-	If update_revw = True Then confirm_update_revw = 1
-	If update_prog = True Then confirm_update_prog = 1
-	If prog_cash_1_status = "PEND" AND prog_cash_1_intvw_date = "" Then prog_update_cash_1_checkbox = checked
-	If prog_cash_2_status = "PEND" AND prog_cash_2_intvw_date = "" Then prog_update_cash_2_checkbox = checked
-	If prog_emer_status = "PEND" AND prog_emer_intvw_date = "" Then prog_update_emer_checkbox = checked
-	If prog_grh_status = "PEND" AND prog_grh_intvw_date = "" Then prog_update_grh_checkbox = checked
-	If prog_snap_status = "PEND" AND prog_snap_intvw_date = "" Then prog_update_snap_checkbox = checked
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 251, dlg_len, "Update Interview Date in STAT"
-	  Text 10, 10, 235, 25, "It appears that the interview date needs to be added to STAT panels. Since the interview is now completed, the script can upate the correct panels with the interview date."
-	  If update_revw = True Then
-		  GroupBox 5, y_pos, 240, 125, "STAT/REVW Needs to be Updated"
-		  OptionGroup RadioGroupREVW
-		    RadioButton 10, y_pos + 15, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
-		    RadioButton 10, y_pos + 80, 100, 10, "No, do not update REVW", do_not_update_revw
-		  Text 20, y_pos + 30, 125, 10, "Interview Date: " & interview_date
-		  Text 35, y_pos + 40, 95, 10, "CAF Date: " & CAF_datestamp
-		  Text 20, y_pos + 55, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
-		  Text 20, y_pos + 95, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
-		  EditBox 20, y_pos + 105, 220, 15, no_update_revw_reason
-		  y_pos = 170
-	  End If
-	  If update_prog = True Then
-		  GroupBox 5, y_pos, 240, 105, "STAT/PROG Needs to be Updated"
-		  OptionGroup RadioGroupPROG
-		    RadioButton 10, y_pos + 15, 200, 10, "YES! Update PROG with the Interview Date " & interview_date, confirm_update_prog
-		    RadioButton 10, y_pos + 60, 90, 10, "No, do not update PROG", do_not_update_prog
-		  CheckBox 25, y_pos + 25, 40, 10, "CASH 1", prog_update_cash_1_checkbox
-		  CheckBox 25, y_pos + 35, 40, 10, "CASH 2", prog_update_cash_2_checkbox
-		  CheckBox 25, y_pos + 45, 30, 10, "EMER", prog_update_emer_checkbox
-		  CheckBox 85, y_pos + 25, 30, 10, "GRH", prog_update_grh_checkbox
-		  CheckBox 85, y_pos + 35, 30, 10, "SNAP", prog_update_snap_checkbox
-		  Text 20, y_pos + 75, 200, 10, "Reason PROG should not be updated with the Interview Date:"
-		  EditBox 20, y_pos + 85, 220, 15, no_update_prog_reason
-	  End If
-	  ButtonGroup ButtonPressed
-	    OkButton 195, dlg_len - 20, 50, 15
-	EndDialog
-
-	'Running the dialog
-	Do
-		Do
-			err_msg = ""
-			Dialog Dialog1
-			If update_revw = True Then
-				'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-				If do_not_update_revw = 1 AND no_update_revw_reason = "" Then err_msg = err_msg & vbNewLine & "* If REVW is not to be updated, please explain why REVW should not be updated."
-			End If
-
-			If update_prog = True Then
-				'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-				If do_not_update_prog = 1 AND no_update_prog_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
-				IF confirm_update_prog = 1 Then
-					If prog_update_cash_1_checkbox = unchecked AND prog_update_cash_2_checkbox = unchecked AND prog_update_emer_checkbox = unchecked AND prog_update_grh_checkbox = unchecked AND prog_update_snap_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select which program to be updated on PROG."
-				End If
-			End If
-
-			If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
-
+If update_prog = True Then
 	intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
 	intv_day = DatePart("d", interview_date)
 	intv_yr = DatePart("yyyy", interview_date)
@@ -11177,32 +11079,10 @@ If update_revw = True OR update_prog = True Then
 	intv_yr = right(intv_yr, 2)
 	intv_date_to_check = intv_mo & " " & intv_day & " " & intv_yr
 
-	If confirm_update_prog = 1 Then     'If the dialog selects to have PROG updated
-		CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
+	CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
 
 		CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
 		PF9                                             'Edit
-
-		If prog_update_cash_1_checkbox = checked Then
-			EMWriteScreen intv_mo, 6, 55               'CASH 1 Row
-			EMWriteScreen intv_day, 6, 58
-			EMWriteScreen intv_yr, 6, 61
-		End If
-		If prog_update_cash_2_checkbox = checked Then
-			EMWriteScreen intv_mo, 7, 55               'CASh 2 Row
-			EMWriteScreen intv_day, 7, 58
-			EMWriteScreen intv_yr, 7, 61
-		End If
-		If prog_update_emer_checkbox = checked Then
-			EMWriteScreen intv_mo, 8, 55               'EMER Row
-			EMWriteScreen intv_day, 8, 58
-			EMWriteScreen intv_yr, 8, 61
-		End If
-		If prog_update_grh_checkbox = checked Then
-			EMWriteScreen intv_mo, 9, 55               'GRH Row
-			EMWriteScreen intv_day, 9, 58
-			EMWriteScreen intv_yr, 9, 61
-		End If
 		If prog_update_snap_checkbox = checked Then
 			EMWriteScreen intv_mo, 10, 55               'SNAP Row
 			EMWriteScreen intv_day, 10, 58
@@ -11214,133 +11094,6 @@ If update_revw = True OR update_prog = True Then
 		Call HCRE_panel_bypass
 		Call back_to_SELF
 		Call MAXIS_background_check
-	End If
-
-	IF confirm_update_revw = 1 Then
-		original_MAXIS_month = MAXIS_footer_month
-		original_MAXIS_year = MAXIS_footer_year
-		cash_revw_intv_date_updated = FALSE
-		snap_revw_intv_date_updated = FALSE
-		If the_process_for_cash = "Renewal" AND the_process_for_snap = "Renewal" AND next_cash_revw_mo = next_snap_revw_mo AND next_cash_revw_yr = next_snap_revw_yr Then
-			Call back_to_SELF
-			MAXIS_footer_month = next_cash_revw_mo
-			MAXIS_footer_year = next_cash_revw_yr
-
-			Call Navigate_to_MAXIS_screen("STAT", "REVW")
-			PF9
-			Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-			Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
-
-			EMReadScreen cash_revw_status_code, 1, 7, 40
-			EMReadScreen snap_revw_status_code, 1, 7, 60
-			If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
-			If snap_revw_status_code = "N" Then EMWriteScreen "I", 7, 60
-
-			attempt_count = 1
-			Do
-				transmit
-				EMReadScreen actually_saved, 7, 24, 2
-				attempt_count = attempt_count + 1
-				If attempt_count = 20 Then
-					PF10
-					revw_panel_updated = FALSE
-					Exit Do
-				End If
-			Loop until actually_saved = "ENTER A"
-
-			Call back_to_SELF
-			Call Navigate_to_MAXIS_screen("STAT", "REVW")
-
-			EMReadScreen updated_intv_date, 8, 15, 37
-			If IsDate(updated_intv_date) = TRUE Then
-				updated_intv_date = DateAdd("d", 0, updated_intv_date)
-				If updated_intv_date = interview_date Then
-					cash_revw_intv_date_updated = TRUE
-					snap_revw_intv_date_updated = True
-				End If
-			End If
-		Else
-			If the_process_for_cash = "Renewal" Then
-				Call back_to_SELF
-				MAXIS_footer_month = next_cash_revw_mo
-				MAXIS_footer_year = next_cash_revw_yr
-
-				Call Navigate_to_MAXIS_screen("STAT", "REVW")
-				PF9
-				Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-				Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
-
-				EMReadScreen cash_revw_status_code, 1, 7, 40
-				If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
-
-				attempt_count = 1
-				Do
-					transmit
-					EMReadScreen actually_saved, 7, 24, 2
-					attempt_count = attempt_count + 1
-					If attempt_count = 20 Then
-						PF10
-						revw_panel_updated = FALSE
-						Exit Do
-					End If
-				Loop until actually_saved = "ENTER A"
-
-
-				Call back_to_SELF
-				Call Navigate_to_MAXIS_screen("STAT", "REVW")
-
-				EMReadScreen updated_intv_date, 8, 15, 37
-				If IsDate(updated_intv_date) = TRUE Then
-					updated_intv_date = DateAdd("d", 0, updated_intv_date)
-					If updated_intv_date = interview_date Then cash_revw_intv_date_updated = TRUE
-				End If
-			End If
-			If the_process_for_snap = "Renewal" Then
-				Call back_to_SELF
-				MAXIS_footer_month = next_snap_revw_mo
-				MAXIS_footer_year = next_snap_revw_yr
-
-				Call Navigate_to_MAXIS_screen("STAT", "REVW")
-				PF9
-				Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-				Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
-
-				EMReadScreen cash_revw_status_code, 1, 7, 40
-				EMReadScreen snap_revw_status_code, 1, 7, 60
-				If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
-				If snap_revw_status_code = "N" Then EMWriteScreen "I", 7, 60
-
-				attempt_count = 1
-				Do
-					transmit
-					EMReadScreen actually_saved, 7, 24, 2
-					attempt_count = attempt_count + 1
-					If attempt_count = 20 Then
-						PF10
-						revw_panel_updated = FALSE
-						Exit Do
-					End If
-				Loop until actually_saved = "ENTER A"
-
-				Call back_to_SELF
-				Call Navigate_to_MAXIS_screen("STAT", "REVW")
-
-				EMReadScreen updated_intv_date, 8, 15, 37
-				If IsDate(updated_intv_date) = TRUE Then
-					updated_intv_date = DateAdd("d", 0, updated_intv_date)
-					If updated_intv_date = interview_date Then snap_revw_intv_date_updated = TRUE
-				End If
-			End If
-		End If
-
-		MAXIS_footer_month = original_footer_month
-		MAXIS_footer_year = original_footer_year
-
-		fail_msg = ""
-		If cash_revw_intv_date_updated = FALSE AND the_process_for_cash = "Renewal" Then fail_msg = fail_msg & vbCr & vbCr & "Interview and App date on REVW for CASH in " & next_cash_revw_mo & "/" & next_cash_revw_yr
-		If snap_revw_intv_date_updated = FALSE AND the_process_for_snap = "Renewal" Then fail_msg = fail_msg & vbCr & vbCr & "Interview and App date on REVW for SNAP in " & next_snap_revw_mo & "/" & next_snap_revw_yr
-		If fail_msg <> "" Then MsgBox "You have requested the script update REVW with the interview date." & vbCr & vbCr & "The script was unable to update REVW completely." & vbCr & vbCr & "FAILED:" & fail_msg & vbCr & vbCr & "The REVW panel will need to be updated manually with the interview information."
-	End If
 End If
 
 interview_time = ((timer - start_time) + add_to_time)/60
