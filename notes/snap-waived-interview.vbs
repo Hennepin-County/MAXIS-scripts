@@ -6037,7 +6037,7 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 			CALL write_variable_in_CASE_NOTE("    RSDI - " & interview_question(13)& " " & interview_question(14) & "   UI - " & interview_question(19) & " " & interview_question(20) & " Tribal - " & interview_question(25) & " " & interview_question(26))
 			CALL write_variable_in_CASE_NOTE("     SSI - " & interview_question(15) & " " & interview_question(16) & "   WC - " & interview_question(21) & " " & interview_question(22) & "   CSES - " & interview_question(27) & " " & interview_question(28))
 			CALL write_variable_in_CASE_NOTE("      VA - " & interview_question(17) & " " & interview_question(18) & "  Ret - " & interview_question(23) & " " & interview_question(24) & "  Other - " & interview_question(29) & " " & interview_question(30))
-			If trim(interview_question(4)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & interview_question(5))
+			If trim(interview_question(4)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & interview_question(4))
 		End If
 		If interview_question(6) <> "" Then 'verif_y_n
 			If trim(interview_question(12)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & interview_question(6)) 'Verif y/n
@@ -6060,6 +6060,7 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 					If trim(JOBS_ARRAY(jobs_intv_notes, each_job)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & JOBS_ARRAY(jobs_intv_notes, each_job))
 				End If
 			next
+			If trim(interview_question(4)) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & interview_question(4)) 'Main write-in answer, if it was entered here instead of add jobs popup
 		End If
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
 		If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8)) 'Interview Notes
@@ -9549,10 +9550,14 @@ If run_return_contact = True Then
 												JOBS_ARRAY(jobs_employee_name, info_needed_job_count) = trim(mid(full_note_line, employee_start+4, earnings_start-employee_start-4))
 												JOBS_ARRAY(jobs_gross_monthly_earnings, info_needed_job_count) = trim(mid(full_note_line, earnings_start+18, len(full_note_line)-employeearnings_starte_start-18))
 											End If
+										ElseIf InStr(note_line, "WriteIn Answer:") <> 0 Then
+											reading_write_in = True
+											reading_verif_details = False
+											JOBS_ARRAY(jobs_notes, info_needed_job_count) = trim(replace(note_line, "WriteIn Answer:", ""))
 										ElseIf InStr(note_line, "WriteIn Answer -") <> 0 Then
 											reading_write_in = True
 											reading_verif_details = False
-											JOBS_ARRAY(jobs_notes, info_needed_job_count) = trim(replace(note_line, "WriteIn Answer -", ""))
+											needed_info_array(found_quest)(caf_write_in) = trim(replace(note_line, "WriteIn Answer -", ""))
 										ElseIf InStr(note_line, "Verification:") <> 0 Then
 											reading_write_in = False
 											reading_verif_details = True
