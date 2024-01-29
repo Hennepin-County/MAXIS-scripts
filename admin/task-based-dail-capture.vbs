@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2024", "Housekeeping updates: streamlined code, and added supports when only DAIL message on a page is deleted.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("10/05/2022", "Ensured correct baskets are pulled for each population. Changed population verbiage (ADAD to adults, etc.)", "Ilse Ferris, Hennepin County")
 call changelog_update("07/25/2022", "Removed Laurie's email, added Mary McGuinness.", "Ilse Ferris, Hennepin County")
@@ -65,7 +66,7 @@ Call check_for_MAXIS(False)
 families_checkbox = 1
 adults_checkbox = 1
 
-'Defaulting autochecks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
+'Defaulting auto-checks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
 If DateDiff("d", date, ten_day_cutoff_date) > 0 then
     'Defaulting these messages to checked as these are the most assigned cases.
     cola_check = 1
@@ -145,18 +146,7 @@ Else
     If LTC_checkbox = 1 then worker_numbers = worker_numbers & LTC_plus_baskets
     If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
 
-    x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
-
-	'Need to add the worker_county_code to each one
-	For each x1_number in x1s_from_dialog
-		If worker_array = "" then
-			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
-		Else
-			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
-		End if
-	Next
-	'Split worker_array
-	worker_array = split(worker_array, ",")
+    worker_array = split(worker_numbers, ",")
 End if
 
 '----------------------------------------------------------------------------------------------------Setting up and valueing the array
@@ -181,31 +171,23 @@ EMReadscreen pick_confirmation, 26, 4, 29
 
 If pick_confirmation = "View/Pick Selection (PICK)" then
     'selecting the type of DAIl message
-    If all_check = 1   then EMWriteScreen "x", 7, 39
-	If cola_check = 1  then EMWriteScreen "x", 8, 39
-	If clms_check = 1  then EMWriteScreen "x", 9, 39
-	If cses_check = 1  then EMWriteScreen "x", 10, 39
-	If elig_check = 1  then EMWriteScreen "x", 11, 39
-	If ievs_check = 1  then EMWriteScreen "x", 12, 39
-	If info_check = 1  then EMWriteScreen "x", 13, 39
-	If ive_check = 1   then EMWriteScreen "x", 14, 39
-    If ma_check = 1    then EMWriteScreen "x", 15, 39
- 	If mec2_check = 1  then EMWriteScreen "x", 16, 39
-	If pari_chck = 1   then EMWriteScreen "x", 17, 39
-	If pepr_check = 1  then EMWriteScreen "x", 18, 39
-	If tikl_check = 1  then EMWriteScreen "x", 19, 39
-	If wf1_check = 1   then EMWriteScreen "x", 20, 39
+    If all_check = 1   then EMWriteScreen "X", 7, 39
+	If cola_check = 1  then EMWriteScreen "X", 8, 39
+	If clms_check = 1  then EMWriteScreen "X", 9, 39
+	If cses_check = 1  then EMWriteScreen "X", 10, 39
+	If elig_check = 1  then EMWriteScreen "X", 11, 39
+	If ievs_check = 1  then EMWriteScreen "X", 12, 39
+	If info_check = 1  then EMWriteScreen "X", 13, 39
+	If ive_check = 1   then EMWriteScreen "X", 14, 39
+    If ma_check = 1    then EMWriteScreen "X", 15, 39
+ 	If mec2_check = 1  then EMWriteScreen "X", 16, 39
+	If pari_chck = 1   then EMWriteScreen "X", 17, 39
+	If pepr_check = 1  then EMWriteScreen "X", 18, 39
+	If tikl_check = 1  then EMWriteScreen "X", 19, 39
+	If wf1_check = 1   then EMWriteScreen "X", 20, 39
 	transmit
 Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
-End if
-
-'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
-If all_check = 1 then
-    dail_end_msg = "NO MESSAGES WORK"
-Else
-    'all specified selection(s) will get this ending user message.
-    dail_end_msg = "NO MESSAGES TYPE"
 End if
 
 'This for...next contains each worker indicated above
@@ -225,14 +207,14 @@ For each worker in worker_array
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
-		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				Call write_value_and_transmit("T", dail_row, 3)
-				dail_row = 6
-			ELSEIF new_case = "CASE NBR" THEN
+		    IF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
-				dail_row = 6
+			ELSEIF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				Call write_value_and_transmit("T", dail_row, 3)
 			End if
+
+            dail_row = 6    'resetting DAIL_row to 6
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -248,6 +230,7 @@ For each worker in worker_array
 
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
+
             'This removes the Ex Parte TIKL's from ES Workflow assignments only. Does not delete for the benefit of other counties. 
             If instr(dail_msg, "PHASE 1 - THE CASE HAS BEEN EVALUATED FOR EX PARTE AND") then actionable_dail = False
 
@@ -293,21 +276,14 @@ For each worker in worker_array
 			End if
 
             dail_row = dail_row + 1
-			'...going to the next page if necessary
-			EMReadScreen next_dail_check, 4, dail_row, 4
-			If trim(next_dail_check) = "" then
-				PF8
-                EMReadScreen last_page_check, 16, 24, 2
-                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
-                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
-					all_done = true
-					exit do
-				Else
-					dail_row = 6
-				End if
+            'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
+			EMReadScreen next_dail_check, 7, dail_row, 3
+			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                last_case = true
+				exit do
 			End if
 		LOOP
-		IF all_done = true THEN exit do
+		IF last_case = true THEN exit do
 	LOOP
 Next
 
@@ -356,45 +332,48 @@ Call create_outlook_email("", "Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennep
 stats_counter = stats_counter -1
 script_end_procedure("Success! Actionable DAIL's have been added to the database.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
-'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
-'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
-'--All variables in dialog match mandatory fields-------------------------------04/12/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/26/2024
+'--Tab orders reviewed & confirmed----------------------------------------------01/26/2024
+'--Mandatory fields all present & Reviewed--------------------------------------01/26/2024
+'--All variables in dialog match mandatory fields-------------------------------01/26/2024
+'Review dialog names for content and content fit in dialog----------------------01/26/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022-------------------N/A
-'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022-------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/12/2022-------------------N/A
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/06/2022-------------------N/A
+'--All variables are CASE:NOTEing (if required)---------------------------------01/26/2024--------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/26/2024--------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/26/2024--------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-01/26/2024--------------------N/A
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022-------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------04/12/2022-------------------N/A
-'--Out-of-County handling reviewed----------------------------------------------04/12/2022-------------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022-------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/06/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/26/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/26/2024--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------01/26/2024--------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------01/26/2024--------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/26/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------01/26/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/26/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------04/12/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------04/12/2022
-'--Denomination reviewed -------------------------------------------------------04/12/2022
-'--Script name reviewed---------------------------------------------------------04/12/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
+'--Manual time study reviewed --------------------------------------------------01/26/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------01/26/2024
+'--Denomination reviewed -------------------------------------------------------01/26/2024
+'--Script name reviewed---------------------------------------------------------01/26/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/26/2024
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete-----------------------------------------04/12/2022
-'--comment Code-----------------------------------------------------------------04/12/2022
-'--Update Changelog for release/update------------------------------------------04/12/2022
-'--Remove testing message boxes-------------------------------------------------04/12/2022
-'--Remove testing code/unnecessary code-----------------------------------------04/12/2022
-'--Review/update SharePoint instructions----------------------------------------04/12/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
-'--Complete misc. documentation (if applicable)---------------------------------04/12/2022
-'--Update project team/issue contact (if applicable)----------------------------10/06/2022
+'--Confirm all GitHub tasks are complete----------------------------------------01/26/2024
+'--comment Code-----------------------------------------------------------------01/26/2024
+'--Update Changelog for release/update------------------------------------------01/26/2024
+'--Remove testing message boxes-------------------------------------------------01/26/2024
+'--Remove testing code/unnecessary code-----------------------------------------01/26/2024
+'--Review/update SharePoint instructions----------------------------------------01/26/2024--------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/26/2024--------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/26/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/26/2024
+'--Complete misc. documentation (if applicable)---------------------------------01/26/2024
+'--Update project team/issue contact (if applicable)----------------------------01/26/2024
+
