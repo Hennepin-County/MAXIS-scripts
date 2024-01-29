@@ -589,7 +589,7 @@ return_to_info_btn = 3704
 
 			BeginDialog Dialog1, 0, 0, 385, 300, "SNAP General Work Rules"
 				 Text 15, 25, 350, 10, "Unless all members of the unit meet an exemption, you must review the SNAP general work rules below."
-				 Text 15, 40, 350, 10, "----------------------------------------------------------------------------------------------------"
+				 Text 15, 40, 350, 10, "		          -------------------------------------------------------------------------------------					"
 				 Text 15, 55, 350, 10, "First, explain to the resident which members of the household are subject to the work rules."
 	     		 Text 15, 70, 350, 10, "To follow the general work rules, these members must:"
 	     		 Text 15, 85, 350, 10, "* Accept any job offer received, unless there is a good reason they can't. "
@@ -597,15 +597,15 @@ return_to_info_btn = 3704
 	     		 Text 15, 125, 350, 10, "* Tell us about your job and how much you are working, if asked."
 	     		 Text 15, 140, 350, 10, "* You may lose your SNAP benefits if you don't follow these work rules without having a good reason."
 	     		 Text 15, 155, 350, 10, "It is important for you to know that there are consequences if you/they don't follow these General Work Rules: "
-	     		 Text 15, 170, 350, 10, "The first time [you/they] don't follow these rules, and you don't have a good reason, you can't get SNAP benefits for 1 month."
-				 Text 15, 185, 350, 10, "The second time [you/they] don't follow these rules, you can't get SNAP benefits for 3 months."
-				 Text 15, 200, 350, 10, "The third time, and any time after that, [you/they] can't get SNAP benefits for 6 months."
-				 Text 15, 215, 350, 10, "		   ------------------------------------------------------------------------------					"
+	     		 Text 15, 170, 350, 20, "The first time [you/they] don't follow these rules, and you don't have a good reason, you can't get SNAP benefits for 1 month."
+				 Text 15, 195, 350, 10, "The second time [you/they] don't follow these rules, you can't get SNAP benefits for 3 months."
+				 Text 15, 210, 350, 10, "The third time, and any time after that, [you/they] can't get SNAP benefits for 6 months."
+				 Text 15, 225, 350, 10, "		          -------------------------------------------------------------------------------------					"
 				ButtonGroup ButtonPressed
-				 PushButton 20, 250, 145, 15, "Press here to review a list of exemptions.", exemptions_button
-  				 PushButton 210, 230, 145, 15, "Press here to continue without reviewing.", continue_button
-  				 PushButton 20, 230, 145, 15, "Press here if you reviewed with resident.", work_rules_reviewed_button
-				 PushButton 210, 250, 145, 15, "Press here to return to the previous dialog.", return_to_info_btn
+				 PushButton 20, 260, 145, 15, "Press here to review a list of exemptions.", exemptions_button
+  				 PushButton 210, 240, 145, 15, "Press here to continue without reviewing.", continue_button
+  				 PushButton 20, 240, 145, 15, "Press here if you reviewed with resident.", work_rules_reviewed_button
+				 PushButton 210, 260, 145, 15, "Press here to return to the previous dialog.", return_to_info_btn
 			EndDialog
 
 
