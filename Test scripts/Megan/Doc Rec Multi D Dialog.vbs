@@ -547,34 +547,38 @@ end function
 function diet_dialog()
 	EditBox 175, 15, 45, 15, diet_effective_date
 	EditBox 310, 15, 45, 15, diet_date_received		
-	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 'TODO: Need to populate member number here
-	EditBox 50, 55, 290, 15, diet_diagnosis
-	DropListBox 55, 85, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_1_dropdown
+	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 
+	DropListBox 55, 85, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
 	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_1_dropdown
-	DropListBox 55, 100, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_2_dropdown
+	DropListBox 290, 85, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_1_dropdown
+	DropListBox 55, 100, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_2_dropdown
 	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_2_dropdown
-	DropListBox 55, 115, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_3_dropdown
+ 	DropListBox 290, 100, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_2_dropdown
+	DropListBox 55, 115, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_3_dropdown
 	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_3_dropdown
-	DropListBox 55, 130, 115, 20, ""+chr(9)+"Anti-dumping"+chr(9)+"Controlled protein 40-60 grams"+chr(9)+"Controlled protein <40 grams"+chr(9)+"Gluten free"+chr(9)+"High Protein"+chr(9)+"High residue"+chr(9)+"Hypoglycemic"+chr(9)+"Ketogenic"+chr(9)+"Lactose free"+chr(9)+"Low cholesterol"+chr(9)+"Pregnancy/Lactation", diet_4_dropdown
+	DropListBox 290, 115, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_3_dropdown
+	DropListBox 55, 130, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_4_dropdown
 	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_4_dropdown
+	DropListBox 290, 130, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_4_dropdown
 	EditBox 75, 160, 55, 15, diet_date_last_exam
 	DropListBox 130, 180, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown
 	EditBox 270, 180, 55, 15, diet_length_diet
 	DropListBox 130, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown		'TODO: Handling for each scenario- each has it's own notification process/steps
-	EditBox 50, 220, 290, 15, diet_prognosis
 	EditBox 50, 240, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
 	Text 395, 35, 45, 10, "    --Forms--"
-	Text 5, 5, 220, 10, "SPECIAL DIET INFORMATION REQUEST (MFIP and MSA)"
+	Text 5, 5, 220, 10, "Special Diet Information Request"
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	Text 20, 40, 30, 10, "Member"
-	Text 15, 60, 35, 10, "Diagnosis"
+	Text 185, 40, 50, 10, "MFIP or MSA?"
+	Text 235, 40, 85, 10, diet_mfip_msa_status
 	Text 55, 75, 85, 10, "Select applicable diet"
 	Text 185, 75, 95, 10, "Relationship between diets"
+	Text 300, 75, 15, 10, "Ver"
 	Text 30, 85, 20, 10, "Diet 1"
 	Text 30, 100, 20, 10, "Diet 2"
 	Text 30, 115, 20, 10, "Diet 3"
@@ -583,10 +587,9 @@ function diet_dialog()
 	Text 15, 185, 115, 10, "Is person following treament plan?"
 	Text 185, 185, 85, 10, "Length of Prescribed Diet"
 	Text 15, 205, 120, 10, "Diet approved, denied, incomplete?"
-	Text 15, 225, 35, 10, "Prognosis"
 	Text 15, 245, 35, 10, "Comments"
 end function
-Dim diet_effective_date, diet_date_received, diet_member_number, diet_diagnosis, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_prognosis, diet_comments	'Special Diet Variables
+Dim diet_effective_date, diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments	'Special Diet Variables
 
 function get_footer_month_from_date(footer_month_variable, footer_year_variable, date_variable)
 
@@ -617,7 +620,7 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 			If ButtonPressed = mtaf_btn and form_type_array(form_type_const, i) = "Minnesota Transition Application Form (MTAF)" Then form_count = i 
 			If ButtonPressed = psn_btn and form_type_array(form_type_const, i) = "Professional Statement of Need (PSN)" Then form_count = i 
 			If ButtonPressed = sf_btn and form_type_array(form_type_const, i) = "Residence and Shelter Expenses Release Form" Then form_count = i 
-			If ButtonPressed = diet_btn and form_type_array(form_type_const, i) = "Special Diet Information Request (MFIP and MSA)" Then form_count = i 
+			If ButtonPressed = diet_btn and form_type_array(form_type_const, i) = "Special Diet Information Request" Then form_count = i 
 		Next
 	End If 
 end function 
@@ -668,7 +671,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			err_msg = ""
 			Dialog1 = "" 			'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-				DropListBox 30, 30, 180, 15, ""+chr(9)+"Asset Statement"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Interim Assistance Authorization- SSI"+chr(9)+"LTC-1503"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"Special Diet Information Request (MFIP and MSA)", Form_type
+				DropListBox 30, 30, 180, 15, ""+chr(9)+"Asset Statement"+chr(9)+"Authorization to Release Information (ATR)"+chr(9)+"AREP (Authorized Rep)"+chr(9)+"Change Report Form"+chr(9)+"Employment Verification Form (EVF)"+chr(9)+"Hospice Transaction Form"+chr(9)+"Interim Assistance Agreement (IAA)"+chr(9)+"Interim Assistance Authorization- SSI"+chr(9)+"LTC-1503"+chr(9)+"Medical Opinion Form (MOF)"+chr(9)+"Minnesota Transition Application Form (MTAF)"+chr(9)+"Professional Statement of Need (PSN)"+chr(9)+"Residence and Shelter Expenses Release Form"+chr(9)+"Special Diet Information Request", Form_type
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
@@ -803,7 +806,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				' If instr(all_form_array, "Minnesota Transition Application Form (MTAF)") Then mtaf_checkbox = checked 
 				' If instr(all_form_array, "Professional Statement of Need (PSN)") Then psn_checkbox = checked 
 				' If instr(all_form_array, "Residence and Shelter Expenses Release Form") Then shelter_checkbox = checked 
-				' If instr(all_form_array, "Special Diet Information Request (MFIP and MSA)") Then diet_checkbox = checked 
+				' If instr(all_form_array, "Special Diet Information Request") Then diet_checkbox = checked 
 
 
 				err_msg = ""
@@ -822,7 +825,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 120, 160, 10, "Minnesota Transition Application Form (MTAF)", mtaf_checkbox
 					CheckBox 15, 130, 160, 10, "Professional Statement of Need (PSN)", psn_checkbox
 					CheckBox 15, 140, 170, 10, "Residence and Shelter Expenses Release Form", shelter_checkbox
-					CheckBox 15, 150, 175, 10, "Special Diet Information Request (MFIP and MSA)", diet_checkbox
+					CheckBox 15, 150, 175, 10, "Special Diet Information Request", diet_checkbox
 					ButtonGroup ButtonPressed
 						OkButton 95, 180, 45, 15
 						CancelButton 150, 180, 40, 15
@@ -904,7 +907,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				End If
 				If diet_checkbox = checked Then 
 					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
-					form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)"
+					form_type_array(form_type_const, form_count) = "Special Diet Information Request"
 					form_count= form_count + 1 
 				End If
 			
@@ -1054,9 +1057,21 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
 	End If
 
-	
-	
-	
+	If form_type_array(form_type_const, maxis_panel_read) = "Special Diet Information Request" Then	'MAXIS NAVIGATION FOR DIET- Reading status of programs
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+		If Instr(list_active_programs, "MSA") Then 
+			diet_mfip_msa_status = "MSA-Active"
+		ElseIf Instr(list_active_programs, "MFIP") Then 
+			diet_mfip_msa_status = "MFIP-Active"
+		ElseIf Instr(list_pending_programs, "MSA") Then 
+			diet_mfip_msa_status = "MSA-Pending"
+		ElseIf Instr(list_pending_programs, "MFIP") Then 
+			diet_mfip_msa_status = "MFIP-Pending"
+		Else 
+			diet_mfip_msa_status = "Not Active/Pending"
+		End If
+		MsgBox "dialog mfip/msa" & diet_mfip_msa_status
+	End IF 
 
 Next
 
@@ -1076,7 +1091,7 @@ Next
 ' 	If form_type_array(form_type_const, form_added) = "Minnesota Transition Application Form (MTAF)" Then mtaf_count = mtaf_count + 1 
 ' 	If form_type_array(form_type_const, form_added) = "Professional Statement of Need (PSN)" Then psn_count = psn_count + 1 
 ' 	If form_type_array(form_type_const, form_added) = "Residence and Shelter Expenses Release Form" Then sf_count = sf_count + 1 
-' 	If form_type_array(form_type_const, form_added) = "Special Diet Information Request (MFIP and MSA)" Then diet_count = diet_count + 1 
+' 	If form_type_array(form_type_const, form_added) = "Special Diet Information Request" Then diet_count = diet_count + 1 
 ' Next
 ' MsgBox "checking count of each form" & vbcr & "Asset count " & asset_count & vbcr & "ATR count " & atr_count & vbcr & "AREP " & arep_count & vbcr & "chng " & change_count & vbcr & "evf " & evf_count & vbcr & "hosp " & hosp_count & vbcr & "iaa " & iaa_count & vbcr & "iaa-ssi " & iaa_ssi_count & vbcr & "ltc-1503 " & ltc_1503_count & vbcr & "mof " & mof_count & vbcr & "mtaf " & mtaf_count & vbcr & "psn " & psn_count & vbcr & "sf " & sf_count & vbcr & "diet " & diet_count	'TEST
 
@@ -1103,7 +1118,7 @@ Do
 				If form_type_array(form_type_const, form_count) = "Minnesota Transition Application Form (MTAF)" Then Call mtaf_dialog
 				If form_type_array(form_type_const, form_count) = "Professional Statement of Need (PSN)" Then Call psn_dialog
 				If form_type_array(form_type_const, form_count) = "Residence and Shelter Expenses Release Form" Then Call sf_dialog
-				If form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)" Then Call diet_dialog
+				If form_type_array(form_type_const, form_count) = "Special Diet Information Request" Then Call diet_dialog
 				
 				btn_pos = 45		'variable to iterate down for each necessary button
 				''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
@@ -1205,7 +1220,7 @@ Do
 						'PushButton 395, btn_pos, 45, 15, "SF-" & sf_count, sf_btn 'TEST - example of adding number to name of button
 						btn_pos = btn_pos + 15
 					End If
-					If form_type_array(form_type_const, current_form) = "Special Diet Information Request (MFIP and MSA)" then 
+					If form_type_array(form_type_const, current_form) = "Special Diet Information Request" then 
 						form_type_array(btn_name_const, form_count) = "DIET"
 						form_type_array(btn_number_const, form_count) = 413
 						PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
@@ -1227,12 +1242,15 @@ Do
 			'MsgBox "arep sig" & arep_signature_date
 			'TODO: error handling 
 			' Special diet: 
+				'TODO: determine how to handle if case is not MFIP or MSA......If not MFIP or MSA-skip write portion of script for DIET?
+				'Only one of each type is allowed. 
+				'Only one protein control diet is allowed 
+				'If MFIP- only 2 diets are allowed on DIET panel
 				'If denied, state reason for ineligibility and date benefits are no longer issued in Comments field or create an additional field
 				'Buttons	
 				' If IsDate(diet_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				' If IsDate(diet_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				' If diet_member_number = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident for special diet."
-				' If diet_diagnosis = "" Then err_msg = err_msg & vbNewLine & "* Enter diagnosis"
 				' If diet_1_dropdown <>"" and diet_relationship_1_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 1 relationship"
 				' If diet_2_dropdown <>"" and diet_relationship_2_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 2 relationship"
 				' If diet_3_dropdown <>"" and diet_relationship_3_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 3 relationship"
@@ -1701,6 +1719,50 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			transmit
 		END IF
 	End If
+
+
+
+	If form_type_array(form_type_const, maxis_panel_write) = "Special Diet Information Request" Then	'Write for DIET form
+		If diet_mfip_msa_status <> "Not Active/Pending" Then
+			Do
+				Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
+				EMReadScreen nav_check, 4, 2, 48
+			Loop until nav_check = "DIET"
+			diet_member_number = Left(diet_member_number, 2)
+			Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
+			
+			DIET_row = 8 'Setting this variable for the next do...loop
+			
+			EMReadScreen DIET_total, 1, 2, 78
+			If DIET_total = 0 then 
+				Call write_value_and_transmit("NN", 20, 79)	
+				MsgBox "pause at end of new panel"
+			Else
+				PF9
+				Call write_value_and_transmit("DEL", 20, 71)	'TODO: Can I just delete the panel before entering the new information? 
+				EMWaitReady 0, 0
+				Call write_value_and_transmit("NN", 20, 79)	
+				MsgBox "pause at end of deleting and then addding new panel"
+			End If
+			MsgBox "status" & diet_mfip_msa_status
+			If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then
+				EMWriteScreen left(diet_1_dropdown, 2), 8, 40
+				EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
+				EMWriteScreen left(diet_2_dropdown, 2), 9, 40
+				EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51		
+			ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 
+				EMWriteScreen left(diet_1_dropdown, 2), 11, 40
+				EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
+				EMWriteScreen left(diet_2_dropdown, 2), 12, 40
+				EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
+				EMWriteScreen left(diet_3_dropdown, 2), 13, 40
+				EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
+				EMWriteScreen left(diet_4_dropdown, 2), 14, 40
+				EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
+			End If
+		End If
+	End if
+
 Next
 
 
@@ -1985,17 +2047,25 @@ If form_type_array(form_type_const, form_count) = "Residence and Shelter Expense
 End If
 
 'Special Diet Case Notes
-If form_type_array(form_type_const, form_count) = "Special Diet Information Request (MFIP and MSA)" Then 
+If form_type_array(form_type_const, form_count) = "Special Diet Information Request" Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
 	CALL write_bullet_and_variable_in_case_note("Date Effective", diet_effective_date)					
-	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)					
+	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
+	If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
 	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
-	CALL write_bullet_and_variable_in_case_note("Diagnosis", diet_diagnosis)
-	CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required	'TODO: figure out why this populates on every casenote
-	CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
-	CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
+	If diet_1_dropdown <> "" Then 
+		CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
+	End If	
+	If diet_2_dropdown <> "" Then 
+		CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
+	End If
+	If diet_3_dropdown <> "" Then 
+		CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
+	End If
+	If diet_4_dropdown <> "" Then 
+		CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
+	End If
 	CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
 	CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
 	CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
@@ -2004,7 +2074,6 @@ If form_type_array(form_type_const, form_count) = "Special Diet Information Requ
 	Else
 		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown)
 	End If 
-	CALL write_bullet_and_variable_in_case_note("Prognosis", diet_prognosis)
 	CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
 	CALL write_variable_in_case_note("   ")
 	
