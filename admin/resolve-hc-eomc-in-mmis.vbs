@@ -1283,7 +1283,7 @@ ObjExcel.Cells(2, col_to_use+1).Value = timer - query_start_time
 If make_changes = TRUE Then
     ObjExcel.Cells(3, col_to_use).Value = "Total Savings:"
     ObjExcel.Cells(4, col_to_use).Value = "Total PMIs:"
-    ObjExcel.Cells(5, col_to_use).Value = "Manyally Closed PMIs:"
+    ObjExcel.Cells(5, col_to_use).Value = "Manually Closed PMIs:"
     ObjExcel.Cells(6, col_to_use).Value = "MMIS Span Not Updated:"
     ObjExcel.Cells(7, col_to_use).Value = "PMIs with savings:"
     ObjExcel.Cells(8, col_to_use).Value = "PMIs Updated MMIS by script:"
@@ -1318,10 +1318,31 @@ objExcel.ActiveWindow.FreezePanes = True
 curr_day = DatePart("d", date)
 curr_mo = DatePart("m", date)
 curr_yr = DatePart("yyyy", date)
-file_friendly_date = curr_mo & "-" & curr_day & "-" & right(2, curr_yr)
+file_friendly_date = curr_mo & "-" & curr_day & "-" & right(curr_yr, 2)
 EOMC_report_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\HC Discrepancy\EOMC\"
 file_name = CM_plus_1_mo & "-20" & CM_plus_1_yr & " Change Run - " & file_friendly_date & ".xlsx"
 objExcel.ActiveWorkbook.SaveAs EOMC_report_folder & file_name
+
+email_subject = "Resolve HC EOMC in MMIS Script Run Completed"
+
+email_body = "The script run to align MMIS to MAXIS EOMC for HC has completed."
+email_body = email_body & vbCr & vbCr & "Script Run Stats:"
+email_body = email_body & vbCr & "-  Query Runtime: " &  ObjExcel.Cells(2, col_to_use+1).Value
+email_body = email_body & vbCr & "-  Total Savings: $ " &  ObjExcel.Cells(3, col_to_use+1).Value
+email_body = email_body & vbCr & "-  Total PMIs: " &  ObjExcel.Cells(4, col_to_use+1).Value
+email_body = email_body & vbCr & "-  Manually Closed PMIs: " &  ObjExcel.Cells(5, col_to_use+1).Value
+email_body = email_body & vbCr & "-  MMIS Span Not Updated: " &  ObjExcel.Cells(6, col_to_use+1).Value
+email_body = email_body & vbCr & "-  PMIs with savings: " &  ObjExcel.Cells(7, col_to_use+1).Value
+email_body = email_body & vbCr & "-  PMIs Updated MMIS by script: " &  ObjExcel.Cells(8, col_to_use+1).Value
+email_body = email_body & vbCr & vbCr & "Report Link: <" & file_url & ">"
+email_body = email_body & vbCr & vbCr & "SCRIPT GENERATED REPORT OUT"
+
+'function labels		  email_from, 	email_recip, 				  email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
+Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
+
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
 
 If make_changes = TRUE Then
     ' MsgBox "Starting new functionality"
@@ -1540,6 +1561,10 @@ email_body = email_body & vbCr & vbCr & "Thank you!"
 
 'function labels		  email_from, 							  email_recip, 				 email_recip_CC, 		    email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email
 Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "HSPH.EWS.QI@hennepin.us", "Tanya.Payne@hennepin.us", "", 			 email_subject, 1, 				  False, 		email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, False, 				   email_attachment_array, True)
+
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
 
 script_end_procedure("EOMC Automation completed and worklists created. Email sent to QI. Script run is complete.")
 

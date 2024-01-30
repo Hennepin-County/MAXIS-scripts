@@ -51,6 +51,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2024", "Added the form 'Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)' to the form selection options in the script as this form can be used for Health Care processing.", "Casey Love, Hennepin County")
+call changelog_update("01/23/2024", "BUG FIX - updated the handling for LTC Application cases to better handle in dealing with the baseline date and lookback period.", "Casey Love, Hennepin County")
 call changelog_update("12/15/2023", "BUG FIX - previously if the dialog review was 'Complete' but then selected 'No' to return, the script would ask after every button push to 'Complete' updated to stop this from happening until 'Complete' is pressed again.", "Casey Love, Hennepin County")
 call changelog_update("11/28/2023", "Added field to capture member specific HC recertification date.", "Megan Geissler, Hennepin County")
 call changelog_update("10/31/2023", "Fixed inhibiting bug related to IMIG panel for both members on case and/or applying for Health Care.##~##", "Dave Courtright, Hennepin County")
@@ -198,7 +200,10 @@ function check_for_errors(eval_questions_clear)
 		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authorization Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
-
+	baseline_date = trim(baseline_date)
+	If baseline_date  <> "" Then
+		If IsDate(baseline_date) = False Then  err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* The baseline date should be a date if information is entered. Leave blank if it is not relevant to the case."
+	End If
 	'last page errors
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
@@ -665,7 +670,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from a job that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO JOBS, add any notes here that are relevant:"
@@ -798,7 +803,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from self employment that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO SELF EMPLOYMENT, add any notes here that are relevant:"
@@ -931,7 +936,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from an unearned income source that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO UNEARNED INCOME, add any notes here that are relevant:"
@@ -1120,7 +1125,7 @@ function define_main_dialog()
 				'TODO - DEAL WITH OTHR panel
 			Next
 			If y_pos = 90 Then
-				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1221,7 +1226,7 @@ function define_main_dialog()
 				End If
 			Next
 			If y_pos = 25 Then
-				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1282,7 +1287,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = start_y_pos Then
-				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1459,7 +1464,7 @@ function define_main_dialog()
 			GroupBox 10, 10, 465, grp_len, "Expenses"
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there are expenses that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 
@@ -1581,7 +1586,7 @@ function define_main_dialog()
 			If acci_exists = False and insa_exists = False and faci_exists = False Then
 				grp_len = grp_len + 75
 
-				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1878,6 +1883,7 @@ function define_main_dialog()
 
 		ElseIf page_display = ltc_intake_page Then
 			GroupBox 10, 5, 465, 125, "LTC Intake Information"
+			Text 325, 5, 150, 10, "Health Care Application Date: " & hc_application_date
 			Text 20, 20, 60, 10, "Month MA to start:"
 			EditBox 85, 15, 45, 15, month_MA_starts
 			Text 135, 20, 110, 10, "Is the client is in the community?"
@@ -3862,6 +3868,7 @@ form_selection_options = form_selection_options+chr(9)+"MNsure Application for H
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal (DHS-3418)"
 form_selection_options = form_selection_options+chr(9)+"Combined Annual Renewal for Certain Populations (DHS-3727)"
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
+form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)"
 form_selection_options = form_selection_options+chr(9)+"Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
@@ -6681,7 +6688,10 @@ Next
 'LTC Cases at application have the possiblity of creating a MA LTC Intake note
 'The variable ltc_app_case_note_option can be used to determine which of the notes (this or the main one) is entered in these situations
 If ltc_waiver_request_yn = "Yes" and processing_an_application = True and InStr(ltc_app_case_note_option, "MA-LTC Intake Info NOTE") <> 0 Then
-	If application_date <> "" then lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(application_date))) & ""
+	If hc_application_date <> "" then
+		lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(hc_application_date))) & ""
+		end_of_lookback = dateadd("d", -1, cdate(hc_application_date)) & ""
+	End If
 	If baseline_date <> "" then
 		lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
 		end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
@@ -6693,7 +6703,7 @@ If ltc_waiver_request_yn = "Yes" and processing_an_application = True and InStr(
 
 	Call write_variable_in_CASE_NOTE("====================== MA & LTC Date Details =======================")
 
-	call write_bullet_and_variable_in_CASE_NOTE("Application date", application_date)
+	call write_bullet_and_variable_in_CASE_NOTE("Application date", hc_application_date)
 	call write_bullet_and_variable_in_CASE_NOTE("LTCC date", LTCC_date)
 	call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
 	call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
@@ -6742,9 +6752,10 @@ End If
 'creating a name that is easier to read
 If HC_form_name = "Health Care Programs Application for Certain Populations (DHS-3876)" Then short_form = "HC Certain Pops App"
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
-If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal"
+If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal Form"
 If HC_form_name = "Combined Annual Renewal for Certain Populations (DHS-3727)" Then short_form = "Combined AR"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
+If HC_form_name = "Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)" Then short_form = "HC Renewal Form for Families"
 If HC_form_name = "Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)" Then short_form = "LTC Renewal"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"

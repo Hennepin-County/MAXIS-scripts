@@ -253,12 +253,12 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_c
 			U_CODE_CASES_ARRAY(ucode_case_nbr_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, 2).Value)
 
 			U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = ""
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  5).value, MFIP_status)		'reading the program status information from the MONT Report information
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, DWP_status)
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, GA_status)
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, MSA_status)
-			Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, GRH_status)
-			Call read_boolean_from_excel(objExcel.cells(excel_row, 12).value, SNAP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)		'reading the program status information from the MONT Report information
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  10).value, GRH_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
 			If MFIP_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", MFIP"
 			If DWP_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", DWP"
 			If GA_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", GA"
