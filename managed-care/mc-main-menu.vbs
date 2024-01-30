@@ -72,6 +72,8 @@ Function declare_main_menu_dialog(script_category)
         End if
     next
 
+	MsgBox "THIS IS THE LENGTH - " & dlg_len
+
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
@@ -116,6 +118,7 @@ End function
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
 button_placeholder 			    = 24601
+MsgBox "Menu started."
 
 'Displays the dialog
 Do
