@@ -548,26 +548,42 @@ function diet_dialog()
 	EditBox 175, 15, 45, 15, diet_effective_date
 	EditBox 310, 15, 45, 15, diet_date_received		
 	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 
-	DropListBox 55, 85, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
-	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_1_dropdown
-	DropListBox 290, 85, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_1_dropdown
-	DropListBox 55, 100, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_2_dropdown
-	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_2_dropdown
- 	DropListBox 290, 100, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_2_dropdown
-	DropListBox 55, 115, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_3_dropdown
-	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_3_dropdown
-	DropListBox 290, 115, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_3_dropdown
-	DropListBox 55, 130, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_4_dropdown
-	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_4_dropdown
-	DropListBox 290, 130, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_4_dropdown
-	EditBox 75, 160, 55, 15, diet_date_last_exam
-	DropListBox 130, 180, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown
-	EditBox 270, 180, 55, 15, diet_length_diet
-	DropListBox 130, 200, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown		'TODO: Handling for each scenario- each has it's own notification process/steps
-	EditBox 50, 240, 290, 15, diet_comments
+	DropListBox 55, 70, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
+	DropListBox 185, 70, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_1_dropdown
+	DropListBox 290, 70, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_1_dropdown
+	DropListBox 55, 85, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_2_dropdown
+	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_2_dropdown
+ 	DropListBox 290, 85, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_2_dropdown
+	DropListBox 55, 100, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_3_dropdown
+	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_3_dropdown
+	DropListBox 290, 100, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_3_dropdown
+	DropListBox 55, 115, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_4_dropdown
+	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_4_dropdown
+	DropListBox 290, 115, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_4_dropdown
+	
+	DropListBox 55, 130, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_5_dropdown
+	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_5_dropdown
+	DropListBox 290, 130, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_5_dropdown
+
+	DropListBox 55, 145, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_6_dropdown
+	DropListBox 185, 145, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_6_dropdown
+	DropListBox 290, 145, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_6_dropdown
+
+	DropListBox 55, 160, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_7_dropdown
+	DropListBox 185, 160, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_7_dropdown
+	DropListBox 290, 160, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_7_dropdown
+
+	DropListBox 55, 175, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_8_dropdown
+	DropListBox 185, 175, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_8_dropdown
+	DropListBox 290, 175, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_8_dropdown
+
+	EditBox 75, 195, 55, 15, diet_date_last_exam
+	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			'TODO: Handling for each scenario- each has it's own notification process/steps
+	EditBox 270, 215, 55, 15, diet_length_diet
+	DropListBox 105, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied", diet_approved_denied_dropdown
+	EditBox 50, 260, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
-	Text 395, 35, 45, 10, "    --Forms--"
 	Text 5, 5, 220, 10, "Special Diet Information Request"
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
@@ -576,20 +592,25 @@ function diet_dialog()
 	Text 20, 40, 30, 10, "Member"
 	Text 185, 40, 50, 10, "MFIP or MSA?"
 	Text 235, 40, 85, 10, diet_mfip_msa_status
-	Text 55, 75, 85, 10, "Select applicable diet"
-	Text 185, 75, 95, 10, "Relationship between diets"
-	Text 300, 75, 15, 10, "Ver"
-	Text 30, 85, 20, 10, "Diet 1"
-	Text 30, 100, 20, 10, "Diet 2"
-	Text 30, 115, 20, 10, "Diet 3"
-	Text 30, 130, 20, 10, "Diet 4"
-	Text 15, 165, 60, 10, "Date of last exam"
-	Text 15, 185, 115, 10, "Is person following treament plan?"
-	Text 185, 185, 85, 10, "Length of Prescribed Diet"
-	Text 15, 205, 120, 10, "Diet approved, denied, incomplete?"
-	Text 15, 245, 35, 10, "Comments"
+	Text 55, 60, 85, 10, "Select Applicable Diet"
+	Text 185, 60, 95, 10, "Relationship between diets"
+	Text 300, 60, 15, 10, "Ver"
+	Text 30, 70, 20, 10, "Diet 1"
+	Text 30, 85, 20, 10, "Diet 2"
+	Text 30, 100, 20, 10, "Diet 3"
+	Text 30, 115, 20, 10, "Diet 4"
+	Text 30, 130, 20, 10, "Diet 5"
+	Text 30, 145, 20, 10, "Diet 6"
+	Text 30, 160, 20, 10, "Diet 7"
+	Text 30, 175, 20, 10, "Diet 8"
+	Text 15, 200, 60, 10, "Date of last exam"
+	Text 15, 220, 115, 10, "Is person following treament plan?"
+	Text 185, 220, 85, 10, "Length of Prescribed Diet"
+	Text 15, 240, 85, 10, "Diet approved or denied?"
+	Text 15, 265, 35, 10, "Comments"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim diet_effective_date, diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments	'Special Diet Variables
+Dim diet_effective_date, diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_5_dropdown, diet_6_dropdown, diet_7_dropdown, diet_8_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_relationship_5_dropdown, diet_relationship_6_dropdown, diet_relationship_7_dropdown, diet_relationship_8_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_verif_5_dropdown, diet_verif_6_dropdown, diet_verif_7_dropdown, diet_verif_8_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments	'Special Diet Variables
 
 function get_footer_month_from_date(footer_month_variable, footer_year_variable, date_variable)
 
@@ -1390,16 +1411,16 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 		docs_rec = docs_rec & ", AREP Form"
 
-		If arep_update_AREP_panel_checkbox = checked Then
+		If arep_update_AREP_panel_checkbox = checked Then				'If update AREP checkbox is checked, then update panel 
 			Call MAXIS_background_check
-			If IsDate(arep_signature_date) = TRUE Then
+			If IsDate(arep_signature_date) = TRUE Then					'Determing footermonth 
 				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
 			Else
 				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, AREP_recvd)
 			End If
 			Call back_to_SELF
 			Do
-				Call navigate_to_MAXIS_screen("STAT", "AREP")
+				Call navigate_to_MAXIS_screen("STAT", "AREP")		'Navigate to AREP panel
 				EMReadScreen panel_check, 4, 2, 53
 			Loop until panel_check = "AREP"
 
@@ -1510,13 +1531,13 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				EMReadScreen pben_exist, 2, pben_row, 24
 				If pben_exist = "__" Then 										
 					EMReadScreen numb_of_panels, 1, 2, 78
-					IF numb_of_panels = "0" Then 						'If PBEN panel does not exist, create a panel, write dialog entries into fields
+					IF numb_of_panels = "0" Then 										'If PBEN panel does not exist, create a panel, write dialog entries into fields
 						Call write_value_and_transmit("NN", 20, 79)								
 					Else
-						PF9												'If PBEN panel exists but benefit type is empty, write dialog entries into fields
+						PF9																'If PBEN panel exists but benefit type is empty, write dialog entries into fields
 					End IF
 					EMWaitReady 0, 0
-					EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24
+					EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24				'Filling out the panel
 					EMWriteScreen iaa_referral_date_month, pben_row, 40
 					EMWriteScreen iaa_referral_date_day, pben_row, 43
 					EMWriteScreen iaa_referral_date_year, pben_row, 46
@@ -1531,8 +1552,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					Exit Do
 
 				ElseIf pben_exist = "02" Then 
-					If Left(iaa_benefit_type, 2) = "02" Then
-						MsgBox "benefit type" & Left(iaa_benefit_type, 2)
+					If Left(iaa_benefit_type, 2) = "02" Then 								'If 02 benefit type already exists, must evaluate to see if it is AEPN status. If so, we cannot update the panel. 
+						MsgBox "benefit type" & Left(iaa_benefit_type, 2)					'Read line of code if benefit type is 02
 						EMReadScreen pben_benefit_type, 2, pben_row, 24
 						EMReadScreen pben_referral_date, 8, pben_row, 40
 						EMReadScreen pben_date_applied, 8, pben_row, 51
@@ -1560,7 +1581,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					pben_row = pben_row + 1
 				End If
 			Loop Until pben_row = 14
-			If pben_row = 14 Then 
+			If pben_row = 14 Then  				'If all lines on the panel are full then it cannot update PBEN
 				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
 				iaa_update_pben_checkbox = unchecked
 			End If
@@ -1574,7 +1595,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
 				EMReadScreen nav_check, 4, 2, 49
 			Loop until nav_check = "PBEN"
-			
+
 			iaa_ssi_referral_date_month = right("00" & DatePart("m", iaa_ssi_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
 			iaa_ssi_referral_date_day = right("00" & DatePart("d", iaa_ssi_referral_date), 2)
 			iaa_ssi_referral_date_year = right(DatePart("yyyy", iaa_ssi_referral_date), 2)
@@ -1591,7 +1612,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			Call write_value_and_transmit(pben_ssi_member_number, 20, 76)			'Go to the correct member 
 			
 			pben_row = 8
-			'pben_disp_code_string = "*"
 
 			Do 
 				EMReadScreen pben_exist, 2, pben_row, 24
@@ -1603,7 +1623,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 						PF9												'If PBEN panel exists but benefit type is empty, write dialog entries into fields
 					End IF
 					EMWaitReady 0, 0
-					EMWriteScreen Left(iaa_ssi_benefit_type, 2), pben_row, 24
+					EMWriteScreen Left(iaa_ssi_benefit_type, 2), pben_row, 24				'Filling out the panel
 					EMWriteScreen iaa_ssi_referral_date_month, pben_row, 40
 					EMWriteScreen iaa_ssi_referral_date_day, pben_row, 43
 					EMWriteScreen iaa_ssi_referral_date_year, pben_row, 46
@@ -1617,8 +1637,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					EMWriteScreen Left(iaa_ssi_disposition_code_dropdown, 1), pben_row, 77
 					Exit Do
 					
-				ElseIf pben_exist = "02" Then 
-					If Left(iaa_ssi_benefit_type, 2) = "02" Then
+				ElseIf pben_exist = "02" Then 								'If 02 benefit type already exists, must evaluate to see if it is AEPN status. If so, we cannot update the panel. 
+					If Left(iaa_ssi_benefit_type, 2) = "02" Then		'Read line of code if benefit type is 02
 						MsgBox "benefit type" & Left(iaa_ssi_benefit_type, 2)
 						EMReadScreen pben_benefit_type, 2, pben_row, 24
 						EMReadScreen pben_referral_date, 8, pben_row, 40
@@ -1628,7 +1648,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 						EMReadScreen pben_disp_code, 1, pben_row, 77
 						pben_ssi_disp_code_string = pben_ssi_disp_code_string & pben_disp_code		
 				
-						If Instr(pben_ssi_disp_code_string, "A") or Instr(pben_ssi_disp_code_string, "E") or Instr(pben_ssi_disp_code_string, "P") or Instr(pben_ssi_disp_code_string, "N") Then 
+						If Instr(pben_ssi_disp_code_string, "A") or Instr(pben_ssi_disp_code_string, "E") or Instr(pben_ssi_disp_code_string, "P") or Instr(pben_ssi_disp_code_string, "N") Then 		'Cannot fill out PBEN if 02 exists with AEPN status already. 
 							MsgBox "instring contains AEPN"
 							If Left(iaa_ssi_disposition_code_dropdown, 1) = "A" or Left(iaa_ssi_disposition_code_dropdown, 1) = "E" or Left(iaa_ssi_disposition_code_dropdown, 1) = "P" or Left(iaa_ssi_disposition_code_dropdown, 1) = "N" Then 
 								MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
@@ -1647,8 +1667,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					pben_row = pben_row + 1
 				End If
 			Loop Until pben_row = 14
-			If pben_row = 14 Then 
-				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
+			If pben_row = 14 Then 				'If all lines on the panel are full then it cannot update PBEN
+				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."				
 				iaa_ssi_update_pben_checkbox = unchecked
 			End IF
 		End If
@@ -1670,19 +1690,19 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 		MsgBox "are we in faci?"
 		'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
 		'FACI
-		If ltc_1503_FACI_update_checkbox = checked then
-			call navigate_to_MAXIS_screen("STAT", "FACI")
+		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
+			call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
 			EMReadScreen panel_max_check, 1, 2, 78
-			IF panel_max_check = "5" THEN
+			IF panel_max_check = "5" THEN			'If panel has reached 5 which is the max, it will not update
 				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerun it with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
 				If stop_or_continue = vbCancel Then script_end_procedure("~PT User Pressed Cancel")
 				If stop_or_continue = vbOk Then ltc_1503_FACI_update_checkbox = unchecked
-			ELSE
+			ELSE										'Else, create a new panel
 				EMWriteScreen "NN", 20, 79
 				transmit
 			END IF
 		End If
-		If ltc_1503_FACI_update_checkbox = checked then
+		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
 			updated_FACI_checkbox = checked
 			EMWriteScreen ltc_1503_FACI_1503, 6, 43
 			If ltc_1503_level_of_care = "NF" then EMWriteScreen "42", 7, 43
@@ -1720,37 +1740,43 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 		END IF
 	End If
 
+		
 
 
 	If form_type_array(form_type_const, maxis_panel_write) = "Special Diet Information Request" Then	'Write for DIET form
-		If diet_mfip_msa_status <> "Not Active/Pending" Then
+		If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
+			back_to_self
 			Do
+				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: is this the correct way to get the correct footer month? 
+				EMWriteScreen MAXIS_footer_month, 20, 43
+				EMWriteScreen MAXIS_footer_year, 20, 46
+				MsgBox "doc rec" & diet_date_received
+				MsgBox "footermonth" & MAXIS_footer_month & MAXIS_footer_year
 				Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
 				EMReadScreen nav_check, 4, 2, 48
+				EMWaitReady 0, 0
 			Loop until nav_check = "DIET"
-			diet_member_number = Left(diet_member_number, 2)
+			diet_member_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
 			Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
 			
-			DIET_row = 8 'Setting this variable for the next do...loop
+			'DIET_row = 8 'Setting this variable for the next do...loop
 			
 			EMReadScreen DIET_total, 1, 2, 78
-			If DIET_total = 0 then 
-				Call write_value_and_transmit("NN", 20, 79)	
-				MsgBox "pause at end of new panel"
-			Else
+			If DIET_total = 0 then 								'If panel count is 0, then create a panel
+				Call write_value_and_transmit("NN", 20, 79)		
+			Else												'If panel exists, edit mode, delete panel, create new panel
 				PF9
 				Call write_value_and_transmit("DEL", 20, 71)	'TODO: Can I just delete the panel before entering the new information? 
 				EMWaitReady 0, 0
 				Call write_value_and_transmit("NN", 20, 79)	
-				MsgBox "pause at end of deleting and then addding new panel"
 			End If
 			MsgBox "status" & diet_mfip_msa_status
-			If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then
+			If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
 				EMWriteScreen left(diet_1_dropdown, 2), 8, 40
 				EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
 				EMWriteScreen left(diet_2_dropdown, 2), 9, 40
 				EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51		
-			ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 
+			ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 	'If MSA then write in diets, hard coded
 				EMWriteScreen left(diet_1_dropdown, 2), 11, 40
 				EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
 				EMWriteScreen left(diet_2_dropdown, 2), 12, 40
@@ -1759,6 +1785,15 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
 				EMWriteScreen left(diet_4_dropdown, 2), 14, 40
 				EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
+				EMWriteScreen left(diet_5_dropdown, 2), 15, 40
+				EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
+				EMWriteScreen left(diet_6_dropdown, 2), 16, 40
+				EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
+				EMWriteScreen left(diet_7_dropdown, 2), 17, 40
+				EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
+				EMWriteScreen left(diet_8_dropdown, 2), 18, 40
+				EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
+				MsgBox "review panel"
 			End If
 		End If
 	End if
@@ -2052,31 +2087,28 @@ If form_type_array(form_type_const, form_count) = "Special Diet Information Requ
 	CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
 	CALL write_bullet_and_variable_in_case_note("Date Effective", diet_effective_date)					
 	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
-	If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
 	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
-	If diet_1_dropdown <> "" Then 
-		CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
-	End If	
-	If diet_2_dropdown <> "" Then 
-		CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
-	End If
-	If diet_3_dropdown <> "" Then 
-		CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
-	End If
-	If diet_4_dropdown <> "" Then 
-		CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
-	End If
-	CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
-	CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
-	CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
+	If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
 	If diet_status_dropdown = "Incomplete" then
 		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown & "- form returned to client")
+	ElseIf  diet_status_dropdown = "Denied" Then
+		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown & "- Deleted DIET panel. The doctor has not indicated an eligible diet need.")
 	Else
 		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown)
 	End If 
+	If diet_1_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
+	If diet_2_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
+	If diet_3_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
+	If diet_4_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 4", diet_4_dropdown & "- " & diet_relationship_4_dropdown)	'required
+	If diet_5_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 5", diet_5_dropdown & "- " & diet_relationship_5_dropdown)	'required
+	If diet_6_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 6", diet_6_dropdown & "- " & diet_relationship_6_dropdown)	'required
+	If diet_7_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 7", diet_7_dropdown & "- " & diet_relationship_7_dropdown)	'required
+	If diet_8_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 8", diet_8_dropdown & "- " & diet_relationship_8_dropdown)	'required
+	CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
+	CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
+	CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
 	CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
 	CALL write_variable_in_case_note("   ")
-	
 	CALL write_variable_in_case_note("---")
 	CALL write_variable_in_case_note(worker_signature)
 End If
