@@ -580,7 +580,7 @@ function diet_dialog()
 	EditBox 75, 195, 55, 15, diet_date_last_exam
 	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			'TODO: Handling for each scenario- each has it's own notification process/steps
 	EditBox 270, 215, 55, 15, diet_length_diet
-	DropListBox 105, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied", diet_approved_denied_dropdown
+	DropListBox 105, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown
 	EditBox 50, 260, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
@@ -1744,7 +1744,61 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 
 	If form_type_array(form_type_const, maxis_panel_write) = "Special Diet Information Request" Then	'Write for DIET form
-		If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
+		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel
+			If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
+				back_to_self
+				Do
+					Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: is this the correct way to get the correct footer month? 
+					EMWriteScreen MAXIS_footer_month, 20, 43
+					EMWriteScreen MAXIS_footer_year, 20, 46
+					MsgBox "doc rec" & diet_date_received
+					MsgBox "footermonth" & MAXIS_footer_month & MAXIS_footer_year
+					Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
+					EMReadScreen nav_check, 4, 2, 48
+					EMWaitReady 0, 0
+				Loop until nav_check = "DIET"
+				diet_member_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
+				Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
+				
+				'DIET_row = 8 'Setting this variable for the next do...loop
+				
+				EMReadScreen DIET_total, 1, 2, 78
+				If DIET_total = 0 then 								'If panel count is 0, then create a panel
+					Call write_value_and_transmit("NN", 20, 79)		
+				Else												'If panel exists, edit mode, delete panel, create new panel
+					PF9
+					Call write_value_and_transmit("DEL", 20, 71)	'TODO: Can I just delete the panel before entering the new information? 
+					EMWaitReady 0, 0
+					Call write_value_and_transmit("NN", 20, 79)	
+				End If
+				MsgBox "status" & diet_mfip_msa_status
+				If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
+					EMWriteScreen left(diet_1_dropdown, 2), 8, 40
+					EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
+					EMWriteScreen left(diet_2_dropdown, 2), 9, 40
+					EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51		
+				ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 	'If MSA then write in diets, hard coded
+					EMWriteScreen left(diet_1_dropdown, 2), 11, 40
+					EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
+					EMWriteScreen left(diet_2_dropdown, 2), 12, 40
+					EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
+					EMWriteScreen left(diet_3_dropdown, 2), 13, 40
+					EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
+					EMWriteScreen left(diet_4_dropdown, 2), 14, 40
+					EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
+					EMWriteScreen left(diet_5_dropdown, 2), 15, 40
+					EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
+					EMWriteScreen left(diet_6_dropdown, 2), 16, 40
+					EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
+					EMWriteScreen left(diet_7_dropdown, 2), 17, 40
+					EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
+					EMWriteScreen left(diet_8_dropdown, 2), 18, 40
+					EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
+					MsgBox "review panel"
+				End If
+			End If
+		End If
+		If diet_status_dropdown = "Denied" Then			'Only if the diet is denied should we delete the pben panel
 			back_to_self
 			Do
 				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: is this the correct way to get the correct footer month? 
@@ -1758,42 +1812,10 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			Loop until nav_check = "DIET"
 			diet_member_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
 			Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
-			
-			'DIET_row = 8 'Setting this variable for the next do...loop
-			
 			EMReadScreen DIET_total, 1, 2, 78
-			If DIET_total = 0 then 								'If panel count is 0, then create a panel
-				Call write_value_and_transmit("NN", 20, 79)		
-			Else												'If panel exists, edit mode, delete panel, create new panel
+			If DIET_total <> 0 then 								'If panel count is not 0, then delete a panel. (No action to take if the panel count is = 0)
 				PF9
-				Call write_value_and_transmit("DEL", 20, 71)	'TODO: Can I just delete the panel before entering the new information? 
-				EMWaitReady 0, 0
-				Call write_value_and_transmit("NN", 20, 79)	
-			End If
-			MsgBox "status" & diet_mfip_msa_status
-			If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
-				EMWriteScreen left(diet_1_dropdown, 2), 8, 40
-				EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
-				EMWriteScreen left(diet_2_dropdown, 2), 9, 40
-				EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51		
-			ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 	'If MSA then write in diets, hard coded
-				EMWriteScreen left(diet_1_dropdown, 2), 11, 40
-				EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
-				EMWriteScreen left(diet_2_dropdown, 2), 12, 40
-				EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
-				EMWriteScreen left(diet_3_dropdown, 2), 13, 40
-				EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
-				EMWriteScreen left(diet_4_dropdown, 2), 14, 40
-				EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
-				EMWriteScreen left(diet_5_dropdown, 2), 15, 40
-				EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
-				EMWriteScreen left(diet_6_dropdown, 2), 16, 40
-				EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
-				EMWriteScreen left(diet_7_dropdown, 2), 17, 40
-				EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
-				EMWriteScreen left(diet_8_dropdown, 2), 18, 40
-				EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
-				MsgBox "review panel"
+				Call write_value_and_transmit("DEL", 20, 71)	'Delete Diet Panel
 			End If
 		End If
 	End if
