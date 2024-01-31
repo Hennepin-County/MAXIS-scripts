@@ -105,20 +105,24 @@ CALL find_variable("Environment: ", production_or_inquiry, 10)			'reading if scr
 If production_or_inquiry = "INQUIRY DB" then script_end_procedure("This script must be run in production. Please switch to production, and run the script again.")  'Deletes unapproved HC results from ELIG/HMMM, so must be in production.
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 211, 65, "Find MA-EPD Medicare CEI"
-  EditBox 120, 10, 85, 15, x_number
-  ButtonGroup ButtonPressed
-    OkButton 100, 45, 50, 15
-    CancelButton 155, 45, 50, 15
+BeginDialog Dialog1, 0, 0, 211, 90, "Find MA-EPD Medicare CEI"
   Text 5, 15, 115, 10, "X Numbers, separated by comma:"
+  EditBox 120, 10, 85, 15, x_number
   Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
+  CheckBox 60, 45, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  ButtonGroup ButtonPressed
+    OkButton 95, 65, 50, 15
+    CancelButton 150, 65, 50, 15
 EndDialog
+
 Do
     DO
     	err_msg = ""								'err message handling to loop until the user has entered the proper information
     	Dialog Dialog1
     	Cancel_without_confirmation
     	IF trim(x_number) = "" or len(x_number) < 7 then err_msg = err_msg & vbCr & "* The X numbers must be the full 7 digits."
+        If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Resolve for the script to continue."
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -170,8 +174,23 @@ CALL navigate_to_MAXIS_screen("REPT", "ACTV")						'navigating to rept actv for 
 rept_row = 7                                                        'setting variables for first run through
 excel_row = 2
 
-'Splitting array for use by the for...next statement
-worker_number_array = split(x_number, ",")
+'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
+If all_workers_check = checked then
+	Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
+Else
+	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
+
+	'Need to add the worker_county_code to each one
+	For each x1_number in x1s_from_dialog
+		If worker_array = "" then
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
+		Else
+			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
+		End if
+	Next
+	'Split worker_array
+	worker_array = split(worker_array, ",")
+End if
 
 For each worker in worker_number_array
     worker = trim(worker)
@@ -290,7 +309,7 @@ DO
             	                Next
                             Else
                                 pct_fpg = pct_fpg * 1
-	    			            IF pct_fpg < 200 THEN										'If the client is 200% or under they may eligible for reimbursement - https://hcopub.dhs.state.mn.us/epm/2_3_5_4_1.htm
+	    			            IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement - https://hcopub.dhs.state.mn.us/epm/2_3_5_4_1.htm
 	    			            	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
 	    			            	PF3
                                     'Grabbing the Medicare Part B premium
@@ -419,7 +438,7 @@ DO
 	excel_row = excel_row + 1										'the script adds 1 to the excel row to move onto the next case to evaluate
 LOOP UNTIL objExcel.Cells(excel_row, 2).Value = ""
 
-FOR i = 1 to 7							'making the columns stretch to fit the widest cell
+FOR i = 1 to 13							'making the columns stretch to fit the widest cell
 	objExcel.Columns(i).AutoFit()
 NEXT
 
