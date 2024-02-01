@@ -10531,11 +10531,16 @@ Function non_actionable_dails(actionable_dail)
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
-        if dail_month = this_month or dail_month = next_month then
-            actionable_dail = True
+        If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _ 
+            instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then 
+            actionable_dail = True 
         Else
-            actionable_dail = False ' delete the old messages
-        End if
+            If dail_month = this_month or dail_month = next_month then
+                actionable_dail = True
+            Else
+                actionable_dail = False ' delete the old messages
+            End if
+        End if 
     '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
     Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
         if dail_month = this_month or dail_month = next_month then
