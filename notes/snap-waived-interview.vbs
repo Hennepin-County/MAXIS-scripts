@@ -582,10 +582,6 @@ Function display_exemptions() 'A message box showing exemptions from SNAP work r
 	If wreg_exemptions = vbYes then work_exemptions_reviewed = true
 End Function
 Function display_work_rules() 'a dialog showing the general work rules for SNAP
-exemptions_button = 3701
-continue_button = 3702
-work_rules_reviewed_button = 3703
-return_to_info_btn = 3704
 
 			BeginDialog Dialog1, 0, 0, 385, 300, "SNAP General Work Rules"
 				 Text 15, 25, 350, 10, "Unless all members of the unit meet an exemption, you must review the SNAP general work rules below."
@@ -607,12 +603,7 @@ return_to_info_btn = 3704
   				 PushButton 20, 240, 145, 15, "Press here if you reviewed with resident.", work_rules_reviewed_button
 				 PushButton 210, 260, 145, 15, "Press here to return to the previous dialog.", return_to_info_btn
 			EndDialog
-
-
-		If display_work_rules = vbCancel then cancel_confirmation
-	If display_work_rules = vbYes then work_rules_reviewed = true
 End Function
-'End function
 
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
@@ -2073,11 +2064,11 @@ function define_main_dialog(questions_array)
 			'	question_number = question_number + 1
 			'End If
 			If expedited_determination_needed = True Then
-				Text 485, btn_pos + 2, 10, 10, question_number
+				'Text 485, btn_pos + 2, 10, 10, question_number
 				If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
 				exp_pos = btn_pos
 				btn_pos = btn_pos + 15
-				question_number = question_number + 1
+				'question_number = question_number + 1
 			End If
 
 		'PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
@@ -6332,7 +6323,6 @@ function write_app_review_CASE_NOTE()
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-
 end function
 
 function create_verifs_needed_list(verifs_selected, verifs_needed)
@@ -6429,8 +6419,6 @@ function write_verification_CASE_NOTE(create_verif_note)
 
 	    PF3
 	End If
-
-
 end function
 
 
@@ -8801,6 +8789,10 @@ amounts_btn						= 827
 determination_btn				= 828
 return_to_dialog_button			= 829
 fn_review_btn					= 830
+exemptions_button = 3701
+continue_button = 3702
+work_rules_reviewed_button = 3703
+return_to_info_btn = 3704
 
 open_r_and_r_btn				= 700
 accounting_service_desk_btn		= 701
@@ -10126,6 +10118,7 @@ If run_return_contact = True Then
 
 			If ButtonPressed = contact_completed Then
 				Do
+
 					call display_work_rules()
 					Dialog Dialog1
 					cancel_confirmation
