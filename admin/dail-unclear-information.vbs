@@ -4425,11 +4425,11 @@ If HIRE_messages = 1 Then
 
                                             'Determine if dail month is more than 6 months old
                                             dail_over_6_months_old = datediff("m", dail_month_day_year, footer_month_day_year)
-                                            MsgBox "dail_over_6_months_old " & dail_over_6_months_old
+                                            MsgBox "Testing -- dail_over_6_months_old " & dail_over_6_months_old
 
                                             If dail_over_6_months_old > 6 Then
                                                 If dail_type = "HIRE" Then
-                                                    MsgBox "dail is over 6 months old"
+                                                    MsgBox "Testing --- dail is over 6 months old"
                                                     DAIL_message_array(dail_processing_notes_const, dail_count) = "Not processable as the DAIL month is over 6 months old. DAIL Month is " & DateAdd("m", 0, Replace(dail_month, " ", "/01/")) & "."
                                                     objExcel.Cells(dail_excel_row, 7).Value = DAIL_message_array(dail_processing_notes_const, dail_count)
                                                     not_processable_msg_count = not_processable_msg_count + 1
@@ -4696,10 +4696,15 @@ If HIRE_messages = 1 Then
                                                         'Navigate to CASE/NOTE
                                                         MsgBox "Testing -- snap_earned_income_minor_exclusion = True. navigating to create CASE/NOTE"
                                                         PF4
+
+                                                        MsgBox "Testing -- did it successfully navigate to CASE/NOTE?"
+
                                                         EMReadScreen case_note_check, 4, 2, 45
                                                         If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
                                                         'Open a new case note
                                                         PF9
+
+                                                        MsgBox "Testing -- did it open new CASE/NOTE?"
 
                                                         'To do - update to reflect necessary information
                                                         CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
@@ -4708,9 +4713,9 @@ If HIRE_messages = 1 Then
                                                         CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                         CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                         CALL write_variable_in_case_note("---")
-                                                        CALL write_variable_in_case_note("HIRE MESSAGE CLEARED. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER MEETS SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
+                                                        CALL write_variable_in_case_note("HIRE MESSAGE CLEARED THROUGH INFC. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
                                                         CALL write_variable_in_case_note("---")
-                                                        CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                        CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
                                                         CALL write_variable_in_case_note("---")
                                                         CALL write_variable_in_case_note(worker_signature)
 
@@ -4915,15 +4920,15 @@ If HIRE_messages = 1 Then
                                                                 PF9
 
                                                                 'To do - update to reflect necessary information
-                                                                CALL write_variable_in_case_note("-SDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                                CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
                                                                 CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
                                                                 CALL write_variable_in_case_note("MAXIS NAME: " & HIRE_maxis_name)
                                                                 CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                                 CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE.")
+                                                                CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note(worker_signature)
 
@@ -4936,6 +4941,8 @@ If HIRE_messages = 1 Then
                                                                 
                                                                 'PF3 to STAT/WRAP
                                                                 PF3
+
+                                                                MsgBox "Testing -- are we at STAT/WRAP?? IF NOT, fix PF3 at 4945"
 
                                                             Else
                                                                 'If the JOBS panel is not expiring then write the information to CASE/NOTE
@@ -4954,9 +4961,9 @@ If HIRE_messages = 1 Then
                                                                 CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                                 CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE.")
+                                                                CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
                                                                 CALL write_variable_in_case_note("---")
-                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
                                                                 CALL write_variable_in_case_note("---")
                                                                 CALL write_variable_in_case_note(worker_signature)
 
@@ -4974,8 +4981,6 @@ If HIRE_messages = 1 Then
                                                                 PF3
                                                                 MsgBox "Testing -- are we at STAT/WRAP?? IF NOT, fix PF3 at 4975"
 
-
-                                                                
                                                             End If
 
                                                             ' 'PF3 back to DAIL
@@ -5063,37 +5068,38 @@ If HIRE_messages = 1 Then
 
                                                             End If
                                                         End If
+                                                    End If
 
-                                                        ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
 
-                                                        If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
-                                                            'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            MsgBox "Testing -- Adding to skip list"
-                                                            list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                            QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                                        ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "A JOBS panel exists for employer") Then
-                                                            'There was already a corresponding JOBS panel for the employer. The message needs to be deleted through the INFC as a known job.
-                                                            list_of_DAIL_messages_to_delete_NDNH_known = list_of_DAIL_messages_to_delete_NDNH_known & full_dail_msg & "*"
-                                                            MsgBox "Testing -- Adding to NDNH known delete list"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                        ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No JOBS panels exist for household member number") Then
-                                                            'There were no JOBS panels for the HH Memb so a JOBS panel was created. The message needs to be deleted as an unknown job.
-                                                            list_of_DAIL_messages_to_delete_NDNH_not_known = list_of_DAIL_messages_to_delete_NDNH_not_known & full_dail_msg & "*"
-                                                            MsgBox "Testing -- Adding to NDNH not known delete list. NOT SNAP EXCLUSION"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                        ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Household member meets SNAP earned income exclusion") Then
-                                                            'Household member There were no JOBS panels for the HH Memb so a JOBS panel was created. The message needs to be deleted as an unknown job.
-                                                            list_of_DAIL_messages_to_delete_NDNH_not_known = list_of_DAIL_messages_to_delete_NDNH_not_known & full_dail_msg & "*"
-                                                            MsgBox "Testing -- Adding to NDNH not known delete list. NOT SNAP EXCLUSION"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                        Else
-                                                            msgbox "Testing - There was a messsage that did not meet any criteria. Something went wrong. Line 5095"
-                                                        End If
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
+                                                        'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        MsgBox "Testing -- Adding to skip list"
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "A JOBS panel exists for employer") Then
+                                                        'There was already a corresponding JOBS panel for the employer. The message needs to be deleted through the INFC as a known job.
+                                                        list_of_DAIL_messages_to_delete_NDNH_known = list_of_DAIL_messages_to_delete_NDNH_known & full_dail_msg & "*"
+                                                        MsgBox "Testing -- Adding to NDNH known delete list"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No JOBS panels exist for household member number") Then
+                                                        'There were no JOBS panels for the HH Memb so a JOBS panel was created. The message needs to be deleted as an unknown job.
+                                                        list_of_DAIL_messages_to_delete_NDNH_not_known = list_of_DAIL_messages_to_delete_NDNH_not_known & full_dail_msg & "*"
+                                                        MsgBox "Testing -- Adding to NDNH not known delete list. NOT SNAP EXCLUSION"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") And InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Household member meets SNAP earned income exclusion") Then
+                                                        'Household member There were no JOBS panels for the HH Memb so a JOBS panel was created. The message needs to be deleted as an unknown job.
+                                                        list_of_DAIL_messages_to_delete_NDNH_not_known = list_of_DAIL_messages_to_delete_NDNH_not_known & full_dail_msg & "*"
+                                                        MsgBox "Testing -- Adding to NDNH not known delete list. NOT SNAP EXCLUSION"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    Else
+                                                        msgbox "Testing - There was a messsage that did not meet any criteria. Something went wrong. Line 5095"
+                                                    End If
 
 
                                                     'PF3 back to DAIL
@@ -5381,7 +5387,7 @@ If HIRE_messages = 1 Then
                                                             CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                             CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                             CALL write_variable_in_case_note("---")
-                                                            CALL write_variable_in_case_note("HIRE MESSAGE CLEARED. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER MEETS SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
+                                                            CALL write_variable_in_case_note("HIRE MESSAGE DELETED. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
                                                             CALL write_variable_in_case_note("---")
                                                             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
                                                             CALL write_variable_in_case_note("---")
@@ -5596,9 +5602,9 @@ If HIRE_messages = 1 Then
                                                                     CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                                     CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                                     CALL write_variable_in_case_note("---")
-                                                                    CALL write_variable_in_case_note("STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE.")
+                                                                    CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
                                                                     CALL write_variable_in_case_note("---")
-                                                                    CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                    CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
                                                                     CALL write_variable_in_case_note("---")
                                                                     CALL write_variable_in_case_note(worker_signature)
 
@@ -5611,6 +5617,8 @@ If HIRE_messages = 1 Then
                                                                     
                                                                     'PF3 to STAT/WRAP
                                                                     PF3
+
+                                                                    MsgBox "Testing -- are we back at statwrap? 5621"
                                                                     
                                                                 Else
                                                                     'If the JOBS panel is not expiring then write the information to CASE/NOTE
@@ -5629,9 +5637,9 @@ If HIRE_messages = 1 Then
                                                                     CALL write_variable_in_case_note("NEW HIRE NAME: " & HIRE_new_hire_name)
                                                                     CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
                                                                     CALL write_variable_in_case_note("---")
-                                                                    CALL write_variable_in_case_note("STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE.")
+                                                                    CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
                                                                     CALL write_variable_in_case_note("---")
-                                                                    CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                    CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
                                                                     CALL write_variable_in_case_note("---")
                                                                     CALL write_variable_in_case_note(worker_signature)
 
@@ -5653,109 +5661,109 @@ If HIRE_messages = 1 Then
                                                                 ' PF3
 
                                                                 'Updates the processing notes for the DAIL message to reflect this
-                                                                msgbox "Testing - No jobs panels exist"
+                                                                msgbox "Testing -- No jobs panels exist"
                                                                 
                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for household member number: " & HIRE_memb_number & ". JOBS Panel and CASE/NOTE added for employer noted in HIRE message. Message should be deleted.")
 
                                                             
                                                             Else
                                                                'There is at least 1 JOBS panel
-                                                            MsgBox "Testing -- there is at least 1 JOBS panel."
+                                                                MsgBox "Testing -- there is at least 1 JOBS panel."
 
-                                                            'Read the employer name, but only first 20 characters to align with max length for HIRE message for NDNH messages
-                                                            EMReadScreen employer_name_jobs_panel, 20, 7, 42
-                                                            employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
+                                                                'Read the employer name, but only first 20 characters to align with max length for HIRE message for NDNH messages
+                                                                EMReadScreen employer_name_jobs_panel, 20, 7, 42
+                                                                employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
-                                                            If employer_name_jobs_panel = HIRE_employer_name Then
-                                                                MsgBox "Testing -- The employer names match exactly. Message can be deleted."
-                                                                
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-
-                                                            Else
-                                                                'Check how many panels exist for the HH member
-                                                                EMReadScreen jobs_panels_count, 1, 2, 78
-                                                                'Convert jobs_panels_count to a number
-                                                                jobs_panels_count = jobs_panels_count * 1
-                                                                'If there is more than just 1 JOBS panel, loop through them all to check for matching employers
-                                                                If jobs_panels_count = 1 Then
-                                                                    MsgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
-
-                                                                    'Set variable below to true to trigger dialog
-                                                                    no_exact_JOBS_panel_matches = True
-                                                                
-                                                                ElseIf jobs_panels_count <> 1 Then
-                                                                    MsgBox "There are multiple JOBS panels. Script will determine if there are any perfect matches."
+                                                                If employer_name_jobs_panel = HIRE_employer_name Then
+                                                                    MsgBox "Testing -- The employer names match exactly. Message can be deleted."
                                                                     
-                                                                    'Set incrementor for do loop
-                                                                    panel_count = 1
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
 
-                                                                    Do
-                                                                        panel_count = panel_count + 1
-                                                                        EMWriteScreen HIRE_memb_number, 20, 76
-                                                                        Call write_value_and_transmit("0" & panel_count, 20, 79)
+                                                                Else
+                                                                    'Check how many panels exist for the HH member
+                                                                    EMReadScreen jobs_panels_count, 1, 2, 78
+                                                                    'Convert jobs_panels_count to a number
+                                                                    jobs_panels_count = jobs_panels_count * 1
+                                                                    'If there is more than just 1 JOBS panel, loop through them all to check for matching employers
+                                                                    If jobs_panels_count = 1 Then
+                                                                        MsgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
 
-                                                                        'Read the employer name
-                                                                        EMReadScreen employer_name_jobs_panel, 20, 7, 42
-                                                                        employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
-
-                                                                        If employer_name_jobs_panel = HIRE_employer_name Then
-                                                                            MsgBox "Testing -- That's convenient. The employer names match exactly"
+                                                                        'Set variable below to true to trigger dialog
+                                                                        no_exact_JOBS_panel_matches = True
+                                                                    
+                                                                    ElseIf jobs_panels_count <> 1 Then
+                                                                        MsgBox "There are multiple JOBS panels. Script will determine if there are any perfect matches."
                                                                         
-                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                        'Set incrementor for do loop
+                                                                        panel_count = 1
 
-                                                                            'Exit the do loop since an exact match was found
-                                                                            Exit Do
+                                                                        Do
+                                                                            panel_count = panel_count + 1
+                                                                            EMWriteScreen HIRE_memb_number, 20, 76
+                                                                            Call write_value_and_transmit("0" & panel_count, 20, 79)
 
-                                                                        End If
+                                                                            'Read the employer name
+                                                                            EMReadScreen employer_name_jobs_panel, 20, 7, 42
+                                                                            employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
-                                                                        'Ensuring that both panel_count and unea_panels_count are both numbers
-                                                                        panel_count = panel_count * 1
-                                                                        jobs_panels_count = jobs_panels_count * 1
-                                                                        
-                                                                        If panel_count = jobs_panels_count Then
-                                                                            msgbox "Testing -- 5045 Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True"
-                                                                            'Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True
-                                                                            no_exact_JOBS_panel_matches = True
-                                                                            Exit Do
-                                                                        End If
-                                                                    Loop
+                                                                            If employer_name_jobs_panel = HIRE_employer_name Then
+                                                                                MsgBox "Testing -- That's convenient. The employer names match exactly"
+                                                                            
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+
+                                                                                'Exit the do loop since an exact match was found
+                                                                                Exit Do
+
+                                                                            End If
+
+                                                                            'Ensuring that both panel_count and unea_panels_count are both numbers
+                                                                            panel_count = panel_count * 1
+                                                                            jobs_panels_count = jobs_panels_count * 1
+                                                                            
+                                                                            If panel_count = jobs_panels_count Then
+                                                                                msgbox "Testing -- 5045 Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True"
+                                                                                'Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True
+                                                                                no_exact_JOBS_panel_matches = True
+                                                                                Exit Do
+                                                                            End If
+                                                                        Loop
+                                                                    End If
+
+                                                                    'Convert string of the employer names into an array for use in the dialog
+                                                                    'To do - add handling for when it has already been determined that there is a match on the employer names
+                                                                    If no_exact_JOBS_panel_matches = True Then
+
+                                                                        'The message cannot be processed since no exact match exists
+                                                                        'Add the message to the skip list since it cannot be processed
+
+                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+
+                                                                    End if
+
                                                                 End If
-
-                                                                'Convert string of the employer names into an array for use in the dialog
-                                                                'To do - add handling for when it has already been determined that there is a match on the employer names
-                                                                If no_exact_JOBS_panel_matches = True Then
-
-                                                                    'The message cannot be processed since no exact match exists
-                                                                    'Add the message to the skip list since it cannot be processed
-
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
-
-                                                                End if
-
                                                             End If
                                                         End If
+                                                    End If
+                                                    ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
 
-                                                        ' Msgbox "InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), 'does not exist'): " & InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "does not exist")
+                                                    If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
+                                                        'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
+                                                        list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                        QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                                    ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
+                                                        'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
+                                                        list_of_DAIL_messages_to_delete_SDNH = list_of_DAIL_messages_to_delete_SDNH & full_dail_msg & "*"
+                                                        'Update the excel spreadsheet with processing notes
+                                                        objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    End If
 
-                                                        If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
-                                                            'The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                            QI_flagged_msg_count = QI_flagged_msg_count + 1
-                                                        ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
-                                                            'There is a corresponding JOBS panel or a JOBS panel was created. The message can be deleted.
-                                                            list_of_DAIL_messages_to_delete_SDNH = list_of_DAIL_messages_to_delete_SDNH & full_dail_msg & "*"
-                                                            'Update the excel spreadsheet with processing notes
-                                                            objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                        End If
-
-                                                        'PF3 back to DAIL
-                                                        PF3
-
-                                                    End if
+                                                    'PF3 back to DAIL
+                                                    PF3
 
 
+                                                    
                                                 ElseIf InStr(dail_msg, "JOB DETAILS FOR  ") Then
                                                     'No action on these, simply note in spreadsheet that QI team to review
 
