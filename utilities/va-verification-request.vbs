@@ -180,7 +180,7 @@ DO   'loop for the HH member does need to re-read jsut need to allow us to chose
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     'Creating the email
-    VA_info = "Name of Veteran:  " & vet_member & vbcr & "SSN of Veteran: " & client_SSN & vbcr
+    VA_info = "Name of Veteran:  " & vet_member & vbcr & "SSN of Veteran: " & vet_ssn & vbcr
 
     If trim(VA_file_number) <> "" THEN VA_info = VA_info & "VA File # (if known): " & VA_file_number & vbcr
     If trim(spouse_child_name) <> "" THEN VA_info = VA_info & "Name of Spouse/Child receiving VA benefit(if applicable): " & trim(spouse_child_name) & vbcr
