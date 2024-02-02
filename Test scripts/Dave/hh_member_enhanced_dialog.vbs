@@ -70,7 +70,7 @@ changelog_display
         public first_checkbox
         public second_checkbox
 	End Class
-MAXIS_case_number = "2540128"
+MAXIS_case_number = "330077"
 
 
 
@@ -80,7 +80,7 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, f
 '~~~~~ enhanced_HH_member_array: should be enhanced_HH_member_array for function to work
 '===== Keywords: MAXIS, member, array, dialog
 
-call check_for_MAXIS(false)
+	call check_for_MAXIS(false)
    ' redim enhanced_HH_member_array
 	membs = 1
     redim enhanced_HH_member_array(1)
@@ -120,6 +120,7 @@ call check_for_MAXIS(false)
 		enhanced_HH_member_array(membs).member_number = ref_nbr
 		enhanced_HH_member_array(membs).name = client_string
 		enhanced_HH_member_array(membs).ssn = replace(ssn, " ", "") 
+		enhanced_HH_member_array(membs).birthdate = birthdate
               '  msgbox enhanced_HH_member_array(membs).member_number
 		membs = membs + 1 'index the value up 1 for next member
 		transmit
@@ -128,16 +129,27 @@ call check_for_MAXIS(false)
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
 	total_clients = Ubound(enhanced_HH_member_array)			'setting the upper bound for how many spaces to use from the array
-
+	instruction_text_lines = (len(instruction_text) \ 80) + 1
+	if total_clients > 8 Then instruction_text_lines = (len(instruction_text) \ 160) + 1
 	If total_clients > 1 OR second_checkbox <> "" Then 'We only need the dialog if more than 1 client or multiple checkboxes to select
         'Generating the dialog
 	    'Define some height variables based on inputs
+		split_number = 9
+		If total_clients > 8 Then split_number = (total_clients \ 2) + 1
 	    member_height = 15
 	    If display_ssn = true Or display_birthdate = true  Then member_height = member_height + 15
 	    If first_checkbox <> "" Then member_height = member_height + 15
 	    If second_checkbox <> "" Then member_height = member_height + 15
-	    instruction_text_lines = len(instruction_text) \ 200 + 1
-	    dialog1 = ""
+	    
+	    If total_clients < split_number Then 'Single column dialog
+			dialog_width = 290
+			dialog_height = (total_clients * 35) + (instruction_text_lines * 15) + 20
+		Else
+			dialog_width = 580
+			dialog_height = (split_number * 35) + (instruction_text_lines * 15) + 20
+		End If 
+		dialog1 = ""
+
 	    'gonna need handling for long member lists to start a second column
         'If total_clients > 6 Then 
         '    dialog_with = 320
@@ -146,23 +158,31 @@ call check_for_MAXIS(false)
         'Else
         '    dialog_width = 160
         'End if
-	    BEGINDIALOG dialog1, 0, 0, ((total_clients / 6) + 1) * 160, 250, "HH Member Dialog"   
-    
-	    	Text 10, 5, 220, 10 * instruction_text_lines, instruction_text
-	    	FOR i = 1 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-	    		enhanced_HH_member_array(i).member_number
-                IF enhanced_HH_member_array(i).member_number <> "" THEN 
-	    			Text 10, (10 + (10*instruction_text_lines) + ((i-1) * member_height)), 160, 10, enhanced_HH_member_array(i).member_number & " " & enhanced_HH_member_array(i).name   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-	    			If display_birthdate = True Then Text 10, (20 + (10*instruction_text_lines) + ((i-1) * member_height)), 15, 15, enhanced_HH_member_array(i).birthdate
-                    If display_ssn = True Then Text 35, (20 + (10*instruction_text_lines) + ((i-1) * member_height)), 100, 15, "xxx-xx- " & enhanced_HH_member_array(i).ssn
-	    			If first_checkbox <> "" Then checkbox 25, (30 + (10*instruction_text_lines) + ((i-1) * member_height)), 160, 10, first_checkbox,  enhanced_HH_member_array(i).first_checkbox 'enhanced_HH_member_array(i).first_checkbox 
-                    If second_checkbox <> "" Then checkbox 25, (45 + (10*instruction_text_lines) + ((i-1) * member_height)), 160, 10, second_checkbox,  enhanced_HH_member_array(i).second_checkbox   
-	    			
+		'((total_clients / 6) + 1) * 160
+	    BEGINDIALOG dialog1, 0, 0, dialog_width, dialog_height, "HH Member Dialog"   
+			y_pos = 5
+	    	Text 10, y_pos, dialog_width - 20, 10 * instruction_text_lines, instruction_text
+			y_pos = y_pos + (10 * instruction_text_lines) + 10
+
+	    	FOR person = 1 to total_clients										
+	    		'enhanced_HH_member_array(i).member_number
+                x_pos = 10
+				IF enhanced_HH_member_array(person).member_number <> "" THEN 
+	    			if person > split_number THEN x_pos = 300
+					display_string = enhanced_HH_member_array(person).name
+					If display_birthdate = True Then display_string = display_string & " " & enhanced_HH_member_array(person).birthdate
+					If display_ssn = True Then display_string = display_string & "  XXX-XX-" & right(enhanced_HH_member_array(person).ssn, 4)
+					Text x_pos, y_pos, 270, 10, enhanced_HH_member_array(person).member_number & " " & display_string   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	    			'START HERE _ NOT STORING THE OBJECT????
+	    			If first_checkbox <> "" Then checkbox x_pos + 10, y_pos + 15, 125, 10, first_checkbox,  enhanced_HH_member_array(person).first_checkbox 'enhanced_HH_member_array(i).first_checkbox 
+                    If second_checkbox <> "" Then checkbox x_pos + 140, y_pos + 15, 125, 10, second_checkbox,  enhanced_HH_member_array(person).second_checkbox   
+	    			y_pos = y_pos + 30
+					if person = split_number Then y_pos = 15 + (10 * instruction_text_lines) 'resets y value when moving to next column
                 End If
 	    	NEXT
 	    	ButtonGroup ButtonPressed
-	    	OkButton 185, 10, 50, 15
-	    	CancelButton 185, 30, 50, 15
+	    	OkButton dialog_width - 115, dialog_height - 20, 50, 15
+	    	CancelButton dialog_width - 60, dialog_height - 20, 50, 15 
 	    ENDDIALOG
 	    												'runs the dialog that has been dynamically create
                                 
@@ -190,12 +210,13 @@ call check_for_MAXIS(false)
 	'enhanced_HH_member_array = SPLIT(enhanced_HH_member_array, " ")
 end function
 
+Call MAXIS_case_number_finder(MAXIS_CASE_NUMBER)
 
-call HH_member_enhanced_dialog(enhanced_HH_member_array, "This is a whole bunch of text, blah blah.", "Migrating due to CIC", "Migrating due to renewal.", true, true)
- msgbox enhanced_HH_member_array(1).first_checkbox
+call HH_member_enhanced_dialog(enhanced_HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", "No longer has a MAXIS basis.", "Continues to meet a Maxis Basis.", true, true)
+ 
 
-For each chicken in HH_MEMB_ARRAY
-    msgbox enhanced_HH_member_array(chicken).member_number
+For each chicken in enhanced_HH_member_array
+    If enhanced_HH_member_array(chicken).first_checkbox = checked Then msgbox chicken & " checked"
 Next
 stopscript
 
