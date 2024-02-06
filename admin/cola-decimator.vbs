@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-
+call changelog_update("02/05/2024", "Added MFIP COLA Messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/13/2022", "Added RCA Messages, updated DAIL selection from COLA to INFO and added closing issue documentation.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Updated for 01/20 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2019", "Updated for 07/19 GRH COLA messages.", "Ilse Ferris, Hennepin County")
@@ -61,14 +61,14 @@ Function dail_selection
 	EMWriteScreen "X", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
-    'EmWriteScreen "X", 8, 39        'Selects COLA
-    EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
+    EmWriteScreen "X", 8, 39        'Selects COLA
+    'EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
     transmit
 End Function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-dail_to_decimate = "INFO"    'defaults to all. Some x-numbers don't select the DAIL hence the default.
+dail_to_decimate = "COLA"    'defaults to all. Some x-numbers don't select the DAIL hence the default.
 all_workers_check = 1
 
 'Finding the right folder to automatically save the file
@@ -152,7 +152,6 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 'This for...next contains each worker indicated above
 For each worker in worker_array
-	'msgbox worker
 	DO
 		EMReadScreen dail_check, 4, 2, 48
 		If next_dail_check <> "DAIL" then
@@ -196,6 +195,7 @@ For each worker in worker_array
             '----------------------------------------------------------------------------------------------------January COLA messages
             If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
                 instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
+                instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") or _
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
                 instr(dail_msg, "RCA MASS CHANGE AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
