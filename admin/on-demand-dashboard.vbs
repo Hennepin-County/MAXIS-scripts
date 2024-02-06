@@ -1308,7 +1308,7 @@ EMConnect ""                'connecting to MAXIS
 Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
 
 'If a BZST worker is running this script, there is functionality for running a cleanup or running in DEMMO mode
-If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
+If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "MEGE001" OR user_ID_for_validation = "MARI001" OR user_ID_for_validation = "DACO003" Then
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"                     'dialog to select demo or clean up options
         ButtonGroup ButtonPressed
