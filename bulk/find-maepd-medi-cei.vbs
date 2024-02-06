@@ -107,7 +107,7 @@ If production_or_inquiry = "INQUIRY DB" then script_end_procedure("This script m
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 211, 90, "Find MA-EPD Medicare CEI"
   Text 5, 15, 115, 10, "X Numbers, separated by comma:"
-  EditBox 120, 10, 85, 15, x_number
+  EditBox 120, 10, 85, 15, worker_number
   Text 10, 30, 200, 10, "This script will check REPT/ACTV for the selected X numbers."
   CheckBox 60, 45, 150, 10, "Check here to run this query county-wide.", all_workers_check
   ButtonGroup ButtonPressed
@@ -120,7 +120,6 @@ Do
     	err_msg = ""								'err message handling to loop until the user has entered the proper information
     	Dialog Dialog1
     	Cancel_without_confirmation
-    	IF trim(x_number) = "" or len(x_number) < 7 then err_msg = err_msg & vbCr & "* The X numbers must be the full 7 digits."
         If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Resolve for the script to continue."
@@ -159,6 +158,8 @@ FOR i = 1 to 13		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
+excel_row = 2
+
 'setting column constants for 
 msp_col = 5
 prem_col = 6
@@ -170,13 +171,9 @@ excluded_income_col = 11
 net_income_col = 12
 prem_income_col = 13
 
-CALL navigate_to_MAXIS_screen("REPT", "ACTV")						'navigating to rept actv for requested user
-rept_row = 7                                                        'setting variables for first run through
-excel_row = 2
-
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
-	Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
+	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
 	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
 
@@ -192,10 +189,11 @@ Else
 	worker_array = split(worker_array, ",")
 End if
 
-For each worker in worker_number_array
+For each worker in worker_array
     worker = trim(worker)
 	If worker = "" then exit for
-
+    CALL navigate_to_MAXIS_screen("REPT", "ACTV")						'navigating to rept actv for requested user
+    rept_row = 7                                                        'setting variables for first run through
     Call write_value_and_transmit(worker, 21, 13)
 
     DO
