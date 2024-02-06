@@ -940,7 +940,7 @@ function create_assignment_report()
 	cc_email = qi_worker_email
 
 	''sending the email
-    Call create_outlook_email("", qi_worker_supervisor_email, cc_email, "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", False)
+    Call create_outlook_email("", qi_worker_supervisor_email, cc_email, "", main_email_subject, 1, False, "", "", False, "", main_email_body, False, "", True)
 
 	' MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
