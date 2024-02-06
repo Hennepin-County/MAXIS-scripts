@@ -71,19 +71,24 @@ changelog_display
         public second_checkbox
 	End Class
 MAXIS_case_number = "330077"
+dim enhanced_HH_member_array()
+function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, display_birthdate, display_ssn, first_checkbox, first_checkbox_default, second_checkbox, second_checkbox_default)
+'--- This function creates an array of all household members in a MAXIS case, and displays a dialog of HH members that allows the user to select up to two checkboxes per member.
+'~~~~~ enhanced_HH_member_array: array that stores all members of the household, with attributes for each member stored in an object. 
+'~~~~~ instruction_text: String variable that will appear at the top of dialog as text to give instructions or other info to the user. Limit to 400 characters????
+'~~~~~ display_birthdate: true/false. True will display the birthdate after the member name for each HH member
+'~~~~~ display_ssn: true/False. True will display the last 4 digits of the SSN after the member name for each HH member
+'~~~~~ first_checkbox: string value that contains the text to display for the first checkbox. If no checkbox is wanted, set to ""
+'~~~~~ first_checkbox_default: checked/unchecked or 0/1. Determines default state of first checkbox.
+'~~~~~ second_checkbox: string value that contains the text to display for the second checkbox. If no checkbox is wanted, set to ""
+'~~~~~ second_checkbox_default: checked/unchecked or 0/1. Determines default state of first checkbox.
 
-
-
-'Custom enhanced_HH_member_array function
-function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, first_checkbox, second_checkbox, display_birthdate, display_ssn)
-'--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
-'~~~~~ enhanced_HH_member_array: should be enhanced_HH_member_array for function to work
+'If both checkboxes are set to "", the dialog will not display. Use this option when populating an array of the whole household.
 '===== Keywords: MAXIS, member, array, dialog
 
 	call check_for_MAXIS(false)
-   ' redim enhanced_HH_member_array
 	membs = 1
-    redim enhanced_HH_member_array(1)
+    'redim enhanced_HH_member_array(1)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
     transmit
@@ -114,15 +119,17 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, f
 			birthdate = replace(birthdate, " ", "/")
 		End If
 		client_string = last_name & first_name & mid_initial
-
+		'Create an object for the member and add that members info, plus the checkbox defaults
         redim preserve enhanced_HH_member_array(membs)
 		set enhanced_HH_member_array(membs) = new member_data
 		enhanced_HH_member_array(membs).member_number = ref_nbr
 		enhanced_HH_member_array(membs).name = client_string
 		enhanced_HH_member_array(membs).ssn = replace(ssn, " ", "") 
 		enhanced_HH_member_array(membs).birthdate = birthdate
-              '  msgbox enhanced_HH_member_array(membs).member_number
-		membs = membs + 1 'index the value up 1 for next member
+		enhanced_HH_member_array(membs).first_checkbox = first_checkbox_default
+		enhanced_HH_member_array(membs).second_checkbox = second_checkbox_default
+
+  		membs = membs + 1 'index the value up 1 for next member
 		transmit
 	    Emreadscreen edit_check, 7, 24, 2
 
@@ -132,8 +139,13 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, f
 	instruction_text_lines = (len(instruction_text) \ 80) + 1
 	if total_clients > 8 Then instruction_text_lines = (len(instruction_text) \ 160) + 1
 	If total_clients > 1 OR second_checkbox <> "" Then 'We only need the dialog if more than 1 client or multiple checkboxes to select
-        'Generating the dialog
-	    'Define some height variables based on inputs
+        redim checkbox_array(total_clients, 2)
+		
+		for default = 1 to total_clients
+			checkbox_array(default, 0) = first_checkbox_default
+			checkbox_array(default, 1) = second_checkbox_default
+		Next
+		'Generating the dialog
 		split_number = 9
 		If total_clients > 8 Then split_number = (total_clients \ 2) + 1
 	    member_height = 15
@@ -174,8 +186,8 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, f
 					If display_ssn = True Then display_string = display_string & "  XXX-XX-" & right(enhanced_HH_member_array(person).ssn, 4)
 					Text x_pos, y_pos, 270, 10, enhanced_HH_member_array(person).member_number & " " & display_string   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 	    			'START HERE _ NOT STORING THE OBJECT????
-	    			If first_checkbox <> "" Then checkbox x_pos + 10, y_pos + 15, 125, 10, first_checkbox,  enhanced_HH_member_array(person).first_checkbox 'enhanced_HH_member_array(i).first_checkbox 
-                    If second_checkbox <> "" Then checkbox x_pos + 140, y_pos + 15, 125, 10, second_checkbox,  enhanced_HH_member_array(person).second_checkbox   
+	    			If first_checkbox <> "" Then checkbox x_pos + 10, y_pos + 15, 125, 10, first_checkbox,  checkbox_array(person, 0) 'enhanced_HH_member_array(i).first_checkbox 
+                    If second_checkbox <> "" Then checkbox x_pos + 140, y_pos + 15, 125, 10, second_checkbox,  checkbox_array(person, 1)   
 	    			y_pos = y_pos + 30
 					if person = split_number Then y_pos = 15 + (10 * instruction_text_lines) 'resets y value when moving to next column
                 End If
@@ -184,14 +196,17 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, f
 	    	OkButton dialog_width - 115, dialog_height - 20, 50, 15
 	    	CancelButton dialog_width - 60, dialog_height - 20, 50, 15 
 	    ENDDIALOG
-	    												'runs the dialog that has been dynamically create
+		'runs the dialog that has been dynamically create
                                 
     
 	    
 	    Dialog dialog1
 	    Cancel_without_confirmation
 	End If 
-    
+    for person = 1 to total_clients
+		enhanced_HH_member_array(person).first_checkbox = checkbox_array(person, 0)
+		enhanced_HH_member_array(person).second_checkbox = checkbox_array(person, 1)
+	next
     'For member = 0 to ubound(enhanced_HH_member_array)
     '    HH_member_ARRAY(member) = enhanced_HH_member_array(member)
     'Next   
@@ -212,11 +227,11 @@ end function
 
 Call MAXIS_case_number_finder(MAXIS_CASE_NUMBER)
 
-call HH_member_enhanced_dialog(enhanced_HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", "No longer has a MAXIS basis.", "Continues to meet a Maxis Basis.", true, true)
+call HH_member_enhanced_dialog(enhanced_HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", true, true, "No longer has a MAXIS basis.", 1, "Continues to meet a Maxis Basis.", 0)
  
 
-For each chicken in enhanced_HH_member_array
-    If enhanced_HH_member_array(chicken).first_checkbox = checked Then msgbox chicken & " checked"
+For chicken = 1 to ubound(enhanced_HH_member_array)
+    If enhanced_HH_member_array(chicken).first_checkbox = checked Then msgbox enhanced_HH_member_array(chicken).member_number & " checked"
 Next
 stopscript
 

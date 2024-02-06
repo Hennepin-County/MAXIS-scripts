@@ -60,7 +60,80 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+'------------------------------------------------------New custom HH Member dialog
+function HH_member_enhanced_dialog(HH_member_array)
+'--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
+'~~~~~ HH_member_array: should be HH_member_array for function to work
+'===== Keywords: MAXIS, member, array, dialog
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+    transmit
 
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+        EMReadScreen access_denied_check, 13, 24, 2
+        'MsgBox access_denied_check
+        If access_denied_check = "ACCESS DENIED" Then
+            PF10
+			EMWaitReady 0, 0
+            last_name = "UNABLE TO FIND"
+            first_name = " - Access Denied"
+            mid_initial = ""
+        Else
+    		EMReadscreen last_name, 25, 6, 30
+    		EMReadscreen first_name, 12, 6, 63
+    		EMReadscreen mid_initial, 1, 6, 79
+    		last_name = trim(replace(last_name, "_", "")) & " "
+    		first_name = trim(replace(first_name, "_", "")) & " "
+    		mid_initial = replace(mid_initial, "_", "")
+        End If
+		client_string = ref_nbr & last_name & first_name & mid_initial
+		client_array = client_array & client_string & "|"
+		transmit
+	    Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_array = TRIM(client_array)
+	test_array = split(client_array, "|")
+	total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+	DIM all_client_array()
+	ReDim all_clients_array(total_clients, 1)
+
+	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+		Interim_array = split(client_array, "|")
+		all_clients_array(x, 0) = Interim_array(x)
+		all_clients_array(x, 1) = 1
+	NEXT
+
+	BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+		Text 10, 5, 105, 10, "Household members to look at:"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+		NEXT
+		ButtonGroup ButtonPressed
+		OkButton 185, 10, 50, 15
+		CancelButton 185, 30, 50, 15
+	ENDDIALOG
+													'runs the dialog that has been dynamically created. Streamlined with new functions.
+	Dialog HH_memb_dialog
+	Cancel_without_confirmation
+	check_for_maxis(True)
+
+	HH_member_array = ""
+
+	FOR i = 0 to total_clients
+		IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+			IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+				'msgbox all_clients_
+				HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+			END IF
+		END IF
+	NEXT
+
+	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+	HH_member_array = SPLIT(HH_member_array, " ")
+end function
 '-------------------------------------------------------------------------------------------------DIALOG
 'Main dialog: user will input case number(s) or personal record number.
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -179,13 +252,30 @@ NEXT
 If initial_option = "MAXIS to METS Migration" then
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 211, 70, "MAXIS to METS Migration"
-	  ButtonGroup ButtonPressed
-	    OkButton 115, 50, 40, 15
-	    CancelButton 160, 50, 40, 15
-	  Text 10, 15, 185, 25, "This script will case note and send a SPEC/MEMO to the selected member with specific verbiage about how to get continued health care coverage."
-	  GroupBox 5, 5, 195, 40, "Using this script:"
-	EndDialog
+     BeginDialog Dialog1, 0, 0, 306, 190, "Dialog"
+     ButtonGroup ButtonPressed
+     OkButton 195, 165, 50, 15
+     CancelButton 250, 165, 50, 15
+     Text 10, 15, 90, 15, "Member(s) with no continued MAXIS basis:"
+     Text 125, 35, 175, 15, "hh_member_1, hh_member_2, hh_member3"
+     Text 10, 35, 105, 15, "Member(s) that remain eligible but were referred to METS:"
+     Text 125, 15, 175, 15, "hh_member_1, hh_member_2, hh_member3"
+     ButtonGroup ButtonPressed
+     PushButton 10, 55, 105, 10, "Update Members and Eligibility", Button3
+     GroupBox 5, 5, 300, 65, "Member Info"
+     EditBox 70, 75, 235, 15, Edit1
+     Text 5, 80, 65, 10, "Reason for change:"
+     Text 5, 100, 140, 10, "Temporary MA opened in MAXIS effective:"
+     EditBox 155, 95, 45, 15, Edit2
+     CheckBox 5, 130, 125, 10, "Managed care re-enrolled in MMIS", Check1
+     ButtonGroup ButtonPressed
+     PushButton 135, 130, 10, 10, "!", mgd_care_info
+     PushButton 150, 130, 35, 10, "MMIS", nav_to_mmis_btn
+     CheckBox 5, 145, 85, 15, "Add WCOM to notice", Check2
+     CheckBox 5, 110, 250, 15, "This case is in protected coverage group and will not be closed in MAXIS.", Check3
+     Text 5, 170, 65, 10, "Worker Signature:"
+     EditBox 70, 165, 95, 15, Edit4
+    EndDialog
 
     DO
     	DO
@@ -328,7 +418,7 @@ End if
 If initial_option = "1. Non-MAGI referral" then header = "MA NON MAGI Referral"
 If initial_option = "2. Request to end eligibility in METS" then header = "Requested METS eligibility to end"
 If initial_option = "3. Eligibility ended in METS" then header = "Eligibility ended in METS effective " & mmis_end_date
-If initial_option = "MAXIS to METS Migration" then header = "Closed HC " & CM_plus_1_mo & "/" & CM_plus_1_yr
+If initial_option = "MAXIS to METS Migration" then header = "Temporary MA opened for [enrollee] due to potential change in basis"
 
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE(header & memb_info)
