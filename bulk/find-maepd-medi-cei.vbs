@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/06/2024", "Added additional data fields from the budget, and added all-agency run option.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/19/2022", "Resolved inhibiting bug when a X budget case is found in the current month.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/18/2021", "Updated the script to include if MSP programs are active. A true or false status will be output into column 5.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/31/2019", "Updated the script with increased handling for determining MA-EPD is open in current month, and if they are eligible for reimbursement.", "Ilse Ferris, Hennepin County")
