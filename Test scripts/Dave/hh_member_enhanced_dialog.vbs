@@ -70,9 +70,9 @@ changelog_display
         public first_checkbox
         public second_checkbox
 	End Class
-MAXIS_case_number = "330077"
-dim enhanced_HH_member_array()
-function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, display_birthdate, display_ssn, first_checkbox, first_checkbox_default, second_checkbox, second_checkbox_default)
+
+
+function HH_member_enhanced_dialog(HH_member_array, instruction_text, display_birthdate, display_ssn, first_checkbox, first_checkbox_default, second_checkbox, second_checkbox_default)
 '--- This function creates an array of all household members in a MAXIS case, and displays a dialog of HH members that allows the user to select up to two checkboxes per member.
 '~~~~~ enhanced_HH_member_array: array that stores all members of the household, with attributes for each member stored in an object. 
 '~~~~~ instruction_text: String variable that will appear at the top of dialog as text to give instructions or other info to the user. Limit to 400 characters????
@@ -82,10 +82,10 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, d
 '~~~~~ first_checkbox_default: checked/unchecked or 0/1. Determines default state of first checkbox.
 '~~~~~ second_checkbox: string value that contains the text to display for the second checkbox. If no checkbox is wanted, set to ""
 '~~~~~ second_checkbox_default: checked/unchecked or 0/1. Determines default state of first checkbox.
-
 'If both checkboxes are set to "", the dialog will not display. Use this option when populating an array of the whole household.
+'The 6 attributes (member_number, name, ssn, birthdate, first_checkbox, second_checkbox) will be stored in the enhanced_hh_member_array and can be called with this syntax: enhanced_hh_member_array(member).birthdate 
 '===== Keywords: MAXIS, member, array, dialog
-
+dim enhanced_HH_member_array()
 	call check_for_MAXIS(false)
 	membs = 1
     'redim enhanced_HH_member_array(1)
@@ -162,15 +162,6 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, d
 		End If 
 		dialog1 = ""
 
-	    'gonna need handling for long member lists to start a second column
-        'If total_clients > 6 Then 
-        '    dialog_with = 320
-        'ElseIf total_clients > 12 Then 
-        '    dialog_width = 680
-        'Else
-        '    dialog_width = 160
-        'End if
-		'((total_clients / 6) + 1) * 160
 	    BEGINDIALOG dialog1, 0, 0, dialog_width, dialog_height, "HH Member Dialog"   
 			y_pos = 5
 	    	Text 10, y_pos, dialog_width - 20, 10 * instruction_text_lines, instruction_text
@@ -196,10 +187,9 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, d
 	    	OkButton dialog_width - 115, dialog_height - 20, 50, 15
 	    	CancelButton dialog_width - 60, dialog_height - 20, 50, 15 
 	    ENDDIALOG
-		'runs the dialog that has been dynamically create
-                                
-    
-	    
+		'runs the dialog that has been dynamically created
+                              
+    	    
 	    Dialog dialog1
 	    Cancel_without_confirmation
 	End If 
@@ -207,22 +197,7 @@ function HH_member_enhanced_dialog(enhanced_HH_member_array, instruction_text, d
 		enhanced_HH_member_array(person).first_checkbox = checkbox_array(person, 0)
 		enhanced_HH_member_array(person).second_checkbox = checkbox_array(person, 1)
 	next
-    'For member = 0 to ubound(enhanced_HH_member_array)
-    '    HH_member_ARRAY(member) = enhanced_HH_member_array(member)
-    'Next   
-	
 
-	'FOR i = 0 to total_clients
-	'	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
-	'		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new enhanced_HH_member_array
-	'			'msgbox all_clients_
-	'			enhanced_HH_member_array = enhanced_HH_member_array & left(all_clients_array(i, 0), 2) & " "
-	'		END IF
-	'	END IF
-	'NEXT
-
-	'enhanced_HH_member_array = TRIM(enhanced_HH_member_array)							'Cleaning up array for ease of use.
-	'enhanced_HH_member_array = SPLIT(enhanced_HH_member_array, " ")
 end function
 
 Call MAXIS_case_number_finder(MAXIS_CASE_NUMBER)
