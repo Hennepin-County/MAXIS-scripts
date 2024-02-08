@@ -4574,6 +4574,7 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
 							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb)
 							transmit
 
 							Do
@@ -4734,6 +4735,8 @@ If ex_parte_function = "Phase 1" Then
 									If IsDate(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb)) = True Then MEMBER_INFO_ARRAY(tpqy_rsdi_has_disa, each_memb) = True
 								End If
 							End If
+
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_memb_has_rsdi, each_memb) = False
 
 							'This is opening the Ex Parte income list to record the QURY information for a particaular case and person - but only if the qury was sent during the prep 2 run
 							objIncomeSQL = "UPDATE ES.ES_ExParte_IncomeList SET TPQY_Response = '" & sves_response & "' WHERE [CaseNumber] = '" & MAXIS_case_number & "' and [PersonID] = '" & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb) & "' and [QURY_Sent] = '" & prep_phase_2_run_date & "'"
