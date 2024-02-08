@@ -967,7 +967,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #07/11/2023#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Notes%20%E2%80%93%20CAF%20Updates%20and%20Guidance.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES%20%E2%80%93%20CAF%20Updates%20and%20Guidance.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1146,8 +1146,6 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
-' script_array(script_num).hot_topic_date         = #12/19/2023#
-' script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes-%e2%80%93-client-contact-is-changing.aspx?"
 script_array(script_num).hot_topic_date         = #01/30/2024#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/SNAP-Waived-Interview-Now-Handles-Return-Contacts.aspx?"
 
@@ -1675,7 +1673,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/26/2022#
 script_array(script_num).hot_topic_date			= #07/11/2023#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes%20%E2%80%93%20caf%20updates%20and%20guidance.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES%20%E2%80%93%20CAF%20Updates%20and%20Guidance.aspx"
 script_array(script_num).used_for_elig			= True
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -3988,8 +3986,6 @@ script_array(script_num).tags                   = array("Communication", "Applic
 script_array(script_num).dlg_keys               = array("Cn", "Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #01/02/2024#
-' script_array(script_num).hot_topic_date         = #01/02/2024#
-' script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/SNAP-Interview-Waiver---new-applications.aspx"
 script_array(script_num).hot_topic_date         = #01/30/2024#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/SNAP-Waived-Interview-Now-Handles-Return-Contacts.aspx?"
 script_array(script_num).retirement_date        = ""
