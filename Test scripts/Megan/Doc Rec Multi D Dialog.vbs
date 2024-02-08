@@ -519,25 +519,61 @@ function mtaf_dialog()
 end function
 
 function psn_dialog()
-		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, psn_effective_date
-			EditBox 310, 20, 45, 15, psn_date_received
-			EditBox 30, 65, 270, 15, psn_Q1
-			EditBox 30, 85, 270, 15, psn_Q2
-			EditBox 30, 105, 270, 15, psn_Q3
-			EditBox 30, 125, 270, 15, psn_Q4			
-			Text 5, 5, 220, 10, psn_form_name
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+	Text 60, 20, 45, 10, MAXIS_case_number
+	EditBox 175, 15, 45, 15, psn_effective_date
+	EditBox 310, 15, 45, 15, psn_date_received	
+	DropListBox 50, 40, 120, 15, HH_Memb_DropDown, psn_member_dropdown
+	DropListBox 65, 75, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
+	DropListBox 195, 75, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
+	DropListBox 65, 95, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
+	DropListBox 255, 95, 130, 20, ""+CHR(9)+"04-Permanent Ill or Incap"+chr(9)+"05-Temporary Ill or Incap"+chr(9)+"06-Care of Ill or Incap Mbr"+chr(9)+"07-Requires Services In Residence"+chr(9)+"09-Mntl Ill or Dev Disabled"+chr(9)+"10-SSI/RSDI Pend"+chr(9)+"11-Appealing SSI/RSDI Denial"+chr(9)+"12-Advanced Age"+chr(9)+"13-Learning Disability"+chr(9)+"17-Protect/Court Ordered"+chr(9)+"20-Age 16 or 17 SS Approval "+chr(9)+"25-Emancipated Minor"+chr(9)+"28-Unemployable"+chr(9)+"29-Displaced Hmkr (Ft Student)"+chr(9)+"30-Minor w/ Adult Unrelated"+chr(9)+"32-ESL, Adult/HS At least half time"+chr(9)+"35-Drug/Alcohol Addiction (DAA)"+chr(9)+"99-No Elig Basis", psn_wreg_ga_elig_status
+	EditBox 65, 125, 45, 15, psn_disa_begin_date
+	EditBox 65, 145, 45, 15, psn_disa_end_date
+	DropListBox 200, 125, 110, 15, ""+CHR(9)+"01-RSDI Only Disability"+chr(9)+"02-RSDI Only Blindness"+chr(9)+"03-SSI, SSI/RSDI Disability"+chr(9)+"04-SSI, SSI/RSDI Blindness"+chr(9)+"06-SMRT/SSA Pend"+chr(9)+"08-SMRT Certified Blindness"+chr(9)+"09-Ill/Incapacity"+chr(9)+"10-SMRT Certified Disability", psn_disa_status
+	DropListBox 200, 145, 105, 15, ""+CHR(9)+"1-DHS161/Dr Stmt"+chr(9)+"2-SMRT Certified"+chr(9)+"3-Certified For RSDI or SSI"+chr(9)+"6-Other Document"+chr(9)+"7-Professional Stmt of Need"+chr(9)+"N-No Ver Prvd", psn_disa_verif
+	EditBox 200, 165, 45, 15, psn_disa_cert_end
+	EditBox 65, 165, 45, 15, psn_disa_cert_start
+	EditBox 65, 190, 45, 15, psn_faci_vendor_number
+	DropListBox 170, 190, 115, 15, ""+CHR(9)+"41-NF-I"+chr(9)+"42-NF-II"+chr(9)+"43-ICF-DD"+chr(9)+"44-Short Stay in NF-I"+chr(9)+"45-Short Stay in NF-II"+chr(9)+"46-Short Stay in ICF-DD"+chr(9)+"47-RTC - Not IMD"+chr(9)+"48-Medidcal Hosp IMD Facilities"+chr(9)+"49-MSOP"+chr(9)+"50-IMD/RTC"+chr(9)+"51-Rule 31 CD-IMD"+chr(9)+"52-Rule 36 MI-IMD"+chr(9)+"53-IMD Hosp GRH Facilities "+chr(9)+"55-Adult Foster Care/Rule 203"+chr(9)+"56-GRH (not FC or Rule 36)"+chr(9)+"57-Rule 36 MI-Non-IMD Other"+chr(9)+"60-Non-GRH"+chr(9)+"61-Rule 31 CD-Non-IMD"+chr(9)+"67-Family Violence Shltr"+chr(9)+"68-County Cor Facility "+chr(9)+"69-Non-Cty Adult Correctional", psn_faci_facility_type
+	DropListBox 335, 190, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_fs_elig
+	DropListBox 65, 210, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_plan_req
+	DropListBox 175, 210, 25, 15, ""+CHR(9)+"1"+chr(9)+"2"+chr(9)+"3", psn_faci_grh_rate
+	DropListBox 335, 210, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_cty_app_plac
+	DropListBox 65, 230, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_postpay
+	EditBox 175, 230, 45, 15, psn_faci_date_in
+	EditBox 335, 230, 45, 15, psn_faci_date_out
+	EditBox 35, 265, 285, 15, psn_notes
+	Text 5, 5, 130, 10, psn_form_name
+	Text 5, 20, 50, 10, "Case Number:"
+	Text 125, 20, 50, 10, "Effective Date:"
+	Text 245, 20, 60, 10, "Document Date:"
+	Text 15, 45, 30, 10, "Member"
+	GroupBox 5, 65, 385, 55, "WREG"
+	Text 30, 80, 30, 10, "FS PWE:"
+	Text 115, 80, 80, 10, "FSET Work Reg Status: "
+	Text 10, 100, 55, 10, "ABAWD Status: "
+	Text 185, 100, 70, 10, "GA Elig Basis Code:"
+	GroupBox 5, 115, 385, 70, "DISA"
+	Text 10, 130, 55, 10, "Disa Begin Date: "
+	Text 15, 150, 50, 10, "Disa End Date:"
+	Text 120, 130, 80, 10, "Cash/GRH Disa Status: "
+	Text 160, 150, 40, 10, "Verification:"
+	GroupBox 5, 180, 385, 70, "FACI"
+	Text 25, 170, 40, 10, "Cert Period:"
+	Text 150, 170, 50, 10, "Cert End Date:"
+	Text 30, 195, 35, 10, "Vendor #:"
+	Text 125, 195, 45, 10, "Facility Type: "
+	Text 297, 195, 40, 10, "FS Eligible: "
+	Text 15, 215, 50, 10, "GRH Plan Req: "
+	Text 135, 215, 40, 10, "GRH Rate: "
+	Text 270, 215, 65, 10, "City App Placement:"
+	Text 35, 235, 30, 10, "Postpay:"
+	Text 145, 235, 30, 10, "Date In: "
+	Text 300, 235, 32, 10, "Date Out: "
+	Text 10, 270, 20, 10, "Notes:"
+	Text 395, 35, 45, 10, "    --Forms--"
 end function 
+Dim psn_effective_date, psn_date_received, psn_member_dropdown, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_status, psn_disa_verif, psn_faci_vendor_number, psn_disa_cert_end, psn_disa_cert_start, psn_faci_grh_rate, psn_faci_facility_type, psn_faci_fs_elig, psn_faci_plan_req, psn_faci_cty_app_plac, psn_faci_postpay, psn_faci_date_in, psn_faci_date_out, psn_notes
 
 function sf_dialog()	
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -634,7 +670,7 @@ end function
 'TODO- do i need to dim anything in this fuction?
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
-	If ButtonPressed = -1 Then ButtonPressed = next_btn 	'If the enter button is selected the script will handle this as if Next was selected 
+	If ButtonPressed = -1 Then ButtonPressed = next_btn  	'If the enter button is selected the script will handle this as if Next was selected 
 	If ButtonPressed = next_btn Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed = previous_btn Then form_count = form_count - 1	'If previous is selected, it will iterate to the previous form in the array and display this dialog
 	If ButtonPressed >= 400 Then 'All forms are in the 400 range
@@ -733,10 +769,15 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = add_button Then 	'Add button kicks off this evaluation 
 				If form_type <> "" Then 		'Must have a form selected
 				Form_string = form_type 		'Setting the form name equal to a string
+					'MsgBox "all_form_array" & all_form_array
 					If instr(all_form_array, "*" & form_string & "*") Then	
 						add_to_array = false	'If the string is found in the array, it won't add the form to the array
+						'MsgBox "add_to_array = false"
+
 					Else 
 						add_to_array = true 	'If the string is not found in the array, it will add the form to the array
+						'MsgBox "add_to_array = true"
+
 					End If
 				End If
 			
@@ -745,8 +786,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_type_const, form_count) = Form_type		'Storing form name in the array		
 					form_count = form_count + 1 	
 					all_form_array = all_form_array & form_string & "*" 'Adding form name to form name string
-				ElseIF add_to_array = False then 
-					false_count = false_count + 1
+				' ElseIF add_to_array = False then 
+				' 	false_count = false_count + 1
 				End If 
 			End If
 
@@ -763,8 +804,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			If ButtonPressed = clear_button Then 'Clear button wipes out any selections already made so the user can reselect correct forms.
 				ReDim form_type_array(the_last_const, form_count)		
 				form_count = 0							'Reset the form count to 0 so that y_pos resets to 95. 
-				Form_string = ""
-				all_form_array = ""
+				Form_string = ""						'Reset string to nothing
+				add_to_array = ""						'reset to nothing
+				all_form_array = "*"					'Reset string to *		
 				 
 				'Future Iteration: Counting quantity of each form
 				' asset_checkbox = unchecked				'Resetting checkboxes to unchecked
@@ -805,10 +847,13 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				
 				'MsgBox "all form array" & all_form_array
 			'	MsgBox "form type" & form_type 'TEST
-				MsgBox "Form selections cleared." & vbNewLine & "-Make new selection."	'Notify end user that entries were cleared.
+				MsgBox "Form selections cleared." 'Notify end user that entries were cleared.
+				'MsgBox "all_form_array" & all_form_array
 			End If
-			'If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
-		'	If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
+			If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
+			If ButtonPressed = add_button Then 
+				If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
+			End If
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 		Loop until err_msg = ""
@@ -822,7 +867,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				'form_type_array(form_type_const, form_count) = Form_type
                 form_count = 0							'Resetting the form count to 0 so that y_pos resets to 95. 
 				Form_string = ""						'Resetting string to nothing 
-				all_form_array = ""						'Resetting list of strings to nothing 
+				all_form_array = "*"						'Resetting list of strings to * 
+				add_to_array = ""
 
 				'Future Iteration - carries values selected from drop down through to checkbox feature
 				' If instr(all_form_array, asset_form_name) Then asset_checkbox = checked 
@@ -958,7 +1004,11 @@ Loop Until ButtonPressed = Ok
 'MAXIS NAVIGATION ===========================================================================
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, maxis_panel_read) = arep_form_name Then 'MAXIS NAVIGATION FOR AREP
-		Call navigate_to_MAXIS_screen("STAT", "AREP")
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "AREP")
+			EMReadScreen nav_check, 4, 2, 53
+			EMWaitReady 0, 0
+		Loop until nav_check = "AREP"
 
 		arep_update_AREP_panel_checkbox = checked
 		AREP_recvd_date = arep_date_received
@@ -1083,7 +1133,11 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			hosp_exit_date = ""
 			hosp_reason_not_updated = ""
 		End If
-		Call navigate_to_MAXIS_screen ("STAT", "MEMB")      'Going to MEMB for M01 to see if there is a date of death - as that would be the exit date
+		Do
+			Call navigate_to_MAXIS_screen ("STAT", "MEMB")      'Going to MEMB for M01 to see if there is a date of death - as that would be the exit date
+			EMReadScreen nav_check, 4, 2, 48
+			EMWaitReady 0, 0
+		Loop until nav_check = "MEMB"
 		EMReadScreen date_of_death, 10, 19, 42
 		date_of_death = replace(date_of_death, " ", "/")
 		If IsDate(date_of_death) = TRUE Then hosp_exit_date = date_of_death
@@ -1102,8 +1156,218 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		Else 
 			diet_mfip_msa_status = "Not Active/Pending"
 		End If
-		MsgBox "dialog mfip/msa" & diet_mfip_msa_status
+		'MsgBox "dialog mfip/msa" & diet_mfip_msa_status
 	End IF 
+
+	If form_type_array(form_type_const, maxis_panel_read) = psn_form_name Then	'MAXIS NAVIGATION FOR PSN- reading necessary panels
+	
+		'Read WREG Panel
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "WREG")
+			EMReadScreen nav_check, 4, 2, 48
+			EMWaitReady 0, 0
+		Loop until nav_check = "WREG"
+		Call write_value_and_transmit(Left(psn_member_dropdown, 2), 20, 76)
+		EMReadScreen psn_wreg_fs_pwe, 1, 6, 68						'Read fs pwe
+		EMReadScreen psn_wreg_work_wreg_status, 2, 8, 50			'Read work wreg status
+		EMReadScreen psn_wreg_abawd_status, 2, 13, 50				'Read abawd status
+		EMReadScreen psn_wreg_ga_elig_status, 2, 15, 50				'Read ga eligibility status
+		psn_wreg_fs_pwe = replace(psn_wreg_fs_pwe, "_", "")
+		psn_wreg_work_wreg_status = replace(psn_wreg_work_wreg_status, "__", "")
+		psn_wreg_abawd_status = replace(psn_wreg_abawd_status, "__", "")
+		psn_wreg_ga_elig_status = replace(psn_wreg_ga_elig_status, "__", "")
+		'MsgBox "psn_wreg_fs_pwe" & psn_wreg_fs_pwe
+		'MsgBox "psn_wreg_work_wreg_status" & psn_wreg_work_wreg_status
+		'MsgBox	"psn_wreg_abawd_status" & psn_wreg_abawd_status
+		'MsgBox	"psn_wreg_ga_elig_status" & psn_wreg_ga_elig_status
+
+		If psn_wreg_work_wreg_status = "03" Then psn_wreg_work_wreg_status = "03-Unfit for Employment"
+		If psn_wreg_work_wreg_status = "04" Then psn_wreg_work_wreg_status = "04-Resp for Care of Incapacitated Person"
+		If psn_wreg_work_wreg_status = "05" Then psn_wreg_work_wreg_status = "05-Age 60 or Older"
+		If psn_wreg_work_wreg_status = "06" Then psn_wreg_work_wreg_status = "06-Under Age 16"
+		If psn_wreg_work_wreg_status = "07" Then psn_wreg_work_wreg_status = "07-Age 16-17, Living w/ Caregiver"
+		If psn_wreg_work_wreg_status = "08" Then psn_wreg_work_wreg_status = "08-Resp for Care of Child under 6"
+		If psn_wreg_work_wreg_status = "09" Then psn_wreg_work_wreg_status = "09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"
+		If psn_wreg_work_wreg_status = "10" Then psn_wreg_work_wreg_status = "10-Matching Grant Participant"
+		If psn_wreg_work_wreg_status = "11" Then psn_wreg_work_wreg_status = "11-Receiving or Applied for UI"
+		If psn_wreg_work_wreg_status = "12" Then psn_wreg_work_wreg_status = "12-Enrolled in School, Training, or Higher Ed"
+		If psn_wreg_work_wreg_status = "13" Then psn_wreg_work_wreg_status = "13-Participating in CD Program"
+		If psn_wreg_work_wreg_status = "14" Then psn_wreg_work_wreg_status = "14-Receiving MFIP"
+		If psn_wreg_work_wreg_status = "20" Then psn_wreg_work_wreg_status = "20-Pending/Receiving DWP"
+		If psn_wreg_work_wreg_status = "15" Then psn_wreg_work_wreg_status = "15-Age 16-17, NOT Living w/ Caregiver"
+		If psn_wreg_work_wreg_status = "16" Then psn_wreg_work_wreg_status = "16-50-59 Years Old"
+		If psn_wreg_work_wreg_status = "17" Then psn_wreg_work_wreg_status = "17-Receiving RCA or GA"
+		If psn_wreg_work_wreg_status = "21" Then psn_wreg_work_wreg_status = "21-Resp for Care of Child under 18"
+		If psn_wreg_work_wreg_status = "23" Then psn_wreg_work_wreg_status = "23-Pegnant"
+
+		If psn_wreg_abawd_status = "01" Then psn_wreg_abawd_status = "01-Work Reg Exempt"
+		If psn_wreg_abawd_status = "02" Then psn_wreg_abawd_status = "02-Under Age 18"
+		If psn_wreg_abawd_status = "03" Then psn_wreg_abawd_status = "03-Age 50 or Over"
+		If psn_wreg_abawd_status = "04" Then psn_wreg_abawd_status = "04-Caregiver of Minor Child"
+		If psn_wreg_abawd_status = "05" Then psn_wreg_abawd_status = "05-Pregnant"
+		If psn_wreg_abawd_status = "06" Then psn_wreg_abawd_status = "06-Employed Avg of 20 hrs/wk"
+		If psn_wreg_abawd_status = "07" Then psn_wreg_abawd_status = "07-Work Experience Participant"
+		If psn_wreg_abawd_status = "08" Then psn_wreg_abawd_status = "08-ther E&T Services"
+		If psn_wreg_abawd_status = "09" Then psn_wreg_abawd_status = "09-Resides in a Waivered Area"
+		If psn_wreg_abawd_status = "10" Then psn_wreg_abawd_status = "10-ABAWD Counted Month"
+		If psn_wreg_abawd_status = "11" Then psn_wreg_abawd_status = "11-2nd-3rd Month Period of Elig"
+		If psn_wreg_abawd_status = "12" Then psn_wreg_abawd_status = "12-RCA or GA Recipient"
+		If psn_wreg_abawd_status = "13" Then psn_wreg_abawd_status = "13-ABAWD Banked Months"
+
+		If psn_wreg_ga_elig_status = "04" Then psn_wreg_ga_elig_status = "04-Permanent Ill or Incap"
+		If psn_wreg_ga_elig_status = "05" Then psn_wreg_ga_elig_status = "05-Temporary Ill or Incap"
+		If psn_wreg_ga_elig_status = "06" Then psn_wreg_ga_elig_status = "06-Care of Ill or Incap Mbr"
+		If psn_wreg_ga_elig_status = "07" Then psn_wreg_ga_elig_status = "07-Requires Services In Residence"
+		If psn_wreg_ga_elig_status = "09" Then psn_wreg_ga_elig_status = "09-Mntl Ill or Dev Disabled"
+		If psn_wreg_ga_elig_status = "10" Then psn_wreg_ga_elig_status = "10-SSI/RSDI Pend"
+		If psn_wreg_ga_elig_status = "11" Then psn_wreg_ga_elig_status = "11-Appealing SSI/RSDI Denial"
+		If psn_wreg_ga_elig_status = "12" Then psn_wreg_ga_elig_status = "12-Advanced Age"
+		If psn_wreg_ga_elig_status = "13" Then psn_wreg_ga_elig_status = "13-Learning Disability"
+		If psn_wreg_ga_elig_status = "17" Then psn_wreg_ga_elig_status = "17-Protect/Court Ordered"
+		If psn_wreg_ga_elig_status = "20" Then psn_wreg_ga_elig_status = "20-Age 16 or 17 SS Approval"
+		If psn_wreg_ga_elig_status = "25" Then psn_wreg_ga_elig_status = "25-Emancipated Minor"
+		If psn_wreg_ga_elig_status = "28" Then psn_wreg_ga_elig_status = "28-Unemployable"
+		If psn_wreg_ga_elig_status = "29" Then psn_wreg_ga_elig_status = "29-Displaced Hmkr (Ft Student)"
+		If psn_wreg_ga_elig_status = "30" Then psn_wreg_ga_elig_status = "30-Minor w/ Adult Unrelated"
+		If psn_wreg_ga_elig_status = "32" Then psn_wreg_ga_elig_status = "32-ESL, Adult/HS At least half time"
+		If psn_wreg_ga_elig_status = "35" Then psn_wreg_ga_elig_status = "35-Drug/Alcohol Addiction (DAA)"
+		If psn_wreg_ga_elig_status = "99" Then psn_wreg_ga_elig_status = "99-No Elig Basis"
+
+		
+		'Read Disa Panel
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "DISA")
+			EMReadScreen nav_check, 4, 2, 45
+			EMWaitReady 0, 0
+		Loop until nav_check = "DISA"
+  		Call write_value_and_transmit(Left(psn_member_dropdown, 2), 20, 76)
+		EMReadScreen psn_disa_begin_date, 10, 6, 47
+		EMReadScreen psn_disa_end_date, 10, 6, 69
+		EMReadScreen psn_disa_status, 2 , 11, 59
+		EMReadScreen psn_disa_verif, 1, 11, 69
+		psn_disa_begin_date = replace(psn_disa_begin_date,  "__ __ ____", "")
+		psn_disa_end_date = replace(psn_disa_end_date,  "__ __ ____", "")
+		psn_disa_begin_date = replace(psn_disa_begin_date, " ", "/")
+		psn_disa_end_date = replace(psn_disa_end_date, " ", "/")
+		psn_disa_status = replace(psn_disa_status, "__", "")
+		psn_disa_verif = replace(psn_disa_verif, "_", "")
+		'MsgBox "psn_disa_begin_date" & psn_disa_begin_date & "psn_disa_end_date" & psn_disa_end_date & "psn_disa_status" & psn_disa_status & "psn_disa_verif" & psn_disa_verif
+
+
+		If psn_disa_status = "01" Then psn_disa_status = "01-RSDI Only Disability"
+		If psn_disa_status = "02" Then psn_disa_status = "02-RSDI Only Blindness"
+		If psn_disa_status = "03" Then psn_disa_status = "03-SSI, SSI/RSDI Disability"
+		If psn_disa_status = "04" Then psn_disa_status = "04-SSI, SSI/RSDI Blindness"
+		If psn_disa_status = "06" Then psn_disa_status = "06-SMRT/SSA Pend"
+		If psn_disa_status = "08" Then psn_disa_status = "08-SMRT Certified Blindness"
+		If psn_disa_status = "09" Then psn_disa_status = "09-Ill/Incapacity"
+		If psn_disa_status = "10" Then psn_disa_status = "10-SMRT Certified Disability"
+
+		If psn_disa_verif = "1" Then psn_disa_verif = "1-DHS161/Dr Stmt"
+		If psn_disa_verif = "2" Then psn_disa_verif = "2-SMRT Certified"
+		If psn_disa_verif = "3" Then psn_disa_verif = "3-Certified For RSDI or SSI"
+		If psn_disa_verif = "6" Then psn_disa_verif = "6-Other Document"
+		If psn_disa_verif = "7" Then psn_disa_verif = "7-Professional Stmt of Need"
+		If psn_disa_verif = "N" Then psn_disa_verif = "N-No Ver Prvd"
+
+	'TODO: Currently the script will read for the open faci panel and then update the dialog with this information. Is this desired? What is desired? Maybe a field to close out the old and open a new?
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "FACI")		'Navigate to FACI 
+			EMReadScreen nav_check, 4, 2, 44
+			EMWaitReady 0, 0
+		Loop until nav_check = "FACI"
+		EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
+		Call write_value_and_transmit("01", 20, 79)		'Make sure we are on page 01 for the member to start
+			EMReadScreen existance_check, 1, 2, 73
+			stat_faci_exists = True		'TODO: DO we need this?
+			If existance_check = "0" Then stat_faci_exists = False
+			'MsgBox "before if statement"
+			If stat_faci_exists = True Then
+				'MsgBox "stat_faci_exists = True"
+				Do
+					EMReadScreen FACI_current_panel, 1, 2, 73
+					EMReadScreen FACI_total_check, 1, 2, 78
+					EMReadScreen in_year_check_01, 4, 14, 53
+					EMReadScreen in_year_check_02, 4, 15, 53
+					EMReadScreen in_year_check_03, 4, 16, 53
+					EMReadScreen in_year_check_04, 4, 17, 53
+					EMReadScreen in_year_check_05, 4, 18, 53
+					EMReadScreen out_year_check_01, 4, 14, 77
+					EMReadScreen out_year_check_02, 4, 15, 77
+					EMReadScreen out_year_check_03, 4, 16, 77
+					EMReadScreen out_year_check_04, 4, 17, 77
+					EMReadScreen out_year_check_05, 4, 18, 77
+					'MsgBox "FACI_current_panel" & FACI_current_panel & "FACI_total_check" & FACI_total_check
+		
+					If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+					(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+						currently_in_FACI = True
+						'MsgBox "in_year_check_01" & in_year_check_01 & "out_year_check_01" & out_year_check_01
+						'MsgBox "currently_in_FACI = True"
+						If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+						If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+						If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+						If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+						If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
+						exit do
+					Elseif FACI_current_panel = FACI_total_check then
+						currently_in_FACI = False
+						'MsgBox "currently_in_FACI = False"
+						exit do
+					Else
+						transmit
+						'MsgBox "transmit"
+					End if
+				Loop until FACI_current_panel = FACI_total_check
+				'stat_faci_currently_in_facility = currently_in_FACI
+
+				If currently_in_FACI = True then
+					EmReadscreen psn_faci_vendor_number, 8, 5, 43
+					EMReadScreen psn_faci_vendor_name, 30, 6, 43
+					EMReadScreen psn_faci_facility_type, 2, 7, 43
+					EMReadScreen psn_faci_fs_elig, 1, 8, 43
+					EMReadScreen psn_faci_plan_req, 1, 11, 52
+					EMReadScreen psn_faci_cty_app_plac, 1, 12, 52
+					EMReadScreen psn_faci_postpay, 1, 13, 71
+					EMReadScreen psn_faci_grh_rate, 1 , faci_row, 34
+					EMReadScreen psn_faci_date_in, 10, faci_row, 47
+					EMReadScreen psn_faci_date_out, 10, faci_row, 	71
+
+					psn_faci_vendor_name = trim(replace(psn_faci_vendor_name, "_", ""))
+					psn_faci_vendor_number = trim(replace(psn_faci_vendor_number, "_", ""))
+					If psn_faci_date_in = "__ __ ____" Then psn_faci_date_in = ""
+					psn_faci_date_in = replace(psn_faci_date_in, " ", "/")
+					If psn_faci_date_out = "__ __ ____" Then psn_faci_date_out = ""
+					psn_faci_date_out = replace(psn_faci_date_out, " ", "/")
+					
+					'List of FACI types
+					If psn_faci_facility_type = "41" Then psn_faci_facility_type = "41-NF-I"
+					If psn_faci_facility_type = "42" Then psn_faci_facility_type = "42-NF-II"
+					If psn_faci_facility_type = "43" Then psn_faci_facility_type = "43-ICF-DD"
+					If psn_faci_facility_type = "44" Then psn_faci_facility_type = "44-Short Stay in NF-I"
+					If psn_faci_facility_type = "45" Then psn_faci_facility_type = "45-Short Stay in NF-II"
+					If psn_faci_facility_type = "46" Then psn_faci_facility_type = "46-Short Stay in ICF-DD"
+					If psn_faci_facility_type = "47" Then psn_faci_facility_type = "47-RTC - Not IMD"
+					If psn_faci_facility_type = "48" Then psn_faci_facility_type = "48-Medidcal Hosp IMD Facilities"
+					If psn_faci_facility_type = "49" Then psn_faci_facility_type = "49-MSOP"
+					If psn_faci_facility_type = "50" Then psn_faci_facility_type = "50-IMD/RTC"
+					If psn_faci_facility_type = "51" Then psn_faci_facility_type = "51-Rule 31 CD-IMD"
+					If psn_faci_facility_type = "52" Then psn_faci_facility_type = "52-Rule 36 MI-IMD"
+					If psn_faci_facility_type = "53" Then psn_faci_facility_type = "53-IMD Hosp GRH Facilities"
+					If psn_faci_facility_type = "55" Then psn_faci_facility_type = "55-Adult Foster Care/Rule 203"
+					If psn_faci_facility_type = "56" Then psn_faci_facility_type = "56-GRH (not FC or Rule 36)"
+					If psn_faci_facility_type = "57" Then psn_faci_facility_type = "57-Rule 36 MI-Non-IMD Other"
+					If psn_faci_facility_type = "60" Then psn_faci_facility_type = "60-Non-GRH"
+					If psn_faci_facility_type = "61" Then psn_faci_facility_type = "61-Rule 31 CD-Non-IMD"
+					If psn_faci_facility_type = "67" Then psn_faci_facility_type = "67-Family Violence Shltr"
+					If psn_faci_facility_type = "68" Then psn_faci_facility_type = "68-County Cor Facility"
+					If psn_faci_facility_type = "69" Then psn_faci_facility_type = "69-Non-Cty Adult Correctional"
+					MsgBox psn_faci_vendor_number & "-" & psn_faci_vendor_name & "-" & psn_faci_facility_type & "-" & psn_faci_fs_elig & "-" & psn_faci_plan_req & "-" & psn_faci_cty_app_plac & "-" & psn_faci_postpay & "-" & psn_faci_grh_rate & "-" & psn_faci_date_in & "-" & psn_faci_date_out
+
+				End if
+			End If
+
+	End If
 
 Next
 
@@ -1265,8 +1529,7 @@ Do
 				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
 				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
 				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
-
-				
+								
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
@@ -1402,7 +1665,7 @@ Do
 						
 						'MsgBox "i" & i  TEST
 						'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
-			MsgBox "IAA pben checkox" & iaa_update_pben_checkbox
+			'MsgBox "IAA pben checkox" & iaa_update_pben_checkbox
 		Loop until err_msg = ""
 	'Loop until form_count > Ubound(form_type_array, 2)
 	Loop until ButtonPressed = complete_btn
@@ -1433,6 +1696,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			Do
 				Call navigate_to_MAXIS_screen("STAT", "AREP")		'Navigate to AREP panel
 				EMReadScreen panel_check, 4, 2, 53
+				EMWaitReady 0, 0
 			Loop until panel_check = "AREP"
 
 			EMReadScreen arep_version, 1, 2, 73
@@ -1518,6 +1782,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			Do
 				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
 				EMReadScreen nav_check, 4, 2, 49
+				EMWaitReady 0, 0
 			Loop until nav_check = "PBEN"
 			
 			iaa_referral_date_month = right("00" & DatePart("m", iaa_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
@@ -1606,6 +1871,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			Do
 				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
 				EMReadScreen nav_check, 4, 2, 49
+				EMWaitReady 0, 0
 			Loop until nav_check = "PBEN"
 
 			iaa_ssi_referral_date_month = right("00" & DatePart("m", iaa_ssi_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
@@ -1698,12 +1964,20 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 		back_to_self
 		EMWriteScreen MAXIS_footer_month, 20, 43
 		EMWriteScreen MAXIS_footer_year, 20, 46
-		call navigate_to_MAXIS_screen("STAT", "FACI")
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "FACI")
+			EMReadScreen nav_check, 4, 2, 44
+			EMWaitReady 0, 0
+		Loop until nav_check = "FACI"
 		MsgBox "are we in faci?"
-		'UPDATING MAXIS PANELS----------------------------------------------------------------------------------------------------
+
 		'FACI
 		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
-			call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
+			Do
+				call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
+				EMReadScreen nav_check, 4, 2, 44
+				EMWaitReady 0, 0
+			Loop until nav_check = "FACI"
 			EMReadScreen panel_max_check, 1, 2, 78
 			IF panel_max_check = "5" THEN			'If panel has reached 5 which is the max, it will not update
 				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerun it with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
@@ -1738,7 +2012,11 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 		'HCMI
 		If ltc_1503_HCMI_update_checkbox = checked THEN
-			call navigate_to_MAXIS_screen("STAT", "HCMI")
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "HCMI")
+				EMReadScreen nav_check, 4, 2, 55
+				EMWaitReady 0, 0
+			Loop until nav_check = "HCMI"
 			EMReadScreen HCMI_panel_check, 1, 2, 78
 			IF HCMI_panel_check <> "0" Then
 				PF9
@@ -1750,6 +2028,12 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			transmit
 			transmit
 		END IF
+
+		
+	'If form_type_array(form_type_const, maxis_panel_write) = psn_form_name then 	' TODO: WRITE FOR PSN	
+
+
+
 	End If
 
 		
