@@ -194,8 +194,12 @@ If SNAP_Waived_interview_return_contact_needed = True Then
 							"It appears the application form (" & form_used & ") was reviewed for this case on " & note_date & " and there are some follow up questions we need from the resident." & vbCr & vbCr &_
 							"Are you in contact with the resident now and can address the items we previously determined will need follow-up?", vbQuestion + vbYesNo, "CAF Review Info Note Found")
 
-	'Running SNAP Waived Interview for return contact detail
-	If follow_up_contact = vbYes Then call run_from_GitHub(script_repository & "notes\snap-waived-interview.vbs")
+	'Running SNAP Waived Interview for return contact detail if selected by the user
+	If follow_up_contact = vbYes Then
+		functionality_info = "Waived Interview Info: " & form_used & " assessed on " & note_date & "."								'collecting details read from CASE/NOTE to identify some details about the case processing
+		call collect_script_usage_data("REDIRECT - Client Contact to SNAP Waived Interview", functionality_info, start_time)		'record script FUNCTIONALITY usage in SQL
+		call run_from_GitHub(script_repository & "notes\snap-waived-interview.vbs")													'running SNAP Waived Interview
+	End If
 End If
 
 Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
