@@ -174,6 +174,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)  'checking for priv then navigating to stat memb to gather the ref number and name.
 If is_this_priv = True then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
+If initial_option = "MAXIS to METS Migration" Then 
+    Call HH_member_enhanced_dialog(HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", true, true, "No longer has a MAXIS basis.", 1, "Continues to meet a Maxis Basis.", 0)
+Else
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 3, 4, 33
 	EMReadscreen last_name, 25, 6, 30
@@ -248,6 +251,7 @@ FOR i = 0 to total_clients
         transition_array(hc_type_const, transition_membs) = ""
 	END IF
 NEXT
+End if 
 '----------------------------------------------------------------------------------------------------MAXIS TO METS MIGRATION OPTION
 If initial_option = "MAXIS to METS Migration" then
 	'-------------------------------------------------------------------------------------------------DIALOG
@@ -261,20 +265,20 @@ If initial_option = "MAXIS to METS Migration" then
      Text 10, 35, 105, 15, "Member(s) that remain eligible but were referred to METS:"
      Text 125, 15, 175, 15, "hh_member_1, hh_member_2, hh_member3"
      ButtonGroup ButtonPressed
-     PushButton 10, 55, 105, 10, "Update Members and Eligibility", Button3
+     PushButton 10, 55, 105, 10, "Update Members and Eligibility", update_members_btn
      GroupBox 5, 5, 300, 65, "Member Info"
-     EditBox 70, 75, 235, 15, Edit1
+     EditBox 70, 75, 235, 15, change_reason
      Text 5, 80, 65, 10, "Reason for change:"
      Text 5, 100, 140, 10, "Temporary MA opened in MAXIS effective:"
-     EditBox 155, 95, 45, 15, Edit2
-     CheckBox 5, 130, 125, 10, "Managed care re-enrolled in MMIS", Check1
+     EditBox 155, 95, 45, 15, effective_date
+     CheckBox 5, 130, 125, 10, "Managed care re-enrolled in MMIS", mgd_care_check
      ButtonGroup ButtonPressed
      PushButton 135, 130, 10, 10, "!", mgd_care_info
      PushButton 150, 130, 35, 10, "MMIS", nav_to_mmis_btn
-     CheckBox 5, 145, 85, 15, "Add WCOM to notice", Check2
-     CheckBox 5, 110, 250, 15, "This case is in protected coverage group and will not be closed in MAXIS.", Check3
+     CheckBox 5, 145, 85, 15, "Add WCOM to notice", wcom_check
+     CheckBox 5, 110, 250, 15, "This case is in protected coverage group and will not be closed in MAXIS.", protected_check
      Text 5, 170, 65, 10, "Worker Signature:"
-     EditBox 70, 165, 95, 15, Edit4
+     EditBox 70, 165, 95, 15, worker_signature
     EndDialog
 
     DO

@@ -92,9 +92,11 @@ dim enhanced_HH_member_array()
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
     transmit
-
+	EMREadScreen total_clients, 2, 2, 78
+	total_clients = cint(replace(total_clients, " ", ""))
+	redim enhanced_HH_member_array(total_clients, 5)
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-		EMREadScreen numb_of_membs, 1, 2, 78 'if only one MEMB screen, we don't need to display the dialog 
+		 'if only one MEMB screen, we don't need to display the dialog 
 		
         EMReadScreen access_denied_check, 13, 24, 2
         'MsgBox access_denied_check
@@ -120,14 +122,13 @@ dim enhanced_HH_member_array()
 		End If
 		client_string = last_name & first_name & mid_initial
 		'Create an object for the member and add that members info, plus the checkbox defaults
-        redim preserve enhanced_HH_member_array(membs)
-		set enhanced_HH_member_array(membs) = new member_data
-		enhanced_HH_member_array(membs).member_number = ref_nbr
-		enhanced_HH_member_array(membs).name = client_string
-		enhanced_HH_member_array(membs).ssn = replace(ssn, " ", "") 
-		enhanced_HH_member_array(membs).birthdate = birthdate
-		enhanced_HH_member_array(membs).first_checkbox = first_checkbox_default
-		enhanced_HH_member_array(membs).second_checkbox = second_checkbox_default
+        		
+		enhanced_HH_member_array(membs, 0) = ref_nbr
+		enhanced_HH_member_array(membs, 1) = client_string
+		enhanced_HH_member_array(membs, 2) = replace(ssn, " ", "") 
+		enhanced_HH_member_array(membs, 3) = birthdate
+		enhanced_HH_member_array(membs, 4) = first_checkbox_default
+		enhanced_HH_member_array(membs, 5) = second_checkbox_default
 
   		membs = membs + 1 'index the value up 1 for next member
 		transmit
@@ -135,16 +136,9 @@ dim enhanced_HH_member_array()
 
 	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
-	total_clients = Ubound(enhanced_HH_member_array)			'setting the upper bound for how many spaces to use from the array
 	instruction_text_lines = (len(instruction_text) \ 80) + 1
 	if total_clients > 8 Then instruction_text_lines = (len(instruction_text) \ 160) + 1
 	If total_clients > 1 OR second_checkbox <> "" Then 'We only need the dialog if more than 1 client or multiple checkboxes to select
-        redim checkbox_array(total_clients, 2)
-		
-		for default = 1 to total_clients
-			checkbox_array(default, 0) = first_checkbox_default
-			checkbox_array(default, 1) = second_checkbox_default
-		Next
 		'Generating the dialog
 		split_number = 9
 		If total_clients > 8 Then split_number = (total_clients \ 2) + 1
@@ -170,15 +164,14 @@ dim enhanced_HH_member_array()
 	    	FOR person = 1 to total_clients										
 	    		'enhanced_HH_member_array(i).member_number
                 x_pos = 10
-				IF enhanced_HH_member_array(person).member_number <> "" THEN 
+				IF enhanced_HH_member_array(person, 0) <> "" THEN 
 	    			if person > split_number THEN x_pos = 300
-					display_string = enhanced_HH_member_array(person).name
-					If display_birthdate = True Then display_string = display_string & " " & enhanced_HH_member_array(person).birthdate
-					If display_ssn = True Then display_string = display_string & "  XXX-XX-" & right(enhanced_HH_member_array(person).ssn, 4)
-					Text x_pos, y_pos, 270, 10, enhanced_HH_member_array(person).member_number & " " & display_string   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-	    			'START HERE _ NOT STORING THE OBJECT????
-	    			If first_checkbox <> "" Then checkbox x_pos + 10, y_pos + 15, 125, 10, first_checkbox,  checkbox_array(person, 0) 'enhanced_HH_member_array(i).first_checkbox 
-                    If second_checkbox <> "" Then checkbox x_pos + 140, y_pos + 15, 125, 10, second_checkbox,  checkbox_array(person, 1)   
+					display_string = enhanced_HH_member_array(person, 1) 'client name
+					If display_birthdate = True Then display_string = display_string & " " & enhanced_HH_member_array(person, 3) 'birthdate
+					If display_ssn = True Then display_string = display_string & "  XXX-XX-" & right(enhanced_HH_member_array(person, 2), 4) 'ssn
+					Text x_pos, y_pos, 270, 10, enhanced_HH_member_array(person, 0) & " " & display_string   'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	    			If first_checkbox <> "" Then checkbox x_pos + 10, y_pos + 15, 125, 10, first_checkbox, enhanced_HH_member_array(person, 4) 'enhanced_HH_member_array(i).first_checkbox 
+                    If second_checkbox <> "" Then checkbox x_pos + 140, y_pos + 15, 125, 10, second_checkbox, enhanced_HH_member_array(person, 5)   
 	    			y_pos = y_pos + 30
 					if person = split_number Then y_pos = 15 + (10 * instruction_text_lines) 'resets y value when moving to next column
                 End If
@@ -193,20 +186,36 @@ dim enhanced_HH_member_array()
 	    Dialog dialog1
 	    Cancel_without_confirmation
 	End If 
-    for person = 1 to total_clients
-		enhanced_HH_member_array(person).first_checkbox = checkbox_array(person, 0)
-		enhanced_HH_member_array(person).second_checkbox = checkbox_array(person, 1)
+	'This section puts each person's info into objects in teh HH_member_array
+	redim hh_member_array(total_clients)
+	For memb = 1 to total_clients
+		set HH_member_array(memb) = new member_data
+		with HH_member_array(memb)
+			.member_number = enhanced_HH_member_array(memb, 0)
+			.name = enhanced_HH_member_array(memb, 1)
+			.ssn = enhanced_HH_member_array(memb, 2)
+			.birthdate = enhanced_HH_member_array(memb, 3)
+			.first_checkbox = enhanced_HH_member_array(memb, 4)
+			.second_checkbox = enhanced_HH_member_array(memb, 5)
+		end with
 	next
-
 end function
 
 Call MAXIS_case_number_finder(MAXIS_CASE_NUMBER)
 
-call HH_member_enhanced_dialog(enhanced_HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", true, true, "No longer has a MAXIS basis.", 1, "Continues to meet a Maxis Basis.", 0)
+call HH_member_enhanced_dialog(HH_member_array, "Select the HH Members that are potentially migrating to METS below. Do not select members that do not have a potential migration reason.", true, true, "No longer has a MAXIS basis.", 1, "Continues to meet a Maxis Basis.", 0)
  
 
-For chicken = 1 to ubound(enhanced_HH_member_array)
-    If enhanced_HH_member_array(chicken).first_checkbox = checked Then msgbox enhanced_HH_member_array(chicken).member_number & " checked"
+For memb = 1 to ubound(hh_member_array)
+	with hh_member_array(memb)
+  	  If .first_checkbox = checked Then msgbox .member_number & " " & .name & " " & .ssn
+	end with
+Next
+
+call HH_member_enhanced_dialog(HH_member_array, "Select household members that are in the assistance unit or deemers.", true, false, "Include in budget.", 1, "", 0)
+
+for i = 1 to ubound(hh_member_array)
+	If hh_member_array(i).first_checkbox = checked Then msgbox hh_member_array(i).member_number
 Next
 stopscript
 
