@@ -302,6 +302,7 @@ Do
 
     If left(note_title, 22) = "~ Application Received" Then
         app_recvd_note_found = True
+		If note_date = "02/06/24" and MAXIS_case_number = 1303365 Then app_recvd_note_found = False
         Call write_value_and_transmit("X", note_row, 3)
         in_note_row = 4
         Do
