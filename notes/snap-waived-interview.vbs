@@ -125,6 +125,7 @@ const choice_form_done_const        = 67
 const orientation_notes             = 68
 const last_const					= 69
 
+
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
 Dim ButtonPressed
@@ -153,16 +154,14 @@ Function create_needed_info_array(questions_array, needed_info_array)
 	Next
 End Function
 Function needed_info_dialog(needed_info_array)
-''This function will create a dialog of questions to ask the resident, based on an array of
+''This function will create a dialog of questions to ask the resident
+
 	current_dialog = "needed info"
-
-
 	BeginDialog Dialog1, 0, 0, 555, 385, "Information To Collect From Resident"
 	  Text 90, 10, 350, 25, "Additional Information is needed before processing. Contact the resident to obtain the following information.                       ----------------------------------------------------------------------------------------------------------------------------------"
 
 	ButtonGroup ButtonPressed
-	total_questions = ubound(needed_info_array)
-
+	total_questions = ubound(needed_info_array) - 2
 	If total_questions > 2 Then	Text 485, 55, 60, 10, "Question Pages"
 	If page_display = q_page_1 Then
 		y_pos = 30
@@ -226,6 +225,11 @@ Function needed_info_dialog(needed_info_array)
 		Text 515, 295, 50, 15, "12"
 		If total_questions > 22 Then call create_info_needed_in_dialog(needed_info_array(23))
 		If total_questions > 23 Then call create_info_needed_in_dialog(needed_info_array(24))
+	ElseIf page_display = q_page_xtra Then 
+		y_pos = 60 
+		Text 15, 30, 300, 15, "Use the two spaces below to enter information the resident reports during contact that is not covered in another part of the dialog."
+		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)-1))
+		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)))
 	End If
 	If page_display <> q_page_1 And total_questions > 2  Then PushButton 490, 75, 50, 15, "1", q_page_1_btn
 	If page_display <> q_page_2 And total_questions > 2	 Then PushButton 490, 95, 50, 15, "2", q_page_2_btn
@@ -240,20 +244,32 @@ Function needed_info_dialog(needed_info_array)
 	If page_display <> q_page_11 And total_questions > 20 Then PushButton 490, 275, 50, 15, "11", q_page_11_btn
 	If page_display <> q_page_12 And total_questions > 22 Then PushButton 490, 295, 50, 15, "12", q_page_12_btn
 	'Setting last page based on total questions, so we can ignore the next button
-	If total_questions < 3 Then last_page = q_page_1
-	If total_questions > 2 and total_questions < 5 Then last_page = q_page_2
-	If total_questions > 4 and total_questions < 7 Then last_page = q_page_3
-	If total_questions > 6 and total_questions < 9 Then last_page = q_page_4
-	If total_questions > 8 and total_questions < 11 Then last_page = q_page_5
-	If total_questions > 10 and total_questions < 13 Then last_page = q_page_6
-	If total_questions > 12 and total_questions < 15 Then last_page = q_page_7
-	If total_questions > 14 and total_questions < 17 Then last_page = q_page_8
-	If total_questions > 16 and total_questions < 19 Then last_page = q_page_9
-	If total_questions > 18 and total_questions < 21 Then last_page = q_page_10
-	If total_questions > 20 and total_questions < 23 Then last_page = q_page_11
-	If total_questions > 22 and total_questions < 25 Then last_page = q_page_12
-	'PushButton 35, 320, 165, 15, "Press This button to Review Work Rules", work_rules
-
+	If total_questions < 3 Then last_page = 4
+	If total_questions > 2 and total_questions < 5 Then last_page = 5
+	If total_questions > 4 and total_questions < 7 Then last_page = 6
+	If total_questions > 6 and total_questions < 9 Then last_page = 7
+	If total_questions > 8 and total_questions < 11 Then last_page = 8
+	If total_questions > 10 and total_questions < 13 Then last_page = 9
+	If total_questions > 12 and total_questions < 15 Then last_page = 15 'q_page_7
+	If total_questions > 14 and total_questions < 17 Then last_page = 16 'q_page_8
+	If total_questions > 16 and total_questions < 19 Then last_page = 17 'q_page_9
+	If total_questions > 18 and total_questions < 21 Then last_page = 18 'q_page_10
+	If total_questions > 20 and total_questions < 23 Then last_page = 19 'q_page_11
+	If total_questions > 22 and total_questions < 25 Then last_page = 20 'q_page_12
+	'Extra info reported button
+	If last_page = q_page_1   then PushButton 490, 95, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_2   then PushButton 490, 115, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_3 then PushButton 490, 135, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_4 then PushButton 490, 155, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_5 then PushButton 490, 175, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_6 then PushButton 490, 195, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_7 then PushButton 490, 205, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_8 then PushButton 490, 225, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_9 then PushButton 490, 255, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_10 then PushButton 490, 275, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_11 then PushButton 490, 295, 50, 15, "Extra Info", xtra_info_btn
+	If last_page = q_page_12 then PushButton 490, 305, 50, 15, "Extra Info", xtra_info_btn
+	
 	'If the script is being run to capture information after the initial application assessment. We need to capture contact details in the 'Needed Info' Dialog during this process
 	If run_return_contact = True Then
 		Text 20, 320, 40, 10, "Contact type"
@@ -271,7 +287,7 @@ Function needed_info_dialog(needed_info_array)
 		If previous_verif_found = True Then PushButton 20, 350, 125, 15, "View Previous Verifications", view_previous_verifs_btn
 	End If
 	PushButton 345, 350, 75, 15, "Complete Contact", contact_completed
-	If last_page <> page_display Then PushButton 290, 350, 50, 15, "Next", next_btn
+	If page_display <> q_page_xtra Then PushButton 290, 350, 50, 15, "Next", next_btn
 	If run_return_contact = False Then PushButton 210, 350, 70, 15, "No Contact Made", no_contact
  	CancelButton 425, 350, 50, 15
 	EndDialog
@@ -290,6 +306,13 @@ function create_info_needed_in_dialog(needed_info)
 		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
 		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
 		y_pos = y_pos + 20
+	ElseIf needed_info(1) = "xtra" Then
+		GroupBox 5, y_pos, 475, 40, needed_info(0) 'question text
+		y_pos = y_pos + 20
+		Text 15, y_pos, 60, 10, "Info Provided:"
+		EditBox 75, y_pos - 5, 300, 15, needed_info(8)
+		PushButton 400, y_pos, 75, 10, "ADD VERIFICATION", needed_info(11)
+		y_pos = y_pos + 30
 	ElseIf needed_info(1) = "busi" Then
 		GroupBox 5, y_pos, 475, 95, needed_info(0) 'question text
 		y_pos = y_pos + 10
@@ -2252,33 +2275,49 @@ function dialog_movement()
 		If page_display = show_pg_one_memb01_and_exp 	Then ButtonPressed = caf_addr_btn
 		If page_display = show_pg_one_address 			Then ButtonPressed = caf_membs_btn
 		If page_display = show_pg_memb_list 			Then ButtonPressed = q_page_1_btn
-		If form_type = "full CAF" or form_type = "MNBenefits" Then 'these forms go through all pages
+		
+		If (form_type = "full CAF" or form_type = "MNBenefits") AND current_dialog <> "needed info"  Then 'these forms go through all pages
 			If page_display = q_page_1 					Then ButtonPressed = q_page_2_btn
 			If page_display = q_page_2 					Then ButtonPressed = q_page_3_btn
 			If page_display = q_page_3 					Then ButtonPressed = q_page_4_btn
 			If page_display = q_page_4 					Then ButtonPressed = q_page_5_btn
 			If page_display = q_page_5 					Then ButtonPressed = q_page_6_btn
 			If page_display = q_page_6 					Then ButtonPressed = caf_qual_q_btn
-		ElseIf form_type = "senior" Then 'only go through the senior questions
+		ElseIf form_type = "senior" AND current_dialog <> "needed info" Then 'only go through the senior questions
 			If page_display = q_page_1 					Then ButtonPressed = q_page_2_btn
 			If page_display = q_page_2 					Then ButtonPressed = q_page_3_btn
 			If page_display = q_page_3 					Then ButtonPressed = caf_qual_q_btn
 		End If
 		If current_dialog = "needed info" Then
-			If page_display = q_page_1 					Then ButtonPressed = q_page_2_btn
-			If page_display = q_page_2 					Then ButtonPressed = q_page_3_btn
-			If page_display = q_page_3 					Then ButtonPressed = q_page_4_btn
-			If page_display = q_page_4 					Then ButtonPressed = q_page_5_btn
-			If page_display = q_page_5 					Then ButtonPressed = q_page_6_btn
-			If page_display = q_page_6 					Then ButtonPressed = q_page_7_btn
-			If page_display = q_page_7 					Then ButtonPressed = q_page_8_btn
-			If page_display = q_page_8 					Then ButtonPressed = q_page_9_btn
-			If page_display = q_page_9 					Then ButtonPressed = q_page_10_btn
-			If page_display = q_page_10 				Then ButtonPressed = q_page_11_btn
-			If page_display = q_page_11 				Then ButtonPressed = q_page_12_btn
+			If last_page = page_display	Then 
+				ButtonPressed = xtra_info_btn
+			ElseIf page_display = q_page_1 	Then 
+				ButtonPressed = q_page_2_btn
+			ElseIf page_display = q_page_2 	Then 
+				ButtonPressed = q_page_3_btn
+			ElseIf page_display = q_page_3 	Then 
+				ButtonPressed = q_page_4_btn
+			ElseIf page_display = q_page_4 	Then 
+				ButtonPressed = q_page_5_btn
+			ElseIf page_display = q_page_5 	Then 
+				ButtonPressed = q_page_6_btn
+			ElseIf page_display = q_page_6 	Then 
+				ButtonPressed = q_page_7_btn
+			ElseIf page_display = q_page_7 	Then 
+				ButtonPressed = q_page_8_btn
+			ElseIf page_display = q_page_8 	Then 
+				ButtonPressed = q_page_9_btn
+			ElseIf page_display = q_page_9 	Then 
+				ButtonPressed = q_page_10_btn
+			ElseIf page_display = q_page_10 Then 
+				ButtonPressed = q_page_11_btn
+			ElseIf page_display = q_page_11 Then 
+				ButtonPressed = q_page_12_btn
+			End if 
 		End If
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
 		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
+		
 		'If discrepancies_exist = True Then
 		'	If page_display = show_pg_last 				Then ButtonPressed = discrepancy_questions_btn
 		'	If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
@@ -2356,6 +2395,8 @@ function dialog_movement()
 	If ButtonPressed = q_page_12_btn Then
 		page_display = q_page_12
 	End If
+	If ButtonPressed = xtra_info_btn Then page_display = q_page_xtra
+		
 
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
@@ -5995,6 +6036,11 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
+	ElseIf interview_question(1) = "xtra" Then 
+		If trim(interview_question(8)) <> "" Then
+			Call write_variable_in_CASE_NOTE(interview_question(0))
+			Call write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
+		End if 
 	ElseIf interview_question(1) = "unea" Then
 		unea_content = false
 		For un = 3 to 30
@@ -8481,6 +8527,18 @@ for mnq = 25 to 29
 	mnb(mnq)(9) =  qualification_help
 next
 
+'Extra questions for the final dialog
+dim xtra_1(12)
+xtra_1(0) =  "OT1. Other information reported during contact with the resident:"
+xtra_1(1) = "xtra"
+xtra_1(2) = "mandatory"
+xtra_1(9) = "Use this area to record any other info reported by the resident that was not captured elsewhere in the dialog."
+dim xtra_2(12)
+xtra_2(0) =  "OT2. Other information reported during contact with the resident:"
+xtra_2(1) = "xtra"
+xtra_2(2) = "mandatory"
+xtra_2(9) = "Use this area to record any other info reported by the resident that was not captured elsewhere in the dialog."
+
 '--------------------------------------------------------------------------------------------------------------------------------------
 
 memb_panel_relationship_list = "Select One..."
@@ -8592,12 +8650,12 @@ Dim confirm_appeal_rights_read, confirm_civil_rights_read, confirm_cover_letter_
 Dim confirm_disa_read, confirm_mfip_forms_read, confirm_mfip_cs_read, confirm_minor_mfip_read, confirm_snap_forms_read, confirm_recap_read
 Dim confirm_ievs_info_read, case_card_info, clt_knows_how_to_use_ebt_card, snap_reporting_type, next_revw_month
 
-Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, q_page_1, q_page_2, q_page_4, q_page_6, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination
+Dim show_pg_one_memb01_and_exp, show_pg_one_address, show_pg_memb_list, show_qual, show_pg_last, discrepancy_questions, show_arep_page, expedited_determination
 Dim CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, signature_check, other_info
 Dim type_of_cash, the_process_for_cash, next_cash_revw_mo, next_cash_revw_yr
 Dim the_process_for_snap, next_snap_revw_mo, next_snap_revw_yr
 Dim type_of_emer, the_process_for_emer, q_12_totally_blank, q_14_totally_blank, q_15_totally_blank, q_20_totally_blank, q_24_totally_blank
-Dim this_question
+Dim this_question, page_display, last_page
 
 'EXPEDITED DETERMINATION VARIABLES'
 Dim expedited_determination_completed, determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources
@@ -8628,7 +8686,12 @@ show_pg_last				= 11
 discrepancy_questions		= 12
 show_arep_page				= 13
 expedited_determination		= 14
-
+q_page_7 = 15
+q_page_8 = 16
+q_page_9 = 17
+q_page_10 = 18
+q_page_11 = 19
+q_page_12 = 20
 
 show_exp_pg_amounts = 1
 show_exp_pg_determination = 2
@@ -8666,7 +8729,7 @@ verif_view = "See All Verifs"
 
 
 'Giving the buttons specific enumerations so they don't think they are eachother
-next_btn					= 100
+next_btn					= 101
 ' back_btn					= 1010
 member_info_needed_btn      = 2917
 update_information_btn		= 1020
@@ -8708,12 +8771,12 @@ open_r_and_r_btn 			= 1200
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
-q_page_1_btn				= 1600
-q_page_2_btn				= 1700
-q_page_3_btn				= 1800
-q_page_4_btn				= 1900
-q_page_5_btn				= 2000
-q_page_6_btn				= 2100
+q_page_1_btn				= 1601
+q_page_2_btn				= 1701
+q_page_3_btn				= 1801
+q_page_4_btn				= 1901
+q_page_5_btn				= 2001
+q_page_6_btn				= 2101
 q_page_7_btn				= 2101
 q_page_8_btn				= 2102
 q_page_9_btn				= 2103
@@ -8793,6 +8856,8 @@ exemptions_button = 3701
 continue_button = 3702
 work_rules_reviewed_button = 3703
 return_to_info_btn = 3704
+xtra_info_btn = 3100
+
 
 open_r_and_r_btn				= 700
 accounting_service_desk_btn		= 701
@@ -10095,6 +10160,13 @@ If run_return_contact = True Then
 	contact_type = ""
 	contact_direction = ""
 	who_contacted = ""
+	'First need to add last two "extra" questions to the array
+	
+	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
+	needed_info_array(ubound(needed_info_array)-1) = xtra_1
+	needed_info_array(ubound(needed_info_array)) = xtra_2 
+
+
 
 	Do
 		Do
@@ -10868,7 +10940,11 @@ If info_needed = True Then  'There is info needed, call the resident
 	'Message to tell the worker to attempt contact with the resident, yes/no, leave teh script running while doing so.
 	'Bring up the dialog with the necessary questions
 	'page_display = info_1
-
+	'First need to add last two "extra" questions to the array
+	
+	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
+	needed_info_array(ubound(needed_info_array)-1) = xtra_1
+	needed_info_array(ubound(needed_info_array)) = xtra_2 
 
 	Do
 		Do
