@@ -6504,7 +6504,6 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         End If
         If ega_status = "PENDING" Then
             emer_case = TRUE
-            emer_case = TRUE
             case_pending = TRUE
 			list_pending_programs = list_pending_programs & "EGA, "
         ENd If
