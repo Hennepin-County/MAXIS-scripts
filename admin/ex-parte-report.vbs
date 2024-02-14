@@ -213,7 +213,7 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 	' Next
 
 	'This part of the function will only trigger if the reading of the panels found a panel type that matches the parameter passed through
-	If type_code_found = True Then
+	' If type_code_found = True Then
 		For known_panel = 0 to UBound(unea_panel_array, 2)				'Loop through all the known panels
 			'Now we need to find if an SSI panel is found or and RSDI panel is found.
 			'RSDI can allow for 01 to match with 02 - this way the UNEA type can be corrected.
@@ -262,7 +262,7 @@ function find_UNEA_panel(MEMB_reference_number, UNEA_type_code, UNEA_instance, U
 
 			UNEA_instance = unea_panel_array(panel_instance_const, array_index)				'passing the correct instance through the parameter
 		End If
-	End If
+	' End If
 end function
 
 function get_list_of_members()
@@ -383,9 +383,24 @@ function update_stat_budg()
 end function
 
 
-function update_unea_pane(panel_found, unea_type, income_amount, claim_number, start_date, end_date, last_pay)
+function update_unea_pane(panel_found, unea_type, income_amount, cola_amount, claim_number, start_date, end_date, last_pay)
 'this function will upate the information in the UNEA panel with new information.
 'This function requires the function 'find_UNEA_panel' before calling this one because it identifies if a pannel has been found
+	cola_disregard_needed = False
+	If MAXIS_footer_month = "01" Then cola_disregard_needed = True
+	If MAXIS_footer_month = "02" Then cola_disregard_needed = True
+	If MAXIS_footer_month = "03" Then cola_disregard_needed = True
+	If MAXIS_footer_month = "04" Then cola_disregard_needed = True
+	If MAXIS_footer_month = "05" Then cola_disregard_needed = True
+	If MAXIS_footer_month = "06" Then cola_disregard_needed = True
+
+	If MAXIS_footer_month = "07" Then cola_disregard_needed = False
+	If MAXIS_footer_month = "08" Then cola_disregard_needed = False
+	If MAXIS_footer_month = "09" Then cola_disregard_needed = False
+	If MAXIS_footer_month = "10" Then cola_disregard_needed = False
+	If MAXIS_footer_month = "11" Then cola_disregard_needed = False
+	If MAXIS_footer_month = "12" Then cola_disregard_needed = False
+
 	panel_in_edit_mode = False								'defaulting the boolean to identify that this case is not in edit mode
 	If panel_found = False and end_date = "" Then			'if the panel has not been found using the function 'find_UNEA_panel' and the income does not appear ended - we make a new panel
 		Call write_value_and_transmit("NN", 20, 79)
@@ -413,11 +428,13 @@ function update_unea_pane(panel_found, unea_type, income_amount, claim_number, s
 			start_date = DateAdd("d", 0 , start_date)
 		End If
 
-		'Now we clear the information for COLA and end date information
-		Call clear_line_of_text(10, 67)		'clear the COLA disregard - TODO - update this for Jan - June to not remove this
-		' Call clear_line_of_text(7, 68)
-		' Call clear_line_of_text(7, 71)
-		' Call clear_line_of_text(7, 74)
+		'Now we clear the information for COLA if it is July - Dec or enter the COLA detial if missing for Jan - Jun
+		EMReadScreen curr_cola_info, 8, 10, 67
+		If cola_disregard_needed = True and curr_cola_info = "________" Then
+			EMWriteScreen cola_amount, 10, 67
+		ElseIf curr_cola_info = False Then
+			Call clear_line_of_text(10, 67)
+		End If
 
 		'Clear amount details
 		row = 13									'row 13 is the top of the income information
@@ -529,6 +546,7 @@ Const tpqy_rsdi_claim_numb 			= 47
 Const tpqy_dual_entl_nbr 			= 48
 Const tpqy_rsdi_status_code 		= 49
 Const tpqy_rsdi_gross_amt 			= 50
+Const tpqy_rsdi_cola_amt			= 116
 Const tpqy_rsdi_net_amt 			= 51
 Const tpqy_railroad_ind 			= 52
 Const tpqy_intl_entl_date 			= 53
@@ -568,6 +586,7 @@ Const tpqy_ssi_appeals_dec_date 	= 86
 Const tpqy_ssi_disa_pay_code 		= 87
 Const tpqy_ssi_pay_date 			= 88
 Const tpqy_ssi_gross_amt 			= 89
+Const tpqy_ssi_cola_amt				= 117
 Const tpqy_ssi_over_under_code 		= 90
 Const tpqy_ssi_pay_hist_1_date 		= 91
 Const tpqy_ssi_pay_hist_1_amt 		= 92
@@ -3474,6 +3493,27 @@ If ex_parte_function = "Prep 2" Then
 					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
+					EMReadScreen present_pay_month, 2, 8, 5
+					EMReadScreen present_pay_year, 2, 8, 8
+					cola_row = 9
+					Do
+						EMReadScreen prev_pay_month, 2, cola_row, 5
+						If prev_pay_month = "12" Then
+							EMReadScreen prev_gross, 8, cola_row, 16
+							prev_gross = trim(prev_gross)
+							If IsNumeric(prev_gross) = True Then
+								prev_gross = prev_gross*1
+
+								'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
+								curr_gross = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)*1
+								cola_amount = curr_gross - prev_gross
+								MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+							End If
+							Exit Do
+						End If
+						cola_row = cola_row + 1
+					Loop until cola_row = 16
+
 					transmit
 
 					Do
@@ -3636,6 +3676,17 @@ If ex_parte_function = "Prep 2" Then
 					MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_start, each_memb), " ", "/")
 					MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_inc_inkind_stop, each_memb), " ", "/")
 
+					EMReadScreen prev_gross, 8, 9, 13
+					prev_gross = trim(prev_gross)
+					If IsNumeric(prev_gross) = True Then
+						prev_gross = prev_gross*1
+
+						'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
+						curr_gross = MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb)*1
+						cola_amount = curr_gross - prev_gross
+						MEMBER_INFO_ARRAY(tpqy_ssi_cola_amt, each_memb) = cola_amount
+					End If
+
 					transmit
 
 					If MEMBER_INFO_ARRAY(tpqy_ssi_record, each_memb) = "Y" Then
@@ -3692,12 +3743,12 @@ If ex_parte_function = "Prep 2" Then
 							If MEMBER_INFO_ARRAY(tpqy_ssi_is_ongoing, each_memb) = True Then		'If SSI appears to be ongoing (Current Pay)
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
+								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_cola_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), "", "")
 								If InStr(verif_types, "SSI") = 0 Then verif_types = verif_types & "/SSI"
 							ElseIf isDate(MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb)) = True Then	'If SSI has an end date listed
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), "03", SSI_UNEA_instance, "", SSI_panel_found)
 
-								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb))
+								Call update_unea_pane(SSI_panel_found, "03", MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_cola_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_claim_numb, each_memb) & MEMBER_INFO_ARRAY(tpqy_ssi_recip_code, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_SSP_elig_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_date, each_memb), MEMBER_INFO_ARRAY(tpqy_ssi_last_pay_amt, each_memb))
 								If InStr(verif_types, "SSI End") = 0 Then verif_types = verif_types & "/SSI End"
 							'There is no handling for if person appears to have SSI ended but we could not find an end date.
 							End If
@@ -3711,7 +3762,7 @@ If ex_parte_function = "Prep 2" Then
 								rsdi_type = "02"
 								Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 							End If
-							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
+							Call update_unea_pane(RSDI_panel_found, rsdi_type, MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
 							If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 						End If
 
@@ -4575,6 +4626,28 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
 							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb)
+
+							EMReadScreen present_pay_month, 2, 8, 5
+							EMReadScreen present_pay_year, 2, 8, 8
+							cola_row = 9
+							Do
+								EMReadScreen, prev_pay_month, 2, cola_row, 5
+								If prev_pay_month = "12" Then
+									prev_gross, 8, cola_row, 16
+									prev_gross = trim(prev_gross)
+									If IsNumeric(prev_gross) = True Then
+										prev_gross = prev_gross*1
+
+										'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
+										curr_gross = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)*1
+										cola_amount = curr_gross - prev_gross
+										MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+									End If
+									Exit Do
+								End If
+								cola_row = cola_row + 1
+							Loop until cola_row = 16
+
 							transmit
 
 							Do
@@ -4816,7 +4889,7 @@ If ex_parte_function = "Phase 1" Then
 							Call find_UNEA_panel(MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), rsdi_type, RSDI_UNEA_instance, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), RSDI_panel_found)
 						End If
 						If RSDI_panel_found = True or rsdi_amount <> 0 Then
-							Call update_unea_pane(RSDI_panel_found, rsdi_type, rsdi_amount, MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
+							Call update_unea_pane(RSDI_panel_found, rsdi_type, rsdi_amount, MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb), MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), "", "")
 							If InStr(verif_types, "RSDI") = 0 Then verif_types = verif_types & "/RSDI"
 						End If
 					End If
@@ -4954,7 +5027,7 @@ If ex_parte_function = "Phase 1" Then
 							If VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = unea_inc_type or (VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = "" and (unea_inc_type = "11" or unea_inc_type = "12" or unea_inc_type = "13" or unea_inc_type = "38")) Then
 								If IsNumeric(VA_INCOME_ARRAY(va_prosp_inc_const, va_count)) = True Then		'If the income information is a number, the script will update the panel
 									VA_INCOME_ARRAY(va_panel_updated_const, va_count) = "YES"
-									Call update_unea_pane(True, unea_inc_type, VA_INCOME_ARRAY(va_prosp_inc_const, va_count), VA_INCOME_ARRAY(va_claim_numb_const, va_count), "", "", "")
+									Call update_unea_pane(True, unea_inc_type, VA_INCOME_ARRAY(va_prosp_inc_const, va_count), "", VA_INCOME_ARRAY(va_claim_numb_const, va_count), "", "", "")
 									If InStr(verif_types, "VA") = 0 Then verif_types = verif_types & "/VA"	'creatng a verif list for CASE NOTE
 									Exit Do
 								Else																	'if the income is not a number, we need to update with a 'N' verification and blanking out of the income. These require manual review
