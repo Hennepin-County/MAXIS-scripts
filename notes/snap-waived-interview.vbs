@@ -231,7 +231,7 @@ Function needed_info_dialog(needed_info_array)
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)-1))
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)))
 	End If
-	If page_display <> q_page_1 And total_questions > 2  Then PushButton 490, 75, 50, 15, "1", q_page_1_btn
+	If page_display <> q_page_1 Then PushButton 490, 75, 50, 15, "1", q_page_1_btn
 	If page_display <> q_page_2 And total_questions > 2	 Then PushButton 490, 95, 50, 15, "2", q_page_2_btn
 	If page_display <> q_page_3 And total_questions > 4	 Then PushButton 490, 115, 50, 15, "3", q_page_3_btn
 	If page_display <> q_page_4 And total_questions > 6	 Then PushButton 490, 135, 50, 15, "4", q_page_4_btn
@@ -10961,7 +10961,7 @@ If info_needed = True Then  'There is info needed, call the resident
 					previous_button_pressed = ButtonPressed
 				If ButtonPressed = contact_completed Then
 					blank_answers = false
-					For answer = 1 to ubound(needed_info_array)
+					For answer = 1 to ubound(needed_info_array) - 2
 						If needed_info_array(answer)(8) = "" Then blank_answers = true 'Interview notes field should not be blank if we finished contact
 					Next
 					If blank_answers = true then err_msg = err_msg & vbCR & "You have pressed contact completed, but did not note the info provided by the resident on 1 or more questions. Update the info provided or select 'No Contact Made' if you were unable to reach the resident."
