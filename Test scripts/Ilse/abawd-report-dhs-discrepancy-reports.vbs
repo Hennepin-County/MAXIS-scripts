@@ -108,7 +108,6 @@ Function ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer
         			
 	    'used to loop until count was 36 due to person based look back period. Now fixed clock starts 01/23 for all members. 
         LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
-        'msgbox abawd_counted_months
         PF3	' to exit tracking record 
     End if 
 End Function
@@ -557,6 +556,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 
 		    '----------------------------------------------------------------------------------------------------'11 – Rcvg UI or Work Compliant While UI Pending
 		    'Person-based determination
+            uc_unea = False 
             CALL write_value_and_transmit(member_number, 20, 76)
             EMReadScreen num_of_UNEA, 1, 2, 78
             IF num_of_UNEA <> "0" THEN
@@ -566,10 +566,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
             		unea_end_dt = replace(unea_end_dt, " ", "/")
             		IF IsDate(unea_end_dt) = True THEN
             			IF DateDiff("D", ABAWD_eval_date, unea_end_dt) > 0  or unea_end_dt = "__/__/__" THEN
-                        If unea_type = "14" then msgbox DateDiff("D", ABAWD_eval_date, unea_end_dt)
+                        'If unea_type = "14" then msgbox DateDiff("D", ABAWD_eval_date, unea_end_dt)
             				IF unea_type = "14" then
 		    					EmReadScreen UC_verif_code, 1, 5, 65
 		    					If UC_verif_code <> "N" then
+                                    uc_unea = True 
 		    						verified_wreg = verified_wreg & "11" & "|"
 		    						Exit do
 		    					Else
@@ -592,16 +593,22 @@ Function BULK_ABAWD_FSET_exemption_finder()
             IF num_of_PBEN <> "0" THEN
             	pben_row = 8
             	DO
-                    
                     EMreadscreen pben_type, 2, pben_row, 24
                     If pben_type = "__" then exit do
             	    IF pben_type = "12" THEN		'UI pending'
             			EMReadScreen pben_disp, 1, pben_row, 77
-            			IF pben_disp = "A" OR pben_disp = "E" OR pben_disp = "P" THEN
+            			IF pben_disp = "A" OR pben_disp = "P" THEN
 		    				verified_wreg = verified_wreg & "11" & "|"
 		    				EXIT DO
+                        elseif pben_disp = "E" then 
+                            if uc_unea = True then 
+                                verified_wreg = verified_wreg & "11" & "|"
+                                Exit do
+                            Else
+                                pben_row = pben_row + 1
+                            End if 
             			Else
-		    				'If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "Appears to have pending, appealing, or eligible Unemployment benefits."
+		    				If eats_pers = member_number then possible_exemptions = possible_exemptions & vbcr & "May have pending, appealing, or eligible Unemployment benefits."
                             pben_row = pben_row + 1
             			END IF
             		ELSE
@@ -760,10 +767,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP is " & snap_status 	
         End if
 
-        If best_abawd_code = "10" or age_50 = True then 
-            If abawd_counted_months => 3 then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Time-Limits have been met. Evaluate to set to close."
-        End if
-
 		    '----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
 		If age_50 = True then
 	    	If best_wreg_code = "30" then 
@@ -812,7 +815,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
 				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
 	    	End if
-	    Elseif updates_needed = True then
+	    Else
             'script will update the WREG panel for the member if an update
             Call navigate_to_MAXIS_screen("STAT", "WREG")
             Call write_value_and_transmit(member_number, 20, 76)
@@ -842,6 +845,10 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    	End if 
         End if
     End if 
+
+    If best_abawd_code = "10" or age_50 = True then 
+        If abawd_counted_months => 3 then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Time-Limits have been met. Evaluate to set to close."
+    End if
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
