@@ -2360,24 +2360,6 @@ function dialog_movement()
 	If ButtonPressed = q_page_6_btn Then
 		page_display = q_page_6
 	End If
-	If ButtonPressed = q_page_1_btn Then
-		page_display = q_page_1
-	End If
-	If ButtonPressed = q_page_2_btn Then
-		page_display = q_page_2
-	End If
-	If ButtonPressed = q_page_3_btn Then
-		page_display = q_page_3
-	End If
-	If ButtonPressed = q_page_4_btn Then
-		page_display = q_page_4
-	End If
-	If ButtonPressed = q_page_5_btn Then
-		page_display = q_page_5
-	End If
-	If ButtonPressed = q_page_6_btn Then
-		page_display = q_page_6
-	End If
 	If ButtonPressed = q_page_7_btn Then
 		page_display = q_page_7
 	End If
@@ -8777,7 +8759,7 @@ q_page_2_btn				= 1701
 q_page_3_btn				= 1801
 q_page_4_btn				= 1901
 q_page_5_btn				= 2001
-q_page_6_btn				= 2101
+q_page_6_btn				= 2002
 q_page_7_btn				= 2101
 q_page_8_btn				= 2102
 q_page_9_btn				= 2103
@@ -11600,7 +11582,7 @@ If qual_questions_yes = TRUE Then
 		PF3
 End If
 'Entering the case/notes
-PF3
+PF3 
 call write_app_review_CASE_NOTE()
 PF3
 Call write_verification_CASE_NOTE(create_verif_note)
