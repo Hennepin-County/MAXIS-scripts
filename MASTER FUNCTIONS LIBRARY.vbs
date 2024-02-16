@@ -6503,7 +6503,6 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_active_programs = list_active_programs & "EGA, "
         End If
         If ega_status = "PENDING" Then
-            dwp_case = TRUE
             emer_case = TRUE
             case_pending = TRUE
 			list_pending_programs = list_pending_programs & "EGA, "
@@ -10485,7 +10484,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
-        instr(dail_msg, "GA: HRF DUE FOR JANUARY - NOT AUTO-APPROVED") OR _ 
+        instr(dail_msg, "GA: HRF DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS PENDING - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS REIN OR SUSPEND - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
@@ -10540,16 +10539,16 @@ Function non_actionable_dails(actionable_dail)
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
     Elseif dail_type = "PEPR" then
-        If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _ 
-            instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then 
-            actionable_dail = True 
+        If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _
+            instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
+            actionable_dail = True
         Else
             If dail_month = this_month or dail_month = next_month then
                 actionable_dail = True
             Else
                 actionable_dail = False ' delete the old messages
             End if
-        End if 
+        End if
     '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
     Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
         if dail_month = this_month or dail_month = next_month then

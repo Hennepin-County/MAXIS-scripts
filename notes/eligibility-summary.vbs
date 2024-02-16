@@ -5474,9 +5474,9 @@ function msa_elig_case_note()
 			BUSI_found = False
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb), ".")
 						pay_info = job_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5486,9 +5486,9 @@ function msa_elig_case_note()
 					JOBS_info = "|"
 				End If
 				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb), ".")
 						pay_info = job_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5498,9 +5498,9 @@ function msa_elig_case_note()
 					JOBS_info = "|"
 				End If
 				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb), ".")
 						pay_info = job_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5510,9 +5510,9 @@ function msa_elig_case_note()
 					JOBS_info = "|"
 				End If
 				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb), ".")
 						pay_info = job_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5522,9 +5522,9 @@ function msa_elig_case_note()
 					JOBS_info = "|"
 				End If
 				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb), ".")
 						pay_info = job_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5536,9 +5536,9 @@ function msa_elig_case_note()
 				If JOBS_info = "|     Net Earned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Wages/Salary Income "& spaces_30, 44) & JOBS_info)
 
 				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb), ".")
 						pay_info = busi_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5548,9 +5548,9 @@ function msa_elig_case_note()
 					BUSI_found = True
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb), ".")
 						pay_info = busi_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -5560,9 +5560,9 @@ function msa_elig_case_note()
 					BUSI_found = True
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_msa(each_memb) = True Then
-					pay_info = STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb)
-					If InStr(STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
-						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb), ".")
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb), ".")
 						pay_info = busi_amt_array(0)
 					End if
 					If pay_info = "" Then pay_info = "0"
@@ -9012,7 +9012,9 @@ class dwp_eligibility_detail
 				full_name_information = trim(full_name_information)
 				name_array = split(full_name_information, " ")
 				For each name_parts in name_array
-					If len(name_parts) <> 1 Then dwp_elig_membs_full_name(elig_memb_count) = dwp_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					If name_parts <> "" Then
+						If len(name_parts) <> 1 Then dwp_elig_membs_full_name(elig_memb_count) = dwp_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					End If
 				Next
 				dwp_elig_membs_full_name(elig_memb_count) = trim((dwp_elig_membs_full_name(elig_memb_count)))
 
@@ -10412,7 +10414,9 @@ class mfip_eligibility_detail
 				End If
 				name_array = split(full_name_information, " ")
 				For each name_parts in name_array
-					If len(name_parts) <> 1 Then mfip_elig_membs_full_name(elig_memb_count) = mfip_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					If name_parts <> "" Then
+						If len(name_parts) <> 1 Then mfip_elig_membs_full_name(elig_memb_count) = mfip_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					End If
 				Next
 				mfip_elig_membs_full_name(elig_memb_count) = trim(mfip_elig_membs_full_name(elig_memb_count))
 				' MsgBox "full_name_information - " & full_name_information & vbCr & "mfip_elig_membs_full_name(elig_memb_count) - " & mfip_elig_membs_full_name(elig_memb_count)
@@ -11749,7 +11753,9 @@ class msa_eligibility_detail
 				full_name_information = trim(full_name_information)
 				name_array = split(full_name_information, " ")
 				For each name_parts in name_array
-					If len(name_parts) <> 1 Then msa_elig_membs_full_name(elig_memb_count) = msa_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					If name_parts <> "" Then
+						If len(name_parts) <> 1 Then msa_elig_membs_full_name(elig_memb_count) = msa_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					End If
 				Next
 				msa_elig_membs_full_name(elig_memb_count) = trim((msa_elig_membs_full_name(elig_memb_count)))
 
@@ -12389,7 +12395,9 @@ class ga_eligibility_detail
 				full_name_information = trim(full_name_information)
 				name_array = split(full_name_information, " ")
 				For each name_parts in name_array
-					If len(name_parts) <> 1 Then ga_elig_membs_full_name(elig_memb_count) = ga_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					If name_parts <> "" Then
+						If len(name_parts) <> 1 Then ga_elig_membs_full_name(elig_memb_count) = ga_elig_membs_full_name(elig_memb_count) & " " & name_parts
+					End If
 				Next
 				ga_elig_membs_full_name(elig_memb_count) = trim((ga_elig_membs_full_name(elig_memb_count)))
 				EMReadScreen ga_elig_membs_relationship_code(elig_memb_count), 2, ga_row, 33
@@ -18403,7 +18411,9 @@ class hc_eligibility_detail
 						temp_name_array = split(hc_elig_full_name(hc_prog_count))
 						hc_elig_full_name(hc_prog_count) = ""
 						for i = 0 to UBound(temp_name_array)
-							hc_elig_full_name(hc_prog_count) = hc_elig_full_name(hc_prog_count) & " " & UCase(left(temp_name_array(i), 1)) & LCase(right(temp_name_array(i), len(temp_name_array(i))-1))
+							If temp_name_array(i) <> "" Then
+								hc_elig_full_name(hc_prog_count) = hc_elig_full_name(hc_prog_count) & " " & UCase(left(temp_name_array(i), 1)) & LCase(right(temp_name_array(i), len(temp_name_array(i))-1))
+							End If
 						next
 						hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
 					End If
@@ -23289,7 +23299,6 @@ If row <> 0 Then
 End If
 
 Call back_to_SELF
-Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
 If MX_region = "INQUIRY DB" Then
@@ -23300,6 +23309,8 @@ End If
 developer_mode = False
 allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
+
+Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
