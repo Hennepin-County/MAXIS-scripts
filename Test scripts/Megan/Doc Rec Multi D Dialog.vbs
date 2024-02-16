@@ -103,6 +103,24 @@ psn_btn				= 411
 sf_btn				= 412
 diet_btn			= 413
 
+'Define resource buttons
+iaa_CM121203_btn			= 2000	
+iaa_sp_pben_btn				= 2001
+iaa_te021214_btn			= 2002
+iaa_ssi_CM121203_btn		= 2003
+iaa_ssi_sp_pben_btn			= 2004
+iaa_ssi_te021214_btn		= 2005
+diet_link_CM_special_diet	= 2006
+diet_SP_referrals			= 2007
+hosp_TE0207081_btn			= 2008
+hosp_SP_hospice_btn			= 2009
+psn_CM1315_btn				= 2010
+psn_TE1817_btn				= 2011
+psn_hss_btn					= 2012
+psn_mhm_btn					= 2013
+psn_hsss_btn				= 2014
+
+
 'Define Form Names
 asset_form_name 	= "Asset Statement"
 atr_form_name		= "Authorization to Release Information (ATR)"
@@ -290,7 +308,7 @@ function evf_dialog()
 	EditBox 310, 20, 45, 15, evf_date_received		
 	ComboBox 95, 50, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
 	EditBox 95, 70, 210, 15, evf_employer
-	DropListBox 95, 95, 210, 45, HH_Memb_DropDown, evf_client
+	DropListBox 95, 90, 210, 15, HH_Memb_DropDown, evf_client
 	DropListBox 100, 145, 60, 15, "Select one..."+chr(9)+"yes"+chr(9)+"no", evf_info
 	EditBox 245, 145, 60, 15, evf_info_date
 	EditBox 100, 165, 60, 15, evf_request_info
@@ -384,7 +402,7 @@ function iaa_dialog()
 	Text 15, 260, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_date, iaa_not_signed_30_checkbox, iaa_update_pben_checkbox, iaa_comments, iaa_CM121203_btn, iaa_te021214_btn, iaa_sp_pben_btn
+Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_date, iaa_not_signed_30_checkbox, iaa_update_pben_checkbox, iaa_comments
 
 
 function iaa_ssi_dialog()
@@ -520,60 +538,60 @@ end function
 
 function psn_dialog()
 	Text 60, 20, 45, 10, MAXIS_case_number
-	EditBox 175, 15, 45, 15, psn_effective_date
-	EditBox 310, 15, 45, 15, psn_date_received	
-	DropListBox 50, 40, 120, 15, HH_Memb_DropDown, psn_member_dropdown
-	DropListBox 65, 75, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
-	DropListBox 195, 75, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
-	DropListBox 65, 95, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
-	DropListBox 255, 95, 130, 20, ""+CHR(9)+"04-Permanent Ill or Incap"+chr(9)+"05-Temporary Ill or Incap"+chr(9)+"06-Care of Ill or Incap Mbr"+chr(9)+"07-Requires Services In Residence"+chr(9)+"09-Mntl Ill or Dev Disabled"+chr(9)+"10-SSI/RSDI Pend"+chr(9)+"11-Appealing SSI/RSDI Denial"+chr(9)+"12-Advanced Age"+chr(9)+"13-Learning Disability"+chr(9)+"17-Protect/Court Ordered"+chr(9)+"20-Age 16 or 17 SS Approval "+chr(9)+"25-Emancipated Minor"+chr(9)+"28-Unemployable"+chr(9)+"29-Displaced Hmkr (Ft Student)"+chr(9)+"30-Minor w/ Adult Unrelated"+chr(9)+"32-ESL, Adult/HS At least half time"+chr(9)+"35-Drug/Alcohol Addiction (DAA)"+chr(9)+"99-No Elig Basis", psn_wreg_ga_elig_status
-	EditBox 65, 125, 45, 15, psn_disa_begin_date
-	EditBox 65, 145, 45, 15, psn_disa_end_date
-	DropListBox 200, 125, 110, 15, ""+CHR(9)+"01-RSDI Only Disability"+chr(9)+"02-RSDI Only Blindness"+chr(9)+"03-SSI, SSI/RSDI Disability"+chr(9)+"04-SSI, SSI/RSDI Blindness"+chr(9)+"06-SMRT/SSA Pend"+chr(9)+"08-SMRT Certified Blindness"+chr(9)+"09-Ill/Incapacity"+chr(9)+"10-SMRT Certified Disability", psn_disa_status
-	DropListBox 200, 145, 105, 15, ""+CHR(9)+"1-DHS161/Dr Stmt"+chr(9)+"2-SMRT Certified"+chr(9)+"3-Certified For RSDI or SSI"+chr(9)+"6-Other Document"+chr(9)+"7-Professional Stmt of Need"+chr(9)+"N-No Ver Prvd", psn_disa_verif
-	EditBox 200, 165, 45, 15, psn_disa_cert_end
-	EditBox 65, 165, 45, 15, psn_disa_cert_start
-	EditBox 65, 190, 45, 15, psn_faci_vendor_number
-	DropListBox 170, 190, 115, 15, ""+CHR(9)+"41-NF-I"+chr(9)+"42-NF-II"+chr(9)+"43-ICF-DD"+chr(9)+"44-Short Stay in NF-I"+chr(9)+"45-Short Stay in NF-II"+chr(9)+"46-Short Stay in ICF-DD"+chr(9)+"47-RTC - Not IMD"+chr(9)+"48-Medidcal Hosp IMD Facilities"+chr(9)+"49-MSOP"+chr(9)+"50-IMD/RTC"+chr(9)+"51-Rule 31 CD-IMD"+chr(9)+"52-Rule 36 MI-IMD"+chr(9)+"53-IMD Hosp GRH Facilities "+chr(9)+"55-Adult Foster Care/Rule 203"+chr(9)+"56-GRH (not FC or Rule 36)"+chr(9)+"57-Rule 36 MI-Non-IMD Other"+chr(9)+"60-Non-GRH"+chr(9)+"61-Rule 31 CD-Non-IMD"+chr(9)+"67-Family Violence Shltr"+chr(9)+"68-County Cor Facility "+chr(9)+"69-Non-Cty Adult Correctional", psn_faci_facility_type
-	DropListBox 335, 190, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_fs_elig
-	DropListBox 65, 210, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_plan_req
-	DropListBox 175, 210, 25, 15, ""+CHR(9)+"1"+chr(9)+"2"+chr(9)+"3", psn_faci_grh_rate
-	DropListBox 335, 210, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_cty_app_plac
-	DropListBox 65, 230, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_faci_postpay
-	EditBox 175, 230, 45, 15, psn_faci_date_in
-	EditBox 335, 230, 45, 15, psn_faci_date_out
-	EditBox 35, 265, 285, 15, psn_notes
+	EditBox 180, 15, 45, 15, psn_date_received	
+	DropListBox 270, 15, 100, 15, HH_Memb_DropDown, psn_member_dropdown
+	DropListBox 15, 45, 105, 15, ""+CHR(9)+"Yes- At least 1 selected"+chr(9)+"No- Section NOT completed", psn_section_1_dropdown
+	DropListBox 15, 60, 105, 15, ""+CHR(9)+"Yes- 1 selected"+chr(9)+"No- Section NOT completed", psn_section_2_dropdown
+	DropListBox 15, 75, 105, 15, ""+CHR(9)+"Yes- At least 1 selected"+chr(9)+"No- Section NOT completed", psn_section_3_dropdown
+	DropListBox 15, 90, 105, 15, ""+CHR(9)+"Yes- At least 2 selected"+chr(9)+"No- Section NOT completed", psn_section_4_dropdown
+	DropListBox 15, 105, 105, 15, ""+CHR(9)+"Yes- Section completed"+chr(9)+"No- Section NOT completed", psn_section_5_dropdown
+	EditBox 95, 120, 120, 15, psn_cert_prof
+	EditBox 250, 120, 125, 15, psn_facility	'TODO: PUll vendor # & name from FACI panel and auto fill. User can edit if necessary. 
+	DropListBox 65, 155, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
+	DropListBox 195, 155, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
+	DropListBox 65, 175, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
+	DropListBox 255, 175, 130, 20, ""+CHR(9)+"04-Permanent Ill or Incap"+chr(9)+"05-Temporary Ill or Incap"+chr(9)+"06-Care of Ill or Incap Mbr"+chr(9)+"07-Requires Services In Residence"+chr(9)+"09-Mntl Ill or Dev Disabled"+chr(9)+"10-SSI/RSDI Pend"+chr(9)+"11-Appealing SSI/RSDI Denial"+chr(9)+"12-Advanced Age"+chr(9)+"13-Learning Disability"+chr(9)+"17-Protect/Court Ordered"+chr(9)+"20-Age 16 or 17 SS Approval "+chr(9)+"25-Emancipated Minor"+chr(9)+"28-Unemployable"+chr(9)+"29-Displaced Hmkr (Ft Student)"+chr(9)+"30-Minor w/ Adult Unrelated"+chr(9)+"32-ESL, Adult/HS At least half time"+chr(9)+"35-Drug/Alcohol Addiction (DAA)"+chr(9)+"99-No Elig Basis", psn_wreg_ga_elig_status
+	EditBox 65, 195, 45, 15, psn_disa_begin_date
+	EditBox 255, 195, 45, 15, psn_disa_end_date
+	EditBox 65, 215, 45, 15, psn_disa_cert_start
+	EditBox 255, 215, 45, 15, psn_disa_cert_end
+	DropListBox 65, 235, 110, 15, ""+CHR(9)+"01-RSDI Only Disability"+chr(9)+"02-RSDI Only Blindness"+chr(9)+"03-SSI, SSI/RSDI Disability"+chr(9)+"04-SSI, SSI/RSDI Blindness"+chr(9)+"06-SMRT/SSA Pend"+chr(9)+"08-SMRT Certified Blindness"+chr(9)+"09-Ill/Incapacity"+chr(9)+"10-SMRT Certified Disability", psn_disa_status
+	DropListBox 255, 235, 105, 15, ""+CHR(9)+"1-DHS161/Dr Stmt"+chr(9)+"2-SMRT Certified"+chr(9)+"3-Certified For RSDI or SSI"+chr(9)+"6-Other Document"+chr(9)+"7-Professional Stmt of Need"+chr(9)+"N-No Ver Prvd", psn_disa_verif
+	EditBox 55, 260, 320, 15, psn_comments
+	ButtonGroup ButtonPressed
+		PushButton 10, 280, 40, 15, "CM 13.15", psn_CM1315_btn
+		PushButton 55, 280, 35, 15, "TE18.17", psn_TE1817_btn
+		PushButton 95, 280, 30, 15, "HSS", psn_hss_btn
+		PushButton 130, 280, 30, 15, "MHM", psn_mhm_btn
+		PushButton 165, 280, 30, 15, "HSSS", psn_hsss_btn
 	Text 5, 5, 130, 10, psn_form_name
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 125, 20, 50, 10, "Effective Date:"
-	Text 245, 20, 60, 10, "Document Date:"
-	Text 15, 45, 30, 10, "Member"
-	GroupBox 5, 65, 385, 55, "WREG"
-	Text 30, 80, 30, 10, "FS PWE:"
-	Text 115, 80, 80, 10, "FSET Work Reg Status: "
-	Text 10, 100, 55, 10, "ABAWD Status: "
-	Text 185, 100, 70, 10, "GA Elig Basis Code:"
-	GroupBox 5, 115, 385, 70, "DISA"
-	Text 10, 130, 55, 10, "Disa Begin Date: "
-	Text 15, 150, 50, 10, "Disa End Date:"
-	Text 120, 130, 80, 10, "Cash/GRH Disa Status: "
-	Text 160, 150, 40, 10, "Verification:"
-	GroupBox 5, 180, 385, 70, "FACI"
-	Text 25, 170, 40, 10, "Cert Period:"
-	Text 150, 170, 50, 10, "Cert End Date:"
-	Text 30, 195, 35, 10, "Vendor #:"
-	Text 125, 195, 45, 10, "Facility Type: "
-	Text 297, 195, 40, 10, "FS Eligible: "
-	Text 15, 215, 50, 10, "GRH Plan Req: "
-	Text 135, 215, 40, 10, "GRH Rate: "
-	Text 270, 215, 65, 10, "City App Placement:"
-	Text 35, 235, 30, 10, "Postpay:"
-	Text 145, 235, 30, 10, "Date In: "
-	Text 300, 235, 32, 10, "Date Out: "
-	Text 10, 270, 20, 10, "Notes:"
+	Text 125, 20, 55, 10, "Document Date:"
+	Text 235, 20, 30, 10, "Member"
+	GroupBox 5, 35, 385, 115, "PSN Fields"
+	Text 125, 50, 105, 10, "Section 1: Housing Situation"
+	Text 125, 65, 105, 10, "Section 2: Disabling Condition"
+	Text 125, 80, 150, 10, "Section 3: MA Housing Stabilization Services"
+	Text 125, 95, 185, 10, "Section 4: MN Housing Support Supplemental Services"
+	Text 125, 110, 220, 10, "Section 5: Transition from Residential Treatment to MN HS Program"
+	Text 20, 125, 72, 10, "Certified Professional:"
+	Text 225, 125, 25, 10, "Facility:"
+	GroupBox 5, 145, 385, 110, "WREG/DISA Panel Updates"
+	Text 30, 160, 30, 10, "FS PWE:"
+	Text 115, 160, 80, 10, "FSET Work Reg Status: "
+	Text 10, 180, 55, 10, "ABAWD Status: "
+	Text 190, 180, 65, 10, "GA Elig Basis Code:"
+	Text 10, 200, 55, 10, "Disa Begin Date: "
+	Text 205, 200, 50, 10, "Disa End Date:"
+	Text 25, 220, 40, 10, "Cert Period:"
+	Text 205, 220, 50, 10, "Cert End Date:"
+	Text 395, 35, 45, 10, "    --Forms--"
+	Text 25, 240, 40, 10, "Disa Status: "
+	Text 215, 240, 40, 10, "Verification:"
+	Text 15, 265, 37, 10, "Comments:"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim psn_effective_date, psn_date_received, psn_member_dropdown, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_status, psn_disa_verif, psn_faci_vendor_number, psn_disa_cert_end, psn_disa_cert_start, psn_faci_grh_rate, psn_faci_facility_type, psn_faci_fs_elig, psn_faci_plan_req, psn_faci_cty_app_plac, psn_faci_postpay, psn_faci_date_in, psn_faci_date_out, psn_notes
+Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()	
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -627,7 +645,7 @@ function diet_dialog()
 	EditBox 75, 195, 55, 15, diet_date_last_exam
 	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			'TODO: Handling for each scenario- each has it's own notification process/steps
 	EditBox 270, 215, 55, 15, diet_length_diet
-	DropListBox 105, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown
+	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown
 	EditBox 50, 260, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
@@ -653,7 +671,7 @@ function diet_dialog()
 	Text 15, 200, 60, 10, "Date of last exam"
 	Text 15, 220, 115, 10, "Is person following treament plan?"
 	Text 185, 220, 85, 10, "Length of Prescribed Diet"
-	Text 15, 240, 85, 10, "Diet approved or denied?"
+	Text 15, 240, 40, 10, "Diet status?"
 	Text 15, 265, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
@@ -670,7 +688,8 @@ end function
 'TODO- do i need to dim anything in this fuction?
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
-	If ButtonPressed = -1 Then ButtonPressed = next_btn  	'If the enter button is selected the script will handle this as if Next was selected 
+	If form_count < Ubound(form_type_array, 2) and ButtonPressed = -1 Then ButtonPressed = next_btn	'If the enter button is selected the script will handle this as if Next was selected
+	If form_count = Ubound(form_type_array, 2) and ButtonPressed = -1 Then ButtonPressed = complete_btn	'If the enter button is selected the script will handle this as if Complete was selected
 	If ButtonPressed = next_btn Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed = previous_btn Then form_count = form_count - 1	'If previous is selected, it will iterate to the previous form in the array and display this dialog
 	If ButtonPressed >= 400 Then 'All forms are in the 400 range
@@ -691,12 +710,288 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 			If ButtonPressed = diet_btn and form_type_array(form_type_const, i) = diet_form_name Then form_count = i 
 		Next
 	End If 
+	
+	If ButtonPressed = hosp_TE0207081_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.07.081%20HOSPICE%20CASES.pdf?csf=1&web=1&e=WgdqsC"
+	If ButtonPressed = hosp_SP_hospice_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
+	If ButtonPressed = iaa_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
+	If ButtonPressed = iaa_te021214_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.12.14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE.pdf?csf=1&web=1&e=tUXs96"
+	If ButtonPressed = iaa_sp_pben_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+	If ButtonPressed = iaa_ssi_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
+	If ButtonPressed = iaa_ssi_te021214_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.12.14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE.pdf?csf=1&web=1&e=tUXs96"
+	If ButtonPressed = iaa_ssi_sp_pben_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
+	If ButtonPressed = diet_link_CM_special_diet Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_002312"
+	If ButtonPressed = diet_SP_referrals Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Processing_Special_Diet_Referral.aspx"
+	If ButtonPressed = psn_TE1817_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2018.17%20ADULT%20GRH%20BASIS%20OF%20ELIGIBILITY.pdf?csf=1&web=1&e=7YWKmj"
+	If ButtonPressed = psn_hss_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=DHS-316637"
+	If ButtonPressed = psn_mhm_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg/Training_home_page.doc?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=dhs16_184936#em"
+	If ButtonPressed = psn_hsss_btn	Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=dhs-289228"
 end function 
 
-'Check for case number & footer
+function main_error_handling()	'Error handling for main dialog of forms
+	If ButtonPressed = complete_btn Then 		'Error handling will display if the complete button is selected for the applicable dialogs.This happens at the end of the dialog series instead of at each dialog.
+		For form_errors = 0 to Ubound(form_type_array, 2)
+			If form_type_array(form_type_const, form_errors) = asset_form_name then 'Error handling for Asset Form 
+				'TODO: Asset error reporting 
+			End If
+
+			If form_type_array(form_type_const, form_errors) = atr_form_name Then 'Error handling for ATR Form 
+				If IsDate(atr_effective_date) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
+				If IsDate(atr_date_received) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				If atr_member_dropdown = "Select" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a member from the Member dropdown."
+				If IsDate(atr_start_date) = FALSE Then  atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Start Date."
+				If IsDate(atr_end_date) = FALSE Then  atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the End Date."
+				If atr_authorization_type = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a valid authorization type from the dropdown"
+				If atr_contact_type = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a valid contact type from the dropdown"
+				If atr_name = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter contact name"
+				If trim(atr_address = "") OR trim(atr_city = "") OR trim(atr_state = "") OR trim(atr_zipcode = "") Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter the street address"
+				If atr_phone_number = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter phone number"
+				If (atr_eval_treat_checkbox = 0 and atr_coor_serv_checkbox = 0 and atr_elig_serv_checkbox = 0 and atr_court_checkbox = 0 and atr_other_checkbox = 0) Then atr_err_msg = atr_err_msg & vbNewLine & "* Must check at least one checkbox indicating use of requested record"
+				If (atr_other_checkbox = checked and atr_other = "") Then err_msg = err_msg & vbNewLine & "* Other checkbox checked, specify details in the box below checkbox"
+				If (atr_other <> "" and atr_other_checkbox = unchecked) Then atr_err_msg = atr_err_msg & vbNewLine & "* Other text field must be blank unless Other checkbox is checked"
+			End If
+
+			If form_type_array(form_type_const, form_errors) = arep_form_name then 'Error handling for AREP Form 
+				If IsDate(arep_effective_date) = FALSE Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
+				If IsDate(arep_date_received) = FALSE Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
+				If arep_update_AREP_panel_checkbox = checked Then
+					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
+					If len(arep_name) > 37 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
+					If len(arep_street) > 44 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
+					If len(arep_city) > 15 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
+					If len(arep_state) > 2 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
+					If len(arep_zip) > 5 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
+				End If
+				If dhs_3437_checkbox = Checked Then arep_HC_AREP_checkbox = checked
+				If HC_12729_checkbox = checked Then
+					arep_SNAP_AREP_checkbox = checked
+					arep_CASH_AREP_checkbox = checked
+				End If
+				If D405_checkbox = checked Then arep_SNAP_AREP_checkbox = checked
+				If CAF_AREP_page_checkbox = checked Then
+					arep_SNAP_AREP_checkbox = checked
+					arep_CASH_AREP_checkbox = Checked
+				End If
+				If HCAPP_AREP_checkbox = checked Then arep_HC_AREP_checkbox = checked
+				If power_of_attorney_checkbox = checked Then
+					arep_SNAP_AREP_checkbox = checked
+					arep_CASH_AREP_checkbox = Checked
+					arep_HC_AREP_checkbox = checked
+				End If
+				'TODO: Look into arep received - -- there are currently 2 
+				If IsDate(AREP_recvd_date) = False Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the date the form was received."
+				IF (arep_SNAP_AREP_checkbox <> checked AND arep_HC_AREP_checkbox <> checked AND arep_CASH_AREP_checkbox <> checked) THEN arep_err_msg = arep_err_msg & vbNewLine &"* Select a program"
+				IF isdate(arep_signature_date) = false THEN arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
+				IF (arepTIKL_check = checked AND arep_signature_date = "") THEN arep_err_msg = arep_err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
+				'TODO: Look into TIKLs
+			End If
+
+			If form_type_array(form_type_const, form_errors) = change_form_name  then 'Error handling for Change Form 
+				If IsDate(trim(chng_effective_date)) = False OR Len(trim(chng_effective_date)) <> 10 Then chng_err_msg = chng_err_msg & vbNewLine & "* Date Effective field must be in the MM/DD/YYYY format."  ' Validate that Date Effective field is not empty and is in a proper date format
+				If IsDate(trim(chng_date_received)) = False OR Len(trim(chng_date_received)) <> 10 Then chng_err_msg = chng_err_msg & vbNewLine & "* The Document Date field must be in the MM/DD/YYYY format."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
+				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
+				If trim(chng_actions_taken) = "" AND trim(chng_other_notes) = "" AND trim(chng_verifs_requested) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All of the Actions fields are blank. At least one need info."  ' Validate the Actions fields to ensure that at least one field is filled in
+				If chng_notable_change = "" Then chng_err_msg = chng_err_msg & vbNewLine & "* Notable changes reported is blank, make a selection."
+				If chng_changes_continue = "Select One:" THEN chng_err_msg = chng_err_msg & vbNewLine & "* Indicate whether changes will or will not continue next month."  ' Validate that worker selects option from dropdown list as to how long change will last
+			
+			End If
+
+			If form_type_array(form_type_const, form_errors) = evf_form_name  then 'Error handling for EVF Form 
+				IF IsDate(evf_effective_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid Effective Date."
+				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
+				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* You must select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
+				IF evf_employer = "" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the employers name."  'checks if the employer name has been entered
+				IF evf_client = "Select" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
+				IF evf_info = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
+				IF evf_info = "yes" and IsDate(evf_info_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
+				IF evf_info = "yes" and evf_request_info = "" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
+				If evf_info = "no" and evf_request_info <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
+				If evf_info = "no" and evf_info_date <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
+				'TODO: TIKL
+				' If EVF_TIKL_checkbox = 1 and info <> "yes" then evf_err_msg = evf_err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
+				' If ButtonPressed = 0 then evf_err_msg = "LOOP" & evf_err_msg
+				' If skip_evf = TRUE Then
+				' 	evf_form_received_checkbox = unchecked
+				' 	evf_err_msg = ""
+				' 	EVF_TIKL_checkbox = unchecked
+				' End If
+			End If
+			If form_type_array(form_type_const, form_errors) = hosp_form_name  then 'Error handling for Hospice Form 
+				If IsDate(hosp_effective_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
+				If IsDate(hosp_date_received) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
+				If hosp_resident_name = "Select" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Select the resident that is in hospice."
+				If trim(hosp_name) = "" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
+				If IsDate(hosp_entry_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
+			End If
+
+			If form_type_array(form_type_const, form_errors) = iaa_form_name then 'Error handling for IAA Form 
+				IF IsDate(iaa_effective_date) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Effective Date."
+				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Document date."
+				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
+				If iaa_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select type of interim assistance."
+				If iaa_update_pben_checkbox = checked AND (iaa_benefit_type = "" or iaa_referral_date = "" or iaa_verification_dropdown = "" or iaa_date_applied_pben = "" or iaa_disposition_code_dropdown = "" or iaa_iaa_date = "") Then 
+					iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN field requirements:"
+					If iaa_benefit_type = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select benefit type"
+					If IsDate(iaa_referral_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid referral date"
+					If iaa_verification_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select verifiction type"
+					If IsDate(iaa_date_applied_pben) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid date for Date applied to PBEN"
+					If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select disposition code"
+					If iaa_date = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter valid IAA date"
+				End If
+			End If
+
+			If form_type_array(form_type_const, form_errors) = iaa_ssi_form_name then 'Error handling for IAA-SSI Form
+				IF IsDate(iaa_ssi_effective_date) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Effective Date."
+				IF IsDate(iaa_ssi_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Document date."
+				If iaa_ssi_member_dropdown = "Select" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "* Select the resident from the dropdown."
+				If iaa_ssi_type_of_interim_assistance = "" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "* Select type of interim assistance."
+				If iaa_ssi_update_pben_checkbox = checked AND (iaa_ssi_benefit_type = "" or iaa_ssi_referral_date = "" or iaa_ssi_verification_dropdown = "" or iaa_ssi_date_applied_pben = "" or iaa_ssi_disposition_code_dropdown = "" or iaa_ssi_iaa_date = "") Then 
+					iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "* PBEN field requirements:"
+					If iaa_ssi_benefit_type = "" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Select benefit type"
+					If IsDate(iaa_ssi_referral_date) = FALSE Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Enter a valid referral date"
+					If iaa_ssi_verification_dropdown = "" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Select verifiction type"
+					If IsDate(iaa_ssi_date_applied_pben) = FALSE Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Enter a valid date for Date applied to PBEN"
+					If iaa_ssi_disposition_code_dropdown = "" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Select disposition code"
+					If iaa_ssi_iaa_date = "" Then iaa_ssi_err_msg = iaa_ssi_err_msg & vbNewLine & "  * Enter valid IAA date"
+				End If
+				
+			End If
+			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name then 'Error handling for LTC 1503 Form
+				'LTC 1503 -- didn't appear to be any error handling 
+			End If
+			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
+			End If
+			If form_type_array(form_type_const, form_errors) = mtaf_form_name then 'Error handling for MTAF Form
+			End If
+			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
+				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* You must enter a valid Document Date."
+				If psn_member_dropdown = "Select" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select the resident from the dropdown."
+				If psn_section_1_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 1 make selection from dropdown."
+				If psn_section_2_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 2 make selection from dropdown."
+				If psn_section_3_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 3 make selection from dropdown."
+				If psn_section_4_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 4 make selection from dropdown."
+				If psn_section_5_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 5 make selection from dropdown."
+				If psn_cert_prof = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Certified Professional or NA"
+				If psn_facility = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Facilty name or NA"
+				If psn_wreg_fs_pwe = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select FS PWE from dropdown"
+				If psn_wreg_work_wreg_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select FSET Work Reg Status from dropdown"
+				If psn_wreg_abawd_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select ABAWD Status from dropdown"
+				If psn_wreg_ga_elig_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select GA Elig Basis Code from dropdown"
+				If psn_disa_begin_date = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Disa Begin date"
+				If psn_disa_end_date = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Disa Begin date"
+				If psn_disa_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select Disa Status from dropdown"
+				If psn_disa_verif = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select Verification from dropdown"
+			End If
+
+			If form_type_array(form_type_const, form_errors) = sf_form_name then 'Error handling for Shelter Form
+			End If
+			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form 
+				If IsDate(diet_effective_date) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
+				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
+	
+				'Handling to ensure a relationship is selected if a diet has been entered on the line
+				If diet_1_dropdown <>"" and diet_relationship_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 1 relationship" 
+				If diet_2_dropdown <>"" and diet_relationship_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 2 relationship"
+				If diet_3_dropdown <>"" and diet_relationship_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 3 relationship"
+				If diet_4_dropdown <>"" and diet_relationship_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 4 relationship"
+				If diet_5_dropdown <>"" and diet_relationship_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 5 relationship"
+				If diet_6_dropdown <>"" and diet_relationship_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 6 relationship"
+				If diet_7_dropdown <>"" and diet_relationship_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 7 relationship"
+				If diet_8_dropdown <>"" and diet_relationship_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 8 relationship"
+
+				'Handling to ensure a diet is selected if a relationship has been entered on the line
+				If diet_relationship_1_dropdown <>"" and diet_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 1 diet"
+				If diet_relationship_2_dropdown <>"" and diet_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 2 diet"
+				If diet_relationship_3_dropdown <>"" and diet_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 3 diet"
+				If diet_relationship_4_dropdown <>"" and diet_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 4 diet"
+				If diet_relationship_5_dropdown <>"" and diet_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 5 diet"
+				If diet_relationship_6_dropdown <>"" and diet_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 6 diet"
+				If diet_relationship_7_dropdown <>"" and diet_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 7 diet"
+				If diet_relationship_8_dropdown <>"" and diet_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet 8 diet"
+
+				'Hnadling to ensure a verfication is selected if a diet and relationship have been entered on the same line
+				If (diet_1_dropdown <> "" AND diet_relationship_1_dropdown <> "") AND diet_verif_1_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 1"
+				If (diet_2_dropdown <> "" AND diet_relationship_2_dropdown <> "") AND diet_verif_2_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 2"
+				If (diet_3_dropdown <> "" AND diet_relationship_3_dropdown <> "") AND diet_verif_3_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 3"
+				If (diet_4_dropdown <> "" AND diet_relationship_4_dropdown <> "") AND diet_verif_4_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 4"
+				If (diet_5_dropdown <> "" AND diet_relationship_5_dropdown <> "") AND diet_verif_5_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 5"
+				If (diet_6_dropdown <> "" AND diet_relationship_6_dropdown <> "") AND diet_verif_6_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 6"
+				If (diet_7_dropdown <> "" AND diet_relationship_7_dropdown <> "") AND diet_verif_7_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 7"
+				If (diet_8_dropdown <> "" AND diet_relationship_8_dropdown <> "") AND diet_verif_8_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Verification for Diet 8"
+				
+					'Handling to limit diet selections to 1 type of protein.
+				all_diet_string = "*"
+
+				If diet_1_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_1_dropdown & "*"
+				End If
+				If diet_2_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_2_dropdown & "*"
+				End If	
+				If diet_3_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_3_dropdown & "*"
+				End If 
+				If diet_4_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_4_dropdown & "*"
+				End If
+				If diet_5_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_5_dropdown & "*"
+				End If
+				If diet_6_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_6_dropdown & "*"
+				End If
+				If diet_7_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_7_dropdown & "*"
+				End If
+				If diet_8_dropdown <>"" Then 
+					all_diet_string = all_diet_string & diet_8_dropdown & "*"
+				End If
+				
+				'TODO: Test on MFIP case handling to limit to 2 diets. Consider hiding extra boxes on dialog
+				If (diet_mfip_msa_status = "MFIP-Active") OR (diet_mfip_msa_status = "MFIP-Pending") Then
+					MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
+						If diet_3_dropdown <>"" OR diet_4_dropdown <>"" OR diet_5_dropdown <>"" OR diet_6_dropdown <>"" OR diet_7_dropdown <>"" OR diet_8_dropdown <>"" Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
+				End If
+
+				If Instr(all_diet_string, "*01-High Protein*") AND Instr(all_diet_string, "*02-Controlled protein 40-60 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
+				If Instr(all_diet_string, "*01-High Protein*") AND Instr(all_diet_string,"*03-Controlled protein <40 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
+				If Instr(all_diet_string, "*02-Controlled protein 40-60 grams*") AND Instr(all_diet_string,"*03-Controlled protein <40 grams*") Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have multiple protien diets."
+
+				If IsDate(diet_date_last_exam) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for Date of last exam."
+				If diet_treatment_plan_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select dropdown indicating person is following treatment plan"
+				If diet_length_diet = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter length of prescribed diet"
+				If diet_status_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet Status"
+				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason & benefit end date in Comments"
+				
+			End If
+		Next
+		
+		
+	End If
+	'Complete button triggers the error message to populate. Formatting error meessage to: Adds headers for each form if there are applicable errors
+	If asset_err_msg <> "" Then err_msg = err_msg & vbNewLine & "ASSET DIALOG" & asset_err_msg & vbNewLine
+	If atr_err_msg <> "" Then err_msg = err_msg & vbNewLine & "ATR DIALOG" & atr_err_msg & vbNewLine
+	If arep_err_msg <> "" Then err_msg = err_msg & vbNewLine & "AREP DIALOG" & arep_err_msg & vbNewLine
+	If chng_err_msg <> "" Then err_msg = err_msg & vbNewLine & "CHANGE DIALOG" & chng_err_msg & vbNewLine
+	If evf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "EVF DIALOG" & evf_err_msg & vbNewLine
+	If hosp_err_msg <> "" Then err_msg = err_msg & vbNewLine & "HOSPICE DIALOG" & hosp_err_msg & vbNewLine
+	If iaa_err_msg <> "" Then err_msg = err_msg & vbNewLine & "IAA DIALOG" & iaa_err_msg & vbNewLine
+	If iaa_ssi_err_msg <> "" Then err_msg = err_msg & vbNewLine & "IAA-SSI DIALOG" & iaa_ssi_err_msg & vbNewLine
+	If ltc_1503_err_msg <> "" Then err_msg = err_msg & vbNewLine & "LTC 1503 DIALOG" & ltc_1503_err_msg & vbNewLine
+	If mof_err_msg <> "" Then err_msg = err_msg & vbNewLine & "MOF DIALOG" & mof_err_msg & vbNewLine
+	If mtaf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "MTAF DIALOG" & mtaf_err_msg & vbNewLine
+	If psn_err_msg <> "" Then err_msg = err_msg & vbNewLine & "PSN DIALOG" & psn_err_msg & vbNewLine
+	If sf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "SF DIALOG" & sf_err_msg & vbNewLine
+	If diet_err_msg <> "" Then err_msg = err_msg & vbNewLine & "DIET DIALOG" & diet_err_msg & vbNewLine
+
+	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+end function
+
+'Check for case number & footer & background
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-
+Call MAXIS_background_check
 
 'DIALOG COLLECTING CASE, FOOTER MO/YR===========================================================================
 Do
@@ -743,9 +1038,9 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
+				PushButton 155, 215, 40, 15, "Clear", clear_button
 				OkButton 205, 215, 40, 15
 				CancelButton 255, 215, 40, 15
-				PushButton 155, 215, 40, 15, "Clear", clear_button
 				GroupBox 5, 5, 280, 70, "Directions: For each document received either:"
 				Text 15, 15, 275, 10, "1. Select document from dropdown, then select Add button. Repeat for each form."
 				Text 10, 45, 15, 10, "OR"
@@ -850,9 +1145,12 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				MsgBox "Form selections cleared." 'Notify end user that entries were cleared.
 				'MsgBox "all_form_array" & all_form_array
 			End If
-			If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
-			If ButtonPressed = add_button Then 
-				If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
+
+			If ButtonPressed = add_button Then 'Handles for duplicates and no forms selected from dropdown.
+				If form_type <> "" Then 
+					If add_to_array = FALSE Then err_msg = err_msg & vbNewLine & "Form already added, make a different form selection."
+				End If
+				If form_type = "" Then err_msg = err_msg & vbNewLine & "No form selected, make form selection."
 			End If
 			If form_count = 0 and ButtonPressed = Ok Then err_msg = "-Add forms to process or select cancel to exit script"		'If form_count = 0, then no forms have been added to doc rec to be processed.	
 			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
@@ -905,8 +1203,8 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 140, 170, 10, sf_form_name, shelter_checkbox
 					CheckBox 15, 150, 175, 10, diet_form_name, diet_checkbox
 					ButtonGroup ButtonPressed
-						OkButton 95, 180, 45, 15
-						CancelButton 150, 180, 40, 15
+					OkButton 95, 180, 45, 15
+					CancelButton 150, 180, 40, 15
 					Text 5, 5, 200, 10, "Select documents received, then Ok."
 				EndDialog
 				dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
@@ -1002,6 +1300,7 @@ Loop Until ButtonPressed = Ok
 
 'TODO: Add in any additonal readscreens etc.
 'MAXIS NAVIGATION ===========================================================================
+Call MAXIS_background_check
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, maxis_panel_read) = arep_form_name Then 'MAXIS NAVIGATION FOR AREP
 		Do
@@ -1160,7 +1459,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 	End IF 
 
 	If form_type_array(form_type_const, maxis_panel_read) = psn_form_name Then	'MAXIS NAVIGATION FOR PSN- reading necessary panels
-	
+
 		'Read WREG Panel
 		Do
 			Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -1181,6 +1480,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		'MsgBox	"psn_wreg_abawd_status" & psn_wreg_abawd_status
 		'MsgBox	"psn_wreg_ga_elig_status" & psn_wreg_ga_elig_status
 
+		'List of Work Wreg Status
 		If psn_wreg_work_wreg_status = "03" Then psn_wreg_work_wreg_status = "03-Unfit for Employment"
 		If psn_wreg_work_wreg_status = "04" Then psn_wreg_work_wreg_status = "04-Resp for Care of Incapacitated Person"
 		If psn_wreg_work_wreg_status = "05" Then psn_wreg_work_wreg_status = "05-Age 60 or Older"
@@ -1200,6 +1500,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If psn_wreg_work_wreg_status = "21" Then psn_wreg_work_wreg_status = "21-Resp for Care of Child under 18"
 		If psn_wreg_work_wreg_status = "23" Then psn_wreg_work_wreg_status = "23-Pegnant"
 
+		'List of ABAWD Status 
 		If psn_wreg_abawd_status = "01" Then psn_wreg_abawd_status = "01-Work Reg Exempt"
 		If psn_wreg_abawd_status = "02" Then psn_wreg_abawd_status = "02-Under Age 18"
 		If psn_wreg_abawd_status = "03" Then psn_wreg_abawd_status = "03-Age 50 or Over"
@@ -1214,6 +1515,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If psn_wreg_abawd_status = "12" Then psn_wreg_abawd_status = "12-RCA or GA Recipient"
 		If psn_wreg_abawd_status = "13" Then psn_wreg_abawd_status = "13-ABAWD Banked Months"
 
+		'List of Elig Status
 		If psn_wreg_ga_elig_status = "04" Then psn_wreg_ga_elig_status = "04-Permanent Ill or Incap"
 		If psn_wreg_ga_elig_status = "05" Then psn_wreg_ga_elig_status = "05-Temporary Ill or Incap"
 		If psn_wreg_ga_elig_status = "06" Then psn_wreg_ga_elig_status = "06-Care of Ill or Incap Mbr"
@@ -1253,7 +1555,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		psn_disa_verif = replace(psn_disa_verif, "_", "")
 		'MsgBox "psn_disa_begin_date" & psn_disa_begin_date & "psn_disa_end_date" & psn_disa_end_date & "psn_disa_status" & psn_disa_status & "psn_disa_verif" & psn_disa_verif
 
-
+		'List of Disa Status
 		If psn_disa_status = "01" Then psn_disa_status = "01-RSDI Only Disability"
 		If psn_disa_status = "02" Then psn_disa_status = "02-RSDI Only Blindness"
 		If psn_disa_status = "03" Then psn_disa_status = "03-SSI, SSI/RSDI Disability"
@@ -1263,6 +1565,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If psn_disa_status = "09" Then psn_disa_status = "09-Ill/Incapacity"
 		If psn_disa_status = "10" Then psn_disa_status = "10-SMRT Certified Disability"
 
+		'List of Disa Verification
 		If psn_disa_verif = "1" Then psn_disa_verif = "1-DHS161/Dr Stmt"
 		If psn_disa_verif = "2" Then psn_disa_verif = "2-SMRT Certified"
 		If psn_disa_verif = "3" Then psn_disa_verif = "3-Certified For RSDI or SSI"
@@ -1270,7 +1573,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If psn_disa_verif = "7" Then psn_disa_verif = "7-Professional Stmt of Need"
 		If psn_disa_verif = "N" Then psn_disa_verif = "N-No Ver Prvd"
 
-	'TODO: Currently the script will read for the open faci panel and then update the dialog with this information. Is this desired? What is desired? Maybe a field to close out the old and open a new?
+	'TODO: Only need to read vendor from FACI Panel and plug this into the dialog for the Facility  
 		Do
 			Call navigate_to_MAXIS_screen("STAT", "FACI")		'Navigate to FACI 
 			EMReadScreen nav_check, 4, 2, 44
@@ -1362,7 +1665,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 					If psn_faci_facility_type = "67" Then psn_faci_facility_type = "67-Family Violence Shltr"
 					If psn_faci_facility_type = "68" Then psn_faci_facility_type = "68-County Cor Facility"
 					If psn_faci_facility_type = "69" Then psn_faci_facility_type = "69-Non-Cty Adult Correctional"
-					MsgBox psn_faci_vendor_number & "-" & psn_faci_vendor_name & "-" & psn_faci_facility_type & "-" & psn_faci_fs_elig & "-" & psn_faci_plan_req & "-" & psn_faci_cty_app_plac & "-" & psn_faci_postpay & "-" & psn_faci_grh_rate & "-" & psn_faci_date_in & "-" & psn_faci_date_out
+					'MsgBox psn_faci_vendor_number & "-" & psn_faci_vendor_name & "-" & psn_faci_facility_type & "-" & psn_faci_fs_elig & "-" & psn_faci_plan_req & "-" & psn_faci_cty_app_plac & "-" & psn_faci_postpay & "-" & psn_faci_grh_rate & "-" & psn_faci_date_in & "-" & psn_faci_date_out
 
 				End if
 			End If
@@ -1399,6 +1702,21 @@ Do
 	Do
 		Do
 			err_msg = ""
+			asset_err_msg = ""
+			atr_err_msg = ""
+			arep_err_msg = ""
+			chng_err_msg = ""
+			evf_err_msg = "" 
+			hosp_err_msg = ""
+			iaa_err_msg = ""
+			iaa_ssi_err_msg = ""
+			ltc_1503_err_msg = ""
+			mof_err_msg = ""
+			mtaf_err_msg = ""
+			psn_err_msg = ""
+			sf_err_msg = ""
+			diet_err_msg = ""
+
 			Dialog1 = "" 'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
 				If form_type_array(form_type_const, form_count) = asset_form_name then Call asset_dialog
@@ -1529,151 +1847,26 @@ Do
 				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
 				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
 				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
+				'MsgBox "Ubound(form_type_array, 2)" & Ubound(form_type_array, 2) 
 								
 			EndDialog
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
-			'MsgBox "arep rec date" & AREP_recvd_date
-			'MsgBox "arep sig" & arep_signature_date
-			'TODO: error handling 
-			' Special diet: 
-				'TODO: determine how to handle if case is not MFIP or MSA......If not MFIP or MSA-skip write portion of script for DIET?
-				'Only one of each type is allowed. 
-				'Only one protein control diet is allowed 
-				'If MFIP- only 2 diets are allowed on DIET panel
-				'If denied, state reason for ineligibility and date benefits are no longer issued in Comments field or create an additional field
-				'Buttons	
-				' If IsDate(diet_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
-				' If IsDate(diet_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
-				' If diet_member_number = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident for special diet."
-				' If diet_1_dropdown <>"" and diet_relationship_1_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 1 relationship"
-				' If diet_2_dropdown <>"" and diet_relationship_2_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 2 relationship"
-				' If diet_3_dropdown <>"" and diet_relationship_3_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 3 relationship"
-				' If diet_4_dropdown <>"" and diet_relationship_4_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 4 relationship"
-
-				' If diet_relationship_1_dropdown <>"" and diet_1_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 1 diet"
-				' If diet_relationship_2_dropdown <>"" and diet_2_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 2 diet"
-				' If diet_relationship_3_dropdown <>"" and diet_3_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 3 diet"
-				' If diet_relationship_4_dropdown <>"" and diet_4_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet 4 diet"
-				' If diet_length_diet = "" Then err_msg = err_msg & vbNewLine & "* Enter length of prescribed diet"
-				' If diet_status_dropdown = "" Then err_msg = err_msg & vbNewLine & "* Select Diet Status"
-				' If ButtonPressed = diet_link_CM_special_diet Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_002312"
-				' If ButtonPressed = diet_SP_referrals Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Processing_Special_Diet_Referral.aspx"
-		
-
-			'Hospice 
-				' If ButtonPressed = hosp_TE0207081_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E07%2E081%20HOSPICE%20CASES%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
-				' If ButtonPressed = hosp_SP_hospice_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
-				' If IsDate(hosp_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
-				' If IsDate(hosp_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
-				' If hosp_resident_name = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident that is in hospice."
-				' If trim(hosp_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
-				' If IsDate(hosp_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
-				' If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-						
-			'IAA-SSI
-				'If iaa_ssi_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
-				'If iaa_ssi_type_of_interim_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
-				'TODO: handling for checkboxes 
-				'If ButtonPressed = iaa_ssi_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
-				'If ButtonPressed = iaa_ssi_sp_pben_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
-				'If ButtonPressed = iaa_ssi_te021214_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E12%2E14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
-		
-
-			' IAA
-				'If iaa_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select the resident from the dropdown."
-				'If iaa_type_assistance = "" Then err_msg = err_msg & vbNewLine & "* Select type of interim assistance."
-				'TODO: handling for checkboxes 
-				'If ButtonPressed = iaa_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
-				'If ButtonPressed = iaa_sp_pben_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
-				'If ButtonPressed = iaa_te021214_btn Then "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/sites/hs-es-poli-temp/Documents%202/Forms/AllItems.aspx?id=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202%2FTE%2002%2E12%2E14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE%2Epdf&parent=%2Fsites%2Fhs%2Des%2Dpoli%2Dtemp%2FDocuments%202"
-		
-			'ATR 
-				'If IsDate(atr_effective_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
-				' If IsDate(atr_date_received) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Document Date."
-				' If atr_member_dropdown = "Select" Then err_msg = err_msg & vbNewLine & "* Select a member from the Member dropdown."
-				'If IsDate(atr_start_date) = FALSE Then Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the Start Date."
-				'If IsDate(atr_end_date) = FALSE Then Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the End Date."
-				'If atr_authorization_type = "" Then err_msg = err_msg & vbNewLine & "* Select a valid authorization type from the dropdown"
-				'If atr_contact_type = "" Then err_msg = err_msg & vbNewLine & "* Select a valid contact type from the dropdown"
-				'If atr_name = "" Then err_msg = err_msg & vbNewLine & "* Enter contact name"
-				'If atr_address = "" Then err_msg = err_msg & vbNewLine & "* Enter address"
-				'If atr_city = "" Then err_msg = err_msg & vbNewLine & "* Enter city"
-				'If atr_state = "" Then err_msg = err_msg & vbNewLine & "* Select a state"
-				'If atr_zipcode = "" Then err_msg = err_msg & vbNewLine & "* Enter zip code"
-				'If atr_phone_number = "" Then err_msg = err_msg & vbNewLine & "* Enter phone number"
-				'If atr_eval_treat_checkbox and atr_coor_serv_checkbox and atr_elig_serv_checkbox and atr_court_checkbox and atr_other_checkbox and atr_other = "" Then err_msg = err_msg & vbNewLine & "* At least one checkbox must be checked indicating the use of the requested records"
-				'If atr_other_checkbox = checked and atr_comments <> "" Then err_msg = err_msg & vbNewLine & "* Other checkbox was checked. You are required to specify details in the box below."
-			' Change  
-				' If IsDate(trim(effective_date)) = False OR Len(trim(effective_date)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Effective field cannot be blank and must be in the MM/DD/YYYY format."  ' Validate that Date Effective field is not empty and is in a proper date format
-				' If IsDate(trim(date_received)) = False OR Len(trim(date_received)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Change Reported/Received field cannot be blank and must be in the MM/DD/YYYY format."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
-				' If trim(address_notes) = "" AND trim(household_notes) = "" AND trim(asset_notes) = "" AND trim(vehicles_notes) = "" AND trim(income_notes) = "" AND trim(shelter_notes) = "" AND trim(other_change_notes) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
-				' If trim(actions_taken) = "" AND trim(other_notes) = "" AND trim(verifs_requested) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."  ' Validate the Actions fields to ensure that at least one field is filled in
-				' If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."  ' Validate that worker selects option from dropdown list as to how long change will last
-			'EVF
-				' IF IsDate(evf_date_recvd) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
-				' If EVF_status_dropdown = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
-				' IF employer = "" THEN err_msg = err_msg & vbCr & "* You must enter the employers name."  'checks if the employer name has been entered
-				' IF evf_client = "Select One..." THEN err_msg = err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
-				' IF info = "Select one..." THEN err_msg = err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
-				' IF info = "yes" and IsDate(info_date) = FALSE THEN err_msg = err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
-				' IF info = "yes" and request_info = "" THEN err_msg = err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
-				' If info = "no" and request_info <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
-				' If info = "no" and info_date <> "" then err_msg = err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
-				' If EVF_TIKL_checkbox = 1 and info <> "yes" then err_msg = err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
-				' If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
-				' If skip_evf = TRUE Then
-				' 	evf_form_received_checkbox = unchecked
-				' 	err_msg = ""
-				' 	EVF_TIKL_checkbox = unchecked
-				' End If
-			'arep
-				' If trim(arep_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the AREP's name."
-				' If arep_update_AREP_panel_checkbox = checked Then
-				' 	If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then err_msg = err_msg & vbNewLine & "* Enter the street address of the AREP."
-				' 	If len(arep_name) > 37 Then err_msg = err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
-				' 	If len(arep_street) > 44 Then err_msg = err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
-				' 	If len(arep_city) > 15 Then err_msg = err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
-				' 	If len(arep_state) > 2 Then err_msg = err_msg & vbNewLine & "* The AREP state is too long for MAXIS."
-				' 	If len(arep_zip) > 5 Then err_msg = err_msg & vbNewLine & "* The AREP zip is too long for MAXIS."
-				' End If
-				' If dhs_3437_checkbox = Checked Then arep_HC_AREP_checkbox = checked
-				' If HC_12729_checkbox = checked Then
-				' 	arep_SNAP_AREP_checkbox = checked
-				' 	arep_CASH_AREP_checkbox = checked
-				' End If
-				' If D405_checkbox = checked Then arep_SNAP_AREP_checkbox = checked
-				' If CAF_AREP_page_checkbox = checked Then
-				' 	arep_SNAP_AREP_checkbox = checked
-				' 	arep_CASH_AREP_checkbox = Checked
-				' End If
-				' If HCAPP_AREP_checkbox = checked Then arep_HC_AREP_checkbox = checked
-				' If power_of_attorney_checkbox = checked Then
-				' 	arep_SNAP_AREP_checkbox = checked
-				' 	arep_CASH_AREP_checkbox = Checked
-				' 	arep_HC_AREP_checkbox = checked
-				' End If
-				' If IsDate(AREP_recvd_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the form was received."
-				' IF arep_SNAP_AREP_checkbox <> checked AND arep_HC_AREP_checkbox <> checked AND arep_CASH_AREP_checkbox <> checked THEN err_msg = err_msg & vbNewLine &"* Select a program"
-				' IF isdate(arep_signature_date) = false THEN err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
-				' IF (TIKL_check = checked AND arep_signature_date = "") THEN err_msg = err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
-				' If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
-
-			'LTC 1503 -- didn't appear to be any error handling 
-
+			
+			
 			Call dialog_movement	'function to move throughout the dialogs
-						
-						'MsgBox "i" & i  TEST
-						'MsgBox "form type-form count @ end" & form_type_array(form_type_const, form_count) 'TEST
-			'MsgBox "IAA pben checkox" & iaa_update_pben_checkbox
+			Call main_error_handling	'function for error handling of main dialog of forms 
+
 		Loop until err_msg = ""
-	'Loop until form_count > Ubound(form_type_array, 2)
+	
+		'MsgBox "complete_btn" & complete_btn
 	Loop until ButtonPressed = complete_btn
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
 
 'WRITE IN MAXIS===========================================================================
+Call MAXIS_background_check
 For maxis_panel_write = 0 to Ubound(form_type_array, 2)	
 	If form_type_array(form_type_const, maxis_panel_write) = arep_form_name then 	' WRITE FOR AREP
 		end_msg = end_msg & vbNewLine & "AREP Information entered."
@@ -2040,7 +2233,8 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 
 	If form_type_array(form_type_const, maxis_panel_write) = diet_form_name Then	'Write for DIET form
-		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel
+
+		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel	TODO: is this correct? 
 			If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
 				back_to_self
 				Do
@@ -2123,6 +2317,8 @@ Next
 'TODO- Hospice: Must keep the same header otherwise reading of past case notes won't work/continue -explore how to create separate case notes for each form
 		'Call write_variable_in_CASE_NOTE("*** HOSPICE TRANSACTION FORM RECEIVED ***")
 		
+
+Call MAXIS_background_check
 'Asset Statement Case Notes
 If form_type_array(form_type_const, form_count) = asset_form_name then 
 	Call start_a_blank_case_note
@@ -2405,15 +2601,7 @@ If form_type_array(form_type_const, form_count) = diet_form_name Then
 	CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
 	CALL write_bullet_and_variable_in_case_note("Date Effective", diet_effective_date)					
 	CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
-	CALL write_bullet_and_variable_in_case_note("Member", diet_member_number)							'required
-	If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
-	If diet_status_dropdown = "Incomplete" then
-		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown & "- form returned to client")
-	ElseIf  diet_status_dropdown = "Denied" Then
-		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown & "- Deleted DIET panel. The doctor has not indicated an eligible diet need.")
-	Else
-		CALL write_bullet_and_variable_in_case_note("Diet approved/denied", diet_status_dropdown)
-	End If 
+	CALL write_bullet_and_variable_in_case_note("Member", Left(diet_member_number, 2))							'required
 	If diet_1_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
 	If diet_2_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
 	If diet_3_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
@@ -2425,6 +2613,15 @@ If form_type_array(form_type_const, form_count) = diet_form_name Then
 	CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
 	CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
 	CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
+
+	If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
+	If diet_status_dropdown = "Incomplete" then
+		CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- form returned to client")
+	ElseIf  diet_status_dropdown = "Denied" Then
+		CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- Deleted DIET panel. The doctor has not indicated an eligible diet need.")
+	Else
+		CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown)
+	End If 
 	CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
 	CALL write_variable_in_case_note("   ")
 	CALL write_variable_in_case_note("---")
