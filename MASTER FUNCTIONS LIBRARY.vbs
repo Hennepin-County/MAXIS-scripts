@@ -10472,7 +10472,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _
-        instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _
+        instr(dail_msg, "NOT ACCESSED FOR 229 DAYS,SPEC NOT") OR _
         instr(dail_msg, "PMI MERGED") OR _
         instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
         instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
@@ -10609,8 +10609,8 @@ Function non_actionable_dails(actionable_dail)
                 actionable_dail = False 'Deletes all Ex Parte TIKL's then that are not from the current month. Ex 07/01/2023 TIKLS start deleting on 08/01/2023.
             End if
         Else
-            six_months = DateAdd("M", -6, date)
-            If cdate(six_months) => cdate(dail_month) then
+            date_minus_90 = dateadd("d", date, -90)
+            If date_minus_90 => cdate(dail_month) then
                 actionable_dail = False     'Will delete any TIKL over 6 months old
             Else
                 actionable_dail = True
