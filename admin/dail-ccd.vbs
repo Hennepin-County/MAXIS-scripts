@@ -117,7 +117,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - INFO"
+ObjExcel.ActiveSheet.Name = "Deleted DAILS - " & dail_to_decimate
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
@@ -245,7 +245,7 @@ Do
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
-    
+
     'Cleaning up the DAIL messages for the case note
     If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
     If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
