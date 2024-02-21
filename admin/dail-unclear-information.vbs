@@ -2958,12 +2958,13 @@ If HIRE_messages = 1 Then
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "Case Number"
     objExcel.Cells(1, 2).Value = "Case & Household Member Name"
-    objExcel.Cells(1, 3).Value = "TIKL Date"
-    objExcel.Cells(1, 4).Value = "TIKL Message"
-    objExcel.Cells(1, 5).Value = "TIKL Processed"
+    objExcel.Cells(1, 3).Value = "DAIL Type"
+    objExcel.Cells(1, 4).Value = "TIKL Date"
+    objExcel.Cells(1, 5).Value = "TIKL Message"
+    objExcel.Cells(1, 6).Value = "Action Taken on TIKL"
 
 
-    FOR i = 1 to 5		'formatting the cells'
+    FOR i = 1 to 6		'formatting the cells'
         objExcel.Cells(1, i).Font.Bold = True		'bold font'
         ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
         objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -4700,6 +4701,10 @@ If HIRE_messages = 1 Then
                                                     NDNH_new_hire_name = ""
                                                     hire_message_member_name = ""
                                                     hire_message_case_number = ""
+                                                    HIRE_employer_name_split = ""
+                                                    HIRE_employer_name_first_word = ""
+                                                    name_and_case_number_for_TIKL = ""
+                                                    HIRE_employer_name_TIKL = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -4720,6 +4725,9 @@ If HIRE_messages = 1 Then
                                                     EMReadScreen hire_message_case_number, 8, dail_row - 1, 73
                                                     hire_message_case_number = trim(hire_message_case_number)
                                                     ' MsgBox "hire_message_case_number " & hire_message_case_number
+
+                                                    'Read name and case name and case number to delete TIKLs later if needed
+                                                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
@@ -4783,7 +4791,26 @@ If HIRE_messages = 1 Then
                                                     EMSearch "EMPLOYER: ", row, col
                                                     EMReadScreen HIRE_employer_name, 20, row, col + 10
                                                     HIRE_employer_name = trim(HIRE_employer_name)
+                                                    EMReadScreen HIRE_employer_name_TIKL, 25, row, col + 10
+                                                    HIRE_employer_name_TIKL = TRIM(HIRE_employer_name_TIKL)
+                                                    MsgBox HIRE_employer_name_TIKL
                                                     ' MsgBox "HIRE_employer_name: " & HIRE_employer_name
+
+                                                    'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                    HIRE_employer_name_split = split(HIRE_employer_name, " ")
+
+                                                    If len(HIRE_employer_name_split(0)) < 4 and Ubound(HIRE_employer_name_split) > 0 Then
+                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0) & " " & HIRE_employer_name_split(1)
+                                                        MsgBox "First word less than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word  
+                                                    Else
+                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0)   
+                                                        MsgBox "First word longer than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word
+                                                    End If
+
+                                                    If instr(len(HIRE_employer_name_first_word), HIRE_employer_name_first_word, ",") = len(HIRE_employer_name_first_word) then 
+                                                        HIRE_employer_name_first_word = Mid(HIRE_employer_name_first_word, 1, len(HIRE_employer_name_first_word) - 1)
+                                                        MsgBox "Last character is a comma. HIRE_employer_name_first_word is now " & HIRE_employer_name_first_word
+                                                    End If
 
                                                     'Identify where 'MAXIS NAME   :' text is so that script can account for slight changes in location in MAXIS
                                                     'Set row and col
@@ -5340,6 +5367,22 @@ If HIRE_messages = 1 Then
                                                             EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                             employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                            'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                            employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+
+                                                            If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                                employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                            Else
+                                                                employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                                MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                            End If
+
+                                                            If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                                employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                                MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                            End If
+
                                                             If employer_name_jobs_panel = HIRE_employer_name Then
                                                                 ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete."
 
@@ -5351,15 +5394,50 @@ If HIRE_messages = 1 Then
                                                                 current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                 ' msgbox "current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
-                                                                If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                                                                    ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
                                                                     
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-                                                                ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                                                                    ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
 
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                                                                End If 
+                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                ' End If 
+
+                                                                                                                                 
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                'To do - add handling to add to list of TIKLs to delete
+                                                                list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                MsgBox list_of_TIKLs_to_delete
+
+                                                            
+                                                            ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+                                                                ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete."
+
+                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                ' msgbox "JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                
+                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                ' msgbox "current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
+
+                                                                ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                    
+                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                ' End If 
+
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                'To do - add handling to add to list of TIKLs to delete
+                                                                list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                MsgBox list_of_TIKLs_to_delete
 
                                                             Else
                                                                 'Check how many panels exist for the HH member
@@ -5388,6 +5466,22 @@ If HIRE_messages = 1 Then
                                                                         EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                                         employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                                        'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                                        employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+
+                                                                        If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                                            employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                                            MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                        Else
+                                                                            employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                                            MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                                        End If
+
+                                                                        If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                                            employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                                            MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                                        End If
+
                                                                         If employer_name_jobs_panel = HIRE_employer_name Then
 
                                                                             ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5102"
@@ -5400,15 +5494,50 @@ If HIRE_messages = 1 Then
                                                                             current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                             ' msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
-                                                                            If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                                                                                ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                            ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                            '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
                                                                                 
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-                                                                            ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                                                                                ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                                            '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                            ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                            '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
 
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                                                                            End If 
+                                                                            '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                            ' End If 
+
+                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                            'To do - add handling to add to list of TIKLs to delete
+                                                                            list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                            MsgBox list_of_TIKLs_to_delete
+
+                                                                            'Exit the do loop since an exact match was found
+                                                                            Exit Do
+                                                                        ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+                                                                            ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5102"
+
+                                                                            EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                            EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                            JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                            ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                            
+                                                                            current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                            ' msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
+
+                                                                            ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                            '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                                
+                                                                            '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                            ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                            '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                                            '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                            ' End If 
+
+                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                            'To do - add handling to add to list of TIKLs to delete
+                                                                            list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                            MsgBox list_of_TIKLs_to_delete
 
                                                                             'Exit the do loop since an exact match was found
                                                                             Exit Do
@@ -5563,6 +5692,10 @@ If HIRE_messages = 1 Then
                                                     SDNH_new_hire_name = ""
                                                     hire_message_member_name = ""
                                                     hire_message_case_number = ""
+                                                    HIRE_employer_name_split = ""
+                                                    HIRE_employer_name_first_word = ""
+                                                    name_and_case_number_for_TIKL = ""
+                                                    HIRE_employer_name_TIKL = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -5583,6 +5716,9 @@ If HIRE_messages = 1 Then
                                                     EMReadScreen hire_message_case_number, 8, dail_row - 1, 73
                                                     hire_message_case_number = trim(hire_message_case_number)
                                                     ' MsgBox "hire_message_case_number " & hire_message_case_number
+                                                    
+                                                    'Read name and case name and case number to delete TIKLs later if needed
+                                                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
                                                     'If it is in the NDNH list, then add to delete list
 
@@ -5664,7 +5800,27 @@ If HIRE_messages = 1 Then
                                                     'Only capturing first 20 characters to align with NDNH
                                                     EMReadScreen HIRE_employer_name, 20, row, col + 10
                                                     HIRE_employer_name = trim(HIRE_employer_name)
+                                                    EMReadScreen HIRE_employer_name_TIKL, 25, row, col + 10
+                                                    HIRE_employer_name_TIKL = TRIM(HIRE_employer_name_TIKL)
+                                                    MsgBox HIRE_employer_name_TIKL
                                                     ' MsgBox "HIRE_employer_name: " & HIRE_employer_name
+
+                                                    'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+
+                                                    HIRE_employer_name_split = split(HIRE_employer_name, " ")
+
+                                                    If len(HIRE_employer_name_split(0)) < 4 and Ubound(HIRE_employer_name_split) > 0 Then
+                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0) & " " & HIRE_employer_name_split(1)
+                                                        MsgBox "First word less than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word  
+                                                    Else
+                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0)   
+                                                        MsgBox "First word longer than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word
+                                                    End If
+
+                                                    If instr(len(HIRE_employer_name_first_word), HIRE_employer_name_first_word, ",") = len(HIRE_employer_name_first_word) then 
+                                                        HIRE_employer_name_first_word = Mid(HIRE_employer_name_first_word, 1, len(HIRE_employer_name_first_word) - 1)
+                                                        MsgBox "Last character is a comma. HIRE_employer_name_first_word is now " & HIRE_employer_name_first_word
+                                                    End If
 
                                                     row = 1
                                                     col = 1
@@ -5812,8 +5968,6 @@ If HIRE_messages = 1 Then
                                                             End If
                                                         End If
                                                         
-                                                        
-
                                                         ' Msgbox "Testing -- navigated to STAT/MEMB"
 
                                                         'Ensure the script is not creating a new MEMB panel
@@ -5823,7 +5977,6 @@ If HIRE_messages = 1 Then
                                                             PF10
                                                             script_end_procedure_with_error_report("Testing -- Script tried to navigate to a HH Memb that doesn't exist. It should have deleted the panel but double check MAKE SURE IT DELETED ADDED PANEL")
                                                         End If
-                                                            
                                                         
                                                         'Check the HH Memb's age and relationship status
                                                         EMReadScreen hh_memb_age, 2, 8, 76
@@ -6237,6 +6390,19 @@ If HIRE_messages = 1 Then
                                                                 EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                                 employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                                If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                                    employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                                    MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                Else
+                                                                    employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                                    MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                                End If
+    
+                                                                If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                                    employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                                    MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                                End If
+
                                                                 If employer_name_jobs_panel = HIRE_employer_name Then
                                                                     ' MsgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5779"
 
@@ -6248,15 +6414,52 @@ If HIRE_messages = 1 Then
                                                                     current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                     'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
-                                                                    If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                                                                        'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
-                                                                        
-                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-                                                                    ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                                                                        'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                                    'To do - add handling to check for TIKLs
+                                                                    'TIKL 01/01/24 VERIFICATION OF MENARD INCJOB VIA NEW HIRE SHOULD HAVE      +
 
-                                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                                                                    End If 
+
+                                                                    ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                    '     'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                        
+                                                                    '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                    ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                    '     'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                                    '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                    ' End If 
+
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                    'To do - add handling to add to list of TIKLs to delete
+                                                                    list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                    MsgBox list_of_TIKLs_to_delete
+
+                                                                ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+                                                                    ' MsgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5779"
+
+                                                                    EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                    EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                    JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                    ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                    
+                                                                    current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                    'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
+
+                                                                    ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                    '     'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                        
+                                                                    '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                    ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                    '     'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                                    '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                    ' End If 
+
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                    'To do - add handling to add to list of TIKLs to delete
+                                                                    list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                    MsgBox list_of_TIKLs_to_delete
 
                                                                 Else
                                                                     'Check how many panels exist for the HH member
@@ -6285,6 +6488,19 @@ If HIRE_messages = 1 Then
                                                                             EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                                             employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                                            If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                                                employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                            Else
+                                                                                employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                                                MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                                            End If
+                
+                                                                            If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                                                employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                                                MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                                            End If
+
                                                                             If employer_name_jobs_panel = HIRE_employer_name Then
                                                                                 ' 'msgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5828"
 
@@ -6296,15 +6512,51 @@ If HIRE_messages = 1 Then
                                                                                 current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                                 ' 'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
-                                                                                If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                                                                                    'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                                ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                                '     'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
                                                                                     
-                                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-                                                                                ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                                                                                    'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                                ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                                '     'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
 
-                                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                                                                                End If 
+                                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                                ' End If 
+
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                                'To do - add handling to add to list of TIKLs to delete
+                                                                                list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                                MsgBox list_of_TIKLs_to_delete
+
+                                                                                'Exit the do loop since an exact match was found
+                                                                                Exit Do
+
+                                                                            ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+                                                                                'msgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5828"
+
+                                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                                ' 'msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                                
+                                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                                ' 'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
+
+                                                                                ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                                '     'msgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                                    
+                                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                                ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                                '     'msgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                                ' End If 
+                                                                                
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                                                'To do - add handling to add to list of TIKLs to delete
+                                                                                list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                                MsgBox list_of_TIKLs_to_delete
 
                                                                                 'Exit the do loop since an exact match was found
                                                                                 Exit Do
@@ -6486,29 +6738,205 @@ If HIRE_messages = 1 Then
 
         'Navigate to TIKLs for the X number
         'Set the TIKLs to first of next month
-        
         EmWriteScreen next_month_TIKLs, 4, 67
-        'Navigates to DAIL to pull DAIL messages and start at beginning again
-        'Go back to start (" A" used to get as close to first case as possible)
-        loop_count = 0
-        EMReadScreen number_of_dails, 1, 3, 67	
-        If number_of_dails <> " " Then 
-            Call write_value_and_transmit(" A", 21, 25)
-            ' msgbox "Testing -- Wrote _A - whereis it"
+        Call write_value_and_transmit("X", 4, 12)
+        EmWriteScreen "_", 7, 39
+        EmWriteScreen "X", 19, 39
+        transmit
 
-            Do
-                PF7
-                EMReadScreen first_page_check, 37, 24, 2
-                If first_page_check = "YOU MAY ONLY SCROLL FORWARD FROM HERE" Then Exit Do
-                EMReadScreen number_of_dails, 1, 3, 67
-                If number_of_dails = " " Then 
-                    ' MsgBox "Testing -- no dails present should exit"    
-                    exit do
+        'The script should be back at start of TIKLs for correct month
+        'Reads where the count of DAILs is listed. Used to verify DAIL is not empty.
+        EMReadScreen number_of_dails, 1, 3, 67		
+
+        DO
+            'If this space is blank the rest of the DAIL reading is skipped
+            If number_of_dails = " " Then exit do		
+            'Because the script brings each new case to the top of the page, dail_row starts at 6.
+            dail_row = 6	
+
+            DO
+
+                name_and_case_number_for_TIKL = ""
+                
+                'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+                EMReadScreen new_case, 8, dail_row, 63
+                new_case = trim(new_case)
+                IF new_case <> "CASE NBR" THEN 
+                    'If there is NOT a new case number, the script will top the message
+                    Call write_value_and_transmit("T", dail_row, 3)
+                ELSEIF new_case = "CASE NBR" THEN
+                    'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                    Call write_value_and_transmit("T", dail_row + 1, 3)
+                End if
+
+                'Resets the DAIL row since the message has now been topped
+                dail_row = 6  
+
+                'Determines the DAIL Type
+                EMReadScreen dail_type, 4, dail_row, 6
+                dail_type = trim(dail_type)
+
+                'Determines the TIKL date
+                EMReadScreen tikl_date, 8, dail_row, 11
+                tikl_date = trim(tikl_date)
+
+                'Reads the DAIL msg to determine if it is an out-of-scope message
+                EMReadScreen dail_msg, 61, dail_row, 20
+                dail_msg = trim(dail_msg)
+
+                EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
+                MAXIS_case_number = trim(MAXIS_case_number)
+
+                If InStr(dail_msg, "VERIFICATION OF ") and Instr(dail_msg, "VIA NEW HIRE") Then
+                    'The DAIL message is a TIKL for new hire script
+
+                    'Read name and case name and case number to delete TIKLs later if needed
+                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+
+                    TIKL_comparison = name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(tikl_message, "JOB VIA NEW") - 1)
+                    
+                    If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
+                        'This is a match for the TIKL, it can be deleted
+                        'Activate the case details sheet
+                        objExcel.Worksheets("HIRE TIKLs").Activate
+
+                        'Add details for tracking TIKLs
+                        objExcel.Cells(TIKL_excel_row, 1).Value = MAXIS_case_number
+                        objExcel.Cells(TIKL_excel_row, 2).Value = name_and_case_number_for_TIKL 
+                        objExcel.Cells(TIKL_excel_row, 3).Value = dail_type 
+                        objExcel.Cells(TIKL_excel_row, 4).Value = tikl_date 
+                        objExcel.Cells(TIKL_excel_row, 5).Value = dail_msg 
+                        objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL match found. Should be deleted." 
+                        
+                        'Excel headers and formatting the columns
+                        ' objExcel.Cells(1, 1).Value = "Case Number"
+                        ' objExcel.Cells(1, 2).Value = "Case & Household Member Name"
+                        ' objExcel.Cells(1, 3).Value = "DAIL Type"
+                        ' objExcel.Cells(1, 4).Value = "TIKL Date"
+                        ' objExcel.Cells(1, 5).Value = "TIKL Message"
+                        ' objExcel.Cells(1, 6).Value = "Action Taken on TIKL"
+
+                        'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
+                        EMReadScreen last_dail_check, 12, 3, 67
+                        last_dail_check = trim(last_dail_check)
+
+                        'If the current dail message is equal to the final dail message then it will delete the message and then exit the do loop so the script does not restart
+                        last_dail_check = split(last_dail_check, " ")
+
+                        If last_dail_check(0) = last_dail_check(2) then 
+                            'The script is about to delete the LAST message in the DAIL so script will exit do loop after deletion, also works if it is about to delete the ONLY message in the DAIL
+                            all_done = true
+                        End If
+
+                        MsgBox "It is about to delete the message. Confirm before proceeding."
+                        'Delete the message
+                        Call write_value_and_transmit("D", dail_row, 3)
+
+                        'Handling for deleting message under someone else's x number
+                        EMReadScreen other_worker_error, 25, 24, 2
+                        other_worker_error = trim(other_worker_error)
+
+                        If other_worker_error = "ALL MESSAGES WERE DELETED" Then
+                            'Script deleted the final message in the DAIL
+                            dail_row = dail_row - 1
+                            objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                            'Exit do loop as all messages are deleted
+                            all_done = true
+
+                        ElseIf other_worker_error = "" Then
+                            'Script appears to have deleted the message but there was no warning, checking DAIL counts to confirm deletion
+
+                            'Handling to check if message actually deleted
+                            total_dail_msg_count_before = last_dail_check(2) * 1
+                            EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+                            total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                            total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+                            If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                                'The total DAILs decreased by 1, message deleted successfully
+                                dail_row = dail_row - 1
+                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                            Else
+                                'The total DAILs did not decrease by 1, something went wrong
+                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6854.")
+                            End If
+
+                        ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+                            
+                            'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
+                            transmit
+
+                            'Reads the total number of DAILS after deleting to determine if it decreased by 1
+                            EMReadScreen total_dail_msg_count_after, 12, 3, 67
+
+                            'Checks if final DAIL message deleted
+                            EMReadScreen final_dail_error, 25, 24, 2
+
+                            If final_dail_error = "ALL MESSAGES WERE DELETED" Then
+                                'All DAIL messages deleted so indicates deletion a success
+                                dail_row = dail_row - 1
+                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                                'No more DAIL messages so exit do loop
+                                all_done = True
+                            ElseIf trim(final_dail_error) = "" Then
+                                'Handling to check if message actually deleted
+                                total_dail_msg_count_before = last_dail_check(2) * 1
+
+                                total_dail_msg_count_after = split(trim(total_dail_msg_count_after), " ")
+                                total_dail_msg_count_after(2) = total_dail_msg_count_after(2) * 1
+
+                                If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
+                                    'The total DAILs decreased by 1, message deleted successfully
+                                    dail_row = dail_row - 1
+                                    objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                                Else
+                                    objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                    script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6887.")
+                                End If
+
+                            Else
+                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6892.")
+                            End if
+                            
+                        Else
+                            objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                            script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message - 6897.")
+                        End If
+                        
+                        TIKL_excel_row = TIKL_excel_row + 1
+
+                    End If
                 End If
-                loop_count = loop_count + 1
-                If loop_count = 5 then MsgBox "Testing -- it is stuck in a loop"
-            Loop
-        End If
+                        
+                'To do - validate placement of dail_row incrementor based on DAIL message processing outcome
+                'To do - should dail_row + 1 be within each of the options (delete list, skip list, new list)
+                dail_row = dail_row + 1
+
+                ' MsgBox "dail_row = " & dail_row
+                
+                'TO DO - this is from DAIL decimator. Appears to handle for NAT errors. Is it needed?
+                'EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+                'If message_error = "NO MESSAGES" then exit do
+
+                '...going to the next page if necessary
+                EMReadScreen next_dail_check, 4, dail_row, 4
+                If trim(next_dail_check) = "" then
+                    PF8
+                    EMReadScreen last_page_check, 21, 24, 2
+                    'DAIL/PICK when searching for specific DAIL types has message check of NO MESSAGES TYPE vs. NO MESSAGES WORK (for ALL DAIL/PICK selection).
+                    If last_page_check = "THIS IS THE LAST PAGE" or Instr(last_page_check, "NO MESSAGES") then
+                        all_done = true
+                        exit do
+                    Else
+                        dail_row = 6
+                    End if
+                End if
+            LOOP
+            IF all_done = true THEN exit do
+        LOOP
 
     Next
 
