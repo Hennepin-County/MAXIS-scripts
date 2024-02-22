@@ -10472,7 +10472,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _
-        instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _
         instr(dail_msg, "PMI MERGED") OR _
         instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
         instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
@@ -10521,6 +10520,17 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             actionable_dail = False
+        '----------------------------------------------------------------------------------------------------Removing older specific INFO messages 
+    Elseif dail_type = "INFO" then
+        If instr(dail_msg, "FOR MEDI PART B REIMBURSEMENT") OR _ 
+           instr(dail_msg, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") OR _ 
+           instr(dail_msg, "PARENT MAY BE ELIG TO ALLOCATE UNMET NEED FOR CHILD - IF SO,") then 
+            If dail_month = this_month then
+                actionable_dail = True
+            Else
+                actionable_dail = False ' delete the old messages
+            End if
+        End if 
         '----------------------------------------------------------------------------------------------------STAT EDITS older than Current Date
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39     'Stat date location
@@ -10537,21 +10547,32 @@ Function non_actionable_dails(actionable_dail)
                 actionable_dail = True
             End if
         End if
-    '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
+    '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM
     Elseif dail_type = "PEPR" then
+        'These two PEPR's effective 01/24 require action for workers and cannot be deleted outright. 
         If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _
             instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
             actionable_dail = True
         Else
-            If dail_month = this_month or dail_month = next_month then
+            If dail_month = this_month then
                 actionable_dail = True
             Else
                 actionable_dail = False ' delete the old messages
             End if
         End if
     '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
-        if dail_month = this_month or dail_month = next_month then
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or _ 
+        instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or _
+        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or _ 
+        instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or _
+        instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") or _
+        instr(dail_msg, "PERSON IS ON ANOTHER PENDING CASE") or _
+        instr(dail_msg, "NEW VERSION MUST BE APPROVED. FUNDING TYPE HAS CHANGED") or _
+        instr(dail_msg, "TRANSFERRED CASE IS WF1 ELIGIBLE - APPROVE NEW RESULTS TO") or _
+        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED. FUNDING TYPE HAS CHANGED") or _
+        instr(dail_msg, "UNKNOWN RESULTS - CANNOT APPROVE") or _
+        instr(dail_msg, "HAS EARNED INCOME GREATER THAN ZERO BUT NO TRAC PANEL") then 
+        if dail_month = this_month then
             actionable_dail = True
         Else
             actionable_dail = False ' delete the old messages
@@ -10609,9 +10630,9 @@ Function non_actionable_dails(actionable_dail)
                 actionable_dail = False 'Deletes all Ex Parte TIKL's then that are not from the current month. Ex 07/01/2023 TIKLS start deleting on 08/01/2023.
             End if
         Else
-            six_months = DateAdd("M", -6, date)
-            If cdate(six_months) => cdate(dail_month) then
-                actionable_dail = False     'Will delete any TIKL over 6 months old
+            date_minus_90 = dateadd("d", date, -90)
+            If date_minus_90 => cdate(dail_month) then
+                actionable_dail = False     'Will delete any TIKL over 90 days old to align with ECF Next Notification retention schedule.
             Else
                 actionable_dail = True
             End if
