@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2024", "This script still captures some actions and information in Excel files for reporting and any data issue investigation. Updated the script to hide these Excel files so they are not accidentally changed or closed.", "Casey Love, Hennepin County")
 call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
@@ -1164,7 +1165,7 @@ If first_item_date <> date Then
 	'Opening the Excel file, (now that the dialog is done)
 	'creating a new file to create the 'Daily List'
 	Set objExcel = CreateObject("Excel.Application")
-	objExcel.Visible = True
+	objExcel.Visible = False
 	Set objWorkbook = objExcel.Workbooks.Add()
 	objExcel.DisplayAlerts = True
 
@@ -2426,7 +2427,7 @@ this_year = DatePart("yyyy", date)
 this_month = MonthName(Month(date))
 
 statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\" & this_year & " Statistics Tracking.xlsx"
-call excel_open(statistics_excel_file_path, True,  True, ObjStatsExcel, objStatsWorkbook)
+call excel_open(statistics_excel_file_path, False,  True, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
 'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated for future dates and tracking
@@ -2490,7 +2491,7 @@ file_date = replace(current_date, "/", "-")   'Changing the format of the date t
 daily_case_list_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
 file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & daily_case_list_folder & "/" & file_date & ".xlsx" 'single assignment file
 
-call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+call excel_open(file_selection_path, False, True, ObjExcel, objWorkbook)
 
 
 
