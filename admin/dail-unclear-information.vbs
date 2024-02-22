@@ -6787,13 +6787,16 @@ If HIRE_messages = 1 Then
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
 
+                EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+                list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & "TARGET" & "*" 
+
                 If InStr(dail_msg, "VERIFICATION OF ") and Instr(dail_msg, "VIA NEW HIRE") Then
                     'The DAIL message is a TIKL for new hire script
 
                     'Read name and case name and case number to delete TIKLs later if needed
                     EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
-                    TIKL_comparison = name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(tikl_message, "JOB VIA NEW") - 1)
+                    TIKL_comparison = name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
                     
                     If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
                         'This is a match for the TIKL, it can be deleted
@@ -6839,7 +6842,7 @@ If HIRE_messages = 1 Then
                         If other_worker_error = "ALL MESSAGES WERE DELETED" Then
                             'Script deleted the final message in the DAIL
                             dail_row = dail_row - 1
-                            objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                            objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message successfully deleted."
                             'Exit do loop as all messages are deleted
                             all_done = true
 
@@ -6856,10 +6859,10 @@ If HIRE_messages = 1 Then
                             If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
                                 'The total DAILs decreased by 1, message deleted successfully
                                 dail_row = dail_row - 1
-                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                                objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message successfully deleted."
                             Else
                                 'The total DAILs did not decrease by 1, something went wrong
-                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message unable to be deleted for some reason."
                                 script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6854.")
                             End If
 
@@ -6877,7 +6880,7 @@ If HIRE_messages = 1 Then
                             If final_dail_error = "ALL MESSAGES WERE DELETED" Then
                                 'All DAIL messages deleted so indicates deletion a success
                                 dail_row = dail_row - 1
-                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                                objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message successfully deleted."
                                 'No more DAIL messages so exit do loop
                                 all_done = True
                             ElseIf trim(final_dail_error) = "" Then
@@ -6890,25 +6893,30 @@ If HIRE_messages = 1 Then
                                 If last_dail_check(2) - 1 = total_dail_msg_count_after(2) Then
                                     'The total DAILs decreased by 1, message deleted successfully
                                     dail_row = dail_row - 1
-                                    objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message successfully deleted."
+                                    objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message successfully deleted."
                                 Else
-                                    objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                    objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message unable to be deleted for some reason."
                                     script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6887.")
                                 End If
 
                             Else
-                                objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                                objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message unable to be deleted for some reason."
                                 script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message 6892.")
                             End if
                             
                         Else
-                            objExcel.Cells(TIKL_excel_row, 7).Value = "TIKL message unable to be deleted for some reason."
+                            objExcel.Cells(TIKL_excel_row, 6).Value = "TIKL message unable to be deleted for some reason."
                             script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message - 6897.")
                         End If
                         
                         TIKL_excel_row = TIKL_excel_row + 1
+                    
+                    Else
+                        MsgBox "No match found 6912"
 
                     End If
+                Else
+                    MsgBox "not a TIKL"
                 End If
                         
                 'To do - validate placement of dail_row incrementor based on DAIL message processing outcome
@@ -6940,31 +6948,31 @@ If HIRE_messages = 1 Then
 
     Next
 
-    'Update Stats Info
-    'Activate the stats sheet
-    objExcel.Worksheets("Stats").Activate
-    objExcel.Cells(1, 2).Value = case_excel_row - 2
-    objExcel.Cells(2, 2).Value = dail_excel_row - 2
-    objExcel.Cells(3, 2).Value = not_processable_msg_count
-    objExcel.Cells(4, 2).Value = dail_msg_deleted_count
-    objExcel.Cells(5, 2).Value = QI_flagged_msg_count
-    objExcel.Cells(6, 2).Value = timer - start_time
-    objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+    ' 'Update Stats Info
+    ' 'Activate the stats sheet
+    ' objExcel.Worksheets("Stats").Activate
+    ' objExcel.Cells(1, 2).Value = case_excel_row - 2
+    ' objExcel.Cells(2, 2).Value = dail_excel_row - 2
+    ' objExcel.Cells(3, 2).Value = not_processable_msg_count
+    ' objExcel.Cells(4, 2).Value = dail_msg_deleted_count
+    ' objExcel.Cells(5, 2).Value = QI_flagged_msg_count
+    ' objExcel.Cells(6, 2).Value = timer - start_time
+    ' objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
-    'Finding the right folder to automatically save the file
-    this_month = CM_mo & " " & CM_yr
-    month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-    unclear_info_folder = replace(this_month, " ", "-") & " DAIL Unclear Info"
-    report_date = replace(date, "/", "-")
+    ' 'Finding the right folder to automatically save the file
+    ' this_month = CM_mo & " " & CM_yr
+    ' month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+    ' unclear_info_folder = replace(this_month, " ", "-") & " DAIL Unclear Info"
+    ' report_date = replace(date, "/", "-")
 
-    'saving the Excel file
-    file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "HIRE" & " " & dail_msg_deleted_count
+    ' 'saving the Excel file
+    ' file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "HIRE" & " " & dail_msg_deleted_count
 
-    'Saves and closes the most recent Excel workbook with the Task based cases to process.
-    objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
-    objExcel.ActiveWorkbook.Close
-    objExcel.Application.Quit
-    objExcel.Quit
+    ' 'Saves and closes the most recent Excel workbook with the Task based cases to process.
+    ' objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+    ' objExcel.ActiveWorkbook.Close
+    ' objExcel.Application.Quit
+    ' objExcel.Quit
 
     script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
     
