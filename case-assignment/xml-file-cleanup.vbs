@@ -8,6 +8,7 @@ STATS_denomination = "I"                   'I is for Item - based on search crit
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
+
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -44,8 +45,8 @@ changelog_display
 
 'END CHANGELOG BLOCK =======================================================================================================
 dim archive_date, delete_date
-file_path = "T:\Eligibility Support\EA_ADAD\EA_ADAD_Common\CASE ASSIGNMENT\MNB_XML_files\"
-archive_file_path = "T:\Eligibility Support\EA_ADAD\EA_ADAD_Common\CASE ASSIGNMENT\MNB_XML_files\Archive\"
+file_path = t_drive & "\Eligibility Support\EA_ADAD\EA_ADAD_Common\CASE ASSIGNMENT\MNB_XML_files\"
+archive_file_path = t_drive & "\Eligibility Support\EA_ADAD\EA_ADAD_Common\CASE ASSIGNMENT\MNB_XML_files\Archive\"
 archive_date = dateadd("m", -1, date)
 delete_date = dateadd("m", -3, date)
 archive_date = cstr(archive_date)
@@ -72,7 +73,7 @@ If user_ID_for_validation = "HOAB001" OR user_ID_for_validation = "CALO001" OR u
 	DO
 				err_msg = ""
 				Dialog Dialog1
-				If ButtonPressed = 0 then Stopscript
+				cancel_without_confirmation
 				If isdate(archive_date) = false then err_msg = err_msg & vbCr & "Please enter a valid archive date."
 				If isdate(delete_date) = false then err_msg = err_msg & vbCr & "Please enter a valid file delete date."
 				If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr
@@ -80,6 +81,7 @@ If user_ID_for_validation = "HOAB001" OR user_ID_for_validation = "CALO001" OR u
 
 	'Creating object, grabbing the folder content)
 	''move to archive folder after a certain time frame
+	set main_folder = fso.GetFolder(file_path)
 	For each file in main_folder.files
 	 	If datediff("d", file.DateCreated, archive_date) > 0 and file.Type = "XML Source File" Then
 		    archived_files = archived_files & vbCr & file.name 'add file name to list for log file
