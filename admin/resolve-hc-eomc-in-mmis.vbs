@@ -385,7 +385,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
     MAXIS_case_number = EOMC_CLIENT_ARRAY(case_nbr, hc_clt)		       'defining case number for functions to use
     CLIENT_reference_number = EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) 'setting this to a more usable variable
 
-    ' If MAXIS_case_number = "" Then MsgBox "Case number: " & EOMC_CLIENT_ARRAY(case_nbr, hc_case) & vbNewLine & "Client: " & EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) & vbNewLines & "PMI: " & EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
+	' If MAXIS_case_number = "" Then MsgBox "Case number: " & EOMC_CLIENT_ARRAY(case_nbr, hc_case) & vbNewLine & "Client: " & EOMC_CLIENT_ARRAY (clt_ref_nbr,  hc_clt) & vbNewLines & "PMI: " & EOMC_CLIENT_ARRAY (clt_pmi,   hc_clt)
 
     Call navigate_to_MAXIS_screen("STAT", "MEMB")                       'going to MEMB to get age for identifying correct capitation
     Call write_value_and_transmit(CLIENT_reference_number, 20, 76)
@@ -403,7 +403,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
 	End If
 
     Call navigate_to_MAXIS_screen ("ELIG", "HC  ")						'Goes to ELIG HC
-    APPROVAL_NEEDED = FALSE                                             'setting some booleans
+	APPROVAL_NEEDED = FALSE                                             'setting some booleans
     found_elig = FALSE
     client_found = FALSE
     row = 8                                                             'begining of the list of HH Membs in ELIG/HC
@@ -508,7 +508,7 @@ For hc_clt = 0 to UBOUND(EOMC_CLIENT_ARRAY, 2)
                         EOMC_CLIENT_ARRAY (elig_type_one, hc_clt) = pers_type     'setting all of the read information is added to the array
 
                         'if this was found to be true in this loop, will add error note that the case needs review and approval
-                        If APPROVAL_NEEDED = TRUE THen EOMC_CLIENT_ARRAY (err_notes, hc_clt) = EOMC_CLIENT_ARRAY (err_notes, hc_clt) & " ~ Budget Needs Approval"
+                        If APPROVAL_NEEDED = TRUE THen EOMC_CLIENT_ARRAY (err_notes, hc_clt) = EOMC_CLIENT_ARRAY (err_notes, hc_clt) & " ~ Budget Lacked Approval"
 
                     Else                                                            'this is for programs other than MA or IMD - typically QMB, SLMB, or QI
                         If left(EOMC_CLIENT_ARRAY (clt_name, hc_clt), 5) = "XXXXX" Then       'for some clients that don't have an actual name
@@ -1363,7 +1363,7 @@ If make_changes = TRUE Then
         If on_loop = 1 Then ObjExcel.Cells(1, 3).Value = "MMIS still open"
         If on_loop = 2 Then ObjExcel.Cells(1, 3).Value = "MMIS Span End Date Error"
         If on_loop = 3 Then ObjExcel.Cells(1, 3).Value = "MMIS Span Future End Date"
-        If on_loop = 4 Then ObjExcel.Cells(1, 3).Value = "MAXIS Budget Error"
+        If on_loop = 4 Then ObjExcel.Cells(1, 3).Value = "MAXIS Lacked Budget"
 
         ObjExcel.Cells(2, 1).Value = "Cases In List"
         ObjExcel.Cells(2, 3).Value = "=COUNTIF(G:G, " & is_not_blank_excel_string & ") - 1"
@@ -1377,11 +1377,11 @@ If make_changes = TRUE Then
         If on_loop = 1 Then ObjExcel.Cells(5, 3).Value = "End MMIS Span"
         If on_loop = 2 Then ObjExcel.Cells(5, 3).Value = "Update MMIS date to match MAXIS closure."
         If on_loop = 3 Then ObjExcel.Cells(5, 3).Value = "Check case and align dates."
-        If on_loop = 4 Then ObjExcel.Cells(5, 3).Value = "Determine why Budgets are not being approved."
+        If on_loop = 4 Then ObjExcel.Cells(5, 3).Value = "Determine why Budget Span was Missing."
 
         ObjExcel.Cells(6, 1).Value = "Goal"
         If on_loop = 1 OR on_loop = 2 OR on_loop = 3 Then ObjExcel.Cells(6, 3).Value = "To reduce discrepancies between MAXIS and MMIS closures."
-        If on_loop = 4 Then ObjExcel.Cells(6, 3).Value = "Discover areas of increased need for direction/work."
+        If on_loop = 4 Then ObjExcel.Cells(6, 3).Value = "Discover health care process gaps and additional support needs."
 
         col_to_use = 1
 
@@ -1464,7 +1464,7 @@ If make_changes = TRUE Then
                     End If
                 End If
             ElseIf on_loop = 4 Then
-                If InStr(EOMC_CLIENT_ARRAY(err_notes, hc_clt), "Budget Needs Approval") <> 0 Then write_this_entry = TRUE
+                If InStr(EOMC_CLIENT_ARRAY(err_notes, hc_clt), "Budget Lacked Approval") <> 0 Then write_this_entry = TRUE
             End If
 
             If write_this_entry = TRUE Then
@@ -1535,7 +1535,7 @@ If make_changes = TRUE Then
         on_loop = on_loop + 1
         If on_loop = 2 Then ObjExcel.Worksheets.Add().Name = "MMIS Span End Date Error"
         If on_loop = 3 Then ObjExcel.Worksheets.Add().Name = "MMIS Span Future End Date"
-        If on_loop = 4 Then ObjExcel.Worksheets.Add().Name = "MAXIS Budget Error"
+        If on_loop = 4 Then ObjExcel.Worksheets.Add().Name = "MAXIS Lacked Budget"
 
     Loop until on_loop = 5
 End If
