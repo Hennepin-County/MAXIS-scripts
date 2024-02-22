@@ -50,7 +50,20 @@ call changelog_update("02/22/2024", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function confrim_memo_created_today(notc_confirm)
+function confirm_memo_created_today(notc_confirm)
+'function to check SPEC/MEMO to ensure that the notice was created and is in a waiting status.
+	'Requires the current date to be in a string format that matches the display on SPEC/MEMO
+	today_mo = DatePart("m", date)
+	today_mo = right("00" & today_mo, 2)
+
+	today_day = DatePart("d", date)
+	today_day = right("00" & today_day, 2)
+
+	today_yr = DatePart("yyyy", date)
+	today_yr = right(today_yr, 2)
+	today_date = today_mo & "/" & today_day & "/" & today_yr
+
+	'reading the notices on SPEC/MEMO to find if a notice was created
 	memo_row = 7                                            'Setting the row for the loop to read MEMOs
 	notc_confirm = FALSE         'Defaulting this to 'N'
 	Do
@@ -67,18 +80,13 @@ function confrim_memo_created_today(notc_confirm)
 end function
 
 'THE SCRIPT ================================================================================================================
-'Connects to BlueZone & grabs case number
-EMConnect ""
-Call check_for_MAXIS(TRUE)
-Call MAXIS_case_number_finder(MAXIS_case_number)
-MAXIS_footer_month = CM_mo
+EMConnect ""													'Connects to BlueZone
+Call check_for_MAXIS(TRUE)										'Makes sure we are in MAXIS
+Call MAXIS_case_number_finder(MAXIS_case_number)				'grabs case number
+MAXIS_footer_month = CM_mo										'Setting the footer month
 MAXIS_footer_year = CM_yr
 
-memo_list = "Select One..."
-memo_list = memo_list+chr(9)+"APPL - Appt Notice"
-memo_list = memo_list+chr(9)+"APPL - NOMI"
-
-
+'Identifying if a member of the A&I Team is running the script
 bz_writer = False
 If user_ID_for_validation = "CALO001" Then bz_writer = True
 If user_ID_for_validation = "ILFE001" Then bz_writer = True
@@ -86,11 +94,16 @@ If user_ID_for_validation = "MEGE001" Then bz_writer = True
 If user_ID_for_validation = "MARI001" Then bz_writer = True
 If user_ID_for_validation = "DACO003" Then bz_writer = True
 
+'Creating a list of the options for notices
+memo_list = "Select One..."									'the ones for applications are available to anyone with QI access to the scripts
+memo_list = memo_list+chr(9)+"APPL - Appt Notice"
+memo_list = memo_list+chr(9)+"APPL - NOMI"
 If bz_writer = True Then
-	memo_list = memo_list+chr(9)+"RECERT - APPT Notice"
+	memo_list = memo_list+chr(9)+"RECERT - APPT Notice"		'only script writers should be able to access the recert notices
 	memo_list = memo_list+chr(9)+"RECERT - NOMI"
 End If
 
+'Capturing CASE Number and Worker Signature
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 176, 65, "Case number"
   EditBox 70, 5, 50, 15, MAXIS_case_number
@@ -114,9 +127,12 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'Here we do some discovery about the case to make an action determination and autofill some detail.
+
+'Finding the program and case status
 Call  determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-application_notice_required = False
+application_notice_required = False										'determining if the case is pending a program that requires an application notice
 If ga_status = "PENDING" Then application_notice_required = True
 If msa_status = "PENDING" Then application_notice_required = True
 If mfip_status = "PENDING" Then application_notice_required = True
@@ -125,77 +141,70 @@ If grh_status = "PENDING" Then application_notice_required = True
 If snap_status = "PENDING" Then application_notice_required = True
 If emer_status = "PENDING" Then application_notice_required = True
 
+'The script will end if this is NOT an application notice and it is NOT being run by a BZ Script Writer
 If application_notice_required = False and bz_writer = False Then
 	end_early_msg = "This script is to send Appointment Notices and NOMIs for pending cases to support the On Demand Notice Requirements."
-	end_early_msg = end_early_msg & vbCr & "This case does not appear to be pending and so does not require an On Demand Appointment Notice or NOMI."
+	end_early_msg = end_early_msg & vbCr & vbCr & "This case does not appear to be pending and so does not require an On Demand Appointment Notice or NOMI."
 	end_early_msg = end_early_msg & vbCr & vbCr & MAXIS_case_number & " Case Status: "
 	end_early_msg = end_early_msg & vbCr & "Case: " & case_status
-	end_early_msg = end_early_msg & vbCr & " - GA: " & ga_status
-	end_early_msg = end_early_msg & vbCr & " - MSA: " & msa_status
-	end_early_msg = end_early_msg & vbCr & " - MFIP: " & mfip_status
-	end_early_msg = end_early_msg & vbCr & " - DWP: " & dwp_status
-	end_early_msg = end_early_msg & vbCr & " - GRH:" & grh_status
-	end_early_msg = end_early_msg & vbCr & " - SNAP:" & snap_status
-	end_early_msg = end_early_msg & vbCr & " - MA: " & ma_status
-	end_early_msg = end_early_msg & vbCr & " - MSP: " & msp_status
-	end_early_msg = end_early_msg & vbCr & " - EMER: " & emer_status
+
+	end_early_msg = end_early_msg & vbCr & "Active Programs: " & list_active_programs
+	end_early_msg = end_early_msg & vbCr & "Pending Programs: " & list_pending_programs
 	end_early_msg = end_early_msg & vbCr & vbCr & "The script will now end."
 
 	Call script_end_procedure_with_error_report(end_early_msg)
 End If
 
+'Finding some renewal details if the case is not pending
 date_of_app = ""
 If application_notice_required = False Then
-	memo_to_send = "RECERT - APPT Notice"
+	memo_to_send = "RECERT - APPT Notice"							'defaulting the notice to RECERT - Appt notice
 
-    MAXIS_footer_month = CM_plus_1_mo       'need to look at stat for next month to see if app is received.
+    MAXIS_footer_month = CM_plus_1_mo       						'need to look at stat for next month to see if app is received.
     MAXIS_footer_year = CM_plus_1_yr
 
-    Call navigate_to_MAXIS_screen("STAT", "REVW")
+    Call navigate_to_MAXIS_screen("STAT", "REVW")					'go to review
+	EMReadScreen cash_revw_code, 1, 7, 40							'read the code for SNAP or CASH review
+	EMReadScreen snap_revw_code, 1, 7, 60
 
-	EMReadScreen cash_revw_code, 1, 7, 40
-	EMReadScreen snap_revw_code, 1, 7, 40
-
+	'If either the snap or cash code are not blank, then this month has a REVW and we are dealing with a RECERT - NOMI
 	If snap_revw_code <> "_" OR cash_revw_code <> "_" Then
-		memo_to_send = "RECERT - NOMI"
+		memo_to_send = "RECERT - NOMI"								'default the notice to RECERT - NOMI
 
-		recvd_appl = TRUE
-
-		EmReadscreen caf_recvd_date, 8, 13, 37
+		EmReadscreen caf_recvd_date, 8, 13, 37						'looking to see if the application form was received and entered to STAT/REVW
 		caf_recvd_date = replace(caf_recvd_date, " ", "/")
 		If caf_recvd_date = "__/__/__" Then
-			recvd_appl = FALSE
 			date_of_app = ""
 		Else
 			date_of_app = caf_recvd_date
 		End If
-
-		date_of_app = date_of_app & ""
+		date_of_app = date_of_app & ""								'making this a string for display
 	End If
-
 End If
 
+'For cases that do appear pending, we will check for application information
 If application_notice_required = True Then
-	Call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
+	Call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)			'finding the application date from PROG - this will pull the most recent application date
 
+	'goind to CASE/NOTE to read if an appointment notice was sent.
 	Call navigate_to_MAXIS_screen("CASE", "NOTE")
-	note_row = 5            'resetting the variables on the loop
-
-	day_before_app = DateAdd("d", -1, application_date)
-	appt_date = ""
+	note_row = 5            															'setting the variables on the loop
+	day_before_app = DateAdd("d", -1, application_date)									'We only need to look back to the date of application
+	appt_date = ""																		'blanking the appointment date variable.
 
 	Do
-		EMReadScreen note_date, 8, note_row, 6      'reading the note date
-		EMReadScreen note_title, 55, note_row, 25   'reading the note header
+		EMReadScreen note_date, 8, note_row, 6      									'reading the note date
+		EMReadScreen note_title, 55, note_row, 25   									'reading the note header
 		note_title = trim(note_title)
 
-		IF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
-			EMReadScreen appt_date, 10, note_row, 63
+		IF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then			'This is the the header for the appointment notice case note
+			EMReadScreen appt_date, 10, note_row, 63									'Reading the appointment date and formatting
 			appt_date = replace(appt_date, "~", "")
 			appt_date = trim(appt_date)
 			Exit Do
 		END IF
 
+		'This is how we move through the notes and leave when we are done
 		IF note_date = "        " then Exit Do
 		note_row = note_row + 1
 		IF note_row = 19 THEN
@@ -204,14 +213,15 @@ If application_notice_required = True Then
 		END IF
 		EMReadScreen next_note_date, 8, note_row, 6
 		IF next_note_date = "        " then Exit Do
-	Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+	Loop until datevalue(next_note_date) < day_before_app 								'looking ahead at the next case note kicking out the dates before app'
 End If
 
-If application_notice_required = True Then
+If application_notice_required = True Then												'defaulting the notice to send based on found information
 	memo_to_send = "APPL - Appt Notice"
 	If appt_date <> "" Then memo_to_send = "APPL - NOMI"
 End If
 
+'Dialog to select which notice to send
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 246, 55, "Select the Notice to Send"
   DropListBox 60, 10, 100, 45, memo_list, memo_to_send
@@ -235,16 +245,16 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'Here we need to get some information ready since we know which notice is being sent.
 If memo_to_send = "RECERT - APPT Notice" Then
-	month_plus_one = CM_plus_2_mo & "/01/" & CM_plus_2_yr
-	last_day_of_recert = DateAdd("d", -1, month_plus_one)
-    interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr
+	month_plus_one = CM_plus_2_mo & "/01/" & CM_plus_2_yr				'Finding the ER month
+	last_day_of_recert = DateAdd("d", -1, month_plus_one)				'Determining the end of the cert period
+    interview_end_date = CM_plus_1_mo & "/15/" & CM_plus_1_yr			'Creating a Interview Due / Appointment Date
 
-	last_day_of_recert = last_day_of_recert & ""
+	last_day_of_recert = last_day_of_recert & ""						'format as string
     interview_end_date = interview_end_date & ""
 
-
-	if MFIP_case = TRUE then           'setting the language for the notices - MFIP or SNAP
+	if MFIP_case = TRUE then           									'setting the language for the notices - MFIP or SNAP
 		if SNAP_case = TRUE then
 			intvw_programs = "MFIP/SNAP"
 		else
@@ -254,31 +264,34 @@ If memo_to_send = "RECERT - APPT Notice" Then
 		intvw_programs = "SNAP"
 	end if
 
-	programs = intvw_programs
+	programs = intvw_programs											'Creating a list of all programs
 	If GA_case = True Then programs = programs & "/GA"
 	If MSA_case = True Then programs = programs & "/MSA"
 	If GRH_case = True Then programs = programs & "/GRH"
 	If left(programs, 1) = "/" Then programs = right(programs, len(programs)-1)
 End If
+
 If memo_to_send = "RECERT - NOMI" Then
-	month_plus_one = CM_plus_1_mo & "/01/" & CM_plus_1_yr
-	last_day_of_recert = DateAdd("d", -1, month_plus_one)
+	month_plus_one = CM_plus_1_mo & "/01/" & CM_plus_1_yr				'Finding the ER month
+	last_day_of_recert = DateAdd("d", -1, month_plus_one)				'Determining the end of the cert period
 
-	last_day_of_recert = last_day_of_recert & ""
+	last_day_of_recert = last_day_of_recert & ""						'format as string
 End If
-If memo_to_send = "APPL - Appt Notice" Then
-	interview_date = dateadd("d", 5, application_date)
-	If interview_date <= date then interview_date = dateadd("d", 5, date)
 
+If memo_to_send = "APPL - Appt Notice" Then
+	interview_date = dateadd("d", 5, application_date)					'Using the established logic to create the interview / appointment date
+	If interview_date <= date then interview_date = dateadd("d", 5, date)
 	Call change_date_to_soonest_working_day(interview_date, "FORWARD")
 
-	application_date = application_date & ""
-	interview_date = interview_date & ""
-End If
-If memo_to_send = "APPL - NOMI" Then
-	application_date = application_date & ""
+	application_date = application_date & ""						'format as string
+	interview_date = interview_date & ""							'format as string
 End If
 
+If memo_to_send = "APPL - NOMI" Then
+	application_date = application_date & ""						'format as string
+End If
+
+'Dialog to enter dates relevant to the specific notice being sent
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 	If memo_to_send = "RECERT - APPT Notice" Then
@@ -307,10 +320,10 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 
 	End If
 	If memo_to_send = "APPL - NOMI" Then
-		EditBox 80, 45, 65, 15, application_date
-		EditBox 80, 65, 65, 15, appt_date
-		Text 15, 50, 60, 10, "Application date:"
-		Text 15, 70, 60, 10, "Missed Interview date:"
+		EditBox 100, 45, 65, 15, application_date
+		EditBox 100, 65, 65, 15, appt_date
+		Text 15, 50, 80, 10, "Application date:"
+		Text 15, 70, 80, 10, "Missed Interview date:"
 		Text 10, 90, 250, 10, "Check the CASE/NOTE or SPEC/MEMO to find the 'Missed Interview Date'."
 
 	End If
@@ -329,25 +342,53 @@ DO
 		Dialog Dialog1
 		cancel_without_confirmation
 
-
-
+		If memo_to_send = "RECERT - APPT Notice" Then
+			If IsDate(interview_end_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the interview is due by for the Notice to the resident."
+			If IsDate(last_day_of_recert) = False Then err_msg = err_msg & vbCr & "* Enter the last day of the certification period."
+		End If
+		If memo_to_send = "RECERT - NOMI" Then
+			If IsDate(interview_end_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the interview is due by for the Notice to the resident."
+			If date_of_app <> "" Then
+				If IsDate(date_of_app) = False Then err_msg = err_msg & vbCr & "* Enter the day the recertification form was received in the agency. This can be blank if not received."
+			End If
+		End If
+		If memo_to_send = "APPL - Appt Notice" Then
+			If IsDate(application_date) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+			If IsDate(interview_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the interview is due by for the Notice to the resident."
+		End If
+		If memo_to_send = "APPL - NOMI" Then
+			If IsDate(application_date) = False Then err_msg = err_msg & vbCr & "* Enter the date of application."
+			If IsDate(appt_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the interview is due by for the Notice to the resident."
+		End If
 
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'Checking the Appointment date and ending the script if a NOMI is selected BEFORE the Appointment date occurs
+If memo_to_send = "RECERT - NOMI" Then
+	nomi_date = CM_mo & "/15/" & CM_yr
+	nomi_date = DateAdd("d", 0, nomi_date)
+	If DateDiff("d", date, nomi_date) > 0 Then Call script_end_procedure_with_error_report("NOMI cannot be send until the Interview deadline has been reached.")
+End If
+If memo_to_send = "APPL - NOMI" Then
+	appt_date = DateAdd("d", 0, appt_date)
+	If DateDiff("d", date, appt_date) > 0 Then Call script_end_procedure_with_error_report("It does not appear the interview due date has hapened yet. The NOMI should not be sent until the interview is due. Interview due on " & appt_date & ".")
+	appt_date = appt_date & ""
+End If
 
-'MsgBox "STOP HERE"
-
+'Open a MEMO
 Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
+'Each notice has a function call and CASE/NOTE and will establish the details of the end message display
 If memo_to_send = "RECERT - APPT Notice" Then
 	end_msg = "Recertification - Appointment Notice" & vbCr & CM_plus_2_mo & "/" & CM_plus_2_yr & " ER in " & select_language & vbCr & "Programs: " & programs & vbCr & "Interview Due: " & interview_end_date & vbCr & "Cert Pd End :" & last_day_of_recert
 	CALL create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
-	Call confrim_memo_created_today(notc_confirm)
+	Call confirm_memo_created_today(notc_confirm)
 
 	If notc_confirm = True Then
+		'Appointment Notice Recerts have an additional MEMO with renewal guidance
 		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 		CALL write_variable_in_SPEC_MEMO("As a part of the Renewal Process we must receive recent verification of your information. To speed the renewal process, please send proofs with your renewal paperwork.")
 		CALL write_variable_in_SPEC_MEMO("")
@@ -382,7 +423,9 @@ If memo_to_send = "RECERT - NOMI" Then
 	end_msg = "Recertification - NOMI" & vbCr & CM_plus_1_mo & "/" & CM_plus_1_yr & " ER in " & select_language & vbCr & "Form Received: " & date_of_app & vbCr & "Cert Pd End :" & last_day_of_recert
 	CALL create_NOMI_recertification(date_of_app, last_day_of_recert)
 
-	Call confrim_memo_created_today(notc_confirm)
+	If date_of_app = "" Then recvd_appl = False
+	If date_of_app <> "" Then recvd_appl = True
+	Call confirm_memo_created_today(notc_confirm)
 	If notc_confirm = True Then
 		start_a_blank_case_note
         CALL write_variable_in_CASE_NOTE("*** NOMI Sent for SNAP Recertification***")
@@ -401,10 +444,11 @@ If memo_to_send = "APPL - Appt Notice" Then
 	last_contact_day = dateadd("d", 30, application_date)
 	If DateDiff("d", interview_date, last_contact_day) < 1 then last_contact_day = interview_date
 
-	end_msg = "Application - Appointment Notice" & vbCr & "Application Date: " & Wapplication_date & vbCr & "Interview Due: " & interview_date & vbCr & "Last Contact Day :" & last_contact_day
-	Call create_appointment_letter_notice_application(Wapplication_date, interview_date, last_contact_day)
+	end_msg = "Application - Appointment Notice" & vbCr & "Application Date: " & application_date & vbCr & "Interview Due: " & interview_date & vbCr & "Last Contact Day :" & last_contact_day
+	Call create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
 
-	Call confrim_memo_created_today(notc_confirm)
+	Call confirm_memo_created_today(notc_confirm)
+	MsgBox "notc_confirm - " & notc_confirm
 	If notc_confirm = True Then
 		start_a_blank_case_note
 		Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
@@ -420,10 +464,10 @@ If memo_to_send = "APPL - NOMI" Then
 	last_contact_day = dateadd("d", 30, application_date)
 	If DateDiff("d", appt_date, last_contact_day) < 1 then last_contact_day = appt_date
 
-	end_msg = "Application - NOMI" & vbCr & "Application Date: " & Wapplication_date & vbCr & "Missed Interview Date: " & appt_date & vbCr & "Last Contact Day :" & last_contact_day
+	end_msg = "Application - NOMI" & vbCr & "Application Date: " & application_date & vbCr & "Missed Interview Date: " & appt_date & vbCr & "Last Contact Day :" & last_contact_day
 	CALL create_NOMI_application(application_date, appt_date, last_contact_day)
 
-	Call confrim_memo_created_today(notc_confirm)
+	Call confirm_memo_created_today(notc_confirm)
 	If notc_confirm = True Then
 		start_a_blank_case_note
 		Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
@@ -435,6 +479,7 @@ If memo_to_send = "APPL - NOMI" Then
 	End If
 End If
 
+'This will alert the worker if the Notice appears to have failed - additionally a CASE/NOTE will not be created.
 If notc_confirm = False Then end_msg = "NOTICE HAS FAILED" & vbCr & vbCr & end_msg
 
 Call script_end_procedure_with_error_report(end_msg)
