@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - ADDRESS REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 40                               'manual run time in seconds
+STATS_manualtime = 20                               'manual run time in seconds
 STATS_denomination = "I"       'I is for each Item
 'END OF stats block==============================================================================================
 
@@ -107,7 +107,7 @@ objExcel.DisplayAlerts = True
 'Creating columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
 objExcel.Cells(1, 2).Value = "CASE #"
-objExcel.Cells(1, 3).Value = "APPLICANT NAME"
+objExcel.Cells(1, 3).Value = "RESIDENT NAME"
 objExcel.Cells(1, 4).Value = "ADDRESS LINE 1"
 objExcel.Cells(1, 5).Value = "ADDRESS LINE 2"
 objExcel.Cells(1, 6).Value = "CITY"
@@ -159,6 +159,7 @@ For each worker in worker_array
                 End if 
 				MAXIS_row = MAXIS_row + 1
 				MAXIS_case_number = ""			'Blanking out variable
+                STATS_counter = STATS_counter + 1
 			Loop until MAXIS_row = 19
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
@@ -199,3 +200,48 @@ NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_reporting("Success! Your list has been generated.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/22/2024
+'--Tab orders reviewed & confirmed----------------------------------------------02/22/2024
+'--Mandatory fields all present & Reviewed--------------------------------------02/22/2024
+'--All variables in dialog match mandatory fields-------------------------------02/22/2024
+'Review dialog names for content and content fit in dialog----------------------02/22/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/22/2024------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/22/2024------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/22/2024------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-02/22/2024------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/22/2024  
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/22/2024------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------02/22/2024
+'--Out-of-County handling reviewed----------------------------------------------02/22/2024------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/22/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------02/22/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/22/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/22/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------02/22/2024
+'--Denomination reviewed -------------------------------------------------------02/22/2024
+'--Script name reviewed---------------------------------------------------------02/22/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------02/22/2024
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/22/2024
+'--comment Code-----------------------------------------------------------------02/22/2024
+'--Update Changelog for release/update------------------------------------------02/22/2024
+'--Remove testing message boxes-------------------------------------------------02/22/2024
+'--Remove testing code/unnecessary code-----------------------------------------02/22/2024
+'--Review/update SharePoint instructions----------------------------------------02/22/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/22/2024------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/22/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/22/2024
+'--Complete misc. documentation (if applicable)---------------------------------02/22/2024
+'--Update project team/issue contact (if applicable)----------------------------02/22/2024
