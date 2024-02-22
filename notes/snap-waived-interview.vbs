@@ -228,7 +228,7 @@ Function needed_info_dialog(needed_info_array)
 		If total_questions > 23 Then call create_info_needed_in_dialog(needed_info_array(24))
 	ElseIf page_display = q_page_xtra Then 
 		y_pos = 60 
-		Text 15, 30, 300, 15, "Use the two spaces below to enter information the resident reports during contact that is not covered in another part of the dialog."
+		Text 15, 30, 300, 20, "Use the two spaces below to enter information the resident reports during contact that is not covered in another part of the dialog."
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)-1))
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)))
 	End If
@@ -2192,6 +2192,10 @@ function dialog_movement()
 			msgbox questions_array(ver)(9)
 		End If
 	Next
+
+	If ButtonPressed = needed_info_array(ubound(needed_info_array))(11) Then Call verif_details_dlg(ubound(questions_array)) 'calls the verif dialog for the other info questions
+	If ButtonPressed = needed_info_array(ubound(needed_info_array)-1)(11) Then Call verif_details_dlg(ubound(questions_array)-1) 'calls the verif dialog for the other info questions
+
 	If ButtonPressed = member_info_needed_btn Then call member_info_needed_dialog()
 	End If
 	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
@@ -10143,13 +10147,14 @@ If run_return_contact = True Then
 	contact_type = ""
 	contact_direction = ""
 	who_contacted = ""
-	'First need to add last two "extra" questions to the array
-	
+	'First need to add last two "extra" questions to the arrays
+	Redim Preserve questions_array(ubound(questions_array) + 2) 'Add 2 questions to array
+	questions_array(ubound(questions_array)-1) = xtra_1
+	questions_array(ubound(questions_array)) = xtra_2 
 	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
 	needed_info_array(ubound(needed_info_array)-1) = xtra_1
 	needed_info_array(ubound(needed_info_array)) = xtra_2 
-
-
+	
 
 	Do
 		Do
@@ -10924,7 +10929,9 @@ If info_needed = True Then  'There is info needed, call the resident
 	'Bring up the dialog with the necessary questions
 	'page_display = info_1
 	'First need to add last two "extra" questions to the array
-	
+	Redim Preserve questions_array(ubound(questions_array) + 2) 'Add 2 questions to array
+	questions_array(ubound(questions_array)-1) = xtra_1
+	questions_array(ubound(questions_array)) = xtra_2 
 	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
 	needed_info_array(ubound(needed_info_array)-1) = xtra_1
 	needed_info_array(ubound(needed_info_array)) = xtra_2 
