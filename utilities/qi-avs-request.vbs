@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2024", "Enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("06/26/2023", "Disabled renewal option due to asset diregard through 05/31/2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/20/2023", "Added change in circumstance option, and updated email output and information gathering functionality.", "Ilse Ferris, Hennepin County")
@@ -60,10 +61,7 @@ CALL MAXIS_case_number_finder (MAXIS_case_number) 'Grabs the case number
 Call check_for_MAXIS(FALSE)
 
 'Initial Defaults
-HC_process = "Application"
-applicant_type = "Applicant"
 closing_message = "Request for Account Validation Service (AVS) email has been sent." 'setting up closing_message or possible additions later based on conditions
-send_email = TRUE
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -72,8 +70,7 @@ BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
   EditBox 185, 5, 20, 15, HH_size
   EditBox 155, 25, 50, 15, avs_form_date
   DropListBox 80, 60, 125, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
-  DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis", HC_process
-  'DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
+  DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   DropListBox 80, 100, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
   DropListBox 80, 120, 125, 15, "Select One:"+chr(9)+"N/A - No Spouse"+chr(9)+"Yes"+chr(9)+"No", spouse_deeming
   ButtonGroup ButtonPressed
@@ -108,8 +105,14 @@ Loop until are_we_passworded_out = FALSE
 
 Call check_for_MAXIS(FALSE)
 Call back_to_SELF
+
+send_email = True 'Default to True, and enabling a no-send option for the script team and if the case is in training region. 
 EMReadScreen MX_region, 10, 22, 48
-IF trim(MX_region) = "TRAINING" THEN send_email = FALSE
+IF trim(MX_region) = "TRAINING" THEN 
+    send_email = FALSE
+Elseif user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "MEGE001" OR user_ID_for_validation = "MARI001" OR user_ID_for_validation = "DACO003" Then 
+    send_email = False
+End if 
 
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv) 'navigating to stat prog to gather the application information
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
@@ -119,7 +122,7 @@ application_date = replace(application_date, " ", "/")
 IF application_date = "__/__/__"  THEN script_end_procedure("*** No application date ***" & vbNewLine & "Need to have pending or active HC care to request AVS.")
 
 CALL HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
-Call access_ADDR_panel("Read", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)    'reading ADDR panel informaiton for later output in email/message box
+Call access_ADDR_panel("Read", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)    'reading ADDR panel information for later output in email/message box
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
 Do
@@ -133,7 +136,7 @@ Loop until are_we_passworded_out = FALSE
 'Establishing array
 avs_membs = 0       'incrementor for array
 DIM avs_members_array()  'Declaring the array this is what this list is
-ReDim avs_members_array(marital_status_const, 0)  'Resizing the array 'redimmed to the size of the last constant  'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
+ReDim avs_members_array(marital_status_const, 0)  'Resizing the array 'redimmed to the size of the last constant  'that ,list is going to have 20 parameter but to start with there is only one parameter it gets complicated - grid'
 
 'Creating constants to value the array elements this is why we create constants
 const maxis_case_number_const  	 	= 0 '=  Maxis Case Number
@@ -147,7 +150,7 @@ const marital_status_const          = 7 '=  marital status
 
 FOR EACH person IN HH_member_array
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-    CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
+    CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVEN'T defined the avs_members_array yet
 
     EMReadscreen last_name, 25, 6, 30
     last_name = trim(replace(last_name, "_", ""))
@@ -174,7 +177,7 @@ FOR EACH person IN HH_member_array
     avs_members_array(client_DOB_const,        avs_membs) = client_DOB
     avs_members_array(client_ssn_const,        avs_membs) = client_SSN
     avs_members_array(marital_status_const,    avs_membs) = martial_status
-    avs_membs = avs_membs + 1 ' can only be used because we havent reset or redefined this incrementor'
+    avs_membs = avs_membs + 1 ' can only be used because we haven't reset or redefined this incrementor'
 	STATS_counter = STATS_counter + 1
 NEXT
 
@@ -260,13 +263,12 @@ End if
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
-If send_email = False then msgbox "AVS initial run requests case #" & MAXIS_case_number & vbcr & vbcr & "Member Info:" & member_info & vbCR & vbcr & "Submitted By: " & the_person_running_the_script
-
-'Creating the email ---- create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-IF send_email = TRUE THEN Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", "AVS initial run requests case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
-'will create email, will send.
-
-script_end_procedure_with_error_report(closing_message)
+If send_email = False then 
+    script_end_procedure("!!EMAIL HAS NOT BEEN SENT!!" & vbcr & vbcr & "AVS initial run requests case #" & MAXIS_case_number & vbcr & vbcr & "Member Info:" & member_info & vbCR & vbcr & "Submitted By: " & the_person_running_the_script)
+Elseif send_email = TRUE THEN 
+    Call create_outlook_email("", "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "", "AVS initial run requests case #" & MAXIS_case_number, 1, False, "", "", False, "", member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, False, "", True)
+    script_end_procedure_with_error_report(closing_message)
+End if 
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
