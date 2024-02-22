@@ -76,8 +76,85 @@ DO
 	CALL check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
-'Drop down list for available household members to put into the drop down list.
-Call HH_member_custom_dialog(HH_Member_Array)
+'Generate dialog of all of the HH Membs and then create two arrays - 1) All HH Membs to gather relationship details (HH_Member_array), and 2) only selected HH Membs to display in dropdowns (selected_HH_Member_array)
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+transmit
+
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
+	'MsgBox access_denied_check
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		EMWaitReady 0, 0
+		last_name = "UNABLE TO FIND"
+		first_name = " - Access Denied"
+		mid_initial = ""
+	Else
+		EMReadscreen last_name, 25, 6, 30
+		EMReadscreen first_name, 12, 6, 63
+		EMReadscreen mid_initial, 1, 6, 79
+		last_name = trim(replace(last_name, "_", "")) & " "
+		first_name = trim(replace(first_name, "_", "")) & " "
+		mid_initial = replace(mid_initial, "_", "")
+	End If
+	client_string = ref_nbr & last_name & first_name & mid_initial
+	client_array = client_array & client_string & "|"
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+client_array = TRIM(client_array)
+test_array = split(client_array, "|")
+total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+DIM all_client_array()
+ReDim all_clients_array(total_clients, 1)
+
+FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+	Interim_array = split(client_array, "|")
+	all_clients_array(x, 0) = Interim_array(x)
+	all_clients_array(x, 1) = 1
+NEXT
+
+BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	Text 10, 5, 105, 10, "Household members to look at:"
+	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+		IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	NEXT
+	ButtonGroup ButtonPressed
+	OkButton 185, 10, 50, 15
+	CancelButton 185, 30, 50, 15
+ENDDIALOG
+												'runs the dialog that has been dynamically created. Streamlined with new functions.
+Dialog HH_memb_dialog
+Cancel_without_confirmation
+check_for_maxis(True)
+
+HH_member_array = ""
+
+FOR i = 0 to total_clients
+	IF all_clients_array(i, 0) <> "" THEN HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+NEXT
+
+HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+HH_member_array = SPLIT(HH_member_array, " ")
+
+selected_HH_member_array = ""
+
+FOR i = 0 to total_clients
+	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+			'msgbox all_clients_
+			selected_HH_member_array = selected_HH_member_array & left(all_clients_array(i, 0), 2) & " "
+		END IF
+	END IF
+NEXT
+
+selected_HH_member_array = TRIM(selected_HH_member_array)							'Cleaning up array for ease of use.
+selected_HH_member_array = SPLIT(selected_HH_member_array, " ")
+
 Call convert_array_to_droplist_items(HH_Member_Array, hh_member_dropdown)
 
 Dim Pare_Line_Array ()				'Defines the array that will store multiple relationships
