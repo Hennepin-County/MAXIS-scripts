@@ -431,6 +431,7 @@ function update_unea_pane(panel_found, unea_type, income_amount, cola_amount, cl
 		'Now we clear the information for COLA if it is July - Dec or enter the COLA detial if missing for Jan - Jun
 		EMReadScreen curr_cola_info, 8, 10, 67
 		If cola_disregard_needed = True and curr_cola_info = "________" Then
+			If IsNumeric(cola_amount) = True Then cola_amount = FormatNumber(cola_amount, 2, -1, 0, -1)
 			EMWriteScreen cola_amount, 10, 67
 		ElseIf curr_cola_info = False Then
 			Call clear_line_of_text(10, 67)
@@ -3506,8 +3507,10 @@ If ex_parte_function = "Prep 2" Then
 
 								'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
 								curr_gross = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)*1
-								cola_amount = curr_gross - prev_gross
-								MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+								If curr_gross >= prev_gross Then
+									cola_amount = curr_gross - prev_gross
+									MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+								End If
 							End If
 							Exit Do
 						End If
@@ -3683,8 +3686,10 @@ If ex_parte_function = "Prep 2" Then
 
 						'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
 						curr_gross = MEMBER_INFO_ARRAY(tpqy_ssi_gross_amt, each_memb)*1
-						cola_amount = curr_gross - prev_gross
-						MEMBER_INFO_ARRAY(tpqy_ssi_cola_amt, each_memb) = cola_amount
+						If curr_gross >= prev_gross Then
+							cola_amount = curr_gross - prev_gross
+							MEMBER_INFO_ARRAY(tpqy_ssi_cola_amt, each_memb) = cola_amount
+						End If
 					End If
 
 					transmit
@@ -4640,8 +4645,10 @@ If ex_parte_function = "Phase 1" Then
 
 										'QUESTION - do we need to make sure we find the most recent pay we are reviewing is 12 first?
 										curr_gross = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)*1
-										cola_amount = curr_gross - prev_gross
-										MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+										If curr_gross >= prev_gross Then
+											cola_amount = curr_gross - prev_gross
+											MEMBER_INFO_ARRAY(tpqy_rsdi_cola_amt, each_memb) = cola_amount
+										End If
 									End If
 									Exit Do
 								End If
