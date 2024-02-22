@@ -127,7 +127,8 @@ BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member D
 	OkButton 185, 10, 50, 15
 	CancelButton 185, 30, 50, 15
 ENDDIALOG
-												'runs the dialog that has been dynamically created. Streamlined with new functions.
+
+'runs the dialog that has been dynamically created. Streamlined with new functions.
 Dialog HH_memb_dialog
 Cancel_without_confirmation
 check_for_maxis(True)
@@ -141,19 +142,18 @@ NEXT
 HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
 HH_member_array = SPLIT(HH_member_array, " ")
 
-selected_HH_member_array = ""
+selected_HH_member_array = "*"
 
 FOR i = 0 to total_clients
 	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
 		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
 			'msgbox all_clients_
-			selected_HH_member_array = selected_HH_member_array & left(all_clients_array(i, 0), 2) & " "
+			selected_HH_member_array = selected_HH_member_array & left(all_clients_array(i, 0), 2) & "*"
 		END IF
 	END IF
 NEXT
 
 selected_HH_member_array = TRIM(selected_HH_member_array)							'Cleaning up array for ease of use.
-selected_HH_member_array = SPLIT(selected_HH_member_array, " ")
 
 Call convert_array_to_droplist_items(HH_Member_Array, hh_member_dropdown)
 
@@ -280,41 +280,53 @@ Next
 ' ReDim Preserve Pare_Line_Array(5, array_item)														'Adds one blank array item to the array for a manual entry since the dialog is dynamically created based on the number of array items there are. If the script could not find all the relationships, the worker needs to be able manually add one.
 ' array_item = array_item + 1
 array_item = UBound(Pare_Line_Array, 2)
+selected_hh_memb_relationship_count = 0
 
+For pare_item = 0 to UBound(Pare_Line_Array, 2)
+	If Instr(selected_HH_member_array, Pare_Line_Array(received_for, pare_item)) OR Instr(selected_HH_member_array, Pare_Line_Array(relationship_to, pare_item)) Then
+		selected_hh_memb_relationship_count = selected_hh_memb_relationship_count + 1
+	End If
+Next
+
+dialog_count = 0
+ 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 570, (95 + (20 * array_item)), "Proof of Relationship"
-  For pare_item = 0 to UBound(Pare_Line_Array, 2)
-	  DropListBox 5, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
-	  DropListBox 85, (20 + (pare_item * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
-	  EditBox 205, (20 + (pare_item * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
-	  DropListBox 295, (20 + (pare_item * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
-	  EditBox 375, (20 + (pare_item * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
-	  CheckBox 490, (25 + (pare_item * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
-  Next
+BeginDialog Dialog1, 0, 0, 570, (95 + (20 * selected_hh_memb_relationship_count)), "Proof of Relationship"
+	For pare_item = 0 to UBound(Pare_Line_Array, 2)
+		If Instr(selected_HH_member_array, Pare_Line_Array(received_for, pare_item)) OR Instr(selected_HH_member_array, Pare_Line_Array(relationship_to, pare_item)) Then
+			DropListBox 5, (20 + (dialog_count * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
+			DropListBox 85, (20 + (dialog_count * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
+			EditBox 205, (20 + (dialog_count * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
+			DropListBox 295, (20 + (dialog_count * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(relationship_to, pare_item)
+			EditBox 375, (20 + (dialog_count * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
+			CheckBox 490, (25 + (dialog_count * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
+			dialog_count = dialog_count + 1
+		End If
+	Next
   ButtonGroup ButtonPressed
-	PushButton 365, (40 + array_item * 20), 200, 10, "Click Here to add another Relationship Line", add_another_button
-  EditBox 90, (55 + (array_item * 20)), 170, 15, other_verifs_needed
-  EditBox 310, (55 + (array_item * 20)), 235, 15, other_notes
-  CheckBox 70, (80 + (array_item * 20)), 30, 10, "PARE", pare_checkbox
-  CheckBox 105, (80 + (array_item * 20)), 35, 10, "MEMB", memb_checkbox
-  CheckBox 145, (80 + (array_item * 20)), 30, 10, "ABPS", abps_checkbox
-  CheckBox 180, (80 + (array_item * 20)), 25, 10, "SIBL", sibl_checkbox
-  CheckBox 210, (80 + (array_item * 20)), 30, 10, "Other:", other_checkbox
-  EditBox 245, (75 + (array_item * 20)), 30, 15, other_option
-  EditBox 340, (75 + (array_item * 20)), 105, 15, worker_signature
+	PushButton 365, (40 + selected_hh_memb_relationship_count * 20), 200, 10, "Click Here to add another Relationship Line", add_another_button
+  EditBox 90, (55 + (selected_hh_memb_relationship_count * 20)), 170, 15, other_verifs_needed
+  EditBox 310, (55 + (selected_hh_memb_relationship_count * 20)), 235, 15, other_notes
+  CheckBox 70, (80 + (selected_hh_memb_relationship_count * 20)), 30, 10, "PARE", pare_checkbox
+  CheckBox 105, (80 + (selected_hh_memb_relationship_count * 20)), 35, 10, "MEMB", memb_checkbox
+  CheckBox 145, (80 + (selected_hh_memb_relationship_count * 20)), 30, 10, "ABPS", abps_checkbox
+  CheckBox 180, (80 + (selected_hh_memb_relationship_count * 20)), 25, 10, "SIBL", sibl_checkbox
+  CheckBox 210, (80 + (selected_hh_memb_relationship_count * 20)), 30, 10, "Other:", other_checkbox
+  EditBox 245, (75 + (selected_hh_memb_relationship_count * 20)), 30, 15, other_option
+  EditBox 340, (75 + (selected_hh_memb_relationship_count * 20)), 105, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 455, (75 + (array_item * 20)), 50, 15
-	CancelButton 510, (75 + (array_item * 20)), 50, 15
+	OkButton 455, (75 + (selected_hh_memb_relationship_count * 20)), 50, 15
+	CancelButton 510, (75 + (selected_hh_memb_relationship_count * 20)), 50, 15
   Text 5, 10, 75, 10, "Member received for: "
   Text 85, 10, 50, 10, "Relationship: "
   Text 205, 10, 90, 10, "If Other, list relationship:"
   Text 295, 10, 50, 10, "Related to:"
   Text 375, 10, 75, 10, "Document(s) received: "
-  Text 5, (60 + (array_item * 20)), 80, 10, "Other verifs still needed:"
-  Text 265, (60 + (array_item * 20)), 45, 10, "Other Notes:"
-  Text 5, (80 + (array_item * 20)), 60, 10, "Panel(s) updated: "
-  Text 280, (80 + (array_item * 20)), 60, 10, "Worker signature:"
+  Text 5, (60 + (selected_hh_memb_relationship_count * 20)), 80, 10, "Other verifs still needed:"
+  Text 265, (60 + (selected_hh_memb_relationship_count * 20)), 45, 10, "Other Notes:"
+  Text 5, (80 + (selected_hh_memb_relationship_count * 20)), 60, 10, "Panel(s) updated: "
+  Text 280, (80 + (selected_hh_memb_relationship_count * 20)), 60, 10, "Worker signature:"
   ' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
 EndDialog
 DO
