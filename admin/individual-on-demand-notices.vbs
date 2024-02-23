@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - INDIVIDUAL ON DEMAND NOTICES.vbs"
 start_time = timer
 STATS_counter = 1			 'sets the stats counter at one
-STATS_manualtime = 90			 'manual run time in seconds
+STATS_manualtime = 180			 'manual run time in seconds
 STATS_denomination = "C"		 'C is for each case
 'END OF stats block==============================================================================================
 
@@ -126,10 +126,15 @@ DO
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)									'Makes sure we are in MAXIS
 
 'Here we do some discovery about the case to make an action determination and autofill some detail.
 
 'Finding the program and case status
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_PRIV)
+If is_this_PRIV = True Then Call script_end_procedure("This case appears privileged, the script will now end as you do not have access to this case.")
+EMReadScreen county_code, 2, 21, 16
+If county_code <> "27" Then Call script_end_procedure("This case is not in Hennepin County and notices cannot be sent, the script will now end.")
 Call  determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
 application_notice_required = False										'determining if the case is pending a program that requires an application notice
@@ -225,7 +230,7 @@ End If
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 246, 55, "Select the Notice to Send"
   DropListBox 60, 10, 100, 45, memo_list, memo_to_send
-  DropListBox 60, 30, 100, 45, "English", select_language
+  DropListBox 60, 30, 100, 45, "English", select_language				'Note that this doesn't do anything right now BUT can be used when we are ready to add language supports
   ButtonGroup ButtonPressed
     OkButton 185, 10, 50, 15
     CancelButton 185, 30, 50, 15
@@ -300,7 +305,6 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 		Text 15, 50, 90, 10, "Date of Interview Deadline:"
 		Text 15, 70, 90, 10, "Last Day of Cert Pd:"
 		Text 10, 90, 250, 10, "Sending a APPT Notc for the " & CM_plus_2_mo & "/" & CM_plus_2_yr & " ER in " & select_language
-
 	End If
 	If memo_to_send = "RECERT - NOMI" Then
 		EditBox 110, 45, 65, 15, date_of_app
@@ -309,7 +313,6 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 		Text 15, 70, 90, 10, "Last Day of Cert Pd:"
 		Text 10, 90, 250, 10, "Sending a NOMI for the " & CM_plus_1_mo & "/" & CM_plus_1_yr & " ER in " & select_language
 		Text 10, 110, 250, 10, "If an application has not been received, leave this field blank."
-
 	End If
 	If memo_to_send = "APPL - Appt Notice" Then
 		EditBox 80, 45, 65, 15, application_date
@@ -317,7 +320,6 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 		Text 15, 50, 60, 10, "Application date:"
 		Text 15, 70, 60, 10, "Appointment date:"
 		Text 10, 90, 250, 10, "Default appointment date aligns with standard notice process."
-
 	End If
 	If memo_to_send = "APPL - NOMI" Then
 		EditBox 100, 45, 65, 15, application_date
@@ -325,7 +327,6 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 		Text 15, 50, 80, 10, "Application date:"
 		Text 15, 70, 80, 10, "Missed Interview date:"
 		Text 10, 90, 250, 10, "Check the CASE/NOTE or SPEC/MEMO to find the 'Missed Interview Date'."
-
 	End If
 
 	ButtonGroup ButtonPressed
@@ -333,7 +334,6 @@ BeginDialog Dialog1, 0, 0, 266, 130, "On Demand Notice Details"
 		CancelButton 210, 110, 50, 15
 	Text 10, 10, 225, 10, "Enter/Update the associated dates for the notice being sent."
 	Text 10, 25, 150, 10, "Notice to send: " & memo_to_send
-
 EndDialog
 
 DO
@@ -378,6 +378,7 @@ If memo_to_send = "APPL - NOMI" Then
 	appt_date = appt_date & ""
 End If
 
+Call check_for_MAXIS(False)									'Makes sure we are in MAXIS
 'Open a MEMO
 Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
@@ -483,3 +484,48 @@ End If
 If notc_confirm = False Then end_msg = "NOTICE HAS FAILED" & vbCr & vbCr & end_msg
 
 Call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/23/2024
+'--Tab orders reviewed & confirmed----------------------------------------------02/23/2024
+'--Mandatory fields all present & Reviewed--------------------------------------02/23/2024
+'--All variables in dialog match mandatory fields-------------------------------02/23/2024
+'Review dialog names for content and content fit in dialog----------------------02/23/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/23/2024					The CASE/NOTEs align with BULK script to send these notices
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/23/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/23/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------02/23/2024
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/23/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/23/2024
+'--PRIV Case handling reviewed -------------------------------------------------02/23/2024
+'--Out-of-County handling reviewed----------------------------------------------02/23/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/23/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/23/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------02/23/2024
+'--Denomination reviewed -------------------------------------------------------02/23/2024
+'--Script name reviewed---------------------------------------------------------02/23/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/23/2024
+'--comment Code-----------------------------------------------------------------02/23/2024
+'--Update Changelog for release/update------------------------------------------02/23/2024
+'--Remove testing message boxes-------------------------------------------------02/23/2024
+'--Remove testing code/unnecessary code-----------------------------------------02/23/2024
+'--Review/update SharePoint instructions----------------------------------------02/23/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/23/2024					Checked QI On Demand Instructions and there is no specific script reference
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------To Do
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------To Do
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
