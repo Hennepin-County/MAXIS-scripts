@@ -4888,17 +4888,19 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Dialog1 = ""
 
 		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
-			GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
-			Text 20, 295, 80, 10, "Ex Parte Evaluation:"
-			DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
-			Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
-			Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
-			ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
-			Text 20, 335, 80, 10, "Not Ex Parte Notes:"
-			EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
-			Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
-			Text 15, 365, 70, 10, "Worker Signature:"
-			EditBox 80, 360, 110, 15, worker_signature
+			Text 100, 325, 425, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total combined character limit is 255."
+			GroupBox 10, 280, 540, 80, "Ex Parte Evaluation"
+			Text 15, 295, 30, 10, "Eval:"
+			DropListBox 45, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
+			Text 225, 280, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
+			Text 180, 295, 45, 10, "Explanation:"
+			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
+			Text 20, 315, 80, 10, "Not Ex Parte Notes:"
+			EditBox 100, 310, 440, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
+			Text 20, 345, 100, 10, "Notes about Mixed Household"
+			EditBox 120, 340, 420, 15, mixed_household_notes
+			Text 15, 370, 70, 10, "Worker Signature:"
+			EditBox 80, 365, 110, 15, worker_signature
 			' GroupBox 10, 0, 455, 25, "Case Information"
 			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
 			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
@@ -5128,6 +5130,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			'Add to all dialogs where you need to work within BLUEZONE
 			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		mixed_household_notes = trim(mixed_household_notes)
 		'End dialog section-----------------------------------------------------------------------------------------------
 
 
@@ -5369,6 +5372,26 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
 			End If
 		End If
+
+		If mixed_household_notes <> "" Then
+			email_from = ""
+			email_recip = "ben.teskey@hennepin.us"
+			email_recip_CC = ""
+			email_recip_bcc = ""
+			email_subject = "Ex Parte Mixed Household Case - " & MAXIS_case_number
+			email_importance = ""
+			include_flag = False
+			email_flag_text = ""
+			email_flag_days = ""
+			email_flag_reminder = ""
+			email_flag_reminder_days = ""
+			email_body = "This case has been indicated to have notes about a Mixed Household when evaluated in Ex Parte Phase 1." & vbCr & vbCr & "Notes:" & vbCr & mixed_household_notes
+			include_email_attachment = False
+			email_attachment_array = ""
+			send_email = True
+			Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+		End If
+
 		' MsgBox "About to CASE NOTE AND TIKL"
 		'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 		If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
@@ -5397,6 +5420,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ex_parte_determination = "Health Care has been Closed" Then
 			CALL write_variable_in_case_note("No renewal required on case as the Health Care is no longer active.")
 		End If
+		CALL write_bullet_and_variable_in_case_note("Detials about Mixed Household Ex parte", mixed_household_notes)
 
 		'Add worker signature
 		CALL write_variable_in_case_note("---")
