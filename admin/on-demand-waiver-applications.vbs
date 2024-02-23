@@ -1430,7 +1430,7 @@ Do While NOT objWorkRecordSet.Eof
 	case_number_to_assess = objWorkRecordSet("CaseNumber")  			'getting the case number in the Working Excel sheet
 	' case_name_to_assess = objWorkRecordSet("CaseName")
 	' found_case_on_todays_list = FALSE                               	'this Boolean is used to determine if the case number is on the BOBI run today
-	If InStr(list_of_all_cases, "*" & case_number_to_assess & "*") = 0 Then 		'making sure we don't have repeat case numbers
+	If InStr(list_of_all_cases, "*" & case_number_to_assess & "*") = 0 and case_number_to_assess <> "2536665" Then 		'making sure we don't have repeat case numbers
 
 		list_of_all_cases = list_of_all_cases & case_number_to_assess & "*"
 		ReDim Preserve WORKING_LIST_CASES_ARRAY(error_notes, case_entry)     'resizing the WORKING CASES ARRAY
