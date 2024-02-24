@@ -2192,10 +2192,10 @@ function dialog_movement()
 			msgbox questions_array(ver)(9)
 		End If
 	Next
-
+	If current_dialog = "needed info" Then 
 	If ButtonPressed = needed_info_array(ubound(needed_info_array))(11) Then Call verif_details_dlg(ubound(questions_array)) 'calls the verif dialog for the other info questions
 	If ButtonPressed = needed_info_array(ubound(needed_info_array)-1)(11) Then Call verif_details_dlg(ubound(questions_array)-1) 'calls the verif dialog for the other info questions
-
+	End If 
 	If ButtonPressed = member_info_needed_btn Then call member_info_needed_dialog()
 	End If
 	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
@@ -5386,7 +5386,6 @@ Function member_info_needed_dialog()
 End Function
 
 function verif_details_dlg(question_number)
-
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 396, 95, "Add Verification"
 	  DropListBox 60, 35, 75, 45, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File"+chr(9)+"Verbal Attestation", questions_array(question_number)(6)
@@ -10169,7 +10168,7 @@ If run_return_contact = True Then
 					call needed_info_dialog(needed_info_array)
 					Dialog Dialog1
 					cancel_confirmation
-
+					
 					previous_button_pressed = ButtonPressed
 				Loop Until err_msg = ""
 				call dialog_movement
@@ -10180,7 +10179,6 @@ If run_return_contact = True Then
 
 			If ButtonPressed = contact_completed Then
 				Do
-
 					call display_work_rules()
 					Dialog Dialog1
 					cancel_confirmation
@@ -10199,7 +10197,6 @@ If run_return_contact = True Then
 		Loop Until proceed_confirm <> vbNo AND ButtonPressed <> 3704
 		Call check_for_password(are_we_passworded_out)
 	Loop Until are_we_passworded_out = false
-
 	call write_needed_info_CASE_NOTE(needed_info_array)
 	PF3
 	Call write_verification_CASE_NOTE(create_verif_note)
