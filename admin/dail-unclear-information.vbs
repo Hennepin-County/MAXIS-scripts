@@ -5059,7 +5059,7 @@ If HIRE_messages = 1 Then
                                                         PF3
 
                                                     ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
-                                                        MsgBox "Testing -- not 01 on FS eligibility"
+                                                        ' MsgBox "Testing -- not 01 on FS eligibility"
 
                                                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
 
@@ -5405,7 +5405,7 @@ If HIRE_messages = 1 Then
                                                                 ' End If 
 
                                                                                                                                  
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
                                                                 'To do - add handling to add to list of TIKLs to delete
                                                                 list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -5433,7 +5433,7 @@ If HIRE_messages = 1 Then
                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                 ' End If 
 
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
                                                                 'To do - add handling to add to list of TIKLs to delete
                                                                 list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -5504,7 +5504,7 @@ If HIRE_messages = 1 Then
                                                                             '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                             ' End If 
 
-                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
                                                                             'To do - add handling to add to list of TIKLs to delete
                                                                             list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -5533,7 +5533,7 @@ If HIRE_messages = 1 Then
                                                                             '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                             ' End If 
 
-                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
                                                                             'To do - add handling to add to list of TIKLs to delete
                                                                             list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -5928,27 +5928,27 @@ If HIRE_messages = 1 Then
                                                             MsgBox "Is it back at DAIL? If so, is it on the exact same message or the first one???"
                                                             EMReadSCreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
-                                                            MsgBox "It is back at DAIL. MAke sure it is at the correct DAIL"
+                                                                MsgBox "It is back at DAIL. MAke sure it is at the correct DAIL"
 
-                                                            'Initial dialog - select whether to create a list or process a list
-                                                            BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
-                                                            
-                                                            ButtonGroup ButtonPressed
-                                                                OkButton 205, 200, 40, 15
-                                                                CancelButton 245, 200, 40, 15
-                                                            EndDialog
-
-                                                            Do
-                                                                Dialog Dialog1
+                                                                'Initial dialog - select whether to create a list or process a list
+                                                                BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
                                                                 
-                                                            Loop until ButtonPressed = OK
+                                                                ButtonGroup ButtonPressed
+                                                                    OkButton 205, 200, 40, 15
+                                                                    CancelButton 245, 200, 40, 15
+                                                                EndDialog
+
+                                                                Do
+                                                                    Dialog Dialog1
+                                                                    
+                                                                Loop until ButtonPressed = OK
 
 
-                                                            EMWriteScreen "S", dail_row, 3
-                                                            EMSendKey "<enter>"
-                                                        Else
-                                                            MsgBox "NOT AT DAIL - why?"
-                                                        End If
+                                                                EMWriteScreen "S", dail_row, 3
+                                                                EMSendKey "<enter>"
+                                                            Else
+                                                                MsgBox "NOT AT DAIL - why?"
+                                                            End If
                                                         End If
                                                     
 
@@ -6428,7 +6428,7 @@ If HIRE_messages = 1 Then
                                                                     '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                     ' End If 
 
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches HIRE employer name exactly. Created TIKLs should be removed. Message should be deleted." 
 
                                                                     'To do - add handling to add to list of TIKLs to delete
                                                                     list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -6455,7 +6455,7 @@ If HIRE_messages = 1 Then
                                                                     '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                     ' End If 
 
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches first word of HIRE employer name. Created TIKLs should be removed. Message should be deleted." 
 
                                                                     'To do - add handling to add to list of TIKLs to delete
                                                                     list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -6522,7 +6522,7 @@ If HIRE_messages = 1 Then
                                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                                 ' End If 
 
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches HIRE employer name exactly. Created TIKLs should be removed. Message should be deleted." 
 
                                                                                 'To do - add handling to add to list of TIKLs to delete
                                                                                 list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -6552,7 +6552,7 @@ If HIRE_messages = 1 Then
                                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                                 ' End If 
                                                                                 
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches first word of HIRE employer name. Created TIKLs should be removed. Message should be deleted." 
 
                                                                                 'To do - add handling to add to list of TIKLs to delete
                                                                                 list_of_TIKLs_to_delete = name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
@@ -6734,7 +6734,7 @@ If HIRE_messages = 1 Then
         'Reset the all_done so that it doesn't exit after the first run unintentionally
         all_done = ""
 
-        ' MsgBox "Testing -- script successfully compiled list of NDNH messages. It will now process the HIRE messages"
+        MsgBox "Testing -- script successfully processed HIRE messages. It will now review TIKLs"
 
         'Navigate to TIKLs for the X number
         'Set the TIKLs to first of next month
@@ -6831,7 +6831,7 @@ If HIRE_messages = 1 Then
                             all_done = true
                         End If
 
-                        MsgBox "It is about to delete the message. Confirm before proceeding."
+                        MsgBox "It is about to delete the TIKL message. Confirm before proceeding."
                         'Delete the message
                         Call write_value_and_transmit("D", dail_row, 3)
 
@@ -6867,6 +6867,8 @@ If HIRE_messages = 1 Then
                             End If
 
                         ElseIf other_worker_error = "** WARNING ** YOU WILL BE" then 
+
+                            MsgBox "Testing-- It will transmit again to delete the TIKL"
                             
                             'Since the script is deleting another worker's DAIL message, need to transmit again to delete the message
                             transmit
@@ -6948,31 +6950,31 @@ If HIRE_messages = 1 Then
 
     Next
 
-    ' 'Update Stats Info
-    ' 'Activate the stats sheet
-    ' objExcel.Worksheets("Stats").Activate
-    ' objExcel.Cells(1, 2).Value = case_excel_row - 2
-    ' objExcel.Cells(2, 2).Value = dail_excel_row - 2
-    ' objExcel.Cells(3, 2).Value = not_processable_msg_count
-    ' objExcel.Cells(4, 2).Value = dail_msg_deleted_count
-    ' objExcel.Cells(5, 2).Value = QI_flagged_msg_count
-    ' objExcel.Cells(6, 2).Value = timer - start_time
-    ' objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+    'Update Stats Info
+    'Activate the stats sheet
+    objExcel.Worksheets("Stats").Activate
+    objExcel.Cells(1, 2).Value = case_excel_row - 2
+    objExcel.Cells(2, 2).Value = dail_excel_row - 2
+    objExcel.Cells(3, 2).Value = not_processable_msg_count
+    objExcel.Cells(4, 2).Value = dail_msg_deleted_count
+    objExcel.Cells(5, 2).Value = QI_flagged_msg_count
+    objExcel.Cells(6, 2).Value = timer - start_time
+    objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 
-    ' 'Finding the right folder to automatically save the file
-    ' this_month = CM_mo & " " & CM_yr
-    ' month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-    ' unclear_info_folder = replace(this_month, " ", "-") & " DAIL Unclear Info"
-    ' report_date = replace(date, "/", "-")
+    'Finding the right folder to automatically save the file
+    this_month = CM_mo & " " & CM_yr
+    month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+    unclear_info_folder = replace(this_month, " ", "-") & " DAIL Unclear Info"
+    report_date = replace(date, "/", "-")
 
-    ' 'saving the Excel file
-    ' file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "HIRE" & " " & dail_msg_deleted_count
+    'saving the Excel file
+    file_info = month_folder & "\" & unclear_info_folder & "\" & report_date & " Unclear Info" & " " & "HIRE" & " " & dail_msg_deleted_count
 
-    ' 'Saves and closes the most recent Excel workbook with the Task based cases to process.
-    ' objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
-    ' objExcel.ActiveWorkbook.Close
-    ' objExcel.Application.Quit
-    ' objExcel.Quit
+    'Saves and closes the most recent Excel workbook with the Task based cases to process.
+    objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+    objExcel.ActiveWorkbook.Close
+    objExcel.Application.Quit
+    objExcel.Quit
 
     script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
     
