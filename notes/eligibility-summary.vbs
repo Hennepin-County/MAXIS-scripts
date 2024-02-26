@@ -23810,7 +23810,7 @@ For each footer_month in MONTHS_ARRAY
 				notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "THE SCRIPT WILL ATTEMPT TO SEND A MEMO FOR THIS CASE."
-				notice_exception_message = notice_exception_message & vbCr & vbCr & "A testing Email will be created at the end of the script run. Please send that so we can review the functionality."
+				notice_exception_message = notice_exception_message & vbCr & vbCr & "If a SPEC/MEMO is not created, please report to the BlueZone Script Team for functionality review."
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
 				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
@@ -27662,6 +27662,8 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 					memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
 					ReDim preserve memo_array(memo_count)
 					income_string = ""
+					spenddown_type = ""
+					spenddown_amount = ""
 
 					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 
@@ -27746,12 +27748,24 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 								income_string = income_string & "~" & income_info
 							End If
 						End If
-
-
 					Next
+
+					If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True Then
+						spenddown_type = "Spenddown"
+						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member)
+					End If
+					If HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True Then
+						spenddown_type = "Waiver Obligation"
+						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member)
+					End If
+					If HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then
+						spenddown_type = "LTC Obligation"
+						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ltc_spdn_amount(member)
+					End If
+
 					If left(income_string, 1) = "~" Then income_string = right(income_string, len(income_string)-1)
 
-					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & income_string & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & income_string & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & spenddown_type & "~&~&~" & spenddown_amount & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
 
 					'HC_ELIG_APPROVALS(approval).hc_elig_full_name(member)
 					memo_count = memo_count + 1
@@ -27775,7 +27789,9 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		memo_memb_name = this_memo_array(1)
 		memo_income = this_memo_array(2)
 		memo_hh_size = this_memo_array(3)
-		memo_hc_progs = this_memo_array(4)
+		spenddown_type = this_memo_array(4)
+		spenddown_amount = this_memo_array(5)
+		memo_hc_progs = this_memo_array(6)
 		' MsgBox "NAME - " & memo_memb_name
 		' MsgBox "INCOME - " & memo_income
 		' MsgBox "PROGS - " & memo_hc_progs
@@ -27820,6 +27836,13 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		End If
 			Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("Household size: " & memo_hh_size)
+
+		'Input the spenddown information
+		If spenddown_type <> "" Then
+			Call write_variable_in_SPEC_MEMO("Your " & spenddown_type & "is $ " & spenddown_amount & " , which you are responsible to pay before the state will pay. This portion of your medical bills will not be paid by the state. You will receive an Explanation of Medical Benefits to tell you what bills to pay.")
+			testing_run = True
+		End If
+
 		Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
 		Call write_variable_in_SPEC_MEMO("")
