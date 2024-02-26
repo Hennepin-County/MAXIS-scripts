@@ -179,6 +179,7 @@ Do
 	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)  'Navigate to stat/addr to grab address - checking for PRIV
     If is_this_priv = True then
         objExcel.Cells(excel_row, 4).Value = "Privileged"
+        excel_row = excel_row + 1
 	Else
         Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_state, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 		
