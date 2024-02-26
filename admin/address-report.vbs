@@ -119,8 +119,9 @@ objExcel.Cells(1, 11).Value = "MAILING CITY"
 objExcel.Cells(1, 12).Value = "MAILING STATE"
 objExcel.Cells(1, 13).Value = "MAILING ZIP CODE"
 objExcel.Cells(1, 14).Value = "HOMELESS"
+objExcel.Cells(1, 15).Value = "ADDR EFFECTIVE DATE"
 
-FOR i = 1 to 14		'formatting the cells'
+FOR i = 1 to 15		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -167,7 +168,7 @@ For each worker in worker_array
 Next
 
 'formatting excel columns to fit
-FOR i = 1 to 14
+FOR i = 1 to 15
 	objExcel.Columns(i).AutoFit()
 NEXT
 
@@ -181,7 +182,7 @@ Do
         objExcel.Cells(excel_row, 4).Value = "Privileged"
         excel_row = excel_row + 1
 	Else
-        Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_state, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+        Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 		
         If instr(resi_line_one, "300 SOUTH SIXTH ST") or instr(mail_line_one, "300 SOUTH SIXTH ST") then 
             'Writing both addresses into excel
@@ -189,13 +190,14 @@ Do
 		    objExcel.Cells(excel_row, 5) = resi_line_two
 		    objExcel.Cells(excel_row, 6) = resi_city
 		    objExcel.Cells(excel_row, 7) = resi_state
-		    objExcel.Cells(excel_row, 8) = resi_state
+		    objExcel.Cells(excel_row, 8) = resi_zip
 		    objExcel.Cells(excel_row, 9) = mail_line_one
 		    objExcel.Cells(excel_row, 10) = mail_line_two
 		    objExcel.Cells(excel_row, 11) = mail_city
 		    objExcel.Cells(excel_row, 12) = mail_state
 		    objExcel.Cells(excel_row, 13) = mail_zip
 		    objExcel.Cells(excel_row, 14) = addr_homeless
+            objExcel.Cells(excel_row, 15) = addr_eff_date
             excel_row = excel_row + 1
         Else 
             'deleting row if not the county mailing ADDR
@@ -207,7 +209,7 @@ Do
 Loop until MAXIS_case_number = ""
 
 'formatting excel columns to fit
-FOR i = 1 to 14
+FOR i = 1 to 15
 	objExcel.Columns(i).AutoFit()
 NEXT
 
