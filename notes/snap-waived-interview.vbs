@@ -226,8 +226,8 @@ Function needed_info_dialog(needed_info_array)
 		Text 515, 295, 50, 15, "12"
 		If total_questions > 22 Then call create_info_needed_in_dialog(needed_info_array(23))
 		If total_questions > 23 Then call create_info_needed_in_dialog(needed_info_array(24))
-	ElseIf page_display = q_page_xtra Then 
-		y_pos = 60 
+	ElseIf page_display = q_page_xtra Then
+		y_pos = 60
 		Text 15, 30, 300, 20, "Use the two spaces below to enter information the resident reports during contact that is not covered in another part of the dialog."
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)-1))
 		call create_info_needed_in_dialog(needed_info_array(ubound(needed_info_array)))
@@ -270,7 +270,7 @@ Function needed_info_dialog(needed_info_array)
 	If last_page = q_page_10 then PushButton 490, 275, 50, 15, "Extra Info", xtra_info_btn
 	If last_page = q_page_11 then PushButton 490, 295, 50, 15, "Extra Info", xtra_info_btn
 	If last_page = q_page_12 then PushButton 490, 305, 50, 15, "Extra Info", xtra_info_btn
-	
+
 	'If the script is being run to capture information after the initial application assessment. We need to capture contact details in the 'Needed Info' Dialog during this process
 	If run_return_contact = True Then
 		Text 20, 320, 40, 10, "Contact type"
@@ -2192,10 +2192,10 @@ function dialog_movement()
 			msgbox questions_array(ver)(9)
 		End If
 	Next
-	If current_dialog = "needed info" Then 
+	If current_dialog = "needed info" Then
 	If ButtonPressed = needed_info_array(ubound(needed_info_array))(11) Then Call verif_details_dlg(ubound(questions_array)) 'calls the verif dialog for the other info questions
 	If ButtonPressed = needed_info_array(ubound(needed_info_array)-1)(11) Then Call verif_details_dlg(ubound(questions_array)-1) 'calls the verif dialog for the other info questions
-	End If 
+	End If
 	If ButtonPressed = member_info_needed_btn Then call member_info_needed_dialog()
 	End If
 	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
@@ -2280,7 +2280,7 @@ function dialog_movement()
 		If page_display = show_pg_one_memb01_and_exp 	Then ButtonPressed = caf_addr_btn
 		If page_display = show_pg_one_address 			Then ButtonPressed = caf_membs_btn
 		If page_display = show_pg_memb_list 			Then ButtonPressed = q_page_1_btn
-		
+
 		If (form_type = "full CAF" or form_type = "MNBenefits") AND current_dialog <> "needed info"  Then 'these forms go through all pages
 			If page_display = q_page_1 					Then ButtonPressed = q_page_2_btn
 			If page_display = q_page_2 					Then ButtonPressed = q_page_3_btn
@@ -2294,35 +2294,35 @@ function dialog_movement()
 			If page_display = q_page_3 					Then ButtonPressed = caf_qual_q_btn
 		End If
 		If current_dialog = "needed info" Then
-			If last_page = page_display	Then 
+			If last_page = page_display	Then
 				ButtonPressed = xtra_info_btn
-			ElseIf page_display = q_page_1 	Then 
+			ElseIf page_display = q_page_1 	Then
 				ButtonPressed = q_page_2_btn
-			ElseIf page_display = q_page_2 	Then 
+			ElseIf page_display = q_page_2 	Then
 				ButtonPressed = q_page_3_btn
-			ElseIf page_display = q_page_3 	Then 
+			ElseIf page_display = q_page_3 	Then
 				ButtonPressed = q_page_4_btn
-			ElseIf page_display = q_page_4 	Then 
+			ElseIf page_display = q_page_4 	Then
 				ButtonPressed = q_page_5_btn
-			ElseIf page_display = q_page_5 	Then 
+			ElseIf page_display = q_page_5 	Then
 				ButtonPressed = q_page_6_btn
-			ElseIf page_display = q_page_6 	Then 
+			ElseIf page_display = q_page_6 	Then
 				ButtonPressed = q_page_7_btn
-			ElseIf page_display = q_page_7 	Then 
+			ElseIf page_display = q_page_7 	Then
 				ButtonPressed = q_page_8_btn
-			ElseIf page_display = q_page_8 	Then 
+			ElseIf page_display = q_page_8 	Then
 				ButtonPressed = q_page_9_btn
-			ElseIf page_display = q_page_9 	Then 
+			ElseIf page_display = q_page_9 	Then
 				ButtonPressed = q_page_10_btn
-			ElseIf page_display = q_page_10 Then 
+			ElseIf page_display = q_page_10 Then
 				ButtonPressed = q_page_11_btn
-			ElseIf page_display = q_page_11 Then 
+			ElseIf page_display = q_page_11 Then
 				ButtonPressed = q_page_12_btn
-			End if 
+			End if
 		End If
 		If page_display = show_qual 					Then ButtonPressed = caf_last_page_btn
 		If page_display = show_pg_last 					Then ButtonPressed = finish_interview_btn
-		
+
 		'If discrepancies_exist = True Then
 		'	If page_display = show_pg_last 				Then ButtonPressed = discrepancy_questions_btn
 		'	If page_display = discrepancy_questions 	Then ButtonPressed = finish_interview_btn
@@ -2383,7 +2383,7 @@ function dialog_movement()
 		page_display = q_page_12
 	End If
 	If ButtonPressed = xtra_info_btn Then page_display = q_page_xtra
-		
+
 
 	If ButtonPressed = caf_qual_q_btn Then
 		page_display = show_qual
@@ -6022,11 +6022,11 @@ function write_interview_question_in_CASE_NOTE(interview_question)
 		End If
 		If trim(interview_question(5)) <> "" Then CALL write_variable_in_CASE_NOTE("    Detail on what was needed: " & interview_question(5))
     	If trim(interview_question(8)) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
-	ElseIf interview_question(1) = "xtra" Then 
+	ElseIf interview_question(1) = "xtra" Then
 		If trim(interview_question(8)) <> "" Then
 			Call write_variable_in_CASE_NOTE(interview_question(0))
 			Call write_variable_in_CASE_NOTE("    INTVW NOTES: " & interview_question(8))
-		End if 
+		End if
 	ElseIf interview_question(1) = "unea" Then
 		unea_content = false
 		For un = 3 to 30
@@ -9632,7 +9632,7 @@ If run_return_contact = True Then
 									ElseIf needed_info_array(found_quest)(question_type) = "busi" Then
 										If InStr(note_line, "CAF Answer -") <> 0 Then
 											adjusted_line = trim(replace(note_line, "CAF Answer -", ""))
-											If InSr(adjusted_line, "Gross Monthly Earnings") <> 0 Then
+											If InStr(adjusted_line, "Gross Monthly Earnings") <> 0 Then
 												earning_start = InStr(adjusted_line, "Gross Monthly Earnings")
 												needed_info_array(found_quest)(caf_answer) = trim(left(adjusted_line, earning_start-1))
 												needed_info_array(found_quest)(busi_earnings) = trim(mid(adjusted_line, earning_start+23, len(adjusted_line)-earning_start+23))
@@ -10151,11 +10151,11 @@ If run_return_contact = True Then
 	'First need to add last two "extra" questions to the arrays
 	Redim Preserve questions_array(ubound(questions_array) + 2) 'Add 2 questions to array
 	questions_array(ubound(questions_array)-1) = xtra_1
-	questions_array(ubound(questions_array)) = xtra_2 
+	questions_array(ubound(questions_array)) = xtra_2
 	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
 	needed_info_array(ubound(needed_info_array)-1) = xtra_1
-	needed_info_array(ubound(needed_info_array)) = xtra_2 
-	
+	needed_info_array(ubound(needed_info_array)) = xtra_2
+
 
 	Do
 		Do
@@ -10168,7 +10168,7 @@ If run_return_contact = True Then
 					call needed_info_dialog(needed_info_array)
 					Dialog Dialog1
 					cancel_confirmation
-					
+
 					previous_button_pressed = ButtonPressed
 				Loop Until err_msg = ""
 				call dialog_movement
@@ -10930,10 +10930,10 @@ If info_needed = True Then  'There is info needed, call the resident
 	'First need to add last two "extra" questions to the array
 	Redim Preserve questions_array(ubound(questions_array) + 2) 'Add 2 questions to array
 	questions_array(ubound(questions_array)-1) = xtra_1
-	questions_array(ubound(questions_array)) = xtra_2 
+	questions_array(ubound(questions_array)) = xtra_2
 	Redim Preserve needed_info_array(ubound(needed_info_array) + 2) 'Add 2 questions to array
 	needed_info_array(ubound(needed_info_array)-1) = xtra_1
-	needed_info_array(ubound(needed_info_array)) = xtra_2 
+	needed_info_array(ubound(needed_info_array)) = xtra_2
 
 	Do
 		Do
@@ -11588,7 +11588,7 @@ If qual_questions_yes = TRUE Then
 		PF3
 End If
 'Entering the case/notes
-PF3 
+PF3
 call write_app_review_CASE_NOTE()
 PF3
 Call write_verification_CASE_NOTE(create_verif_note)
