@@ -27839,7 +27839,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 
 		'Input the spenddown information
 		If spenddown_type <> "" Then
-			Call write_variable_in_SPEC_MEMO("Your " & spenddown_type & "is $ " & spenddown_amount & " , which you are responsible to pay before the state will pay. This portion of your medical bills will not be paid by the state. You will receive an Explanation of Medical Benefits to tell you what bills to pay.")
+			Call write_variable_in_SPEC_MEMO("Your " & spenddown_type & " is $ " & spenddown_amount & " monthly, which you are responsible to pay before the state will pay. This portion of your medical bills will not be paid by the state. You will receive an Explanation of Medical Benefits to tell you what bills to pay.")
 			testing_run = True
 		End If
 
