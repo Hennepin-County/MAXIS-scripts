@@ -4636,9 +4636,9 @@ If ex_parte_function = "Phase 1" Then
 							EMReadScreen present_pay_year, 2, 8, 8
 							cola_row = 9
 							Do
-								EMReadScreen, prev_pay_month, 2, cola_row, 5
+								EMReadScreen prev_pay_month, 2, cola_row, 5
 								If prev_pay_month = "12" Then
-									prev_gross, 8, cola_row, 16
+									EMReadScreen prev_gross, 8, cola_row, 16
 									prev_gross = trim(prev_gross)
 									If IsNumeric(prev_gross) = True Then
 										prev_gross = prev_gross*1
@@ -4855,7 +4855,7 @@ If ex_parte_function = "Phase 1" Then
 							Call navigate_to_MAXIS_screen("STAT", "UNEA")
 							EMReadScreen unea_check, 4, 2, 48
 						Loop
-						EMWriteScreen MEMB_reference_number, 20, 76 				'Navigating to the right member of unea
+						EMWriteScreen MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb), 20, 76 	'Navigating to the right member of unea
 						EMWriteScreen "01", 20, 79 									'to ensure we're on the 1st instance of UNEA panels for the appropriate member
 						transmit
 
@@ -4872,19 +4872,21 @@ If ex_parte_function = "Phase 1" Then
 									panel_claim_number = replace(panel_claim_number, "_", "")					'formatting the claim number
 									panel_claim_number = replace(panel_claim_number, " ", "")
 
-									If left(panel_claim_number, 9) <> left(MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb), 9) Then
-										other_rsdi_amount = trim(panel_prosp_amount)
-									End If
+									other_rsdi_amount = trim(panel_prosp_amount)
 								End If
 
 								transmit											'go to the next UNEA panel
 								EMReadScreen end_of_UNEA_panels, 7, 24, 2			'read the warning/error message to see if we could not move to the next panel
 							Loop Until end_of_UNEA_panels = "ENTER A"
 						End If
+						If InStr(other_rsdi_amount, ".") <> 0 Then other_rsdi_amount = left(other_rsdi_amount, len(other_rsdi_amount)-3)
 
 						'Here we adjust the rsdi amount if the TPQY response matches the amount on the primary claim number.
 						rsdi_amount = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)
-						If other_rsdi_amount = MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) Then rsdi_amount = 0
+						trimmed_rsdi_amount = rsdi_amount
+						If InStr(trimmed_rsdi_amount, ".") <> 0 Then trimmed_rsdi_amount = left(trimmed_rsdi_amount, len(trimmed_rsdi_amount)-3)
+						If other_rsdi_amount = trimmed_rsdi_amount Then rsdi_amount = 0
+						' MsgBox "other_rsdi_amount - " & other_rsdi_amount & vbCr & "trimmed_rsdi_amount - " & trimmed_rsdi_amount & vbCr & "rsdi_amount - " & rsdi_amount
 						objTextStream.WriteLine "        | AMOUNT USED IN UPDATING RSDI: " & rsdi_amount & "| RSDI amount listed in TPQY: " &  MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb)
 
 						'This is where the script actually finds the panel and updates it.
