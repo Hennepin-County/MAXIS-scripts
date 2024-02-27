@@ -98,6 +98,10 @@ Do
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
         If (MFIP_check = 0 and SNAP_check = 0 and HC_check = 0 and GA_check = 0 and MSA_check = 0) then err_msg = err_msg & "* Select all applicable programs at monthly report."
 
+		'Checking for PRIV cases.
+		EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
+		IF priv_check = "PRIVIL" THEN script_end_procedure("This case is a privliged case. You do not have access to this case.")
+
         'Checking to ensure the case is actually at a HRF
         Call check_for_MAXIS(False)
         Call navigate_to_MAXIS_screen("STAT", "MONT")
@@ -231,7 +235,7 @@ If LTC_case = vbYes then
 
 	'confirms that case is in the footer month/year selected by the user
 	Call MAXIS_footer_month_confirmation
-	MAXIS_background_check
+	Call MAXIS_background_check
 
 	'Goes to STAT WKEX to get deductions and possible FIAT reasons to autofil the dialog
 	Call navigate_to_MAXIS_screen("STAT", "WKEX")
@@ -697,3 +701,48 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 End If
 
 script_end_procedure_with_error_report(end_msg & vbcr & "Please make sure to accept the Work items in ECF associated with this HRF. Thank you!")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/27/2024
+'--Tab orders reviewed & confirmed----------------------------------------------02/27/2024
+'--Mandatory fields all present & Reviewed--------------------------------------02/27/2024
+'--All variables in dialog match mandatory fields-------------------------------02/27/2024
+'Review dialog names for content and content fit in dialog----------------------02/27/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/27/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/27/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/27/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------02/27/2024
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/27/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/27/2024
+'--PRIV Case handling reviewed -------------------------------------------------02/27/2024
+'--Out-of-County handling reviewed----------------------------------------------NA
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/27/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------NA
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/27/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/27/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------02/27/2024
+'--Denomination reviewed -------------------------------------------------------02/27/2024
+'--Script name reviewed---------------------------------------------------------02/27/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------NA
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/27/2024
+'--comment Code-----------------------------------------------------------------02/27/2024
+'--Update Changelog for release/update------------------------------------------02/27/2024
+'--Remove testing message boxes-------------------------------------------------02/27/2024
+'--Remove testing code/unnecessary code-----------------------------------------02/27/2024
+'--Review/update SharePoint instructions----------------------------------------02/27/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/27/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/27/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2024
+'--Complete misc. documentation (if applicable)---------------------------------02/27/2024
+'--Update project team/issue contact (if applicable)----------------------------02/27/2024
