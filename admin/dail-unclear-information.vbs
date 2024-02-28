@@ -116,7 +116,7 @@ Else
 End If
 
 next_month_footer_year = right(next_month_split(2), 2)
-next_month_TIKLs = next_month_footer_month & "01" & next_month_footer_year
+' next_month_TIKLs = next_month_footer_month & " " & "01" & " " & next_month_footer_year
 
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
@@ -3284,8 +3284,6 @@ If HIRE_messages = 1 Then
 
                     'Read the MAXIS Case Number, if it is a new case number then pull case details. If it is not a new case number, then do not pull new case details.
                     
-                    ' Msgbox "(actionable_dail = False AND dail_type = 'CSES') OR dail_type = 'HIRE' Then"
-
                     EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                     MAXIS_case_number = trim(MAXIS_case_number)
 
@@ -3384,7 +3382,7 @@ If HIRE_messages = 1 Then
         'Reset the all_done so that it doesn't exit after the first run unintentionally
         all_done = ""
 
-        ' MsgBox "Testing -- script successfully compiled list of NDNH messages. It will now process the HIRE messages"
+        MsgBox "Testing -- script successfully compiled list of NDNH messages. It will now process the HIRE messages"
 
         'Navigates to DAIL to pull DAIL messages and start at beginning again
         'Go back to start (" A" used to get as close to first case as possible)
@@ -3800,7 +3798,6 @@ If HIRE_messages = 1 Then
                             full_dail_msg = ""
                             full_dail_date_hired = ""
                             full_dail_state = ""
-                            
 
                             'Script opens the entire DAIL message to evaluate if it is a new message or not
                             Call write_value_and_transmit("X", dail_row, 3)
@@ -3974,30 +3971,6 @@ If HIRE_messages = 1 Then
                                                         EXIT DO
                                                     End If
                                                 End If
-                                                ' MsgBox "Testing -- infc_hire_date " & infc_hire_date
-                                                ' MsgBox "Testing -- infc_hire_state " & infc_hire_state
-                                                ' If infc_hire_date = full_dail_date_hired AND infc_hire_state = full_dail_state Then
-                                                '     msgbox "Testing -- infc_hire_date = full_dail_date_hired AND infc_hire_state = full_dail_state. Employer matches, date matches, state matches. It will now go to clear the match"
-                                                '     hire_match = TRUE
-                                                '     match_row = row
-                                                '     EXIT DO
-                                                ' ElseIf infc_hire_date = full_dail_date_hired AND infc_hire_state = "" Then
-                                                '     msgbox "Testing -- infc_hire_date = full_dail_date_hired AND infc_hire_state = ''. Employer matches, date matches, state is blank. It will now go to clear the match"
-                                                '     hire_match = TRUE
-                                                '     match_row = row
-                                                '     EXIT DO
-                                                ' ElseIf infc_hire_date = full_dail_date_hired AND infc_hire_state <> full_dail_state Then
-                                                '     MsgBox "Testing -- infc_hire_date = full_dail_date_hired AND infc_hire_state <> full_dail_state. there was a mismatch with the state. dail State is " & full_dail_state & "infc state is " & infc_hire_state
-                                                ' End If
-
-                                                ' EmReadscreen match_month, 5, row, 14
-                                                ' info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-                                                ' "   " & employer_match & vbNewLine & "     Case: " & case_number & vbNewLine & "     Hire Date: " & date_of_hire & vbNewLine & "     Month: " & match_month, vbYesNoCancel, "Please confirm this match")
-                                                ' IF info_confirmation = vbYes THEN
-                                                '     hire_match = TRUE
-                                                '     match_row = row
-                                                '     EXIT DO
-                                                ' END IF
                                             END IF
                                         END IF
                                     END IF
@@ -4053,8 +4026,6 @@ If HIRE_messages = 1 Then
                                 infc_clear_error = trim(infc_clear_error)
                                 If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happenedafter clearing the INFC 4018"
                                 
-
-
                                 ' msgbox "Testing -- Where did PF3 take us? Is the message gone? Did it move to the next message correctly?"
 
                                 ' ' Resetting variables so they do not carry forward
@@ -4246,25 +4217,6 @@ If HIRE_messages = 1 Then
                                                         EXIT DO
                                                     End If
                                                 End If
-                                                ' MsgBox "Testing -- infc_hire_date " & infc_hire_date
-                                                ' MsgBox "Testing -- infc_hire_state " & infc_hire_state
-                                                ' If infc_hire_date = full_dail_date_hired AND infc_hire_state = full_dail_state Then
-                                                '     msgbox "Testing -- infc_hire_date = full_dail_date_hired AND infc_hire_state = full_dail_state. Employer matches, date matches, state matches. It will now go to clear the match"
-                                                '     hire_match = TRUE
-                                                '     match_row = row
-                                                '     EXIT DO
-                                                ' ElseIf infc_hire_date = full_dail_date_hired AND infc_hire_state <> full_dail_state Then
-                                                '     MsgBox "Testing -- infc_hire_date = full_dail_date_hired AND infc_hire_state <> full_dail_state. there was a mismatch with the state. dail State is " & full_dail_state & "infc state is " & infc_hire_state
-                                                ' End If
-
-                                                ' EmReadscreen match_month, 5, row, 14
-                                                ' info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
-                                                ' "   " & employer_match & vbNewLine & "     Case: " & case_number & vbNewLine & "     Hire Date: " & date_of_hire & vbNewLine & "     Month: " & match_month, vbYesNoCancel, "Please confirm this match")
-                                                ' IF info_confirmation = vbYes THEN
-                                                '     hire_match = TRUE
-                                                '     match_row = row
-                                                '     EXIT DO
-                                                ' END IF
                                             END IF
                                         END IF
                                     END IF
@@ -4665,7 +4617,7 @@ If HIRE_messages = 1 Then
                                                         process_dail_message = True
                                                     End If
                                                 Else
-                                                    ' msgbox "Testing -- Dail type is not a HIRE mesage - check issue at line 4522. dail type is " & dail_type
+                                                    msgbox "Testing -- Dail type is not a HIRE mesage - check issue at line 4522. dail type is " & dail_type
                                                     ' msgbox "Testing -- dail_over_6_months_old is  " & dail_over_6_months_old
                                                 End If
 
@@ -4685,8 +4637,6 @@ If HIRE_messages = 1 Then
                                             If process_dail_message = True and dail_type = "HIRE" Then
 
                                                 If InStr(dail_msg, "NDNH MEMB") Then
-                                                    'Add logic here
-                                                    ' MsgBox "NDNH MEMB: " & dail_msg
 
                                                     'Reset variables to ensure they don't carry forward through do loop
                                                     HIRE_memb_number = ""
@@ -4883,22 +4833,7 @@ If HIRE_messages = 1 Then
                                                         End If
                                                     End If
 
-                                                    'Need to check age of the HH Memb on STAT/MEMB
-                                                    ' Call write_value_and_transmit("S", dail_row, 3)
-
-                                                    'Do loop for checking background - probably want to double check!!
-                                                    ' Do
-                                                    '     EMWriteScreen "S", dail_row, 3
-                                                    '     EMWaitReady 2, 1000
-                                                    '     EMSendKey "<enter>"
-                                                    '     EMWaitReady 2, 1000
-                                                    '     EMReadScreen background_check, 25, 7, 30
-                                                    '     If InStr(background_check, "A Background transaction") Then
-                                                    '         PF3
-                                                    '     End If
-                                                    '     EMWaitReady 2, 1000
-                                                    ' Loop until InStr(background_check, "A Background transaction") = 0
-
+                                                    'Navigate to STAT/MEMB 
                                                     EMWriteScreen "MEMB", 20, 71
                                                     Call write_value_and_transmit(HIRE_memb_number, 20, 76)
 
@@ -4914,24 +4849,6 @@ If HIRE_messages = 1 Then
                                                             MsgBox "Testing -- not on Summ 4830. Will attempt to go back to DAIL"
                                                         End If
                                                     End If
-
-                                                    '     EMReadScreen self_panel_check, 4, 2, 50
-                                                    '     If self_panel_check = "SELF" Then
-                                                    '         EMWaitReady 2, 2000
-                                                    '         EMWaitReady 2, 2000
-                                                    '         EMWriteScreen "DAIL", 16, 43
-                                                    '         transmit
-                                                    '         MsgBox "Is it back at DAIL? If so, is it on the exact same message or the first one???"
-                                                    '         EMReadSCreen back_to_dail_check, 8, 1, 72
-                                                    '         If back_to_dail_check = "FMKDLAM6" Then
-                                                    '             MsgBox "It is back at DAIL. MAke sure it is at the correct DAIL"
-                                                    '         Else
-                                                    '             MsgBox "NOT AT DAIL - why?"
-                                                    '         End If
-                                                    '     Else
-                                                    '         MsgBox "testing - not at self, where is it?"
-                                                    '     End If
-                                                    ' End IF 
 
                                                     ' MsgBox "Testing -- navigated to STAT/MEMB. MAY accidentally create new panel - make sure this doesn't happen"
 
@@ -5064,7 +4981,6 @@ If HIRE_messages = 1 Then
                                                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
 
                                                     Elseif snap_earned_income_minor_exclusion = False Then
-                                                    
                                                   
                                                         'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
                                                         ' msgbox "Testing -- snap_earned_income_minor_exclusion = False so navigating to STAT/JOBS"
@@ -5386,24 +5302,25 @@ If HIRE_messages = 1 Then
                                                             If employer_name_jobs_panel = HIRE_employer_name Then
                                                                 ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete."
 
-                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                ' msgbox "JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                ' ' msgbox "JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                 
-                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
-                                                                ' msgbox "current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
+                                                                ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                ' ' msgbox "current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
-                                                                ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                ' ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                                ' '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
                                                                     
-                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
-                                                                ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                                                                '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                                ' '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. Message should be deleted."
+                                                                ' ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                                ' '     ' MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
 
-                                                                '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                                                                ' End If 
+                                                                ' '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                                ' ' End If 
 
+                                                                msgbox "Testing -- there is an exact match for employer name in full but doesn't matter since TIKL will get created"
                                                                                                                                  
                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
@@ -5415,12 +5332,12 @@ If HIRE_messages = 1 Then
                                                             ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
                                                                 ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete."
 
-                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                ' msgbox "JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                ' ' msgbox "JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                 
-                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                 ' msgbox "current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                 ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -5432,6 +5349,8 @@ If HIRE_messages = 1 Then
 
                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                 ' End If 
+
+                                                                msgbox "Testing -- there is an exact match for employer name first word only but doesn't matter since TIKL will get created"
 
                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
@@ -5486,12 +5405,12 @@ If HIRE_messages = 1 Then
 
                                                                             ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5102"
 
-                                                                            EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                            EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                            JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                            ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                            ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                            ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                            ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                            ' ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                             
-                                                                            current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                            ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                             ' msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                             ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -5503,6 +5422,8 @@ If HIRE_messages = 1 Then
 
                                                                             '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                             ' End If 
+
+                                                                            msgbox "Testing -- there is an exact match for employer name in full but doesn't matter since TIKL will get created"
 
                                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
@@ -5512,15 +5433,16 @@ If HIRE_messages = 1 Then
 
                                                                             'Exit the do loop since an exact match was found
                                                                             Exit Do
+
                                                                         ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
                                                                             ' msgbox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5102"
 
-                                                                            EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                            EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                            JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                            ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                            ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                            ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                            ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                            ' ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                             
-                                                                            current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                            ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                             ' msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                             ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -5532,6 +5454,8 @@ If HIRE_messages = 1 Then
 
                                                                             '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                             ' End If 
+
+                                                                            msgbox "Testing -- there is an exact match for employer name but doesn't matter since TIKL will get created"
 
                                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
@@ -5904,20 +5828,6 @@ If HIRE_messages = 1 Then
                                                             
                                                         End If
 
-
-                                                        'Do loop for background transaction - need to double check
-                                                        ' Do
-                                                        '     EMWriteScreen "S", dail_row, 3
-                                                        '     EMWaitReady 2, 1000
-                                                        '     EMSendKey "<enter>"
-                                                        '     EMWaitReady 2, 1000
-                                                        '     EMReadScreen background_check, 25, 7, 30
-                                                        '     If InStr(background_check, "A Background transaction") Then
-                                                        '         PF3
-                                                        '     End If
-                                                        '     EMWaitReady 2, 1000
-                                                        ' Loop until InStr(background_check, "A Background transaction") = 0
-
                                                         EMReadScreen self_panel_check, 4, 2, 50
                                                         If self_panel_check = "SELF" Then
                                                             EMWaitReady 2, 2000
@@ -6058,6 +5968,7 @@ If HIRE_messages = 1 Then
                                                             
                                                             'Navigate to CASE/NOTE
                                                             PF4
+
                                                             EMReadScreen case_note_check, 4, 2, 45
                                                             If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
 
@@ -6077,10 +5988,6 @@ If HIRE_messages = 1 Then
                                                             CALL write_variable_in_case_note("---")
                                                             CALL write_variable_in_case_note(worker_signature)
 
-
-                                                            ' msgbox "Testing -- The script is about to save the CASE/NOTE re: SNAP exclusion. Stop here if in testing or production"
-                                                            ' MsgBox "Testing -- The script is about to save the CASE/NOTE re: SNAP exclusion. Stop here if in testing or production"
-
                                                             'PF3 to save the CASE/NOTE
                                                             PF3
 
@@ -6088,11 +5995,11 @@ If HIRE_messages = 1 Then
 
                                                             'PF3 BACK to SCHL panel
                                                             PF3
+
                                                         ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
-                                                            MsgBox "Testing -- not 01 on FS eligibility"
+                                                            ' MsgBox "Testing -- not 01 on FS eligibility"
 
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
-
 
                                                         Elseif snap_earned_income_minor_exclusion = False Then
                                                             
@@ -6322,10 +6229,6 @@ If HIRE_messages = 1 Then
                                                                         CALL write_variable_in_case_note("---")
                                                                         CALL write_variable_in_case_note(worker_signature)
 
-
-                                                                        ' MsgBox "Testing -- The script is about to save the CASE/NOTE 5606. Stop here if in testing or production"
-                                                                        ' MsgBox "Testing -- The script is about to save the CASE/NOTE 5606. Stop here if in testing or production"
-
                                                                         'PF3 to save the CASE/NOTE
                                                                         PF3
                                                                         
@@ -6360,10 +6263,6 @@ If HIRE_messages = 1 Then
                                                                         CALL write_variable_in_case_note("---")
                                                                         CALL write_variable_in_case_note(worker_signature)
 
-
-                                                                        ' MsgBox "Testing -- The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
-                                                                        ' MsgBox "Testing -- The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
-
                                                                         'PF3 to save the CASE/NOTE
                                                                         PF3
 
@@ -6390,6 +6289,9 @@ If HIRE_messages = 1 Then
                                                                 EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                                 employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                                'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                                employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+
                                                                 If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
                                                                     employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
                                                                     MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
@@ -6406,12 +6308,12 @@ If HIRE_messages = 1 Then
                                                                 If employer_name_jobs_panel = HIRE_employer_name Then
                                                                     ' MsgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5779"
 
-                                                                    EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                    EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                    JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                    ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                    ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                    ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                    ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                    ' ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                     
-                                                                    current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                    ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                     'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                     'To do - add handling to check for TIKLs
@@ -6428,6 +6330,8 @@ If HIRE_messages = 1 Then
                                                                     '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                     ' End If 
 
+                                                                    msgbox "Testing -- there is an exact match for employer name but doesn't matter since TIKL will get created"
+
                                                                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches HIRE employer name exactly. Created TIKLs should be removed. Message should be deleted." 
 
                                                                     'To do - add handling to add to list of TIKLs to delete
@@ -6437,12 +6341,12 @@ If HIRE_messages = 1 Then
                                                                 ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
                                                                     ' MsgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5779"
 
-                                                                    EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                    EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                    JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                    ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                    ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                    ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                    ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                    ' ' msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                     
-                                                                    current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                    ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                     'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                     ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -6454,6 +6358,8 @@ If HIRE_messages = 1 Then
 
                                                                     '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                     ' End If 
+
+                                                                    msgbox "Testing -- there is an exact match for employer name but doesn't matter since TIKL will get created"
 
                                                                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches first word of HIRE employer name. Created TIKLs should be removed. Message should be deleted." 
 
@@ -6488,6 +6394,9 @@ If HIRE_messages = 1 Then
                                                                             EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                                             employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                                            'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                                            employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+
                                                                             If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
                                                                                 employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
                                                                                 MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
@@ -6504,12 +6413,12 @@ If HIRE_messages = 1 Then
                                                                             If employer_name_jobs_panel = HIRE_employer_name Then
                                                                                 ' 'msgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5828"
 
-                                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                                ' 'msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                                ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                                ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                                ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                                ' ' 'msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                                 
-                                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                                ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                                 ' 'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                                 ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -6521,6 +6430,8 @@ If HIRE_messages = 1 Then
 
                                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                                 ' End If 
+
+                                                                                msgbox "Testing -- there is an exact match for employer name but doesn't matter since TIKL will get created"
 
                                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches HIRE employer name exactly. Created TIKLs should be removed. Message should be deleted." 
 
@@ -6534,12 +6445,12 @@ If HIRE_messages = 1 Then
                                                                             ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
                                                                                 'msgBox "Testing -- The employer names match exactly. Will determine the month if it needs to flag and skip or delete. 5828"
 
-                                                                                EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                                                EMReadScreen JOBS_footer_year, 2, 20, 58	
-                                                                                JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                                                                                ' 'msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
+                                                                                ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                                                ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                                                ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                                ' ' 'msgbox "Testing -- JOBS_footer_month_year_check" & JOBS_footer_month_year_check
                                                                                 
-                                                                                current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                                                ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
                                                                                 ' 'msgbox "Testing -- current_MAXIS_footer_month_year_check" & current_MAXIS_footer_month_year_check
 
                                                                                 ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
@@ -6551,6 +6462,8 @@ If HIRE_messages = 1 Then
 
                                                                                 '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
                                                                                 ' End If 
+
+                                                                                msgbox "Testing -- there is an exact match for employer name but doesn't matter since TIKL will get created"
                                                                                 
                                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". No CASE/NOTE created. JOBS panel matches first word of HIRE employer name. Created TIKLs should be removed. Message should be deleted." 
 
@@ -6738,7 +6651,10 @@ If HIRE_messages = 1 Then
 
         'Navigate to TIKLs for the X number
         'Set the TIKLs to first of next month
-        EmWriteScreen next_month_TIKLs, 4, 67
+        EmWriteScreen next_month_footer_month, 4, 67
+        EmWriteScreen "01", 4, 70
+        EmWriteScreen next_month_footer_year, 4, 73
+        msgbox "did it write correctly?"
         Call write_value_and_transmit("X", 4, 12)
         EmWriteScreen "_", 7, 39
         EmWriteScreen "X", 19, 39
@@ -6831,6 +6747,8 @@ If HIRE_messages = 1 Then
                             all_done = true
                         End If
 
+                        msgbox "Testing -- make sure it added initial info to excel sheet correctly"
+
                         MsgBox "It is about to delete the TIKL message. Confirm before proceeding."
                         'Delete the message
                         Call write_value_and_transmit("D", dail_row, 3)
@@ -6911,6 +6829,7 @@ If HIRE_messages = 1 Then
                             script_end_procedure_with_error_report("Script end error - something went wrong with deleting the TIKL message - 6897.")
                         End If
                         
+                        msgbox "Testing -- make sure it updated excel sheet correctly"
                         TIKL_excel_row = TIKL_excel_row + 1
                     
                     Else
