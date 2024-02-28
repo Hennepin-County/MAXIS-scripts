@@ -604,7 +604,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					    ' PushButton 495, 210, 55, 15, "Button 2", Button14
 					    ' PushButton 495, 225, 55, 15, "Button 2", Button15
 					    ' PushButton 495, 240, 55, 15, "Button 2", Button16
-						PushButton 205, 360, 135, 15, "MFIP Oriendation Document", mfip_orientation_word_doc_btn
+						PushButton 205, 360, 135, 15, "MFIP Orientation Document", mfip_orientation_word_doc_btn
 						' OkButton 495, 365, 50, 15
 
 					EndDialog
@@ -892,7 +892,7 @@ Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, 
 If family_cash_program = "DWP" Then
 	STATS_counter = 1
 	STATS_manualtime = 60		'if DWP - the manual time is changed becuase we didn't complete an orientation
-	end_msg = "The NOTES - MFIP Orienation script has completed without taking any action." & vbCr
+	end_msg = "The NOTES - MFIP Orientation script has completed without taking any action." & vbCr
 	end_msg = end_msg & "You have indicated that the family cash program is DWP." & vbCr & vbCr
 	end_msg = end_msg & "This script does not have support for the financial orientation and information on DWP cases. This functionality is built to specifically support MFIP cases and MFIP caregivers."
 Else
