@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("02/27/2024", "Removed eligibility details from case note. Please use NOTES-Eligibility Summary to document this information.", "Megan Geissler, Hennepin County")
 Call changelog_update("06/26/2023", "Added handling to support selection of specific programs for HRF processing.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Fixed a bug that prevented the script from reading the grant amount if Significant Change was applied on MFIP. Additionally added functionality to copy significant change information into the casenote if ELIG/MF is read.", "Casey Love, Hennepin County")
 Call changelog_update("03/06/2019", "Added 2 new options to the Notes on Income button to support referencing CASE/NOTE made by Earned Income Budgeting.", "Casey Love, Hennepin County")
@@ -96,6 +97,10 @@ Do
         Call validate_MAXIS_case_number(err_msg, "*")
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
         If (MFIP_check = 0 and SNAP_check = 0 and HC_check = 0 and GA_check = 0 and MSA_check = 0) then err_msg = err_msg & "* Select all applicable programs at monthly report."
+
+		'Checking for PRIV cases.
+		EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
+		IF priv_check = "PRIVIL" THEN script_end_procedure("This case is a privliged case. You do not have access to this case.")
 
         'Checking to ensure the case is actually at a HRF
         Call check_for_MAXIS(False)
@@ -230,7 +235,7 @@ If LTC_case = vbYes then
 
 	'confirms that case is in the footer month/year selected by the user
 	Call MAXIS_footer_month_confirmation
-	MAXIS_background_check
+	Call MAXIS_background_check
 
 	'Goes to STAT WKEX to get deductions and possible FIAT reasons to autofil the dialog
 	Call navigate_to_MAXIS_screen("STAT", "WKEX")
@@ -403,8 +408,6 @@ If LTC_case = vbYes then
 			      EditBox 50, 170, 395, 15, other_notes
 			      EditBox 235, 190, 210, 15, verifs_needed
 			      EditBox 235, 210, 210, 15, actions_taken
-			      CheckBox 100, 235, 175, 10, "Check here to case note grant info from ELIG/MSA.", grab_MSA_info_check
-			      CheckBox 100, 250, 170, 10, "Check here to case note grant info from ELIG/HC. ", grab_HC_info_check
 			      EditBox 165, 275, 105, 15, worker_signature
 			      ButtonGroup ButtonPressed
 			    	OkButton 340, 275, 50, 15
@@ -509,156 +512,11 @@ If LTC_case = vbYes then
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
 
-	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
-	If grab_MSA_info_check = 1 then		'Going to MSA
-		call navigate_to_MAXIS_screen("ELIG", "MSA_")
-		EMReadScreen MSPR_check, 4, 3, 47
-		If MSPR_check <> "MSPR" then
-			MsgBox "The script couldn't find ELIG/MSA. It will now jump to case note."
-		Else
-			EMWriteScreen "MSSM", 20, 71	'Finding the summary
-			transmit
-			EMWriteScreen "99", 20, 78		'Finding the most recent approved version
-			transmit
-			mx_row = 7
-			Do
-				EMReadScreen appr_status, 8, mx_row, 50
-				If appr_status = "APPROVED" Then
-					EMReadScreen appr_version, 2, mx_row, 22
-					appr_version = trim(appr_version)
-					appr_version = right("00"& appr_version, 2)
-					Exit Do
-				Else
-					mx_row = mx_row + 1
-				End If
-			Loop until appr_status = "        "
-			If appr_version = "" then
-				MsgBox "The script could not find an APPROVED version of MSA in the month " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". It will now go to case note."
-			Else
-				EMWriteScreen appr_version, 18, 54
-				transmit
-				EMReadScreen MSSM_line_01, 37, 11, 46	'Wordage for the case note
-				EMReadScreen MSA_grant, 8, 11, 73		'Checking the amount - if a supplement, getting additional detail
-				MSA_grant = trim(MSA_grant)
-				If MSA_grant <> "81.00" Then			'Anything other than 81 is typically a supplement
-					EMWriteScreen "X", 9, 44
-					transmit
-					mx_row = 8
-					'This will read each row in the supplement pop up to add deail to the case note
-					Do
-						EMReadScreen need_type, 2, mx_row, 6
-						If need_type = "__" Then Exit Do
-						EMReadScreen special_need, 21, mx_row, 9
-						EMReadScreen amount, 8, mx_row, 32
-						special_need = trim(special_need)
-						amount = trim(amount)
-						msa_elig = msa_elig & "; " & special_need & " - $" & amount
-						mx_row = mx_row + 1
-						If mx_row = 14 Then
-							PF20
-							mx_row = 8
-						End If
-						EMReadScreen list_end, 4, 19, 16
-					Loop until list_end = "LAST"
-					PF3
-				End If
-				If msa_elig <> "" Then msa_elig = "; Special Needs Supplements:" & msa_elig
-			End If
-		End if
-		msa_elig = MSSM_line_01 & msa_elig
-	End If
-	'Getting info about HC approval if requested
-	If grab_HC_info_check = checked Then
-		For each member in HH_member_array
-			clt_ref_num = member
-			call navigate_to_MAXIS_screen("ELIG", "HC__")
-			EMReadScreen hc_elig_check, 4, 3, 51
-			If hc_elig_check <> "HHMM" then
-				MsgBox "The script couldn't find ELIG/HC. It will now jump to case note."
-			Else
-				EMWriteScreen MAXIS_footer_month, 20, 56            'Goes to the next month and checks that elig results exist
-				EMWriteScreen MAXIS_footer_year,  20, 59
-				transmit
-				row = 8                                          'Reads each line of Elig HC to find all the approved programs in a case
-				Do
-			    	EMReadScreen clt_ref_num, 2, row, 3
-			    	EMReadScreen clt_hc_prog, 4, row, 28
-			    	If clt_ref_num = "  " AND clt_hc_prog <> "    " then        'If a client has more than 1 program - the ref number is only listed at the top one
-			        	prev = 1
-			        	Do
-				            EMReadScreen clt_ref_num, 2, row - prev, 3
-				            prev = prev + 1
-				        Loop until clt_ref_num <> "  "
-				    End If
-				    If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then     'Gets additional information for all clts with HC programs on this case
-				        Do
-				            EMReadScreen prog_status, 3, row, 68
-				            If prog_status <> "APP" Then                        'Finding the approved version
-				                EMReadScreen total_versions, 2, row, 64
-				                If total_versions = "01" Then
-				                    error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-				                Else
-				                    EMReadScreen current_version, 2, row, 58
-				                    If current_version = "01" Then
-				                        error_processing_msg = error_processing_msg & vbNewLine & "Appears HC eligibility was not approved in " & approval_month & "/" & approval_year & " for " & clt_ref_num & ", please approve HC and rerunscript."
-				                        Exit Do
-				                    End If
-				                    prev_version = right ("00" & abs(current_version) - 1, 2)
-				                    EMWriteScreen prev_version, row, 58
-				                    transmit
-				                End If
-				            Else
-				                EMReadScreen elig_result, 8, row, 41        'Goes into the elig version to get the major program and elig type
-				                EMWriteScreen "X", row, 26
-				                transmit
-								If clt_hc_prog = "MA  " then
-									mx_col = 19
-									Do
-										EMReadScreen elig_month, 2, 6, mx_col
-										EMReadScreen elig_year, 2, 6, mx_col + 3
-										IF elig_month = MAXIS_footer_month AND elig_year = MAXIS_footer_year Then
-							                EMReadScreen waiver_check, 1, 14, mx_col + 2        'Checking to see if case may be LTC or Waiver'
-							                EMReadScreen method_check, 1, 13, mx_col + 2
-											EMReadScreen obligation, 8, 17, mx_col - 1			'Getting the spenddown amount
-											obligation = trim(obligation)
-											Exit Do
-										Else
-											mx_col = mx_col + 11
-										End If
-									Loop until mx_col = 85
-								End If
-								Do
-				                    transmit
-				                    EMReadScreen hc_screen_check, 8, 5, 3
-				                Loop until hc_screen_check = "Program:"
-				                If clt_hc_prog = "SLMB" OR clt_hc_prog = "QMB " Then
-				                    EMReadScreen elig_type, 2, 13, 78
-				                    EMReadScreen Majr_prog, 2, 14, 78
-				                End If
-				                If clt_hc_prog = "MA  " Then
-				                    EMReadScreen elig_type, 2, 13, 76
-				                    EMReadScreen Majr_prog, 2, 14, 76
-				                End If
-				                transmit
-				            End If
-				        Loop until current_version = "01" OR prog_status = "APP"
-				        'Adds everything to a varriable so an array can be created
-				        HC_Elig_Info = HC_Elig_Info & "; Memb " & clt_ref_num & " is approved " & trim(clt_hc_prog) & " : " & Majr_prog & "-" & elig_type
-						If obligation <> "" Then HC_Elig_Info = HC_Elig_Info & " with obligation of $" & obligation
-				    	obligation = ""
-					End If
-				    row = row + 1
-				Loop until clt_hc_prog = "    "
-			End If
-		Next
-		HC_Elig_Info = right(HC_Elig_Info, len(HC_Elig_Info) - 2)
-	End If
-
 	'Setting up some variables for the case note
 	programs_list = "HC"
 	If MSA_check = checked Then programs_list = programs_list & " & MSA"
 	If admit_date <> "" then facility_info = facility_info & ". Admit Date: " & admit_date
-	If msa_elig = "" AND HC_Elig_Info = "" Then no_elig_results = TRUE
+	
 
 	'Enters the case note-----------------------------------------------------------------------------------------------
 	start_a_blank_CASE_NOTE
@@ -677,9 +535,6 @@ If LTC_case = vbYes then
 	IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-	If no_elig_results <> TRUE then call write_variable_in_CASE_NOTE("---")
-	call write_bullet_and_variable_in_case_note("MSA Approval", msa_elig)
-	call write_bullet_and_variable_in_case_note("HC Approval", HC_Elig_Info)
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -708,9 +563,6 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 			      CheckBox 330, 190, 85, 10, "Sent forms to AREP?", sent_arep_checkbox
 			      EditBox 235, 205, 210, 15, verifs_needed
 			      EditBox 235, 225, 210, 15, actions_taken
-			      CheckBox 100, 245, 175, 10, "Check here to case note grant info from ELIG/MFIP.", grab_MFIP_info_check
-			      CheckBox 100, 260, 170, 10, "Check here to case note grant info from ELIG/FS. ", grab_FS_info_check
-			      CheckBox 100, 275, 170, 10, "Check here to case note grant info from ELIG/GA.", grab_GA_info_check
 			      EditBox 340, 245, 105, 15, worker_signature
 			      ButtonGroup ButtonPressed
 			        OkButton 340, 265, 50, 15
@@ -815,52 +667,6 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
 
-	'grabbing info from elig----------------------------------------------------------------------------------------------------------------------
-	If grab_MFIP_info_check = 1 then
-		call navigate_to_MAXIS_screen("ELIG", "MFIP")
-        EMReadScreen sig_change_check, 4, 3, 38
-        If sig_change_check = "MFSC" Then
-            EMReadScreen budeget_month_income, 8, 9, 35
-            budeget_month_income = trim(budeget_month_income)
-            EMReadScreen payment_month_income, 8, 9, 54
-            payment_month_income = trim(payment_month_income)
-            transmit
-        End If
-		EMReadScreen MFPR_check, 4, 3, 47
-		If MFPR_check <> "MFPR" then
-			MsgBox "The script couldn't find ELIG/MFIP. It will now jump to case note."
-		Else
-			EMWriteScreen "MFSM", 20, 71
-			transmit
-			EMReadScreen MFSM_line_01, 37, 13, 44
-			EMReadScreen MFSM_line_02, 37, 14, 44
-			EMReadScreen MFSM_line_03, 37, 15, 44
-			EMReadScreen MFSM_line_04, 37, 16, 44
-		End if
-	End if
-	If grab_FS_info_check = 1 then
-		call navigate_to_MAXIS_screen("ELIG", "FS__")
-		EMReadScreen FS_check, 4, 3, 48
-		If FS_check <> "FSPR" then
-			MsgBox "The script couldn't find Elig/FS. It will now jump to case note."
-		Else
-			EMWriteScreen "FSSM", 19, 70
-			transmit
-			EMReadScreen FS_line_01, 37, 13, 44
-		End if
-	End If
-	If grab_GA_info_check = 1 Then
-			call navigate_to_MAXIS_screen("ELIG", "GA__")
-			EMReadScreen GAPR_check, 4, 3, 48
-			IF GAPR_check <> "GAPR" Then
-				MsgBox "The script couldn't find Elig/GA. It will now jump to case note."
-			Else
-				EMWriteScreen "GASM", 20, 70
-				transmit
-				EMReadScreen GA_line_01, 10, 14, 70
-			END If
-	END IF
-
 	'Creating program list---------------------------------------------------------------------------------------------
 	If MFIP_check = 1 Then programs_list = "MFIP "
 	If SNAP_check = 1 Then programs_list = programs_list & "SNAP "
@@ -886,28 +692,57 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 	call write_variable_in_CASE_NOTE("---")
-    If sig_change_check = "MFSC" Then
-        call write_variable_in_CASE_NOTE("   Significant Change used: Total income decreased from $" & budeget_month_income & " to $" & payment_month_income & ".")
-    End If
-	If MFPR_check = "MFPR" then
-	  call write_variable_in_CASE_NOTE("   " & MFSM_line_01)
-	  call write_variable_in_CASE_NOTE("   " & MFSM_line_02)
-	  call write_variable_in_CASE_NOTE("   " & MFSM_line_03)
-	  call write_variable_in_CASE_NOTE("   " & MFSM_line_04)
-	  call write_variable_in_CASE_NOTE("---")
-	End if
-	If FS_check = "FSPR" then
-		call write_variable_in_CASE_NOTE("       FS " & FS_line_01)
-		call write_variable_in_CASE_NOTE("---")
-	End if
-	If GAPR_check = "GAPR" Then
-		call write_variable_in_CASE_NOTE("       GA Benefit Amount............" & GA_line_01)
-		call write_variable_in_CASE_NOTE("---")
-	End If
 	call write_variable_in_CASE_NOTE(worker_signature)
+
+
 
 	end_msg = "Success! Your HRF for " & HRF_month & " has been case noted."
 
 End If
 
 script_end_procedure_with_error_report(end_msg & vbcr & "Please make sure to accept the Work items in ECF associated with this HRF. Thank you!")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/27/2024
+'--Tab orders reviewed & confirmed----------------------------------------------02/27/2024
+'--Mandatory fields all present & Reviewed--------------------------------------02/27/2024
+'--All variables in dialog match mandatory fields-------------------------------02/27/2024
+'Review dialog names for content and content fit in dialog----------------------02/27/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/27/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/27/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/27/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------02/27/2024
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/27/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/27/2024
+'--PRIV Case handling reviewed -------------------------------------------------02/27/2024
+'--Out-of-County handling reviewed----------------------------------------------NA
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/27/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------NA
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/27/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/27/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------02/27/2024
+'--Denomination reviewed -------------------------------------------------------02/27/2024
+'--Script name reviewed---------------------------------------------------------02/27/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------NA
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/27/2024
+'--comment Code-----------------------------------------------------------------02/27/2024
+'--Update Changelog for release/update------------------------------------------02/27/2024
+'--Remove testing message boxes-------------------------------------------------02/27/2024
+'--Remove testing code/unnecessary code-----------------------------------------02/27/2024
+'--Review/update SharePoint instructions----------------------------------------02/27/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/27/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/27/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2024
+'--Complete misc. documentation (if applicable)---------------------------------02/27/2024
+'--Update project team/issue contact (if applicable)----------------------------02/27/2024
