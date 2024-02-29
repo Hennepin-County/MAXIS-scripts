@@ -549,29 +549,30 @@ function psn_dialog()
 	DropListBox 15, 90, 105, 15, ""+CHR(9)+"Yes- At least 2 selected"+chr(9)+"No- Section NOT completed", psn_section_4_dropdown
 	DropListBox 15, 105, 105, 15, ""+CHR(9)+"Yes- Section completed"+chr(9)+"No- Section NOT completed", psn_section_5_dropdown
 	EditBox 95, 120, 120, 15, psn_cert_prof
-	EditBox 250, 120, 125, 15, psn_facility	'TODO: PUll vendor # & name from FACI panel and auto fill. User can edit if necessary. 
-	DropListBox 65, 155, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
-	DropListBox 195, 155, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
-	DropListBox 65, 175, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
-	DropListBox 255, 175, 130, 20, ""+CHR(9)+"04-Permanent Ill or Incap"+chr(9)+"05-Temporary Ill or Incap"+chr(9)+"06-Care of Ill or Incap Mbr"+chr(9)+"07-Requires Services In Residence"+chr(9)+"09-Mntl Ill or Dev Disabled"+chr(9)+"10-SSI/RSDI Pend"+chr(9)+"11-Appealing SSI/RSDI Denial"+chr(9)+"12-Advanced Age"+chr(9)+"13-Learning Disability"+chr(9)+"17-Protect/Court Ordered"+chr(9)+"20-Age 16 or 17 SS Approval "+chr(9)+"25-Emancipated Minor"+chr(9)+"28-Unemployable"+chr(9)+"29-Displaced Hmkr (Ft Student)"+chr(9)+"30-Minor w/ Adult Unrelated"+chr(9)+"32-ESL, Adult/HS At least half time"+chr(9)+"35-Drug/Alcohol Addiction (DAA)"+chr(9)+"99-No Elig Basis", psn_wreg_ga_elig_status
-	EditBox 65, 195, 45, 15, psn_disa_begin_date
-	EditBox 255, 195, 45, 15, psn_disa_end_date
-	EditBox 65, 215, 45, 15, psn_disa_cert_start
-	EditBox 255, 215, 45, 15, psn_disa_cert_end
-	DropListBox 65, 235, 110, 15, ""+CHR(9)+"01-RSDI Only Disability"+chr(9)+"02-RSDI Only Blindness"+chr(9)+"03-SSI, SSI/RSDI Disability"+chr(9)+"04-SSI, SSI/RSDI Blindness"+chr(9)+"06-SMRT/SSA Pend"+chr(9)+"08-SMRT Certified Blindness"+chr(9)+"09-Ill/Incapacity"+chr(9)+"10-SMRT Certified Disability", psn_disa_status
-	DropListBox 255, 235, 105, 15, ""+CHR(9)+"1-DHS161/Dr Stmt"+chr(9)+"2-SMRT Certified"+chr(9)+"3-Certified For RSDI or SSI"+chr(9)+"6-Other Document"+chr(9)+"7-Professional Stmt of Need"+chr(9)+"N-No Ver Prvd", psn_disa_verif
-	EditBox 55, 260, 320, 15, psn_comments
+	EditBox 250, 120, 125, 15, psn_facility	
+	CheckBox 5, 150, 185, 10, "Check here to have script update WREG/DISA panels", psn_udpate_wreg_disa_checkbox
+	DropListBox 65, 165, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
+	DropListBox 195, 165, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
+	DropListBox 65, 185, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
+	DropListBox 255, 185, 130, 20, ""+CHR(9)+"04-Permanent Ill or Incap"+chr(9)+"05-Temporary Ill or Incap"+chr(9)+"06-Care of Ill or Incap Mbr"+chr(9)+"07-Requires Services In Residence"+chr(9)+"09-Mntl Ill or Dev Disabled"+chr(9)+"10-SSI/RSDI Pend"+chr(9)+"11-Appealing SSI/RSDI Denial"+chr(9)+"12-Advanced Age"+chr(9)+"13-Learning Disability"+chr(9)+"17-Protect/Court Ordered"+chr(9)+"20-Age 16 or 17 SS Approval "+chr(9)+"25-Emancipated Minor"+chr(9)+"28-Unemployable"+chr(9)+"29-Displaced Hmkr (Ft Student)"+chr(9)+"30-Minor w/ Adult Unrelated"+chr(9)+"32-ESL, Adult/HS At least half time"+chr(9)+"35-Drug/Alcohol Addiction (DAA)"+chr(9)+"99-No Elig Basis", psn_wreg_ga_elig_status
+	EditBox 65, 205, 45, 15, psn_disa_begin_date
+	EditBox 255, 205, 45, 15, psn_disa_end_date
+	EditBox 65, 225, 45, 15, psn_disa_cert_start
+	EditBox 255, 225, 45, 15, psn_disa_cert_end
+	DropListBox 65, 245, 110, 15, ""+CHR(9)+"01-RSDI Only Disability"+chr(9)+"02-RSDI Only Blindness"+chr(9)+"03-SSI, SSI/RSDI Disability"+chr(9)+"04-SSI, SSI/RSDI Blindness"+chr(9)+"06-SMRT/SSA Pend"+chr(9)+"08-SMRT Certified Blindness"+chr(9)+"09-Ill/Incapacity"+chr(9)+"10-SMRT Certified Disability", psn_disa_status
+	DropListBox 255, 245, 105, 15, ""+CHR(9)+"1-DHS161/Dr Stmt"+chr(9)+"2-SMRT Certified"+chr(9)+"3-Certified For RSDI or SSI"+chr(9)+"6-Other Document"+chr(9)+"7-Professional Stmt of Need"+chr(9)+"N-No Ver Prvd", psn_disa_verif
+	EditBox 55, 265, 320, 15, psn_comments
 	ButtonGroup ButtonPressed
-		PushButton 10, 280, 40, 15, "CM 13.15", psn_CM1315_btn
-		PushButton 55, 280, 35, 15, "TE18.17", psn_TE1817_btn
-		PushButton 95, 280, 30, 15, "HSS", psn_hss_btn
-		PushButton 130, 280, 30, 15, "MHM", psn_mhm_btn
-		PushButton 165, 280, 30, 15, "HSSS", psn_hsss_btn
+		PushButton 10, 285, 40, 15, "CM 13.15", psn_CM1315_btn
+		PushButton 55, 285, 35, 15, "TE18.17", psn_TE1817_btn
+		PushButton 95, 285, 30, 15, "HSS", psn_hss_btn
+		PushButton 130, 285, 30, 15, "MHM", psn_mhm_btn
+		PushButton 165, 285, 30, 15, "HSSS", psn_hsss_btn
 	Text 5, 5, 130, 10, psn_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 125, 20, 55, 10, "Document Date:"
 	Text 235, 20, 30, 10, "Member"
-	GroupBox 5, 35, 385, 115, "PSN Fields"
+	GroupBox 5, 35, 385, 105, "PSN Fields"
 	Text 125, 50, 105, 10, "Section 1: Housing Situation"
 	Text 125, 65, 105, 10, "Section 2: Disabling Condition"
 	Text 125, 80, 150, 10, "Section 3: MA Housing Stabilization Services"
@@ -579,22 +580,23 @@ function psn_dialog()
 	Text 125, 110, 220, 10, "Section 5: Transition from Residential Treatment to MN HS Program"
 	Text 20, 125, 72, 10, "Certified Professional:"
 	Text 225, 125, 25, 10, "Facility:"
-	GroupBox 5, 145, 385, 110, "WREG/DISA Panel Updates"
-	Text 30, 160, 30, 10, "FS PWE:"
-	Text 115, 160, 80, 10, "FSET Work Reg Status: "
-	Text 10, 180, 55, 10, "ABAWD Status: "
-	Text 190, 180, 65, 10, "GA Elig Basis Code:"
-	Text 10, 200, 55, 10, "Disa Begin Date: "
-	Text 205, 200, 50, 10, "Disa End Date:"
-	Text 25, 220, 40, 10, "Cert Period:"
-	Text 205, 220, 50, 10, "Cert End Date:"
+	Text 30, 170, 30, 10, "FS PWE:"
+	Text 115, 170, 80, 10, "FSET Work Reg Status: "
+	Text 10, 190, 55, 10, "ABAWD Status: "
+	Text 190, 190, 65, 10, "GA Elig Basis Code:"
+	Text 10, 210, 55, 10, "Disa Begin Date: "
+	Text 205, 210, 50, 10, "Disa End Date:"
+	Text 25, 230, 40, 10, "Cert Period:"
+	Text 205, 230, 50, 10, "Cert End Date:"
 	Text 395, 35, 45, 10, "    --Forms--"
-	Text 25, 240, 40, 10, "Disa Status: "
-	Text 215, 240, 40, 10, "Verification:"
-	Text 15, 265, 37, 10, "Comments:"
+	Text 25, 250, 40, 10, "Disa Status: "
+	Text 215, 250, 40, 10, "Verification:"
+	Text 15, 270, 37, 10, "Comments:"
+	Text 5, 140, 390, 10, ".............................................................................................................................................................................................."
+
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
+Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()	
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -725,6 +727,7 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 	'If ButtonPressed = iaa_ssi_sp_pben_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
 	If ButtonPressed = diet_link_CM_special_diet Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_002312"
 	If ButtonPressed = diet_SP_referrals Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Processing_Special_Diet_Referral.aspx"
+	If ButtonPressed = psn_CM1315_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001315"
 	If ButtonPressed = psn_TE1817_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2018.17%20ADULT%20GRH%20BASIS%20OF%20ELIGIBILITY.pdf?csf=1&web=1&e=7YWKmj"
 	If ButtonPressed = psn_hss_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=DHS-316637"
 	If ButtonPressed = psn_mhm_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg/Training_home_page.doc?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=dhs16_184936#em"
@@ -879,14 +882,16 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If psn_section_5_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 5 make selection from dropdown."
 				If psn_cert_prof = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Certified Professional or NA"
 				If psn_facility = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Facilty name or NA"
-				If psn_wreg_fs_pwe = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select FS PWE from dropdown"
-				If psn_wreg_work_wreg_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select FSET Work Reg Status from dropdown"
-				If psn_wreg_abawd_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select ABAWD Status from dropdown"
-				If psn_wreg_ga_elig_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select GA Elig Basis Code from dropdown"
-				If psn_disa_begin_date = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Disa Begin date"
-				If psn_disa_end_date = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Enter Disa Begin date"
-				If psn_disa_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select Disa Status from dropdown"
-				If psn_disa_verif = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select Verification from dropdown"
+				If psn_udpate_wreg_disa_checkbox = checked Then 
+					If psn_wreg_fs_pwe = "" OR psn_wreg_work_wreg_status = "" OR psn_wreg_abawd_status = "" OR psn_wreg_ga_elig_status = "" OR psn_disa_begin_date = "" OR psn_disa_status = "" OR psn_disa_verif = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* Update WREG/DISA checked - complete the required fields:"
+					If psn_wreg_fs_pwe = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select FS PWE from dropdown"
+					If psn_wreg_work_wreg_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select FSET Work Reg Status from dropdown"
+					If psn_wreg_abawd_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select ABAWD Status from dropdown"
+					If psn_wreg_ga_elig_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select GA Elig Basis Code from dropdown"
+					If psn_disa_begin_date = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Enter Disa Begin date"
+					If psn_disa_status = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select Disa Status from dropdown"
+					If psn_disa_verif = "" Then psn_err_msg = psn_err_msg & vbNewLine & "  * Select Verification from dropdown"
+				End If
 			End If
 
 			If form_type_array(form_type_const, form_errors) = sf_form_name then 'Error handling for Shelter Form
@@ -997,7 +1002,7 @@ end function
 'Check for case number & footer & background
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-Call MAXIS_background_check
+
 
 'DIALOG COLLECTING CASE, FOOTER MO/YR===========================================================================
 Do
@@ -1551,12 +1556,19 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
   		Call write_value_and_transmit(Left(psn_member_dropdown, 2), 20, 76)
 		EMReadScreen psn_disa_begin_date, 10, 6, 47
 		EMReadScreen psn_disa_end_date, 10, 6, 69
+		EMReadScreen psn_disa_cert_start, 10, 7, 47
+		EMReadScreen psn_disa_cert_end, 10, 7, 69
+
 		EMReadScreen psn_disa_status, 2 , 11, 59
 		EMReadScreen psn_disa_verif, 1, 11, 69
 		psn_disa_begin_date = replace(psn_disa_begin_date,  "__ __ ____", "")
 		psn_disa_end_date = replace(psn_disa_end_date,  "__ __ ____", "")
 		psn_disa_begin_date = replace(psn_disa_begin_date, " ", "/")
 		psn_disa_end_date = replace(psn_disa_end_date, " ", "/")
+		psn_disa_cert_start = replace(psn_disa_cert_start,  "__ __ ____", "")
+		psn_disa_cert_end = replace(psn_disa_cert_end,  "__ __ ____", "")
+		psn_disa_cert_start = replace(psn_disa_cert_start, " ", "/")
+		psn_disa_cert_end = replace(psn_disa_cert_end, " ", "/")
 		psn_disa_status = replace(psn_disa_status, "__", "")
 		psn_disa_verif = replace(psn_disa_verif, "_", "")
 		'MsgBox "psn_disa_begin_date" & psn_disa_begin_date & "psn_disa_end_date" & psn_disa_end_date & "psn_disa_status" & psn_disa_status & "psn_disa_verif" & psn_disa_verif
@@ -1579,7 +1591,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		If psn_disa_verif = "7" Then psn_disa_verif = "7-Professional Stmt of Need"
 		If psn_disa_verif = "N" Then psn_disa_verif = "N-No Ver Prvd"
 
-	'TODO: Only need to read vendor from FACI Panel and plug this into the dialog for the Facility  
+	'Only reading vendor numer and name from current faci panel 
 		Do
 			Call navigate_to_MAXIS_screen("STAT", "FACI")		'Navigate to FACI 
 			EMReadScreen nav_check, 4, 2, 44
@@ -1633,44 +1645,47 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 				If currently_in_FACI = True then
 					EmReadscreen psn_faci_vendor_number, 8, 5, 43
 					EMReadScreen psn_faci_vendor_name, 30, 6, 43
-					EMReadScreen psn_faci_facility_type, 2, 7, 43
-					EMReadScreen psn_faci_fs_elig, 1, 8, 43
-					EMReadScreen psn_faci_plan_req, 1, 11, 52
-					EMReadScreen psn_faci_cty_app_plac, 1, 12, 52
-					EMReadScreen psn_faci_postpay, 1, 13, 71
-					EMReadScreen psn_faci_grh_rate, 1 , faci_row, 34
-					EMReadScreen psn_faci_date_in, 10, faci_row, 47
-					EMReadScreen psn_faci_date_out, 10, faci_row, 	71
+					' EMReadScreen psn_faci_facility_type, 2, 7, 43
+					' EMReadScreen psn_faci_fs_elig, 1, 8, 43
+					' EMReadScreen psn_faci_plan_req, 1, 11, 52
+					' EMReadScreen psn_faci_cty_app_plac, 1, 12, 52
+					' EMReadScreen psn_faci_postpay, 1, 13, 71
+					' EMReadScreen psn_faci_grh_rate, 1 , faci_row, 34
+					' EMReadScreen psn_faci_date_in, 10, faci_row, 47
+					' EMReadScreen psn_faci_date_out, 10, faci_row, 	71
 
 					psn_faci_vendor_name = trim(replace(psn_faci_vendor_name, "_", ""))
 					psn_faci_vendor_number = trim(replace(psn_faci_vendor_number, "_", ""))
-					If psn_faci_date_in = "__ __ ____" Then psn_faci_date_in = ""
-					psn_faci_date_in = replace(psn_faci_date_in, " ", "/")
-					If psn_faci_date_out = "__ __ ____" Then psn_faci_date_out = ""
-					psn_faci_date_out = replace(psn_faci_date_out, " ", "/")
+					psn_facility = psn_faci_vendor_number & "-" & psn_faci_vendor_name
+
+
+					' If psn_faci_date_in = "__ __ ____" Then psn_faci_date_in = ""
+					' psn_faci_date_in = replace(psn_faci_date_in, " ", "/")
+					' If psn_faci_date_out = "__ __ ____" Then psn_faci_date_out = ""
+					' psn_faci_date_out = replace(psn_faci_date_out, " ", "/")
 					
-					'List of FACI types
-					If psn_faci_facility_type = "41" Then psn_faci_facility_type = "41-NF-I"
-					If psn_faci_facility_type = "42" Then psn_faci_facility_type = "42-NF-II"
-					If psn_faci_facility_type = "43" Then psn_faci_facility_type = "43-ICF-DD"
-					If psn_faci_facility_type = "44" Then psn_faci_facility_type = "44-Short Stay in NF-I"
-					If psn_faci_facility_type = "45" Then psn_faci_facility_type = "45-Short Stay in NF-II"
-					If psn_faci_facility_type = "46" Then psn_faci_facility_type = "46-Short Stay in ICF-DD"
-					If psn_faci_facility_type = "47" Then psn_faci_facility_type = "47-RTC - Not IMD"
-					If psn_faci_facility_type = "48" Then psn_faci_facility_type = "48-Medidcal Hosp IMD Facilities"
-					If psn_faci_facility_type = "49" Then psn_faci_facility_type = "49-MSOP"
-					If psn_faci_facility_type = "50" Then psn_faci_facility_type = "50-IMD/RTC"
-					If psn_faci_facility_type = "51" Then psn_faci_facility_type = "51-Rule 31 CD-IMD"
-					If psn_faci_facility_type = "52" Then psn_faci_facility_type = "52-Rule 36 MI-IMD"
-					If psn_faci_facility_type = "53" Then psn_faci_facility_type = "53-IMD Hosp GRH Facilities"
-					If psn_faci_facility_type = "55" Then psn_faci_facility_type = "55-Adult Foster Care/Rule 203"
-					If psn_faci_facility_type = "56" Then psn_faci_facility_type = "56-GRH (not FC or Rule 36)"
-					If psn_faci_facility_type = "57" Then psn_faci_facility_type = "57-Rule 36 MI-Non-IMD Other"
-					If psn_faci_facility_type = "60" Then psn_faci_facility_type = "60-Non-GRH"
-					If psn_faci_facility_type = "61" Then psn_faci_facility_type = "61-Rule 31 CD-Non-IMD"
-					If psn_faci_facility_type = "67" Then psn_faci_facility_type = "67-Family Violence Shltr"
-					If psn_faci_facility_type = "68" Then psn_faci_facility_type = "68-County Cor Facility"
-					If psn_faci_facility_type = "69" Then psn_faci_facility_type = "69-Non-Cty Adult Correctional"
+					' 'List of FACI types
+					' If psn_faci_facility_type = "41" Then psn_faci_facility_type = "41-NF-I"
+					' If psn_faci_facility_type = "42" Then psn_faci_facility_type = "42-NF-II"
+					' If psn_faci_facility_type = "43" Then psn_faci_facility_type = "43-ICF-DD"
+					' If psn_faci_facility_type = "44" Then psn_faci_facility_type = "44-Short Stay in NF-I"
+					' If psn_faci_facility_type = "45" Then psn_faci_facility_type = "45-Short Stay in NF-II"
+					' If psn_faci_facility_type = "46" Then psn_faci_facility_type = "46-Short Stay in ICF-DD"
+					' If psn_faci_facility_type = "47" Then psn_faci_facility_type = "47-RTC - Not IMD"
+					' If psn_faci_facility_type = "48" Then psn_faci_facility_type = "48-Medidcal Hosp IMD Facilities"
+					' If psn_faci_facility_type = "49" Then psn_faci_facility_type = "49-MSOP"
+					' If psn_faci_facility_type = "50" Then psn_faci_facility_type = "50-IMD/RTC"
+					' If psn_faci_facility_type = "51" Then psn_faci_facility_type = "51-Rule 31 CD-IMD"
+					' If psn_faci_facility_type = "52" Then psn_faci_facility_type = "52-Rule 36 MI-IMD"
+					' If psn_faci_facility_type = "53" Then psn_faci_facility_type = "53-IMD Hosp GRH Facilities"
+					' If psn_faci_facility_type = "55" Then psn_faci_facility_type = "55-Adult Foster Care/Rule 203"
+					' If psn_faci_facility_type = "56" Then psn_faci_facility_type = "56-GRH (not FC or Rule 36)"
+					' If psn_faci_facility_type = "57" Then psn_faci_facility_type = "57-Rule 36 MI-Non-IMD Other"
+					' If psn_faci_facility_type = "60" Then psn_faci_facility_type = "60-Non-GRH"
+					' If psn_faci_facility_type = "61" Then psn_faci_facility_type = "61-Rule 31 CD-Non-IMD"
+					' If psn_faci_facility_type = "67" Then psn_faci_facility_type = "67-Family Violence Shltr"
+					' If psn_faci_facility_type = "68" Then psn_faci_facility_type = "68-County Cor Facility"
+					' If psn_faci_facility_type = "69" Then psn_faci_facility_type = "69-Non-Cty Adult Correctional"
 					'MsgBox psn_faci_vendor_number & "-" & psn_faci_vendor_name & "-" & psn_faci_facility_type & "-" & psn_faci_fs_elig & "-" & psn_faci_plan_req & "-" & psn_faci_cty_app_plac & "-" & psn_faci_postpay & "-" & psn_faci_grh_rate & "-" & psn_faci_date_in & "-" & psn_faci_date_out
 
 				End if
@@ -1859,7 +1874,6 @@ Do
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
 			
-			
 			Call dialog_movement	'function to move throughout the dialogs
 			Call main_error_handling	'function for error handling of main dialog of forms 
 
@@ -1870,6 +1884,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
+
 
 'WRITE IN MAXIS===========================================================================
 Call MAXIS_background_check
@@ -2231,9 +2246,108 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 		END IF
 	End If
 		
-	'If form_type_array(form_type_const, maxis_panel_write) = psn_form_name then 	' TODO: WRITE FOR PSN	
+	If form_type_array(form_type_const, maxis_panel_write) = psn_form_name then 	
+		If psn_udpate_wreg_disa_checkbox = checked Then 
 
-	'End If
+			Do																'Function to write information to DISA
+				Call Navigate_to_MAXIS_screen ("STAT", "DISA")				'Goes to DISA for the correct person
+				EMReadScreen nav_check, 4, 2, 45
+			Loop until nav_check = "DISA"
+			EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
+			transmit
+			EMReadScreen exist_check, 1, 2, 73
+				If exist_check = "0" Then 
+					Call write_value_and_transmit ("NN", 20, 79)
+				Else	
+					PF9
+				End If
+				EmWaitReady 0, 0
+
+				'Handling for fields left blank in the dialog			
+				If psn_disa_begin_date = "" Then 
+					disa_start_month = "__"
+					disa_start_day = "__"
+					disa_start_year = "____"
+				Else 
+					disa_start_month = right("00" & DatePart("m", psn_disa_begin_date), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
+					disa_start_day = right("00" & DatePart("d", psn_disa_begin_date), 2)
+					disa_start_year = DatePart("yyyy", psn_disa_begin_date)
+				End If
+				
+				If psn_disa_end_date = "" Then 
+					disa_end_month = "__"
+					disa_end_day = "__"
+					disa_end_year = "____"
+				Else 
+					disa_end_month = right("00" & DatePart("m", psn_disa_end_date), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
+					disa_end_day = right("00" & DatePart("d", psn_disa_end_date), 2)
+					disa_end_year = DatePart("yyyy", psn_disa_end_date)
+				End If
+
+				If psn_disa_cert_start = "" Then 
+					cert_start_month = "__"
+					cert_start_day = "__"
+					cert_start_year = "____"
+				Else 
+					cert_start_month = right("00" & DatePart("m", psn_disa_cert_start), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
+					cert_start_day = right("00" & DatePart("d", psn_disa_cert_start), 2)
+					cert_start_year = DatePart("yyyy", psn_disa_cert_start)
+				End If 
+
+				If psn_disa_cert_end = "" Then 
+					cert_end_month = "__"
+					cert_end_day = "__"
+					cert_end_year = "____"
+				Else 
+					cert_end_month = right("00" & DatePart("m", psn_disa_cert_end), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
+					cert_end_day = right("00" & DatePart("d", psn_disa_cert_end), 2)
+					cert_end_year = DatePart("yyyy", psn_disa_cert_end)
+				End If
+
+				'Writing the Disability Begin Date'
+				EMWriteScreen disa_start_month, 6, 47
+				EMWriteScreen disa_start_day, 6, 50
+				EMWriteScreen disa_start_year, 6, 53
+				
+				'Writing the Disability End Date'
+				EMWriteScreen disa_end_month, 6, 69
+				EMWriteScreen disa_end_day, 6, 72
+				EMWriteScreen disa_end_year, 6, 75
+				
+				'Writing the Certification Begin Date'
+				EMWriteScreen cert_start_month, 7, 47
+				EMWriteScreen cert_start_day, 7, 50
+				EMWriteScreen cert_start_year, 7, 53
+				
+				'Writing the Certification End Date'
+				EMWriteScreen cert_end_month, 7, 69
+				EMWriteScreen cert_end_day, 7, 72
+				EMWriteScreen cert_end_year, 7, 75
+
+				'Writing the disa status and verif code'
+				EMWriteScreen psn_disa_status, 11, 59
+				EMWriteScreen psn_disa_verif, 11, 69
+				transmit
+
+			Do																'Function to write information to DISA
+				Call Navigate_to_MAXIS_screen("STAT", "WREG")				'Goes to DISA for the correct person
+				EMReadScreen nav_check, 4, 2, 48
+			Loop until nav_check = "WREG"
+			EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
+			transmit
+			EMReadScreen exist_check, 1, 2, 73
+			If exist_check = "0" Then 
+				Call write_value_and_transmit ("NN", 20, 79)
+			Else	
+				PF9
+			End If
+			EMWriteScreen Left(psn_wreg_fs_pwe, 1), 6, 68						
+			EMWriteScreen Left(psn_wreg_work_wreg_status, 2), 8, 50			
+			EMWriteScreen Left(psn_wreg_abawd_status, 2), 13, 50				
+			EMWriteScreen Left(psn_wreg_ga_elig_status, 2),  15, 50			
+			transmit	
+		End If
+	End If
 
 		
 
@@ -2318,6 +2432,24 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 Next
 
+	'Formatting PSN sections for case note
+	' all_section_string = ""
+	' If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then section_string = "needed assistance to access or maintain housing"
+	' If psn_section_2_dropdown = "Yes- 1 selected" Then section_string = "disabling condition"
+	' If psn_section_5_dropdown = "Yes- Section completed"  Then section_string = "exiting of a residnetial behavioral health treatment with instable housing"
+
+	' If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then all_section_string = all_section_string & section_string & ", "
+	' If psn_section_2_dropdown = "Yes- 1 selected" Then all_section_string = all_section_string & section_string & ", "
+	' If psn_section_5_dropdown = "Yes- Section completed" Then all_section_string = all_section_string & section_string & ", "
+
+	' 'PSN Signed by" & psn_cert_prof & "at" & psn_facility TODO: add this after the string
+	' string_length = Len(all_section_string) 
+	' MsgBox string_length
+
+	' MsgBox "all_section_string" & Left(all_section_string, (string_length-1))
+
+
+
 
 'CASE NOTE===========================================================================
 'TODO- 
@@ -2334,6 +2466,7 @@ If form_type_array(form_type_const, form_count) = asset_form_name then
     Call write_variable_in_case_note(worker_signature)
 End If
 ' 'ATR Case Notes
+'TODO: Should this be a person note?
 If form_type_array(form_type_const, form_count) = atr_form_name Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** ATR RECEIVED FOR" & atr_name & " ***")
@@ -2495,8 +2628,6 @@ End If
 
 
 
-
-
 ' 'IAA-SSI Case Notes
 ' If form_type_array(form_type_const, form_count) = iaa_ssi_form_name Then 
 ' 	Call start_a_blank_case_note
@@ -2582,10 +2713,37 @@ If form_type_array(form_type_const, form_count) = mtaf_form_name Then
     Call write_variable_in_case_note(worker_signature)
 End If
 
+
 'PSN Case Notes
+'TODO: Should this be a person note?
 If form_type_array(form_type_const, form_count) = psn_form_name Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
+	CALL write_bullet_and_variable_in_case_note("Date Received", psn_date_received)
+	CALL write_bullet_and_variable_in_case_note("Member", psn_member_dropdown)
+	If (psn_section_1_dropdown <> "No- Section NOT completed" OR psn_section_2_dropdown <> "No- Section NOT completed" OR psn_section_3_dropdown <> "No- Section NOT completed" OR psn_section_4_dropdown <> "No- Section NOT completed" OR psn_section_5_dropdown <> "No- Section NOT completed") Then 
+		If (psn_section_1_dropdown <> "No- Section NOT completed" OR psn_section_2_dropdown <> "No- Section NOT completed") Then 
+			Call write_variable_in_case_note("* The PSN meets GA and GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their")
+		Else 
+			Call write_variable_in_case_note("* The PSN meets GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their") 'TODO: DUE to their is not showing up in case note  
+		End If
+		If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then CALL write_variable_in_case_note("    -needed assistance to access or maintain housing")
+		If psn_section_2_dropdown = "Yes- 1 selected" Then CALL write_variable_in_case_note( "    -disabling condition")
+		If psn_section_5_dropdown = "Yes- Section completed" Then CALL write_variable_in_case_note("    -exit of a residential behavioral health treatment with instable housing")
+	End If
+	CALL write_variable_in_case_note("* PSN Signed by " & psn_cert_prof & " at " & psn_facility)
+
+	CALL write_bullet_and_variable_in_case_note("Section 1: Housing Situation", psn_section_1_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Section 2: Disabling Condtion", psn_section_2_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Section 3: MA Housing Stabilization Services", psn_section_3_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Section 4: MN Housing Support Supplemental Services", psn_section_4_dropdown)
+	CALL write_bullet_and_variable_in_case_note("Section 5: Transition from Residential Treatment to MN HS Program", psn_section_5_dropdown)
+	If psn_udpate_wreg_disa_checkbox = checked Then 
+		CALL write_variable_in_case_note("* WREG and DISA panels updated")
+	Else
+		CALL write_variable_in_case_note("* WREG and DISA panels NOT updated")
+	End If
+	CALL write_bullet_and_variable_in_case_note("Comments", psn_comments)
 	CALL write_variable_in_case_note("   ")
 	Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
@@ -2601,6 +2759,7 @@ If form_type_array(form_type_const, form_count) = sf_form_name Then
 End If
 
 'Special Diet Case Notes
+'TODO: Should this be a person note?
 If form_type_array(form_type_const, form_count) = diet_form_name Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
