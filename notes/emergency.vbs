@@ -381,7 +381,6 @@ If EGA_screening_check = 1 then
         	Call write_variable_in_CASE_NOTE("* Date EMER programs will be available to HH: " & EMER_available_date)
         	Call write_variable_in_CASE_NOTE("---")
         	Call write_variable_in_CASE_NOTE(worker_signature)
-			MsgBox "STOP AND LOOK"
         End If
     Loop until ButtonPressed = continue_to_emer_script_btn
 END IF
