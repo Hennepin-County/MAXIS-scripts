@@ -75,8 +75,77 @@ EMConnect ""
 EMSendKey "T"   'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
 
+'New function that will make sure we are at DAIL, then enter the code to nagivate directly from the dail. This can help us keep the tie to the DAIL
+function nav_in_DAIL(dail_nav_letter)
+    EMReadScreen on_dail_check, 27, 2, 26						'Checking if we are on DAIL - so we can get there
+    Do while on_dail_check <> "WORKERS DAILY REPORT (DAIL)"
+        PF3														'back up one level
+        EMReadScreen SELF_check, 4, 2, 50						'see if we are on SELF
+        If SELF_check = "SELF" Then Call navigate_to_MAXIS_screen ("DAIL", "DAIL")	'if we are on SELF - navigate to DAIL/DAIL
+        EMReadScreen on_dail_check, 27, 2, 26					'read to see if we made it to DAIL
+    Loop
+
+    'To reduce navigation through DAIL, writing case name and number to move quickly
+    EMWriteScreen MAXIS_case_number, 20, 38
+    EMWriteScreen case_and_person_name, 21, 25
+    transmit
+
+    'now we need to find the message that we started with
+    dail_row = 6
+    Do
+        
+        'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+        EMReadScreen new_case, 8, dail_row, 63
+        new_case = trim(new_case)
+        IF new_case <> "CASE NBR" THEN 
+            'If there is NOT a new case number, the script will top the message
+            Call write_value_and_transmit("T", dail_row, 3)
+        ELSEIF new_case = "CASE NBR" THEN
+            'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+            Call write_value_and_transmit("T", dail_row + 1, 3)
+        End if
+        
+        'reset the dail_row to 6 so it can navigate through messages in DAIL
+        dail_row = 6
+
+        EMReadScreen line_message, 60, dail_row, 20				'read the top message for this case
+        line_message = trim(line_message)						'trim the message
+        If line_message = full_message Then						'If the message matches the message from the start of the dail scrubber run, then we can enter the info
+            Call write_value_and_transmit("X", dail_row, 3)
+            EMReadScreen hire_line_1, 60, 9, 5
+            EMReadScreen hire_line_2, 60, 10, 5
+            EMReadScreen hire_line_3, 60, 11, 5
+            EMReadScreen hire_line_4, 60, 12, 5
+            full_hire_dail_message_check = hire_line_1 & hire_line_2 & hire_line_3 & hire_line_4
+            transmit
+
+            If full_hire_dail_message_check = full_hire_dail_message Then
+                EMWriteScreen dail_nav_letter, dail_row, 3
+                transmit
+                Exit Do
+            End If
+        End If
+        dail_row = dail_row + 1
+    Loop
+end function
+
+'Resets the DAIL row since the message has now been topped
+dail_row = 6  
+
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
+
+'Read the case name to navigate back again
+EMReadScreen case_and_person_name, 8, 5, 5
+
+'Open and read the entire HIRE message to ensure script can find exact match in DAIL again. It then transmits back to same DAIL message
+Call write_value_and_transmit("X", 6, 3)
+EMReadScreen hire_line_1, 60, 9, 5
+EMReadScreen hire_line_2, 60, 10, 5
+EMReadScreen hire_line_3, 60, 11, 5
+EMReadScreen hire_line_4, 60, 12, 5
+full_hire_dail_message = hire_line_1 & hire_line_2 & hire_line_3 & hire_line_4
+transmit
 
 'determining if the old message with the SSN functionality will be needed or not.
 EMReadScreen HIRE_check, 11, 6, 37
@@ -248,6 +317,10 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+    'Ensure we are at JOBS panel, if not it will navigate back to DAIL to find matching 
+    EmReadScreen jobs_panel_check, 17, 2, 33
+    If jobs_panel_check <> "Job Income (JOBS)" Then Call nav_in_DAIL("S")
 
     EMWriteScreen "JOBS", 20, 71    'Ensuring we're on JOBS for the right member still post dialog
 	Call write_value_and_transmit(HH_memb, 20, 76)
