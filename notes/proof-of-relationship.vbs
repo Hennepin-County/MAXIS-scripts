@@ -203,7 +203,7 @@ For each member in HH_Member_Array																	'Looks at PARE for every hous
 		Case "BC"
 			Pare_Line_Array(documents_received, array_item) = "Birth Certificate"
 		Case "RP"
-			Pare_Line_Array(documents_received, array_item) = "Recognition of Parentge"
+			Pare_Line_Array(documents_received, array_item) = "Recognition of Parentage"
 		Case "AR"
 			Pare_Line_Array(documents_received, array_item) = "Adoption Records"
 		Case "HR"
