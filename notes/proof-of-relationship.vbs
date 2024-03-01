@@ -147,7 +147,6 @@ selected_HH_member_array = "*"
 FOR i = 0 to total_clients
 	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
 		IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
-			'msgbox all_clients_
 			selected_HH_member_array = selected_HH_member_array & left(all_clients_array(i, 0), 2) & "*"
 		END IF
 	END IF
@@ -170,8 +169,8 @@ Const new_checkbox = 5
 
 array_item = 0 						'Setting the initial array item so that we can increment and add new array coordinates
 
-'Goind to PARE to pull any child, grandchild, fosterchild, stepchild relationships that are already coded into MAXIS
-For each member in HH_Member_Array																	'Looks at PARE for every houshold member
+'Going to PARE to pull any child, grandchild, foster child, stepchild relationships that are already coded into MAXIS
+For each member in HH_Member_Array																	'Looks at PARE for every household member
 	STATS_counter = STATS_counter + 1																'Statistics gathering by HH member
 	line_to_read = 8 																				'Setting the initial MAXIS line to read so we can increment
 	Call Navigate_to_MAXIS_Screen ("STAT", "PARE")													'Go to PARE
@@ -213,7 +212,7 @@ For each member in HH_Member_Array																	'Looks at PARE for every hous
 		Case Else
 			Pare_Line_Array(documents_received, array_item) = ""
 		End Select
-		array_item = array_item + 1																	'Incremebing the array and the maxis row
+		array_item = array_item + 1																	'Incrementing the array and the maxis row
 		line_to_read = line_to_read + 1
 		If line_to_read = 18 Then 																	'PARE only holds 10 lines per page - if there are more, PARE needs to PF8 to get to the next list
 			PF8
@@ -267,7 +266,7 @@ For pare_item = 0 to UBound(Pare_Line_Array,2) 														'checks through the
 		Select Case rel_to_applicant																'Logic function to define relationship and adds it to the array
 		Case "05"																					'Sibling
 			Pare_Line_Array(relationship_type, pare_item) = "Is the Sibling of"
-		Case "12"																					'Neice
+		Case "12"																					'Niece
 			Pare_Line_Array(relationship_type, pare_item) = "Is the Niece of"
 		Case "13"																					'Nephew
 			Pare_Line_Array(relationship_type, pare_item) = "Is the Nephew of"
@@ -280,6 +279,7 @@ Next
 ' ReDim Preserve Pare_Line_Array(5, array_item)														'Adds one blank array item to the array for a manual entry since the dialog is dynamically created based on the number of array items there are. If the script could not find all the relationships, the worker needs to be able manually add one.
 ' array_item = array_item + 1
 array_item = UBound(Pare_Line_Array, 2)
+array_item_before = UBound(Pare_Line_Array, 2)
 selected_hh_memb_relationship_count = 0
 
 For pare_item = 0 to UBound(Pare_Line_Array, 2)
@@ -307,7 +307,7 @@ DO
 					EditBox 375, (20 + (dialog_count * 20)), 105, 15, Pare_Line_Array(documents_received, pare_item)
 					CheckBox 490, (25 + (dialog_count * 20)), 75, 10, "New/Updated Proof", Pare_Line_Array(new_checkbox, pare_item)
 					dialog_count = dialog_count + 1
-				ElseIf add_field_count > 0 and pare_item = UBound(Pare_Line_Array, 2) Then
+				ElseIf pare_item > array_item_before Then
 					DropListBox 5, (20 + (dialog_count * 20)), 70, 15, hh_member_dropdown, Pare_Line_Array(received_for, pare_item)
 					DropListBox 85, (20 + (dialog_count * 20)), 110, 15, "Select one..."+chr(9)+"Is Another Relative of"+chr(9)+"Is the Child of"+chr(9)+"Is the Foster Child of"+chr(9)+"Is the Grandchild of"+chr(9)+"Is the Guardian of"+chr(9)+"Is the Nephew of"+chr(9)+"Is the Niece of"+chr(9)+"Is the Parent of"+chr(9)+"Is the Sibling of"+chr(9)+"Is the Spouse of"+chr(9)+"Is the Step Child of"+chr(9)+"Is Unrelated to"+chr(9)+"Other", Pare_Line_Array(relationship_type, pare_item)
 					EditBox 205, (20 + (dialog_count * 20)), 85, 15, Pare_Line_Array(other_relationship_list, pare_item)
@@ -342,6 +342,9 @@ DO
 		Text 280, (80 + ((selected_hh_memb_relationship_count + add_field_count) * 20)), 60, 10, "Worker signature:"
 		' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
 		EndDialog
+
+		msgbox "add_field_count " & add_field_count
+		msgbox "UBound(Pare_Line_Array, 2) " & UBound(Pare_Line_Array, 2)
 
     	
         'Dialog Box to list members and documentation received.
@@ -388,14 +391,16 @@ STATS_counter = STATS_counter - 1 														'Remove one instance of the stat
 'Information for the case note.
 start_a_blank_case_note
 Call write_variable_in_CASE_NOTE("Documentation Received: Proof of Relationship")		'Case note heading
-If new_proof_exists = TRUE Then 														'Seperates the new/updated proofs to the top of the case note
+If new_proof_exists = TRUE Then 														'Separates the new/updated proofs to the top of the case note
 	Call write_variable_in_CASE_NOTE("New Relationships Verified:")						'Subheading for the new proofs
-	For pare_item = 0 to UBound(Pare_Line_Array,2)
-		If Pare_Line_Array(new_checkbox,pare_item) = checked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then		'Listing all the items in the array with new/updated seleceted
-			If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then 			'If other relationship type is listed, the formate of the line is a little different
-				Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ": " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
-			Else
-				Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+	For pare_item = 0 to UBound(Pare_Line_Array, 2)
+		If (Instr(selected_HH_member_array, Pare_Line_Array(received_for, pare_item)) OR Instr(selected_HH_member_array, Pare_Line_Array(relationship_to, pare_item))) or pare_item > array_item_before Then
+			If Pare_Line_Array(new_checkbox,pare_item) = checked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then		'Listing all the items in the array with new/updated selected
+				If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then 			'If other relationship type is listed, the formate of the line is a little different
+					Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ": " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+				Else
+					Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+				End If
 			End If
 		End If
 	Next
@@ -403,18 +408,20 @@ If new_proof_exists = TRUE Then 														'Seperates the new/updated proofs 
 End If
 If old_proof_exists = TRUE Then
     If new_proof_exists = TRUE Then 														'Subheading for the relationships that are not new/updated - this is slightly different depending on if any new proofs were listed
-    	Call write_variable_in_CASE_NOTE("Relationships already known/verfied: ")
+    	Call write_variable_in_CASE_NOTE("Relationships already known/verified: ")
     Else
     	Call write_variable_in_CASE_NOTE("Household Relationships known/documented: ")
     End If
-    For pare_item = 0 to UBound(Pare_Line_Array,2)											'Lists all the relationshps that are not marked as new/updated AND have an actual relationship type selected. - not 'select one'
-    	If Pare_Line_Array(new_checkbox,pare_item) = unchecked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then
-    		If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then
-    			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " & Memb " & Pare_Line_Array(relationship_to,pare_item) & " are " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
-    		Else
-    			Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
-    		End If
-    	End If
+    For pare_item = 0 to UBound(Pare_Line_Array, 2)
+		If (Instr(selected_HH_member_array, Pare_Line_Array(received_for, pare_item)) OR Instr(selected_HH_member_array, Pare_Line_Array(relationship_to, pare_item))) or pare_item > array_item_before Then										'Lists all the relationships that are not marked as new/updated AND have an actual relationship type selected. - not 'select one'
+			If Pare_Line_Array(new_checkbox,pare_item) = unchecked AND Pare_Line_Array(relationship_type, pare_item) <> "Select one..." Then
+				If Pare_Line_Array(other_relationship_list,pare_item) <> "" Then
+					Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " & Memb " & Pare_Line_Array(relationship_to,pare_item) & " are " & Pare_Line_Array(other_relationship_list,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+				Else
+					Call write_variable_in_CASE_NOTE("* Relationship: Memb " & Pare_Line_Array(received_for,pare_item)& " - " & Pare_Line_Array(relationship_type,pare_item) & " - Memb " & Pare_Line_Array(relationship_to,pare_item) & ". Doc Rec'vd: " & Pare_Line_Array(documents_received,pare_item))
+				End If
+			End If
+		End If
     Next
     Call write_variable_in_CASE_NOTE("---")
 End If
