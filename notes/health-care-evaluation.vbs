@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/01/2024", "Ex Parte Processing Support with notes about Mixed Housholds.", "Casey Love, Hennepin County")
 call changelog_update("01/26/2024", "Added the form 'Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)' to the form selection options in the script as this form can be used for Health Care processing.", "Casey Love, Hennepin County")
 call changelog_update("01/23/2024", "BUG FIX - updated the handling for LTC Application cases to better handle in dealing with the baseline date and lookback period.", "Casey Love, Hennepin County")
 call changelog_update("12/15/2023", "BUG FIX - previously if the dialog review was 'Complete' but then selected 'No' to return, the script would ask after every button push to 'Complete' updated to stop this from happening until 'Complete' is pressed again.", "Casey Love, Hennepin County")
