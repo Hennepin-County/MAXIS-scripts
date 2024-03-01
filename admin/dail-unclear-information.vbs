@@ -106,17 +106,17 @@ MAXIS_footer_year = CM_yr
 'To determine if DAIL message is in scope based on DAIL month, creating variable for date for current month, day, and year
 footer_month_day_year = dateadd("d", 0, MAXIS_footer_month & "/01/20" & MAXIS_footer_year)
 
-'Add handling to determine next month for TIKLs
-next_month_footer_month_day_year = dateadd("m", 1, footer_month_day_year)
-next_month_split = split(next_month_footer_month_day_year, "/")
-If len(next_month_split(0)) = 1 then 
-    next_month_footer_month = "0" & next_month_split(0)
+'Add handling to determine CM + 2 for TIKLs
+CM_plus_two_footer_month_day_year = dateadd("m", 2, footer_month_day_year)
+CM_plus_two_split = split(CM_plus_two_footer_month_day_year, "/")
+If len(CM_plus_two_split(0)) = 1 then 
+    CM_plus_two_footer_month = "0" & CM_plus_two_split(0)
 Else
-    next_month_footer_month = next_month_split(0)
+    CM_plus_two_footer_month = CM_plus_two_split(0)
 End If
 
-next_month_footer_year = right(next_month_split(2), 2)
-' next_month_TIKLs = next_month_footer_month & " " & "01" & " " & next_month_footer_year
+CM_plus_two_footer_year = right(CM_plus_two_split(2), 2)
+' next_month_TIKLs = CM_plus_two_footer_month & " " & "01" & " " & CM_plus_two_footer_year
 
 EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
@@ -4655,6 +4655,8 @@ If HIRE_messages = 1 Then
                                                     HIRE_employer_name_first_word = ""
                                                     name_and_case_number_for_TIKL = ""
                                                     HIRE_employer_name_TIKL = ""
+                                                    add_jobs_to_CM_plus_one = ""
+                                                    employer_name_jobs_panel_first_word = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -5008,8 +5010,8 @@ If HIRE_messages = 1 Then
                                                             panel_count_total_check = panel_count_total_check * 1
 
                                                             If panel_count_plus_one_check <> panel_count_total_check + 1 then 
-                                                                ' MsgBox "Testing -- unable to open a new JOBS panel stop here"
-                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                                MsgBox "Testing -- unable to open a new JOBS panel stop here 5011"
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive or case is locked. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
                                                             Else
                                                                 ' inactive_MAXIS_check = ""
 
@@ -5078,9 +5080,14 @@ If HIRE_messages = 1 Then
                                                                 ' Msgbox "It is about save the JOBS panel. Stop here if in testing or production"
                                                                 ' MsgBox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
                                                                 transmit 'to save JOBS panel
+
+                                                                msgbox "stop and check expiration language"
                                                         
                                                                 'Check if information is expiring and needs to be added to CM + 1
                                                                 EMReadScreen expired_check, 6, 24, 17 
+                                                                EMReadScreen data_expiration_month, 2, 24, 27
+                                                                EMReadScreen jobs_panel_month, 2, 20, 55
+
 
                                                                 If expired_check = "EXPIRE" THEN 
                                                                     Do
@@ -5094,9 +5101,25 @@ If HIRE_messages = 1 Then
                                                                         'Check to make sure on STAT/WRAP
                                                                         EMReadScreen stat_wrap_check, 19, 2, 32
                                                                         If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
-                                                                        
-                                                                        'Enter Y to add JOBS panel to CM + 1
-                                                                        Call write_value_and_transmit("Y", 16, 54)
+
+                                                                        'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                                        If data_expiration_month <> jobs_panel_month Then
+                                                                            msgbox "Expires in future month"
+                                                                            Do
+                                                                                Call write_value_and_transmit("Y", 16, 54)
+                                                                                EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                                                If stat_wrap_month_check = data_expiration_month Then
+                                                                                    PF3
+                                                                                    Call write_value_and_transmit("Y", 16, 54)
+                                                                                    'Script should now be in CM + 1 from expiration
+                                                                                    Exit Do
+                                                                                End If
+                                                                            Loop
+                                                                        Else
+                                                                            'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                                            'Enter Y to add JOBS panel to CM + 1
+                                                                            Call write_value_and_transmit("Y", 16, 54)
+                                                                        End If
                                                                         
                                                                         EMReadScreen stat_wrap_month, 5, 20, 55
                                                                         If stat_wrap_month  = MAXIS_footer_month & " " & MAXIS_footer_year Then
@@ -5171,18 +5194,29 @@ If HIRE_messages = 1 Then
                                                                         IF PIC_warning = "WARNING" then transmit 'to clear message
                                                                         transmit 'back to JOBS panel
                                                                         ' msgbox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                        ' MsgBox "LAST CHANCE!!!"
+                                                                        MsgBox "LAST CHANCE!!!"
                                                                         transmit 'to save JOBS panel
 
                                                                         'Check if information is expiring and needs to be added to CM + 1
                                                                         EMReadScreen expired_check, 33, 24, 2 
+
+                                                                        MsgBox "expired check here. did it find one?"
 
                                                                         If Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
                                                                             'Data isn't expiring so can exit
                                                                             Exit Do
                                                                         End If
 
-                                                                        If JOBS_reached_CM = True then exit do
+                                                                        If add_jobs_to_CM_plus_one = True then exit do
+
+                                                                        If JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") Then 
+                                                                            'Needs to add JOBS to CM + 1 because it is expiring    
+                                                                            msgbox "Needs to add JOBS to CM + 1 because it is expiring"    
+                                                                            add_jobs_to_CM_plus_one = True
+                                                                        ElseIf JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
+                                                                            exit do
+                                                                        End If
+                                                                        
                                                                     Loop
 
                                                                     'Write information to CASE/NOTE
@@ -5282,13 +5316,21 @@ If HIRE_messages = 1 Then
                                                             'Read the employer name, but only first 20 characters to align with max length for HIRE message for NDNH messages
                                                             EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                             employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
+                                                            msgbox employer_name_jobs_panel
 
                                                             'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
                                                             employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+                                                            msgbox "employer_name_jobs_panel_split(0) " & employer_name_jobs_panel_split(0)
+                                                            msgbox "employer_name_jobs_panel_split(1) " & employer_name_jobs_panel_split(1)
+                                                            employer_name_combine = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                            msgbox "employer_name_combine " & employer_name_combine
 
                                                             If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                                msgbox "why isn't this working?"
+                                                                msgbox len(employer_name_jobs_panel_split(0))
+                                                                msgbox Ubound(employer_name_jobs_panel_split)
                                                                 employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
-                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word  
                                                             Else
                                                                 employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
                                                                 MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
@@ -5365,7 +5407,7 @@ If HIRE_messages = 1 Then
                                                                 jobs_panels_count = jobs_panels_count * 1
                                                                 'If there is more than just 1 JOBS panel, loop through them all to check for matching employers
                                                                 If jobs_panels_count = 1 Then
-                                                                    ' MsgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
+                                                                    MsgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
 
                                                                     'Set variable below to true to trigger dialog
                                                                     no_exact_JOBS_panel_matches = True
@@ -5390,7 +5432,7 @@ If HIRE_messages = 1 Then
 
                                                                         If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
                                                                             employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
-                                                                            MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                            MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
                                                                         Else
                                                                             employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
                                                                             MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
@@ -5484,7 +5526,9 @@ If HIRE_messages = 1 Then
                                                                 'Convert string of the employer names into an array for use in the dialog
                                                                 'To do - add handling for when it has already been determined that there is a match on the employer names
                                                                 If no_exact_JOBS_panel_matches = True Then
+                                                                    MsgBox "Testing -- no JOBS matches. Monitor closely to see what it does"
                                                                     If jobs_panels_count = 5 Then
+                                                                        msgbox "If jobs_panels_count = 5 Then"
 
                                                                         'Although no match found, script cannot add another JOBS panel as there are already 5. It will flag the message as such
                                                                         'Add the message to the skip list since it cannot be processed
@@ -5493,6 +5537,7 @@ If HIRE_messages = 1 Then
 
                                                                     ElseIf jobs_panels_count < 5 Then
                                                                         'No matching JOBS panel found so the script will add a new JOBS panel for the employer from the HIRE message
+                                                                        msgbox "No matching JOBS panel found so the script will add a new JOBS panel for the employer from the HIRE message"
                                                                     
                                                                         Call write_value_and_transmit("NN", 20, 79)				'Creates new panel
 
@@ -5502,8 +5547,8 @@ If HIRE_messages = 1 Then
                                                                         panel_count_total_check = panel_count_total_check * 1
 
                                                                         If panel_count_plus_one_check <> panel_count_total_check + 1 then 
-                                                                            ' MsgBox "Testing -- unable to open a new JOBS panel stop here"
-                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                                            MsgBox "Testing -- unable to open a new JOBS panel stop here 5508"
+                                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive or case is locked. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
                                                                         Else
                                                                             ' inactive_MAXIS_check = ""
 
@@ -5572,9 +5617,15 @@ If HIRE_messages = 1 Then
                                                                             ' Msgbox "It is about save the JOBS panel. Stop here if in testing or production"
                                                                             ' MsgBox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
                                                                             transmit 'to save JOBS panel
+
+                                                                            msgbox "Testing -- expired check is about to happen. Is expired there?"
                                                                     
                                                                             'Check if information is expiring and needs to be added to CM + 1
+                                                                            'Check if information is expiring and needs to be added to CM + 1
                                                                             EMReadScreen expired_check, 6, 24, 17 
+                                                                            EMReadScreen data_expiration_month, 2, 24, 27
+                                                                            EMReadScreen jobs_panel_month, 2, 20, 55
+
 
                                                                             If expired_check = "EXPIRE" THEN 
                                                                                 Do
@@ -5588,9 +5639,25 @@ If HIRE_messages = 1 Then
                                                                                     'Check to make sure on STAT/WRAP
                                                                                     EMReadScreen stat_wrap_check, 19, 2, 32
                                                                                     If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
-                                                                                    
-                                                                                    'Enter Y to add JOBS panel to CM + 1
-                                                                                    Call write_value_and_transmit("Y", 16, 54)
+
+                                                                                    'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                                                    If data_expiration_month <> jobs_panel_month Then
+                                                                                        msgbox "Expires in future month"
+                                                                                        Do
+                                                                                            Call write_value_and_transmit("Y", 16, 54)
+                                                                                            EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                                                            If stat_wrap_month_check = data_expiration_month Then
+                                                                                                PF3
+                                                                                                Call write_value_and_transmit("Y", 16, 54)
+                                                                                                'Script should now be in CM + 1 from expiration
+                                                                                                Exit Do
+                                                                                            End If
+                                                                                        Loop
+                                                                                    Else
+                                                                                        'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                                                        'Enter Y to add JOBS panel to CM + 1
+                                                                                        Call write_value_and_transmit("Y", 16, 54)
+                                                                                    End If
                                                                                     
                                                                                     EMReadScreen stat_wrap_month, 5, 20, 55
                                                                                     If stat_wrap_month  = MAXIS_footer_month & " " & MAXIS_footer_year Then
@@ -5606,7 +5673,7 @@ If HIRE_messages = 1 Then
                                                                                     EMReadScreen jobs_panel_nav_check, 8, 2, 43
                                                                                     If InStr(jobs_panel_nav_check, "JOBS") = 0 Then MsgBox "Testing -- Stop here. Not at JOBS panel"
 
-                                                                                    ' MsgBox "Testing -- Is it at the next month?"
+                                                                                    MsgBox "Testing -- Is it at the next month?"
 
                                                                                     'Making sure there aren't 5 jobs already
                                                                                     EMReadScreen five_jobs_check, 1, 2, 78
@@ -5665,22 +5732,33 @@ If HIRE_messages = 1 Then
                                                                                     IF PIC_warning = "WARNING" then transmit 'to clear message
                                                                                     transmit 'back to JOBS panel
                                                                                     ' msgbox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                                    ' MsgBox "LAST CHANCE!!!"
+                                                                                    MsgBox "LAST CHANCE!!!"
                                                                                     transmit 'to save JOBS panel
 
                                                                                     'Check if information is expiring and needs to be added to CM + 1
                                                                                     EMReadScreen expired_check, 33, 24, 2 
+
+                                                                                    MsgBox "expired check here. did it find one?"
 
                                                                                     If Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
                                                                                         'Data isn't expiring so can exit
                                                                                         Exit Do
                                                                                     End If
 
-                                                                                    If JOBS_reached_CM = True then exit do
+                                                                                    If add_jobs_to_CM_plus_one = True then exit do
+
+                                                                                    If JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") Then 
+                                                                                        'Needs to add JOBS to CM + 1 because it is expiring    
+                                                                                        msgbox "Needs to add JOBS to CM + 1 because it is expiring"
+                                                                                        add_jobs_to_CM_plus_one = True
+                                                                                    ElseIf JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
+                                                                                        exit do
+                                                                                    End If
+
                                                                                 Loop
 
                                                                                 'Write information to CASE/NOTE
-                                                                                ' MsgBox "Testing -- Script will now CASE/NOTE information. Navigate to CASE/NOTE"
+                                                                                MsgBox "Testing -- Script will now CASE/NOTE information. Navigate to CASE/NOTE"
 
                                                                                 'PF4 to navigate to CASE/NOTE
                                                                                 PF4
@@ -5705,7 +5783,7 @@ If HIRE_messages = 1 Then
                                                                                 CALL write_variable_in_case_note(worker_signature)
 
 
-                                                                                ' msgbox "Testing -- The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
+                                                                                msgbox "Testing -- The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
                                                                                 ' MsgBox "Testing -- The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production LAST CHANCE!!!"
 
                                                                                 'PF3 to save the CASE/NOTE
@@ -5719,7 +5797,7 @@ If HIRE_messages = 1 Then
                                                                             Else
                                                                                 'If the JOBS panel is not expiring then write the information to CASE/NOTE
 
-                                                                                ' MsgBox "Testing -- Information is not expiring. Script will navigate to CASE/NOTE"
+                                                                                MsgBox "Testing -- Information is not expiring. Script will navigate to CASE/NOTE"
                                                                                 
                                                                                 'PF4 to navigate to CASE/NOTE
                                                                                 PF4
@@ -5744,7 +5822,7 @@ If HIRE_messages = 1 Then
                                                                                 CALL write_variable_in_case_note(worker_signature)
 
 
-                                                                                ' Msgbox "Testing -- The script is about to save the CASE/NOTE for DAIL MONTH. Stop here if in testing or production"
+                                                                                Msgbox "Testing -- The script is about to save the CASE/NOTE for DAIL MONTH. Stop here if in testing or production"
                                                                                 ' MsgBox "Testing -- The script is about to save the CASE/NOTE for DAIL MONTH. Stop here if in testing or production LAST CHANCE!!!"
 
                                                                                 'PF3 to save the CASE/NOTE
@@ -5763,7 +5841,7 @@ If HIRE_messages = 1 Then
                                                                             ' PF3
 
                                                                             'Updates the processing notes for the DAIL message to reflect this
-                                                                            ' msgbox "Testing -- No jobs panels existed. Created JOBS panel(s) through CM"
+                                                                            msgbox "Testing -- No jobs panels existed. Created JOBS panel(s) through CM"
                                                                             
                                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for household member number: " & HIRE_memb_number & " that matched employer in HIRE message. JOBS Panel and CASE/NOTE added for employer noted in HIRE message. Message should be deleted.")
                                                                         End If
@@ -5904,6 +5982,8 @@ If HIRE_messages = 1 Then
                                                     HIRE_employer_name_first_word = ""
                                                     name_and_case_number_for_TIKL = ""
                                                     HIRE_employer_name_TIKL = ""
+                                                    add_jobs_to_CM_plus_one = ""
+                                                    employer_name_jobs_panel_first_word = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -6317,8 +6397,8 @@ If HIRE_messages = 1 Then
                                                                 panel_count_total_check = panel_count_total_check * 1
 
                                                                 If panel_count_plus_one_check <> panel_count_total_check + 1 then 
-                                                                    ' MsgBox "Testing -- unable to open a new JOBS panel stop here"
-                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                                    MsgBox "Testing -- unable to open a new JOBS panel stop here 6323"
+                                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive or case is locked. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
                                                                 Else
 
                                                                     'Reads footer month for updating the panel
@@ -6380,11 +6460,14 @@ If HIRE_messages = 1 Then
                                                                     transmit 'back to JOBS panel
                                                                     ' MsgBox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
                                                                     ' MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                    ' MsgBox "LAST CHANCE!!!"
+                                                                    MsgBox "LAST CHANCE!!!"
                                                                     transmit 'to save JOBS panel
                                                             
                                                                     'Check if information is expiring and needs to be added to CM + 1
                                                                     EMReadScreen expired_check, 6, 24, 17 
+                                                                    EMReadScreen data_expiration_month, 2, 24, 27
+                                                                    EMReadScreen jobs_panel_month, 2, 20, 55
+
 
                                                                     If expired_check = "EXPIRE" THEN 
                                                                         Do
@@ -6398,9 +6481,25 @@ If HIRE_messages = 1 Then
                                                                             'Check to make sure on STAT/WRAP
                                                                             EMReadScreen stat_wrap_check, 19, 2, 32
                                                                             If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
-                                                                            
-                                                                            'Enter Y to add JOBS panel to CM + 1
-                                                                            Call write_value_and_transmit("Y", 16, 54)
+
+                                                                            'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                                            If data_expiration_month <> jobs_panel_month Then
+                                                                                msgbox "Expires in future month"
+                                                                                Do
+                                                                                    Call write_value_and_transmit("Y", 16, 54)
+                                                                                    EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                                                    If stat_wrap_month_check = data_expiration_month Then
+                                                                                        PF3
+                                                                                        Call write_value_and_transmit("Y", 16, 54)
+                                                                                        'Script should now be in CM + 1 from expiration
+                                                                                        Exit Do
+                                                                                    End If
+                                                                                Loop
+                                                                            Else
+                                                                                'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                                                'Enter Y to add JOBS panel to CM + 1
+                                                                                Call write_value_and_transmit("Y", 16, 54)
+                                                                            End If
                                                                             
                                                                             EMReadScreen stat_wrap_month, 5, 20, 55
                                                                             If stat_wrap_month  = MAXIS_footer_month & " " & MAXIS_footer_year Then
@@ -6475,18 +6574,29 @@ If HIRE_messages = 1 Then
                                                                             IF PIC_warning = "WARNING" then transmit 'to clear message
                                                                             transmit 'back to JOBS panel
                                                                             'msgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                            'msgBox "LAST CHANCE!!!"
+                                                                            msgBox "LAST CHANCE!!!"
                                                                             transmit 'to save JOBS panel
 
                                                                             'Check if information is expiring and needs to be added to CM + 1
                                                                             EMReadScreen expired_check, 33, 24, 2 
+
+                                                                            MsgBox "expired check here. did it find one?"
 
                                                                             If Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
                                                                                 'Data isn't expiring so can exit
                                                                                 Exit Do
                                                                             End If
 
-                                                                            If JOBS_reached_CM = True then exit do
+                                                                            If add_jobs_to_CM_plus_one = True then exit do
+
+                                                                            If JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") Then 
+                                                                                'Needs to add JOBS to CM + 1 because it is expiring    
+                                                                                msgbox "Needs to add JOBS to CM + 1 because it is expiring"
+                                                                                add_jobs_to_CM_plus_one = True
+                                                                            ElseIf JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
+                                                                                exit do
+                                                                            End If
+
                                                                         Loop
 
                                                                         'msgBox "Testing -- Script will now CASE/NOTE information"
@@ -6578,7 +6688,7 @@ If HIRE_messages = 1 Then
 
                                                                 If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
                                                                     employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
-                                                                    MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                    MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word  
                                                                 Else
                                                                     employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
                                                                     MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
@@ -6658,7 +6768,7 @@ If HIRE_messages = 1 Then
                                                                     jobs_panels_count = jobs_panels_count * 1
                                                                     'If there is more than just 1 JOBS panel, loop through them all to check for matching employers
                                                                     If jobs_panels_count = 1 Then
-                                                                        'msgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
+                                                                        msgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
 
                                                                         'Set variable below to true to trigger dialog
                                                                         no_exact_JOBS_panel_matches = True
@@ -6683,7 +6793,7 @@ If HIRE_messages = 1 Then
 
                                                                             If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
                                                                                 employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
-                                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_split is " & employer_name_jobs_panel_split  
+                                                                                MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word 
                                                                             Else
                                                                                 employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
                                                                                 MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
@@ -6776,8 +6886,11 @@ If HIRE_messages = 1 Then
                                                                     'Convert string of the employer names into an array for use in the dialog
                                                                     'To do - add handling for when it has already been determined that there is a match on the employer names
                                                                     If no_exact_JOBS_panel_matches = True Then
+                                                                        MsgBox "Testing -- no JOBS matches. Monitor closely to see what it does"
+
                                                                         If jobs_panels_count = 5 Then
                                                                             'Although no match found, script cannot add another JOBS panel as there are already 5. It will flag the message as such
+                                                                            msgbox "Although no match found, script cannot add another JOBS panel as there are already 5. It will flag the message as such"
                                                                             'Add the message to the skip list since it cannot be processed
 
                                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, there are 5 JOBS panels already so cannot add new panel. Review needed." & " Message should not be deleted."
@@ -6792,8 +6905,8 @@ If HIRE_messages = 1 Then
                                                                             panel_count_total_check = panel_count_total_check * 1
 
                                                                             If panel_count_plus_one_check <> panel_count_total_check + 1 then 
-                                                                                ' MsgBox "Testing -- unable to open a new JOBS panel stop here"
-                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                                                MsgBox "Testing -- unable to open a new JOBS panel stop here 6798"
+                                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive or case is locked. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
                                                                             Else
 
                                                                                 'Reads footer month for updating the panel
@@ -6855,11 +6968,16 @@ If HIRE_messages = 1 Then
                                                                                 transmit 'back to JOBS panel
                                                                                 ' MsgBox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
                                                                                 ' MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                                ' MsgBox "LAST CHANCE!!!"
+                                                                                MsgBox "LAST CHANCE!!!"
                                                                                 transmit 'to save JOBS panel
+
+                                                                                msgbox "testing -- is it expiring?"
                                                                         
                                                                                 'Check if information is expiring and needs to be added to CM + 1
                                                                                 EMReadScreen expired_check, 6, 24, 17 
+                                                                                EMReadScreen data_expiration_month, 2, 24, 27
+                                                                                EMReadScreen jobs_panel_month, 2, 20, 55
+
 
                                                                                 If expired_check = "EXPIRE" THEN 
                                                                                     Do
@@ -6873,9 +6991,25 @@ If HIRE_messages = 1 Then
                                                                                         'Check to make sure on STAT/WRAP
                                                                                         EMReadScreen stat_wrap_check, 19, 2, 32
                                                                                         If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
-                                                                                        
-                                                                                        'Enter Y to add JOBS panel to CM + 1
-                                                                                        Call write_value_and_transmit("Y", 16, 54)
+
+                                                                                        'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                                                        If data_expiration_month <> jobs_panel_month Then
+                                                                                            msgbox "Expires in future month"
+                                                                                            Do
+                                                                                                Call write_value_and_transmit("Y", 16, 54)
+                                                                                                EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                                                                If stat_wrap_month_check = data_expiration_month Then
+                                                                                                    PF3
+                                                                                                    Call write_value_and_transmit("Y", 16, 54)
+                                                                                                    'Script should now be in CM + 1 from expiration
+                                                                                                    Exit Do
+                                                                                                End If
+                                                                                            Loop
+                                                                                        Else
+                                                                                            'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                                                            'Enter Y to add JOBS panel to CM + 1
+                                                                                            Call write_value_and_transmit("Y", 16, 54)
+                                                                                        End If
                                                                                         
                                                                                         EMReadScreen stat_wrap_month, 5, 20, 55
                                                                                         If stat_wrap_month  = MAXIS_footer_month & " " & MAXIS_footer_year Then
@@ -6891,7 +7025,7 @@ If HIRE_messages = 1 Then
                                                                                         EMReadScreen jobs_panel_nav_check, 8, 2, 43
                                                                                         If InStr(jobs_panel_nav_check, "JOBS") = 0 Then MsgBox "Testing -- Stop here. Not at JOBS panel"
 
-                                                                                        ' MsgBox "Testing -- Is it at the next month?"
+                                                                                        MsgBox "Testing -- Is it at the next month?"
 
                                                                                         'Making sure there aren't 5 jobs already
                                                                                         EMReadScreen five_jobs_check, 1, 2, 78
@@ -6932,7 +7066,7 @@ If HIRE_messages = 1 Then
                                                                                         'Puts 0 hours in as the worked hours
                                                                                         EMWriteScreen "0", 18, 72		
 
-                                                                                        ' MsgBox "Testing - Does everything look good on JOBS panel before heading to PIC?"
+                                                                                        MsgBox "Testing - Does everything look good on JOBS panel before heading to PIC?"
                                                                                         
                                                                                         'Opens FS PIC
                                                                                         Call write_value_and_transmit("X", 19, 38)
@@ -6950,21 +7084,32 @@ If HIRE_messages = 1 Then
                                                                                         IF PIC_warning = "WARNING" then transmit 'to clear message
                                                                                         transmit 'back to JOBS panel
                                                                                         'msgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                                                        'msgBox "LAST CHANCE!!!"
+                                                                                        msgBox "LAST CHANCE!!!"
                                                                                         transmit 'to save JOBS panel
 
                                                                                         'Check if information is expiring and needs to be added to CM + 1
                                                                                         EMReadScreen expired_check, 33, 24, 2 
+
+                                                                                        MsgBox "expired check here. did it find one?"
 
                                                                                         If Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
                                                                                             'Data isn't expiring so can exit
                                                                                             Exit Do
                                                                                         End If
 
-                                                                                        If JOBS_reached_CM = True then exit do
+                                                                                        If add_jobs_to_CM_plus_one = True then exit do
+
+                                                                                        If JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") Then 
+                                                                                            'Needs to add JOBS to CM + 1 because it is expiring    
+                                                                                            msgbox "Needs to add JOBS to CM + 1 because it is expiring"
+                                                                                            add_jobs_to_CM_plus_one = True
+                                                                                        ElseIf JOBS_reached_CM = True and Instr(expired_check, "DATA WILL EXPIRE") = 0 Then
+                                                                                            exit do
+                                                                                        End If
+
                                                                                     Loop
 
-                                                                                    'msgBox "Testing -- Script will now CASE/NOTE information"
+                                                                                    msgBox "Testing -- Script will now CASE/NOTE information"
                                                                                     'Write information to CASE/NOTE
 
                                                                                     'Navigate to CASE/NOTE
@@ -6999,7 +7144,7 @@ If HIRE_messages = 1 Then
                                                                                 Else
                                                                                     'If the JOBS panel is not expiring then write the information to CASE/NOTE
 
-                                                                                    ' MsgBox "Testing -- Information is not expiring in CM + 1. Script will navigate to CASE/NOTE"
+                                                                                    MsgBox "Testing -- Information is not expiring in CM + 1. Script will navigate to CASE/NOTE"
                                                                                     
                                                                                     'Navigate to CASE/NOTE
                                                                                     PF4
@@ -7195,9 +7340,9 @@ If HIRE_messages = 1 Then
 
         'Navigate to TIKLs for the X number
         'Set the TIKLs to first of next month
-        EmWriteScreen next_month_footer_month, 4, 67
+        EmWriteScreen CM_plus_two_footer_month, 4, 67
         EmWriteScreen "01", 4, 70
-        EmWriteScreen next_month_footer_year, 4, 73
+        EmWriteScreen CM_plus_two_footer_year, 4, 73
         msgbox "did it write correctly?"
         Call write_value_and_transmit("X", 4, 12)
         EmWriteScreen "_", 7, 39
