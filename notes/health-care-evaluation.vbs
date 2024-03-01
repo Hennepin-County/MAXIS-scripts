@@ -5380,14 +5380,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			email_recip_CC = ""
 			email_recip_bcc = ""
 			email_subject = "Ex Parte Mixed Household Case - " & MAXIS_case_number
-			email_importance = ""
+			email_importance = 1
 			include_flag = False
 			email_flag_text = ""
 			email_flag_days = ""
-			email_flag_reminder = ""
+			email_flag_reminder = False
 			email_flag_reminder_days = ""
 			email_body = "This case has been indicated to have notes about a Mixed Household when evaluated in Ex Parte Phase 1." & vbCr & vbCr & "Notes:" & vbCr & mixed_household_notes
-			include_email_attachment = False
+			include_email_attachment = ""
 			email_attachment_array = ""
 			send_email = True
 			Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
