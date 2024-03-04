@@ -499,24 +499,36 @@ Dim ltc_1503_effective_date, ltc_1503_date_received, ltc_1503_FACI_1503, ltc_150
 
 function mof_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, mof_effective_date
-			EditBox 310, 20, 45, 15, mof_date_received
-			EditBox 30, 65, 270, 15, mof_Q1
-			EditBox 30, 85, 270, 15, mof_Q2
-			EditBox 30, 105, 270, 15, mof_Q3
-			EditBox 30, 125, 270, 15, mof_Q4			
-			Text 5, 5, 220, 10, mof_form_name
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+		EditBox 175, 20, 45, 15, mof_effective_date
+		EditBox 310, 20, 45, 15, mof_date_received		
+		DropListBox 45, 50, 140, 15, HH_Memb_DropDown, mof_hh_memb
+		CheckBox 220, 50, 85, 10, "Client signed release?", mof_clt_release_checkbox
+		EditBox 75, 75, 55, 15, mof_last_exam_date
+		ComboBox 250, 70, 95, 15, "Select or Type"+chr(9)+"Less than 30 Days"+chr(9)+"Between 30 - 45 Days"+chr(9)+"More than 45 Days"+chr(9)+"No End Date Listed", mof_time_condition_will_last
+		EditBox 95, 95, 55, 15, mof_doctor_date
+		EditBox 250, 90, 95, 15, mof_ability_to_work
+		EditBox 60, 120, 220, 15, mof_other_notes
+		EditBox 60, 145, 220, 15, mof_actions_taken
+		CheckBox 15, 170, 215, 10, "Check here if the MOF indicates an SSA application is needed.", mof_SSA_application_indicated_checkbox
+		CheckBox 15, 185, 185, 10, "Check here if DISA will be updated as needed by TTL", mof_TTL_to_update_checkbox
+		CheckBox 15, 200, 190, 10, "Check here if you sent an email to TTL/FSS DataTeam.", MOF_TTL_email_checkbox
+		EditBox 95, 215, 65, 15, mof_TTL_email_date
+		Text 5, 5, 220, 10, mof_form_name
+		Text 5, 25, 50, 10, "Case Number:"
+		Text 125, 25, 50, 10, "Effective Date:"
+		Text 245, 25, 60, 10, "Document Date:"
+		Text 15, 55, 30, 10, "Member:"
+		Text 15, 80, 60, 10, "Date of last exam: "
+		Text 185, 75, 60, 10, "Condition will last:"
+		Text 15, 100, 80, 10, "Date doctor signed form: "
+		Text 165, 95, 85, 10, "Member's ability to work: "
+		Text 15, 125, 40, 10, "Other notes: "
+		Text 285, 120, 90, 40, "...........................................      Do not enter diagnosis in case notes per PQ #16506 ............................................"
+		Text 15, 150, 45, 10, "Action taken: "
+		Text 35, 220, 55, 10, "Date email sent:"
+		Text 395, 35, 45, 10, "    --Forms--"
 end function 
+Dim mof_effective_date, mof_date_received, mof_hh_memb, mof_clt_release_checkbox, mof_last_exam_date, mof_time_condition_will_last, mof_doctor_date, mof_ability_to_work, mof_other_notes, mof_actions_taken, mof_SSA_application_indicated_checkbox, mof_TTL_to_update_checkbox, MOF_TTL_email_checkbox, mof_TTL_email_date
 
 function mtaf_dialog()	
 		Text 60, 25, 45, 10, MAXIS_case_number
@@ -869,7 +881,23 @@ function main_error_handling()	'Error handling for main dialog of forms
 				'LTC 1503 -- didn't appear to be any error handling 
 			End If
 			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
+				If IsDate(mof_effective_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid effective dated."
+				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date the document was received."
+				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
+				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+				If MOF_TTL_email_checkbox = checked Then
+					If IsDate(mof_TTL_email_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date for the date an email about this MOF was sent to TTL."
+				End If
+
+				mof_last_exam_date = trim(mof_last_exam_date)
+				mof_doctor_date = trim(mof_doctor_date)
+				If mof_time_condition_will_last = "Select or Type" Then mof_time_condition_will_last = ""
+				mof_time_condition_will_last = trim(mof_time_condition_will_last)
+				mof_ability_to_work = trim(mof_ability_to_work)
+				mof_other_notes = trim(mof_other_notes)
+
 			End If
+
 			If form_type_array(form_type_const, form_errors) = mtaf_form_name then 'Error handling for MTAF Form
 			End If
 			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
@@ -2696,13 +2724,26 @@ If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then
 End If
 
 'MOF Case Notes
+'TODO: Adjust based on dialog
 If form_type_array(form_type_const, form_count) = mof_form_name Then 
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note("*** MEDICAL OPINION FORM RECEIVED ***")
+	CALL write_variable_in_CASE_NOTE("* Date Received " & mof_date_received & " for M" & mof_hh_memb)
+	IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  * Client signed release on MOF.")
+	If mof_last_exam_date <> "" Then CALL write_variable_in_CASE_NOTE("  * Date of last examination: " & mof_last_exam_date)
+	If mof_doctor_date <> "" Then CALL write_variable_in_CASE_NOTE("  * Doctor signed form: " & mof_doctor_date)
+	If mof_time_condition_will_last <> "" Then  CALL write_variable_in_CASE_NOTE("  * Condition will last: " & mof_time_condition_will_last)
+	If mof_ability_to_work <> "" Then  CALL write_variable_in_CASE_NOTE("  * Ability to work: " & mof_ability_to_work)
+	If mof_other_notes <> "" Then  CALL write_variable_in_CASE_NOTE("  * Other notes: " & mof_other_notes)
+	If mof_SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * The MOF indicates the client needs to apply for SSA.")
+	If mof_TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * Specialized TTL team will review MOF and update the DISA panel as needed.")
+	If MOF_TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * An email regarding this MOF was sent to the TTL/FSS DataTeam for review on " & mof_TTL_email_date & " by " & worker_signature & ".")
 	CALL write_variable_in_case_note("   ")
 	Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
 End If
+
+
 
 'MTAF Case Notes
 If form_type_array(form_type_const, form_count) = mtaf_form_name Then 
