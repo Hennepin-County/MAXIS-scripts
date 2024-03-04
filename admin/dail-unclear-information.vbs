@@ -5369,6 +5369,7 @@ If HIRE_messages = 1 Then
 
                                                                     'To do - add handling to add to list of TIKLs to delete
                                                                     list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                    ' "Verification of " & employer & "job via NEW HIRE should"
                                                                     MsgBox list_of_TIKLs_to_delete
 
                                                                 
@@ -7354,6 +7355,8 @@ If HIRE_messages = 1 Then
 
         MsgBox "Testing -- script successfully processed HIRE messages. It will now review TIKLs"
 
+        msgbox "list_of_TIKLs_to_delete " & list_of_TIKLs_to_delete
+
         'Navigate to TIKLs for the X number
         'Set the TIKLs to first of next month
         EmWriteScreen CM_plus_two_footer_month, 4, 67
@@ -7418,7 +7421,7 @@ If HIRE_messages = 1 Then
                     'Read name and case name and case number to delete TIKLs later if needed
                     EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
-                    TIKL_comparison = name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
+                    TIKL_comparison = "*" & name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
 
                     ' msgbox "TIKL_comparison " & TIKL_comparison
                     
