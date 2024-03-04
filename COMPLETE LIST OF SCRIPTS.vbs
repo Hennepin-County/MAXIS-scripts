@@ -4932,6 +4932,20 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
+script_num = script_num + 1                     'Increment by one
+ReDim Preserve script_array(script_num)         'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie     'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name            = "XML File Cleanup"
+' script_array(script_num).description          = "Navigates to and sets all the panels in STAT to 'V'iew in the PNLP order."
+script_array(script_num).category               = "CA"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Utility")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #03/04/2024#
+script_array(script_num).hot_topic_link         = ""
+script_array(script_num).used_for_elig          = False
+script_array(script_num).policy_references      = array("")                     'SEE Line 58 for format'
 ' for test_thing = 0 to UBound(script_array)
 ' 	MsgBox script_array(test_thing).description
 ' next
