@@ -12223,7 +12223,12 @@ function start_a_blank_CASE_NOTE()
 		PF9
 		EMReadScreen case_note_open_check, 8, 1, 72
 		If case_note_open_check <> "FMCAMAM2" then
-            BeginDialog Inquiry_Dialog, 0, 0, 241, 195, "CASE NOTE Cannot be Started"
+            EMReadScreen mode_error_check, 1, 20, 9
+			EMReadScreen PW_error_check, 6, 20, 9
+			EMReadScreen error_message_check, 79, 24, 2
+			error_message_check = trim(error_message_check)
+			
+			BeginDialog Inquiry_Dialog, 0, 0, 241, 195, "CASE NOTE Cannot be Started"
 			ButtonGroup ButtonPressed
 				OkButton 185, 110, 50, 15
 				PushButton 180, 175, 50, 15, "Report Error", report_error_button
@@ -12236,7 +12241,12 @@ function start_a_blank_CASE_NOTE()
             Do
                 Dialog Inquiry_Dialog
             Loop until ButtonPressed = -1 or ButtonPressed = report_error_button
-			If ButtonPressed = report_error_button Then script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
+			If ButtonPressed = report_error_button Then 
+				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
+				script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
+			End If
         End If
 	Loop until (case_note_open_check = "FMCAMAM2" or ButtonPressed = report_error_button)
 end function
