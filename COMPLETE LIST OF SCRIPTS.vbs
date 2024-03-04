@@ -247,6 +247,7 @@ class script_bowie
 		If script_name = "Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
 		If script_name = "Search CASE NOTE" Then description = description & " --- Searches all CASE:NOTEs for a particular case for word(s) or a phrase."
 		If script_name = "Hot Topics" Then description = description & " --- Displays a list of BlueZone Script related Hot Topics with links to the articles and related scripts."
+		If script_name = "XML File Cleanup" Then description = description & " --- Archives and removes aged MNBenefits xml files. Restricted to authorized users only."
 	end property
 
     public sub show_button(see_the_button)
