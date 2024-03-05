@@ -347,7 +347,7 @@ DO
 			If IsDate(last_day_of_recert) = False Then err_msg = err_msg & vbCr & "* Enter the last day of the certification period."
 		End If
 		If memo_to_send = "RECERT - NOMI" Then
-			If IsDate(interview_end_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the interview is due by for the Notice to the resident."
+			If IsDate(last_day_of_recert) = False Then err_msg = err_msg & vbCr & "* Enter the last day of the certification period."
 			If date_of_app <> "" Then
 				If IsDate(date_of_app) = False Then err_msg = err_msg & vbCr & "* Enter the day the recertification form was received in the agency. This can be blank if not received."
 			End If
@@ -449,7 +449,6 @@ If memo_to_send = "APPL - Appt Notice" Then
 	Call create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
 
 	Call confirm_memo_created_today(notc_confirm)
-	MsgBox "notc_confirm - " & notc_confirm
 	If notc_confirm = True Then
 		start_a_blank_case_note
 		Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & interview_date & " ~")
