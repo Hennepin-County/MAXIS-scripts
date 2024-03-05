@@ -12224,7 +12224,7 @@ function start_a_blank_CASE_NOTE()
 		EMReadScreen case_note_open_check, 8, 1, 72
 		If case_note_open_check <> "FMCAMAM2" then
             EMReadScreen mode_error_check, 1, 20, 9
-			EMReadScreen PW_error_check, 6, 20, 9
+			EMReadScreen PW_error_check, 7, 21, 14
 			EMReadScreen error_message_check, 79, 24, 2
 			error_message_check = trim(error_message_check)
 			
