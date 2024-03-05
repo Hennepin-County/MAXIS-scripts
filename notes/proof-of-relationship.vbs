@@ -343,10 +343,6 @@ DO
 		' Text 5, (35 + (array_item * 20)), 575, 10, "  * This last line is available for entry of relationship proof that was not documented in STAT. If the Relationship is left as 'SELECT ONE...' this line will not case note."
 		EndDialog
 
-		msgbox "add_field_count " & add_field_count
-		msgbox "UBound(Pare_Line_Array, 2) " & UBound(Pare_Line_Array, 2)
-
-    	
         'Dialog Box to list members and documentation received.
         'This dialog is here instead of the beginning because the dynamic thing only works if the array items are set before the dialog is defined
     	Dialog Dialog1
