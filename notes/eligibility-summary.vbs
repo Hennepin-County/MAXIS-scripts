@@ -2877,7 +2877,16 @@ function define_hc_elig_dialog()
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
-			    Text 25, y_pos+25, 115, 10, "Elig Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_basis(memb_ind)
+				dp_option_selected = False
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(each_memb) = "DP" Then dp_option_selected = True
+				Next
+				If dp_option_selected = True Then
+					Text 300, y_pos+25, 75, 10, "Designated Provider:"
+					EditBox 300, y_pos+35, 100, 15, HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected)
+				End If
+
+				Text 25, y_pos+25, 115, 10, "Elig Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_basis(memb_ind)
 			    If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard(memb_ind) <> "_" Then
 					Text 25, y_pos+35, 115, 10, "Standard: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard_percent(memb_ind) & "% FPG"
 				    Text 30, y_pos+45, 95, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind)
@@ -2885,24 +2894,34 @@ function define_hc_elig_dialog()
 					Text 30, y_pos+35, 95, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind)
 				End If
 				x_pos = 155
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind) = "L" Then
+					HC_UNIQUE_APPROVALS(l_budg, approval_selected) = True
+					Text 20, y_pos+50, 60, 10, "1503 Sent Date:"
+					EditBox 80, y_pos+45, 50, 15, date_of_1503
+				End If
+
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" Then
 					GroupBox x_pos, y_pos+10, 130, 30, "Waiver Approved"
 					Text x_pos+5, y_pos+25, 120, 10, "Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver_detail(memb_ind)
 					x_pos = x_pos + 140
 				End If
+
 				If HC_ELIG_APPROVALS(elig_ind).LTC_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
-					GroupBox x_pos, y_pos+10, 150, 50, "LTC Spenddown Exists"
+					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 150, 50, "LTC Spenddown Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 275, 50, "LTC Spenddown Exists"
 					Text x_pos+5, y_pos+25, 140, 10, "Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+35, 140, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind)
 					Text x_pos+5, y_pos+45, 140, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind)
 				ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
-					GroupBox x_pos, y_pos+10, 125, 50, "EW Waiver Obligation Exists"
+					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "EW Waiver Obligation Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 50, "EW Waiver Obligation Exists"
 					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Waiver Obligation $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind)
 
 				ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
-					GroupBox x_pos, y_pos+10, 125, 50, "Spenddown Exists"
+					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "Spenddown Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 50, "Spenddown Exists"
 					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind)
@@ -2933,14 +2952,6 @@ function define_hc_elig_dialog()
 					' Text 20, y_pos+45, 150, 10, "UI Obligation .  . (+) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_ui_obligation(memb_ind)
 					Text 350, y_pos+25, 95, 10, "TOTAL PREMIUM $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_premium(memb_ind)
 					y_pos = y_pos + 45
-				End If
-				dp_option_selected = False
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(each_memb) = "DP" Then dp_option_selected = True
-				Next
-				If dp_option_selected = True Then
-					Text 155, 50, 75, 10, "Designated Provider:"
-					EditBox 155, 60, 100, 15, HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected)
 				End If
 			End If
 
@@ -6783,7 +6794,9 @@ function hc_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-
+	If HC_UNIQUE_APPROVALS(l_budg, unique_app) = True Then
+		Call write_bullet_and_variable_in_CASE_NOTE("Date 1503 Sent", date_of_1503)
+	End If
 
 	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 
@@ -25010,7 +25023,9 @@ const major_prog_for_hc_app			= 33
 const process_for_note 				= 34
 const changes_for_note				= 35
 const designated_provider_info		= 36
-const approval_confirmed			= 37
+const l_budg						= 37
+const approval_confirmed			= 38
+date_of_1503 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
 ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -27450,6 +27465,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 									HC_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 									HC_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 									HC_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = False
+									HC_UNIQUE_APPROVALS(l_budg, unique_app_count) = False
 									HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)
 									HC_UNIQUE_APPROVALS(major_prog_for_hc_app, unique_app_count) = HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
 
@@ -27577,7 +27593,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			If ei_len > unea_len Then income_box_len = 30 + ei_len
 			If ei_count = 0 AND unea_count = 0 Then income_box_len = 40
 
-			' MsgBox HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind)
 			Call define_hc_elig_dialog
 
 			dialog Dialog1
@@ -27588,12 +27603,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			missing_1503_date = False
 
 			If err_msg = "" Then
 
 				all_hc_approvals_confirmed = True
 				hc_approval_is_incorrect = False
-				' MsgBox "GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) - " & GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) & vbCr & "approval_selected - " & approval_selected
+				date_of_1503 = trim(date_of_1503)
 
 				If HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 					HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
@@ -27606,7 +27622,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				not_confirmed_pckg_list = ""
 				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
-					' MsgBox "HC_UNIQUE_APPROVALS(last_mo_const, each_app) - " & HC_UNIQUE_APPROVALS(last_mo_const, each_app)
 					If ButtonPressed = HC_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_hc_approvals_confirmed = False
@@ -27614,6 +27629,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If HC_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then hc_approval_is_incorrect = True
+					If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = True and HC_UNIQUE_APPROVALS(l_budg, each_app) = True Then
+						If date_of_1503 = "" Then
+							missing_1503_date = True
+						ElseIf IsDate(date_of_1503) = False Then
+							missing_1503_date = True
+						End If
+					End If
 				Next
 
 				If ButtonPressed = -1 Then ButtonPressed = next_approval_btn
@@ -27621,14 +27643,14 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				If ButtonPressed = next_approval_btn Then
 					approval_selected = approval_selected + 1
 					If approval_selected > UBound(HC_UNIQUE_APPROVALS, 2) Then
+						approval_selected = UBound(HC_UNIQUE_APPROVALS, 2)
 						If all_hc_approvals_confirmed = True Then
 							ButtonPressed = app_confirmed_btn
-						Else
-							approval_selected = UBound(HC_UNIQUE_APPROVALS, 2)
 						End If
 					End If
 				End If
 			End If
+
 
 			If ButtonPressed = app_confirmed_btn and all_hc_approvals_confirmed = True Then move_from_dialog = True
 			If hc_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
@@ -27636,7 +27658,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
 				approval_selected = first_unconfirmed_month
 			End If
-
+			If missing_1503_date = True and move_from_dialog = True Then
+				MsgBox "*** Need DHS-1503 ***" & vbCr & vbCr & "This case is a Method L budget and a 1503 needs to be sent on the case with a L Budget." & vbCr & vbCr & "Send it now and enter the date of the '1503 Sent Date' field."
+				move_from_dialog = False
+			End If
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
