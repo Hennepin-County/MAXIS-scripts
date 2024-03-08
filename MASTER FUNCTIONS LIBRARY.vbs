@@ -12221,23 +12221,34 @@ function start_a_blank_CASE_NOTE()
 	call navigate_to_MAXIS_screen("CASE", "NOTE")
 	DO
 		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
-            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
-              ButtonGroup ButtonPressed
-                OkButton 185, 95, 50, 15
-              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
-              Text 20, 25, 80, 10, "* You may be in inquiry"
-              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
-              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            EndDialog
+		EMReadScreen case_note_open_check, 8, 1, 72
+		If case_note_open_check <> "FMCAMAM2" then
+            EMReadScreen mode_error_check, 1, 20, 9
+			EMReadScreen PW_error_check, 7, 21, 14
+			EMReadScreen error_message_check, 79, 24, 2
+			error_message_check = trim(error_message_check)
+			
+			BeginDialog Inquiry_Dialog, 0, 0, 241, 195, "CASE NOTE Cannot be Started"
+			ButtonGroup ButtonPressed
+				OkButton 185, 110, 50, 15
+				PushButton 180, 175, 50, 15, "Report Error", report_error_button
+			Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+			Text 20, 25, 80, 10, "* You may be in inquiry"
+			Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+			Text 5, 70, 225, 35, "Ensure you are in MAXIS Production and navigate to CASE/NOTE. Once you have done this, press 'OK' below to try again. You can also press the STOP SCRIPT button on the power pad to stop the script."
+			Text 5, 135, 225, 35, "If you have confirmed you are in MAXIS Production and have navigated to CASE/NOTE, but the script is still unable to open the CASE/NOTE then click 'Report Error' below to end the script and send an error report."
+			EndDialog
             Do
                 Dialog Inquiry_Dialog
-            Loop until ButtonPressed = -1
+            Loop until ButtonPressed = -1 or ButtonPressed = report_error_button
+			If ButtonPressed = report_error_button Then 
+				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
+				script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
+			End If
         End If
-	Loop until (mode_check = "A" or mode_check = "E")
+	Loop until (case_note_open_check = "FMCAMAM2" or ButtonPressed = report_error_button)
 end function
 
 function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, end_script)
