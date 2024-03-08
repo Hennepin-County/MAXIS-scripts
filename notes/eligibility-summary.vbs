@@ -2908,24 +2908,36 @@ function define_hc_elig_dialog()
 
 				If HC_ELIG_APPROVALS(elig_ind).LTC_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 150, 50, "LTC Spenddown Exists"
-					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 275, 50, "LTC Spenddown Exists"
+					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 275, 50, "LTC Spenddown Exists"
 					Text x_pos+5, y_pos+25, 140, 10, "Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+35, 140, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind)
 					Text x_pos+5, y_pos+45, 140, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind)
 				ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "EW Waiver Obligation Exists"
-					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 50, "EW Waiver Obligation Exists"
+					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 250, 50, "EW Waiver Obligation Exists"
 					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Waiver Obligation $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind)
 
 				ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "Spenddown Exists"
-					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 50, "Spenddown Exists"
+					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 250, 50, "Spenddown Exists"
 					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind)
 					' y_pos = y_pos + 35
+				End If
+				'REMEDIAL CARE UPDATES
+				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
+					If dp_option_selected = True Then
+						Text 285, y_pos+55, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
+						Text 285, y_pos+65, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
+						' Text 300, y_pos+65, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
+					Else
+						Text 285, y_pos+25, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
+						Text 285, y_pos+35, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
+						' Text 300, y_pos+35, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
+					End If
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 					GroupBox 290, y_pos+10, 155, 50, "Emergency Medical Assistance - EMA"
@@ -6798,7 +6810,7 @@ function hc_elig_case_note()
 		Call write_bullet_and_variable_in_CASE_NOTE("Date 1503 Sent", date_of_1503)
 	End If
 
-	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
+	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 			Call write_variable_in_CASE_NOTE("============================= ELIGIBLITY DETAILS ============================")
@@ -6816,10 +6828,16 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("            Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
+				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
+					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
+				End If
+
 			ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with an EW Waiver Obligation ---------------------------")
 				Call write_variable_in_CASE_NOTE("     Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_type_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Waiver Obligation: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind))
+				Call write_variable_in_CASE_NOTE("    Total Liability: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_liability(memb_ind))
 			ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with a Spenddown ---------------------------------------")
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind))
@@ -16822,6 +16840,7 @@ class hc_eligibility_detail
 	public hc_prog_elig_spdn_covered_pop()
 	public hc_prog_elig_original_monthly_spdn()
 	public hc_prog_elig_monthly_spdn_counted_bills()
+	public hc_prog_elig_monthly_spdn_remedial_care()
 	public hc_prog_elig_monthly_spdn_satisfaction_date()
 	public hc_prog_elig_monthly_spdn_recipient_amount()
 	public hc_prog_elig_monthly_spdn_balance()
@@ -17024,6 +17043,7 @@ class hc_eligibility_detail
 		ReDim hc_prog_elig_spdn_covered_pop(0)
 		ReDim hc_prog_elig_original_monthly_spdn(0)
 		ReDim hc_prog_elig_monthly_spdn_counted_bills(0)
+		ReDim hc_prog_elig_monthly_spdn_remedial_care(0)
 		ReDim hc_prog_elig_monthly_spdn_satisfaction_date(0)
 		ReDim hc_prog_elig_monthly_spdn_recipient_amount(0)
 		ReDim hc_prog_elig_monthly_spdn_balance(0)
@@ -17239,6 +17259,7 @@ class hc_eligibility_detail
 				ReDim preserve hc_prog_elig_spdn_covered_pop(hc_prog_count)
 				ReDim preserve hc_prog_elig_original_monthly_spdn(hc_prog_count)
 				ReDim preserve hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)
+				ReDim preserve hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count)
 				ReDim preserve hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count)
 				ReDim preserve hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count)
 				ReDim preserve hc_prog_elig_monthly_spdn_balance(hc_prog_count)
@@ -17978,18 +17999,59 @@ class hc_eligibility_detail
 															EMReadScreen mobl_yr, 2, 7, mobl_col
 															If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
 																community_spenddown_exists(hc_prog_count) = True
+																hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False
 
 																EMReadScreen hc_prog_elig_original_monthly_spdn(hc_prog_count), 			10, 8, mobl_col-5
 																EMReadScreen hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count), 		10, 9, mobl_col-5
 																EMReadScreen hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count),	5, 10, mobl_col
 																EMReadScreen hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count), 	10, 11, mobl_col-5
 																EMReadScreen hc_prog_elig_monthly_spdn_balance(hc_prog_count), 				10, 12, mobl_col-5
+																hc_prog_elig_original_monthly_spdn(hc_prog_count) = trim(hc_prog_elig_original_monthly_spdn(hc_prog_count))
+																hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count) = trim(hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count))
+																hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count) = trim(hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count))
+																hc_prog_elig_monthly_spdn_balance(hc_prog_count) = trim(hc_prog_elig_monthly_spdn_balance(hc_prog_count))
 
 																If hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) <> "__ __" Then
 																	hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = replace(hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count), " ", "/")
 																	hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) & "/" & elig_footer_year
 																Else
 																	hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = ""
+																End If
+																'REMEDIAL CARE UPDATES
+																If trim(hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)) <> "0.00" Then
+																	Call write_value_and_transmit("X", 9, 3)
+																	cnt_bil_row = 7
+																	Do
+																		EMReadScreen bil_mo, 2, cnt_bil_row, 13
+																		EMReadScreen bil_yr, 2, cnt_bil_row, 16
+
+																		If bil_mo = elig_footer_month AND bil_yr = elig_footer_year Then
+																			cnt_bil_row = cnt_bil_row + 3
+																			Do
+																				EMReadScreen exp_type, 12, cnt_bil_row, 7
+																				If trim(exp_type) = "Rem Care" Then
+																					hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = True
+																					Exit Do
+																				End If
+																				cnt_bil_row = cnt_bil_row + 1
+																				If cnt_bil_row = 20 Then
+																					PF8
+																					cnt_bil_row = 7
+																					EMReadScreen end_of_list, 9, 23, 26
+																				End If
+																				EMReadScreen exp_type, 6, cnt_bil_row, 6
+																			Loop until exp_type = "Month:"
+																			Exit Do
+																		End If
+
+																		cnt_bil_row = cnt_bil_row + 1
+																		If cnt_bil_row = 20 Then
+																			PF8
+																			cnt_bil_row = 7
+																			EMReadScreen end_of_list, 9, 23, 26
+																		End If
+																	Loop until end_of_list = "LAST PAGE"
+																	PF3
 																End If
 															End If
 															mobl_col = mobl_col + 11
@@ -18609,6 +18671,7 @@ class stat_detail
 	public stat_hest_prosp_all
 	public stat_hest_retro_list
 	public stat_hest_prosp_list
+	Public stat_faci_notes
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -19221,6 +19284,26 @@ class stat_detail
 	public stat_emma_verif_info()
 	public stat_emma_begin_date()
 	public stat_emma_end_date()
+
+	Public stat_faci_exists()
+	Public stat_faci_currently_in_facility()
+	Public stat_faci_is_grh()
+	Public stat_faci_name()
+	Public stat_faci_vendor()
+	Public stat_faci_date_in()
+	Public stat_faci_date_out()
+	Public stat_faci_type_code()
+	Public stat_faci_type_info()
+	Public stat_faci_waiver_type_code()
+	Public stat_faci_waiver_type_info()
+	Public stat_faci_FS_elig_yn()
+	Public stat_faci_FS_faci_type_code()
+	Public stat_faci_FS_faci_type_info()
+	Public stat_faci_LTC_inelig_reason_code()
+	Public stat_faci_LTC_inelig_reason_info()
+	Public stat_faci_LTC_begin_date()
+	Public stat_faci_county_approval_placement_yn()
+	Public stat_faci_approval_county()
 
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
@@ -19970,6 +20053,27 @@ class stat_detail
 		ReDim stat_emma_begin_date(0)
 		ReDim stat_emma_end_date(0)
 
+		ReDim stat_faci_exists(0)
+		ReDim stat_faci_currently_in_facility(0)
+		ReDim stat_faci_is_grh(0)
+		ReDim stat_faci_name(0)
+		ReDim stat_faci_vendor(0)
+		ReDim stat_faci_date_in(0)
+		ReDim stat_faci_date_out(0)
+		ReDim stat_faci_type_code(0)
+		ReDim stat_faci_type_info(0)
+		ReDim stat_faci_waiver_type_code(0)
+		ReDim stat_faci_waiver_type_info(0)
+		ReDim stat_faci_FS_elig_yn(0)
+		ReDim stat_faci_FS_faci_type_code(0)
+		ReDim stat_faci_FS_faci_type_info(0)
+		ReDim stat_faci_LTC_inelig_reason_code(0)
+		ReDim stat_faci_LTC_inelig_reason_info(0)
+		ReDim stat_faci_LTC_begin_date(0)
+		ReDim stat_faci_county_approval_placement_yn(0)
+		ReDim stat_faci_approval_county(0)
+
+
 		stat_shel_prosp_all_total = 0
 		children_on_case = False
 
@@ -20590,6 +20694,26 @@ class stat_detail
 			ReDim preserve stat_emma_verif_info(memb_count)
 			ReDim preserve stat_emma_begin_date(memb_count)
 			ReDim preserve stat_emma_end_date(memb_count)
+
+			ReDim preserve stat_faci_exists(memb_count)
+			ReDim preserve stat_faci_currently_in_facility(memb_count)
+			ReDim preserve stat_faci_is_grh(memb_count)
+			ReDim preserve stat_faci_name(memb_count)
+			ReDim preserve stat_faci_vendor(memb_count)
+			ReDim preserve stat_faci_date_in(memb_count)
+			ReDim preserve stat_faci_date_out(memb_count)
+			ReDim preserve stat_faci_type_code(memb_count)
+			ReDim preserve stat_faci_type_info(memb_count)
+			ReDim preserve stat_faci_waiver_type_code(memb_count)
+			ReDim preserve stat_faci_waiver_type_info(memb_count)
+			ReDim preserve stat_faci_FS_elig_yn(memb_count)
+			ReDim preserve stat_faci_FS_faci_type_code(memb_count)
+			ReDim preserve stat_faci_FS_faci_type_info(memb_count)
+			ReDim preserve stat_faci_LTC_inelig_reason_code(memb_count)
+			ReDim preserve stat_faci_LTC_inelig_reason_info(memb_count)
+			ReDim preserve stat_faci_LTC_begin_date(memb_count)
+			ReDim preserve stat_faci_county_approval_placement_yn(memb_count)
+			ReDim preserve stat_faci_approval_county(memb_count)
 
 			EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 			EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
@@ -22976,16 +23100,129 @@ class stat_detail
 			End If
 		Next
 
-		ReDim preserve stat_emma_exists(memb_count)
-		ReDim preserve stat_emma_med_emer_code(memb_count)
-		ReDim preserve stat_emma_med_emer_info(memb_count)
-		ReDim preserve stat_emma_health_cons_code(memb_count)
-		ReDim preserve stat_emma_health_cons_info(memb_count)
-		ReDim preserve stat_emma_verif_code(memb_count)
-		ReDim preserve stat_emma_verif_info(memb_count)
-		ReDim preserve stat_emma_begin_date(memb_count)
-		ReDim preserve stat_emma_end_date(memb_count)
+		call navigate_to_MAXIS_screen("STAT", "FACI")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_faci_exists(each_memb) = True
+			If existance_check = "0" Then stat_faci_exists(each_memb) = False
 
+			If stat_faci_exists(each_memb) = True Then
+
+				Do
+					EMReadScreen FACI_current_panel, 1, 2, 73
+					EMReadScreen FACI_total_check, 1, 2, 78
+					EMReadScreen in_year_check_01, 4, 14, 53
+					EMReadScreen in_year_check_02, 4, 15, 53
+					EMReadScreen in_year_check_03, 4, 16, 53
+					EMReadScreen in_year_check_04, 4, 17, 53
+					EMReadScreen in_year_check_05, 4, 18, 53
+					EMReadScreen out_year_check_01, 4, 14, 77
+					EMReadScreen out_year_check_02, 4, 15, 77
+					EMReadScreen out_year_check_03, 4, 16, 77
+					EMReadScreen out_year_check_04, 4, 17, 77
+					EMReadScreen out_year_check_05, 4, 18, 77
+					If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+					(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+						currently_in_FACI = True
+						If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
+						If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
+						If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
+						If in_year_check_04 <> "____" and out_year_check_04 = "____" Then faci_row = 17
+						If in_year_check_05 <> "____" and out_year_check_05 = "____" Then faci_row = 18
+
+						EMReadScreen stat_faci_date_in(each_memb), 10, faci_row, 47
+						EMReadScreen stat_faci_date_out(each_memb), 10, faci_row, 	71
+
+						If stat_faci_date_in(each_memb) = "__ __ ____" Then stat_faci_date_in(each_memb) = ""
+						stat_faci_date_in(each_memb) = replace(stat_faci_date_in(each_memb), " ", "/")
+						If stat_faci_date_out(each_memb) = "__ __ ____" Then stat_faci_date_out(each_memb) = ""
+						stat_faci_date_out(each_memb) = replace(stat_faci_date_out(each_memb), " ", "/")
+
+						exit do
+					Elseif FACI_current_panel = FACI_total_check then
+						currently_in_FACI = False
+						exit do
+					Else
+						transmit
+					End if
+				Loop until FACI_current_panel = FACI_total_check
+				stat_faci_currently_in_facility(each_memb) = currently_in_FACI
+
+				If currently_in_FACI = True then
+					stat_faci_is_grh(each_memb) = False
+					EMReadScreen stat_faci_name(each_memb), 30, 6, 43
+					EMReadScreen stat_faci_type_code(each_memb), 2, 7, 43
+					EmReadscreen stat_faci_vendor(each_memb), 8, 5, 43
+					'List of FACI types
+					IF stat_faci_type_code(each_memb) = "41" then stat_faci_type_info(each_memb) = "NF-I"
+					IF stat_faci_type_code(each_memb) = "42" then stat_faci_type_info(each_memb) = "NF-II"
+					IF stat_faci_type_code(each_memb) = "43" then stat_faci_type_info(each_memb) = "ICF-DD"
+					IF stat_faci_type_code(each_memb) = "44" then stat_faci_type_info(each_memb) = "Short stay in NF-I"
+					IF stat_faci_type_code(each_memb) = "45" then stat_faci_type_info(each_memb) = "Short stay in NF-II"
+					IF stat_faci_type_code(each_memb) = "46" then stat_faci_type_info(each_memb) = "Short stay in ICF-DD"
+					IF stat_faci_type_code(each_memb) = "47" then stat_faci_type_info(each_memb) = "RTC - Not IMD"
+					IF stat_faci_type_code(each_memb) = "48" then stat_faci_type_info(each_memb) = "Medical Hospital"
+					IF stat_faci_type_code(each_memb) = "49" then stat_faci_type_info(each_memb) = "MSOP"
+					IF stat_faci_type_code(each_memb) = "50" then stat_faci_type_info(each_memb) = "IMD/RTC"
+					IF stat_faci_type_code(each_memb) = "51" then stat_faci_type_info(each_memb) = "Rule 31 CD_IMD"
+					IF stat_faci_type_code(each_memb) = "52" then stat_faci_type_info(each_memb) = "Rule 36 MI-IMD"
+					IF stat_faci_type_code(each_memb) = "53" then stat_faci_type_info(each_memb) = "IMD Hospitals"
+					IF stat_faci_type_code(each_memb) = "55" then stat_faci_type_info(each_memb) = "Adult Foster Care/Rule 203"
+					IF stat_faci_type_code(each_memb) = "56" then stat_faci_type_info(each_memb) = "GRH (Not FC or Rule 36)"
+					IF stat_faci_type_code(each_memb) = "57" then stat_faci_type_info(each_memb) = "Rule 36 MI - Non-IMD"
+					IF stat_faci_type_code(each_memb) = "60" then stat_faci_type_info(each_memb) = "Non-GRH"
+					IF stat_faci_type_code(each_memb) = "61" then stat_faci_type_info(each_memb) = "Rule 31 CD - Non-IMD"
+					IF stat_faci_type_code(each_memb) = "67" then stat_faci_type_info(each_memb) = "Family Violence Shelter"
+					IF stat_faci_type_code(each_memb) = "68" then stat_faci_type_info(each_memb) = "County Correctional Facility"
+					IF stat_faci_type_code(each_memb) = "69" then stat_faci_type_info(each_memb) = "Non-Cty Adult Correctional"
+
+					IF stat_faci_type_code(each_memb) = "52" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "55" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "56" then stat_faci_is_grh(each_memb) = True
+					IF stat_faci_type_code(each_memb) = "57" then stat_faci_is_grh(each_memb) = True
+
+					stat_faci_name(each_memb) = trim(replace(stat_faci_name(each_memb), "_", ""))
+					stat_faci_vendor(each_memb) = trim(replace(stat_faci_vendor(each_memb), "_", ""))
+
+					EMReadScreen stat_faci_waiver_type_code(each_memb), 2, 7, 71
+					EMReadScreen stat_faci_FS_elig_yn(each_memb), 1, 8, 43
+					EMReadScreen stat_faci_FS_faci_type_code(each_memb), 1, 8, 71
+					EMReadScreen stat_faci_LTC_inelig_reason_code(each_memb), 1, 9, 43
+					EMReadScreen stat_faci_LTC_begin_date(each_memb), 10, 10, 52
+					EMReadScreen stat_faci_county_approval_placement_yn(each_memb), 1, 12, 52
+					EMReadScreen stat_faci_approval_county(each_memb), 2, 12, 71
+
+					If stat_faci_LTC_begin_date(each_memb) = "__ __ ____" Then stat_faci_LTC_begin_date(each_memb) = ""
+					stat_faci_LTC_begin_date(each_memb) = replace(stat_faci_LTC_begin_date(each_memb), " ", "/")
+
+					If stat_faci_waiver_type_code(each_memb) = "__" Then stat_faci_waiver_type_info(each_memb) = ""
+					If stat_faci_waiver_type_code(each_memb) = "01" Then stat_faci_waiver_type_info(each_memb) = "CADI"
+					If stat_faci_waiver_type_code(each_memb) = "02" Then stat_faci_waiver_type_info(each_memb) = "CAC"
+					If stat_faci_waiver_type_code(each_memb) = "03" Then stat_faci_waiver_type_info(each_memb) = "EW Single"
+					If stat_faci_waiver_type_code(each_memb) = "04" Then stat_faci_waiver_type_info(each_memb) = "EW Married"
+					If stat_faci_waiver_type_code(each_memb) = "05" Then stat_faci_waiver_type_info(each_memb) = "TBI"
+					If stat_faci_waiver_type_code(each_memb) = "06" Then stat_faci_waiver_type_info(each_memb) = "DD"
+					If stat_faci_waiver_type_code(each_memb) = "07" Then stat_faci_waiver_type_info(each_memb) = "ACS"
+					If stat_faci_waiver_type_code(each_memb) = "08" Then stat_faci_waiver_type_info(each_memb) = "SISEW Single"
+					If stat_faci_waiver_type_code(each_memb) = "09" Then stat_faci_waiver_type_info(each_memb) = "SISEW Married"
+
+					If stat_faci_FS_faci_type_code(each_memb) = "_" Then  stat_faci_FS_faci_type_info(each_memb) = ""
+					If stat_faci_FS_faci_type_code(each_memb) = "1" Then  stat_faci_FS_faci_type_info(each_memb) = "Federally Subsidized Housing for Elderly"
+					If stat_faci_FS_faci_type_code(each_memb) = "2" Then  stat_faci_FS_faci_type_info(each_memb) = "Licensed Facility/Treatment Center for Chemical Dependency"
+					If stat_faci_FS_faci_type_code(each_memb) = "3" Then  stat_faci_FS_faci_type_info(each_memb) = "Blind or Disabled RSDI/SSI Recipient"
+					If stat_faci_FS_faci_type_code(each_memb) = "4" Then  stat_faci_FS_faci_type_info(each_memb) = "Family Violence Shelter"
+					If stat_faci_FS_faci_type_code(each_memb) = "5" Then  stat_faci_FS_faci_type_info(each_memb) = "Temporary Shelter for Homeless"
+					If stat_faci_FS_faci_type_code(each_memb) = "6" Then  stat_faci_FS_faci_type_info(each_memb) = "Not a facility by FS Definition"
+
+					If stat_faci_LTC_inelig_reason_code(each_memb) = "_" Then stat_faci_LTC_inelig_reason_info(each_memb) = ""
+					If stat_faci_LTC_inelig_reason_code(each_memb) = "L" Then stat_faci_LTC_inelig_reason_info(each_memb) = "This Level of Care Not Required"
+					If stat_faci_LTC_inelig_reason_code(each_memb) = "N" Then stat_faci_LTC_inelig_reason_info(each_memb) = "Not pre-Screened"
+
+				End if
+			End If
+		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "HEST")
 
@@ -24586,6 +24823,9 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
 			End If
 		End If
+
+		' stat_faci_currently_in_facility(each_memb) = currently_in_FACI
+
 		' If STAT_INFORMATION(month_count).stat_mont_hc_status == "A" Then
 		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
 		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
@@ -27359,7 +27599,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 End If
 ' MsgBox "list_of_ref_numbers_approved - " & list_of_ref_numbers_approved & vbCr & "enter_CNOTE_for_HC - " & enter_CNOTE_for_HC
 If enter_CNOTE_for_HC = True Then		'HC DIALOG
-
+	cancel_out_of_hc = False
 
 	for each every_hc_member in apprvd_ref_numbs_array
 		memb_and_prog_array = split(every_hc_member, "::")
@@ -27375,6 +27615,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		last_income_standard = ""
 		last_spenddown_type = ""
 		last_spenddown_amount = ""
+		last_counted_bills_amt = ""
+		last_spenddown_balance_amt = ""
+		last_ew_spenddown_obligation = ""
+		last_ew_spenddown_liability = ""
 		last_premium = ""
 
 		' MsgBox "every_hc_member - " & every_hc_member & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
@@ -27392,6 +27636,50 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "EMA" Then MSP_approvals_only = False
 					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "IMD" Then MSP_approvals_only = False
 
+					'REMEDIAL CARE UPDATES
+					If budget_without_remedial_care = "" Then
+						For stat_year = 0 to UBound(STAT_INFORMATION)
+							If STAT_INFORMATION(stat_year).footer_month = HC_ELIG_APPROVALS(approval).elig_footer_month and STAT_INFORMATION(stat_year).footer_year = HC_ELIG_APPROVALS(approval).elig_footer_year Then
+								For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
+									If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
+										' MsgBox "hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(member) & vbCr & "grh_status - " & grh_status & vbCr & "stat_faci_is_grh(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) & vbCr & "stat_faci_currently_in_facility(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_currently_in_facility(stat_memb)
+										If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
+											' MsgBox "HC Should Cancel or maybe allow for permission"
+											Dialog1 = ""
+											BeginDialog Dialog1, 0, 0, 291, 175, "Review Budget for MEMB in GRH with NO GHR Program"
+												DropListBox 15, 120, 265, 45, "Select One..."+chr(9)+"No, stop the script so ELIG can be updated and ReApproved."+chr(9)+"No, continue with the script but do NOT CASE/NOTE the HC Approval"+chr(9)+"Yes, this case does not require Remedial Care Amount be in Bills.", budget_without_remedial_care
+												ButtonGroup ButtonPressed
+													OkButton 230, 150, 50, 15
+												Text 115, 5, 155, 10, HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & " - MEMB " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & ": MA - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_elig_type(member) & ", Method: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_method(member)
+												Text 10, 25, 145, 10, "Health Care MA Spenddown: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_original_monthly_spdn(hc_prog_count)
+												Text 55, 35, 145, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)
+												Text 60, 50, 145, 10, "  GRH Status: " & grh_status
+												Text 75, 65, 145, 10, " Facility: " & STAT_INFORMATION(stat_year).stat_faci_name(stat_memb)
+												Text 55, 75, 145, 10, " Facility Type : " & STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) & " - " & STAT_INFORMATION(stat_year).stat_faci_type_info(stat_memb)
+												Text 110, 90, 150, 10, "NO REMEDIAL CARE BILLS ARE COUNTED."
+												Text 15, 110, 105, 10, "Is this correct for this budget?"
+											EndDialog
+
+											Do
+												dialog Dialog1
+
+											Loop until budget_without_remedial_care <> "Select One..."
+
+											If budget_without_remedial_care = "No, stop the script so ELIG can be updated and ReApproved." Then script_end_procedure_with_error_report("Eligibility Summary has ended because you have indicated the HC Budget needs to be Repaired to include a Remedial Care amount.")
+											If budget_without_remedial_care = "No, continue with the script but do NOT CASE/NOTE the HC Approval" Then
+												enter_CNOTE_for_HC = False
+												end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals because the budget needs to be reviewed and reappoved, based on user input. Particular issue is Remedial Care for a Member that is in a GRH Facility." & vbCr
+												cancel_out_of_hc = True
+											End if
+										End If
+									End If
+									If cancel_out_of_hc = True Then Exit For
+								Next
+							End If
+							If cancel_out_of_hc = True Then Exit For
+						Next
+					End If
+					If cancel_out_of_hc = True Then Exit For
 					' MsgBox "start_capturing_approvals - " & start_capturing_approvals & vbCr & "approval - " & approval & vbCr & "unique_app_count - " & unique_app_count & vbCr & "HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
 
 					' MsgBox "HC ELIG Ref Numb - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "every_hc_member - " & every_hc_member & vbCr & "member - " & member
@@ -27427,6 +27715,11 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 								last_income_standard = HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_income_standard(member)
 								last_spenddown_type = HC_ELIG_APPROVALS(approval).hc_prog_elig_spdn_type(member)
 								last_spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member)
+								last_counted_bills_amt = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(member)
+								last_spenddown_balance_amt = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_balance(member)
+								last_ew_spenddown_obligation = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member)
+								last_ew_spenddown_liability = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_liability(member)
+
 								last_premium = HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_total_premium(member)
 
 								unique_app_count = unique_app_count + 1
@@ -27444,6 +27737,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 								If HC_ELIG_APPROVALS(approval).hc_prog_elig_spdn_type(member) <> last_spenddown_type Then match_last_benefit_amounts = False
 								If HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member) <> last_spenddown_amount Then match_last_benefit_amounts = False
 								If HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_total_premium(member) <> last_premium Then match_last_benefit_amounts = False
+								If HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(member) <> last_counted_bills_amt Then match_last_benefit_amounts = False
+								If HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_balance(member) <> last_spenddown_balance_amt Then match_last_benefit_amounts = False
+								If HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member) <> last_ew_spenddown_obligation Then match_last_benefit_amounts = False
+								If HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_liability(member) <> last_ew_spenddown_liability Then match_last_benefit_amounts = False
 
 								If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) <> last_member_ref_number Then match_last_benefit_amounts = False
 
@@ -27482,6 +27779,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 									last_income_standard = HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_income_standard(member)
 									last_spenddown_type = HC_ELIG_APPROVALS(approval).hc_prog_elig_spdn_type(member)
 									last_spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member)
+									last_counted_bills_amt = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(member)
+									last_spenddown_balance_amt = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_balance(member)
+									last_ew_spenddown_obligation = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member)
+									last_ew_spenddown_liability = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_liability(member)
 									last_premium = HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_total_premium(member)
 
 									unique_app_count = unique_app_count + 1
@@ -27492,7 +27793,9 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 					End If
 				Next
 			End If
+			If cancel_out_of_hc = True Then Exit For
 		Next
+		If cancel_out_of_hc = True Then Exit For
 
 	next
 	' MsgBox "Top of Unique Approvals - " & UBound(HC_UNIQUE_APPROVALS, 2) & vbCr &"unique_app_count - " & unique_app_count
@@ -27500,178 +27803,179 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	' for each_approval_pkkg = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
 	' 	MsgBox "REF NUMB - " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_approval_pkkg) & vbCr & "MAJ PRGM - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_approval_pkkg) & vbCr & "each_approval_pkkg - " & each_approval_pkkg
 	' next
+	If cancel_out_of_hc = False Then
+		all_hc_approvals_confirmed = False
+		approval_selected = 0
 
-	all_hc_approvals_confirmed = False
-	approval_selected = 0
-
-	Do
 		Do
-			first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
-			elig_ind = ""
-			memb_ind = ""
-			month_ind = ""
-			' MsgBox "elig_ind - " & elig_ind & vbCr & "1"
-			For approval = 0 to UBound(HC_ELIG_APPROVALS)
-				For member = 0 to UBound(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+			Do
+				first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+				elig_ind = ""
+				memb_ind = ""
+				month_ind = ""
+				' MsgBox "elig_ind - " & elig_ind & vbCr & "1"
+				For approval = 0 to UBound(HC_ELIG_APPROVALS)
+					For member = 0 to UBound(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
 
-					If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_month and HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, approval_selected) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) and HC_UNIQUE_APPROVALS(major_prog_for_hc_app, approval_selected) = HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) Then
-						elig_ind = approval
-						memb_ind = member
-					End If
-				Next
-			Next
-			' MsgBox "elig_ind - " & elig_ind & vbCr & "2"
-			For each_month = 0 to UBound(STAT_INFORMATION)
-				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
-			Next
-
-			' MsgBox "elig_ind - " & elig_ind
-			' MsgBox "approval_selected - " & approval_selected & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_income(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_Obligation_one_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_obligation_six_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			' If scnd_elig_ind <> "" Then
-			' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_income(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_Obligation_one_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_obligation_six_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
-			' End If
-
-			ei_count = 0
-			unea_count = 0
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-			      If STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-			  	  If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-			      If STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-				  If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-			      If STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-				  If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-			      If STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-				  If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-			      If STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-				  If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
-			  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
-			  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
-
-			  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
-				  unea_count = unea_count + 1
-				  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-			  End If
-			Next
-			ei_len = ei_count * 10
-			unea_len = unea_count * 10
-			income_box_len = 30 + unea_len
-			If ei_len > unea_len Then income_box_len = 30 + ei_len
-			If ei_count = 0 AND unea_count = 0 Then income_box_len = 40
-
-			Call define_hc_elig_dialog
-
-			dialog Dialog1
-			cancel_confirmation
-
-			err_msg = ""
-			move_from_dialog = False
-
-			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
-			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
-			missing_1503_date = False
-
-			If err_msg = "" Then
-
-				all_hc_approvals_confirmed = True
-				hc_approval_is_incorrect = False
-				date_of_1503 = trim(date_of_1503)
-
-				If HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
-					HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
-					HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
-					HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
-					HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
-				End If
-
-				not_confirmed_pckg_list = ""
-				first_unconfirmed_month = ""
-				for each_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
-					If ButtonPressed = HC_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
-					If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
-						all_hc_approvals_confirmed = False
-						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(HC_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
-					End If
-					If HC_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then hc_approval_is_incorrect = True
-					If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = True and HC_UNIQUE_APPROVALS(l_budg, each_app) = True Then
-						If date_of_1503 = "" Then
-							missing_1503_date = True
-						ElseIf IsDate(date_of_1503) = False Then
-							missing_1503_date = True
+						If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_month and HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, approval_selected) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) and HC_UNIQUE_APPROVALS(major_prog_for_hc_app, approval_selected) = HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) Then
+							elig_ind = approval
+							memb_ind = member
 						End If
-					End If
+					Next
+				Next
+				' MsgBox "elig_ind - " & elig_ind & vbCr & "2"
+				For each_month = 0 to UBound(STAT_INFORMATION)
+					If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 				Next
 
-				If ButtonPressed = -1 Then ButtonPressed = next_approval_btn
+				' MsgBox "elig_ind - " & elig_ind
+				' MsgBox "approval_selected - " & approval_selected & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
 
-				If ButtonPressed = next_approval_btn Then
-					approval_selected = approval_selected + 1
-					If approval_selected > UBound(HC_UNIQUE_APPROVALS, 2) Then
-						approval_selected = UBound(HC_UNIQUE_APPROVALS, 2)
-						If all_hc_approvals_confirmed = True Then
-							ButtonPressed = app_confirmed_btn
-						End If
-					End If
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_income(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_Obligation_one_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_obligation_six_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				' If scnd_elig_ind <> "" Then
+				' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_income(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_Obligation_one_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_obligation_six_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+				' End If
+
+				ei_count = 0
+				unea_count = 0
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+					If STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
 				End If
-			End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+					If STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+					If STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+					If STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+					If STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
 
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
+					unea_count = unea_count + 1
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
+					unea_count = unea_count + 1
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
+					unea_count = unea_count + 1
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
+					unea_count = unea_count + 1
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
+					unea_count = unea_count + 1
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+				End If
+				Next
+				ei_len = ei_count * 10
+				unea_len = unea_count * 10
+				income_box_len = 30 + unea_len
+				If ei_len > unea_len Then income_box_len = 30 + ei_len
+				If ei_count = 0 AND unea_count = 0 Then income_box_len = 40
 
-			If ButtonPressed = app_confirmed_btn and all_hc_approvals_confirmed = True Then move_from_dialog = True
-			If hc_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
-			If ButtonPressed = app_confirmed_btn and all_hc_approvals_confirmed = False and move_from_dialog = False Then
-				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmed_month
-			End If
-			If missing_1503_date = True and move_from_dialog = True Then
-				MsgBox "*** Need DHS-1503 ***" & vbCr & vbCr & "This case is a Method L budget and a 1503 needs to be sent on the case with a L Budget." & vbCr & vbCr & "Send it now and enter the date of the '1503 Sent Date' field."
+				Call define_hc_elig_dialog
+
+				dialog Dialog1
+				cancel_confirmation
+
+				err_msg = ""
 				move_from_dialog = False
-			End If
-		Loop until move_from_dialog = True
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = False
 
-	If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
+				If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+				If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+				missing_1503_date = False
 
-	If hc_approval_is_incorrect = True Then
-		enter_CNOTE_for_HC = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
-	End if
+				If err_msg = "" Then
+
+					all_hc_approvals_confirmed = True
+					hc_approval_is_incorrect = False
+					date_of_1503 = trim(date_of_1503)
+
+					If HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+						HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
+						HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
+					ElseIf HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+						HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
+						HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
+					End If
+
+					not_confirmed_pckg_list = ""
+					first_unconfirmed_month = ""
+					for each_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
+						If ButtonPressed = HC_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+						If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
+							all_hc_approvals_confirmed = False
+							not_confirmed_pckg_list = not_confirmed_pckg_list & replace(HC_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
+							If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
+						End If
+						If HC_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then hc_approval_is_incorrect = True
+						If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = True and HC_UNIQUE_APPROVALS(l_budg, each_app) = True Then
+							If date_of_1503 = "" Then
+								missing_1503_date = True
+							ElseIf IsDate(date_of_1503) = False Then
+								missing_1503_date = True
+							End If
+						End If
+					Next
+
+					If ButtonPressed = -1 Then ButtonPressed = next_approval_btn
+
+					If ButtonPressed = next_approval_btn Then
+						approval_selected = approval_selected + 1
+						If approval_selected > UBound(HC_UNIQUE_APPROVALS, 2) Then
+							approval_selected = UBound(HC_UNIQUE_APPROVALS, 2)
+							If all_hc_approvals_confirmed = True Then
+								ButtonPressed = app_confirmed_btn
+							End If
+						End If
+					End If
+				End If
+
+
+				If ButtonPressed = app_confirmed_btn and all_hc_approvals_confirmed = True Then move_from_dialog = True
+				If hc_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
+				If ButtonPressed = app_confirmed_btn and all_hc_approvals_confirmed = False and move_from_dialog = False Then
+					MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
+					approval_selected = first_unconfirmed_month
+				End If
+				If missing_1503_date = True and move_from_dialog = True Then
+					MsgBox "*** Need DHS-1503 ***" & vbCr & vbCr & "This case is a Method L budget and a 1503 needs to be sent on the case with a L Budget." & vbCr & vbCr & "Send it now and enter the date of the '1503 Sent Date' field."
+					move_from_dialog = False
+				End If
+			Loop until move_from_dialog = True
+			Call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = False
+
+		If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
+
+		If hc_approval_is_incorrect = True Then
+			enter_CNOTE_for_HC = False
+			end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		End if
+	End If
 End If
 
 If ex_parte_approval = True and wcom_exception <> "--" Then
