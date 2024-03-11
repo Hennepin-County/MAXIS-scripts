@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/11/2024", "Fixed bug in navigation and autosave", "Ilse Ferris, Hennepin County")
 call changelog_update("02/16/2024", "Updated background code to streamline processing, added searching PEPR messages, and added aged SNAP benefit message.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/18/2022", "Added out-of-county handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/06/2020", "Added autosave functionality.", "Ilse Ferris, Hennepin County")
@@ -62,8 +63,8 @@ dail_to_decimate = "INFO and PEPR"    'defaults to all. Some x-numbers don't sel
 all_workers_check = 1   'checked
 
 'Finding the right folder to automatically save the file
-month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-decimator_folder = CM_mo & " " & CM_yr & " DAIL Decimator"
+month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date)
+decimator_folder = CM_mo & "-" & CM_yr & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
@@ -251,7 +252,7 @@ Do
     If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
     dail_msg = trim(dail_msg)
 
-    Call nnavigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
     If is_this_PRIV = True then
         objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
     Else
@@ -294,7 +295,8 @@ NEXT
 file_info = month_folder & "\" & decimator_folder & "\" & report_date & " CCD " & deleted_dails
 
 'Saves and closes the most recent Excel workbook with the Task based cases to process.
-objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+objExcel.ActiveWorkbook.SaveAs t_drive & "/Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
+ObjExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
 
