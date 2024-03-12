@@ -10554,7 +10554,7 @@ Function non_actionable_dails(actionable_dail)
             instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
             actionable_dail = True
         Else
-            If dail_month = this_month then
+            If dail_month = this_month or dail_month = next_month then
                 actionable_dail = True
             Else
                 actionable_dail = False ' delete the old messages
