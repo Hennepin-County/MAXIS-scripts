@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/15/2024", "Updated the dialogs and CASE NOTE information with some details for ##~## - If a program is closed for a death, the date of death will be listed in the dialog and CASE/NOTE.##~## - For HC programs, if ineligible due to death, the eff date in the CAE/NOTE header will be for the date of death.##~## - Added some additional support around Designated Providers##~## - Removed 'Denied' and 'Closed' indicators from the HC CASE/NOTE Headers because they were not reliable. THIS IS TEMPORARY and will be returned when more support is built.##~##", "Casey Love, Hennpin County")
 call changelog_update("03/08/2024", "Updates to support for ELIG/HC functionality to provide additional information and process guidance ##~## - Added date for 1503 Form. ##~## - Review for Remedial Care Bills when member is in a GRH Facility but is not active GRH.##~## ##~##Please report any issues or question on this script run if you find them.", "Casey Love, Hennepin County")
 call changelog_update("01/05/2024", "Verification Requests can be sent less than 10 days ago if the program is also ineligible for 'FAIL TO FILE' for a HRF or REVW process in the month being assessed.##~## ##~##All other instances still require that verifications reqests are given at least 10 days from the date being sent for a case to be approved as ineligible for failing verifications.##~## ##~##This is also true if a program is ineligible for other reasons, as long as verifications are failed, we need to give residents at least 10 days before denying for failing verification requirements.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/19/2023", "BUG FIX for GRH cases. Previously not all payement information was being entered into CASE/NOTE. You will now see each month of vendor information entered into the CASE/NOTE. This may cause GRH CASE/NOTEs to be much longer than they were before.##~##", "Casey Love, Hennepin County")
@@ -525,7 +526,8 @@ function define_dwp_elig_dialog()
 						y_pos = y_pos + 10
 						Text 130, y_pos, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
 					End If
-
+				ElseIf  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then
+					Text 15, y_pos, 300, 20, "This case is ineligible because the applicant died on " & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "."
 				Else
 					Text 15, y_pos, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
 				End if
@@ -818,7 +820,8 @@ function define_mfip_elig_dialog()
 					Editbox 130, 135, 310, 15, MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
 					Text 130, 150, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
 				End If
-
+			ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then
+				Text 15, 125, 300, 20, "This case is ineligible because the applicant died on " & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "."
 			Else
 				Text 15, 125, 300, 20, "This case is ineligible because it hasn't met the requirements for MFIP Eligibility. The case tests above show what requirements have not been met."
 			End if
@@ -1706,7 +1709,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Applicant on this case has died."
+				Text 20, y_pos, 425, 10, "Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ")."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then
@@ -1875,7 +1878,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Applicant on this case has died."
+				Text 20, y_pos, 425, 10, "Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ")."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_dupl_assist = "FAILED" Then
@@ -2606,7 +2609,7 @@ function define_grh_elig_dialog()
 
 			Else
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_death_of_applicant = "FAILED" Then
-					Text 15, y_pos, 300, 20, "The applicant for Housing Support (GRH) had died and no eligibility exists."
+					Text 15, y_pos, 300, 20, "The applicant for Housing Support (GRH) had died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ") and no eligibility exists."
 					y_pos = y_pos + 10
 				ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_state_residence = "FAILED" Then
 					Text 15, y_pos, 350, 20, "The applicant for Housing Support (GRH) does not meet state residency requirement and no eligibility exists."
@@ -2881,10 +2884,11 @@ function define_hc_elig_dialog()
 				dp_option_selected = False
 				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(each_memb) = "DP" Then dp_option_selected = True
+					If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_spdn_option(memb_ind) = "DP" Then dp_option_selected = True
 				Next
 				If dp_option_selected = True Then
-					Text 300, y_pos+25, 75, 10, "Designated Provider:"
-					EditBox 300, y_pos+35, 100, 15, HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected)
+					Text 265, y_pos+25, 75, 10, "Desig Prov:"
+					EditBox 300, y_pos+20, 100, 15, HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected)
 				End If
 
 				Text 25, y_pos+25, 115, 10, "Elig Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_basis(memb_ind)
@@ -2923,7 +2927,7 @@ function define_hc_elig_dialog()
 				ElseIf HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "Spenddown Exists"
 					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 250, 50, "Spenddown Exists"
-					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
+					Text x_pos+5, y_pos+25, 75, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind)
 					' y_pos = y_pos + 35
@@ -2931,8 +2935,8 @@ function define_hc_elig_dialog()
 				'REMEDIAL CARE UPDATES
 				If HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = True Then
-						Text 285, y_pos+55, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
-						Text 285, y_pos+65, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
+						Text 285, y_pos+35, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
+						Text 285, y_pos+45, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
 						' Text 300, y_pos+65, 120, 10, "Satisfaction Date: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_satisfaction_date(memb_ind)
 					Else
 						Text 285, y_pos+25, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
@@ -3005,8 +3009,12 @@ function define_hc_elig_dialog()
 					add_to_y_pos = add_to_y_pos + 10
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind) = "FAILED" Then
-					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " had died. -DEATH"
-					add_to_y_pos = add_to_y_pos + 10
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+							Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " had died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(each_memb) & "). -DEATH"
+							add_to_y_pos = add_to_y_pos + 10
+						End If
+					Next
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is eligible for another program. - ELIG OTHR PRGM"
@@ -3284,8 +3292,12 @@ function define_hc_elig_dialog()
 					add_to_y_pos = add_to_y_pos + 10
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind) = "FAILED" Then
-					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " had died. -DEATH"
-					add_to_y_pos = add_to_y_pos + 10
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+							Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " had died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(each_memb) & "). -DEATH"
+							add_to_y_pos = add_to_y_pos + 10
+						End If
+					Next
 				End If
 
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_fail_file(memb_ind) = "FAILED" Then
@@ -4746,7 +4758,7 @@ function dwp_elig_case_note()
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limits. (ASSET)")
 		'TODO add details about assets'
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with CS Requirements. (CS DISQUALIFICATION)")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died. (DEATH OF APPLICANT)")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "). (DEATH OF APPLICANT)")
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Benefits already received for this unit on another case/state. (DUPICATE ASSISTANCE)")
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case. (ELIGIBLE CHILD)")
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case not complied with ES Requirements. (E DISQUALIFICATION)")
@@ -5174,7 +5186,7 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for MFIP benefits was withdrawn. (APPLICATION WITHDRAWN)")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_asset = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limits. (ASSET)")
 		'TODO add details about assets'
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died. (DEATH OF APPLICANT)")
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & "). (DEATH OF APPLICANT)")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_dupl_assist = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Benefits already received for this unit on another case/state. (DUPICATE ASSISTANCE)")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_elig_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case. (ELIGIBLE CHILD)")
 
@@ -5747,7 +5759,7 @@ function msa_elig_case_note()
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence(each_memb) = "FAILED" Then
 				Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " is not in the household.")
 				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence_absent(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Moved out.")
-				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence_death(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Has died.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence_death(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(each_memb) & ").")
 			End if
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_age(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not meet age requirements.")
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_basis_of_eligibility(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not meet a basis of eligibility for MSA.")
@@ -6700,7 +6712,7 @@ function grh_elig_case_note()
 			Call write_variable_in_CASE_NOTE("   * Resident Asset Total: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_asset_total)
 			Call write_variable_in_CASE_NOTE("   * Asset Limit: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_asset_limit)
 		End If
-		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The applicant has died.")
+		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The applicant has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
 
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_elig_type = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - The resident does not meet a HS/GRH basis of eligibility.")
@@ -6804,7 +6816,15 @@ function hc_elig_case_note()
 	call start_a_blank_case_note
 
 	end_msg_info = end_msg_info & "NOTE entered for HC - " & program_detail & " " & elig_info & " eff " & first_month & header_end & vbCr
-	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
+	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind) = "FAILED" Then
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+				Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & STAT_INFORMATION(month_ind).stat_memb_date_of_death(each_memb))
+			End If
+		Next
+	Else
+		Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
+	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	If HC_UNIQUE_APPROVALS(l_budg, unique_app) = True Then
@@ -6860,8 +6880,17 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("  Monthly Premium is required for MA-EPD")
 				Call write_variable_in_CASE_NOTE("  Total Monthly Premium: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_premium(memb_ind))
 			End If
-			If HC_UNIQUE_APPROVALS(designated_provider_info, unique_app) <> "" Then
+			desig_prov = False
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(memeach_membb_ind) = "DP" Then desig_prov = true
+				End If
+			Next
+			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_spdn_option(memb_ind) = "DP" Then desig_prov = true
+			If desig_prov = true Then
 				Call write_variable_in_CASE_NOTE("Spenddown Option Selected: Designated Provider")
+			End If
+			If HC_UNIQUE_APPROVALS(designated_provider_info, unique_app) <> "" Then
 				Call write_variable_in_CASE_NOTE(" - Selected Designated Provider: " & HC_UNIQUE_APPROVALS(designated_provider_info, unique_app))
 			End If
 
@@ -6883,7 +6912,11 @@ function hc_elig_case_note()
 		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind) = "FAILED" Then
-			Call write_variable_in_CASE_NOTE("* Health Care (" & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) & ") is INELIGIBLE because this resident has died.")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+					Call write_variable_in_CASE_NOTE("* Health Care (" & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) & ") is INELIGIBLE because this resident has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(each_memb) & ").")
+				End If
+			Next
 		Else
 			Call write_variable_in_CASE_NOTE("* Health Care (" & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) & ") is INELIGIBLE because not all CASE TESTS were passed.")
 			' "Reason for Ineligibility: "
@@ -7558,7 +7591,7 @@ function deny_elig_case_note()
 
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with Child Support Requirements.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with the Employment Services Requirements.")
@@ -7646,7 +7679,7 @@ function deny_elig_case_note()
 		Call write_variable_in_CASE_NOTE("       | Total Assets:$ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_total, 10) & " - Asset Maximum: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_max, 10) & "|")
 
 	End If
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_dupl_assist = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
@@ -18049,9 +18082,9 @@ class hc_eligibility_detail
 																		If cnt_bil_row = 20 Then
 																			PF8
 																			cnt_bil_row = 7
-																			EMReadScreen end_of_list, 9, 23, 26
+																			EMReadScreen end_of_list, 9, 22, 16
 																		End If
-																	Loop until end_of_list = "LAST PAGE"
+																	Loop until end_of_list = "LAST PAGE" or end_of_list = "ONLY PAGE"
 																	PF3
 																End If
 															End If
@@ -20776,6 +20809,9 @@ class stat_detail
 			If stat_memb_rel_to_applct_code(memb_count) = "27" Then stat_memb_rel_to_applct_info(memb_count) = "Unknown"
 
 			EMReadScreen stat_memb_date_of_death(memb_count), 10, 19, 42
+			If stat_memb_date_of_death(memb_count) <> "__ __ ____" Then
+				stat_memb_date_of_death(memb_count) = replace(stat_memb_date_of_death(memb_count), " ", "/")
+			End If
 
 			transmit
 			EMReadScreen next_ref_numb, 2, 4, 33
@@ -27886,50 +27922,54 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				ei_count = 0
 				unea_count = 0
 				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-					If STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-					If STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-					If STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-					If STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-					If STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
-					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
-				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
-				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+					If STAT_INFORMATION(month_ind).stat_hcmi_spdwn_option(each_memb) = "DP" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_spdn_option(memb_ind) = "DP" Then
+						If STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then HC_UNIQUE_APPROVALS(designated_provider_info, approval_selected) = STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
+					End If
 
-				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
-					unea_count = unea_count + 1
-					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
-					unea_count = unea_count + 1
-					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
-					unea_count = unea_count + 1
-					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
-					unea_count = unea_count + 1
-					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-				End If
-				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
-					unea_count = unea_count + 1
-					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
-				End If
+					If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+						If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+						If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+						If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+						If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+						If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then ei_count = ei_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+					If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+					If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_ga(each_memb) = True Then ei_count = ei_count + 2
+
+					If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
+						unea_count = unea_count + 1
+						If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
+						unea_count = unea_count + 1
+						If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
+						unea_count = unea_count + 1
+						If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
+						unea_count = unea_count + 1
+						If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+					End If
+					If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
+						unea_count = unea_count + 1
+						If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+					End If
 				Next
 				ei_len = ei_count * 10
 				unea_len = unea_count * 10
@@ -29317,18 +29357,19 @@ If enter_CNOTE_for_HC = True Then
 		ElseIf HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then
 			elig_info = "INELIGIBLE"
 
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
-				If ma_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
-				If ma_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
-				If ma_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
-				If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
-			End If
-			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QI1" Then
-				If msp_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
-				If msp_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
-				If msp_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
-				If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
-			End If
+			'THIS IS UNRELIABLE AND WE ARE REMOVING IT UNTIL WE HAVE A BETTER METHOD TO DETERMINE IF CLOSED OR DENIED
+			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
+			' 	If ma_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
+			' 	If ma_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
+			' 	If ma_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
+			' 	If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
+			' End If
+			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QI1" Then
+			' 	If msp_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
+			' 	If msp_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
+			' 	If msp_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
+			' 	If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
+			' End If
 		End If
 		due_date = ""
 		If IsDate(HC_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, HC_UNIQUE_APPROVALS(verif_request_date, unique_app))
