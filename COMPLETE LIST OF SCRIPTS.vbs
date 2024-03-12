@@ -1057,6 +1057,7 @@ script_array(script_num).tags                   = array("Application", "MFIP", "
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/23/2017#
+script_array(script_num).retirement_date		= #03/12/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("TE COMPLETING_AN_INTER-AGENCY_CASE_TRANSFER 02.08.133", "SHAREPOINT Transfer_to_Another_County https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx")						'SEE Line 58 for format'
