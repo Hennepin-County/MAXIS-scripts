@@ -128,7 +128,7 @@ Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name,
 		EMReadScreen more_pages_check, 7, 19, 3
 		If more_pages_check = "More: +" then
 			PF8			'getting to next screen
-			MAXIS_row = 7	'redeclaring MAXIS row so as to start reading from the top of the list again
+			MAXIS_row = 7	're-declaring MAXIS row so as to start reading from the top of the list again
 		End if
 	Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
 
@@ -143,6 +143,7 @@ all_workers_check = 1
 
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+last_month = CM_minus_1_mo & " " & CM_minus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
 'Finding the right folder to automatically save the file
@@ -286,7 +287,7 @@ For each worker in worker_array
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
 			End if
 
-            dail_row = 6  'resestting the DAIL row '
+            dail_row = 6  'resetting the DAIL row '
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -310,11 +311,27 @@ For each worker in worker_array
 			'Accounting for duplicate DAIL messages
 			dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
 
+            'special handling for duplicate PEPR messages in CM and CM + 1
+            If dail_type = "PEPR" then 
+                'If the message has already been determined to be non-actionable, we don't need to evaluate those.
+                If actionable_dail = True then 
+                    'PEPR determination for duplicate messages that are CM + 1
+                    last_month_dail_string = dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & last_month & " " & dail_msg
+                    'if last month's message was found in the all_day_array then the CM + 1 messages is non-actionable
+                    If instr(all_dail_array, "*" & last_month_dail_string & "*") then 
+                        actionable_dail = False 
+                    Else
+                        'otherwise it's captured. This happens with a lot of HC program PEPR's. 
+                        actionable_dail = True 
+                    End if 
+                End if 
+            End if 
+
             'If the case number is found in the string of case numbers, it's not added again.
             If instr(all_dail_array, "*" & dail_string & "*") then
                 If dail_type = "HIRE" then
                     capture_message = True
-                Else
+                Else    
                     capture_message = False
 					false_count = false_count + 1
                 End if
@@ -415,7 +432,7 @@ FOR i = 1 to 5		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-'Export informaiton to Excel re: case status
+'Export information to Excel re: case status
 For item = 0 to UBound(DAIL_array, 2)
 	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
 	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
@@ -425,7 +442,7 @@ For item = 0 to UBound(DAIL_array, 2)
 	excel_row = excel_row + 1
 Next
 
-objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
+objExcel.Cells(1, 7).Value = "Remaining DAIL messages:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(1, 8).Value = DAIL_count
 
