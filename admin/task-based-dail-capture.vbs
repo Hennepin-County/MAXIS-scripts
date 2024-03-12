@@ -279,14 +279,17 @@ For each worker in worker_array
             'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
 			EMReadScreen next_dail_check, 7, dail_row, 3
 			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
-                last_case = true
-				exit do
+                PF8
+                EMReadScreen next_dail_check, 7, dail_row, 3
+			    If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                    last_case = true
+				    exit do
+                End if 
 			End if
 		LOOP
 		IF last_case = true THEN exit do
 	LOOP
 Next
-
 '----------------------------------------------------------------------------------------------------SQL Database Actions
 'Setting constants
 Const adOpenStatic = 3
