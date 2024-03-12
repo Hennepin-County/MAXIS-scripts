@@ -474,24 +474,26 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     Else
         'This is a dialog asking if the job is known to the agency.
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
-          CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
-          DropListBox 170, 35, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
-          DropListBox 170, 55, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
-          EditBox 220, 75, 45, 15, cost_savings
-          EditBox 55, 95, 210, 15, other_notes
-          CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-	      CheckBox 10, 150, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
-          ButtonGroup ButtonPressed
-            OkButton 170, 170, 50, 15
-            CancelButton 225, 170, 50, 15
-          GroupBox 5, 5, 270, 25, "ECF review"
-          Text 10, 40, 145, 10, "Was this employment known to the agency?"
-          Text 10, 60, 155, 10, "If unknown: what action was taken by agency?"
-          Text 10, 80, 155, 10, "First month cost savings (enter only numbers):"
-          Text 10, 100, 40, 10, "Other notes:"
-          GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
-          GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
+        BeginDialog Dialog1, 0, 0, 281, 205, "NDNH Match Resolution Information"
+        CheckBox 10, 30, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
+        DropListBox 170, 50, 95, 15, "Select One:"+chr(9)+"YES-No Further Action"+chr(9)+"NO-See Next Question", Emp_known_droplist
+        DropListBox 170, 70, 95, 15, "Select One:"+chr(9)+"NA-No Action Taken"+chr(9)+"BR-Benefits Reduced"+chr(9)+"CC-Case Closed", Action_taken_droplist
+        EditBox 220, 90, 45, 15, cost_savings
+        EditBox 55, 110, 210, 15, other_notes
+        CheckBox 10, 140, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
+        CheckBox 10, 165, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
+        ButtonGroup ButtonPressed
+            OkButton 170, 185, 50, 15
+            CancelButton 225, 185, 50, 15
+        GroupBox 5, 20, 270, 25, "ECF review"
+        Text 10, 55, 145, 10, "Was this employment known to the agency?"
+        Text 10, 75, 155, 10, "If unknown: what action was taken by agency?"
+        Text 10, 95, 155, 10, "First month cost savings (enter only numbers):"
+        Text 10, 115, 40, 10, "Other notes:"
+        GroupBox 5, 130, 270, 25, "10 day cutoff for closure"
+        GroupBox 5, 155, 270, 25, "Claim Referral Tracking"
+        Text 10, 5, 35, 10, "Employer:"
+        Text 45, 5, 100, 10, employer
         EndDialog
 	    DO
 	    	DO
