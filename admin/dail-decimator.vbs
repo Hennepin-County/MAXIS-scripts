@@ -187,14 +187,6 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
-'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
-If dail_to_decimate = "ALL" then
-    dail_end_msg = "NO MESSAGES WORK"
-Else
-    'all specified selection(s) will get this ending user message.
-    dail_end_msg = "NO MESSAGES TYPE"
-End if
-
 'determining if this is a restart or not in function below when gathering the x numbers.
 If trim(restart_worker_number) = "" then
     restart_status = False
@@ -280,14 +272,14 @@ For each worker in worker_array
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
-		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				Call write_value_and_transmit("T", dail_row, 3)
-			ELSEIF new_case = "CASE NBR" THEN
+		    IF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
+			ELSEIF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				Call write_value_and_transmit("T", dail_row, 3)
 			End if
 
-            dail_row = 6  'resetting the DAIL row '
+            dail_row = 6  'resetting the DAIL row
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -315,14 +307,18 @@ For each worker in worker_array
             If dail_type = "PEPR" then 
                 'If the message has already been determined to be non-actionable, we don't need to evaluate those.
                 If actionable_dail = True then 
-                    'PEPR determination for duplicate messages that are CM + 1
-                    last_month_dail_string = dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & last_month & " " & dail_msg
-                    'if last month's message was found in the all_day_array then the CM + 1 messages is non-actionable
-                    If instr(all_dail_array, "*" & last_month_dail_string & "*") then 
-                        actionable_dail = False 
-                    Else
-                        'otherwise it's captured. This happens with a lot of HC program PEPR's. 
-                        actionable_dail = True 
+                    If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
+                        actionable_dail = True 'this is so these non-deletable messages are skipped. 
+                    Else 
+                        'PEPR determination for duplicate messages that are CM + 1
+                        this_month_dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & this_month & " " & dail_msg
+                        'if this month's message was found in the all_dail_array then the CM + 1 messages is non-actionable
+                        If instr(all_dail_array, "*" & this_month_dail_string & "*") then 
+                            actionable_dail = False
+                        Else
+                            'otherwise it's captured. This happens with a lot of HC program PEPR's. 
+                            actionable_dail = True 
+                        End if 
                     End if 
                 End if 
             End if 
@@ -331,7 +327,7 @@ For each worker in worker_array
             If instr(all_dail_array, "*" & dail_string & "*") then
                 If dail_type = "HIRE" then
                     capture_message = True
-                Else    
+                Else
                     capture_message = False
 					false_count = false_count + 1
                 End if
@@ -371,24 +367,18 @@ For each worker in worker_array
 				dail_row = dail_row + 1
 			End if
 
-            EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-            If message_error = "NO MESSAGES" then exit do
-
-			'...going to the next page if necessary
-			EMReadScreen next_dail_check, 4, dail_row, 4
-			If trim(next_dail_check) = "" then
-				PF8
-				EMReadScreen last_page_check, 16, 24, 2
-                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
-                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
-					all_done = true
-					exit do
-				Else
-					dail_row = 6
-				End if
+            'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
+			EMReadScreen next_dail_check, 7, dail_row, 3
+			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                PF8
+                EMReadScreen next_dail_check, 7, dail_row, 3
+			    If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                    last_case = true
+				    exit do
+                End if 
 			End if
 		LOOP
-		IF all_done = true THEN exit do
+		IF last_case = true THEN exit do
 	LOOP
 Next
 
