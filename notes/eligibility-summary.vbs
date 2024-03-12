@@ -2909,13 +2909,13 @@ function define_hc_elig_dialog()
 
 				If HC_ELIG_APPROVALS(elig_ind).LTC_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 150, 50, "LTC Spenddown Exists"
-					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 275, 50, "LTC Spenddown Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 275, 50, "LTC Spenddown Exists"
 					Text x_pos+5, y_pos+25, 140, 10, "Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+35, 140, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind)
 					Text x_pos+5, y_pos+45, 140, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind)
 				ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 					If dp_option_selected = False Then GroupBox x_pos, y_pos+10, 125, 50, "EW Waiver Obligation Exists"
-					If dp_option_selected = True or trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then GroupBox x_pos, y_pos+10, 250, 50, "EW Waiver Obligation Exists"
+					If dp_option_selected = True Then GroupBox x_pos, y_pos+10, 250, 50, "EW Waiver Obligation Exists"
 					Text x_pos+5, y_pos+25, 115, 10, "Spenddown Type: "
 					Text x_pos+5, y_pos+35, 110, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_type_info(memb_ind)
 					Text x_pos+5, y_pos+45, 115, 10, "Waiver Obligation $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(memb_ind)
@@ -2929,7 +2929,7 @@ function define_hc_elig_dialog()
 					' y_pos = y_pos + 35
 				End If
 				'REMEDIAL CARE UPDATES
-				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
+				If HC_ELIG_APPROVALS(elig_ind).community_spenddown_exists(memb_ind) = True and trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" Then
 					If dp_option_selected = True Then
 						Text 285, y_pos+55, 120, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)
 						Text 285, y_pos+65, 120, 10, "Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind)
@@ -18673,6 +18673,7 @@ class stat_detail
 	public stat_hest_retro_list
 	public stat_hest_prosp_list
 	Public stat_faci_notes
+	Public stat_bils_remedial_care_entered
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -18687,6 +18688,7 @@ class stat_detail
 	public stat_memb_id_verif_info()
 	public stat_memb_rel_to_applct_code()
 	public stat_memb_rel_to_applct_info()
+	public stat_memb_date_of_death()
 	public stat_memi_spouse_ref_numb()
 	public stat_memi_citizenship_yn()
 	public stat_memi_citizenship_verif_code()
@@ -19455,6 +19457,7 @@ class stat_detail
 		ReDim stat_memb_id_verif_info(0)
 		ReDim stat_memb_rel_to_applct_code(0)
 		ReDim stat_memb_rel_to_applct_info(0)
+		ReDim stat_memb_date_of_death(0)
 		ReDim stat_memi_spouse_ref_numb(0)
 		ReDim stat_memi_citizenship_yn(0)
 		ReDim stat_memi_citizenship_verif_code(0)
@@ -20096,6 +20099,7 @@ class stat_detail
 			ReDim preserve stat_memb_id_verif_info(memb_count)
 			ReDim preserve stat_memb_rel_to_applct_code(memb_count)
 			ReDim preserve stat_memb_rel_to_applct_info(memb_count)
+			ReDim preserve stat_memb_date_of_death(memb_count)
 			ReDim preserve stat_memi_spouse_ref_numb(memb_count)
 			ReDim preserve stat_memi_citizenship_yn(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_code(memb_count)
@@ -20770,6 +20774,8 @@ class stat_detail
 			If stat_memb_rel_to_applct_code(memb_count) = "24" Then stat_memb_rel_to_applct_info(memb_count) = "Not Related"
 			If stat_memb_rel_to_applct_code(memb_count) = "25" Then stat_memb_rel_to_applct_info(memb_count) = "Live-In Attendant"
 			If stat_memb_rel_to_applct_code(memb_count) = "27" Then stat_memb_rel_to_applct_info(memb_count) = "Unknown"
+
+			EMReadScreen stat_memb_date_of_death(memb_count), 10, 19, 42
 
 			transmit
 			EMReadScreen next_ref_numb, 2, 4, 33
@@ -23224,6 +23230,34 @@ class stat_detail
 				End if
 			End If
 		Next
+
+		Call navigate_to_MAXIS_screen("STAT", "BILS")
+		stat_bils_remedial_care_entered = False
+
+		bils_row = 6												'start at the first row
+		Do
+			bils_month = ""
+			bils_year = ""
+			bil_serv_code = ""
+
+			EMReadScreen bils_month, 2, bils_row, 30
+			EMReadScreen bils_year, 2, bils_row, 36
+			EMReadScreen bil_serv_code, 2, bils_row, 40
+			If bils_month = footer_month and bils_year = footer_year and bil_serv_code = "27" Then
+				stat_bils_remedial_care_entered	= True
+				Exit Do
+			End If
+			bils_count = bils_count + 1			'incrementing
+			bils_row = bils_row + 1
+			If bils_row = 18 Then
+				PF20
+				EMReadScreen end_of_list, 9, 24, 14
+				If end_of_list = "LAST PAGE" Then Exit Do
+				bils_row = 6
+			End If
+			EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
+		Loop until next_bils_ref_numb = "__"
+		' MsgBox "stat_bils_remedial_care_entered - " & stat_bils_remedial_care_entered
 
 		Call navigate_to_MAXIS_screen("STAT", "HEST")
 
@@ -27644,7 +27678,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 								For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
 									If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
 										' MsgBox "hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(member) & vbCr & "grh_status - " & grh_status & vbCr & "stat_faci_is_grh(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) & vbCr & "stat_faci_currently_in_facility(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_currently_in_facility(stat_memb)
-										If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
+										' If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
+										If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_bils_remedial_care_entered = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
 											' MsgBox "HC Should Cancel or maybe allow for permission"
 											Dialog1 = ""
 											BeginDialog Dialog1, 0, 0, 291, 175, "Review Budget for MEMB in GRH with NO GHR Program"
@@ -27652,8 +27687,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 												ButtonGroup ButtonPressed
 													OkButton 230, 150, 50, 15
 												Text 115, 5, 155, 10, HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & " - MEMB " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & ": MA - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_elig_type(member) & ", Method: " & HC_ELIG_APPROVALS(approval).hc_prog_elig_method(member)
-												Text 10, 25, 145, 10, "Health Care MA Spenddown: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_original_monthly_spdn(hc_prog_count)
-												Text 55, 35, 145, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)
+												If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True Then
+													Text 10, 25, 145, 10, "Health Care MA Spenddown: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_original_monthly_spdn(hc_prog_count)
+													Text 55, 35, 145, 10, "Counted Bills: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)
+												ElseIf HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True Then
+													Text 30, 25, 145, 10, "LTC/Waiver Oblication: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(hc_prog_count)
+													Text 55, 35, 145, 10, "Other Med Exp: $ " & HC_ELIG_APPROVALS(approval).hc_prog_elig_budg_other_medical_expense(hc_prog_count)
+												End If
 												Text 60, 50, 145, 10, "  GRH Status: " & grh_status
 												Text 75, 65, 145, 10, " Facility: " & STAT_INFORMATION(stat_year).stat_faci_name(stat_memb)
 												Text 55, 75, 145, 10, " Facility Type : " & STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) & " - " & STAT_INFORMATION(stat_year).stat_faci_type_info(stat_memb)
@@ -27664,7 +27704,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 											Do
 												dialog Dialog1
 
-											Loop until budget_without_remedial_care <> "Select One..."
+											Loop until budget_without_remedial_care <> "Select One..." and budget_without_remedial_care <> ""
 
 											If budget_without_remedial_care = "No, stop the script so ELIG can be updated and ReApproved." Then script_end_procedure_with_error_report("Eligibility Summary has ended because you have indicated the HC Budget needs to be Repaired to include a Remedial Care amount.")
 											If budget_without_remedial_care = "No, continue with the script but do NOT CASE/NOTE the HC Approval" Then
