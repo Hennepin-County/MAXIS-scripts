@@ -83,10 +83,10 @@ BeginDialog Dialog1, 0, 0, 231, 195, "Case Number to Read ELIG Results"
   Text 15, 15, 175, 20, "This script works by pulling all of the information from a specific version of ELIG into word."
   Text 15, 40, 195, 20, "Enter the Case Number and Navigate in MAXIS now to the start of the ELIG version that you would like copied."
   Text 15, 70, 45, 10, "Case Number"
-  GroupBox 15, 90, 205, 40, "NAVIGATE IN MAXIS NOW TO THE ELIG VERSION TO COPY"
-  Text 30, 105, 105, 10, "- ELIG can be for any program."
-  Text 30, 115, 165, 10, "- Version of ELIG can be approved or unapproved."
-  Text 15, 145, 180, 20, "When the script continues, it will look for the first page of ELIG Results. If not found, the dialog will reappear."
+  GroupBox 10, 90, 205, 40, "NAVIGATE IN MAXIS NOW TO THE ELIG VERSION TO COPY"
+  Text 25, 105, 165, 10, "- ELIG can be for any program except HC."
+  Text 25, 115, 165, 10, "- Version of ELIG can be approved or unapproved."
+  Text 15, 140, 180, 20, "When the script continues, it will look for the first page of ELIG Results. If not found, the dialog will reappear."
 EndDialog
 
 Do
@@ -104,6 +104,7 @@ Do
 		EMReadScreen MX_line_3, 78, 3, 2
 		If InStr(MX_line_3, "DWPR") Then elig_results_program_found = "DWP"
 		If InStr(MX_line_3, "MFPR") Then elig_results_program_found = "MFIP"
+		If InStr(MX_line_3, "MFSC") Then elig_results_program_found = "MFIP"
 		If InStr(MX_line_3, "MSPR") Then elig_results_program_found = "MSA"
 		If InStr(MX_line_3, "GAPR") Then elig_results_program_found = "GA"
 		If InStr(MX_line_3, "CAPR") Then elig_results_program_found = "Cash Denial"
@@ -122,7 +123,7 @@ Loop until are_we_passworded_out = False
 'Need to navigate to the first page based on program. Each program has different coordinates
 
 If elig_results_program_found = "DWP" Then Call write_value_and_transmit("DWPR", 20, 71)
-If elig_results_program_found = "MFIP" Then Call write_value_and_transmit("MFPR", 20, 71)
+If elig_results_program_found = "MFIP" Then Call write_value_and_transmit("MFSC", 20, 71)
 If elig_results_program_found = "MSA" Then Call write_value_and_transmit("MSPR", 20, 71)
 If elig_results_program_found = "GA" Then Call write_value_and_transmit("GAPR", 20, 70)
 If elig_results_program_found = "Cash Denial" Then Call write_value_and_transmit("CAPR", 19, 70)
@@ -180,6 +181,10 @@ Do
 	If worker_message = "** PLEASE PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
 Loop Until last_elig_screen = True
 
+objSelection.TypeParagraph()
+objSelection.TypeText "===============================================================================" & vbCr
+objSelection.TypeText " Eligibility Information captured on: " & date & " (date Word Document created)" & vbCr
+objSelection.TypeText "==============================================================================="
 
-Call script_end_procedure("DONE?")
+Call script_end_procedure("")
 
