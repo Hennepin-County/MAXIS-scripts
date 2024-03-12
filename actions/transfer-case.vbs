@@ -293,10 +293,10 @@ Do
             End if
         End if
 
-        IF ButtonPressed = POLI_TEMP_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%202/TE%2002.08.133%20COMPLETING%20AN%20INTER-AGENCY%20CASE%20TRANSFER.pdf?csf=1&web=1&e=tc4EUc"
+        IF ButtonPressed = POLI_TEMP_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.133%20COMPLETING%20AN%20INTER-AGENCY%20CASE%20TRANSFER.pdf?csf=1&web=1&e=4jRZFD"
         IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
         IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
-        IF ButtonPressed = hsrm_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
+        IF ButtonPressed = hsrm_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Case-Transfers.aspx"
         If ButtonPressed = calculate_button then
             'Determining the CFR based on the date of move.
             CM_plus_3_mo =  right("0" &  DatePart("m",    DateAdd("m", 3, date)), 2)
