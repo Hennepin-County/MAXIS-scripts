@@ -4952,6 +4952,40 @@ function check_for_password_without_transmit(are_we_passworded_out)
 	End If
 end function
 
+function check_MAXIS_environment(environment_to_check, end_script)
+    'This function checks to make sure that the user is in the correct environment of maxis and has not passworded out.
+    'environment_to_check is the region required for the script - use "PRODUCTION", "INQUIRY DB", or "TRAINING"
+    'end_script is true/false - set to true to have the script end if not in the correct region, set to false to prompt the user to navigate to the correct region before pressing ok.
+    Do
+        back_to_SELF
+        CALL find_variable("Environment: ", current_environment, 10)			'reading if script was started in production or inquir…
+        If trim(current_environment) <> trim(environment_to_check) then 
+
+            If end_script = true Then
+                script_end_procedure("This script must be run in " & environment_to_check & ". Please switch to " & environment_to_check & " and run the script again.")
+            Else    
+                Dialog1 = ""
+		    	BeginDialog Dialog1, 0, 0, 251, 120, "Check Environment"
+		    		ButtonGroup ButtonPressed
+		    			OkButton 140, 100, 50, 15
+		    			CancelButton 195, 100, 50, 15
+		    		Text 5, 10, 255, 10, "*** This script requires you to be in the MAXIS " & environment_to_check & " environment. ***"
+		    		Text 15, 25, 210, 20, "Please ensure you are logged into the correct environment and have not passworded out."
+		    		Text 25, 50, 215, 20, "-- Password back in or navigate to the " & environment_to_check & " environment of MAXIS and press 'OK'' to continue."
+		    		Text 25, 80, 170, 10, "-- Or press 'Cancel'' to stop the script."
+		    	EndDialog
+                Do
+                    Do
+                       dialog Dialog1
+                       cancel_confirmation
+                    Loop until ButtonPressed = -1
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
+            End If 
+        End If 
+    Loop until trim(current_environment) = trim(environment_to_check)
+end function
+
 function clear_line_of_text(row, start_column)
 '--- This function clears out a single line of text
 '~~~~~ row: coordinate of row to clear
