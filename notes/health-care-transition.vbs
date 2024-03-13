@@ -61,6 +61,37 @@ changelog_display
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 '------------------------------------------------------New custom HH Member dialog
+Function navigate_to_MMIS_member_panel(member_panel, member_pmi, mmis_mode)
+    Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")
+    get_to_RKEY()
+    EMWriteScreen mmis_mode, 2, 19    'enter into case in MMIS in update mode 
+	If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit Case Number.
+		Do
+			MAXIS_case_number = "0" & MAXIS_case_number
+		Loop until len(MAXIS_case_number) = 8
+	End if
+    Call write_value_and_transmit(MAXIS_case_number, 9, 19)
+    Call write_value_and_transmit("RCIN", 1, 8)
+    rcin_row = 11 'Start reading at line 11
+    Do
+        EMReadscreen pmi_nbr, 8, rcin_row, 4
+        If pmi_nbr = member_PMI Then 
+            Exit Do
+        Else
+            rcin_row = rcin_row + 1
+	        If rcin_row = 21 Then
+	        	PF8
+	        	EMReadScreen end_rcin, 6, 24, 2
+	        	If end_rcin = "CANNOT" then Exit Do
+	        	rcin_row = 11
+	        End If
+	        Emreadscreen last_clt_check, 8, rcin_row, 4
+        End If 
+    LOOP until last_clt_check = "        "	
+    EMWriteScreen "x", rcin_row, 2                            'selecting MEMB on the case 
+    Call write_value_and_transmit(member_panel, 1, 8)
+End Function
+
 'This class is necessary for the HH_member_enhanced_dialog. 
 	Class member_data
 		public member_number
@@ -96,7 +127,7 @@ dim enhanced_HH_member_array()
     transmit
 	EMREadScreen total_clients, 2, 2, 78
 	total_clients = cint(replace(total_clients, " ", ""))
-	redim enhanced_HH_member_array(total_clients, 5)
+	redim enhanced_HH_member_array(total_clients, 6)
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		 'if only one MEMB screen, we don't need to display the dialog 
 		
@@ -384,7 +415,7 @@ If initial_option = "MAXIS to METS Migration" then
              Text 10, y_pos, 60, 10, "Current elig type:"
              EditBox 75, y_pos -5, 45, 15, migrating_members(memb, elig_type)
              CheckBox 125, y_pos-5, 125, 15, "Managed care re-enrolled in MMIS", migrating_members(memb, managed_care_check)
-             PushButton 265, y_pos-5, 45, 15, "RELG"
+             PushButton 265, y_pos-5, 45, 15, "RELG", migrating_members(memb, 7)
              y_pos = y_pos + 15
 
              'Can/should we add in MSP info here??????????????
@@ -416,25 +447,9 @@ If initial_option = "MAXIS to METS Migration" then
 
 
     'Getting to MMIS for a member
-    If ButtonPressed = 
-    Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")
-    get_to_RKEY()
-    EMWriteScreen "U", 2, 19    'enter into case in MMIS in update mode 
-    Call write_value_and_transmit(MAXIS_case_number, 9, 19)
-    Call write_value_and_transmit("RCIN", 1, 8)
-    EMReadscreen pmi_nbr, 8, rcin_row, 4
-    rcin_row = rcin_row + 1
-	If rcin_row = 21 Then
-		PF8
-		EMReadScreen end_rcin, 6, 24, 2
-		If end_rcin = "CANNOT" then Exit Do
-		rcin_row = 11
-	End If
-	Emreadscreen last_clt_check, 8, rcin_row, 4
-LOOP until last_clt_check = "        "	
-    EMWriteScreen "x", rcin_row, 2                            'selecting MEMB on the case 
-    Call write_value_and_transmit("RELG", 1, 8)
-
+    For memb = 0 to ubound(migrating_members, 1)
+        If ButtonPressed = migrating_members(memb, mmis_button) Then call navigate_to_MMIS_member_panel("RELG", migrating_members(memb, client_pmi), "C")
+    Next
 
 '----------------------------------------------------------------------------------------------------Used for option 1. Non-MAGI referral
 Elseif initial_option = "1. Non-MAGI referral" then
