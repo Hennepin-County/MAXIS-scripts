@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
 call changelog_update("03/11/2024", "Fixed bug in navigation and autosave", "Ilse Ferris, Hennepin County")
 call changelog_update("02/16/2024", "Updated background code to streamline processing, added searching PEPR messages, and added aged SNAP benefit message.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/18/2022", "Added out-of-county handling.", "Ilse Ferris, Hennepin County")
@@ -92,6 +93,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
+Call check_MAXIS_environment("PRODUCTION", false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
