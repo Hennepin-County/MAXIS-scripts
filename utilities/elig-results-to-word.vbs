@@ -1,6 +1,9 @@
 'STATS GATHERING--------------------------------------------------------------------------------------------------------------
 name_of_script = "UTILITIES - ELIG RESULTS TO WORD.vbs"
 start_time = timer
+STATS_counter = 0
+STATS_manualtime = 60          'manual run time in seconds
+STATS_denomination = "C"        'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -70,7 +73,7 @@ function insert_page_break_after_two_panels(screen_on_page)
 end function
 screen_on_page = 0
 
-'TODO - there is currently no handling for HC
+'THE SCRIPT ================================================================================================================
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -114,8 +117,12 @@ Do
 		If InStr(MX_line_3, "FSPR") Then elig_results_program_found = "SNAP"
 		If elig_results_program_found = "" Then MsgBox "MAXIS must be at the first page of Eligibility Results for this script to run." & vbCr & vbCr & "The dialog will return." & vbCr & vbCr & "NAVIGATE TO ELIG RESULTS WHILE THE DIALOG IS UP."
 
+		EMReadScreen Look_at_MAXIS_word, 12, 1, 36
+		Look_at_MAXIS_word = trim(Look_at_MAXIS_word)
+		If Look_at_MAXIS_word <> "MAXIS" Then MsgBox "You do not appear to be in MAXIS, navigate to MAXIS when the dialog reappears."
+
 		EMReadScreen version_number, 3, 2, 11
-	Loop until elig_results_program_found <> ""
+	Loop until elig_results_program_found <> "" and Look_at_MAXIS_word = "MAXIS"
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
@@ -161,7 +168,6 @@ objSelection.Font.Size = "10"
 elig_line_array = ""
 Do
 	Call copy_elig_to_array(elig_line_array)
-	' MsgBox elig_line_array
 
 	Call insert_page_break_after_two_panels(screen_on_page)
 
@@ -170,8 +176,8 @@ Do
 		objSelection.TypeText line & Chr(11)
 	Next
 
+	'POP-UPs not handled at this time in the Word Document
 
-	'DO WE NEED TO OPEN POP-UPs?
 	transmit
 
 	last_elig_screen = False
@@ -181,6 +187,7 @@ Do
 	If worker_message = "** PLEASE PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
 Loop Until last_elig_screen = True
 
+'Document 'meta-data' information
 objSelection.TypeParagraph()
 objSelection.TypeText "===============================================================================" & vbCr
 objSelection.TypeText " Eligibility Information captured on: " & date & " (date Word Document created)" & vbCr
@@ -188,3 +195,48 @@ objSelection.TypeText "=========================================================
 
 Call script_end_procedure("")
 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/12/2024
+'--Tab orders reviewed & confirmed----------------------------------------------03/12/2024
+'--Mandatory fields all present & Reviewed--------------------------------------03/12/2024
+'--All variables in dialog match mandatory fields-------------------------------03/12/2024
+'Review dialog names for content and content fit in dialog----------------------03/12/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function:
+'    confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/12/2024					Did not use check_for_MAXIS function because of transmit - there is specialized support here
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/12/2024
+'--PRIV Case handling reviewed -------------------------------------------------N/A							Not needed because the script only works if in ELIG - which is not possible if PRIV
+'--Out-of-County handling reviewed----------------------------------------------N/A							There is no out of county restriction.
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/12/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/12/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------03/12/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------03/12/2024
+'--Denomination reviewed -------------------------------------------------------03/12/2024
+'--Script name reviewed---------------------------------------------------------03/12/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------03/12/2024
+'--comment Code-----------------------------------------------------------------03/12/2024
+'--Update Changelog for release/update------------------------------------------03/12/2024
+'--Remove testing message boxes-------------------------------------------------03/12/2024
+'--Remove testing code/unnecessary code-----------------------------------------03/12/2024
+'--Review/update SharePoint instructions----------------------------------------03/13/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/13/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------03/13/2024
