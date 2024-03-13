@@ -185,6 +185,7 @@ Do
 	worker_message = trim(worker_message)
 	If worker_message = "PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
 	If worker_message = "** PLEASE PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
+	If worker_message = "PLEASE PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
 Loop Until last_elig_screen = True
 
 'Document 'meta-data' information
