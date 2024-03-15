@@ -4959,11 +4959,11 @@ function check_MAXIS_environment(environment_to_check, end_script)
     Do
         back_to_SELF
         CALL find_variable("Environment: ", current_environment, 10)			'reading if script was started in production or inquir…
-        If trim(current_environment) <> trim(environment_to_check) then 
+        If trim(current_environment) <> trim(environment_to_check) then
 
             If end_script = true Then
                 script_end_procedure("This script must be run in " & environment_to_check & ". Please switch to " & environment_to_check & " and run the script again.")
-            Else    
+            Else
                 Dialog1 = ""
 		    	BeginDialog Dialog1, 0, 0, 251, 120, "Check Environment"
 		    		ButtonGroup ButtonPressed
@@ -4981,8 +4981,8 @@ function check_MAXIS_environment(environment_to_check, end_script)
                     Loop until ButtonPressed = -1
                     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
                 Loop until are_we_passworded_out = false					'loops until user passwords back in
-            End If 
-        End If 
+            End If
+        End If
     Loop until trim(current_environment) = trim(environment_to_check)
 end function
 
@@ -6290,7 +6290,7 @@ function create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
 	CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
 	CALL write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
 	CALL write_variable_in_SPEC_MEMO("")
 	CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
 	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
@@ -11245,17 +11245,17 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             actionable_dail = False
-        '----------------------------------------------------------------------------------------------------Removing older specific INFO messages 
+        '----------------------------------------------------------------------------------------------------Removing older specific INFO messages
     Elseif dail_type = "INFO" then
-        If instr(dail_msg, "FOR MEDI PART B REIMBURSEMENT") OR _ 
-           instr(dail_msg, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") OR _ 
-           instr(dail_msg, "PARENT MAY BE ELIG TO ALLOCATE UNMET NEED FOR CHILD - IF SO,") then 
+        If instr(dail_msg, "FOR MEDI PART B REIMBURSEMENT") OR _
+           instr(dail_msg, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") OR _
+           instr(dail_msg, "PARENT MAY BE ELIG TO ALLOCATE UNMET NEED FOR CHILD - IF SO,") then
             If dail_month = this_month then
                 actionable_dail = True
             Else
                 actionable_dail = False ' delete the old messages
             End if
-        End if 
+        End if
         '----------------------------------------------------------------------------------------------------STAT EDITS older than Current Date
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39     'Stat date location
@@ -11274,7 +11274,7 @@ Function non_actionable_dails(actionable_dail)
         End if
     '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM
     Elseif dail_type = "PEPR" then
-        'These two PEPR's effective 01/24 require action for workers and cannot be deleted outright. 
+        'These two PEPR's effective 01/24 require action for workers and cannot be deleted outright.
         If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _
             instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
             actionable_dail = True
@@ -11286,9 +11286,9 @@ Function non_actionable_dails(actionable_dail)
             End if
         End if
     '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or _ 
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or _
         instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or _
-        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or _ 
+        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or _
         instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or _
         instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") or _
         instr(dail_msg, "PERSON IS ON ANOTHER PENDING CASE") or _
@@ -11296,7 +11296,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "TRANSFERRED CASE IS WF1 ELIGIBLE - APPROVE NEW RESULTS TO") or _
         instr(dail_msg, "NEW FS VERSION MUST BE APPROVED. FUNDING TYPE HAS CHANGED") or _
         instr(dail_msg, "UNKNOWN RESULTS - CANNOT APPROVE") or _
-        instr(dail_msg, "HAS EARNED INCOME GREATER THAN ZERO BUT NO TRAC PANEL") then 
+        instr(dail_msg, "HAS EARNED INCOME GREATER THAN ZERO BUT NO TRAC PANEL") then
         if dail_month = this_month then
             actionable_dail = True
         Else
@@ -12952,7 +12952,7 @@ function start_a_blank_CASE_NOTE()
 			EMReadScreen PW_error_check, 7, 21, 14
 			EMReadScreen error_message_check, 79, 24, 2
 			error_message_check = trim(error_message_check)
-			
+
 			BeginDialog Inquiry_Dialog, 0, 0, 241, 195, "CASE NOTE Cannot be Started"
 			ButtonGroup ButtonPressed
 				OkButton 185, 110, 50, 15
@@ -12966,7 +12966,7 @@ function start_a_blank_CASE_NOTE()
             Do
                 Dialog Inquiry_Dialog
             Loop until ButtonPressed = -1 or ButtonPressed = report_error_button
-			If ButtonPressed = report_error_button Then 
+			If ButtonPressed = report_error_button Then
 				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
