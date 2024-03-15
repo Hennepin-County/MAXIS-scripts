@@ -28853,7 +28853,7 @@ If enter_CNOTE_for_MFIP = True Then
 						Call write_value_and_transmit("X", wcom_row, 13)
 
 						PF9
-						EMReadScreen wcom_line, 60, 3, 15
+						EMReadScreen wcom_line, 60, 3, 17
 						If trim(wcom_line) = "" Then
 
 							If MFIP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then
@@ -29050,7 +29050,7 @@ If enter_CNOTE_for_DENY = True Then
 						Call write_value_and_transmit("X", wcom_row, 13)
 
 						PF9
-						EMReadScreen wcom_line, 60, 3, 15
+						EMReadScreen wcom_line, 60, 3, 17
 						' MsgBox "~" & wcom_line & "~"
 						If trim(wcom_line) = "" Then
 							DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
@@ -29170,7 +29170,7 @@ If enter_CNOTE_for_GRH = True Then
 						Call write_value_and_transmit("X", wcom_row, 13)
 
 						PF9
-						EMReadScreen wcom_line, 60, 3, 15
+						EMReadScreen wcom_line, 60, 3, 17
 						If trim(wcom_line) = "" Then
 
 
@@ -29467,7 +29467,7 @@ If enter_CNOTE_for_SNAP = True Then
 						Call write_value_and_transmit("X", wcom_row, 13)
 
 						PF9
-						EMReadScreen wcom_line, 60, 3, 15
+						EMReadScreen wcom_line, 60, 3, 17
 						If trim(wcom_line) = "" Then
 
 							If SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then
