@@ -13846,7 +13846,7 @@ function write_variable_in_SPEC_MEMO(variable)
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
     EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    memo_col = 17										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
     'The following figures out if we need a new page
     Do
         EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
@@ -13873,9 +13873,9 @@ function write_variable_in_SPEC_MEMO(variable)
 
     For each word in variable_array
         'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
-        If len(word) + memo_col > 74 then
+        If len(word) + memo_col > 76 then
             memo_row = memo_row + 1
-            memo_col = 15
+            memo_col = 17
         End if
 
         'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
