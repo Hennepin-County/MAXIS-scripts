@@ -6151,7 +6151,7 @@ function create_appointment_letter_notice_recertification(programs, intvw_progra
 	CALL write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
 	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
 	CALL write_variable_in_SPEC_MEMO("")
 	If len(programs) < 11 Then
 		CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
