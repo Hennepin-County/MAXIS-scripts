@@ -208,9 +208,7 @@ end function
 Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_address, atr_city, atr_state, atr_zipcode, atr_phone_number, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
-	Text 60, 25, 45, 10, MAXIS_case_number
-	EditBox 175, 20, 45, 15, arep_effective_date
-	EditBox 310, 20, 45, 15, arep_date_received		
+	Text 60, 25, 45, 10, MAXIS_case_number	
 	EditBox 45, 55, 185, 15, arep_name
 	EditBox 45, 75, 185, 15, arep_street
 	EditBox 45, 95, 85, 15, arep_city
@@ -238,8 +236,6 @@ function arep_dialog()
 	CheckBox 265, 235, 30, 10, "Cash", arep_CASH_AREP_checkbox
 	Text 5, 5, 220, 10, arep_form_name
 	Text 5, 25, 50, 10, "Case Number:"
-	Text 125, 25, 50, 10, "Effective Date:"
-	Text 245, 25, 60, 10, "Document Date:"
 	GroupBox 10, 45, 225, 145, "Panel Information"
 	Text 20, 60, 25, 10, "Name:"
 	Text 20, 80, 25, 10, "Street:"
@@ -263,7 +259,7 @@ function arep_dialog()
 	Text 255, 205, 85, 10, "Programs Authorized for:"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim arep_effective_date, arep_date_received, arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
+Dim  arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
 
 function change_dialog()
 	EditBox 175, 15, 45, 15, chng_effective_date
@@ -378,11 +374,12 @@ function iaa_dialog()
 	EditBox 65, 130, 145, 15, iaa_benefits_2
 	EditBox 235, 110, 145, 15, iaa_benefits_3
 	EditBox 235, 130, 145, 15, iaa_benefits_4
-	DropListBox 80, 170, 115, 15, ""+chr(9)+"01-RSDI"+chr(9)+"02-SSI"+chr(9)+"06-Child Support"+chr(9)+"07-Alimony"+chr(9)+"08-VA Disability"+chr(9)+"09-VA Pension"+chr(9)+"10-VA Dependent Educational"+chr(9)+"11-VA Dependent Other"+chr(9)+"12-Unemployment Insurance"+chr(9)+"13-Worker's Comp"+chr(9)+"14-RR Retirement"+chr(9)+"15-Other Ret"+chr(9)+"16-Military Allot"+chr(9)+"17-EITC"+chr(9)+"18-Strike Pay"+chr(9)+"19-Other"+chr(9)+"21-SMRT", iaa_benefit_type
+	CheckBox 25, 155, 125, 10, "Click here to updated PBEN panel", iaa_update_pben_checkbox	
+	DropListBox 95, 170, 115, 15, ""+chr(9)+"01-RSDI"+chr(9)+"02-SSI"+chr(9)+"06-Child Support"+chr(9)+"07-Alimony"+chr(9)+"08-VA Disability"+chr(9)+"09-VA Pension"+chr(9)+"10-VA Dependent Educational"+chr(9)+"11-VA Dependent Other"+chr(9)+"12-Unemployment Insurance"+chr(9)+"13-Worker's Comp"+chr(9)+"14-RR Retirement"+chr(9)+"15-Other Ret"+chr(9)+"16-Military Allot"+chr(9)+"17-EITC"+chr(9)+"18-Strike Pay"+chr(9)+"19-Other"+chr(9)+"21-SMRT", iaa_benefit_type
+	DropListBox 95, 190, 115, 15, ""+chr(9)+"1-Copy of Chkstb"+chr(9)+"2-Award Letters"+chr(9)+"4-Coltrl Stmt"+chr(9)+"5-Other Document"+chr(9)+"N-No Ver Prvd", iaa_verification_dropdown
+	DropListBox 95, 210, 115, 15, ""+chr(9)+"A-Appealing"+chr(9)+"D-Denied"+chr(9)+"E-Eligible"+chr(9)+"P-Pending"+chr(9)+"N-Not Appl Yet"+chr(9)+"R-Refused To Accept", iaa_disposition_code_dropdown
 	EditBox 315, 170, 55, 15, iaa_referral_date
-	DropListBox 80, 190, 115, 15, ""+chr(9)+"1-Copy of Chkstb"+chr(9)+"2-Award Letters"+chr(9)+"4-Coltrl Stmt"+chr(9)+"5-Other Document"+chr(9)+"N-No Ver Prvd", iaa_verification_dropdown
 	EditBox 315, 190, 55, 15, iaa_date_applied_pben
-	DropListBox 80, 210, 115, 15, ""+chr(9)+"A-Appealing"+chr(9)+"D-Denied"+chr(9)+"E-Eligible"+chr(9)+"P-Pending"+chr(9)+"N-Not Appl Yet"+chr(9)+"R-Refused To Accept", iaa_disposition_code_dropdown
 	EditBox 315, 210, 55, 15, iaa_iaa_date
 	EditBox 50, 245, 315, 15, iaa_comments
 	ButtonGroup ButtonPressed
@@ -398,17 +395,16 @@ function iaa_dialog()
 	Text 170, 60, 90, 10, "Type of interim assistance"
 	Text 165, 85, 95, 10, "AG or HS interim assistance"
 	Text 40, 100, 150, 10, "Other benefits resident might be eligible for:"
-	GroupBox 15, 155, 365, 80, "PBEN Fields"
-	Text 35, 175, 45, 10, "Benefit Type"
+	Text 50, 175, 45, 10,"Benefit Type"
+	Text 55, 195, 40, 10, "Verification"
+	Text 35, 215, 60, 10, "Disposition Code"
 	Text 270, 175, 45, 10, "Referral Date"
-	Text 35, 195, 40, 10, "Verification"
 	Text 240, 195, 75, 10, "Date Applied for PBEN"
-	Text 20, 215, 60, 10, "Disposition Code"
 	Text 285, 215, 30, 10, "IAA Date"
 	Text 15, 250, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_form_received_checkbox, iaa_type_assistance, iaa_ssi_form_received_checkbox, iaa_ssi_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_iaa_date, iaa_comments
+Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_form_received_checkbox, iaa_type_assistance, iaa_ssi_form_received_checkbox, iaa_ssi_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_update_pben_checkbox, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_iaa_date, iaa_comments
 
 function ltc_1503_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
@@ -657,9 +653,9 @@ function diet_dialog()
 	DropListBox 185, 175, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_8_dropdown
 	DropListBox 290, 175, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_8_dropdown
 	EditBox 75, 195, 55, 15, diet_date_last_exam
-	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			'TODO: Handling for each scenario- each has it's own notification process/steps
+	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			
 	EditBox 270, 215, 55, 15, diet_length_diet
-	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown
+	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown 
 	EditBox 50, 260, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
@@ -699,7 +695,6 @@ function get_footer_month_from_date(footer_month_variable, footer_year_variable,
     footer_year_variable = DatePart("yyyy", date_variable)
     footer_year_variable = Right(footer_year_variable, 2)
 end function
-'TODO- do i need to dim anything in this fuction? Should probably look into the use of this function/variables 
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
 	If form_count < Ubound(form_type_array, 2) AND ButtonPressed = -1 Then	ButtonPressed = next_btn	'If the enter button is selected the script will handle this as if Next was selected
@@ -767,8 +762,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = arep_form_name AND current_dialog = "arep" then 'Error handling for AREP Form 
-				If IsDate(arep_effective_date) = FALSE Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
-				If IsDate(arep_date_received) = FALSE Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
 				If arep_update_AREP_panel_checkbox = checked Then
 					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
@@ -794,7 +787,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 					arep_CASH_AREP_checkbox = Checked
 					arep_HC_AREP_checkbox = checked
 				End If
-				'TODO: Look into arep received - -- there are currently 2 
 				If IsDate(AREP_recvd_date) = False Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the date the form was received."
 				IF (arep_SNAP_AREP_checkbox <> checked AND arep_HC_AREP_checkbox <> checked AND arep_CASH_AREP_checkbox <> checked) THEN arep_err_msg = arep_err_msg & vbNewLine &"* Select a program"
 				IF isdate(arep_signature_date) = false THEN arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
@@ -847,15 +839,18 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
 				If iaa_form_received_checkbox = Checked and iaa_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select Type of interim assistance for IAA"
 				If iaa_ssi_form_received_checkbox = Checked and iaa_ssi_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select AG or HS interim assistance for IAA-SSI"
-				If (iaa_benefit_type = "" or iaa_referral_date = "" or iaa_verification_dropdown = "" or iaa_date_applied_pben = "" or iaa_disposition_code_dropdown = "" or iaa_iaa_date = "") Then 	'TODO: Do we want to require that they update PBEN?
-					iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN field requirements:"
-					If iaa_benefit_type = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select benefit type"
-					If IsDate(iaa_referral_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid Referral Date"
-					If iaa_verification_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Verifiction Type"
-					If IsDate(iaa_date_applied_pben) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid date for Date Applied to PBEN"
-					If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
-					If IsDate(iaa_iaa_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid IAA date"
+				If iaa_update_pben_checkbox = checked Then 	'Only if they select saying they want to update PBEN will the following fields be required
+					If (iaa_benefit_type = "" or iaa_referral_date = "" or iaa_disposition_code_dropdown = "" or iaa_iaa_date = "") Then 	'Only requiring fields that are required in pben panel to save. 
+						iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN field requirements:"
+						If iaa_benefit_type = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select benefit type"
+						If IsDate(iaa_referral_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid Referral Date"
+						'If iaa_verification_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Verifiction Type"
+						'If IsDate(iaa_date_applied_pben) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid date for Date Applied to PBEN"
+						If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
+						If IsDate(iaa_iaa_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid IAA date"
+					End If
 				End If
+				If iaa_update_pben_checkbox = unchecked AND iaa_comments = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must explain in comments why PBEN is not being created/updated. "
 			End If
 
 			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name AND current_dialog = "ltc 1503" then 'Error handling for LTC 1503 Form
@@ -976,7 +971,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 					all_diet_string = all_diet_string & diet_8_dropdown & "*"
 				End If
 				
-				'TODO: Test on MFIP case handling to limit to 2 diets. Consider hiding extra boxes on dialog
+				'TODO: Havent' tested on MFIP case handling to limit to 2 diets. Consider hiding extra boxes on dialog
 				If (diet_mfip_msa_status = "MFIP-Active") OR (diet_mfip_msa_status = "MFIP-Pending") Then
 					MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
 						If diet_3_dropdown <>"" OR diet_4_dropdown <>"" OR diet_5_dropdown <>"" OR diet_6_dropdown <>"" OR diet_7_dropdown <>"" OR diet_8_dropdown <>"" Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
@@ -990,7 +985,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If diet_treatment_plan_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select dropdown indicating person is following treatment plan"
 				If diet_length_diet = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter length of prescribed diet"
 				If diet_status_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet Status"
-				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason & benefit end date in Comments"
+				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason for ineligibility & benefit end date in Comments"
 				
 			End If
 		Next
@@ -1055,7 +1050,6 @@ Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropd
 
 
 'DIALOGS COLLECTING FORM SELECTION===========================================================================
-'TODO: Handle for duplicate selection
 Do							'Do Loop to cycle through dialog as many times as needed until all desired forms are added
 	Do
 		Do
@@ -1320,7 +1314,6 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 	End If		
 Loop Until ButtonPressed = Ok
 
-'TODO: Add in any additonal readscreens etc.
 'MAXIS NAVIGATION ===========================================================================
 Call MAXIS_background_check
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
@@ -1332,7 +1325,6 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		Loop until nav_check = "AREP"
 
 		arep_update_AREP_panel_checkbox = checked
-		AREP_recvd_date = arep_date_received
 
 		EMReadScreen arep_name, 37, 4, 32
 		arep_name = replace(arep_name, "_", "")
@@ -1376,7 +1368,6 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			If arep_mmis_mail_to_arep = "Y" Then arep_mmis_mail_to_arep_checkbox = checked
 
 			arep_update_AREP_panel_checkbox = unchecked
-			'MsgBox "pause after read screen"
 		End If
 	End If
 
@@ -1612,7 +1603,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
 		Call write_value_and_transmit("01", 20, 79)		'Make sure we are on page 01 for the member to start
 			EMReadScreen existance_check, 1, 2, 73
-			stat_faci_exists = True		'TODO: DO we need this?
+			stat_faci_exists = True		
 			If existance_check = "0" Then stat_faci_exists = False
 			'MsgBox "before if statement"
 			If stat_faci_exists = True Then
@@ -2061,7 +2052,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
     End If
 
 	If form_type_array(form_type_const, maxis_panel_write) = iaa_form_name Then	'MAXIS NAVIGATION FOR IAA read/write SCREEN
-		'If iaa_update_pben_checkbox = checked Then 
+		If iaa_update_pben_checkbox = checked Then 
 			Do
 				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
 				EMReadScreen nav_check, 4, 2, 49
@@ -2147,7 +2138,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
 				iaa_update_pben_checkbox = unchecked
 			End If
-		'End If
+		End If
 	End If 
 
 
@@ -2231,38 +2222,35 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, maxis_panel_write) = mtaf_form_name then 	
 		Call navigate_to_MAXIS_screen("STAT", "PROG")
 		EMReadScreen prog_cash_1_status, 4, 6, 74
-		If prog_cash_1_status = "PEND" Then
-			EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
-			prog_cash_1_intvw_date = replace(prog_cash_1_intvw_date, " ", "/")
-			If prog_cash_1_intvw_date = "__/__/__" Then prog_cash_1_intvw_date = ""
-			prog_cash_1_intvw_date = ""
-			If prog_cash_1_intvw_date = "" Then update_prog = True
+			If prog_cash_1_status = "PEND" Then
+				EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
+				prog_cash_1_intvw_date = replace(prog_cash_1_intvw_date, " ", "/")
+				If prog_cash_1_intvw_date = "__/__/__" Then prog_cash_1_intvw_date = ""
+				If prog_cash_1_intvw_date = "" Then update_prog = True
 
-		End If
-		EMReadScreen prog_cash_2_status, 4, 7, 74
-		If prog_cash_2_status = "PEND" Then
-			EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
-			prog_cash_2_intvw_date = replace(prog_cash_2_intvw_date, " ", "/")
-			If prog_cash_2_intvw_date = "__/__/__" Then prog_cash_2_intvw_date = ""
-			If prog_cash_2_intvw_date = "" Then update_prog = True
-		End If
-		
-		'TODO: Do we want handling to ensure they have actually entered a date instead of just trusting them?
-		If update_prog = True Then
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 251, 140, "Update Interview Date in STAT"
-			ButtonGroup ButtonPressed
-				OkButton 195, 120, 50, 15
-			Text 30, 10, 200, 10, "It appears that PROG is not updated with an Interview Date."
-			GroupBox 10, 30, 230, 45, "UPDATE PROG NOW"
-			Text 30, 50, 200, 10, "Update PROG with and Interview Date for PENDING CASH."
-			Text 10, 85, 230, 35, "To prevent unnecessary notices, we code the interview date for any pending program that does not require an interview. match the Interview Date to the Application Date for the CASH program pending with no interview date."
-			Text 10, 125, 115, 10, "Press OK when PROG is Updated."
-			EndDialog
+			End If
+			EMReadScreen prog_cash_2_status, 4, 7, 74
+			If prog_cash_2_status = "PEND" Then
+				EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
+				prog_cash_2_intvw_date = replace(prog_cash_2_intvw_date, " ", "/")
+				If prog_cash_2_intvw_date = "__/__/__" Then prog_cash_2_intvw_date = ""
+				If prog_cash_2_intvw_date = "" Then update_prog = True
+			End If
 
-			dialog Dialog1	'Calling a dialog without a assigned variable will call the most recently defined dialog
-			
-		End If
+			If update_prog = True Then
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 251, 140, "Update Interview Date in STAT"
+				ButtonGroup ButtonPressed
+					OkButton 195, 120, 50, 15
+				Text 30, 10, 200, 10, "It appears that PROG is not updated with an Interview Date."
+				GroupBox 10, 30, 230, 45, "UPDATE PROG NOW"
+				Text 30, 50, 200, 10, "Update PROG with and Interview Date for PENDING CASH."
+				Text 10, 85, 230, 35, "To prevent unnecessary notices, we code the interview date for any pending program that does not require an interview. match the Interview Date to the Application Date for the CASH program pending with no interview date."
+				Text 10, 125, 115, 10, "Press OK when PROG is Updated."
+				EndDialog
+
+				dialog Dialog1	'Calling a dialog without a assigned variable will call the most recently defined dialog
+			End If
 	End If
 		
 
@@ -2373,15 +2361,13 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 	If form_type_array(form_type_const, maxis_panel_write) = diet_form_name Then	'Write for DIET form
 
-		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel	TODO: is this correct? 
+		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel
 			If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
 				back_to_self
 				Do
-					Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: is this the correct way to get the correct footer month? 
+					Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: Will this update the correct months? What about future months after doc received date?
 					EMWriteScreen MAXIS_footer_month, 20, 43
 					EMWriteScreen MAXIS_footer_year, 20, 46
-					MsgBox "doc rec" & diet_date_received
-					MsgBox "footermonth" & MAXIS_footer_month & MAXIS_footer_year
 					Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
 					EMReadScreen nav_check, 4, 2, 48
 					EMWaitReady 0, 0
@@ -2400,7 +2386,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					EMWaitReady 0, 0
 					Call write_value_and_transmit("NN", 20, 79)	
 				End If
-				MsgBox "status" & diet_mfip_msa_status
 				If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
 					EMWriteScreen left(diet_1_dropdown, 2), 8, 40
 					EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
@@ -2423,18 +2408,15 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
 					EMWriteScreen left(diet_8_dropdown, 2), 18, 40
 					EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
-					MsgBox "review panel"
 				End If
 			End If
 		End If
 		If diet_status_dropdown = "Denied" Then			'Only if the diet is denied should we delete the pben panel
 			back_to_self
 			Do
-				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: is this the correct way to get the correct footer month? 
+				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 
 				EMWriteScreen MAXIS_footer_month, 20, 43
 				EMWriteScreen MAXIS_footer_year, 20, 46
-				MsgBox "doc rec" & diet_date_received
-				MsgBox "footermonth" & MAXIS_footer_month & MAXIS_footer_year
 				Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
 				EMReadScreen nav_check, 4, 2, 48
 				EMWaitReady 0, 0
@@ -2450,23 +2432,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 	End if
 
 Next
-
-	'Formatting PSN sections for case note
-	' all_section_string = ""
-	' If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then section_string = "needed assistance to access or maintain housing"
-	' If psn_section_2_dropdown = "Yes- 1 selected" Then section_string = "disabling condition"
-	' If psn_section_5_dropdown = "Yes- Section completed"  Then section_string = "exiting of a residnetial behavioral health treatment with instable housing"
-
-	' If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then all_section_string = all_section_string & section_string & ", "
-	' If psn_section_2_dropdown = "Yes- 1 selected" Then all_section_string = all_section_string & section_string & ", "
-	' If psn_section_5_dropdown = "Yes- Section completed" Then all_section_string = all_section_string & section_string & ", "
-
-	' 'PSN Signed by" & psn_cert_prof & "at" & psn_facility TODO: add this after the string
-	' string_length = Len(all_section_string) 
-	' MsgBox string_length
-
-	' MsgBox "all_section_string" & Left(all_section_string, (string_length-1))
-
 
 
 
@@ -2513,8 +2478,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		If mtaf_mfip_financial_orientation_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MFIP orientation information reviewed/completed.")
 		If mtaf_ES_exemption_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Client is exempt from cooperation with ES at this time.")
 		CALL write_bullet_and_variable_in_CASE_NOTE ("MTAF Status", MTAF_status_dropdown)
-		'TODO: Handling to casenote everything all together 
-		'TODO: WHY WON'T THIS WORK
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
@@ -2722,28 +2685,25 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	'MOF Case Notes
-	'TODO: Adjust based on dialog
 	If form_type_array(form_type_const, each_case_note) = mof_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** MEDICAL OPINION FORM RECEIVED ***")
 		CALL write_variable_in_CASE_NOTE("* Date Received " & mof_date_received & " for M" & mof_hh_memb)
-		IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("  * Client signed release on MOF.")
-		If mof_last_exam_date <> "" Then CALL write_variable_in_CASE_NOTE("  * Date of last examination: " & mof_last_exam_date)
-		If mof_doctor_date <> "" Then CALL write_variable_in_CASE_NOTE("  * Doctor signed form: " & mof_doctor_date)
-		If mof_time_condition_will_last <> "" Then  CALL write_variable_in_CASE_NOTE("  * Condition will last: " & mof_time_condition_will_last)
-		If mof_ability_to_work <> "" Then  CALL write_variable_in_CASE_NOTE("  * Ability to work: " & mof_ability_to_work)
-		If mof_other_notes <> "" Then  CALL write_variable_in_CASE_NOTE("  * Other notes: " & mof_other_notes)
-		If mof_SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * The MOF indicates the client needs to apply for SSA.")
-		If mof_TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * Specialized TTL team will review MOF and update the DISA panel as needed.")
-		If MOF_TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * An email regarding this MOF was sent to the TTL/FSS DataTeam for review on " & mof_TTL_email_date & " by " & worker_signature & ".")
+		IF mof_clt_release_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Client signed release on MOF.")
+		Call write_bullet_and_variable_in_case_note("Date of last examination", mof_last_exam_date)
+		Call write_bullet_and_variable_in_case_note("Doctor signed form",  mof_doctor_date)
+		Call write_bullet_and_variable_in_case_note("Condition will last", mof_time_condition_will_last)
+		Call write_bullet_and_variable_in_case_note("Ability to work", mof_ability_to_work)
+		Call write_bullet_and_variable_in_case_note("Other notes", mof_other_notes)
+		Call write_bullet_and_variable_in_case_note("Actions taken", mof_actions_taken)
+		If mof_SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("* The MOF indicates the client needs to apply for SSA.")
+		If mof_TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Specialized TTL team will review MOF and update the DISA panel as needed.")
+		If MOF_TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("* An email regarding this MOF was sent to the TTL/FSS DataTeam for review on " & mof_TTL_email_date & " by " & worker_signature & ".")
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
 
 	
-
-
-
 
 	'PSN Case Notes
 	'TODO: Should this be a person note?
@@ -2756,7 +2716,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 			If (psn_section_1_dropdown <> "No- Section NOT completed" OR psn_section_2_dropdown <> "No- Section NOT completed") Then 
 				Call write_variable_in_case_note("* The PSN meets GA and GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their")
 			Else 
-				Call write_variable_in_case_note("* The PSN meets GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their") 'TODO: DUE to their is not showing up in case note  
+				Call write_variable_in_case_note("* The PSN meets GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their") 
 			End If
 			If (psn_section_1_dropdown = "Yes- At least 1 selected") OR (psn_section_3_dropdown = "Yes- At least 1 selected") OR (psn_section_4_dropdown = "Yes- At least 2 selected") Then CALL write_variable_in_case_note("    -needed assistance to access or maintain housing")
 			If psn_section_2_dropdown = "Yes- 1 selected" Then CALL write_variable_in_case_note( "    -disabling condition")
@@ -2807,7 +2767,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
 		CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
 
-		If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")		'TODO: Inquire if this is the action or rather inaction we want to take
+		If diet_mfip_msa_status = "Not Active/Pending" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")
 		If diet_status_dropdown = "Incomplete" then
 			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- form returned to client")
 		ElseIf  diet_status_dropdown = "Denied" Then
