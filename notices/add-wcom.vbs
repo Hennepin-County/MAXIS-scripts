@@ -350,7 +350,7 @@ For notices_listed = 0 to UBound(NOTICES_ARRAY, 2)
 
         'Making sure there is no other text entered in the WCOM area as it needs to be open to being written in.
         For wcom_row = 3 to 17
-            EMReadScreen wcom_line, 60, wcom_row, 15
+            EMReadScreen wcom_line, 60, wcom_row, 17
             'msgBox "~" & wcom_line & "~"
             If trim(wcom_line) <> "" Then
                 PF10
@@ -692,13 +692,13 @@ Do
             If inelig_student_HH_detail = "PART of a SNAP HH" Then
                 If inelig_student_proof = "SNAP E&T education plan" Then
                     inelig_student_message = inelig_student_name & " will not be included in your SNAP unit as an eligible student because " & inelig_student_name & " did not provide proof of their education plan meeting the student requirements of the SNAP Employment & Training (E&T) Program. "
-                ElseIf inelig_student_proof = "Federal or State Work Study" Then 
+                ElseIf inelig_student_proof = "Federal or State Work Study" Then
                     inelig_student_message = inelig_student_name & " will not be included in your SNAP unit as an eligible student because " & inelig_student_name & " did not provide proof of their work with a Federal or State Work Study program."
                 End If
             ElseIf inelig_student_HH_detail = "the only member of SNAP HH" Then
                 If inelig_student_proof = "SNAP E&T education plan" Then
-                    inelig_student_message = "Your SNAP application is being denied on " & verifs_due_date & " because you did not provide proof of your education plan meeting the student requirements of the SNAP Employment & Training (E&T) Program."           
-                ElseIf inelig_student_proof = "Federal or State Work Study" Then 
+                    inelig_student_message = "Your SNAP application is being denied on " & verifs_due_date & " because you did not provide proof of your education plan meeting the student requirements of the SNAP Employment & Training (E&T) Program."
+                ElseIf inelig_student_proof = "Federal or State Work Study" Then
                     inelig_student_message = "Your SNAP application will be denied on " & verifs_due_date & " because you did not provide proof of your work with a Federal or State Work Study program."
                 End If
             End If

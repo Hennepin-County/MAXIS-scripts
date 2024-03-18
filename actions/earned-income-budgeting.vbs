@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/14/2024", "BUG FIX - Error when trying to find the correct JOBS panel in instances where the job name changes. This should now provide an option to select the correct panel.", "Casey Love, Hennepin County")
 Call changelog_update("07/26/2023", "Multiple updates to the script##~####~##ENHANCEMENTS: ##~##-Added 'Save your Work' functionality.##~##-Added an option to identify a check is a 'Bonus Check'.##~##-Option to break out pay amount in different types.##~##-Added a YTD Calculator.##~####~##BUG FIXED: ##~##-If more than 5 unique check dates are entered for a month, they will be entered as a lump payment.##~##-If multiple checks are entered for the same date, JOBS panel will be updated as a single payment.##~##-Better handling for a job for a new HH member by checking the arrival date.##~##-Allow for worker to select the correct JOBS panel to update if the script cannot find it.##~####~##There is a lot of new functionality and this is a fairly complicated script run. Please contact the script team if you have any concerns or questions.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/25/2021", "Added information buttons to the dialogs.##~## ##~##There are a number of new buttons with a '!' on it that will display some tips about the policy and use of these dialogs. Click on them to find out more.##~## ##~##There are also direct links to the instruction documents on SharePoint.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/17/2020", "Update to the script to remove the functionality that would LUMP together any income in the month of application on the SNAP PIC.##~## ##~##The income will still update the SNAP PIC with income as a LUMP if for the month a job started.", "Casey Love, Hennepin County")
@@ -4417,10 +4418,10 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 					EMWriteScreen "01", 20, 79
                     transmit
                     try = 1         'we need an exit from the loop
-					employers_read = " "
+					employers_read = ""
                     Do
                         EMReadScreen confirm_same_employer, 30, 7, 42      'now we read this on each panel
-						employers_read = employers_read & confirm_same_employer
+						employers_read = employers_read & "~~~~" & confirm_same_employer
                         If confirm_same_employer = UCase(EARNED_INCOME_PANELS_ARRAY(employer_with_underscores, ei_panel)) Then               'if the panel has the employer name, then we set the new instance to EARNED_INCOME_PANELS_ARRAY
                             EMReadScreen the_new_instance, 1, 2, 73
                             EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) = "0" & the_new_instance
@@ -4434,12 +4435,12 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 
                     If the_new_instance = "" Then               'If they didn't matcj and we did not find it, this alerts the worker
 						script_run_lowdown = script_run_lowdown & vbCr & "PANEL NOT FOUND In " & MAXIS_footer_month & "/" & MAXIS_footer_year
-						for each job_read in employers_read
-							script_run_lowdown = script_run_lowdown & vbCr & "panel read - " & job_read
-						Next
 						temp_array = ""
 						employers_read = trim(employers_read)
-						temp_array = split(employers_read)
+						temp_array = split(employers_read, "~~~~")
+						for each job_read in temp_array
+							script_run_lowdown = script_run_lowdown & vbCr & "panel read - " & job_read
+						Next
 
 						Do
 							Dialog1 = ""
@@ -4449,9 +4450,9 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 								Text 30, 50, 150, 10, EARNED_INCOME_PANELS_ARRAY(employer_with_underscores, ei_panel)
 								Text 10, 70, 165, 10, "The script read the following JOBS Employers:"
 								y_pos = 80
-								for each job_read in employers_read
+								for each job_read in temp_array
 									Text 30, y_pos, 140, 10, job_read
-									y_pos = y_pos + 1
+									y_pos = y_pos + 10
 								Next
 								Text 10, 140, 175, 10, "You can naviagate directly to the correct panel now. "
 								Text 15, 150, 175, 20, "Leave this dialog up and navigate in this MAXIS session to the panel for this job."
@@ -4459,6 +4460,8 @@ If update_with_verifs = TRUE Then       'this means we have at least one panel w
 									PushButton 10, 180, 175, 15, "I have navigated to the Correct JOBS panel", panel_navigated_to_btn
 									PushButton 10, 205, 175, 15, "Skip the update of this job for the month " & MAXIS_footer_month & "/" & MAXIS_footer_year, skip_this_month_btn
 							EndDialog
+
+							dialog Dialog1
 
 						Loop until ButtonPressed = panel_navigated_to_btn or ButtonPressed = skip_this_month_btn
 

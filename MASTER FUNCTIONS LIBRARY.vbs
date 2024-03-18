@@ -6118,7 +6118,7 @@ function create_appointment_letter_notice_application(application_date, intervie
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
 	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
 	Call write_variable_in_SPEC_MEMO(" ")
@@ -6151,7 +6151,7 @@ function create_appointment_letter_notice_recertification(programs, intvw_progra
 	CALL write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
 	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
 	CALL write_variable_in_SPEC_MEMO("")
 	If len(programs) < 11 Then
 		CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
@@ -6261,7 +6261,7 @@ function create_NOMI_application(application_date, appt_date, last_contact_day)
 	Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-	Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
 	Call write_variable_in_SPEC_MEMO(" ")
 	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
 	Call write_variable_in_SPEC_MEMO(" ")
@@ -6742,59 +6742,107 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
     'Date determination for 'EGA' and 'SNAP'. Must be updated each year in April
     If program_determination = "EGA" Then
         If IsDate(application_date_variable) = True Then
-            application_date_variable_diff = (DateDiff("d", application_date_variable, #4/1/2023#))
+            application_date_variable_diff = (DateDiff("d", #4/1/2024#, application_date_variable))
         Else
             no_application_date_variable = True
         End If
     ElseIf program_determination = "SNAP" Then
         If IsDate(application_date_variable) = True Then
-            application_date_variable_diff = (DateDiff("d", application_date_variable, #10/1/2023#))
+            application_date_variable_diff = (DateDiff("d", #10/1/2023#, application_date_variable))
         Else
             no_application_date_variable = True
         End If
     End If
 
-    '200% FPG April 2023 for EA & 200% FPG October 2023 for SNAP
-    If program_determination = "EA" or (program_determination = "SNAP" and application_date_variable_diff <= 0) OR (program_determination = "SNAP" and no_application_date_variable = True) Then
-        If hh_size_variable = 1 Then fpg_200_percent = 2430
-        If hh_size_variable = 2 Then fpg_200_percent = 3287
-        If hh_size_variable = 3 Then fpg_200_percent = 4143
-        If hh_size_variable = 4 Then fpg_200_percent = 5000
-        If hh_size_variable = 5 Then fpg_200_percent = 5857
-        If hh_size_variable = 6 Then fpg_200_percent = 6713
-        If hh_size_variable = 7 Then fpg_200_percent = 7570
-        If hh_size_variable = 8 Then fpg_200_percent = 8427
-        If hh_size_variable = 9 Then fpg_200_percent = 9283
-        If hh_size_variable = 10 Then fpg_200_percent = 10140
-        If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+    'Determine the 200% FPG amounts depending on the program determination
+    If program_determination = "EA" Then
+        'If today's date is 04/01/24 or after 04/01/24 then use the April 2024 200% FPG
+        If (DateDiff("d", #4/1/2024#, date)) >= 0 Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2510
+            If hh_size_variable = 2 Then fpg_200_percent = 3407
+            If hh_size_variable = 3 Then fpg_200_percent = 4303
+            If hh_size_variable = 4 Then fpg_200_percent = 5200
+            If hh_size_variable = 5 Then fpg_200_percent = 6097
+            If hh_size_variable = 6 Then fpg_200_percent = 6993
+            If hh_size_variable = 7 Then fpg_200_percent = 7890
+            If hh_size_variable = 8 Then fpg_200_percent = 8787
+            If hh_size_variable = 9 Then fpg_200_percent = 9683
+            If hh_size_variable = 10 Then fpg_200_percent = 10580
+            If hh_size_variable > 10 Then fpg_200_percent = 10580 + ((hh_size_variable - 10) * 897)
 
-    '200% FPG April 2022 & 200% FPG October 2022 for SNAP
-    ElseIf (program_determination = "EGA" and application_date_variable_diff <= 0) OR (program_determination = "EGA" and no_application_date_variable = True) OR (program_determination = "SNAP" and application_date_variable_diff > 0) Then
-        If hh_size_variable = 1 Then fpg_200_percent = 2265
-        If hh_size_variable = 2 Then fpg_200_percent = 3052
-        If hh_size_variable = 3 Then fpg_200_percent = 3838
-        If hh_size_variable = 4 Then fpg_200_percent = 4625
-        If hh_size_variable = 5 Then fpg_200_percent = 5412
-        If hh_size_variable = 6 Then fpg_200_percent = 6198
-        If hh_size_variable = 7 Then fpg_200_percent = 6985
-        If hh_size_variable = 8 Then fpg_200_percent = 7772
-        If hh_size_variable = 9 Then fpg_200_percent = 8558
-        If hh_size_variable = 10 Then fpg_200_percent = 9345
-        If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+        'Otherwise use the April 2023 200% FPG    
+        Else
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+        End If
+    ElseIf program_determination = "SNAP" Then
+        'If application date is 10/1/23 or after 10/01/23 or there is no application date then use October 2023 200% FPG 
+        If application_date_variable_diff >= 0 OR no_application_date_variable = True Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
 
-    '200% FPG April 2021
-    ElseIf program_determination = "EGA" and application_date_variable_diff > 0 Then
-        If hh_size_variable = 1 Then fpg_200_percent = 2147
-        If hh_size_variable = 2 Then fpg_200_percent = 2903
-        If hh_size_variable = 3 Then fpg_200_percent = 3660
-        If hh_size_variable = 4 Then fpg_200_percent = 4417
-        If hh_size_variable = 5 Then fpg_200_percent = 5173
-        If hh_size_variable = 6 Then fpg_200_percent = 5930
-        If hh_size_variable = 7 Then fpg_200_percent = 6687
-        If hh_size_variable = 8 Then fpg_200_percent = 7443
-        If hh_size_variable = 9 Then fpg_200_percent = 8200
-        If hh_size_variable = 10 Then fpg_200_percent = 8957
-        If hh_size_variable > 10 Then fpg_200_percent = 8957 + ((hh_size_variable - 10) * 757)
+        'If application date is before 10/1/23 then use the October 2022 200% FPG 
+        ElseIf application_date_variable_diff < 0 Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2265
+            If hh_size_variable = 2 Then fpg_200_percent = 3052
+            If hh_size_variable = 3 Then fpg_200_percent = 3838
+            If hh_size_variable = 4 Then fpg_200_percent = 4625
+            If hh_size_variable = 5 Then fpg_200_percent = 5412
+            If hh_size_variable = 6 Then fpg_200_percent = 6198
+            If hh_size_variable = 7 Then fpg_200_percent = 6985
+            If hh_size_variable = 8 Then fpg_200_percent = 7772
+            If hh_size_variable = 9 Then fpg_200_percent = 8558
+            If hh_size_variable = 10 Then fpg_200_percent = 9345
+            If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+        End If
+    ElseIf program_determination = "EGA" Then
+        
+        'If application date is 4/1/24 or after 04/01/24 OR there is no application date AND today's date is 4/1/24 or after 4/1/24 then use April 2023 200% FPG
+        If application_date_variable_diff >= 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2024#, date)) >= 0) Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+
+        'If application date is before 4/1/24 OR there is no application date AND today's date is before 4/1/24 then use April 2022 200% FPG
+        ElseIf application_date_variable_diff < 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2024#, date)) < 0) Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2265
+            If hh_size_variable = 2 Then fpg_200_percent = 3052
+            If hh_size_variable = 3 Then fpg_200_percent = 3838
+            If hh_size_variable = 4 Then fpg_200_percent = 4625
+            If hh_size_variable = 5 Then fpg_200_percent = 5412
+            If hh_size_variable = 6 Then fpg_200_percent = 6198
+            If hh_size_variable = 7 Then fpg_200_percent = 6985
+            If hh_size_variable = 8 Then fpg_200_percent = 7772
+            If hh_size_variable = 9 Then fpg_200_percent = 8558
+            If hh_size_variable = 10 Then fpg_200_percent = 9345
+            If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+        End If
     End If
 end function
 
@@ -13846,7 +13894,7 @@ function write_variable_in_SPEC_MEMO(variable)
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
     EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+    memo_col = 17										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
     'The following figures out if we need a new page
     Do
         EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
@@ -13873,9 +13921,9 @@ function write_variable_in_SPEC_MEMO(variable)
 
     For each word in variable_array
         'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
-        If len(word) + memo_col > 74 then
+        If len(word) + memo_col > 76 then
             memo_row = memo_row + 1
-            memo_col = 15
+            memo_col = 17
         End if
 
         'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).

@@ -423,9 +423,14 @@ function update_unea_pane(panel_found, unea_type, income_amount, cola_amount, cl
 		If panel_found = False Then							'add a known start date if the panel is new
 			Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
 		Else												'if the panel is being updated, we need to read the start date
-			EMReadScreen start_date, 8, 7, 37
-			start_date = replace(start_date, " ", "/")
-			start_date = DateAdd("d", 0 , start_date)
+			EMReadScreen panel_start_date, 8, 7, 37
+			If left(panel_start_date, 1) = "?" Then
+				Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
+			Else
+				start_date = panel_start_date
+				start_date = replace(start_date, " ", "/")
+				start_date = DateAdd("d", 0 , start_date)
+			End If
 		End If
 
 		'Now we clear the information for COLA if it is July - Dec or enter the COLA detial if missing for Jan - Jun
