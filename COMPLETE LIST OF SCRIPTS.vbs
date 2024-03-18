@@ -625,6 +625,7 @@ script_array(script_num).tags                   = array("Monthly Tasks", "Utilit
 script_array(script_num).dlg_keys               = array("Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #02/22/2024#
+script_array(script_num).retirement_date        = #03/16/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
