@@ -107,7 +107,6 @@ Do
     If basket_number = "X127EE7" then suggested_population = "Adults"
     If basket_number = "X127EG4" then suggested_population = "Adults"
     If basket_number = "X127EH8" then suggested_population = "Adults"
-    If basket_number = "X127EJ1" then suggested_population = "Adults"
     If basket_number = "X127EL1" then suggested_population = "Adults"
     If basket_number = "X127EL2" then suggested_population = "Adults"
     If basket_number = "X127EL3" then suggested_population = "Adults"
@@ -125,7 +124,6 @@ Do
     If basket_number = "X127EN7" then suggested_population = "Adults"
     If basket_number = "X127EP6" then suggested_population = "Adults"
     If basket_number = "X127EP7" then suggested_population = "Adults"
-    If basket_number = "X127EP8" then suggested_population = "Adults"
     If basket_number = "X127EQ1" then suggested_population = "Adults"
     If basket_number = "X127EQ3" then suggested_population = "Adults"
     If basket_number = "X127EQ4" then suggested_population = "Adults"
@@ -134,10 +132,6 @@ Do
     If basket_number = "X127EQ9" then suggested_population = "Adults"
     If basket_number = "X127EX1" then suggested_population = "Adults"
     If basket_number = "X127EX2" then suggested_population = "Adults"
-    If basket_number = "X127EX3" then suggested_population = "Adults"
-    If basket_number = "X127EX7" then suggested_population = "Adults"
-    If basket_number = "X127EX8" then suggested_population = "Adults"
-    If basket_number = "X127EX9" then suggested_population = "Adults"
     If basket_number = "X127F3D" then suggested_population = "Adults"
     If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
@@ -145,9 +139,7 @@ Do
     If basket_number = "X127FE8" then suggested_population = "DWP"
     If basket_number = "X127FE9" then suggested_population = "DWP"
 
-    If basket_number = "X127EP8" then suggested_population = "EGA"
-    If basket_number = "X127EQ2" then suggested_population = "EGA"
-
+    If basket_number = "X127EA0" then suggested_population = "Families"
     If basket_number = "X127ES1" then suggested_population = "Families"
     If basket_number = "X127ES2" then suggested_population = "Families"
     If basket_number = "X127ES3" then suggested_population = "Families"
@@ -166,15 +158,18 @@ Do
     If basket_number = "X127ET7" then suggested_population = "Families"
     If basket_number = "X127ET8" then suggested_population = "Families"
     If basket_number = "X127ET9" then suggested_population = "Families"
-    If basket_number = "X127F4E" then suggested_population = "Families"
-    If basket_number = "X127F3H" then suggested_population = "Families"
-    If basket_number = "X127FB7" then suggested_population = "Families"
     If basket_number = "X127EZ1" then suggested_population = "Families"
-    If basket_number = "X127EZ3" then suggested_population = "Families"
-    If basket_number = "X127EZ4" then suggested_population = "Families"
-    If basket_number = "X127EZ6" then suggested_population = "Families"
     If basket_number = "X127EZ7" then suggested_population = "Families"
-    If basket_number = "X127EZ8" then suggested_population = "Families"
+
+    If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
+
+    If basket_number = "X127FE7" then suggested_population = "DWP"
+    If basket_number = "X127FE8" then suggested_population = "DWP"
+    If basket_number = "X127FE9" then suggested_population = "DWP"
+
+    If basket_number = "X127EP8" then suggested_population = "EGA"
+    If basket_number = "X127EQ2" then suggested_population = "EGA"
+   
     If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
 
     If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
