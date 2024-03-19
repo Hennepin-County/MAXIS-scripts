@@ -241,11 +241,47 @@ EMReadScreen HC_1_code, 1, pnd2_row, 65
 EMReadScreen EA_1_code, 1, pnd2_row, 68
 EMReadScreen GR_1_code, 1, pnd2_row, 72
 
-EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
-If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+'This section checks to see if the case has multiple application dates
+'it will ignore any dates that are for CCAP only as those are not pertinent to our work.
+EMReadScreen additional_application_check_one, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+EMReadScreen additional_app_one_hc, 1, pnd2_row + 1, 65
+EMReadScreen additional_app_one_ccap, 27, pnd2_row + 1, 54
+If additional_application_check_one = "ADDITIONAL APP" Then
+	EMReadScreen additional_application_check_two, 14, pnd2_row + 2, 17                 'looking to see if this case has a third application date entered
+	EMReadScreen additional_app_two_hc, 1, pnd2_row + 2, 65
+	EMReadScreen additional_app_two_ccap, 27, pnd2_row + 2, 54
+End If
+
+'Once we have read the lines of REPT/PND2, we need to determine if the additional application should be considered
+additional_es_application = False
+additional_app_row = ""
+If additional_application_check_one = "ADDITIONAL APP" Then
+	If additional_app_one_hc = "P" Then											'secondary application is for HC - we count it
+		additional_es_application = True
+		additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+	ElseIf additional_app_one_ccap <> "_       _     _   _       P" Then		'secondary application is for CCAP only - we do NOT count it
+		additional_es_application = True
+		additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+	End If
+	If additional_application_check_two = "ADDITIONAL APP" Then
+		If additional_app_two_hc = "P" Then										'third application is for HC - we count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+		ElseIf additional_app_two_ccap <> "_       _     _   _       P" Then	'third application is for CCAP only - we do NOT count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+		End If
+	End If
+End If
+
+If additional_es_application = True THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+
+
+' EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+' If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
     multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 
-    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
+    EMReadScreen additional_application_date, 8, additional_app_row, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
     newest_app_date = additional_application_date
     EMReadScreen CA_2_code, 1, pnd2_row, 54                                     'reading the pending codes by program for the second application date line.
