@@ -13015,6 +13015,7 @@ function start_a_blank_CASE_NOTE()
                 Dialog Inquiry_Dialog
             Loop until ButtonPressed = -1 or ButtonPressed = report_error_button
 			If ButtonPressed = report_error_button Then
+				script_run_lowdown = script_run_lowdown & vbCr & "The screen code was: " & case_note_open_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
