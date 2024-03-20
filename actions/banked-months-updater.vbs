@@ -202,8 +202,6 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    bene_yr_row = 10
 	    abawd_counted_months = 0					'declares the variables values at 0 or blanks
 	    banked_months_count = 0
-		abawd_status = 0
-		wreg_status = 0
 	    abawd_counted_months_string = ""
 	    banked_months_string = ""
 
@@ -221,7 +219,7 @@ For i = 0 to Ubound(banked_months_array, 2)
         Else
             banked_months_array(member_abawd_const, i) = False 
         End if 
-	
+        
 	    Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
 	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
 	    TLR_fixed_clock_yr = "23"
@@ -291,14 +289,14 @@ For i = 0 to Ubound(banked_months_array, 2)
 	Elseif abawd_counted_months < 3 then 
 		banked_months_array(used_all_abawd_mo_const, i) = False
 		banked_months_array(abawd_month_eval_const, i) = "Only " & abawd_counted_months & " have been used."
-        banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_months_count & " abawd months. This member does not require banked months yet."
+        banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_counted_months & " abawd months. This member does not require banked months yet."
 	'Else 
-	'	banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_months_count & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
+	'	banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_counted_months & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
 	'	banked_months_array(abawd_month_eval_const, i) = abawd_counted_months & " have been used. Only 3 are allowed. Updates are needed."
 	End if 
 
 	'Banked Months Determinations
-    banked_months_array(banked_month_eval_const, i) = banked_months_count & " banked months used since 04/24."
+    banked_months_array(banked_month_eval_const, i) = banked_months_count & " banked months used."
 	'If banked_months_count = 3 then 
 	'	banked_months_array(used_all_banked_mo_const, i) = True 
 	'	banked_months_array(banked_month_eval_const, i) = "All banked months have been used for this member."
@@ -330,7 +328,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	'Else
     If banked_months_array(member_in_error_const, i) = "" then 
         update_wreg = True 	
-        spec_memo = True 
+        spec_memo = True
         case_note = True 
 	End if 
 
@@ -342,10 +340,14 @@ For i = 0 to Ubound(banked_months_array, 2)
 	If banked_months_array(member_abawd_const, i) = True then show_dialog = True 
 Next 
 
-'script end procedure for anyone who is in error 
-If end_msg <> "" then script_end_procedure_with_error_report(end_msg)  
-'Don't show the dialog if no one is already coded as ABAWD or banked for the initial month
-If Show_dialog = False then script_end_procedure_with_error_report("No members in the EATS Household with MEMB 01 are coded as ABAWD (30/10) or Banked (30/13) for the initial month. The script will now end.")
+'Don't show the dialog if no one is already coded as ABAWD or banked for the initial month or there are errors. 
+If Show_dialog = False then 
+    If end_msg <> "" then 
+        script_end_procedure_with_error_report(end_msg) 'script end procedure for anyone who is in error 
+    Else 
+        script_end_procedure_with_error_report("No members in the EATS Household with MEMB 01 are coded as a Time-Limited Recipient for the initial month. The script will now end.")
+    End if 
+End If
 
 script_actions = "" 'variable that tells users what's going on in dialog. 
 If update_wreg = True then script_actions = script_actions & VBCR & "* The STAT/WREG panel will be updated for members who have banked months available, or who have exhausted them."
@@ -362,12 +364,12 @@ BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/
 dialog_item = 0
 For i = 0 to Ubound(banked_months_array, 2)
 	If banked_months_array(member_abawd_const, i) = True then 
-		y_pos = (45 + dialog_item * 50)
-		GroupBox 10, y_pos, 530, 45, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
-  		Text 20, y_pos + 15, 255, 10, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
-  		Text 20, y_pos + 30, 255, 10, "ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i)
- 	 	Text 285, y_pos + 15, 245, 10, "Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i)
-  		Text 285, y_pos + 30, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
+		y_pos = (55 + dialog_item * 70)
+		GroupBox 10, y_pos, 530, 60, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
+  		Text 20, y_pos + 15, 255, 20, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
+  		Text 20, y_pos + 40, 255, 10, "ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i)
+ 	 	Text 285, y_pos + 15, 245, 20, "Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i)
+  		Text 285, y_pos + 40, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
 		dialog_item = dialog_item + 1
 	End if 
 Next
