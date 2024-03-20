@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2024", "Updated script to support new banked months available 04/2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2023", "Updated script to stop processing SNAP banked months into 2024, but to code 01/24 as 30/10.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/08/2023", "Updated script to support up to 3 banked months.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
@@ -61,6 +62,7 @@ EMConnect ""
 Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(initial_month, initial_year)
+initial_banked_month_date = #4/1/2024#
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 90, "Case Number/Date Selection Dialog"
@@ -83,7 +85,8 @@ DO
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(initial_month, initial_year, err_msg, "*")
-		If initial_month < 10 then err_msg = err_msg & vbNewLine & "* The initial month/year cannot be prior to 10/23. Choose another date."
+        Initial_banked_month = initial_month & "/1/" & initial_year
+        If datediff("d", initial_banked_month_date, Initial_banked_month) < 0 then err_msg = err_msg & vbNewLine & "* The initial month/year cannot be prior to 04/24. Choose another date."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -122,7 +125,7 @@ const member_in_error_const		= 10
 const abawd_month_eval_const 	= 11
 const banked_month_eval_const	= 12
 
-'nav to eats panel and adding all members from eats HH to evalution for banked months without having user select persons
+'nav to eats panel and adding all members from eats HH to evaluation for banked months without having user select persons
 CALL navigate_to_MAXIS_screen("STAT", "EATS")
 eats_group_members = ""
 memb_found = True
@@ -166,7 +169,7 @@ ELSEIF all_eat_together = "N" THEN
     LOOP UNTIL eats_group = "__"
 END IF
 
-'Cleaning up eats graup string and creating array 
+'Cleaning up eats group string and creating array 
 If right(eats_group_members, 1) = "," THEN eats_group_members = left(eats_group_members, len(eats_group_members) - 1)
 eats_array = split(eats_group_members, ",")
 
@@ -193,7 +196,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 		asssessment_month = MAXIS_footer_month - 1
 	    bene_mo_col = (15 + (4*cint(asssessment_month)))		'col to search starts at 15, increased by 4 for each footer month
 	    bene_yr_row = 10
-	    abawd_counted_months = 0					'delclares the variables values at 0 or blanks
+	    abawd_counted_months = 0					'declares the variables values at 0 or blanks
 	    banked_months_count = 0
 		abawd_status = 0
 		wreg_status = 0
@@ -248,7 +251,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    		banked_months_string = banked_months_string & counted_date_month & "/" & counted_date_year & " |"
             END IF
             
-            bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+            bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
             IF bene_mo_col = 15 THEN
             	bene_yr_row = bene_yr_row - 1
             	bene_mo_col = 63
@@ -422,7 +425,7 @@ For item = 0 to ubound(footer_month_array)
 		    End if 
 
 			transmit ' to save 
-			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
+			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
 			If orientation_warning = "WARNING" then transmit 
 	        PF3 'to save and exit to stat/wrap
 		    Call back_to_SELF
@@ -434,21 +437,19 @@ For item = 0 to ubound(footer_month_array)
 	Next     
 Next 
 
-'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
+'SPEC/MEMO is being sent in lieu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
 	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("You are getting this letter because you or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months.")
+	Call write_variable_in_SPEC_MEMO("You or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months.")
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("Unless you or someone in your SNAP unit meet work rules or an exemption, you/they will no longer be eligible for SNAP.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits for up to 3 more months.")
+	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 3 months.")
+	Call write_variable_in_SPEC_MEMO("Please contact your team if you or someone in your SNAP unit start meeting work requirements or think that you meet an exemption.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("Please contact your team if you, or someone in your SNAP unit, start meeting work requirements or think that you meet an exemption.")
-	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("If you need help meeting these work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
+	Call write_variable_in_SPEC_MEMO("If you need help meeting work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4 'save memo
 	stats_counter = STATS_counter + 1
@@ -498,7 +499,7 @@ script_end_procedure_with_error_report(end_msg)
 '--All variables are CASE:NOTEing (if required)---------------------------------09/19/2023
 '--CASE:NOTE Header doesn't look funky------------------------------------------09/19/2023
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/19/2023
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/19/2023 --------------The ones without periods have them in the variables or output a string or dates and it looked funnny.
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/19/2023 --------------The ones without periods have them in the variables or output a string or dates and it looked funny.
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/19/2023
