@@ -113,17 +113,19 @@ ReDim banked_months_array(banked_month_eval_const, 2)
 
 const member_number_const 		= 0
 const member_first_name_const 	= 1
-const wreg_status_const 		= 2
-const abawd_status_const		= 3
-const abawd_mo_count_const		= 4
-const abawd_mo_string_const		= 5
-const banked_mo_count_const		= 6
-const banked_mo_string_const	= 7
-const used_all_abawd_mo_const	= 8
-const used_all_banked_mo_const	= 9
-const member_in_error_const		= 10
-const abawd_month_eval_const 	= 11
-const banked_month_eval_const	= 12
+const member_age_const          = 2
+const wreg_status_const 		= 3
+const abawd_status_const		= 4
+const member_abawd_const        = 5
+const abawd_mo_count_const		= 6
+const abawd_mo_string_const		= 7
+const banked_mo_count_const		= 8
+const banked_mo_string_const	= 9
+const used_all_abawd_mo_const	= 10
+const used_all_banked_mo_const	= 11
+const member_in_error_const		= 12
+const abawd_month_eval_const 	= 13
+const banked_month_eval_const	= 14
 
 'nav to eats panel and adding all members from eats HH to evaluation for banked months without having user select persons
 CALL navigate_to_MAXIS_screen("STAT", "EATS")
@@ -180,10 +182,12 @@ For each member in eats_array
 	Call write_value_and_transmit(member, 20, 76)
 	EmReadScreen member_first_name, 12, 6, 63
 	member_first_name = replace(member_first_name, "_", "")
+    EMReadScreen member_age, 3, 8, 76
 	'Adding the EATS HH to the array once name and member numbers are obtained 
 	ReDim Preserve banked_months_array(banked_month_eval_const, entry_count)
 	banked_months_array(member_number_const, entry_count) = member
 	banked_months_array(member_first_name_const, entry_count) = trim(member_first_name)
+    banked_months_array(member_age_const, entry_count) = trim(member_age)
 	entry_count = entry_count + 1
 	Stats_counter = stats_counter + 1
 Next 
@@ -209,6 +213,14 @@ For i = 0 to Ubound(banked_months_array, 2)
 	Else 
 	    EMreadScreen wreg_status, 2, 8, 50
 	    EMReadScreen abawd_status, 2, 13, 50
+        If  abawd_status = "10" or _ 
+            abawd_status = "13" or _ 
+            abawd_status = "03" and banked_months_array(member_age_const, i) < 53 then 
+            '03 under 53 years old are TLR's, previously exempt before 09/23 or 10/23 depending on the age of recipient at the time. 
+            banked_months_array(member_abawd_const, i) = True 
+        Else
+            banked_months_array(member_abawd_const, i) = False 
+        End if 
 	
 	    Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
 	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
@@ -327,7 +339,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	'If update_wreg = True then case_note = True 
 
 	If banked_months_array(member_in_error_const, i) <> "" then end_msg = end_msg & banked_months_array(member_in_error_const, i) & vbcr & vbcr 
-	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then show_dialog = True 
+	If banked_months_array(member_abawd_const, i) = True then show_dialog = True 
 Next 
 
 'script end procedure for anyone who is in error 
@@ -349,7 +361,7 @@ BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/
 
 dialog_item = 0
 For i = 0 to Ubound(banked_months_array, 2)
-	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
+	If banked_months_array(member_abawd_const, i) = True then 
 		y_pos = (45 + dialog_item * 50)
 		GroupBox 10, y_pos, 530, 45, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
   		Text 20, y_pos + 15, 255, 10, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
@@ -384,7 +396,7 @@ For item = 0 to ubound(footer_month_array)
 	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)
-		If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
+		If  banked_months_array(member_abawd_const, i) = True then 
 		    Call MAXIS_background_check
 		    Call navigate_to_MAXIS_screen("STAT", "WREG")
 	        Call write_value_and_transmit(banked_months_array(member_number_const, i), 20, 76)	'enters member number
@@ -414,7 +426,7 @@ For item = 0 to ubound(footer_month_array)
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
 		    If DateDiff("M", processing_month, date) => 0 then 
 	
-				If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
+				'If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
 		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
 				ATR_updates = array("D", ATR_code)
 
@@ -429,7 +441,7 @@ For item = 0 to ubound(footer_month_array)
 		    End if 
 
 			transmit ' to save 
-			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
+			EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
 			If orientation_warning = "WARNING" then transmit 
 	        PF3 'to save and exit to stat/wrap
 		    Call back_to_SELF
