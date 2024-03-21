@@ -65,10 +65,16 @@ Function navigate_to_MMIS_member_panel(member_panel, member_pmi, mmis_mode)
     Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")
     get_to_RKEY()
     EMWriteScreen mmis_mode, 2, 19    'enter into case in MMIS in update mode 
-	If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit Case Number.
+    If len(MAXIS_case_number) < 8 then 'This will generate an 8 digit Case Number.
 		Do
 			MAXIS_case_number = "0" & MAXIS_case_number
 		Loop until len(MAXIS_case_number) = 8
+	End if
+    member_pmi = trim(member_pmi)
+    If len(member_pmi) < 8 then 'This will generate an 8 digit Case Number.
+		Do
+			member_pmi = "0" & member_pmi
+		Loop until len(member_pmi) = 8
 	End if
     Call write_value_and_transmit(MAXIS_case_number, 9, 19)
     Call write_value_and_transmit("RCIN", 1, 8)
@@ -88,7 +94,7 @@ Function navigate_to_MMIS_member_panel(member_panel, member_pmi, mmis_mode)
 	        Emreadscreen last_clt_check, 8, rcin_row, 4
         End If 
     LOOP until last_clt_check = "        "	
-    EMWriteScreen "x", rcin_row, 2                            'selecting MEMB on the case 
+    EMWriteScreen "X", rcin_row, 2                            'selecting MEMB on the case 
     Call write_value_and_transmit(member_panel, 1, 8)
 End Function
 
@@ -277,10 +283,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)  'checking for priv then navigating to stat memb to gather the ref number and name.
 If is_this_priv = True then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
-If initial_option = "MAXIS to METS Migration" Then 
-    Call HH_member_enhanced_dialog(HH_member_array, "Select ONLY those HH Members that are potentially migrating to METS below. Do not select members that do not have a migration reason.", true, true, "No longer has a MAXIS basis.", 0, "Continues to meet a Maxis Basis.", 0)
-
-Else
+If initial_option <> "MAXIS to METS Migration" Then
     DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
     	EMReadscreen ref_nbr, 3, 4, 33
     	EMReadscreen last_name, 25, 6, 30
@@ -358,7 +361,7 @@ Else
 End if 
 '----------------------------------------------------------------------------------------------------MAXIS TO METS MIGRATION OPTION
 If initial_option = "MAXIS to METS Migration" then
-'Move the hh_member_dialog to here so we can loop through for updates yo
+        
     'constants used for migration members array (migrating_members)
     'const member_number_const    = 0
     'const member_name_const   = 1
@@ -369,87 +372,131 @@ If initial_option = "MAXIS to METS Migration" then
     const managed_care_check  = 6
     const mmis_button = 7
     const client_pmi = 8
-    'Create the array of migrating members
-    count = -1
+    const potential_basis = 9
     dim migrating_members()
-    for memb = 1 to ubound(hh_member_array) 'This loop just finds out the size of our array 
-        if hh_member_array(memb).first_checkbox = 1 or hh_member_array(memb).second_checkbox = 1 Then count = count + 1
-    next
-    redim migrating_members(count, 8)
+    Do 
+        ButtonPressed = ""
+        Call HH_member_enhanced_dialog(HH_member_array, "Select ONLY those HH Members that are potentially migrating to METS below. Do not select members that do not have a migration reason.", true, true, "No longer has a MAXIS basis.", 0, "Continues to meet a Maxis Basis.", 0)
+        'Create the array of migrating members
+        count = -1
+        
+        for memb = 1 to ubound(hh_member_array) 'This loop just finds out the size of our array 
+            if hh_member_array(memb).first_checkbox = 1 or hh_member_array(memb).second_checkbox = 1 Then count = count + 1
+        next
+        redim migrating_members(count, 8)
 
-    for memb = 1 to ubound(hh_member_array) 
-        if hh_member_array(memb).first_checkbox = 1 or hh_member_array(memb).second_checkbox = 1 Then 
-            migrating_members(memb-1, member_number_const) = hh_member_array(memb).member_number
-            migrating_members(memb-1, member_name_const) = hh_member_array(memb).name
-            migrating_members(memb-1, client_pmi) = hh_member_array(memb).PMI_number
-            if hh_member_array(memb).first_checkbox = 1 Then migrating_members(memb-1, continued_maxis_basis) = False
-            if hh_member_array(memb).second_checkbox = 1 Then migrating_members(memb-1, continued_maxis_basis) = True
-        End if
-    next
-    'Now we run through maxis and try to determine current elig type and current approval date for migrating members
-    check_for_MAXIS(false)
-    For memb = 0 to ubound(migrating_members, 1)
-        'Go to ELIG
-        Call Navigate_to_MAXIS_screen("ELIG", "HHMM")
-        'Read some stuff
-        Emreadscreen current_elig_type, 2, 8, 41
-        EMReadscreen current_approval, 2, 8, 41
-        migrating_members(memb, elig_type) = current_elig_type
-        migrating_members(memb, temp_date) = current_approval
-    Next
-	'-------------------------------------------------------------------------------------------------DIALOG
-	dialog_height = (ubound(migrating_members, 1) * 65) + 165
-    wcom_check = 1
-    Dialog1 = "" 'Blanking out previous dialog detail
-     BeginDialog Dialog1, 0, 0, 350, dialog_height, "Dialog"
-     y_pos = 10
-     for memb = 0 to ubound(migrating_members, 1) 'loop through the hh member array, create a list of members with first checkbox
-             Groupbox 5, y_pos, 340, 60, "Member: " & migrating_members(memb, member_number_const) & " " & migrating_members(memb, member_name_const)
-             y_pos = y_pos + 10
-             If migrating_members(memb, continued_maxis_basis) = False Then Text 10, y_pos, 280, 15, "Member has temporary MAXIS eligibility and TIKL will be set to close in 35 days."
-             If migrating_members(memb, continued_maxis_basis) = True Then Text 10, y_pos, 280, 15, "Member has continued MAXIS eligibility, information sent for potential METS migration."
-             y_pos = y_pos + 15
-             Text 10, y_pos, 65, 10, "Reason for change:"
-             EditBox 75, y_pos-5, 265, 15, migrating_members(memb, change_reason)
-             y_pos = y_pos + 20
-             Text 10, y_pos, 60, 10, "Current elig type:"
-             EditBox 75, y_pos -5, 45, 15, migrating_members(memb, elig_type)
-             CheckBox 125, y_pos-5, 125, 15, "Managed care re-enrolled in MMIS", migrating_members(memb, managed_care_check)
-             PushButton 265, y_pos-5, 45, 15, "RELG", migrating_members(memb, 7)
-             y_pos = y_pos + 15
+        for memb = 1 to ubound(hh_member_array) 
+            if hh_member_array(memb).first_checkbox = 1 or hh_member_array(memb).second_checkbox = 1 Then 
+                migrating_members(memb-1, member_number_const) = hh_member_array(memb).member_number
+                migrating_members(memb-1, member_name_const) = hh_member_array(memb).name
+                migrating_members(memb-1, client_pmi) = hh_member_array(memb).PMI_number
+                if hh_member_array(memb).first_checkbox = 1 Then migrating_members(memb-1, continued_maxis_basis) = False
+                if hh_member_array(memb).second_checkbox = 1 Then migrating_members(memb-1, continued_maxis_basis) = True
+            End if
+        next
+        'Now we run through maxis and try to determine current elig type and current approval date for migrating members
+        check_for_MAXIS(false)
+        For memb = 0 to ubound(migrating_members, 1)
+            'Go to ELIG
+            Call Navigate_to_MAXIS_screen("ELIG", "HHMM")
+            'setting starting point to review all HH members in ELIG HC
+    	    member_complete = false
+            msgbox migrating_members(memb, member_number_const) & "  " & left(migrating_members(memb, member_name_const), 2)
+            Do
+                person_row = 7
+                person_col = 1
+                EMSearch migrating_members(memb, member_number_const) & "  " & left(migrating_members(memb, member_name_const), 2), person_row, person_col 'search for member number and 1st 2 letters of 
+                msgbox person_row & " " & person_col
+                If person_row > 0 AND person_row < 21 AND person_col = 3 Then'This means we found the person
+                    msgbox "found em"
+                    For i = 0 to 3 'We need to check multiple rows for potential MA results
+                        ma_row = person_row + i
+                        EMReadScreen hc_type, 2, ma_row, 28
+                        EMREadScreen member_num, 2, ma_row, 3
+	    	            IF hc_type = "MA" AND (member_num = migrating_members(memb, member_number_const) OR member_num = "  ") Then person_row = ma_row	'This sets the row with MA results for our person
+                    Next                          	        
+                    EmReadscreen approval_code, 6, person_row, 68
+                    If trim(approval_code) = "UNAPP" then 'Don't want to look for unapproved versions  
+                        EmreadScreen versions, 2, person_row, 58
+                        versions = cint(versions) - 1
+                        if len(versions) = 1 Then versions = "0" & versions
+                        Call write_value_and_transmit(versions, person_row, 58)
+                    End If    
+                    Call write_value_and_transmit("X", person_row, 26)
+	    		    'start looking for current month budget results
+                    EMREadScreen process_date, 8, 2, 73
+                    'This stores the member number to a string if there is a potential error for not approving a new version of HC.
+                    If migrating_members(memb, continued_maxis_basis) = false AND process_date <> date Then members_not_today = members_not_today & " " & migrating_members(memb, member_number_const)
+                    row = 6
+                    col = 19
+                    EMSearch current_month, row, col
+                    If row <> 0 then EMREadScreen migrating_members(memb, elig_type), 2, 12, row-2
+                    msgbox migrating_members(memb, elig_type)                                                     
+        		    PF3
+                    member_complete = true
+                else
+                    PF8 
+                    EMREadScreen last_page_check, 21, 24, 2
+                End If 
+            Loop until last_page_check = "THIS IS THE LAST PAGE" OR member_complete = True
+            migrating_members(memb, elig_type) = current_elig_type
+            migrating_members(memb, temp_date) = current_approval
+        Next
+	    '-------------------------------------------------------------------------------------------------DIALOG
+	    dialog_height = (ubound(migrating_members, 1) * 65) + 165
+        wcom_check = 1
+        Dialog1 = "" 'Blanking out previous dialog detail
+         BeginDialog Dialog1, 0, 0, 350, dialog_height, "Dialog"
+         y_pos = 10
+         for memb = 0 to ubound(migrating_members, 1) 'loop through the hh member array, create a list of members with first checkbox
+                 Groupbox 5, y_pos, 340, 60, "Member: " & migrating_members(memb, member_number_const) & " " & migrating_members(memb, member_name_const)
+                 y_pos = y_pos + 10
+                 If migrating_members(memb, continued_maxis_basis) = False Then Text 10, y_pos, 280, 15, "Member has temporary MAXIS eligibility and TIKL will be set to close in 35 days."
+                 If migrating_members(memb, continued_maxis_basis) = True Then Text 10, y_pos, 280, 15, "Member has continued MAXIS eligibility, information sent for potential METS migration."
+                 y_pos = y_pos + 15
+                 Text 10, y_pos, 65, 10, "Reason for change:"
+                 EditBox 75, y_pos-5, 265, 15, migrating_members(memb, change_reason)
+                 y_pos = y_pos + 20
+                 Text 10, y_pos, 60, 10, "Current elig type:"
+                 EditBox 75, y_pos -5, 45, 15, migrating_members(memb, elig_type)
+                 CheckBox 125, y_pos-5, 125, 15, "Managed care re-enrolled in MMIS", migrating_members(memb, managed_care_check)
+                 PushButton 265, y_pos-5, 45, 15, "RELG", migrating_members(memb, 7)
+                 y_pos = y_pos + 15
 
-             'Can/should we add in MSP info here??????????????
-     next
+                 'Can/should we add in MSP info here??????????????
+         next
 
-     ButtonGroup ButtonPressed
-     PushButton 10, y_pos+5, 200, 15, "Press here to change the members or status listed above.", update_members_btn
-     Text 5, y_pos + 30, 140, 10, "Temporary MA opened in MAXIS effective:"
-     EditBox 155, y_pos + 25, 45, 15, effective_date
-     'PushButton 135, 130, 10, 10, "!", mgd_care_info
-     'PushButton 150, 130, 35, 10, "MMIS", nav_to_mmis_btn
-     CheckBox 5, y_pos + 40, 85, 15, "Add WCOM to notice", wcom_check
-     CheckBox 5, y_pos + 55, 250, 15, "This case is in protected coverage group and will not be closed in MAXIS.", protected_check
-     Text 5, y_pos+80, 65, 10, "Worker Signature:"
-     EditBox 70, y_pos+75, 95, 15, worker_signature
-     OkButton 230, y_pos+75, 50, 15
-     CancelButton 285, y_pos+75, 50, 15
-    EndDialog
+         ButtonGroup ButtonPressed
+         PushButton 10, y_pos+5, 200, 15, "Press here to change the members or status listed above.", update_members_btn
+         Text 5, y_pos + 30, 140, 10, "Temporary MA opened in MAXIS effective:"
+         EditBox 155, y_pos + 25, 45, 15, effective_date
+         'PushButton 135, 130, 10, 10, "!", mgd_care_info
+         'PushButton 150, 130, 35, 10, "MMIS", nav_to_mmis_btn
+         CheckBox 5, y_pos + 40, 85, 15, "Add WCOM to notice", wcom_check
+         CheckBox 5, y_pos + 55, 250, 15, "This case is in protected coverage group and will not be closed in MAXIS.", protected_check
+         Text 5, y_pos+80, 65, 10, "Worker Signature:"
+         EditBox 70, y_pos+75, 95, 15, worker_signature
+         OkButton 230, y_pos+75, 50, 15
+         CancelButton 285, y_pos+75, 50, 15
+        EndDialog
+        DO
+        	DO
+        	    Do
 
-    DO
-    	DO
-    		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
-    		dialog Dialog1		'main dialog
-    		cancel_confirmation
-            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
+                	err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
+        	    	dialog Dialog1		'main dialog
+        	    	cancel_confirmation
+                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+        	        'Getting to MMIS for a member
+                    For memb = 0 to ubound(migrating_members, 1)
+                        If ButtonPressed = migrating_members(memb, mmis_button) Then call navigate_to_MMIS_member_panel("RELG", migrating_members(memb, client_pmi), "C")
+                    Next
 
-
-    'Getting to MMIS for a member
-    For memb = 0 to ubound(migrating_members, 1)
-        If ButtonPressed = migrating_members(memb, mmis_button) Then call navigate_to_MMIS_member_panel("RELG", migrating_members(memb, client_pmi), "C")
-    Next
+                LOOP UNTIL ButtonPressed = -1 or ButtonPressed = update_members_btn
+            LOOP UNTIL err_msg = ""	or ButtonPressed = update_members_btn	'loops until all errors are resolved, skips errors when changing members
+        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        Loop until are_we_passworded_out = false					'loops until user passwords back in
+    Loop until ButtonPressed <> update_members_btn
 
 '----------------------------------------------------------------------------------------------------Used for option 1. Non-MAGI referral
 Elseif initial_option = "1. Non-MAGI referral" then
@@ -538,96 +585,141 @@ else
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 End if
 
-client_name_list = ""
-member_numbers = ""
-For i = 0 to ubound(transition_array, 2)
-    IF transition_array(member_name_const, i) <> "" then
-        member_numbers = member_numbers & transition_array(member_number_const, i) & ", "
-        'splitting up the client name to get the 1st name
-        client_name = transition_array(member_name_const, i)
-        client_name = right(client_name, len(client_name) - 3)
-        If instr(client_name, " ") then    						'Most cases have both last name and 1st name. This seperates the two names
-            length = len(client_name)                           'establishing the length of the variable
-            position = InStr(client_name, " ")                  'sets the position at the deliminator (in this case the comma)
-            first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
-        END IF
-        'adding first name to name list
-        first_name = trim(first_name)
-        Call fix_case(first_name, 0)
-        client_name_list = client_name_list & first_name & ", "
-    End if
-Next
-
-member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
-If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len(member_numbers) - 1) 'takes the last comma off of member_numbers
-
-client_name_list = trim(client_name_list) 'trims excess spaces of client_name_list
-If right(client_name_list, 1) = "," THEN client_name_list = left(client_name_list, len(client_name_list) - 1) 'takes the last comma off of client_name_list
-
-memb_info = " for Memb " & member_numbers ' for the case note
-
-If initial_option = "MAXIS to METS Migration" then
-    'logic to add closing date in the SPEC/MEMO for the client
-    next_month = DateAdd("M", 1, date)
-    next_month = DatePart("M", next_month) & "/01/" & DatePart("YYYY", next_month)
-    last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
-
+If initial_option = "MAXIS to METS Migration" Then 'CASE NOTE section for migration
+    'THE TIKL
+    
     'THE MEMO----------------------------------------------------------------------------------------------------
-    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
-    Call write_variable_in_SPEC_MEMO(trim(client_name_list) & "You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.")
-    PF4
-    stats_counter = stats_counter + 1
-End if
-'----------------------------------------------------------------------------------------------------The case note
-'Headers for case note
-If initial_option = "1. Non-MAGI referral" then header = "MA NON MAGI Referral"
-If initial_option = "2. Request to end eligibility in METS" then header = "Requested METS eligibility to end"
-If initial_option = "3. Eligibility ended in METS" then header = "Eligibility ended in METS effective " & mmis_end_date
-If initial_option = "MAXIS to METS Migration" then header = "Temporary MA opened for [enrollee] due to potential change in basis"
+    If wcom_needed = true Then
+        Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
+        Call write_variable_in_SPEC_MEMO(trim(client_name_list) & "You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.")
+        PF4
+        stats_counter = stats_counter + 1
+    End if
+    'creating lists of member info for the note
+    forced_migration = false
+    memb_nums_string = ""
+    no_migrate_membs = ""
+    for mn = 0 to ubound(migrating_members, 0)
+        If migrating_members(mn, continued_maxis_basis) = false Then
+            forced_migration = true
+            If memb_nums_string = "" Then 
+                memb_nums_string = memb_nums_string & migrating_members(mn, member_number_const)
+            Else
+                memb_nums_string = memb_nums_string & ", " & migrating_members(mn, member_number_const)
+            End If
+        Else
+            If no_migrate_membs = "" Then 
+                no_migrate_membs = no_migrate_membs & migrating_members(mn, member_number_const)
+             Else
+                no_migrate_membs = no_migrate_membs & ", " & migrating_members(mn, member_number_const)
+            End If
+        End If       
+    next
+    If forced_migration = true Then 
+        If len(memb_nums_string) < 4 Then header_string = "Temporary MA opened for member " & memb_nums_string & "due to potential change in basis."
+        If len(memb_nums_string) > 3 Then header_string = "Temporary MA opened for members " & memb_nums_string & "due to potential change in basis."
+    Else
+        If len(no_migrate_membs) < 4 Then header_string = "Member " & no_migrate_membs & "has a potential METS basis."
+        If len(no_migrate_membs) > 3 Then header_string = "Members " & no_migrate_membs & "have a potential METS basis."
+    End If 
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE(header_string)
+    For note_memb = 0 to ubound(migrating_members, 0)
+        If migrating_members(mn, continued_maxis_basis) = false Then
+            call write_variable_in_CASE_NOTE("Temporary MA opened for memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & " pending METS determination."
+            memb_info_string = migrating_members(note_memb, elig_type) & " opened effective " & migrating_members(note_memb, temp_date) & "."
+            IF migrating_members(note_memb, managed_care_check) = checked Then memb_info_string = memb_info_string & " Re-enrolled in managed care in MMIS."
+            call write_variable_in_CASE_NOTE(memb_info_string)
+        ElseIf migrating_members(note_memb, continued_maxis_basis) = true Then 'these members remain eligible in MAXIS
+            call write_variable_in_CASE_NOTE("Memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & "may have eligibility in METS as " & migrating_members(note_memb, potential_basis) & "."
+        End If 
+    Next
+    If wcom_updated = true Then call write_variable_in_CASE_NOTE("Added worker comment to notice.")
+    Call write_variable_in_CASE_NOTE("Sent DHS-6696B and DHS-8432.")
+    If tikl_check = checked Then call write_variable_in_CASE_NOTE("TIKL entered for 35 days to close HC in MAXIS if not returned.")
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
 
-start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(header & memb_info)
-Call write_bullet_and_variable_in_CASE_NOTE(mets_pr_option, METS_OR_PR_number)
-Call write_bullet_and_variable_in_CASE_NOTE("Date of request", request_date)
-Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
-'HH member array output
-For i = 0 to ubound(transition_array, 2)
-    If transition_array(member_name_const, i) <> "" then
-        If initial_option = "1. Non-MAGI referral" then
-            Call write_variable_in_CASE_NOTE(" - " & transition_array(member_name_const, i) & ", Current METS coverage: " & transition_array(hc_type_const, i))
-        else
-            Call write_variable_in_CASE_NOTE(" - " & transition_array(member_name_const, i))
+Else 'case noting for all others 
+    client_name_list = ""
+    member_numbers = ""
+    For i = 0 to ubound(transition_array, 2)
+        IF transition_array(member_name_const, i) <> "" then
+            member_numbers = member_numbers & transition_array(member_number_const, i) & ", "
+            'splitting up the client name to get the 1st name
+            client_name = transition_array(member_name_const, i)
+            client_name = right(client_name, len(client_name) - 3)
+            If instr(client_name, " ") then    						'Most cases have both last name and 1st name. This seperates the two names
+                length = len(client_name)                           'establishing the length of the variable
+                position = InStr(client_name, " ")                  'sets the position at the deliminator (in this case the comma)
+                first_name = Right(client_name, length-position)    'establishes client first name as after before the deliminator
+            END IF
+            'adding first name to name list
+            first_name = trim(first_name)
+            Call fix_case(first_name, 0)
+            client_name_list = client_name_list & first_name & ", "
+        End if
+    Next
+
+    member_numbers = trim(member_numbers) 'trims excess spaces of member_numbers
+    If right(member_numbers, 1) = "," THEN member_numbers = left(member_numbers, len(member_numbers) - 1) 'takes the last comma off of member_numbers
+
+    client_name_list = trim(client_name_list) 'trims excess spaces of client_name_list
+    If right(client_name_list, 1) = "," THEN client_name_list = left(client_name_list, len(client_name_list) - 1) 'takes the last comma off of client_name_list
+
+    memb_info = " for Memb " & member_numbers ' for the case note
+
+
+    '----------------------------------------------------------------------------------------------------The case note
+    'Headers for case note
+    If initial_option = "1. Non-MAGI referral" then header = "MA NON MAGI Referral"
+    If initial_option = "2. Request to end eligibility in METS" then header = "Requested METS eligibility to end"
+    If initial_option = "3. Eligibility ended in METS" then header = "Eligibility ended in METS effective " & mmis_end_date
+
+
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE(header & memb_info)
+    Call write_bullet_and_variable_in_CASE_NOTE(mets_pr_option, METS_OR_PR_number)
+    Call write_bullet_and_variable_in_CASE_NOTE("Date of request", request_date)
+    Call write_variable_in_CASE_NOTE("---Health Care Member Information---")
+    'HH member array output
+    For i = 0 to ubound(transition_array, 2)
+        If transition_array(member_name_const, i) <> "" then
+            If initial_option = "1. Non-MAGI referral" then
+                Call write_variable_in_CASE_NOTE(" - " & transition_array(member_name_const, i) & ", Current METS coverage: " & transition_array(hc_type_const, i))
+            else
+                Call write_variable_in_CASE_NOTE(" - " & transition_array(member_name_const, i))
+            End if
+        End if
+    Next
+    Call write_bullet_and_variable_in_CASE_NOTE("Service requested", service_requested)
+    Call write_bullet_and_variable_in_CASE_NOTE("MMIS eligibility end date", mmis_end_date)
+    If SMRT_approved = 1 then Call write_variable_in_CASE_NOTE("* SMRT is approved.")
+    If SMRT_pending = 1 then Call write_variable_in_CASE_NOTE("* SMRT is pending.")
+    If PMI_checkbox = 1  then Call write_variable_in_CASE_NOTE("* Case has known duplicate PMI/PMI issues.")
+    If useform_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent Request to APPL Form.")
+    IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Transition Communication Form to case file.")
+    'METS to MAXIS case note only
+    If initial_option = "MAXIS to METS Migration" then
+        Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
+        If METS_OR_PR_number = "" then
+            Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
+            Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
+        Else
+            'For cases with affliated METS cases
+            Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
         End if
     End if
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Service requested", service_requested)
-Call write_bullet_and_variable_in_CASE_NOTE("MMIS eligibility end date", mmis_end_date)
-If SMRT_approved = 1 then Call write_variable_in_CASE_NOTE("* SMRT is approved.")
-If SMRT_pending = 1 then Call write_variable_in_CASE_NOTE("* SMRT is pending.")
-If PMI_checkbox = 1  then Call write_variable_in_CASE_NOTE("* Case has known duplicate PMI/PMI issues.")
-If useform_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent Request to APPL Form.")
-IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Transition Communication Form to case file.")
-'METS to MAXIS case note only
-If initial_option = "MAXIS to METS Migration" then
-    Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
-    If METS_OR_PR_number = "" then
-        Call write_variable_in_CASE_NOTE("* No associated METS case exists for the listed members.")
-        Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client regarding applying through mnsure.org.")
-    Else
-        'For cases with affliated METS cases
-        Call write_variable_in_CASE_NOTE("* Informational notice generated via SPEC/MEMO to client. The METS team will contact the client if any additional information is needed to make a determination.")
+    Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
+    If initial_option = "1. Non-MAGI referral" then
+        navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
+        If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1"
+        If navigate_decision = vbNo then navigate_to_form = False
     End if
-End if
-Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
-
-If initial_option = "1. Non-MAGI referral" then
-    navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
-    If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5004_1-0.xdp&interactive=1"
-    If navigate_decision = vbNo then navigate_to_form = False
-End if
-
+End If 
 script_end_procedure_with_error_report("Success, your case note has been created.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
