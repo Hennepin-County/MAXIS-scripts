@@ -209,7 +209,7 @@ caseload_info.add "X127FF5", "Contracted - North Ridge Facilities"
 caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
 caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
 caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
-
+caseload_info.add "X127FI1", "METS Retro Request"
 
 ' MsgBox "The caseload type of Families - General is " & join(caseload_info.item("Families - General"), ", ")
 ' MsgBox "The caseload type of Families - General is ~" & caseload_info.item("Families - General") & "~"
@@ -283,7 +283,7 @@ function gather_current_caseload(current_caseload, secondary_caseload, find_prev
 	End If
 end function
 
-function find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+function find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
 	transfer_needed = True
 
 	current_caseload_type = caseload_info.item(current_caseload)		'this could be blank if the basket is not identified in the dictionary
@@ -316,6 +316,10 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	If transfer_needed = True Then
 		If application_form = "MHCP App for B/C Cancer - 3523" Then
 			correct_caseload_type = "MA - BC"
+			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+		End If
+		If application_form = "No Application Required" and METS_retro_checkbox = checked Then
+			correct_caseload_type = "METS Retro Request"
 			If correct_caseload_type = current_caseload_type Then transfer_needed = False
 		End If
 	End If
@@ -354,7 +358,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 
 	If correct_caseload_type = "" Then
-		If application_form = "MHCP App for Certain Populations - 3876" Then
+		If application_form = "MHCP App for Certain Populations - 3876" or application_form = "MNsure App for HC - 6696" or application_form = "No Application Required" Then
 			If age_of_memb_01 < 18 Then correct_caseload_type = "TEFRA"
 			If correct_caseload_type = current_caseload_type Then transfer_needed = False
 		End If
@@ -427,7 +431,8 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	' msp_type
 	' emer_status
 	' emer_type
-	If transfer_needed = True Then
+	If transfer_needed = True and new_caseload = "" Then
+
 		Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
 		number_of_options = UBound(available_caseload_array)
 
@@ -950,15 +955,16 @@ Dialog1 = "" 'Blanking out previous dialog detail
 '265 - previous dlg width
 BeginDialog Dialog1, 0, 0, 515, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 115, "Application Information"
-  DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
-  DropListBox 85, 60, 170, 45, "Select One:"+app_form_list, application_type
-  EditBox 85, 85, 105, 15, confirmation_number
-  CheckBox 85, 105, 160, 10, "Check here if LTC or a Waiver is indicated.", appears_ltc_checkbox
+  DropListBox 85, 30, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
+  DropListBox 85, 50, 170, 45, "Select One:"+app_form_list, application_type
+  EditBox 85, 75, 105, 15, confirmation_number
+  CheckBox 85, 95, 160, 10, "Check here if LTC or a Waiver is indicated.", appears_ltc_checkbox
+  CheckBox 85, 110, 85, 10, "METS Retro Coverage", METS_retro_checkbox
 
 
   '   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-  Text 15, 25, 65, 10, "Date of Application:"
-  Text 85, 25, 60, 10, application_date
+  Text 15, 20, 65, 10, "Date of Application:"
+  Text 85, 20, 60, 10, application_date
 
   y_pos = 15
   If unknown_cash_pending = True Then
@@ -1004,10 +1010,10 @@ BeginDialog Dialog1, 0, 0, 515, dlg_len, "Application Received for: " & programs
 
   GroupBox 265, 5, 70, y_pos, "Pending Programs:"
 
-  Text 10, 45, 70, 10, "Application Received:"
+  Text 10, 35, 70, 10, "Application Received:"
 '   Text 10, 65, 70, 10, "Population/Specialty"
-  Text 15, 65, 65, 10, "Type of Application:"
-  Text 85, 75, 50, 10, "Confirmation #:"
+  Text 15, 55, 65, 10, "Type of Application:"
+  Text 85, 65, 50, 10, "Confirmation #:"
 
   y_pos = 5
   y_pos = y_pos + 10
@@ -1071,9 +1077,9 @@ BeginDialog Dialog1, 0, 0, 515, dlg_len, "Application Received for: " & programs
       CheckBox 200, 150, 55, 10, "Heat (or AC)", heat_AC_check
       CheckBox 200, 160, 45, 10, "Electricity", electric_check
       CheckBox 200, 170, 35, 10, "Phone", phone_check
-      Text 25, 140, 90, 10, "Income received this month:"
-      Text 30, 160, 90, 10, "Cash, checking, or savings: "
-      Text 30, 180, 85, 10, "AMT paid for rent/mortgage:"
+      Text 35, 135, 90, 10, "Income received this month:"
+      Text 35, 155, 90, 10, "Cash, checking, or savings:"
+      Text 35, 175, 90, 10, "AMT paid for rent/mortgage:"
       GroupBox 190, 130, 75, 60, "Utilities claimed "
 	  Text 195, 138, 60, 10, "(check below):"
       Text 25, 190, 100, 10, "**IMPORTANT**"'" The income, assets and shelter costs fields will default to $0 if left blank."
@@ -1191,8 +1197,8 @@ If caseload_contract_facility = "Ebenezer Loren on Park" Then caseload_contract_
 If caseload_contract_facility = "Martin Luther Care Center" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
 If caseload_contract_facility = "Meadow Woods" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
 
-If application_form = "App for MA for LTC - 3531" Then appears_ltc_checkbox = checked
-call find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+If application_type = "App for MA for LTC - 3531" Then appears_ltc_checkbox = checked
+call find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_type, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
 
 'Calculates expedited status based on above numbers - only for snap pending cases
 If snap_status = "PENDING" Then
