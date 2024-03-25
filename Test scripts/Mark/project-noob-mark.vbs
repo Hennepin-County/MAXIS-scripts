@@ -41,6 +41,9 @@ END IF
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
 
+msgbox "did this work"
+
+'STage number two what happens!?
 
 
 Dialog1 = "" 'blanking out dialog name
