@@ -359,8 +359,10 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 
 	If correct_caseload_type = "" Then
 		If application_form = "MHCP App for Certain Populations - 3876" or application_form = "MNsure App for HC - 6696" or application_form = "No Application Required" Then
-			If age_of_memb_01 < 18 Then correct_caseload_type = "TEFRA"
-			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+			If age_of_memb_01 < 18 Then
+				correct_caseload_type = "TEFRA"
+				If correct_caseload_type = current_caseload_type Then transfer_needed = False
+			End If
 		End If
 	End If
 
@@ -409,6 +411,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 	End If
 	If correct_caseload_type = current_caseload_type Then transfer_needed = False
 	' MsgBox "correct_caseload_type - " & correct_caseload_type & vbCr & "current_caseload_type - " & current_caseload_type & vbCr & "transfer_needed - " & transfer_needed
+	' MsgBox "current_caseload_type - " & current_caseload_type & vbCr & "current_caseload - " & current_caseload & vbCr & "correct_caseload_type - " & correct_caseload_type & vbCr & "transfer_needed - " & transfer_needed
 
 
 	' case_has_child_under_19
