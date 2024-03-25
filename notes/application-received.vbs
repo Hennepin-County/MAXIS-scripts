@@ -874,8 +874,8 @@ Do
 Loop until end_of_MEMB = "ENTER A"
 
 Call navigate_to_MAXIS_screen("STAT", "PARE")
-EMReadScreen preg_exists, 1, 2, 73
-If preg_exists = "1" Then preg_person_on_case = True
+EMReadScreen pare_exists, 1, 2, 73
+If pare_exists = "1" Then case_has_guardian = True
 
 
 child_under_19_question = "No"
