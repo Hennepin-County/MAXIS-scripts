@@ -16,3 +16,4 @@ locally-installed-files/SETTINGS - GLOBAL VARIABLES.vbs
 *.docx
 *.tmp
 .vscode/settings.json
+# comment
