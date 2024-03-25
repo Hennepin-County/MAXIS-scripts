@@ -61,7 +61,7 @@ CALL changelog_update("10/20/2023", "Initial version.", "Dave Courtright, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'MAXIS_CASE_NUMBER = "330077"
-'This class is necessary for the HH_member_enhanced_dialog. Has to be defined outside of the function.
+'This class is necessary for the HH_member_enhanced_dialog. 
 	Class member_data
 		public member_number
 		public name

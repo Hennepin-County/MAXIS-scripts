@@ -401,7 +401,6 @@ If initial_option = "MAXIS to METS Migration" then
             Call Navigate_to_MAXIS_screen("ELIG", "HHMM")
             'setting starting point to review all HH members in ELIG HC
     	    member_complete = false
-            msgbox migrating_members(memb, member_number_const) & "  " & left(migrating_members(memb, member_name_const), 2)
             Do
                 person_row = 7
                 person_col = 1
@@ -590,8 +589,55 @@ If initial_option = "MAXIS to METS Migration" Then 'CASE NOTE section for migrat
     
     'THE MEMO----------------------------------------------------------------------------------------------------
     If wcom_needed = true Then
-        Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
-        Call write_variable_in_SPEC_MEMO(trim(client_name_list) & "You no longer qualify for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.")
+        CALL navigate_to_MAXIS_screen("SPEC", "WCOM")
+        Emwritescreen "Y", 3, 74  'sorts by HC notices
+        Transmit
+        'Searching for waiting HC notice
+        wcom_row = 6
+        Do
+        	wcom_row = wcom_row + 1
+        	Emreadscreen program_type, 2, wcom_row, 26
+        	Emreadscreen print_status, 7, wcom_row, 71
+        	If program_type = "HC" then
+        		If print_status = "Waiting" then
+        			Emwritescreen "x", wcom_row, 13
+        			exit Do
+        		End If
+        	End If
+        	If wcom_row = 17 then
+        		PF8
+        		Emreadscreen spec_edit_check, 6, 24, 2
+        		wcom_row = 6
+        	end if
+        	If spec_edit_check = "NOTICE" THEN no_hc_waiting = true
+        Loop until spec_edit_check = "NOTICE"
+
+        ' If no notice was found then we give the option to continue without editing
+        If no_hc_waiting = true then
+          msgbox "No waiting HC notice was found on this case. If you need to approve results and generate a notice, press cancel to stop the script. Press OK to continue without editing the notice. See ONESource for info on required notice language.", vbOKCancel
+        Else
+            'transmitting and putting wcom into edit mode
+            Transmit
+            PF9
+            'The script is now on the recipient selection screen.  Mark all recipients that need NOTICES
+            row = 4                             'Defining row and col for the search feature.
+            col = 1
+            EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
+            IF row > 4 THEN  arep_row = row  'locating ALTREP location if it exists'
+            row = 4                             'reset row and col for the next search
+            col = 1
+            EMSearch "SOCWKR", row, col
+            IF row > 4 THEN  swkr_row = row     'Logs the row it found the SOCWKR string as swkr_row
+            EMWriteScreen "x", 5, 12                                        'We always send notice to client
+            IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+            IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+            transmit                                                        'Transmits to start the memo writing process'
+        End if
+
+        'Worker Comment Input
+
+
+        Call write_variable_in_SPEC_MEMO(trim(client_name_list) & " no longer qualifies for Medical Assistance (MA) on this case. You may be eligible for MA for Families with Children and Adults or another health care program that we have not considered yet. The agency will ask you for additional information to make that determination, which you must return. You remain open on MA on this case until we can make a final determination.")
         PF4
         stats_counter = stats_counter + 1
     End if
@@ -599,7 +645,7 @@ If initial_option = "MAXIS to METS Migration" Then 'CASE NOTE section for migrat
     forced_migration = false
     memb_nums_string = ""
     no_migrate_membs = ""
-    for mn = 0 to ubound(migrating_members, 0)
+    for mn = 0 to ubound(migrating_members, 1)
         If migrating_members(mn, continued_maxis_basis) = false Then
             forced_migration = true
             If memb_nums_string = "" Then 
@@ -624,15 +670,18 @@ If initial_option = "MAXIS to METS Migration" Then 'CASE NOTE section for migrat
     End If 
     start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE(header_string)
-    For note_memb = 0 to ubound(migrating_members, 0)
+    For note_memb = 0 to ubound(migrating_members, 1)
+        Call write_variable_in_CASE_NOTE("----------------------------------------------------------------------------------------------------")
         If migrating_members(mn, continued_maxis_basis) = false Then
-            call write_variable_in_CASE_NOTE("Temporary MA opened for memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & " pending METS determination."
+            call write_variable_in_CASE_NOTE("Temporary MA opened for memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & " pending METS determination.")
             memb_info_string = migrating_members(note_memb, elig_type) & " opened effective " & migrating_members(note_memb, temp_date) & "."
             IF migrating_members(note_memb, managed_care_check) = checked Then memb_info_string = memb_info_string & " Re-enrolled in managed care in MMIS."
             call write_variable_in_CASE_NOTE(memb_info_string)
         ElseIf migrating_members(note_memb, continued_maxis_basis) = true Then 'these members remain eligible in MAXIS
-            call write_variable_in_CASE_NOTE("Memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & "may have eligibility in METS as " & migrating_members(note_memb, potential_basis) & "."
+            call write_variable_in_CASE_NOTE("Memb" & migrating_members(note_memb, member_number_const) & ", " & migrating_members(note_memb, member_name_const) & "may have eligibility in METS as " & migrating_members(note_memb, potential_basis) & ".")
         End If 
+        Call write_variable_in_CASE_NOTE("Reason for change: " & migrating_members(note_memb, change_reason))
+        Call write_variable_in_CASE_NOTE("----------------------------------------------------------------------------------------------------")
     Next
     If wcom_updated = true Then call write_variable_in_CASE_NOTE("Added worker comment to notice.")
     Call write_variable_in_CASE_NOTE("Sent DHS-6696B and DHS-8432.")
