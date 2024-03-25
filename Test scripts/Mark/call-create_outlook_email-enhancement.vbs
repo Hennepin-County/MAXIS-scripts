@@ -80,3 +80,5 @@ Call create_outlook_email("", "bzt_email", "", "", "subject_of_email", 1, False,
 ' email_attachment_array = Split(email_attachment_array, ",")
 
 'This is a test of Browser Github
+
+'Test number two what happens now
