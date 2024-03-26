@@ -58,6 +58,11 @@ msgbox "stage 3"
 msgbox "stage 4"
 
 'Stage this
+'Do not stage this
+'Stage 1
+'Stage 2
+'stage 3
+'WHAT IS GOING ON?!?!?!
 
 
 Dialog1 = "" 'blanking out dialog name
