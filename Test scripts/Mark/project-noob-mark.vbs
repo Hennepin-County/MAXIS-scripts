@@ -41,7 +41,7 @@ END IF
 'THE SCRIPT==================================================================================================================
 EMConnect "" 'Connects to BlueZone
 
-
+msgbox "Making a change here to see how it works - Stage 1"
 
 Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
