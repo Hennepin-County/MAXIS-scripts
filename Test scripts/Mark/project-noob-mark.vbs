@@ -57,6 +57,8 @@ msgbox "stage 3"
 
 msgbox "stage 4"
 
+'Stage this
+
 
 Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
