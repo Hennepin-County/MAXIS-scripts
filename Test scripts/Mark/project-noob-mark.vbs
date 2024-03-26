@@ -48,6 +48,14 @@ msgbox "Making a change again - Stage 2 but will not stage"
 msgbox "Making a change again - Stage 2 but will not stage"
 msgbox "Making a change again - Stage 2 but will not stage"
 
+msgbox "stage 3"
+msgbox "stage 3"
+msgbox "stage 3"
+msgbox "stage 3"
+msgbox "stage 3"
+
+
+msgbox "stage 4"
 
 
 Dialog1 = "" 'blanking out dialog name
