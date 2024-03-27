@@ -63,13 +63,13 @@ changelog_display
 EMConnect ""
 
 EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
+IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your DAIL. This script will stop.")
 
 EMGetCursor row, col
 Call write_value_and_transmit("T", row, col)
 
 EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
-IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
+IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a PARIS match. Please select a PARIS match, and run the script again.")
 
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
@@ -84,7 +84,7 @@ If left(memb_confirmation, 4) = "MEMB" then
     Call write_value_and_transmit("S", 6, 3)
     'PRIV Handling
     EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
     EMReadScreen stat_check, 4, 20, 21
     If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
@@ -141,7 +141,7 @@ If trim(sent_date) <> "" then sent_date= replace(sent_date, " ", "/")
 '--------------------------------------------------------------------Client name
 EMReadScreen client_Name, 26, 5, 27
 client_name = trim(client_name)                         'trimming the client name
-IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This seperates the two names
+IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
 	length = len(client_name)                           'establishing the length of the variable
 	position = InStr(client_name, ",")                  'sets the position at the deliminator (in this case the comma)
 	last_name = Left(client_name, position-1)           'establishes client last name as being before the deliminator
@@ -349,7 +349,7 @@ IF paris_action = "Yes, send the notice" then
     Call write_value_and_transmit("Y", 8, 73) 'send Notice
 
     '--------------------------------------------------------------------The case note & case note related code
-    'creating new variable for case note for programs appealing that is incremential
+    'creating new variable for case note for programs appealing that is incremental
     pending_verifs = ""
     IF shelter_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Shelter, "
     IF diff_notice_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
@@ -357,7 +357,7 @@ IF paris_action = "Yes, send the notice" then
     IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
 
     pending_verifs = trim(pending_verifs) 'trims excess spaces of pending_verifs
-    'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+    'takes the last comma off of pending_verifs when auto-filled into dialog if more more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
     Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
@@ -446,12 +446,12 @@ Else
     IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
 
     pending_verifs = trim(pending_verifs) 'trims excess spaces of pending_verifs
-    'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+    'takes the last comma off of pending_verifs when auto-filled into dialog if more more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
     Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
-    'requested for HEADER of casenote'
+    'abbreviation for HEADER of CASE/NOTE
     IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
     IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
     IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
@@ -488,7 +488,7 @@ Else
     CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", contact_other_state)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
-	IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with Paris Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened ")
+	IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with PARIS Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened.")
 	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
