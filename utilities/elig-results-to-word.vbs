@@ -75,34 +75,27 @@ screen_on_page = 0
 
 'THE SCRIPT ================================================================================================================
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 231, 195, "Case Number to Read ELIG Results"
-  EditBox 65, 65, 50, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
     OkButton 115, 170, 50, 15
     CancelButton 170, 170, 50, 15
   Text 15, 15, 175, 20, "This script works by pulling all of the information from a specific version of ELIG into word."
-  Text 15, 40, 195, 20, "Enter the Case Number and Navigate in MAXIS now to the start of the ELIG version that you would like copied."
-  Text 15, 70, 45, 10, "Case Number"
+  Text 15, 50, 195, 10, "*** Navigate in MAXIS now to the start of the ELIG version ***"
+  Text 90, 60, 50, 10, "to be copied."
   GroupBox 10, 90, 205, 40, "NAVIGATE IN MAXIS NOW TO THE ELIG VERSION TO COPY"
   Text 25, 105, 165, 10, "- ELIG can be for any program except HC."
   Text 25, 115, 165, 10, "- Version of ELIG can be approved or unapproved."
   Text 15, 140, 180, 20, "When the script continues, it will look for the first page of ELIG Results. If not found, the dialog will reappear."
 EndDialog
 
+'This dialog does not have an err_msg loop or handling because there are no inputs in the dialog.
 Do
 	Do
-		Do
-			err_msg = ""
+		dialog Dialog1
+		cancel_without_confirmation
 
-			dialog Dialog1
-			cancel_without_confirmation
-
-			Call validate_MAXIS_case_number(err_msg, "*")
-
-		Loop until err_msg = ""
 		elig_results_program_found = ""
 		EMReadScreen MX_line_3, 78, 3, 2
 		If InStr(MX_line_3, "DWPR") Then elig_results_program_found = "DWP"
@@ -138,6 +131,7 @@ If elig_results_program_found = "GRH" Then Call write_value_and_transmit("GRPR",
 'IVE does not need to navigate back because there is only one ELIG page
 If elig_results_program_found = "EMER" Then Call write_value_and_transmit("EMPR", 19, 70)
 If elig_results_program_found = "SNAP" Then Call write_value_and_transmit("FSPR", 19, 70)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 'confirm we are at the right version
 EMReadScreen check_version_number, 3, 2, 11
