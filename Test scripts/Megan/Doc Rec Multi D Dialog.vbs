@@ -62,6 +62,61 @@ unchecked = 0
 checked = 1
 
 
+'ASSET CODE-START
+Dim ASSETS_ARRAY()
+ReDim ASSETS_ARRAY(update_panel, 0)
+
+Const ast_panel         = 0
+Const ast_owner         = 1
+Const ast_ref_nbr       = 2
+Const ast_instance      = 3
+Const ast_type          = 4
+Const ast_balance       = 5
+Const ast_verif         = 6
+Const ast_number        = 7
+Const ast_wthdr_YN      = 8
+Const ast_wdrw_penlty   = 9
+Const ast_wthdr_verif   = 10
+Const ast_jnt_owner_YN  = 11
+Const ast_own_ratio      = 12
+Const ast_othr_ownr_one = 13
+Const ast_othr_ownr_two = 14
+Const ast_othr_ownr_thr = 15
+Const ast_owner_signed  = 16
+Const apply_to_CASH     = 17
+Const apply_to_SNAP     = 18
+Const apply_to_HC       = 19
+Const apply_to_GRH      = 20
+Const apply_to_IVE      = 21
+Const ast_location      = 22
+Const ast_model         = 23
+Const ast_make          = 24
+Const ast_year          = 25
+Const ast_trd_in        = 26
+Const ast_loan_value    = 27
+Const ast_value_srce    = 28
+Const ast_amt_owed      = 29
+Const ast_owe_verif     = 30
+Const ast_owed_date     = 31
+Const ast_hc_benefit    = 32
+Const ast_bal_date      = 33
+Const ast_verif_date    = 34
+Const ast_next_inrst_date = 35
+Const ast_owe_YN        = 36
+Const ast_use           = 37
+Const update_date       = 38
+Const cnote_panel       = 39
+Const ast_csv           = 40
+Const ast_face_value    = 41
+Const ast_share_note    = 42
+Const ast_note          = 43
+
+Const update_panel      = 44
+
+Dim client_list_array
+'ASSET CODE-END
+
+
 'Defining count of forms
 asset_count 	= 0 
 atr_count 		= 0 
@@ -133,7 +188,7 @@ arep_form_name		= "AREP (Authorized Rep)"
 change_form_name	= "Change Report Form"
 evf_form_name		= "Employment Verification Form (EVF)"
 hosp_form_name		= "Hospice Transaction Form"
-iaa_form_name		= "Interim Assistance Agreement-IAA and IAA-SSI"
+iaa_form_name		= "Interim Assistance Agreement (IAA and IAA-SSI)"
 ltc_1503_form_name	= "LTC-1503"
 mof_form_name		= "Medical Opinion Form (MOF)"
 mtaf_form_name		= "MN Transition Application Form (MTAF)"
@@ -142,26 +197,1725 @@ sf_form_name		= "Residence and Shelter Expenses Release Form"
 diet_form_name		= "Special Diet Information Request"
 
 'FUNCTIONS DEFINED===========================================================================
-function asset_dialog()
-			Text 60, 25, 45, 10, MAXIS_case_number
-			EditBox 175, 20, 45, 15, asset_effective_date
-			EditBox 310, 20, 45, 15, asset_date_received
-			EditBox 30, 65, 270, 15, asset_Q1
-			EditBox 30, 85, 270, 15, asset_Q2
-			EditBox 30, 105, 270, 15, asset_Q3
-			EditBox 30, 125, 270, 15, asset_Q4
-			Text 5, 5, 220, 10, asset_form_name
-			Text 125, 25, 50, 10, "Effective Date:"
-			Text 15, 70, 10, 10, "Q1"
-			Text 245, 25, 60, 10, "Document Date:"
-			GroupBox 5, 50, 305, 195, "Responses to form questions captured here"
-			Text 5, 25, 50, 10, "Case Number:"
-			Text 395, 35, 45, 10, "    --Forms--"
-			Text 15, 110, 10, 10, "Q3"
-			Text 15, 130, 15, 10, "Q4"
-			Text 15, 90, 15, 10, "Q2"
-			Text 15, 150, 15, 10, ""
+
+'ASSET CODE-START
+function update_ACCT_panel_from_dialog()
+    EMWriteScreen "                    ", 7, 44
+    EMWriteScreen "                    ", 8, 44
+    EMWriteScreen "        ", 10, 46
+    EMWriteScreen "  ", 11, 44
+    EMWriteScreen "  ", 11, 47
+    EMWriteScreen "  ", 11, 50
+    EMWriteScreen "        ", 12, 46
+
+    EMWriteScreen left(ASSETS_ARRAY(ast_type, asset_counter), 2), 6, 44
+    EMWriteScreen ASSETS_ARRAY(ast_number, asset_counter), 7, 44
+    EMWriteScreen ASSETS_ARRAY(ast_location, asset_counter), 8, 44
+    EMWriteScreen ASSETS_ARRAY(ast_balance, asset_counter), 10, 46
+    EMWriteScreen left(ASSETS_ARRAY(ast_verif, asset_counter), 1), 10, 64
+    Call create_MAXIS_friendly_date(ASSETS_ARRAY(ast_bal_date, asset_counter), 0, 11, 44)
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_YN, asset_counter), 12, 64
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_verif, asset_counter), 12, 72
+    EMWriteScreen ASSETS_ARRAY(ast_wdrw_penlty, asset_counter), 12, 46
+    EMWriteScreen ASSETS_ARRAY(apply_to_CASH, asset_counter), 14, 50
+    EMWriteScreen ASSETS_ARRAY(apply_to_SNAP, asset_counter), 14, 57
+    EMWriteScreen ASSETS_ARRAY(apply_to_HC, asset_counter), 14, 64
+    EMWriteScreen ASSETS_ARRAY(apply_to_GRH, asset_counter), 14, 72
+    EMWriteScreen ASSETS_ARRAY(apply_to_IVE, asset_counter), 14, 80
+    EMWriteScreen ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter), 15, 44
+    EMWriteScreen left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 15, 76
+    EMWriteScreen right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 15, 80
+    If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) <> "" Then
+        EMWriteScreen left(ASSETS_ARRAY(ast_next_inrst_date, asset_counter), 2), 17, 57
+        EMWriteScreen right(ASSETS_ARRAY(ast_next_inrst_date, asset_counter), 2), 17, 60
+    Else
+        EMWriteScreen "  ", 17, 57
+        EMWriteScreen "  ", 17, 60
+    End If
 end function
+
+
+function update_SECU_panel_from_dialog()
+
+    EMWriteScreen "            ", 7, 50
+    EMWriteScreen "                    ", 8, 50
+    EMWriteScreen "        ", 10, 52
+    EMWriteScreen "  ", 11, 35
+    EMWriteScreen "  ", 11, 38
+    EMWriteScreen "  ", 11, 41
+    EMWriteScreen "        ", 12, 52
+    EMWriteScreen "        ", 13, 52
+
+    EMWriteScreen left(ASSETS_ARRAY(ast_type, asset_counter), 2), 6, 50
+    EMWriteScreen ASSETS_ARRAY(ast_number, asset_counter), 7, 50
+    EMWriteScreen ASSETS_ARRAY(ast_location, asset_counter), 8, 50
+    EMWriteScreen ASSETS_ARRAY(ast_csv, asset_counter), 10, 52
+    EMWriteScreen left(ASSETS_ARRAY(ast_verif, asset_counter), 1), 11, 50
+    Call create_MAXIS_friendly_date(ASSETS_ARRAY(ast_bal_date, asset_counter), 0, 11, 35)
+    EMWriteScreen ASSETS_ARRAY(ast_face_value, asset_counter), 12, 52
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_YN, asset_counter), 13, 72
+    EMWriteScreen ASSETS_ARRAY(ast_wthdr_verif, asset_counter), 13, 80
+    EMWriteScreen ASSETS_ARRAY(ast_wdrw_penlty, asset_counter), 13, 52
+    EMWriteScreen ASSETS_ARRAY(apply_to_CASH, asset_counter), 15, 50
+    EMWriteScreen ASSETS_ARRAY(apply_to_SNAP, asset_counter), 15, 57
+    EMWriteScreen ASSETS_ARRAY(apply_to_HC, asset_counter), 15, 64
+    EMWriteScreen ASSETS_ARRAY(apply_to_GRH, asset_counter), 15, 72
+    EMWriteScreen ASSETS_ARRAY(apply_to_IVE, asset_counter), 15, 80
+    EMWriteScreen ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter), 16, 44
+    EMWriteScreen left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 76
+    EMWriteScreen right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 80
+end function
+
+function update_CARS_panel_from_dialog()
+    EMWriteScreen "                ", 8, 43
+    EMWriteScreen "                ", 8, 66
+    EMWriteScreen "         ", 9, 45
+    EMWriteScreen "         ", 9, 62
+    EMWriteScreen "         ", 12, 45
+    EMWriteScreen "  ", 13, 43
+    EMWriteScreen "  ", 13, 46
+    EMWriteScreen "  ", 13, 49
+
+    EMWriteScreen left(ASSETS_ARRAY(ast_type, asset_counter), 1), 6, 43
+    EMWriteScreen ASSETS_ARRAY(ast_year, asset_counter), 8, 31
+    EMWriteScreen ASSETS_ARRAY(ast_make, asset_counter), 8, 43
+    EMWriteScreen ASSETS_ARRAY(ast_model, asset_counter), 8, 66
+    EMWriteScreen ASSETS_ARRAY(ast_trd_in, asset_counter), 9, 45
+    EMWriteScreen ASSETS_ARRAY(ast_loan_value, asset_counter), 9, 62
+    EMWriteScreen left(ASSETS_ARRAY(ast_value_srce, asset_counter), 1), 9, 80
+    EMWriteScreen left(ASSETS_ARRAY(ast_verif, asset_counter), 1), 10, 60
+    EMWriteScreen ASSETS_ARRAY(ast_amt_owed, asset_counter), 12, 45
+    EMWriteScreen left(ASSETS_ARRAY(ast_owe_verif, asset_counter), 1), 12, 60
+    If ASSETS_ARRAY(ast_owed_date, asset_counter) <> "" Then Call create_MAXIS_friendly_date(ASSETS_ARRAY(ast_owed_date, asset_counter), 0, 13, 43)
+    EMWriteScreen left(ASSETS_ARRAY(ast_use, asset_counter), 1), 15, 43
+    EMWriteScreen ASSETS_ARRAY(ast_hc_benefit, asset_counter), 15, 76
+    EMWriteScreen ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter), 16, 43
+    EMWriteScreen left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 76
+    EMWriteScreen right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1), 16, 80
+end function
+
+function cancel_continue_confirmation(skip_functionality)
+
+    skip_functionality = FALSE
+    If ButtonPressed = 0 then       'this is the cancel button
+        cancel_clarify = MsgBox("Do you want to stop the script entirely?" & vbNewLine & vbNewLine & "If the script is stopped no information provided so far will be updated or noted. If you choose 'No' the update for THIS FORM will be cancelled and rest of the script will continue." & vbNewLine & vbNewLine & "YES - Stop the script entirely." & vbNewLine & "NO - Do not stop the script entrirely, just cancel the entry of this form information."& vbNewLine & "CANCEL - I didn't mean to cancel at all. (Cancel my cancel)", vbQuestion + vbYesNoCancel, "Clarify Cancel")
+        If cancel_clarify = vbYes Then script_end_procedure("~PT: user pressed cancel")     'ends the script entirely
+        If cancel_clarify = vbNo Then skip_functionality = TRUE
+        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
+    End if
+
+end function
+
+function asset_dialog_update_panels()
+	'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
+	
+
+	'BELOW WITHIN THIS FUNCTION-START
+			' Dialog1 = "" 'Blanking out previous dialog detail
+			' 'Dialog to chose the panel type'
+			' BeginDialog Dialog1, 0, 0, 176, 85, "Type of panel to update"
+			' DropListBox 15, 25, 155, 45, "NONE - I'm all done"+chr(9)+"Existing ACCT"+chr(9)+"New ACCT"+chr(9)+"Existing SECU"+chr(9)+"New SECU"+chr(9)+"Existing CARS"+chr(9)+"New CARS", update_panel_type
+			' EditBox 90, 45, 20, 15, MAXIS_footer_month
+			' EditBox 115, 45, 20, 15, MAXIS_footer_year
+			' ButtonGroup ButtonPressed
+			' 	OkButton 120, 65, 50, 15
+			' Text 10, 10, 125, 10, "What panel would you like to update?"
+			' Text 15, 50, 65, 10, "Footer Month/Year"
+			' EndDialog
+
+			' Do
+			' 	Do
+			' 		err_msg = ""
+			' 		dialog Dialog1
+			' 		cancel_confirmation
+			' 		If update_panel_type = "Existing ACCT" AND acct_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known ACCT panels, cannot update an 'Existing ACCT' panel."
+			' 		If update_panel_type = "Existing SECU" AND secu_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known SECU panels, cannot update an 'Existing SECU' panel."
+			' 		If update_panel_type = "Existing CARS" AND cars_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known CARS panels, cannot update an 'Existing CARS' panel."
+			' 		If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+			' 	Loop until err_msg = ""
+			' 	Call check_for_password(are_we_passworded_out)
+			' Loop until are_we_passworded_out = FALSE
+		'End If
+	'BELOW WITHIN THIS FUNCTION-END
+
+	'MAXIS READ SCREEN-START
+		' If asset_update_panels_checkbox = checked Then
+			' asset_counter = 0
+			' skip_asset = FALSE
+			' Call navigate_to_MAXIS_screen("STAT", "ACCT")
+			' For each member in HH_member_array
+			' 	Call write_value_and_transmit(member, 20, 76)
+
+			' 	EMReadScreen acct_versions, 1, 2, 78
+			' 	If acct_versions <> "0" Then
+			' 		EMWriteScreen "01", 20, 79
+			' 		transmit
+			' 		Do
+			' 			EMReadScreen ACCT_instance, 1, 2, 73
+			' 			EMReadScreen ACCT_type, 2, 6, 44
+			' 			EMReadScreen ACCT_nbr, 20, 7, 44
+			' 			EMReadScreen ACCT_location, 20, 8, 44
+			' 			EMReadScreen ACCT_balance, 8, 10, 46
+			' 			EMReadScreen ACCT_bal_verif, 1, 10, 64
+			' 			EMReadScreen ACCT_bal_date, 8, 11, 44
+			' 			EMReadScreen ACCT_withdraw_pen, 8, 12, 46
+			' 			EMReadScreen ACCT_withdraw_YN, 1, 12, 64
+			' 			EMReadScreen ACCT_withdraw_verif, 1, 12, 72
+			' 			EMReadScreen ACCT_cash, 1, 14, 50
+			' 			EMReadScreen ACCT_snap, 1, 14, 57
+			' 			EMReadScreen ACCT_hc, 1, 14, 64
+			' 			EMReadScreen ACCT_grh, 1, 14, 72
+			' 			EMReadScreen ACCT_ive, 1, 14, 80
+			' 			EMReadScreen ACCT_joint_owner_YN, 1, 15, 44
+			' 			EMReadScreen ACCT_share_ratio, 5, 15, 76
+			' 			EMReadScreen ACCT_next_interest, 5, 17, 57
+			' 			EMReadScreen ACCT_updated_date, 8, 21, 55
+
+			' 			ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+			' 			ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
+			' 			ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+			' 			For each person in client_list_array
+			' 				If left(person, 2) = member then
+			' 					ASSETS_ARRAY(ast_owner, asset_counter) = person
+			' 					Exit For
+			' 				End If
+			' 			Next
+			' 			ASSETS_ARRAY(ast_instance, asset_counter) = "0" & ACCT_instance
+			' 			If ACCT_type = "SV" Then ASSETS_ARRAY(ast_type, asset_counter) = "SV - Savings"
+			' 			If ACCT_type = "CK" Then ASSETS_ARRAY(ast_type, asset_counter) = "CK - Checking"
+			' 			If ACCT_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Cert of Deposit"
+			' 			If ACCT_type = "MM" Then ASSETS_ARRAY(ast_type, asset_counter) = "MM - Money market"
+			' 			If ACCT_type = "DC" Then ASSETS_ARRAY(ast_type, asset_counter) = "DC - Debit Card"
+			' 			If ACCT_type = "KO" Then ASSETS_ARRAY(ast_type, asset_counter) = "KO - Keogh Account"
+			' 			If ACCT_type = "FT" Then ASSETS_ARRAY(ast_type, asset_counter) = "FT - Federatl Thrift SV plan"
+			' 			If ACCT_type = "SL" Then ASSETS_ARRAY(ast_type, asset_counter) = "SL - Stat/Local Govt Ret"
+			' 			If ACCT_type = "RA" Then ASSETS_ARRAY(ast_type, asset_counter) = "RA - Employee Ret Annuities"
+			' 			If ACCT_type = "NP" Then ASSETS_ARRAY(ast_type, asset_counter) = "NP - Non-Profit Employer Ret Plan"
+			' 			If ACCT_type = "IR" Then ASSETS_ARRAY(ast_type, asset_counter) = "IR - Indiv Ret Acct"
+			' 			If ACCT_type = "RH" Then ASSETS_ARRAY(ast_type, asset_counter) = "RH - Roth IRA"
+			' 			If ACCT_type = "FR" Then ASSETS_ARRAY(ast_type, asset_counter) = "FR - Ret Plans for Employers"
+			' 			If ACCT_type = "CT" Then ASSETS_ARRAY(ast_type, asset_counter) = "CT - Corp Ret Trust"
+			' 			If ACCT_type = "RT" Then ASSETS_ARRAY(ast_type, asset_counter) = "RT - Other Ret Fund"
+			' 			If ACCT_type = "QT" Then ASSETS_ARRAY(ast_type, asset_counter) = "QT - Qualified Tuition (529)"
+			' 			If ACCT_type = "CA" Then ASSETS_ARRAY(ast_type, asset_counter) = "CA - Coverdell SV (530)"
+			' 			If ACCT_type = "OE" Then ASSETS_ARRAY(ast_type, asset_counter) = "OE - Other Educational "
+			' 			If ACCT_type = "OT" Then ASSETS_ARRAY(ast_type, asset_counter) = "OT - Other"
+			' 			ASSETS_ARRAY(ast_number, asset_counter) = replace(ACCT_nbr, "_", "")
+			' 			ASSETS_ARRAY(ast_location, asset_counter) = replace(ACCT_location, "_", "")
+			' 			ASSETS_ARRAY(ast_balance, asset_counter) = trim(ACCT_balance)
+			' 			If ACCT_bal_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1 - Bank Statement"
+			' 			If ACCT_bal_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - Agcy Ver Form"
+			' 			If ACCT_bal_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - Coltrl Document"
+			' 			If ACCT_bal_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+			' 			If ACCT_bal_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+			' 			If ACCT_bal_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prvd"
+			' 			ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(ACCT_bal_date, " ", "/")
+			' 			If ASSETS_ARRAY(ast_bal_date, asset_counter) = "__/__/__" Then ASSETS_ARRAY(ast_bal_date, asset_counter) = ""
+			' 			ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(ACCT_withdraw_pen, "_", ""))
+			' 			ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(ACCT_withdraw_YN, "_", "")
+			' 			ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(ACCT_withdraw_verif, "_", "")
+			' 			ASSETS_ARRAY(apply_to_CASH, asset_counter) = replace(ACCT_cash, "_", "")
+			' 			ASSETS_ARRAY(apply_to_SNAP, asset_counter) = replace(ACCT_snap, "_", "")
+			' 			ASSETS_ARRAY(apply_to_HC, asset_counter) = replace(ACCT_hc, "_", "")
+			' 			ASSETS_ARRAY(apply_to_GRH, asset_counter) = replace(ACCT_grh, "_", "")
+			' 			ASSETS_ARRAY(apply_to_IVE, asset_counter) = replace(ACCT_ive, "_", "")
+			' 			ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = replace(ACCT_joint_owner_YN, "_", "")
+			' 			ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(ACCT_share_ratio, " ", "")
+			' 			ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = replace(ACCT_next_interest, " ", "/")
+			' 			If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = "__/__" Then ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = ""
+			' 			ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+			' 			ASSETS_ARRAY(update_date, asset_counter) = replace(ACCT_updated_date, " ", "/")
+
+			' 			transmit
+			' 			asset_counter = asset_counter + 1
+			' 			'MsgBox asset_counter
+			' 			EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+			' 		Loop until reached_last_ACCT_panel = "ENTER A VALID"
+			' 	End If
+			' Next
+
+			' Call navigate_to_MAXIS_screen("STAT", "SECU")
+			' For each member in HH_member_array
+			' 	Call write_value_and_transmit(member, 20, 76)
+
+			' 	EMReadScreen secu_versions, 1, 2, 78
+			' 	If secu_versions <> "0" Then
+			' 		EMWriteScreen "01", 20, 79
+			' 		transmit
+			' 		Do
+
+			' 			EMReadScreen SECU_instance, 1, 2, 73
+			' 			EMReadScreen SECU_type, 2, 6, 50
+			' 			EMReadScreen SECU_acct_number, 12, 7, 50
+			' 			EMReadScreen SECU_name, 20, 8, 50
+			' 			EMReadScreen SECU_csv, 8, 10, 52
+			' 			EMReadScreen SECU_value_date, 8, 11, 35
+			' 			EMReadScreen SECU_verif, 1, 11, 50
+			' 			EMReadScreen SECU_face_value, 8, 12, 52
+			' 			EMReadScreen SECU_withdraw_amount, 8, 13, 52
+			' 			EMReadScreen SECU_wthdrw_YN, 1, 13, 72
+			' 			EMReadScreen SECU_wthdrw_verif, 1, 13, 80
+			' 			EMReadScreen SECU_apply_to_CASH, 1, 15, 50
+			' 			EMReadScreen SECU_apply_to_SNAP, 1, 15, 57
+			' 			EMReadScreen SECU_apply_to__HC, 1, 15, 64
+			' 			EMReadScreen SECU_apply_to_GRH, 1, 15, 72
+			' 			EMReadScreen SECU_apply_to_IVE, 1, 15, 80
+			' 			EMReadScreen SECU_joint_owner_YN, 1, 16, 44
+			' 			EMReadScreen SECU_share_ratio, 5, 16, 76
+			' 			EMReadScreen SECU_updated_date, 8, 21, 55
+
+
+			' 			ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+			' 			ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+			' 			ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+			' 			For each person in client_list_array
+			' 				If left(person, 2) = member then
+			' 					ASSETS_ARRAY(ast_owner, asset_counter) = person
+			' 					Exit For
+			' 				End If
+			' 			Next
+			' 			ASSETS_ARRAY(ast_instance, asset_counter) = "0" & SECU_instance
+			' 			If SECU_type = "LI" Then ASSETS_ARRAY(ast_type, asset_counter) = "LI - Life Insurance"
+			' 			If SECU_type = "ST" Then ASSETS_ARRAY(ast_type, asset_counter) = "ST - Stocks"
+			' 			If SECU_type = "BO" Then ASSETS_ARRAY(ast_type, asset_counter) = "BO - Bonds"
+			' 			If SECU_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Ctrct For Deed"
+			' 			If SECU_type = "MO" Then ASSETS_ARRAY(ast_type, asset_counter) = "MO - Mortgage Note"
+			' 			If SECU_type = "AN" Then ASSETS_ARRAY(ast_type, asset_counter) = "AN - Annuity"
+			' 			If SECU_type = "OT" Then ASSETS_ARRAY(ast_type, asset_counter) = "OT - Other"
+			' 			ASSETS_ARRAY(ast_number, asset_counter) = replace(SECU_acct_number, "_", "")
+			' 			ASSETS_ARRAY(ast_location, asset_counter) = replace(SECU_name, "_", "")
+			' 			ASSETS_ARRAY(ast_csv, asset_counter) = trim(SECU_csv)
+			' 			ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(SECU_value_date, " ", "/")
+			' 			If SECU_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1  - Agency Form"
+			' 			If SECU_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - Source Doc"
+			' 			If SECU_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - Phone Contact"
+			' 			If SECU_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+			' 			If SECU_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Stmt"
+			' 			If SECU_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prov"
+			' 			ASSETS_ARRAY(ast_face_value, asset_counter) = replace(trim(SECU_face_value), "_", "")
+			' 			ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(SECU_withdraw_amount, "_", ""))
+			' 			ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(SECU_wthdrw_YN, "_", "")
+			' 			ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(SECU_wthdrw_verif, "_", "")
+			' 			ASSETS_ARRAY(apply_to_CASH, asset_counter) = replace(SECU_apply_to_CASH, "_", "")
+			' 			ASSETS_ARRAY(apply_to_SNAP, asset_counter) = replace(SECU_apply_to_SNAP, "_", "")
+			' 			ASSETS_ARRAY(apply_to_HC, asset_counter) = replace(SECU_apply_to_HC, "_", "")
+			' 			ASSETS_ARRAY(apply_to_GRH, asset_counter) = replace(SECU_apply_to_GRH, "_", "")
+			' 			ASSETS_ARRAY(apply_to_IVE, asset_counter) = replace(SECU_apply_to_IVE, "_", "")
+			' 			ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = replace(SECU_joint_owner_YN, "_", "")
+			' 			ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(SECU_share_ratio, " ", "")
+			' 			ASSETS_ARRAY(update_date, asset_counter) = replace(SECU_updated_date, " ", "/")
+			' 			ASSETS_ARRAY(update_panel, asset_counter) = Unchecked
+
+			' 			transmit
+			' 			asset_counter = asset_counter + 1
+			' 			EMReadScreen reached_last_SECU_panel, 13, 24, 2
+			' 		Loop until reached_last_SECU_panel = "ENTER A VALID"
+			' 	End If
+			' Next
+
+			' Call navigate_to_MAXIS_screen("STAT", "CARS")
+			' For each member in HH_member_array
+			' 	Call write_value_and_transmit(member, 20, 76)
+
+			' 	EMReadScreen cars_versions, 1, 2, 78
+			' 	If cars_versions <> "0" Then
+			' 		EMWriteScreen "01", 20, 79
+			' 		transmit
+			' 		Do
+
+			' 			EMReadScreen CARS_instance, 1, 2, 73
+			' 			EMReadScreen CARS_type, 1, 6, 43
+			' 			EMReadScreen CARS_year, 4, 8, 31
+			' 			EMReadScreen CARS_make, 15, 8, 43
+			' 			EMReadScreen CARS_model, 15, 8, 66
+			' 			EMReadScreen CARS_trade_in, 8, 9, 45
+			' 			EMReadScreen CARS_loan, 8, 9, 62
+			' 			EMReadScreen CARS_source, 1, 9, 80
+			' 			EMReadScreen CARS_owner_verif, 1, 10, 60
+			' 			EMReadScreen CARS_owe_amount, 8, 12, 45
+			' 			EMReadScreen CARS_owed_verif, 1, 12, 60
+			' 			EMReadScreen CARS_owed_date, 8, 13, 43
+			' 			EMReadScreen CARS_use, 1, 15, 43
+			' 			EMReadScreen CARS_hc_benefit, 1, 15, 76
+			' 			EMReadScreen CARS_joint_owner_YN, 1, 16, 43
+			' 			EMReadScreen CARS_share_ratio, 5, 16, 76
+			' 			EMReadScreen CARS_updated_date, 8, 21, 55
+
+			' 			ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+			' 			ASSETS_ARRAY(ast_panel, asset_counter) = "CARS"
+			' 			ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+			' 			For each person in client_list_array
+			' 				If left(person, 2) = member then
+			' 					ASSETS_ARRAY(ast_owner, asset_counter) = person
+			' 					Exit For
+			' 				End If
+			' 			Next
+			' 			ASSETS_ARRAY(ast_instance, asset_counter) = "0" & CARS_instance
+			' 			If CARS_type = "1" Then ASSETS_ARRAY(ast_type, asset_counter) = "1 - Car"
+			' 			If CARS_type = "2" Then ASSETS_ARRAY(ast_type, asset_counter) = "2 - Truck"
+			' 			If CARS_type = "3" Then ASSETS_ARRAY(ast_type, asset_counter) = "3 - Van"
+			' 			If CARS_type = "4" Then ASSETS_ARRAY(ast_type, asset_counter) = "4 - Camper"
+			' 			If CARS_type = "5" Then ASSETS_ARRAY(ast_type, asset_counter) = "5 - Motorcycle"
+			' 			If CARS_type = "6" Then ASSETS_ARRAY(ast_type, asset_counter) = "6 - Trailer"
+			' 			If CARS_type = "7" Then ASSETS_ARRAY(ast_type, asset_counter) = "7 - Other"
+			' 			ASSETS_ARRAY(ast_year, asset_counter) = CARS_year
+			' 			ASSETS_ARRAY(ast_make, asset_counter) = replace(CARS_make, "_", "")
+			' 			ASSETS_ARRAY(ast_model, asset_counter) = replace(CARS_model, "_", "")
+			' 			ASSETS_ARRAY(ast_trd_in, asset_counter) = trim(CARS_trade_in)
+			' 			ASSETS_ARRAY(ast_loan_value, asset_counter) = trim(CARS_loan)
+			' 			If CARS_source = "1" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "1 - NADA"
+			' 			If CARS_source = "2" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "2 - Appraisal Val"
+			' 			If CARS_source = "3" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "3 - Client Stmt"
+			' 			If CARS_source = "4" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "4 - Other Document"
+			' 			If CARS_owner_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1 - Title"
+			' 			If CARS_owner_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - License Reg"
+			' 			If CARS_owner_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - DMV"
+			' 			If CARS_owner_verif = "4" Then ASSETS_ARRAY(ast_verif, asset_counter) = "4 - Purchase Agmt"
+			' 			If CARS_owner_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+			' 			If CARS_owner_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prvd"
+			' 			ASSETS_ARRAY(ast_amt_owed, asset_counter) = trim(replace(CARS_owe_amount, "_", ""))
+			' 			ASSETS_ARRAY(ast_owe_YN, asset_counter) = replace(CARS_joint_owner_YN, "_", "")
+			' 			ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(CARS_owed_date, " ", "/")
+			' 			If ASSETS_ARRAY(ast_bal_date, asset_counter) = "__/__/__" Then ASSETS_ARRAY(ast_bal_date, asset_counter) = ""
+			' 			If CARS_use = "1" Then ASSETS_ARRAY(ast_use, asset_counter) = "1 -  Primary Veh"
+			' 			If CARS_use = "2" Then ASSETS_ARRAY(ast_use, asset_counter) = "2 - Emp/Trng Trans/Emp Search"
+			' 			If CARS_use = "3" Then ASSETS_ARRAY(ast_use, asset_counter) = "3 - Disa Trans"
+			' 			If CARS_use = "4" Then ASSETS_ARRAY(ast_use, asset_counter) = "4 - Inc Producing"
+			' 			If CARS_use = "5" Then ASSETS_ARRAY(ast_use, asset_counter) = "5 - Used As Home"
+			' 			If CARS_use = "7" Then ASSETS_ARRAY(ast_use, asset_counter) = "7 - Unlicensed"
+			' 			If CARS_use = "8" Then ASSETS_ARRAY(ast_use, asset_counter) = "8 - Othr Countable"
+			' 			If CARS_use = "9" Then ASSETS_ARRAY(ast_use, asset_counter) = "9 - Unavailable"
+			' 			If CARS_use = "0" Then ASSETS_ARRAY(ast_use, asset_counter) = "0 - Long Distance Emp Travel"
+			' 			If CARS_use = "A" Then ASSETS_ARRAY(ast_use, asset_counter) = "A - Carry Heating Fuel Or Water"
+			' 			ASSETS_ARRAY(ast_hc_benefit, asset_counter) = CARS_hc_benefit
+			' 			ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = CARS_joint_owner_YN
+			' 			ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(CARS_share_ratio, " ", "")
+			' 			ASSETS_ARRAY(update_date, asset_counter) = replace(CARS_updated_date, " ", "/")
+			' 			ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+
+			' 			transmit
+			' 			asset_counter = asset_counter + 1
+			' 			EMReadScreen reached_last_CARS_panel, 13, 24, 2
+			' 		Loop until reached_last_CARS_panel = "ENTER A VALID"
+			' 	End If
+			' Next
+		'MAXIS READ SCREEN-START
+
+
+		'ORIGINAL ASSET DIALOG-START
+		' 	If asset_dhs_6054_checkbox = checked Then
+		' 		MsgBox "we selected 6054 are we hitting this?"
+		' '	If LTC_case = vbNo then
+
+		' 		' asset_form_doc_date = doc_date_stamp
+
+		' 		' current_asset_panel = FALSE
+		' 		' acct_panels = 0
+		' 		' secu_panels = 0
+		' 		' cars_panels = 0
+		' 		' For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 		' 	If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+		' 		' 		current_asset_panel = TRUE
+		' 		' 		acct_panels = acct_panels + 1
+		' 		' 		If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+		' 		' 		asset_display = asset_display & vbNewLine & "ACCT - " & the_asset
+		' 		' 	ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+		' 		' 		current_asset_panel = TRUE
+		' 		' 		secu_panels = secu_panels + 1
+		' 		' 		If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+		' 		' 		asset_display = asset_display & vbNewLine & "SECU - " & the_asset
+		' 		' 	ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+		' 		' 		current_asset_panel = TRUE
+		' 		' 		cars_panels = cars_panels + 1
+		' 		' 		If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+		' 		' 		asset_display = asset_display & vbNewLine & "CARS - " & the_asset
+		' 		' 	Else
+		' 		' 		asset_display = asset_display & vbNewLine & ASSETS_ARRAY(ast_panel, the_asset) & " - " & the_asset
+		' 		' 	End If
+		' 		' Next
+
+		' 		' 'MsgBox asset_display
+
+		' 		' dlg_len = 260
+
+		' 		' If acct_panels > 0 Then dlg_len = dlg_len + 15
+		' 		' dlg_len = dlg_len + (10 * acct_panels)
+		' 		' If secu_panels > 0 Then dlg_len = dlg_len + 15
+		' 		' dlg_len = dlg_len + (10 * secu_panels)
+		' 		' If cars_panels > 0 Then dlg_len = dlg_len + 15
+		' 		' dlg_len = dlg_len + (10 * cars_panels)
+		' 		' 'MsgBox dlg_len
+		'ORIGINAL ASSET DIALOG-END
+
+		''BELOW WITHIN THIS FUNCTION-START
+		' 		' '-------------------------------------------------------------------------------------------------DIALOG
+		' 		' Dialog1 = "" 'Blanking out previous dialog detail
+		' 		' y_pos = 40
+		' 		' BeginDialog Dialog1, 0, 0, 390, dlg_len, "Signed Personal Statement about Assest for Case #" & MAXIS_case_number
+		' 		' Text 10, 10, 265, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054)."
+		' 		' Text 10, 30, 95, 10, "Date the form was received:"
+		' 		' EditBox 110, 25, 35, 15, asset_form_doc_date
+		' 		' Text 10, 45, 50, 10, "Action Taken:"
+		' 		' EditBox 60, 40, 325, 15, actions_taken
+		' 		' If acct_panels > 0 Then
+		' 		' 	Text 10, y_pos, 95, 10, "Current ACCT panel details."
+		' 		' 	Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		' 		' 	y_pos = y_pos + 15
+		' 		' 	For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 		' 		If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+		' 		' 			Text 15, y_pos, 275, 10,  "* ACCT " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset) & " - Balance: $" & ASSETS_ARRAY(ast_balance, the_asset)
+		' 		' 			CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+		' 		' 			y_pos = y_pos + 10
+		' 		' 		End If
+		' 		' 	Next
+		' 		' 	y_pos = y_pos + 5
+		' 		' End If
+
+		' 		' Text 10, y_pos, 280, 10, "Information provided about Bank Accounts, Debit Accounts, or Certificates of Deposit:"
+		' 		' y_pos = y_pos + 15
+		' 		' EditBox 15, y_pos, 370, 15, box_one_info
+		' 		' y_pos = y_pos + 20
+
+		' 		' If secu_panels > 0 Then
+		' 		' 	Text 10, y_pos, 95, 10, "Current SECU panel details."
+		' 		' 	Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		' 		' 	y_pos = y_pos + 15
+		' 		' 	For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 		' 		If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+		' 		' 			Text 15, y_pos, 275, 10, "* SECU " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset)
+		' 		' 			CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+		' 		' 			y_pos = y_pos + 10
+		' 		' 		End If
+		' 		' 	Next
+		' 		' 	y_pos = y_pos + 5
+		' 		' End If
+		' 		' Text 10, y_pos, 250, 10, "Information provided aboutStocks, Bonds, Pensions, or Retirement Accounts:"
+		' 		' y_pos = y_pos + 15
+		' 		' EditBox 15, y_pos, 370, 15, box_two_info
+		' 		' y_pos = y_pos + 20
+		' 		' If cars_panels > 0 Then
+		' 		' 	Text 10, y_pos, 95, 10, "Current CARS panel details."
+		' 		' 	Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		' 		' 	y_pos = y_pos + 15
+		' 		' 	For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 		' 		If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+		' 		' 			Text 15, y_pos, 275, 10, "* CARS " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset)
+		' 		' 			CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+		' 		' 			y_pos = y_pos + 10
+		' 		' 		End If
+		' 		' 	Next
+		' 		' 	y_pos = y_pos + 5
+		' 		' End If
+		' 		' Text 10, y_pos, 125, 10, "Information provided about Vehicles:"
+		' 		' y_pos = y_pos + 15
+		' 		' EditBox 15, y_pos, 370, 15, box_three_info
+		' 		' y_pos = y_pos + 25
+		' 		' y_pos_over = y_pos
+		' 		' Text 10, y_pos, 40, 10, "Signed by:"
+		' 		' Text 135, y_pos, 35, 10, "On (date):"
+		' 		' y_pos = y_pos + 15
+		' 		' ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_one
+		' 		' EditBox 130, y_pos, 50, 15, signed_one_date
+		' 		' y_pos = y_pos + 20
+		' 		' ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_two
+		' 		' EditBox 130, y_pos, 50, 15, signed_two_date
+		' 		' y_pos = y_pos + 20
+		' 		' ComboBox 10, y_pos, 105, 45, client_dropdown_CB, signed_by_three
+		' 		' EditBox 130, y_pos, 50, 15, signed_three_date
+
+		' 		' CheckBox 240, y_pos_over, 130, 10, "Check here to have the script update", run_updater_checkbox
+		' 		' Text 250, y_pos_over + 10, 115, 10, "asset panels. (ACCT, SECU, CARS)."
+		' 		' Text 255, y_pos_over + 25, 85, 20, "*Panels updated by the script will be case noted."
+		' 		' ButtonGroup ButtonPressed
+		' 		' 	OkButton 280, y_pos, 50, 15
+		' 		' 	CancelButton 335, y_pos, 50, 15
+		' 		' EndDialog
+
+		' 		' Do
+		' 		' 	Do
+		' 		' 		err_msg = ""
+		' 		' 		dialog Dialog1
+		' 		' 		Call cancel_continue_confirmation(skip_asset)
+		' 		' 		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+		' 		' 		If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+		' 		' 		If skip_asset= TRUE Then
+		' 		' 			err_msg = ""
+		' 		' 			asset_update_panels_checkbox = unchecked
+		' 		' 		End If
+		' 		' 		If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+		' 		' 	Loop Until err_msg = ""
+		' 		' 	Call check_for_password(are_we_passworded_out)
+		' 		' Loop until are_we_passworded_out = FALSE
+		'BELOW WITHIN THIS FUNCTION-END
+
+		'THIS IS INCORPORATED INTO THE INITIAL DIALOG-START
+		' 	Else
+		' 		MsgBox "are we hitting else which is not 6054 form"
+		' 		asset_form_doc_date = doc_date_stamp
+		' 		current_asset_panel = FALSE
+		' 		acct_panels = 0
+		' 		secu_panels = 0
+		' 		cars_panels = 0
+		' 		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 			If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+		' 				current_asset_panel = TRUE
+		' 				acct_panels = acct_panels + 1
+		' 				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then
+		' 					ASSETS_ARRAY(ast_verif_date, the_asset) = doc_date_stamp
+		' 					actions_taken =  actions_taken & "Updated ACCT " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & ", "
+		' 				End If
+		' 				asset_display = asset_display & vbNewLine & "ACCT - " & the_asset
+		' 			ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+		' 				current_asset_panel = TRUE
+		' 				secu_panels = secu_panels + 1
+		' 				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then
+		' 					ASSETS_ARRAY(ast_verif_date, the_asset) = doc_date_stamp
+		' 					actions_taken =  actions_taken & "Updated SECU " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & ", "
+		' 				End If
+		' 				asset_display = asset_display & vbNewLine & "SECU - " & the_asset
+		' 			ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+		' 				current_asset_panel = TRUE
+		' 				cars_panels = cars_panels + 1
+		' 				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then
+		' 					ASSETS_ARRAY(ast_verif_date, the_asset) = doc_date_stamp
+		' 					actions_taken =  actions_taken & "Updated CARS " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & ", "
+		' 				End If
+		' 				asset_display = asset_display & vbNewLine & "CARS - " & the_asset
+		' 			Else
+		' 				asset_display = asset_display & vbNewLine & ASSETS_ARRAY(ast_panel, the_asset) & " - " & the_asset
+		' 			End If
+		' 		Next
+
+		' 		'MsgBox asset_display
+
+		' 		dlg_len = 90
+
+		' 		If acct_panels > 0 Then dlg_len = dlg_len + 10
+		' 		dlg_len = dlg_len + (20 * acct_panels)
+		' 		If secu_panels > 0 Then dlg_len = dlg_len + 10
+		' 		dlg_len = dlg_len + (20 * secu_panels)
+		' 		If cars_panels > 0 Then dlg_len = dlg_len + 10
+		' 		dlg_len = dlg_len + (20 * cars_panels)
+		' 		'MsgBox dlg_len
+		' 		If acct_panels = 0 AND secu_panels = 0 AND  cars_panels = 0 Then run_updater_checkbox = checked
+
+		' 		'-------------------------------------------------------------------------------------------------DIALOG
+		' 		Dialog1 = "" 'Blanking out previous dialog detail
+		' 		y_pos = 55
+		' 		BeginDialog Dialog1, 0, 0, 390, dlg_len, "Asset Verification Detail for Case #" & MAXIS_case_number
+		' 		' Text 10, 15, 95, 10, "Date the form was received:"
+		' 		' EditBox 110, 10, 35, 15, asset_form_doc_date
+		' 		Text 10, 15, 50, 10, "Action Taken:"
+		' 		EditBox 60, 10, 325, 15, actions_taken
+		' 		Text 20, 30, 350, 20, "                  *** To include any of these asset panel information in the CASE/NOTE ***                                   Enter detail about the asset/verification in the 'Verification  detail' field next  to the  panel information."
+		' 		If acct_panels > 0 Then
+		' 			Text 10, y_pos, 95, 10, "Current ACCT panel details."
+		' 			Text 230, y_pos, 120, 10, "Verif date:"
+		' 			Text 280, y_pos, 50, 10, "Note:"
+		' 			y_pos = y_pos + 15
+		' 			For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 				If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+		' 					Text 10, y_pos, 275, 10,  "* ACCT " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset) & " - Balance: $" & ASSETS_ARRAY(ast_balance, the_asset)
+		' 					EditBox 230, y_pos - 5, 45, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+		' 					EditBox 280, y_pos - 5, 105, 15, ASSETS_ARRAY(ast_note, the_asset)
+		' 					y_pos = y_pos + 20
+		' 				End If
+		' 			Next
+		' 			y_pos = y_pos - 5
+		' 		End If
+
+		' 		If secu_panels > 0 Then
+		' 			Text 10, y_pos, 95, 10, "Current SECU panel details."
+		' 			Text 230, y_pos, 120, 10, "Verif date:"
+		' 			Text 280, y_pos, 50, 10, "Note:"
+		' 			y_pos = y_pos + 15
+		' 			For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 				If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+		' 					Text 10, y_pos, 275, 10, "* SECU " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset)
+		' 					EditBox 230, y_pos - 5, 45, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+		' 					EditBox 280, y_pos - 5, 105, 15, ASSETS_ARRAY(ast_note, the_asset)
+		' 					y_pos = y_pos + 20
+		' 				End If
+		' 			Next
+		' 			y_pos = y_pos - 5
+		' 		End If
+
+		' 		If cars_panels > 0 Then
+		' 			Text 10, y_pos, 95, 10, "Current CARS panel details."
+		' 			Text 230, y_pos, 120, 10, "Verif date:"
+		' 			Text 280, y_pos, 50, 10, "Note:"
+		' 			y_pos = y_pos + 15
+		' 			For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 				If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+		' 					Text 10, y_pos, 275, 10, "* CARS " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset)
+		' 					EditBox 230, y_pos - 5, 45, 15, ASSETS_ARRAY(ast_verif_date, the_asset)
+		' 					EditBox 280, y_pos - 5, 105, 15, ASSETS_ARRAY(ast_note, the_asset)
+		' 					y_pos = y_pos + 20
+		' 				End If
+		' 			Next
+		' 			y_pos = y_pos - 5
+		' 		End If
+		' 		y_pos = y_pos + 5
+
+		' 		CheckBox 20, y_pos, 250, 10, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", run_updater_checkbox
+		' 		Text 30, y_pos + 10, 200, 10, "*Panels update by the script will be case noted."
+		' 		ButtonGroup ButtonPressed
+		' 			OkButton 280, y_pos, 50, 15
+		' 			CancelButton 335, y_pos, 50, 15
+		' 		EndDialog
+
+
+		' 		Do
+		' 			Do
+		' 				err_msg = ""
+		' 				dialog Dialog1
+		' 				Call cancel_continue_confirmation(skip_asset)	
+		' 				IF actions_taken = "" AND run_updater_checkbox = unchecked THEN err_msg = err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+		' 				If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+		' 				If skip_asset= TRUE Then
+		' 					err_msg = ""
+		' 					asset_update_panels_checkbox = unchecked
+		' 				End If
+		' 				If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+		' 			Loop Until err_msg = ""
+		' 			Call check_for_password(are_we_passworded_out)
+		' 		Loop until are_we_passworded_out = FALSE
+		' 		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+		' 			If ASSETS_ARRAY(ast_verif_date, the_asset) <> "" Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+		' 		Next
+		' 	End If
+
+		' End If
+		'THIS IS INCORPORATED INTO THE INITIAL DIALOG-START
+
+	If asset_dhs_6054_checkbox = checked Then 
+		BeginDialog Dialog1, 0, 0, 336, 235, "DHS 6054 Form Details"
+			EditBox 20, 40, 310, 15, bank_accounts_info
+			EditBox 20, 85, 310, 15, stocks_bonds_info
+			EditBox 20, 125, 310, 15, vehicle_info
+			ComboBox 20, 170, 80, 15, client_dropdown_CB, signature_1
+			EditBox 115, 170, 50, 15, sig_1_date
+			ComboBox 20, 190, 80, 15, client_dropdown_CB, Signature_2
+			EditBox 115, 190, 50, 15, sig_2_date
+			ComboBox 20, 210, 80, 15, client_dropdown_CB, signature_3
+			EditBox 115, 210, 50, 15, sig_3_date
+			ButtonGroup ButtonPressed
+				OkButton 280, 185, 50, 15
+				CancelButton 280, 205, 50, 15
+			Text 15, 115, 145, 10, "Information provided about Vehicles:"
+			Text 120, 155, 35, 10, "On (date):"
+			Text 15, 25, 280, 10, "Information provided about Bank Accounts, Debit Accounts, or Certificates of Deposit:"
+			Text 5, 5, 330, 10, "Assets for SNAP/Cash are self attested and are reported on this form (DHS 6054)"
+			Text 20, 155, 40, 10, "Signed By:"
+			Text 15, 70, 280, 10, "Information provided aboutStocks, Bonds, Pensions, or Retirement Accounts:"
+		EndDialog
+
+		Do
+			Do
+				err_msg = ""
+				dialog Dialog1
+				Call cancel_confirmation
+				If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+			Loop until err_msg = ""
+			Call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = FALSE
+	End If
+
+	
+	highest_asset = asset_counter
+
+	MsgBox "asset_counter before update panel checkbox" & asset_counter 
+	If asset_update_panels_checkbox = checked Then
+		asset_counter = 0
+		MsgBox "update panels? "
+		end_msg = end_msg & vbNewLine & "Asset detail entered."
+
+		' If asset_dhs_6054_checkbox = checked Then docs_rec = docs_rec & ", Personal Statement (DHS 6054)"
+		' If asset_dhs_6054_checkbox = unchecked Then docs_rec & ", Asset documents"
+		' If LTC_case = vbNo Then docs_rec = docs_rec & ", Personal Statement (DHS 6054)"
+		' If LTC_case = vbYes Then docs_rec = docs_rec & ", Asset documents"
+		'If run_updater_checkbox = checked Then
+			MAXIS_footer_month = CM_mo
+			MAXIS_footer_year = CM_yr
+
+			Do
+				Call back_to_SELF
+				Call MAXIS_background_check
+
+				found_the_panel = FALSE
+				panel_found = FALSE
+				update_panel_type = "NONE - I'm all done"
+				snap_is_yes = FALSE
+				'-------------------------------------------------------------------------------------------------DIALOG
+				Dialog1 = "" 'Blanking out previous dialog detail
+				'Dialog to chose the panel type'
+				BeginDialog Dialog1, 0, 0, 176, 85, "Type of panel to update"
+				DropListBox 15, 25, 155, 45, "NONE - I'm all done"+chr(9)+"Existing ACCT"+chr(9)+"New ACCT"+chr(9)+"Existing SECU"+chr(9)+"New SECU"+chr(9)+"Existing CARS"+chr(9)+"New CARS", update_panel_type
+				EditBox 90, 45, 20, 15, MAXIS_footer_month
+				EditBox 115, 45, 20, 15, MAXIS_footer_year
+				ButtonGroup ButtonPressed
+					OkButton 120, 65, 50, 15
+				Text 10, 10, 125, 10, "What panel would you like to update?"
+				Text 15, 50, 65, 10, "Footer Month/Year"
+				EndDialog
+
+				Do
+					Do
+						err_msg = ""
+						dialog Dialog1
+						cancel_confirmation
+						If update_panel_type = "Existing ACCT" AND acct_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known ACCT panels, cannot update an 'Existing ACCT' panel."
+						If update_panel_type = "Existing SECU" AND secu_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known SECU panels, cannot update an 'Existing SECU' panel."
+						If update_panel_type = "Existing CARS" AND cars_panels = 0 Then err_msg = err_msg & vbNewLine & "* There are no known CARS panels, cannot update an 'Existing CARS' panel."
+						If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+					Loop until err_msg = ""
+					Call check_for_password(are_we_passworded_out)
+				Loop until are_we_passworded_out = FALSE
+
+				panel_type = right(update_panel_type, 4)
+				skip_this_panel = FALSE
+
+				If panel_type = "ACCT" Then
+					If update_panel_type = "Existing ACCT" Then
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "ACCT")
+							EMReadScreen navigate_check, 4, 2, 44
+						Loop until navigate_check = "ACCT"
+						For each member in HH_member_array
+							Call write_value_and_transmit(member, 20, 76)
+
+							EMReadScreen acct_versions, 1, 2, 78
+							If acct_versions <> "0" Then
+								EMWriteScreen "01", 20, 79
+								transmit
+								Do
+									is_this_the_panel = MsgBox("Is this the panel you wish to update?", vbQuestion + vbYesNo, "Update this panel?")
+
+									If is_this_the_panel = vbYes Then found_the_panel = TRUE
+
+									If found_the_panel = TRUE then
+										current_member = member
+										Exit Do
+									End If
+									transmit
+									'MsgBox asset_counter
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+									'EMReadScreen acct_panel_not_exist, 14, 24, 13
+								Loop until reached_last_ACCT_panel = "ENTER A VALID" 'OR acct_panel_not_exist = "DOES NOT EXIST"
+							End If
+							If found_the_panel = TRUE then Exit For
+						Next
+
+						EMReadScreen current_instance, 1, 2, 73
+						current_instance = "0" & current_instance
+						For the_asset = 0 to UBound(ASSETS_ARRAY, 2)
+							'MsgBox "UBound(ASSETS_ARRAY, 2)" & UBound(ASSETS_ARRAY, 2)
+							'MsgBox "the asset" & the_asset &  "Current member: " & current_member & vbNewLine & "Array member: " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & vbNewLine & "Current instance: " & current_instance & vbNewLine & "Array instance: " & ASSETS_ARRAY(ast_instance, the_asset)
+							If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" AND current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
+								asset_counter = the_asset
+								If ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y" Then count_cash_checkbox = checked
+								If ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then count_snap_checkbox = checked
+								If ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y" Then count_hc_checkbox = checked
+								If ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y" Then count_grh_checkbox = checked
+								If ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y" Then count_ive_checkbox = checked
+								'MsgBox ASSETS_ARRAY(ast_own_ratio, asset_counter)
+								share_ratio_num = left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								share_ratio_denom = right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								Exit For
+							End If
+						Next
+						'MsgBox "asset_counter" & asset_counter
+					ElseIf update_panel_type = "New ACCT" Then
+						ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+					End If
+
+					If share_ratio_num = "" Then share_ratio_num = "1"
+					If share_ratio_denom = "" Then share_ratio_denom = "1"
+					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+
+					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp	'TODO: This seems unnecessary
+					'-------------------------------------------------------------------------------------------------DIALOG
+					Dialog1 = "" 'Blanking out previous dialog detail
+					'Dialog to fill the ACCT panel
+					BeginDialog Dialog1, 0, 0, 271, 235, "New ACCT panel for Case #" & MAXIS_case_number
+					DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+					DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+ACCT_type_list, ASSETS_ARRAY(ast_type, asset_counter)
+					EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
+					EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
+					EditBox 75, 90, 50, 15, ASSETS_ARRAY(ast_balance, asset_counter)
+					EditBox 160, 90, 50, 15, ASSETS_ARRAY(ast_bal_date, asset_counter)
+					DropListBox 75, 110, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_verif, asset_counter)
+					'If LTC_case = vbYes Then EditBox 75, 130, 50, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					If asset_dhs_6054_checkbox = unchecked Then EditBox 75, 130, 50, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					CheckBox 230, 25, 30, 10, "CASH", count_cash_checkbox
+					CheckBox 230, 40, 30, 10, "SNAP", count_snap_checkbox
+					CheckBox 230, 55, 20, 10, "HC", count_hc_checkbox
+					CheckBox 230, 70, 30, 10, "GRH", count_grh_checkbox
+					CheckBox 230, 85, 20, 10, "IVE", count_ive_checkbox
+					EditBox 75, 165, 50, 15, ASSETS_ARRAY(ast_wdrw_penlty, asset_counter)
+					DropListBox 75, 185, 80, 45, "Select..."+chr(9)+"1 - Bank Statement"+chr(9)+"2 - Agcy Ver Form"+chr(9)+"3 - Coltrl Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_wthdr_verif, asset_counter)
+					EditBox 215, 125, 15, 15, share_ratio_num
+					EditBox 240, 125, 15, 15, share_ratio_denom
+					ComboBox 170, 160, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_one, asset_counter)
+					ComboBox 170, 175, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_two, asset_counter)
+					ComboBox 170, 190, 90, 45, client_dropdown_CB, ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
+					EditBox 75, 210, 50, 15, ASSETS_ARRAY(ast_next_inrst_date, asset_counter)
+					ButtonGroup ButtonPressed
+						OkButton 160, 215, 50, 15
+						CancelButton 215, 215, 50, 15
+					Text 10, 15, 60, 10, "Owner of Account:"
+					Text 20, 35, 50, 10, "Account Type:"
+					Text 15, 55, 60, 10, "Account Number:"
+					Text 10, 75, 60, 10, "Account Location:"
+					Text 40, 95, 30, 10, "Balance:"
+					Text 130, 95, 25, 10, "As of:"
+					Text 30, 115, 40, 10, "Verification:"
+					GroupBox 225, 10, 40, 90, "Count:"
+					GroupBox 20, 150, 140, 55, "Withdrawal Penalty"
+					Text 40, 170, 30, 10, "Amount:"
+					Text 30, 190, 40, 10, "Verification:"
+				'	If LTC_case = vbYes Then Text 35, 135, 35, 10, "Verif Date:"
+					If asset_dhs_6054_checkbox = unchecked Then Text 35, 135, 35, 10, "Verif Date:"
+					GroupBox 165, 110, 100, 100, "Additional Owner(s)"
+					Text 170, 130, 40, 10, "Share Ratio:"
+					Text 170, 145, 50, 10, "Other owners:"
+					Text 5, 215, 65, 10, "Next Interest Date:"
+					Text 235, 125, 5, 10, "/"
+					EndDialog
+
+					Do
+						Do
+							err_msg = ""
+							dialog Dialog1
+							Call cancel_continue_confirmation(skip_this_panel)
+							ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(ASSETS_ARRAY(ast_wdrw_penlty, asset_counter))
+							ASSETS_ARRAY(ast_number, asset_counter) = trim(ASSETS_ARRAY(ast_number, asset_counter))
+							ASSETS_ARRAY(ast_location, asset_counter) = trim(ASSETS_ARRAY(ast_location, asset_counter))
+							ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = trim(ASSETS_ARRAY(ast_next_inrst_date, asset_counter))
+							share_ratio_num = trim(share_ratio_num)
+							share_ratio_denom = trim(share_ratio_denom)
+							If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the bank account. The person must be listed in the household to have a new ACCT panel added."
+							If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of account this is."
+							If ASSETS_ARRAY(ast_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Select the verification source for this account."
+							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
+							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
+							If IsNumeric(ASSETS_ARRAY(ast_balance, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
+							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If IsNumeric(share_ratio_num) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_num > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio top number must be 9 or lower"
+							End If
+							If IsNumeric(share_ratio_denom) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_denom > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio bottom number must be 9 or lower"
+							End If
+							If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_next_inrst_date, asset_counter)) <> 5 Then err_msg = err_msg & vbNewLine & "* The next interest date should be entered in the format MM/YY."
+
+							If ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0.00" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "" Then
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "N"
+							Else
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
+								If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
+							End If
+							If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+							If skip_this_panel = TRUE Then
+								err_msg = ""
+								If update_panel_type = "New ACCT" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
+							End If
+							If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+						Loop until err_msg = ""
+						Call check_for_password(are_we_passworded_out)
+					Loop until are_we_passworded_out = FALSE
+
+					If skip_this_panel = FALSE Then
+						ASSETS_ARRAY(ast_ref_nbr, asset_counter) = left(ASSETS_ARRAY(ast_owner, asset_counter), 2)
+						If count_cash_checkbox = checked Then ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y"
+						If count_snap_checkbox = checked Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						If count_hc_checkbox = checked Then ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y"
+						If count_grh_checkbox = checked Then ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y"
+						If count_ive_checkbox = checked Then ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y"
+						If ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = ""
+						If share_ratio_denom = "1" Then
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "N"
+						Else
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "Y"
+							ASSETS_ARRAY(ast_share_note, asset_counter) = "ACCT is shared. M" & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " owns " & share_ratio_num & "/" & share_ratio_denom & "."
+						End If
+						ASSETS_ARRAY(ast_own_ratio, asset_counter) = share_ratio_num & "/" & share_ratio_denom
+						If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = ""
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "ACCT")
+							EMReadScreen navigate_check, 4, 2, 44
+						Loop until navigate_check = "ACCT"
+						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
+						If update_panel_type = "Existing ACCT" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
+						transmit
+						If update_panel_type = "New ACCT" Then
+							EMWriteScreen "NN", 20, 79
+							transmit
+						End If
+						If update_panel_type = "Existing ACCT" Then PF9
+						ASSETS_ARRAY(cnote_panel, asset_counter) = checked
+						ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
+						Call update_ACCT_panel_from_dialog
+						actions_taken =  actions_taken & "Updated ACCT " & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " " & ASSETS_ARRAY(ast_instance, asset_counter) & ", "
+						If update_panel_type = "New ACCT" Then
+							EMReadScreen the_instance, 1, 2, 73
+							ASSETS_ARRAY(ast_instance, asset_counter) = "0" & the_instance
+						End If
+						transmit
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								panel_found = FALSE
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+							Call update_ACCT_panel_from_dialog
+							transmit
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								panel_found = FALSE
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+
+							Call update_ACCT_panel_from_dialog
+							transmit
+
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								panel_found = FALSE
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+							Call update_ACCT_panel_from_dialog
+							transmit
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+					End If
+					if update_panel_type = "New ACCT" Then asset_counter = asset_counter + 1
+					if update_panel_type = "Existing ACCT" Then asset_counter = highest_asset
+				ElseIf panel_type = "SECU" Then
+					If update_panel_type = "Existing SECU" Then
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "SECU")
+							EMReadScreen navigate_check, 4, 2, 45
+						Loop until navigate_check = "SECU"
+						For each member in HH_member_array
+							Call write_value_and_transmit(member, 20, 76)
+							EMReadScreen secu_versions, 1, 2, 78
+							If secu_versions <> "0" Then
+								EMWriteScreen "01", 20, 79
+								transmit
+								Do
+									is_this_the_panel = MsgBox("Is this the panel you wish to update?", vbQuestion + vbYesNo, "Update this panel?")
+									If is_this_the_panel = vbYes Then found_the_panel = TRUE
+									If found_the_panel = TRUE then
+										current_member = member
+										Exit Do
+									End If
+									transmit
+									'MsgBox asset_counter
+									EMReadScreen reached_last_SECU_panel, 13, 24, 2
+								Loop until reached_last_SECU_panel = "ENTER A VALID"
+							End If
+							If found_the_panel = TRUE then Exit For
+						Next
+
+						EMReadScreen current_instance, 1, 2, 73
+						current_instance = "0" & current_instance
+						For the_asset  = 0 to UBound(ASSETS_ARRAY, 2)
+							'MsgBox "Current member: " & current_member & vbNewLine & "Array member: " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & vbNewLine & "Current instance: " & current_instance & vbNewLine & "Array instance: " & ASSETS_ARRAY(ast_instance, the_asset)
+							If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" AND current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
+								asset_counter = the_asset
+								If ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y" Then count_cash_checkbox = checked
+								If ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then count_snap_checkbox = checked
+								If ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y" Then count_hc_checkbox = checked
+								If ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y" Then count_grh_checkbox = checked
+								If ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y" Then count_ive_checkbox = checked
+								'MsgBox ASSETS_ARRAY(ast_own_ratio, asset_counter)
+								share_ratio_num = left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								share_ratio_denom = right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								Exit For
+							End If
+						Next
+
+					Else update_panel_type = "New SECU"
+						ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+					End If
+					If share_ratio_num = "" Then share_ratio_num = "1"
+					If share_ratio_denom = "" Then share_ratio_denom = "1"
+					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
+
+					'-------------------------------------------------------------------------------------------------DIALOG
+					Dialog1 = "" 'Blanking out previous dialog detail
+					' MsgBox ASSETS_ARRAY(ast_type, asset_counter)
+					'Dialog to fill the SECU panel
+					BeginDialog Dialog1, 0, 0, 271, 235, "New SECU panel for Case #" & MAXIS_case_number
+					DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+					DropListBox 75, 30, 135, 45, "Select ..."+chr(9)+SECU_type_list, ASSETS_ARRAY(ast_type, asset_counter)
+					EditBox 75, 50, 105, 15, ASSETS_ARRAY(ast_number, asset_counter)
+					EditBox 75, 70, 105, 15, ASSETS_ARRAY(ast_location, asset_counter)
+					EditBox 75, 90, 50, 15, ASSETS_ARRAY(ast_csv, asset_counter)
+					EditBox 160, 90, 50, 15, ASSETS_ARRAY(ast_bal_date, asset_counter)
+					DropListBox 75, 110, 80, 45, "Select..."+chr(9)+"1 - Agency Form"+chr(9)+"2 - Source Doc"+chr(9)+"3 - Phone Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prov", ASSETS_ARRAY(ast_verif, asset_counter)
+					'If LTC_case = vbYes Then EditBox 95, 130, 60, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					If asset_dhs_6054_checkbox = unchecked Then EditBox 95, 130, 60, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					EditBox 95, 150, 60, 15, ASSETS_ARRAY(ast_face_value, asset_counter)
+					CheckBox 230, 25, 30, 10, "CASH", count_cash_checkbox
+					CheckBox 230, 40, 30, 10, "SNAP", count_snap_checkbox
+					CheckBox 230, 55, 20, 10, "HC", count_hc_checkbox
+					CheckBox 230, 70, 30, 10, "GRH", count_grh_checkbox
+					CheckBox 230, 85, 20, 10, "IVE", count_ive_checkbox
+					EditBox 75, 190, 50, 15, ASSETS_ARRAY(ast_wdrw_penlty, asset_counter)
+					DropListBox 75, 210, 80, 45, "Select..."+chr(9)+"1 - Agency Form"+chr(9)+"2 - Source Doc"+chr(9)+"3 - Phone Contact"+chr(9)+"5 - Other Document"+chr(9)+"6 - Personal Statement"+chr(9)+"N - No Ver Prov", ASSETS_ARRAY(ast_wthdr_verif, asset_counter)
+					EditBox 215, 125, 15, 15, share_ratio_num
+					EditBox 240, 125, 15, 15, share_ratio_denom
+					ComboBox 170, 160, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_one, asset_counter)
+					ComboBox 170, 175, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_two, asset_counter)
+					ComboBox 170, 190, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
+					ButtonGroup ButtonPressed
+						OkButton 160, 215, 50, 15
+						CancelButton 215, 215, 50, 15
+					Text 10, 15, 60, 10, "Owner of Security:"
+					Text 20, 35, 50, 10, "Security Type:"
+					Text 10, 55, 60, 10, "Security Number:"
+					Text 15, 75, 55, 10, "Security Name:"
+					Text 10, 95, 60, 10, "Cash Value (CSV):"
+					Text 25, 115, 40, 10, "Verification:"
+					Text 130, 95, 25, 10, "As of:"
+					'If LTC_case = vbYes Then Text 50, 135, 35, 10, "Verif Date:"
+					If asset_dhs_6054_checkbox = unchecked Then Text 50, 135, 35, 10, "Verif Date:"
+					GroupBox 225, 10, 40, 90, "Count:"
+					Text 10, 155, 75, 10, "Face Value of Life Ins:"
+					GroupBox 20, 175, 140, 55, "Withdrawal Penalty"
+					Text 40, 195, 30, 10, "Amount:"
+					Text 30, 215, 40, 10, "Verification:"
+					GroupBox 165, 110, 100, 100, "Additional Owner(s)"
+					Text 170, 130, 40, 10, "Share Ratio:"
+					Text 170, 145, 50, 10, "Other owners:"
+					Text 235, 125, 5, 10, "/"
+					EndDialog
+
+					Do
+						Do
+							err_msg = ""
+							dialog Dialog1
+							Call cancel_continue_confirmation(skip_this_panel)
+							ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(ASSETS_ARRAY(ast_wdrw_penlty, asset_counter))
+							ASSETS_ARRAY(ast_number, asset_counter) = trim(ASSETS_ARRAY(ast_number, asset_counter))
+							ASSETS_ARRAY(ast_location, asset_counter) = trim(ASSETS_ARRAY(ast_location, asset_counter))
+							ASSETS_ARRAY(ast_face_value, asset_counter) = trim(ASSETS_ARRAY(ast_face_value, asset_counter))
+							share_ratio_num = trim(share_ratio_num)
+							share_ratio_denom = trim(share_ratio_denom)
+							If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the security. The person must be listed in the household to have a new SECU panel added."
+							If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of security this is."
+							If ASSETS_ARRAY(ast_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Select the verification source for this account."
+							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 12 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
+							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
+							If IsNumeric(ASSETS_ARRAY(ast_csv, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
+							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If left(ASSETS_ARRAY(ast_type, asset_counter), 2) = "LI" Then
+								If ASSETS_ARRAY(ast_face_value, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* A life insurance policy requires a face value."
+								If count_snap_checkbox = checked Then
+									count_snap_checkbox = unchecked
+								End If
+							Else
+								If ASSETS_ARRAY(ast_face_value, asset_counter) <> "" Then err_msg = err_msg & vbNewLine & "* A face value amount can only be entered for a Life Insurance security."
+							End If
+							If IsNumeric(share_ratio_num) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_num > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio top number must be 9 or lower"
+							End If
+							If IsNumeric(share_ratio_denom) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_denom > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio bottom number must be 9 or lower"
+							End If
+							If ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0.00" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "" Then
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "N"
+							Else
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
+								If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
+							End If
+							If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+							If skip_this_panel = TRUE Then
+								err_msg = ""
+								If update_panel_type = "New SECU" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
+							End If
+							If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+						Loop until err_msg = ""
+						Call check_for_password(are_we_passworded_out)
+					Loop until are_we_passworded_out = FALSE
+
+					If skip_this_panel = FALSE Then
+						ASSETS_ARRAY(ast_ref_nbr, asset_counter) = left(ASSETS_ARRAY(ast_owner, asset_counter), 2)
+						If count_cash_checkbox = checked Then ASSETS_ARRAY(apply_to_CASH, asset_counter) = "Y"
+						If count_snap_checkbox = checked Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						If count_hc_checkbox = checked Then ASSETS_ARRAY(apply_to_HC, asset_counter) = "Y"
+						If count_grh_checkbox = checked Then ASSETS_ARRAY(apply_to_GRH, asset_counter) = "Y"
+						If count_ive_checkbox = checked Then ASSETS_ARRAY(apply_to_IVE, asset_counter) = "Y"
+						If ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = ""
+						If share_ratio_denom = "1" Then
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "N"
+						Else
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "Y"
+							ASSETS_ARRAY(ast_share_note, asset_counter) = "SECU is shared. M" & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " owns " & share_ratio_num & "/" & share_ratio_denom & "."
+						End If
+						ASSETS_ARRAY(ast_own_ratio, asset_counter) = share_ratio_num & "/" & share_ratio_denom
+						If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = ""
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "SECU")
+							EMReadScreen navigate_check, 4, 2, 45
+						Loop until navigate_check = "SECU"
+						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
+						If update_panel_type = "Existing SECU" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
+						transmit
+						If update_panel_type = "New SECU" Then
+							EMWriteScreen "NN", 20, 79
+							transmit
+						End If
+						If update_panel_type = "Existing SECU" Then PF9
+						ASSETS_ARRAY(cnote_panel, asset_counter) = checked
+						ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+						Call update_SECU_panel_from_dialog
+						actions_taken =  actions_taken & "Updated SECU " & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " " & ASSETS_ARRAY(ast_instance, asset_counter) & ", "
+
+						If update_panel_type = "New SECU" Then
+							EMReadScreen the_instance, 1, 2, 73
+							ASSETS_ARRAY(ast_instance, asset_counter) = "0" & the_instance
+						End If
+						transmit
+
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_one, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							panel_found = FALSE
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+
+							Call update_SECU_panel_from_dialog
+							transmit
+
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_two, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								panel_found = FALSE
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+
+							Call update_SECU_panel_from_dialog
+							transmit
+
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+
+						If IsNumeric(left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2)) = True Then
+							ASSETS_ARRAY(ast_share_note, asset_counter) = ASSETS_ARRAY(ast_share_note, asset_counter) & " Also owned by M" & left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2)
+							EMWriteScreen left(ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter), 2), 20, 76
+							EMWriteScreen "01", 20, 79
+							transmit
+							EMReadScreen total_panels, 1, 2, 78
+							If total_panels = "0" Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+								panel_found = TRUE
+							Else
+								panel_found = FALSE
+								Do
+									EMReadScreen this_account_type, 2, 6, 44
+									EMReadScreen this_account_number, 20, 7, 44
+									EMReadScreen this_account_location, 20, 8, 44
+									this_account_number = replace(this_account_number, "_", "")
+									this_account_location = replace(this_account_location, "_", "")
+
+									If this_account_type = left(ASSETS_ARRAY(ast_type, asset_counter), 2) AND this_account_number = ASSETS_ARRAY(ast_number, asset_counter) AND this_account_location = ASSETS_ARRAY(ast_location, asset_counter) Then
+										PF9
+										panel_found = TRUE
+										Exit Do
+									End If
+									transmit
+									EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+								Loop until reached_last_ACCT_panel = "ENTER A VALID"
+							End If
+							If panel_found = FALSE Then
+								EMWriteScreen "NN", 20, 79
+								transmit
+							End If
+							panel_found = ""
+
+							IF ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y" Then
+								snap_is_yes = TRUE
+								ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "N"
+							End If
+
+							Call update_ACCT_panel_from_dialog
+							transmit
+
+							If snap_is_yes = TRUE Then ASSETS_ARRAY(apply_to_SNAP, asset_counter) = "Y"
+						End If
+
+					End If
+					if update_panel_type = "New SECU" Then asset_counter = asset_counter + 1
+					if update_panel_type = "Existing SECU" Then asset_counter = highest_asset
+				ElseIf panel_type = "CARS" Then
+					If update_panel_type = "Existing CARS" Then
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "CARS")
+							EMReadScreen navigate_check, 4, 2, 44
+						Loop until navigate_check = "CARS"
+						For each member in HH_member_array
+							Call write_value_and_transmit(member, 20, 76)
+
+							EMReadScreen cars_versions, 1, 2, 78
+							If cars_versions <> "0" Then
+								EMWriteScreen "01", 20, 79
+								transmit
+								Do
+									is_this_the_panel = MsgBox("Is this the panel you wish to update?", vbQuestion + vbYesNo, "Update this panel?")
+
+									If is_this_the_panel = vbYes Then found_the_panel = TRUE
+
+									If found_the_panel = TRUE then
+										current_member = member
+										Exit Do
+									End If
+									transmit
+									'MsgBox asset_counter
+									EMReadScreen reached_last_CARS_panel, 13, 24, 2
+								Loop until reached_last_CARS_panel = "ENTER A VALID"
+							End If
+							If found_the_panel = TRUE then Exit For
+						Next
+
+						EMReadScreen current_instance, 1, 2, 73
+						current_instance = "0" & current_instance
+						For the_asset  = 0 to UBound(ASSETS_ARRAY, 2)
+							'MsgBox "Current member: " & current_member & vbNewLine & "Array member: " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & vbNewLine & "Current instance: " & current_instance & vbNewLine & "Array instance: " & ASSETS_ARRAY(ast_instance, the_asset)
+							If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" AND current_member = ASSETS_ARRAY(ast_ref_nbr, the_asset) AND current_instance = ASSETS_ARRAY(ast_instance, the_asset) Then
+								asset_counter = the_asset
+
+								'MsgBox ASSETS_ARRAY(ast_own_ratio, asset_counter)
+								share_ratio_num = left(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								share_ratio_denom = right(ASSETS_ARRAY(ast_own_ratio, asset_counter), 1)
+								Exit For
+							End If
+						Next
+
+					ElseIf update_panel_type = "New CARS" Then
+						ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+					End If
+
+					If share_ratio_num = "" Then share_ratio_num = "1"
+					If share_ratio_denom = "" Then share_ratio_denom = "1"
+					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
+
+					'-------------------------------------------------------------------------------------------------DIALOG
+					Dialog1 = "" 'Blanking out previous dialog detail
+					'Dialog to fill the CARS panel.
+					BeginDialog Dialog1, 0, 0, 270, 255, "New CARS panel for Case # & MAXIS_case_number" & MAXIS_case_number
+					DropListBox 75, 10, 135, 45, client_dropdown, ASSETS_ARRAY(ast_owner, asset_counter)
+					DropListBox 75, 30, 90, 45, "Select..."+chr(9)+CARS_type_list, ASSETS_ARRAY(ast_type, asset_counter)
+					EditBox 220, 30, 40, 15, ASSETS_ARRAY(ast_year, asset_counter)
+					ComboBox 75, 50, 185, 45, "Type or Select"+chr(9)+"Acura"+chr(9)+"Audi"+chr(9)+"BMW"+chr(9)+"Buick"+chr(9)+"Cadillac"+chr(9)+"Chevrolet"+chr(9)+"Chrysler"+chr(9)+"Dodge"+chr(9)+"Ford"+chr(9)+"GMC"+chr(9)+"Honda"+chr(9)+"Hummer"+chr(9)+"Hyundai"+chr(9)+"Infiniti"+chr(9)+"Isuzu"+chr(9)+"Jeep"+chr(9)+"Kia"+chr(9)+"Lincoln"+chr(9)+"Mazda"+chr(9)+"Mercedes-Benz"+chr(9)+"Mercury"+chr(9)+"Mitsubishi"+chr(9)+"Nissan"+chr(9)+"Oldsmobile"+chr(9)+"Plymouth"+chr(9)+"Pontiac"+chr(9)+"Saab"+chr(9)+"Saturn"+chr(9)+"Scion"+chr(9)+"Subaru"+chr(9)+"Suzuki"+chr(9)+"Toyota"+chr(9)+"Volkswagen"+chr(9)+"Volvo", ASSETS_ARRAY(ast_make, asset_counter)
+					EditBox 75, 70, 185, 15, ASSETS_ARRAY(ast_model, asset_counter)
+					EditBox 75, 90, 50, 15, ASSETS_ARRAY(ast_trd_in, asset_counter)
+					DropListBox 165, 90, 95, 45, "Select..."+chr(9)+"1 - NADA"+chr(9)+"2 - Appraisal Value"+chr(9)+"3 - Client Stmt"+chr(9)+"4 - Other Document", ASSETS_ARRAY(ast_value_srce, asset_counter)
+					DropListBox 75, 110, 80, 45, "Select..."+chr(9)+"1 - Title"+chr(9)+"2 - License Reg"+chr(9)+"3 - DMV"+chr(9)+"4 - Purchase Agmt"+chr(9)+"5 - Other Document"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_verif, asset_counter)
+					'If LTC_case = vbYes Then EditBox 210, 110, 50, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					If asset_dhs_6054_checkbox = unchecked Then EditBox 210, 110, 50, 15, ASSETS_ARRAY(ast_verif_date, asset_counter)
+					DropListBox 75, 130, 60, 45, "No"+chr(9)+"Yes", ASSETS_ARRAY(ast_hc_benefit, asset_counter)
+					EditBox 75, 165, 50, 15, ASSETS_ARRAY(ast_amt_owed, asset_counter)
+					EditBox 75, 185, 50, 15, ASSETS_ARRAY(ast_owed_date, asset_counter)
+					DropListBox 75, 210, 80, 45, "Select..."+chr(9)+"1 - Bank/Lending Inst Stmt"+chr(9)+"2 - Private Lender Stmt"+chr(9)+"3 - Other Document"+chr(9)+"4 - Pend Out State Verif"+chr(9)+"N - No Ver Prvd", ASSETS_ARRAY(ast_owe_verif, asset_counter)
+					EditBox 215, 145, 15, 15, share_ratio_num
+					EditBox 240, 145, 15, 15, share_ratio_denom
+					ComboBox 170, 180, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_oner, asset_counter)
+					ComboBox 170, 195, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_twor, asset_counter)
+					ComboBox 170, 210, 90, 45, "Type or Select", ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter)
+					ButtonGroup ButtonPressed
+						OkButton 170, 235, 45, 15
+						CancelButton 220, 235, 45, 15
+					Text 10, 15, 60, 10, "Owner of Vehicle:"
+					Text 20, 35, 50, 10, "Vehicle Type:"
+					Text 170, 35, 45, 10, "Vehicle Year:"
+					Text 20, 55, 50, 10, "Vehicle Make:"
+					Text 20, 75, 50, 10, "Vehicle Model:"
+					Text 20, 95, 50, 10, "Trade In Value:"
+					Text 130, 95, 25, 10, "Source:"
+					Text 25, 115, 40, 10, "Verification:"
+					'If LTC_case = vbYes Then Text 170, 115, 40, 10, "Verif Date:"
+					IF asset_dhs_6054_checkbox = unchecked Then Text 170, 115, 40, 10, "Verif Date:"
+					Text 15, 135, 50, 10, "HC Clt Benefit:"
+					GroupBox 20, 150, 140, 80, "Amount Owed on vehicle"
+					Text 40, 170, 30, 10, "Amount:"
+					Text 45, 190, 20, 10, "As of:"
+					Text 30, 210, 40, 10, "Verification:"
+					GroupBox 165, 130, 100, 100, "Additional Owner(s)"
+					Text 170, 150, 40, 10, "Share Ratio:"
+					Text 170, 165, 50, 10, "Other owners:"
+					Text 235, 145, 5, 10, "/"
+					EndDialog
+
+					Do
+						Do
+							err_msg = ""
+							dialog Dialog1
+							Call cancel_continue_confirmation(skip_this_panel)
+							ASSETS_ARRAY(ast_year, asset_counter) = trim(ASSETS_ARRAY(ast_year, asset_counter))
+							ASSETS_ARRAY(ast_make, asset_counter) = trim(ASSETS_ARRAY(ast_make, asset_counter))
+							ASSETS_ARRAY(ast_model, asset_counter) = trim(ASSETS_ARRAY(ast_model, asset_counter))
+							ASSETS_ARRAY(ast_trd_in, asset_counter) = trim(ASSETS_ARRAY(ast_trd_in, asset_counter))
+							share_ratio_num = trim(share_ratio_num)
+							share_ratio_denom = trim(share_ratio_denom)
+							If ASSETS_ARRAY(ast_owner, asset_counter) = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the owner of the vehicle. The person must be listed in the household to have a new SECU panel added."
+							If ASSETS_ARRAY(ast_type, asset_counter) = "Select ..." Then err_msg = err_msg & vbNewLine & "* Indicate the type of vehicle this is."
+							If ASSETS_ARRAY(ast_year, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* Enter the year of the vehicle."
+							If len(ASSETS_ARRAY(ast_year, asset_counter)) <> 4 Then err_msg = err_msg & vbNewLine & "* The year of the vehicle needs to be in the format YYYY."
+							If ASSETS_ARRAY(ast_make, asset_counter) = "Type or Select" OR ASSETS_ARRAY(ast_make, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* Enter the make of the vehicle."
+							If ASSETS_ARRAY(ast_model, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* Enter the model of the vehicle."
+							If IsNumeric(ASSETS_ARRAY(ast_trd_in, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The trade in value needs to be entered as a number."
+							If ASSETS_ARRAY(ast_value_srce, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Indicate from where the value was determined."
+							If ASSETS_ARRAY(ast_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Enter the verification of the vehicle."
+
+							If ASSETS_ARRAY(ast_amt_owed, asset_counter) <> "" Then
+								If IsNumeric(ASSETS_ARRAY(ast_amt_owed, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The owed amount needs to be entered as a number."
+								If ASSETS_ARRAY(ast_owe_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* Enter the verification of the amount that owed."
+								If IsDate(ASSETS_ARRAY(ast_owed_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the effective date of the owed amount."
+							End If
+
+							If IsNumeric(share_ratio_num) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_num > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio top number must be 9 or lower"
+							End If
+							If IsNumeric(share_ratio_denom) = FALSE Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
+							ElseIf share_ratio_denom > 9 Then
+								err_msg = err_msg & vbNewLine & "* The Share Ratio bottom number must be 9 or lower"
+							End If
+
+							If ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0.00" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "0" OR ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = "" Then
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "N"
+							Else
+								ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = "Y"
+								If ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = "Select..." Then err_msg = err_msg & vbNewLine & "* If there is a withdraw penalty amount listed, this amount needs a verification selected."
+							End If
+							If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
+							If skip_this_panel = TRUE Then
+								err_msg = ""
+								If update_panel_type = "New SECU" Then ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter - 1)
+							End If
+
+							If err_msg <> ""  AND left(err_msg,4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+						Loop until err_msg = ""
+						Call check_for_password(are_we_passworded_out)
+					Loop until are_we_passworded_out = FALSE
+
+					If skip_this_panel = FALSE Then
+						ASSETS_ARRAY(ast_ref_nbr, asset_counter) = left(ASSETS_ARRAY(ast_owner, asset_counter), 2)
+
+						If ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_one, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_two, asset_counter) = ""
+						If ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = "Type or Select" Then ASSETS_ARRAY(ast_othr_ownr_thr, asset_counter) = ""
+						If ASSETS_ARRAY(ast_owe_verif, asset_counter) = "Select..." Then ASSETS_ARRAY(ast_owe_verif, asset_counter) = ""
+						ASSETS_ARRAY(ast_loan_value, asset_counter) = .9 * ASSETS_ARRAY(ast_trd_in, asset_counter)
+						ASSETS_ARRAY(ast_loan_value, asset_counter) = round(ASSETS_ARRAY(ast_loan_value, asset_counter))
+						If share_ratio_denom = "1" Then
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "N"
+						Else
+							ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = "Y"
+							ASSETS_ARRAY(ast_share_note, asset_counter) = "CARS is shared. M" & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " owns " & share_ratio_num & "/" & share_ratio_denom & "."
+						End If
+						ASSETS_ARRAY(ast_own_ratio, asset_counter) = share_ratio_num & "/" & share_ratio_denom
+						If ASSETS_ARRAY(ast_hc_benefit, asset_counter) = "Yes" Then ASSETS_ARRAY(ast_hc_benefit, asset_counter)  = "Y"
+						If ASSETS_ARRAY(ast_hc_benefit, asset_counter) = "No" Then ASSETS_ARRAY(ast_hc_benefit, asset_counter) = "N"
+						Do
+							Call navigate_to_MAXIS_screen("STAT", "CARS")
+							EMReadScreen navigate_check, 4, 2, 44
+						Loop until navigate_check = "CARS"
+						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
+						If update_panel_type = "Existing CARS" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
+						transmit
+						If update_panel_type = "New CARS" Then
+							EMWriteScreen "NN", 20, 79
+							transmit
+						End If
+						If update_panel_type = "Existing CARS" Then PF9
+
+						ASSETS_ARRAY(cnote_panel, asset_counter) = checked
+						ASSETS_ARRAY(ast_panel, asset_counter) = "CARS"
+
+						Call update_CARS_panel_from_dialog
+
+						actions_taken =  actions_taken & "Updated CARS " & ASSETS_ARRAY(ast_ref_nbr, asset_counter) & " " & ASSETS_ARRAY(ast_instance, asset_counter) & ", "
+
+
+						If update_panel_type = "New CARS" Then
+							EMReadScreen the_instance, 1, 2, 73
+							ASSETS_ARRAY(ast_instance, asset_counter) = "0" & the_instance
+						End If
+						transmit
+
+
+					End If
+
+					if update_panel_type = "New CARS" Then asset_counter = asset_counter + 1
+					if update_panel_type = "Existing CARS" Then asset_counter = highest_asset
+				End If
+				highest_asset = asset_counter
+
+			Loop until panel_type = "done"
+		'End If
+
+	End If
+end function
+
+function asset_dialog()
+	y_pos = 40
+	If acct_panels > 0 Then
+		Text 10, y_pos, 95, 10, "Current ACCT panel details."
+		Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		y_pos = y_pos + 10
+		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+			If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+				Text 15, y_pos, 275, 10,  "* ACCT " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset) & " - Balance: $" & ASSETS_ARRAY(ast_balance, the_asset)
+				CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+				y_pos = y_pos + 10
+			End If
+		Next
+		y_pos = y_pos + 5
+	End If
+	
+	If secu_panels > 0 Then
+		Text 10, y_pos, 95, 10, "Current SECU panel details."
+		'Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		y_pos = y_pos + 10
+		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+			If ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+				Text 15, y_pos, 275, 10, "* SECU " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_type, the_asset) & " @ " & ASSETS_ARRAY(ast_location, the_asset)
+				CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+				y_pos = y_pos + 10
+			End If
+		Next
+		y_pos = y_pos + 5
+	End If
+
+	If cars_panels > 0 Then
+		Text 10, y_pos, 95, 10, "Current CARS panel details."
+		'Text 260, y_pos, 120, 10, "Check to include in CASE/NOTE"
+		y_pos = y_pos + 10
+		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+			If ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+				Text 15, y_pos, 275, 10, "* CARS " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " " & ASSETS_ARRAY(ast_instance, the_asset) & " - " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset)
+				CheckBox 300, y_pos, 45, 10, "Updated", ASSETS_ARRAY(cnote_panel, the_asset)
+				y_pos = y_pos + 10
+			End If
+		Next
+		y_pos = y_pos + 5
+	End If
+
+	If acct_panels = 0 AND cars_panels = 0 AND secu_panels = 0 Then 
+		Text 60, 70, 250 , 10, "~~~NO CURRENT ACCT, SECU or CARS PANELS~~~"
+		Text 85, 85, 250 , 10, "~~~Complete the fields below~~~"
+	End If
+
+	Text 60, 20, 45, 10, MAXIS_case_number
+	Text 5, 20, 50, 10, "Case Number:"
+	Text 395, 35, 45, 10, "    --Forms--"
+	EditBox 60, 215, 295, 15, asset_actions_taken
+	CheckBox 15, 235, 345, 15, "Check here if DHS 6054 received. Assets for SNAP/Cash are self attested and are reported on this form.", asset_dhs_6054_checkbox
+	EditBox 130, 250, 45, 15, asset_DHS_6054_date
+	CheckBox 15, 270, 345, 15, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", asset_update_panels_checkbox
+	Text 5, 5, 220, 10, asset_form_name
+	Text 15, 220, 45, 10, "Action Taken:"
+	Text 40, 255, 90, 10, "DHS 6054 Document Date:"
+	
+
+end function
+Dim asset_actions_taken, asset_dhs_6054_checkbox, asset_DHS_6054_date, asset_update_panels_checkbox
+'ASSET CODE-END
+
 
 function atr_dialog()
 	EditBox 175, 15, 45, 15, atr_effective_date
@@ -741,10 +2495,16 @@ end function
 function main_error_handling()	'Error handling for main dialog of forms
 	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonePressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
 		For form_errors = 0 to Ubound(form_type_array, 2)
-			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form 
-				'TODO: Asset error reporting 
+			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form 		'TODO: Need to fix asset error handling
+				If asset_actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
+				If asset_dhs_6054_checkbox = checked AND asset_DHS_6054_date = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter DHS6054 Document Date."
+				'ASSET CODE-START
+				Call asset_dialog_update_panels		'This will call additional asset dialogs if update asset panels is checked
+				'ASSET CODE-END
 			End If
-
+			'TODO-  error handling isn't happening in the correct order. It will also recycle through the additional dialogs... 
+			'TODO: still need to add case note handling
+			'TODO: still need to add write functionality as necessary
 			If form_type_array(form_type_const, form_errors) = atr_form_name AND current_dialog = "atr" Then 'Error handling for ATR Form 
 				If IsDate(atr_effective_date) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				If IsDate(atr_date_received) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
@@ -1047,6 +2807,9 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
 Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
+CALL Generate_Client_List(client_dropdown, "Select One...")	
+CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
+Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
 
 
 'DIALOGS COLLECTING FORM SELECTION===========================================================================
@@ -1317,6 +3080,296 @@ Loop Until ButtonPressed = Ok
 'MAXIS NAVIGATION ===========================================================================
 Call MAXIS_background_check
 For maxis_panel_read = 0 to Ubound(form_type_array, 2)
+
+	'ASSET CODE-START
+	If form_type_array(form_type_const, maxis_panel_read) = asset_form_name Then 'MAXIS NAVIGATION FOR ASSET
+		'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
+		asset_counter = 0
+		skip_asset = FALSE
+		Call navigate_to_MAXIS_screen("STAT", "ACCT")
+		For each member in HH_member_array
+			Call write_value_and_transmit(member, 20, 76)
+			EMReadScreen acct_versions, 1, 2, 78
+			If acct_versions <> "0" Then
+				EMWriteScreen "01", 20, 79
+				transmit
+				Do
+					EMReadScreen ACCT_instance, 1, 2, 73
+					EMReadScreen ACCT_type, 2, 6, 44
+					EMReadScreen ACCT_nbr, 20, 7, 44
+					EMReadScreen ACCT_location, 20, 8, 44
+					EMReadScreen ACCT_balance, 8, 10, 46
+					EMReadScreen ACCT_bal_verif, 1, 10, 64
+					EMReadScreen ACCT_bal_date, 8, 11, 44
+					EMReadScreen ACCT_withdraw_pen, 8, 12, 46
+					EMReadScreen ACCT_withdraw_YN, 1, 12, 64
+					EMReadScreen ACCT_withdraw_verif, 1, 12, 72
+					EMReadScreen ACCT_cash, 1, 14, 50
+					EMReadScreen ACCT_snap, 1, 14, 57
+					EMReadScreen ACCT_hc, 1, 14, 64
+					EMReadScreen ACCT_grh, 1, 14, 72
+					EMReadScreen ACCT_ive, 1, 14, 80
+					EMReadScreen ACCT_joint_owner_YN, 1, 15, 44
+					EMReadScreen ACCT_share_ratio, 5, 15, 76
+					EMReadScreen ACCT_next_interest, 5, 17, 57
+					EMReadScreen ACCT_updated_date, 8, 21, 55
+
+					ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+					ASSETS_ARRAY(ast_panel, asset_counter) = "ACCT"
+					ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+					For each person in client_list_array
+						If left(person, 2) = member then
+							ASSETS_ARRAY(ast_owner, asset_counter) = person
+							Exit For
+						End If
+					Next
+					ASSETS_ARRAY(ast_instance, asset_counter) = "0" & ACCT_instance
+					If ACCT_type = "SV" Then ASSETS_ARRAY(ast_type, asset_counter) = "SV - Savings"
+					If ACCT_type = "CK" Then ASSETS_ARRAY(ast_type, asset_counter) = "CK - Checking"
+					If ACCT_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Cert of Deposit"
+					If ACCT_type = "MM" Then ASSETS_ARRAY(ast_type, asset_counter) = "MM - Money market"
+					If ACCT_type = "DC" Then ASSETS_ARRAY(ast_type, asset_counter) = "DC - Debit Card"
+					If ACCT_type = "KO" Then ASSETS_ARRAY(ast_type, asset_counter) = "KO - Keogh Account"
+					If ACCT_type = "FT" Then ASSETS_ARRAY(ast_type, asset_counter) = "FT - Federatl Thrift SV plan"
+					If ACCT_type = "SL" Then ASSETS_ARRAY(ast_type, asset_counter) = "SL - Stat/Local Govt Ret"
+					If ACCT_type = "RA" Then ASSETS_ARRAY(ast_type, asset_counter) = "RA - Employee Ret Annuities"
+					If ACCT_type = "NP" Then ASSETS_ARRAY(ast_type, asset_counter) = "NP - Non-Profit Employer Ret Plan"
+					If ACCT_type = "IR" Then ASSETS_ARRAY(ast_type, asset_counter) = "IR - Indiv Ret Acct"
+					If ACCT_type = "RH" Then ASSETS_ARRAY(ast_type, asset_counter) = "RH - Roth IRA"
+					If ACCT_type = "FR" Then ASSETS_ARRAY(ast_type, asset_counter) = "FR - Ret Plans for Employers"
+					If ACCT_type = "CT" Then ASSETS_ARRAY(ast_type, asset_counter) = "CT - Corp Ret Trust"
+					If ACCT_type = "RT" Then ASSETS_ARRAY(ast_type, asset_counter) = "RT - Other Ret Fund"
+					If ACCT_type = "QT" Then ASSETS_ARRAY(ast_type, asset_counter) = "QT - Qualified Tuition (529)"
+					If ACCT_type = "CA" Then ASSETS_ARRAY(ast_type, asset_counter) = "CA - Coverdell SV (530)"
+					If ACCT_type = "OE" Then ASSETS_ARRAY(ast_type, asset_counter) = "OE - Other Educational "
+					If ACCT_type = "OT" Then ASSETS_ARRAY(ast_type, asset_counter) = "OT - Other"
+					ASSETS_ARRAY(ast_number, asset_counter) = replace(ACCT_nbr, "_", "")
+					ASSETS_ARRAY(ast_location, asset_counter) = replace(ACCT_location, "_", "")
+					ASSETS_ARRAY(ast_balance, asset_counter) = trim(ACCT_balance)
+					If ACCT_bal_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1 - Bank Statement"
+					If ACCT_bal_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - Agcy Ver Form"
+					If ACCT_bal_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - Coltrl Document"
+					If ACCT_bal_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+					If ACCT_bal_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
+					If ACCT_bal_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prvd"
+					ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(ACCT_bal_date, " ", "/")
+					If ASSETS_ARRAY(ast_bal_date, asset_counter) = "__/__/__" Then ASSETS_ARRAY(ast_bal_date, asset_counter) = ""
+					ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(ACCT_withdraw_pen, "_", ""))
+					ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(ACCT_withdraw_YN, "_", "")
+					ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(ACCT_withdraw_verif, "_", "")
+					ASSETS_ARRAY(apply_to_CASH, asset_counter) = replace(ACCT_cash, "_", "")
+					ASSETS_ARRAY(apply_to_SNAP, asset_counter) = replace(ACCT_snap, "_", "")
+					ASSETS_ARRAY(apply_to_HC, asset_counter) = replace(ACCT_hc, "_", "")
+					ASSETS_ARRAY(apply_to_GRH, asset_counter) = replace(ACCT_grh, "_", "")
+					ASSETS_ARRAY(apply_to_IVE, asset_counter) = replace(ACCT_ive, "_", "")
+					ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = replace(ACCT_joint_owner_YN, "_", "")
+					ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(ACCT_share_ratio, " ", "")
+					ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = replace(ACCT_next_interest, " ", "/")
+					If ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = "__/__" Then ASSETS_ARRAY(ast_next_inrst_date, asset_counter) = ""
+					ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+					ASSETS_ARRAY(update_date, asset_counter) = replace(ACCT_updated_date, " ", "/")
+					transmit
+					asset_counter = asset_counter + 1
+					EMReadScreen reached_last_ACCT_panel, 13, 24, 2
+				Loop until reached_last_ACCT_panel = "ENTER A VALID"
+			End If
+		Next
+		
+		Call navigate_to_MAXIS_screen("STAT", "SECU")
+		For each member in HH_member_array
+			Call write_value_and_transmit(member, 20, 76)
+
+			EMReadScreen secu_versions, 1, 2, 78
+			If secu_versions <> "0" Then
+				EMWriteScreen "01", 20, 79
+				transmit
+				Do
+
+					EMReadScreen SECU_instance, 1, 2, 73
+					EMReadScreen SECU_type, 2, 6, 50
+					EMReadScreen SECU_acct_number, 12, 7, 50
+					EMReadScreen SECU_name, 20, 8, 50
+					EMReadScreen SECU_csv, 8, 10, 52
+					EMReadScreen SECU_value_date, 8, 11, 35
+					EMReadScreen SECU_verif, 1, 11, 50
+					EMReadScreen SECU_face_value, 8, 12, 52
+					EMReadScreen SECU_withdraw_amount, 8, 13, 52
+					EMReadScreen SECU_wthdrw_YN, 1, 13, 72
+					EMReadScreen SECU_wthdrw_verif, 1, 13, 80
+					EMReadScreen SECU_apply_to_CASH, 1, 15, 50
+					EMReadScreen SECU_apply_to_SNAP, 1, 15, 57
+					EMReadScreen SECU_apply_to__HC, 1, 15, 64
+					EMReadScreen SECU_apply_to_GRH, 1, 15, 72
+					EMReadScreen SECU_apply_to_IVE, 1, 15, 80
+					EMReadScreen SECU_joint_owner_YN, 1, 16, 44
+					EMReadScreen SECU_share_ratio, 5, 16, 76
+					EMReadScreen SECU_updated_date, 8, 21, 55
+
+
+					ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+					ASSETS_ARRAY(ast_panel, asset_counter) = "SECU"
+					ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+					For each person in client_list_array
+						If left(person, 2) = member then
+							ASSETS_ARRAY(ast_owner, asset_counter) = person
+							Exit For
+						End If
+					Next
+					ASSETS_ARRAY(ast_instance, asset_counter) = "0" & SECU_instance
+					If SECU_type = "LI" Then ASSETS_ARRAY(ast_type, asset_counter) = "LI - Life Insurance"
+					If SECU_type = "ST" Then ASSETS_ARRAY(ast_type, asset_counter) = "ST - Stocks"
+					If SECU_type = "BO" Then ASSETS_ARRAY(ast_type, asset_counter) = "BO - Bonds"
+					If SECU_type = "CD" Then ASSETS_ARRAY(ast_type, asset_counter) = "CD - Ctrct For Deed"
+					If SECU_type = "MO" Then ASSETS_ARRAY(ast_type, asset_counter) = "MO - Mortgage Note"
+					If SECU_type = "AN" Then ASSETS_ARRAY(ast_type, asset_counter) = "AN - Annuity"
+					If SECU_type = "OT" Then ASSETS_ARRAY(ast_type, asset_counter) = "OT - Other"
+					ASSETS_ARRAY(ast_number, asset_counter) = replace(SECU_acct_number, "_", "")
+					ASSETS_ARRAY(ast_location, asset_counter) = replace(SECU_name, "_", "")
+					ASSETS_ARRAY(ast_csv, asset_counter) = trim(SECU_csv)
+					ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(SECU_value_date, " ", "/")
+					If SECU_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1  - Agency Form"
+					If SECU_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - Source Doc"
+					If SECU_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - Phone Contact"
+					If SECU_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+					If SECU_verif = "6" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Stmt"
+					If SECU_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prov"
+					ASSETS_ARRAY(ast_face_value, asset_counter) = replace(trim(SECU_face_value), "_", "")
+					ASSETS_ARRAY(ast_wdrw_penlty, asset_counter) = trim(replace(SECU_withdraw_amount, "_", ""))
+					ASSETS_ARRAY(ast_wthdr_YN, asset_counter) = replace(SECU_wthdrw_YN, "_", "")
+					ASSETS_ARRAY(ast_wthdr_verif, asset_counter) = replace(SECU_wthdrw_verif, "_", "")
+					ASSETS_ARRAY(apply_to_CASH, asset_counter) = replace(SECU_apply_to_CASH, "_", "")
+					ASSETS_ARRAY(apply_to_SNAP, asset_counter) = replace(SECU_apply_to_SNAP, "_", "")
+					ASSETS_ARRAY(apply_to_HC, asset_counter) = replace(SECU_apply_to_HC, "_", "")
+					ASSETS_ARRAY(apply_to_GRH, asset_counter) = replace(SECU_apply_to_GRH, "_", "")
+					ASSETS_ARRAY(apply_to_IVE, asset_counter) = replace(SECU_apply_to_IVE, "_", "")
+					ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = replace(SECU_joint_owner_YN, "_", "")
+					ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(SECU_share_ratio, " ", "")
+					ASSETS_ARRAY(update_date, asset_counter) = replace(SECU_updated_date, " ", "/")
+					ASSETS_ARRAY(update_panel, asset_counter) = Unchecked
+
+					transmit
+					asset_counter = asset_counter + 1
+					EMReadScreen reached_last_SECU_panel, 13, 24, 2
+				Loop until reached_last_SECU_panel = "ENTER A VALID"
+			End If
+		Next
+
+		Call navigate_to_MAXIS_screen("STAT", "CARS")
+		For each member in HH_member_array
+			Call write_value_and_transmit(member, 20, 76)
+
+			EMReadScreen cars_versions, 1, 2, 78
+			If cars_versions <> "0" Then
+				EMWriteScreen "01", 20, 79
+				transmit
+				Do
+
+					EMReadScreen CARS_instance, 1, 2, 73
+					EMReadScreen CARS_type, 1, 6, 43
+					EMReadScreen CARS_year, 4, 8, 31
+					EMReadScreen CARS_make, 15, 8, 43
+					EMReadScreen CARS_model, 15, 8, 66
+					EMReadScreen CARS_trade_in, 8, 9, 45
+					EMReadScreen CARS_loan, 8, 9, 62
+					EMReadScreen CARS_source, 1, 9, 80
+					EMReadScreen CARS_owner_verif, 1, 10, 60
+					EMReadScreen CARS_owe_amount, 8, 12, 45
+					EMReadScreen CARS_owed_verif, 1, 12, 60
+					EMReadScreen CARS_owed_date, 8, 13, 43
+					EMReadScreen CARS_use, 1, 15, 43
+					EMReadScreen CARS_hc_benefit, 1, 15, 76
+					EMReadScreen CARS_joint_owner_YN, 1, 16, 43
+					EMReadScreen CARS_share_ratio, 5, 16, 76
+					EMReadScreen CARS_updated_date, 8, 21, 55
+
+					ReDim Preserve ASSETS_ARRAY(update_panel, asset_counter)
+
+					ASSETS_ARRAY(ast_panel, asset_counter) = "CARS"
+					ASSETS_ARRAY(ast_ref_nbr, asset_counter) = member
+					For each person in client_list_array
+						If left(person, 2) = member then
+							ASSETS_ARRAY(ast_owner, asset_counter) = person
+							Exit For
+						End If
+					Next
+					ASSETS_ARRAY(ast_instance, asset_counter) = "0" & CARS_instance
+					If CARS_type = "1" Then ASSETS_ARRAY(ast_type, asset_counter) = "1 - Car"
+					If CARS_type = "2" Then ASSETS_ARRAY(ast_type, asset_counter) = "2 - Truck"
+					If CARS_type = "3" Then ASSETS_ARRAY(ast_type, asset_counter) = "3 - Van"
+					If CARS_type = "4" Then ASSETS_ARRAY(ast_type, asset_counter) = "4 - Camper"
+					If CARS_type = "5" Then ASSETS_ARRAY(ast_type, asset_counter) = "5 - Motorcycle"
+					If CARS_type = "6" Then ASSETS_ARRAY(ast_type, asset_counter) = "6 - Trailer"
+					If CARS_type = "7" Then ASSETS_ARRAY(ast_type, asset_counter) = "7 - Other"
+					ASSETS_ARRAY(ast_year, asset_counter) = CARS_year
+					ASSETS_ARRAY(ast_make, asset_counter) = replace(CARS_make, "_", "")
+					ASSETS_ARRAY(ast_model, asset_counter) = replace(CARS_model, "_", "")
+					ASSETS_ARRAY(ast_trd_in, asset_counter) = trim(CARS_trade_in)
+					ASSETS_ARRAY(ast_loan_value, asset_counter) = trim(CARS_loan)
+					If CARS_source = "1" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "1 - NADA"
+					If CARS_source = "2" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "2 - Appraisal Val"
+					If CARS_source = "3" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "3 - Client Stmt"
+					If CARS_source = "4" Then ASSETS_ARRAY(ast_value_srce, asset_counter) = "4 - Other Document"
+					If CARS_owner_verif = "1" Then ASSETS_ARRAY(ast_verif, asset_counter) = "1 - Title"
+					If CARS_owner_verif = "2" Then ASSETS_ARRAY(ast_verif, asset_counter) = "2 - License Reg"
+					If CARS_owner_verif = "3" Then ASSETS_ARRAY(ast_verif, asset_counter) = "3 - DMV"
+					If CARS_owner_verif = "4" Then ASSETS_ARRAY(ast_verif, asset_counter) = "4 - Purchase Agmt"
+					If CARS_owner_verif = "5" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
+					If CARS_owner_verif = "N" Then ASSETS_ARRAY(ast_verif, asset_counter) = "N - No Ver Prvd"
+					ASSETS_ARRAY(ast_amt_owed, asset_counter) = trim(replace(CARS_owe_amount, "_", ""))
+					ASSETS_ARRAY(ast_owe_YN, asset_counter) = replace(CARS_joint_owner_YN, "_", "")
+					ASSETS_ARRAY(ast_bal_date, asset_counter) = replace(CARS_owed_date, " ", "/")
+					If ASSETS_ARRAY(ast_bal_date, asset_counter) = "__/__/__" Then ASSETS_ARRAY(ast_bal_date, asset_counter) = ""
+					If CARS_use = "1" Then ASSETS_ARRAY(ast_use, asset_counter) = "1 -  Primary Veh"
+					If CARS_use = "2" Then ASSETS_ARRAY(ast_use, asset_counter) = "2 - Emp/Trng Trans/Emp Search"
+					If CARS_use = "3" Then ASSETS_ARRAY(ast_use, asset_counter) = "3 - Disa Trans"
+					If CARS_use = "4" Then ASSETS_ARRAY(ast_use, asset_counter) = "4 - Inc Producing"
+					If CARS_use = "5" Then ASSETS_ARRAY(ast_use, asset_counter) = "5 - Used As Home"
+					If CARS_use = "7" Then ASSETS_ARRAY(ast_use, asset_counter) = "7 - Unlicensed"
+					If CARS_use = "8" Then ASSETS_ARRAY(ast_use, asset_counter) = "8 - Othr Countable"
+					If CARS_use = "9" Then ASSETS_ARRAY(ast_use, asset_counter) = "9 - Unavailable"
+					If CARS_use = "0" Then ASSETS_ARRAY(ast_use, asset_counter) = "0 - Long Distance Emp Travel"
+					If CARS_use = "A" Then ASSETS_ARRAY(ast_use, asset_counter) = "A - Carry Heating Fuel Or Water"
+					ASSETS_ARRAY(ast_hc_benefit, asset_counter) = CARS_hc_benefit
+					ASSETS_ARRAY(ast_jnt_owner_YN, asset_counter) = CARS_joint_owner_YN
+					ASSETS_ARRAY(ast_own_ratio, asset_counter) = replace(CARS_share_ratio, " ", "")
+					ASSETS_ARRAY(update_date, asset_counter) = replace(CARS_updated_date, " ", "/")
+					ASSETS_ARRAY(update_panel, asset_counter) = unchecked
+
+					transmit
+					asset_counter = asset_counter + 1
+					EMReadScreen reached_last_CARS_panel, 13, 24, 2
+				Loop until reached_last_CARS_panel = "ENTER A VALID"
+			End If
+		Next
+
+		current_asset_panel = FALSE
+		acct_panels = 0
+		secu_panels = 0
+		cars_panels = 0
+		For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
+			If ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
+				current_asset_panel = TRUE
+				acct_panels = acct_panels + 1
+				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+				asset_display = asset_display & vbNewLine & "ACCT - " & the_asset
+			ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
+				current_asset_panel = TRUE
+				secu_panels = secu_panels + 1
+				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+				asset_display = asset_display & vbNewLine & "SECU - " & the_asset
+			ElseIf ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
+				current_asset_panel = TRUE
+				cars_panels = cars_panels + 1
+				If DateDiff("d", ASSETS_ARRAY(update_date, the_asset), date) = 0 Then ASSETS_ARRAY(cnote_panel, the_asset) = checked
+				asset_display = asset_display & vbNewLine & "CARS - " & the_asset
+			Else
+				asset_display = asset_display & vbNewLine & ASSETS_ARRAY(ast_panel, the_asset) & " - " & the_asset
+			End If
+		Next
+	End If
+'ASSET CODE-END
 	If form_type_array(form_type_const, maxis_panel_read) = arep_form_name Then 'MAXIS NAVIGATION FOR AREP
 		Do
 			Call navigate_to_MAXIS_screen("STAT", "AREP")
@@ -1747,6 +3800,7 @@ Do
 					Call asset_dialog
 					current_dialog = "asset"
 					docs_rec = docs_rec & ", ASST"
+					
 				End If
 				If form_type_array(form_type_const, form_count) = atr_form_name Then 
 					Call atr_dialog
@@ -1951,6 +4005,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'WRITE IN MAXIS===========================================================================
 Call MAXIS_background_check
 For maxis_panel_write = 0 to Ubound(form_type_array, 2)	
+
+	If form_type_array(form_type_const, maxis_panel_write) = asset_form_name then 	' WRITE FOR ASSET
+		
+	End If
 	If form_type_array(form_type_const, maxis_panel_write) = arep_form_name then 	' WRITE FOR AREP
 		end_msg = end_msg & vbNewLine & "AREP Information entered."
 		'formatting programs into one variable to write in case note
@@ -2434,6 +4492,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 Next
 
 
+'MsgBox "docs_rec" & docs_rec
 
 'CASE NOTE===========================================================================
 'TODO: Look into HOSPICE Needing it's own case note. See if the reading of past case notes needs the subject of the casenote to be specific or if it can be anywhere within the casenote?
@@ -2442,7 +4501,7 @@ Call MAXIS_background_check
 'Handling to change the case note header depending on if MTAF is one of the documents processed 
 Call start_a_blank_case_note
 If Instr(docs_rec, "MTAF") Then		
-	If MTAF_munote_only_checkbox = checked Then 
+	If MTAF_note_only_checkbox = checked Then 
 		CALL write_variable_in_CASE_NOTE("*** MTAF Processed: " & MTAF_status_dropdown & "***")
 	Else
 		Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
