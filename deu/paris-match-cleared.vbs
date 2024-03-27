@@ -61,44 +61,83 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Call MAXIS_case_number_finder(MAXIS_case_number)
+Call Check_for_MAXIS(False)
 
-EMReadscreen dail_check, 4, 2, 48
-IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your DAIL. This script will stop.")
+'Adding paths to use from DAIL scrubber OR by selecting/choosing active case 
+EmReadscreen DAIL_panel, 4, 2, 48
 
-EMGetCursor row, col
-Call write_value_and_transmit("T", row, col)
+If DAIL_panel = "DAIL" then
+    If MAXIS_case_number = "" then    
+        EmReadscreen MAXIS_case_number, 8, 5, 73
+        MAXIS_case_number = trim(MAXIS_case_number)
+    End if 
+        'determining if the old message with the SSN functionality will be needed or not.
+    EMReadScreen memb_confirmation, 7, 6, 20
+    If left(memb_confirmation, 4) = "MEMB" then
+        SSN_present = False
+        member_number = right(memb_confirmation, 2)
+    
+        'Heading to STAT to get the Member's SSN
+        Call write_value_and_transmit("S", 6, 3)
+        'PRIV Handling
+        EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+        If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
+        EMReadScreen stat_check, 4, 20, 21
+        If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+    
+        Call write_value_and_transmit("MEMB", 20, 71)
+        Call write_value_and_transmit(member_number, 20, 76)
+        EmReadscreen client_SSN, 11, 7, 42
+        client_SSN = replace(client_SSN, " ", "")
+        PF3 ' back to the DAIL
+    End if
 
-EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
-IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a PARIS match. Please select a PARIS match, and run the script again.")
+    'Going to INFC
+    Call write_value_and_transmit("I", 6, 3) 'to INFC
+    If SSN_present = False then EmWriteScreen client_SSN, 3, 63
+    CALL write_value_and_transmit("INTM", 20, 71)
+Else 
+    memb_number = "01" 'default to MEMB 01
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 211, 65, "PARIS MATCH CLEARED"
+      EditBox 70, 5, 50, 15, MAXIS_case_number
+      EditBox 180, 5, 20, 15, MEMB_number
+      EditBox 70, 25, 130, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 105, 45, 45, 15
+        CancelButton 155, 45, 45, 15
+      Text 5, 10, 50, 10, "Case Number:"
+      Text 125, 10, 55, 10, "MEMB Number:"
+      Text 5, 30, 60, 10, "Worker Signature:"
+    EndDialog
+    
+    DO
+    	DO
+        	err_msg = ""
+        	Dialog Dialog1
+        	cancel_without_confirmation
+         	Call validate_MAXIS_case_number(err_msg, "*")
+         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Please enter a valid 2 digit member number."
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        LOOP UNTIL err_msg = ""
+    	CALL check_for_password_without_transmit(are_we_passworded_out)
+    Loop until are_we_passworded_out = false
+    
+    ''----------------------------------------------------------------------------------------------------STAT
+    CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+    IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
+    Call write_value_and_transmit(MEMB_number, 20, 76)
 
-EMReadScreen MAXIS_case_number, 8, 5, 73
-MAXIS_case_number= TRIM(MAXIS_case_number)
+    EMReadscreen SSN_number_read, 11, 7, 42
+    SSN_number_read = replace(SSN_number_read, " ", "")
 
-'determining if the old message with the SSN functionality will be needed or not.
-EMReadScreen memb_confirmation, 7, 6, 20
-If left(memb_confirmation, 4) = "MEMB" then
-    SSN_present = False
-    member_number = right(memb_confirmation, 2)
-
-    'Heading to STAT to get the Member's SSN
-    Call write_value_and_transmit("S", 6, 3)
-    'PRIV Handling
-    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
-    EMReadScreen stat_check, 4, 20, 21
-    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-
-    Call write_value_and_transmit("MEMB", 20, 71)
-    Call write_value_and_transmit(member_number, 20, 76)
-    EmReadscreen client_SSN, 11, 7, 42
-    client_SSN = replace(client_SSN, " ", "")
-    PF3 ' back to the DAIL
-End if
-
-'Going to INFC
-Call write_value_and_transmit("I", 6, 3) 'to INFC
-If SSN_present = False then EmWriteScreen client_SSN, 3, 63
-Call write_value_and_transmit("INTM", 20, 71)
+    CALL navigate_to_MAXIS_screen("INFC" , "____")
+    CALL write_value_and_transmit("INTM", 20, 71)
+    CALL write_value_and_transmit(SSN_number_read, 3, 63)
+End if 
 
 'checking for IRS non-disclosure agreement.
 EMReadScreen agreement_check, 9, 2, 24
