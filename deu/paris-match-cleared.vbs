@@ -143,6 +143,7 @@ End if
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
+'----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 8
 DO
 	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
