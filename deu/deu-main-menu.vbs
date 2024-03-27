@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Retired script ATR Received. Please use NOTES - DOCUMENTS RECEIVED. Also retired PARIS MATCH CC CLAIM ENTERED script. Please use NOTES - OVERPAYMENT and DEU - PARIS MATCH CLEARED. PARIS MATCH CLEARED also updated to work from the DAIL as well.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/24/2023", "MENU format has been updated to align with the menu displays for the primary categories.", "Casey Love, Hennepin County")
 call changelog_update("02/28/2023", "Removed APPEALS button. This was a redirect to the NOTES - APPEALS script. Please use the APPEALS script from the NOTES Main Menu. Thank you!", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2023", "Retired script EBT OUT OF STATE due to state correction action plan. A new automation tool may be created in the future based on DHS and FNS/USDA guidance.", "Ilse Ferris, Hennepin County")
