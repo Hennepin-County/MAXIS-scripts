@@ -1039,7 +1039,7 @@ Do
         If paris_match_HC_checkbox = checked then CALL add_words_to_message("You do not qualify for Medical Assistance because you are not a Minnesota resident. (Code of Federal Regulations, title 42, section 435.403)")
 
         'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
-        If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
+        If UBOUND(WCOM_TO_WRITE_ARRAY) > 29 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 30 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
 
         If big_err_msg <> "" Then
             MsgBox "*** Please resolved the following to continue ***" & vbNewLine & big_err_msg
