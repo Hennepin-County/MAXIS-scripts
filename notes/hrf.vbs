@@ -73,22 +73,23 @@ Do
     Do
         '-------------------------------------------------------------------------------------------------DIALOG
         Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 181, 100, "HRF Case Number"
+        BeginDialog Dialog1, 0, 0, 181, 110, "HRF Case Number"
           EditBox 80, 5, 70, 15, MAXIS_case_number
-          EditBox 65, 25, 30, 15, MAXIS_footer_month
-          EditBox 140, 25, 30, 15, MAXIS_footer_year
-          CheckBox 10, 60, 30, 10, "MFIP", MFIP_check
-          CheckBox 45, 60, 30, 10, "SNAP", SNAP_check
-          CheckBox 85, 60, 20, 10, "HC", HC_check
-          CheckBox 115, 60, 25, 10, "GA", GA_check
-          CheckBox 145, 60, 50, 10, "MSA", MSA_check
+          EditBox 80, 25, 18, 15, MAXIS_footer_month
+          EditBox 106, 25, 18, 15, MAXIS_footer_year
+          CheckBox 10, 70, 30, 10, "MFIP", MFIP_check
+          CheckBox 45, 70, 30, 10, "SNAP", SNAP_check
+          CheckBox 85, 70, 20, 10, "HC", HC_check
+          CheckBox 115, 70, 25, 10, "GA", GA_check
+          CheckBox 145, 70, 50, 10, "MSA", MSA_check
           ButtonGroup ButtonPressed
-            OkButton 35, 80, 50, 15
-            CancelButton 95, 80, 50, 15
-          Text 25, 10, 50, 10, "Case number:"
-          Text 10, 30, 50, 10, "Footer month:"
-          Text 110, 30, 25, 10, "Year:"
-          GroupBox 5, 45, 170, 30, "Programs Recertifying"
+            OkButton 35, 90, 50, 15
+            CancelButton 95, 90, 50, 15
+          Text 30, 10, 50, 10, "Case number:"
+          Text 5, 30, 75, 10, "Footer month (MM/YY):"
+		  Text 101, 30, 4, 10, "/"
+          Text 80, 40, 75, 10, "(benefit month)"
+          GroupBox 5, 55, 170, 30, "Programs Recertifying"
         EndDialog
 
         err_msg = ""
@@ -162,6 +163,10 @@ HRF_computer_friendly_month = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 retro_month_name = monthname(datepart("m", (dateadd("m", -2, HRF_computer_friendly_month))))
 pro_month_name = monthname(datepart("m", (HRF_computer_friendly_month)))
 HRF_month = retro_month_name & "/" & pro_month_name
+next_month_hrf_not_received_checkbox = unchecked
+next_retro_month_name = monthname(datepart("m", (dateadd("m", -1, HRF_computer_friendly_month))))
+next_month_name = monthname(datepart("m", DateAdd("m", 1, HRF_computer_friendly_month)))
+next_HRF_month = next_retro_month_name & "/" & next_month_name
 
 'If a HRF is being run for a HC case, script will ask if this is a LTC case
 If HC_check = checked Then
@@ -454,6 +459,11 @@ If LTC_case = vbYes then
 			      GroupBox 280, 230, 50, 40, "ELIG panels:"
 			      GroupBox 340, 230, 100, 40, "STAT-based navigation"
 			      Text 100, 280, 60, 10, "Worker signature:"
+				  If CM_mo = MAXIS_footer_month and CM_yr = MAXIS_footer_year Then
+					GroupBox 90, 235, 190, 35, "HRF BEING PROCESSED IN THE BENEFIT MONTH."
+					Text 95, 245, 180, 10, "This means there may be a HRF due for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " as well."
+					CheckBox 95, 255, 180, 10, "Check here if HRF for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " is due and not received.", next_month_hrf_not_received_checkbox
+				  End If
 			    EndDialog
 				err_msg = ""
 				Dialog Dialog1
@@ -516,7 +526,7 @@ If LTC_case = vbYes then
 	programs_list = "HC"
 	If MSA_check = checked Then programs_list = programs_list & " & MSA"
 	If admit_date <> "" then facility_info = facility_info & ". Admit Date: " & admit_date
-	
+
 
 	'Enters the case note-----------------------------------------------------------------------------------------------
 	start_a_blank_CASE_NOTE
@@ -535,6 +545,11 @@ If LTC_case = vbYes then
 	IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+	If next_month_hrf_not_received_checkbox = checked Then
+		call write_variable_in_CASE_NOTE("* HRF for next month (" & CM_plus_1_mo & "/" & CM_plus_1_yr & ") has not been received.")
+		call write_variable_in_CASE_NOTE("  This may cause closure for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " if not received.")
+	End If
+
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -547,7 +562,7 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 				err_msg = ""
 				'-------------------------------------------------------------------------------------------------DIALOG
 				Dialog1 = "" 'Blanking out previous dialog detail
-			    BeginDialog Dialog1, 0, 0, 451, 285, "HRF dialog"
+			    BeginDialog Dialog1, 0, 0, 451, 285, MAXIS_footer_month & "/" & MAXIS_footer_year & " HRF dialog"
 			      EditBox 65, 30, 50, 15, HRF_datestamp
 			      DropListBox 170, 30, 75, 15, "complete"+chr(9)+"incomplete", HRF_status
 			      EditBox 65, 50, 380, 15, earned_income
@@ -610,6 +625,12 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 			      Text 5, 55, 55, 10, "Earned income:"
 			      Text 5, 75, 60, 10, "Unearned income:"
 			      GroupBox 255, 5, 70, 40, "ELIG panels:"
+				  If CM_mo = MAXIS_footer_month and CM_yr = MAXIS_footer_year Then
+					GroupBox 90, 245, 190, 35, "HRF BEING PROCESSED IN THE BENEFIT MONTH."
+					Text 95, 255, 180, 10, "This means there may be a HRF due for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " as well."
+					CheckBox 95, 265, 180, 10, "Check here if HRF for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " is due and not received.", next_month_hrf_not_received_checkbox
+				  End If
+
 			    EndDialog
 				Dialog Dialog1
 				cancel_confirmation
@@ -691,6 +712,10 @@ ElseIf LTC_case = vbNo then							'Shows dialog if not LTC
 	IF Sent_arep_checkbox = checked THEN CALL write_variable_in_case_note("* Sent form(s) to AREP.")
 	call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 	call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
+	If next_month_hrf_not_received_checkbox = checked Then
+		call write_variable_in_CASE_NOTE("* HRF for next month (" & next_HRF_month & ") has not been received.")
+		call write_variable_in_CASE_NOTE("  This may cause closure for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " if not received.")
+	End If
 	call write_variable_in_CASE_NOTE("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 
