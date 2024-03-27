@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Updated the name of AVS to Asset Verification Service.", "Dave Courtright, Hennepin County")
 call changelog_update("02/22/2024", "Enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/26/2023", "Disabled renewal option due to asset diregard through 05/31/2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/01/2023", "Updated AVS Portal Case Review reminder for 11th day after submitting an Ad-Hoc request.", "Mark Riegel, Hennepin County")

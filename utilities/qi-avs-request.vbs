@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Updated the name of AVS to Asset Verification Service.", "Dave Courtright, Hennepin County")
 call changelog_update("02/22/2024", "Enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("06/26/2023", "Disabled renewal option due to asset diregard through 05/31/2024.", "Ilse Ferris, Hennepin County")
@@ -61,7 +62,7 @@ CALL MAXIS_case_number_finder (MAXIS_case_number) 'Grabs the case number
 Call check_for_MAXIS(FALSE)
 
 'Initial Defaults
-closing_message = "Request for Account Validation Service (AVS) email has been sent." 'setting up closing_message or possible additions later based on conditions
+closing_message = "Request for Asset Verification Service (AVS) email has been sent." 'setting up closing_message or possible additions later based on conditions
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
