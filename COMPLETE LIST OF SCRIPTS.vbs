@@ -1669,6 +1669,21 @@ script_array(script_num).policy_references		= array("CM SNAP_Electronic_Disquali
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "ELIG Results to Word"
+' script_array(script_num).description 			= "Creates a Word Document of a single POLI/TEMP reference, need the Table Number."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Support", "Utility", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH", "EMER")
+script_array(script_num).dlg_keys               = array("Wrd")
+script_array(script_num).subcategory            = array("TOOL", "MAXIS")
+script_array(script_num).release_date           = #03/27/2024#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Eligibility Notifier"																		'Script name
 ' script_array(script_num).description 			= "Sends a MEMO informing client of possible program eligibility for SNAP, MA, MSP, MNsure or Cash."
 script_array(script_num).category               = "NOTICES"
