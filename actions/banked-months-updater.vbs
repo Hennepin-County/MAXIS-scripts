@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2024", "Updated script to support new banked months available 04/2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/01/2023", "Updated script to stop processing SNAP banked months into 2024, but to code 01/24 as 30/10.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/08/2023", "Updated script to support up to 3 banked months.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/01/2023", "Fixed bug in displaying and case/noting banked months year date.", "Ilse Ferris, Hennepin County")
@@ -61,6 +62,7 @@ EMConnect ""
 Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(initial_month, initial_year)
+initial_banked_month_date = #4/1/2024#
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 90, "Case Number/Date Selection Dialog"
@@ -83,7 +85,8 @@ DO
 		cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(initial_month, initial_year, err_msg, "*")
-		If initial_month < 10 then err_msg = err_msg & vbNewLine & "* The initial month/year cannot be prior to 10/23. Choose another date."
+        Initial_banked_month = initial_month & "/1/" & initial_year
+        If datediff("d", initial_banked_month_date, Initial_banked_month) < 0 then err_msg = err_msg & vbNewLine & "* The initial month/year cannot be prior to 04/24. Choose another date."
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -95,8 +98,8 @@ Call check_for_MAXIS(False)
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 If is_this_priv = True then script_end_procedure("This case is privileged, and you do not have access. The script will now end.")
 
-'Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-'If SNAP_CASE = False then script_end_procedure_with_error_report("This case is not a SNAP Case. The script will now end.")
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+If SNAP_CASE = False then script_end_procedure_with_error_report("This case is not a SNAP Case. The script will now end.")
 
 Call date_array_generator(initial_month, initial_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
 'Need to make sure we start in the correct year for maxis
@@ -110,19 +113,21 @@ ReDim banked_months_array(banked_month_eval_const, 2)
 
 const member_number_const 		= 0
 const member_first_name_const 	= 1
-const wreg_status_const 		= 2
-const abawd_status_const		= 3
-const abawd_mo_count_const		= 4
-const abawd_mo_string_const		= 5
-const banked_mo_count_const		= 6
-const banked_mo_string_const	= 7
-const used_all_abawd_mo_const	= 8
-const used_all_banked_mo_const	= 9
-const member_in_error_const		= 10
-const abawd_month_eval_const 	= 11
-const banked_month_eval_const	= 12
+const member_age_const          = 2
+const wreg_status_const 		= 3
+const abawd_status_const		= 4
+const member_abawd_const        = 5
+const abawd_mo_count_const		= 6
+const abawd_mo_string_const		= 7
+const banked_mo_count_const		= 8
+const banked_mo_string_const	= 9
+const used_all_abawd_mo_const	= 10
+const used_all_banked_mo_const	= 11
+const member_in_error_const		= 12
+const abawd_month_eval_const 	= 13
+const banked_month_eval_const	= 14
 
-'nav to eats panel and adding all members from eats HH to evalution for banked months without having user select persons
+'nav to eats panel and adding all members from eats HH to evaluation for banked months without having user select persons
 CALL navigate_to_MAXIS_screen("STAT", "EATS")
 eats_group_members = ""
 memb_found = True
@@ -166,7 +171,7 @@ ELSEIF all_eat_together = "N" THEN
     LOOP UNTIL eats_group = "__"
 END IF
 
-'Cleaning up eats graup string and creating array 
+'Cleaning up eats group string and creating array 
 If right(eats_group_members, 1) = "," THEN eats_group_members = left(eats_group_members, len(eats_group_members) - 1)
 eats_array = split(eats_group_members, ",")
 
@@ -177,10 +182,12 @@ For each member in eats_array
 	Call write_value_and_transmit(member, 20, 76)
 	EmReadScreen member_first_name, 12, 6, 63
 	member_first_name = replace(member_first_name, "_", "")
+    EMReadScreen member_age, 3, 8, 76
 	'Adding the EATS HH to the array once name and member numbers are obtained 
 	ReDim Preserve banked_months_array(banked_month_eval_const, entry_count)
 	banked_months_array(member_number_const, entry_count) = member
 	banked_months_array(member_first_name_const, entry_count) = trim(member_first_name)
+    banked_months_array(member_age_const, entry_count) = trim(member_age)
 	entry_count = entry_count + 1
 	Stats_counter = stats_counter + 1
 Next 
@@ -193,10 +200,8 @@ For i = 0 to Ubound(banked_months_array, 2)
 		asssessment_month = MAXIS_footer_month - 1
 	    bene_mo_col = (15 + (4*cint(asssessment_month)))		'col to search starts at 15, increased by 4 for each footer month
 	    bene_yr_row = 10
-	    abawd_counted_months = 0					'delclares the variables values at 0 or blanks
+	    abawd_counted_months = 0					'declares the variables values at 0 or blanks
 	    banked_months_count = 0
-		abawd_status = 0
-		wreg_status = 0
 	    abawd_counted_months_string = ""
 	    banked_months_string = ""
 
@@ -206,7 +211,15 @@ For i = 0 to Ubound(banked_months_array, 2)
 	Else 
 	    EMreadScreen wreg_status, 2, 8, 50
 	    EMReadScreen abawd_status, 2, 13, 50
-	
+        If  abawd_status = "10" or _ 
+            abawd_status = "13" or _ 
+            abawd_status = "03" and banked_months_array(member_age_const, i) < 53 then 
+            '03 under 53 years old are TLR's, previously exempt before 09/23 or 10/23 depending on the age of recipient at the time. 
+            banked_months_array(member_abawd_const, i) = True 
+        Else
+            banked_months_array(member_abawd_const, i) = False 
+        End if 
+        
 	    Call write_value_and_transmit("X", 13, 57)		'navigate to ABAWD/TLR Tracking panel and check for historical months
 	    TLR_fixed_clock_mo = "01" 'fixed clock dates for all recipients 
 	    TLR_fixed_clock_yr = "23"
@@ -248,7 +261,7 @@ For i = 0 to Ubound(banked_months_array, 2)
 	    		banked_months_string = banked_months_string & counted_date_month & "/" & counted_date_year & " |"
             END IF
             
-            bene_mo_col = bene_mo_col - 4		're-establishing serach once the end of the row is reached
+            bene_mo_col = bene_mo_col - 4		're-establishing search once the end of the row is reached
             IF bene_mo_col = 15 THEN
             	bene_yr_row = bene_yr_row - 1
             	bene_mo_col = 63
@@ -270,34 +283,36 @@ For i = 0 to Ubound(banked_months_array, 2)
 	banked_months_array(banked_mo_count_const	, i) = banked_months_count
 	banked_months_array(banked_mo_string_const	, i) = banked_months_string
 	'ABAWD Determinations
-	If abawd_counted_months = 3 then 
+	If abawd_counted_months => 3 then 
 		banked_months_array(used_all_abawd_mo_const, i) = True 
 		banked_months_array(abawd_month_eval_const, i) = "All ABAWD/TLR months used."
 	Elseif abawd_counted_months < 3 then 
 		banked_months_array(used_all_abawd_mo_const, i) = False
-		banked_months_array(abawd_month_eval_const, i) = "Only " & abawd_counted_months & " have been used. This member does not require banked months yet."
-	Else 
-		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_months_count & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
-		banked_months_array(abawd_month_eval_const, i) = abawd_counted_months & " have been used. Only 3 are allowed. Updates are needed."
+		banked_months_array(abawd_month_eval_const, i) = "Only " & abawd_counted_months & " have been used."
+        banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_counted_months & " abawd months. This member does not require banked months yet."
+	'Else 
+	'	banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & abawd_counted_months & " abawd months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
+	'	banked_months_array(abawd_month_eval_const, i) = abawd_counted_months & " have been used. Only 3 are allowed. Updates are needed."
 	End if 
 
 	'Banked Months Determinations
-	If banked_months_count = 3 then 
-		banked_months_array(used_all_banked_mo_const, i) = True 
-		banked_months_array(banked_month_eval_const, i) = "All banked months have been used for this member."
-	Elseif banked_months_count = 2 then 
-		banked_months_array(used_all_banked_mo_const, i) = False 
-		banked_months_array(banked_month_eval_const, i) = "1 banked months available." 
-	Elseif banked_months_count = 1 then 
-		banked_months_array(used_all_banked_mo_const, i) = False 
-		banked_months_array(banked_month_eval_const, i) = "2 banked months available." 
-	Elseif banked_months_count = 0 then 
-		banked_months_array(used_all_banked_mo_const, i) = False 
-		banked_months_array(banked_month_eval_const, i) = "3 banked months available." 
-	Else 
-		banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & banked_months_count & " banked months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
-		banked_months_array(banked_month_eval_const, i) = banked_months_count & " have been used. Only 3 are allowed. Updates are needed."
-	End if
+    banked_months_array(banked_month_eval_const, i) = banked_months_count & " banked months used."
+	'If banked_months_count = 3 then 
+	'	banked_months_array(used_all_banked_mo_const, i) = True 
+	'	banked_months_array(banked_month_eval_const, i) = "All banked months have been used for this member."
+	'Elseif banked_months_count = 2 then 
+	'	banked_months_array(used_all_banked_mo_const, i) = False 
+	'	banked_months_array(banked_month_eval_const, i) = "1 banked months available." 
+	'Elseif banked_months_count = 1 then 
+	'	banked_months_array(used_all_banked_mo_const, i) = False 
+	'	banked_months_array(banked_month_eval_const, i) = "2 banked months available." 
+	'Elseif banked_months_count = 0 then 
+	'	banked_months_array(used_all_banked_mo_const, i) = False 
+	'	banked_months_array(banked_month_eval_const, i) = "3 banked months available." 
+	'Else 
+	'	banked_months_array(member_in_error_const, i) = banked_months_array(member_number_const, i) & " " & banked_months_array(member_first_name_const, i) & " has used " & banked_months_count & " banked months. Only 3 are allowed. Updates are needed to this STAT/WREG and/or ABAWD Tracking Record before the script can support this case." 
+	'	banked_months_array(banked_month_eval_const, i) = banked_months_count & " have been used. Only 3 are allowed. Updates are needed."
+	'End if
 Next 
 
 end_msg = ""	'defaults for the next for...next which determines a bunch of actions 
@@ -308,24 +323,31 @@ Show_dialog = False
 
 For i = 0 to Ubound(banked_months_array, 2)
 	'Determines if updates aren't going to be made to STAT/WREG
-	If banked_months_array(used_all_abawd_mo_const, i) = True then
-		update_wreg = True
-	Elseif banked_months_array(member_in_error_const, i) <> "" then 
-		update_wreg = True 	
+	'If banked_months_array(used_all_abawd_mo_const, i) = True then
+	'	update_wreg = True
+	'Else
+    If banked_months_array(member_in_error_const, i) = "" then 
+        update_wreg = True 	
+        spec_memo = True
+        case_note = True 
 	End if 
 
-	If banked_months_array(used_all_banked_mo_const, i) = False then spec_memo = True 
-	If update_wreg = False then spec_memo = False 
-	If update_wreg = True then case_note = True 
+	'If banked_months_array(used_all_banked_mo_const, i) = False then spec_memo = True 
+	'If update_wreg = False then spec_memo = False 
+	'If update_wreg = True then case_note = True 
 
 	If banked_months_array(member_in_error_const, i) <> "" then end_msg = end_msg & banked_months_array(member_in_error_const, i) & vbcr & vbcr 
-	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then show_dialog = True 
+	If banked_months_array(member_abawd_const, i) = True then show_dialog = True 
 Next 
 
-'script end procedure for anyone who is in error 
-If end_msg <> "" then script_end_procedure_with_error_report(end_msg)  
-'Don't show the dialog if no one is already coded as ABAWD or banked for the initial month
-If Show_dialog = False then script_end_procedure_with_error_report("No members in the EATS Household with MEMB 01 are coded as ABAWD (30/10) or Banked (30/13) for the initial month. The script will now end.")
+'Don't show the dialog if no one is already coded as ABAWD or banked for the initial month or there are errors. 
+If Show_dialog = False then 
+    If end_msg <> "" then 
+        script_end_procedure_with_error_report(end_msg) 'script end procedure for anyone who is in error 
+    Else 
+        script_end_procedure_with_error_report("No members in the EATS Household with MEMB 01 are coded as a Time-Limited Recipient for the initial month. The script will now end.")
+    End if 
+End If
 
 script_actions = "" 'variable that tells users what's going on in dialog. 
 If update_wreg = True then script_actions = script_actions & VBCR & "* The STAT/WREG panel will be updated for members who have banked months available, or who have exhausted them."
@@ -341,13 +363,13 @@ BeginDialog Dialog1, 0, 0, 550, 385, "Banked Months Evaluation Dialog for ABAWD/
 
 dialog_item = 0
 For i = 0 to Ubound(banked_months_array, 2)
-	If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
-		y_pos = (45 + dialog_item * 50)
-		GroupBox 10, y_pos, 530, 45, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
-  		Text 20, y_pos + 15, 255, 10, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
-  		Text 20, y_pos + 30, 255, 10, "ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i)
- 	 	Text 285, y_pos + 15, 245, 10, "Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i)
-  		Text 285, y_pos + 30, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
+	If banked_months_array(member_abawd_const, i) = True then 
+		y_pos = (55 + dialog_item * 70)
+		GroupBox 10, y_pos, 530, 60, "MEMB #" & banked_months_array(member_number_const , i) & " " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET: " & banked_months_array(wreg_status_const, i) & "/" & banked_months_array(abawd_status_const, i)
+  		Text 20, y_pos + 15, 255, 20, "ABAWD Count/Months Used: " & banked_months_array(abawd_mo_count_const, i) & " - " & banked_months_array(abawd_mo_string_const, i)
+  		Text 20, y_pos + 40, 255, 10, "ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i)
+ 	 	Text 285, y_pos + 15, 245, 20, "Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i)
+  		Text 285, y_pos + 40, 245, 10, "Banked Months Evaluation: " & banked_months_array(banked_month_eval_const, i)
 		dialog_item = dialog_item + 1
 	End if 
 Next
@@ -376,9 +398,7 @@ For item = 0 to ubound(footer_month_array)
 	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)
-		
-			
-		If banked_months_array(abawd_status_const, i) = "10" or banked_months_array(abawd_status_const, i) = "13" then 
+		If  banked_months_array(member_abawd_const, i) = True then 
 		    Call MAXIS_background_check
 		    Call navigate_to_MAXIS_screen("STAT", "WREG")
 	        Call write_value_and_transmit(banked_months_array(member_number_const, i), 20, 76)	'enters member number
@@ -386,20 +406,21 @@ For item = 0 to ubound(footer_month_array)
 	        EMWriteScreen "30", 8, 50	'wreg code
 	        EMWriteScreen "N", 8, 80	'defer FSET funds code
 
-			If footer_string = "01/24" then
-				EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
-				BM_available = False 
-			Else
-		        If banked_months_array(banked_mo_count_const, i) < 3 then 
+			'If footer_string = "01/24" then
+			'	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+			'	BM_available = False 
+			'Else
+		        'If banked_months_array(banked_mo_count_const, i) < 3 then 
 	            	EMWriteScreen "13", 13, 50	'banked months ABAWD code 
 		        	banked_months_array(banked_mo_count_const, i) = banked_months_array(banked_mo_count_const, i) + 1 'incrementing the BM count & BM month string
 		        	banked_months_array(banked_mo_string_const, i) = banked_months_array(banked_mo_string_const, i) & MAXIS_footer_month & "/" & MAXIS_footer_year & " | "
-	            	EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code	    		
-	            	If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True 
-		        Else
-		        	EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
-		        End If 
-			End if 
+                    EmWriteScreen "_", 14, 50 'blanks out the BM count since it does nothing. 
+	            	'EMWriteScreen banked_months_array(banked_mo_count_const, i), 14, 50	'banked months count code	    		
+	            	'If banked_months_array(banked_mo_count_const, i) = 2 then banked_months_array(used_all_banked_mo_const, i) = True 
+		        'Else
+		        	'EMWriteScreen "10", 13, 50	'ABAWD Counted Months code
+		        'End If 
+			'End if 
 
 			'----------------------------------------------------------------------------------------------------ABAWD TRACKING RECORD Updates
 		    EMReadScreen ABAWD_coding, 2, 13, 50	'confirming what's being updated to determine ABAWD tracking recording updating
@@ -407,7 +428,7 @@ For item = 0 to ubound(footer_month_array)
 		    Processing_month = MAXIS_footer_month & "/01/" & MAXIS_Footer_year
 		    If DateDiff("M", processing_month, date) => 0 then 
 	
-				If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
+				'If ABAWD_coding = "10" Then ATR_code = "M"'manual counted ABAWD month
 		    	If ABAWD_coding = "13" Then ATR_code = "C" 'manual counted banked month
 				ATR_updates = array("D", ATR_code)
 
@@ -422,7 +443,7 @@ For item = 0 to ubound(footer_month_array)
 		    End if 
 
 			transmit ' to save 
-			EMReadscreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been casuing me TROUBLE!!
+			EMReadScreen orientation_warning, 7, 24, 2 	'reading for orientation date warning message. This message has been causing me TROUBLE!!
 			If orientation_warning = "WARNING" then transmit 
 	        PF3 'to save and exit to stat/wrap
 		    Call back_to_SELF
@@ -434,21 +455,19 @@ For item = 0 to ubound(footer_month_array)
 	Next     
 Next 
 
-'SPEC/MEMO is being sent in leiu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
+'SPEC/MEMO is being sent in lieu of SPEC/WCOM per Bulletin #23-01-02 https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-063946
 If spec_memo = True then
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
 	Call write_variable_in_SPEC_MEMO("************************************************************")
-	Call write_variable_in_SPEC_MEMO("You are getting this letter because you or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months.")
+	Call write_variable_in_SPEC_MEMO("You or someone in your SNAP unit needs to follow the time-limited work rules and have used all three available months.")
 	Call write_variable_in_SPEC_MEMO("")
 	Call write_variable_in_SPEC_MEMO("Unless you or someone in your SNAP unit meet work rules or an exemption, you/they will no longer be eligible for SNAP.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits for up to 3 more months.")
+	Call write_variable_in_SPEC_MEMO("However, due to additional funding we are able to approve SNAP benefits.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("If you/someone in your SNAP unit is not meeting work requirements/meeting an exemption, you/they will no longer receive SNAP after these 3 months.")
+	Call write_variable_in_SPEC_MEMO("Please contact your team if you or someone in your SNAP unit start meeting work requirements or think that you meet an exemption.")
 	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("Please contact your team if you, or someone in your SNAP unit, start meeting work requirements or think that you meet an exemption.")
-	Call write_variable_in_SPEC_MEMO("")
-	Call write_variable_in_SPEC_MEMO("If you need help meeting these work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
+	Call write_variable_in_SPEC_MEMO("If you need help meeting work requirements, please see the SNAP Time-limited work rules website at: https://mn.gov/dhs/snap-e-and-t/time-limited-work-rules/.")
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4 'save memo
 	stats_counter = STATS_counter + 1
@@ -457,8 +476,8 @@ End if
 '----------------------------------------------------------------------------------------------------CASE/NOTE
 Call start_a_blank_CASE_NOTE
 Call write_variable_in_case_note("--SNAP Banked Months Evaluation for " & initial_month & "/" & initial_year & "--")
-Call write_variable_in_case_note("Case TLR Information by Member")
-Call write_variable_in_case_note("------------------------------")
+Call write_variable_in_case_note("Case TLR Information by Member:")
+Call write_variable_in_case_note("--------------------------------")
 For i = 0 to Ubound(banked_months_array, 2)
 	If banked_months_array(wreg_status_const, i) = 0 THEN
 		Call write_variable_in_case_note("MEMB #" & banked_months_array(member_number_const , i) & " - " & banked_months_array(member_first_name_const, i) & ", ABAWD/FSET:(WREG Panel does not exist.)")
@@ -470,11 +489,12 @@ For i = 0 to Ubound(banked_months_array, 2)
         Call write_variable_in_case_note("* ABAWD Months Evaluation: " & banked_months_array(abawd_month_eval_const, i))
         Call write_variable_in_case_note("* Banked Count/Months Used: " & banked_months_array(banked_mo_count_const, i) & " - " & banked_months_array(banked_mo_string_const, i))
 		stats_counter = STATS_counter + 1
-		If BM_available = False then Call write_variable_in_case_note("SNAP Banked Months have all been used (availability of banked months expires in 2023.) ")
+		'If BM_available = False then Call write_variable_in_case_note("SNAP Banked Months have all been used (availability of banked months expires in 2023.) ")
         Call write_variable_in_case_note("--")
 	End if 
 Next 
-If update_wreg = True then Call write_variable_in_case_note("* The STAT/WREG panel was updated through CM + 1 for members who have banked months available, or who have exhausted them.")
+'If update_wreg = True then Call write_variable_in_case_note("* The STAT/WREG panel was updated through CM + 1 for members who have banked months available, or who have exhausted them.")
+If update_wreg = True then Call write_variable_in_case_note("* The STAT/WREG panel was updated through CM + 1 for members who are banked months eligible.")
 If spec_memo = True then Call write_variable_in_case_note("* A SPEC/MEMO was sent to the household with banked months and time-limited SNAP information.")
 Call write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
@@ -498,7 +518,7 @@ script_end_procedure_with_error_report(end_msg)
 '--All variables are CASE:NOTEing (if required)---------------------------------09/19/2023
 '--CASE:NOTE Header doesn't look funky------------------------------------------09/19/2023
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/19/2023
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/19/2023 --------------The ones without periods have them in the variables or output a string or dates and it looked funnny.
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/19/2023 --------------The ones without periods have them in the variables or output a string or dates and it looked funny.
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/19/2023

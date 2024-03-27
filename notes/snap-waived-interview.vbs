@@ -2193,8 +2193,8 @@ function dialog_movement()
 		End If
 	Next
 	If current_dialog = "needed info" Then
-	If ButtonPressed = needed_info_array(ubound(needed_info_array))(11) Then Call verif_details_dlg(ubound(questions_array)) 'calls the verif dialog for the other info questions
-	If ButtonPressed = needed_info_array(ubound(needed_info_array)-1)(11) Then Call verif_details_dlg(ubound(questions_array)-1) 'calls the verif dialog for the other info questions
+		If ButtonPressed = needed_info_array(ubound(needed_info_array))(11) Then Call verif_details_dlg(ubound(questions_array)) 'calls the verif dialog for the other info questions
+		If ButtonPressed = needed_info_array(ubound(needed_info_array)-1)(11) Then Call verif_details_dlg(ubound(questions_array)-1) 'calls the verif dialog for the other info questions
 	End If
 	If ButtonPressed = member_info_needed_btn Then call member_info_needed_dialog()
 	End If
@@ -8658,7 +8658,7 @@ Dim rent_amount, lot_rent_amount, mortgage_amount, insurance_amount, tax_amount,
 Dim previous_CAF_datestamp, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn
 Dim delay_action_due_to_faci, deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn
 Dim income_review_completed, assets_review_completed, shel_review_completed, note_calculation_detail
-
+Dim no_contact_confirm
 
 show_pg_one_memb01_and_exp	= 1
 show_pg_one_address			= 2
@@ -10970,14 +10970,14 @@ If info_needed = True Then  'There is info needed, call the resident
 					If ButtonPressed = return_to_info_btn Then contact_complete = false
 				Loop until ButtonPressed <> 3701
 			ElseIf ButtonPressed = no_contact Then
-				proceed_confirm = MsgBox("Are you sure you wish to proceed?" & vbCr & vbCr &_
+				no_contact_confirm = MsgBox("Are you sure you wish to proceed?" & vbCr & vbCr &_
 									 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE." & vbCr & vbCr &_
 									 "Press 'No' now to return to the dialog if you are still attempting to contact the resident." & vbCr &_
 									 "Press 'Yes' if the resident or AREP cannot be reached via all available numbers, and continue to case noting." & vbCr &_
 									 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "")
-				If proceed_confirm = vbCancel then cancel_confirmation
+				If no_contact_confirm = vbCancel then cancel_confirmation
 			End If
-		Loop Until proceed_confirm <> vbNo AND ButtonPressed <> 3704
+		Loop Until no_contact_confirm <> vbNo AND ButtonPressed <> 3704
 		Call check_for_password(are_we_passworded_out)
 	Loop Until are_we_passworded_out = false
 
