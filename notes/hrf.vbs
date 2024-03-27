@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/27/2024", "Added a checkbox option to indicate that a future month HRF has not been received when processing a HRF for the current month. This adds a line to the CASE/NOTE indicating this future HRF is not received.", "Casey Love, Hennepin County")
 Call changelog_update("02/27/2024", "Removed eligibility details from case note. Please use NOTES-Eligibility Summary to document this information.", "Megan Geissler, Hennepin County")
 Call changelog_update("06/26/2023", "Added handling to support selection of specific programs for HRF processing.", "Ilse Ferris, Hennepin County")
 Call changelog_update("07/10/2019", "Fixed a bug that prevented the script from reading the grant amount if Significant Change was applied on MFIP. Additionally added functionality to copy significant change information into the casenote if ELIG/MF is read.", "Casey Love, Hennepin County")
