@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Updated handling to reflect that WCOM now allows 30 lines.", "Mark Riegel, Hennepin County")
 call changelog_update("10/09/2023", "In accordance with POLI TEMP TE02.05.19 (effective 10/23), removed functionality for WREG Exemption coded - Temporarily disabled and WREG Exemption coded - Care of Child under 6, and updated language for ineligible students.", "Mark Riegel, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/20/2021", "Updated online document submission option to include MNBenefits. Added Health Care PARIS match WCOM.", "Ilse Ferris, Hennepin County")
@@ -1039,7 +1040,7 @@ Do
         If paris_match_HC_checkbox = checked then CALL add_words_to_message("You do not qualify for Medical Assistance because you are not a Minnesota resident. (Code of Federal Regulations, title 42, section 435.403)")
 
         'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
-        If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
+        If UBOUND(WCOM_TO_WRITE_ARRAY) > 29 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 30 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
 
         If big_err_msg <> "" Then
             MsgBox "*** Please resolved the following to continue ***" & vbNewLine & big_err_msg
