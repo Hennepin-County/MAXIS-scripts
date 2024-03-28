@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/27/2024", "Added handling to reflect changes to WCOM that added line numbers and allows for 30 lines.", "Mark Riegel, Hennepin County")
+call changelog_update("03/27/2024", "Improve handling to determine if WCOM has been created already.", "Mark Riegel, Hennepin County")
 call changelog_update("06/21/2019", "Added program selection to initial dialog. Added search for MFIP in notices for WCOM only option.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
