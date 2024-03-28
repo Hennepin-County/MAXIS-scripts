@@ -133,18 +133,17 @@ FOR each HH_member in HH_member_array
 			IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 			IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 			transmit                                                        'Transmits to start the memo writing process'
-		    EMSetCursor 03, 15
-      		EMWriteScreen "You are denied eligibility under Medical Assistance for", 3, 15
-	      	EMWriteScreen "Employed Persons with Disabilities (MA-EPD) program because", 4, 15
-	      	EMWriteScreen "the required premium was not paid by the due date, You may", 5, 15
-			EMWriteScreen "request 'Good Cause' for late premium payment. This must be", 6, 15
-			EMWriteScreen "approved by the Department of Human Services (DHS). To ", 7, 15
-			EMWriteScreen "claim Good Cause, send a letter with your name, address,", 8, 15
-			EMWriteScreen "case number and the reason for late payment to:", 9, 15
-			EMWriteScreen "DHS MA-EPD Good Cause", 11, 15
-			EMWriteScreen "P.O. Box 64967", 12, 15
-			EMWriteScreen "St Paul, MN 55164-0967", 13, 15
-			EMWriteScreen "Fax: 651 431 7563", 15, 15
+			write_variable_in_SPEC_MEMO("You are denied eligibility under Medical Assistance for")
+	      	write_variable_in_SPEC_MEMO("Employed Persons with Disabilities (MA-EPD) program because")
+	      	write_variable_in_SPEC_MEMO("the required premium was not paid by the due date, You may")
+			write_variable_in_SPEC_MEMO("request 'Good Cause' for late premium payment. This must be")
+			write_variable_in_SPEC_MEMO("approved by the Department of Human Services (DHS). To ")
+			write_variable_in_SPEC_MEMO("claim Good Cause, send a letter with your name, address,")
+			write_variable_in_SPEC_MEMO("case number and the reason for late payment to:")
+			write_variable_in_SPEC_MEMO("DHS MA-EPD Good Cause")
+			write_variable_in_SPEC_MEMO("P.O. Box 64967")
+			write_variable_in_SPEC_MEMO("St Paul, MN 55164-0967")
+			write_variable_in_SPEC_MEMO("Fax: 651 431 7563")
 		    PF4
 			PF3
 			WCOM_count = WCOM_count + 1
