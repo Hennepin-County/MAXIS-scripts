@@ -80,40 +80,12 @@ function determine_expedited_screening()
     IF rent   = "" THEN rent   = 0
 
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
-        If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
-        If population_of_case = "Adults" Then
-            'making sure that Adults EXP baskets are not at limit
-
-
-            If (EX1_basket_available = True and EX2_basket_available = False) then
-                transfer_to_worker = "EX1"
-            ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
-                transfer_to_worker = "EX2"
-            Else
-                'Do all the randomization here
-                Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
-                random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
-                If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
-                If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
-            End if
-        End If
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
-        no_transfer_checkbox = unchecked
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN
         expedited_status = "Client Does Not Appear Expedited"
-        no_transfer_checkbox = checked
-        transfer_to_worker = ""
     End If
 
-    'families cases that have cash pending need to to to these specific baskets
-    If population_of_case = "Families" and InStr(new_programs_pended, "CASH") <> 0 Then transfer_to_worker = "EY9"
-
-    'The familiy cash basket has a backup if it has hit the display limit.
-    If transfer_to_worker = "EY9" Then
-        no_transfer_checkbox = unchecked
-        If EY9_basket_available = False Then transfer_to_worker = "EY8"
-    End If
 end function
 
 function update_programs_pending_detail(previously_pended_progs, new_programs_pended)
@@ -495,15 +467,7 @@ LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
 Call hest_standards(heat_AC_amt, electric_amt, phone_amt, application_date) 'function to determine the hest standards depending on the application date.
 no_transfer_checkbox = checked
-
-'families cases that have cash pending need to to to these specific baskets
-If population_of_case = "Families" and InStr(new_programs_pended, "CASH") <> 0 Then transfer_to_worker = "EY9"
-
-'The familiy cash basket has a backup if it has hit the display limit.
-If transfer_to_worker = "EY9" Then
-    no_transfer_checkbox = unchecked
-    If EY9_basket_available = False Then transfer_to_worker = "EY8"
-End If
+transfer_to_worker = ""
 
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
