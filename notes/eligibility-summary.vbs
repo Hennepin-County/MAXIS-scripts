@@ -23444,6 +23444,82 @@ class stat_detail
 		stat_mont_form_recvd_date = replace(stat_mont_form_recvd_date, " ", "/")
 		If stat_mont_form_recvd_date = "__/__/__" Then stat_mont_form_recvd_date = ""
 
+		'Herehere
+		'TODO: Is this okay placement? 
+		'TODO: Why does this only work if inside the sub?
+		'TODO: Why does it take so long to initially load the script?
+		'TODO: Do we like how it double checks the value or do we not want to read the statuses twice (once above and once within the error handling). Could restructure:
+			' Do	
+			'	READ Ucodes for REVW and MONT
+			' 	Exit do if U code <> for any of the statuses (this would skip the dialog below) 
+			' 	Do/Loop Dialog & error handling
+			'Exit Do
+
+		If stat_mont_cash_status = "U" Then mont_u_code_string = mont_u_code_string & ", Cash/GRH"
+		If stat_mont_snap_status = "U" Then mont_u_code_string = mont_u_code_string & ", SNAP"
+		If stat_mont_hc_status = "U" Then mont_u_code_string = mont_u_code_string & ", HC"
+		If left(mont_u_code_string, 1) = "," Then mont_u_code_string = right(mont_u_code_string, len(mont_u_code_string)-2)
+
+		If stat_revw_cash_code = "U" Then revw_u_code_string = revw_u_code_string & ", Cash/GRH"
+		If stat_revw_snap_code = "U" Then revw_u_code_string = revw_u_code_string & ", SNAP"
+		If stat_revw_hc_code = "U" Then revw_u_code_string = revw_u_code_string & ", HC"
+		If left(revw_u_code_string, 1) = "," Then revw_u_code_string = right(revw_u_code_string, len(revw_u_code_string)-2)
+
+
+		If (stat_mont_cash_status = "U" OR stat_mont_snap_status = "U" OR stat_mont_hc_status = "U" OR stat_revw_cash_code = "U" OR stat_revw_snap_code = "U" OR stat_revw_hc_code = "U") Then
+			Do
+				Do
+					err_msg = ""	
+						Dialog1 = ""
+						BeginDialog Dialog1, 0, 0, 281, 90, "REVW and MONT- U Code Verification"
+							Text 5, 5, 270, 20, "One or more programs on REVW or MONT have a 'U' status. Cancel script and complete approval or change status to 'i' for the following programs then select OK:"
+							If mont_u_code_string <> "" Then Text 30, 25, 160, 10, "MONT Panel: " & mont_u_code_string		
+							If revw_u_code_string <> "" Then Text 30, 35, 160, 10, "REVW Panel: " & revw_u_code_string						
+							ButtonGroup ButtonPressed
+								PushButton 5, 65, 45, 15, "REVW", stat_revw_btn
+								PushButton 55, 65, 45, 15, "MONT", stat_mont_btn
+								OkButton 135, 65, 50, 15
+								CancelButton 190, 65, 50, 15
+							EndDialog
+
+					Do
+						dialog Dialog1
+						cancel_confirmation
+						If ButtonPressed = stat_revw_btn Then Call navigate_to_MAXIS_screen("STAT", "REVW")
+						If ButtonPressed = stat_mont_btn Then Call navigate_to_MAXIS_screen("STAT", "MONT")
+					Loop Until ButtonPressed = -1
+
+					Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+					Call navigate_to_MAXIS_screen("STAT", "MONT")
+					EMReadScreen stat_mont_cash_status, 1, 11, 43
+					EMReadScreen stat_mont_snap_status, 1, 11, 53
+					EMReadScreen stat_mont_hc_status, 1, 11, 63
+					mont_u_code_string = ""
+					If stat_mont_cash_status = "U" Then mont_u_code_string = mont_u_code_string & ", Cash/GRH"
+					If stat_mont_snap_status = "U" Then mont_u_code_string = mont_u_code_string & ", SNAP"
+					If stat_mont_hc_status = "U" Then mont_u_code_string = mont_u_code_string & ", HC"
+					If left(mont_u_code_string, 1) = "," Then mont_u_code_string = right(mont_u_code_string, len(mont_u_code_string)-2)
+
+					Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+					Call navigate_to_MAXIS_screen("STAT", "REVW")
+					EMReadScreen stat_revw_cash_code, 1, 7, 40
+					EMReadScreen stat_revw_snap_code, 1, 7, 60
+					EMReadScreen stat_revw_hc_code, 1, 7, 73
+					If stat_revw_cash_code = "U" Then revw_u_code_string = revw_u_code_string & ", Cash/GRH"
+					revw_u_code_string = ""
+					If stat_revw_snap_code = "U" Then revw_u_code_string = revw_u_code_string & ", SNAP"
+					If stat_revw_hc_code = "U" Then revw_u_code_string = revw_u_code_string & ", HC"
+					If left(revw_u_code_string, 1) = "," Then revw_u_code_string = right(revw_u_code_string, len(revw_u_code_string)-2)
+
+					If stat_mont_cash_status = "U" then err_msg = err_msg & vbNewLine & "* Cash/GRH: Must complete approval or change status to 'i'."
+					If stat_mont_snap_status = "U" then err_msg = err_msg & vbNewLine & "* SNAP: Must complete approval or change status to 'i'."
+					If stat_mont_hc_status = "U" then err_msg = err_msg & vbNewLine & "*HC: Must complete approval or change status to 'i'."
+					If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+				Loop until err_msg = ""
+				Call check_for_password(are_we_passworded_out)
+			Loop until are_we_passworded_out = FALSE
+		End If
+
 		Call back_to_SELF
 	end sub
 end class
@@ -24915,7 +24991,6 @@ Next
 EMWriteScreen MAXIS_case_number, 18, 43
 
 If approvals_not_created_today <> "" Then
-
 	'making sure that the footer month fields are accurate before trying to do date things
 	check_day = first_month_not_created_today & "/1/" & first_year_not_created_today			'making sure the entered footer month is not later than CM+1
 	check_day = DateAdd("d", 0, check_day)
