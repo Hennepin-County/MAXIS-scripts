@@ -118,8 +118,8 @@ DO
 	    		err_msg = err_msg & "Start Over"
 	    	End If
 	    End If
-		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
-		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Select a resident to update."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -144,7 +144,7 @@ CALL write_value_and_transmit(client_SSN, 3, 63)
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 EMReadScreen panel_check, 4, 2, 52
-IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the client has a duplicate PMI number. Review for a PF11 to be submitted.")
+IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the residenthas a duplicate PMI number. Review for a PF11 to be submitted.")
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -217,7 +217,7 @@ ELSE
 	END IF
 END IF
 
-'--------------------------------------------------------------------Client name
+'--------------------------------------------------------------------Resident name
 EMReadScreen panel_name, 4, 02, 52
 IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
 EMReadScreen client_name, 35, 5, 24
@@ -271,6 +271,7 @@ IF match_type = "WAGE" THEN
         income_source = Left(income_source, position)  'establishes employer as being before the deliminator
 	END IF
 END IF
+
 IF match_type = "BEER" THEN
     EMReadScreen income_source, 50, 8, 28 'was 37' should be to the right of employer and the left of amount
 	income_source = trim(income_source)
@@ -306,8 +307,8 @@ IF notice_sent = "N" THEN
 	  CheckBox 10, 170, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
 	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
 	  EditBox 50, 145, 215, 15, other_notes
-	  Text 5, 10, 165, 10, "Client name: "   & client_name
-	  Text 5, 55, 160, 10, "Active Programs: "  & programs
+	  Text 5, 10, 165, 10, "Resident name: " & client_name
+	  Text 5, 55, 160, 10, "Active Programs: " & programs
 	  Text 5, 70, 165, 15, "Income source:   " & income_source
 	  ButtonGroup ButtonPressed
 	    OkButton 180, 165, 40, 15
@@ -333,7 +334,7 @@ IF notice_sent = "N" THEN
 	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a transmit due to navigation in IUL screens'
 END IF
 
-IF difference_notice_action_dropdown =  "YES" THEN '--------------------------------------------------------------------sending the notice in IULA
+IF difference_notice_action_dropdown =  "Yes" THEN '--------------------------------------------------------------------sending the notice in IULA
     EMwritescreen "005", 12, 46 'writing the resolve time to read for later
     EMwritescreen "Y", 14, 37 'send Notice
 	TRANSMIT 'goes into IULA
@@ -385,7 +386,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
-		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
+		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the residentrespond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date received must be completed."
@@ -401,7 +402,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 	    Dialog1 = "" 'Blanking out previous dialog detail
 	    BeginDialog Dialog1, 0, 0, 361, 260, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
 		  Text 5, 5, 245, 15, "Income source: " & income_source
-		  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+		  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", fraud_referral
 	      EditBox 65, 25, 40, 15, discovery_date
 	      DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
 	      EditBox 130, 65, 30, 15, OP_from
@@ -603,7 +604,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
         Loop until action_header = "    "
     END IF
 
-    IF change_response = "YES" THEN
+    IF change_response = "Yes" THEN
     	EMwritescreen "Y", 15, 37
     ELSE
     	EMwritescreen "N", 15, 37
@@ -652,7 +653,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			IF resolution_status = "BE-NC-Non-collectible" THEN IULB_notes = "Non-Coop remains, but claim is non-collectible. " & other_notes
 			IF resolution_status = "BI-Interface Prob" THEN IULB_notes = "Interface Problem. " & other_notes
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
-			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
+			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Resident name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
 			IF resolution_status = "BO-Other" THEN IULB_notes = "No review due during the match period. " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in case file, " & other_notes
@@ -689,13 +690,13 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
     END IF
-END IF 'end of match when difference_notice_action_dropdown =  "YES" '
+END IF 'end of match when difference_notice_action_dropdown =  "Yes" '
 
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
 script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
 script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
 script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
-script_run_lowdown = script_run_lowdown & vbCr & "Client Name: " & client_name
+script_run_lowdown = script_run_lowdown & vbCr & "Resident Name: " & client_name
 script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
 script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
 script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
@@ -801,7 +802,7 @@ TRANSMIT
 '------------------------------------------setting up case note header'
 IF ATR_needed_checkbox = CHECKED THEN
 	header_note = "ATR/EVF STILL REQUIRED"
-ELSEIF difference_notice_action_dropdown = "YES" THEN
+ELSEIF difference_notice_action_dropdown = "Yes" THEN
 	cleared_header = "DIFF NOTICE SENT"
 	sent_date = date
 ELSEIF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
@@ -860,9 +861,9 @@ CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
-IF  difference_notice_action_dropdown = "YES" THEN
+IF  difference_notice_action_dropdown = "Yes" THEN
 	CALL write_bullet_and_variable_in_case_note("Verifications Requested", verification_needed)
-	CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
+	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications")
 ELSE
 	CALL write_bullet_and_variable_in_case_note("Verifications Received", verification_needed)
 END IF
@@ -881,16 +882,16 @@ IF resolution_status = "BE-Child" THEN
 END IF
 IF resolution_status = "BE-No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
 IF resolution_status = "BE-Overpayment Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
-IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
+IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Resident is still non-coop.")
 IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
-IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Resident reported income. Correct income is in JOBS/BUSI and budgeted.")
+IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different.  Resident's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
 IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
 IF resolution_status = "NC-Non Cooperation" THEN
-	CALL write_variable_in_case_note("* Client failed to cooperate with wage match.")
+	CALL write_variable_in_case_note("* Resident failed to cooperate with wage match.")
 	CALL write_variable_in_case_note("* Case approved to close.")
-	CALL write_variable_in_case_note("* Client needs to provide: ATR, Income Verification, Difference Notice.")
+	CALL write_variable_in_case_note("* Resident needs to provide: ATR, Income Verification, Difference Notice.")
 END IF
 IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
     CALL write_variable_in_case_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
