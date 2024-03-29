@@ -88,11 +88,11 @@ If MAXIS_case_number <> "" Then 		'If a case number is found the script will get
 End If
 'Running the initial dialog to confirm what type match is being cleared and the specifics about the case
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
+
 DO
 	DO
 	   err_msg = ""
-       Dialog1 = ""
+       Dialog1 = "" 'Blanking out previous dialog detail
        BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
          EditBox 55, 5, 45, 15, MAXIS_case_number
          DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
@@ -151,6 +151,7 @@ DO
 	EMReadScreen IEVS_period, 11, row, 47
 	EMReadScreen number_IEVS_type, 3, row, 41
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
+    Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 171, 95, "Case Number: "  & MAXIS_case_number
   	 Text 5, 10, 100, 10, "Navigate to the correct match:"
   	 Text 5, 25, 150, 10, "Match Type: " & number_IEVS_type
@@ -551,7 +552,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
     	    TRANSMIT
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
-    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Do you want to transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
+    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Do you want to transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
     			IF next_steps_message_box = vbYes THEN
     				TRANSMIT
     				EMReadScreen panel_name, 4, 02, 52
@@ -741,45 +742,48 @@ script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes &
 
 script_end_procedure_with_error_report("Match has been acted on. Please take any additional actions needed for your case.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------06/24/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/29/2024
 '--Tab orders reviewed & confirmed----------------------------------------------06/24/2022
-'--Mandatory fields all present & Reviewed--------------------------------------06/24/2022
-'--All variables in dialog match mandatory fields-------------------------------06/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------03/29/2024
+'--All variables in dialog match mandatory fields-------------------------------03/29/2024
+'Review dialog names for content and content fit in dialog----------------------03/29/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------06/24/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------06/24/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/24/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------03/29/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/29/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/29/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-03/29/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/24/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------06/24/2022
-'--PRIV Case handling reviewed -------------------------------------------------06/24/2022
-'--Out-of-County handling reviewed----------------------------------------------06/24/2022
-'--script_end_procedures (w/ or w/o error messaging)----------------------------06/24/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/24/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/29/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/29/2024----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/29/2024
+'--Out-of-County handling reviewed----------------------------------------------03/29/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/29/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------03/29/2024----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/29/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------06/24/2022------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------------------------N/A
-'--Denomination reviewed -------------------------------------------------------06/24/2022
-'--Script name reviewed---------------------------------------------------------06/24/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------06/24/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------03/29/2024----------------N/A
+'--Denomination reviewed -------------------------------------------------------03/29/2024
+'--Script name reviewed---------------------------------------------------------03/29/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/29/2024----------------N/A
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
+'--Confirm all GitHub tasks are complete----------------------------------------03/29/2024
 '--comment Code-----------------------------------------------------------------06/24/2022
-'--Update Changelog for release/update------------------------------------------06/24/2022
+'--Update Changelog for release/update------------------------------------------03/29/2024
 '--Remove testing message boxes-------------------------------------------------06/24/2022
-'--Remove testing code/unnecessary code-----------------------------------------06/24/2022
-'--Review/update SharePoint instructions----------------------------------------06/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------03/29/2024
+'--Review/update SharePoint instructions----------------------------------------03/29/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/29/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/29/2024 --Will add in separate commmit.
 '--Complete misc. documentation (if applicable)---------------------------------06/24/2022
 '--Update project team/issue contact (if applicable)----------------------------06/24/2022
 'TODO I need error proofing in multiple places on this script in and out of IULA and IULB ensuring the case and on CCOL'
-'need to check about adding for multiple claims'
