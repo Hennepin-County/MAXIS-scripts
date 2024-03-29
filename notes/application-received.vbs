@@ -334,7 +334,7 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 		If unknown_hc_pending = True or ma_status <> "INACTIVE" or msp_status <> "INACTIVE" Then
 			If appears_ltc_checkbox = checked Then
 				correct_caseload_type = "LTC+ - General"
-				MsgBox left(case_name, 1) & vbCr & InStr(alpha_split_two_m_z, left(case_name, 1))
+				'MsgBox left(case_name, 1) & vbCr & InStr(alpha_split_two_m_z, left(case_name, 1))
 				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
 				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
 				If current_caseload = new_caseload Then transfer_needed = False
