@@ -115,7 +115,6 @@ DO
 	    	Else
 	    		HH_Memb_DropDown = ""
 	    		Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-	    		err_msg = err_msg & "Start Over"
 	    	End If
 	    End If
 		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Select a resident to update."
@@ -219,7 +218,7 @@ END IF
 
 '--------------------------------------------------------------------Resident name
 EMReadScreen panel_name, 4, 02, 52
-IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA.")
+IF panel_name <> "IULA" THEN script_end_procedure_with_error_report("Script did not find IULA panel. The script will now end.")
 EMReadScreen client_name, 35, 5, 24
 client_name = trim(client_name)                         'trimming the client name
 IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -569,26 +568,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
     END IF
-END IF 'end of match when difference_notice_action_dropdown =  "Yes" '
-
-script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
-script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
-script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
-script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
-script_run_lowdown = script_run_lowdown & vbCr & "Resident Name: " & client_name
-script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
-script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
-script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
-script_run_lowdown = script_run_lowdown & vbCr & "IEVS Period: " & IEVS_period
-script_run_lowdown = script_run_lowdown & vbCr & "Resolve Time: " & resolve_time
-script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolution_status
-script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
-script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
-script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
-script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
-script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
-If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
+END IF
 
 '-------------------------------------------------------------------The case note & case note related code
 verification_needed = ""
@@ -601,6 +581,7 @@ IF other_checkbox = CHECKED THEN verification_needed = verification_needed & "Ot
 
 verification_needed = trim(verification_needed) 	'takes the last comma off of verification_needed when autofilled into dialog if more more than one app date is found and additional app is selected
 IF right(verification_needed, 1) = "," THEN verification_needed = left(verification_needed, len(verification_needed) - 1)
+
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
 IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     'Going to the MISC panel to add claim referral tracking information
@@ -634,7 +615,6 @@ Do
 Loop Until row = 17
 If row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 
-
 PF9 'writing in the action taken and date to the MISC panel
 '_________________________ 25 characters to write on MISC
 IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
@@ -645,12 +625,10 @@ EMWriteScreen MISC_action_taken, Row, 30
 EMWriteScreen date, Row, 66
 TRANSMIT
 '------------------------------------------setting up case note header'
-IF ATR_needed_checkbox = CHECKED THEN
-	header_note = "ATR/EVF STILL REQUIRED"
-ELSEIF difference_notice_action_dropdown = "Yes" THEN
+IF difference_notice_action_dropdown = "Yes" THEN
 	cleared_header = "DIFF NOTICE SENT"
 	sent_date = date
-ELSEIF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
+ELSEIF resolution_status = "CC-Overpayment Only" THEN
 	cleared_header = "CLEARED CLAIM ENTERED "
 ELSEIF resolution_status = "NC-Non Cooperation" THEN
 		cleared_header = "NON-COOPERATION "
@@ -674,9 +652,12 @@ END IF
 IEVS_period = trim(IEVS_period)
 IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
 IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
-Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
-'-------------------------------------------------------------------------------------------------The case note
+Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
+IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+
+'-------------------------------------------------------------------------------------------------The case notes
 IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     start_a_blank_case_note
     IF claim_referral_tracking_dropdown =  "Initial" THEN
@@ -700,7 +681,6 @@ IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year
 IF match_type = "UNVI" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "UBEN" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
-CALL write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
@@ -709,8 +689,6 @@ CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", sent_date)
 IF  difference_notice_action_dropdown = "Yes" THEN
 	CALL write_bullet_and_variable_in_case_note("Verifications Requested", verification_needed)
 	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications")
-ELSE
-	CALL write_bullet_and_variable_in_case_note("Verifications Received", verification_needed)
 END IF
 IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
@@ -730,104 +708,38 @@ IF resolution_status = "BE-Overpayment Entered" THEN CALL write_variable_in_case
 IF resolution_status = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Resident is still non-coop.")
 IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
 IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Resident reported income. Correct income is in JOBS/BUSI and budgeted.")
-IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different.  Resident's SSN has been verified. No overpayment or savings related to this match.")
-IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
+IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different. Resident's SSN has been verified. No overpayment or savings related to this match.")
+IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify.")
 IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
 IF resolution_status = "NC-Non Cooperation" THEN
 	CALL write_variable_in_case_note("* Resident failed to cooperate with wage match.")
 	CALL write_variable_in_case_note("* Case approved to close.")
 	CALL write_variable_in_case_note("* Resident needs to provide: ATR, Income Verification, Difference Notice.")
 END IF
-IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
-    CALL write_variable_in_case_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" THEN CALL write_variable_in_case_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim #" & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" THEN CALL write_variable_in_case_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim #" & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" THEN CALL write_variable_in_case_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim #" & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    IF HC_claim_number <> "" THEN
-    	CALL write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	CALL write_bullet_and_variable_in_case_note("Health Care responsible members", HC_resp_memb)
-    	CALL write_bullet_and_variable_in_case_note("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_variable_in_case_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
-PF3 ' to ensure we clear the case note for the next action'
 
-IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
-    IF HC_claim_number <> "" THEN
-    	EMWriteScreen "x", 5, 3
-    	TRANSMIT
-    	note_row = 4			'Beginning of the case notes
-    	Do 						'Read each line
-    		EMReadScreen note_line, 76, note_row, 3
-    		note_line = trim(note_line)
-    		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
-    		message_array = message_array & note_line & vbcr		'putting the lines together
-    		note_row = note_row + 1
-    		If note_row = 18 THEN 									'End of a single page of the case note
-    			EMReadScreen next_page, 7, note_row, 3
-    			If next_page = "More: +" Then 						'This indicates there is another page of the case note
-    				PF8												'goes to the next line and resets the row to read'\
-    				note_row = 4
-    			End If
-    		End If
-    	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-		'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
-		Call create_outlook_email("", "HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "", "", "Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, 1, False, "", "", False, "", "CASE NOTE" & vbcr & message_array, False, "", False)
-    END IF
-	'-----------------------------------------------------------------writing the CCOL case note'
-    CALL navigate_to_MAXIS_screen("CCOL", "CLSM")
-    EMWriteScreen Claim_number, 4, 9
-    TRANSMIT
-    PF4
-    EMReadScreen existing_case_note, 1, 5, 6
-    IF existing_case_note = "" THEN
-    	PF4
-    ELSE
-    	PF9
-    END IF
+'----------------------------------------------------------------------------------------------------------------Script Run Lowdown variables 
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
+script_run_lowdown = script_run_lowdown & vbCr & "Sent Date: " & sent_date
+script_run_lowdown = script_run_lowdown & vbCr & "DIFF NOTC ACTION: " & difference_notice_action_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Claim referral tracking: " & claim_referral_tracking_dropdown
+script_run_lowdown = script_run_lowdown & vbCr & "Resident Name: " & client_name
+script_run_lowdown = script_run_lowdown & vbCr & "The Programs: " & programs
+script_run_lowdown = script_run_lowdown & vbCr & "Income Source: " & income_source
+script_run_lowdown = script_run_lowdown & vbCr & "Match Type: " & match_type
+script_run_lowdown = script_run_lowdown & vbCr & "IEVS Period: " & IEVS_period
+script_run_lowdown = script_run_lowdown & vbCr & "Resolve Time: " & resolve_time
+script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolution_status
+script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
+script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
+script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
+script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
+script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
+script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
 
-    IF match_type = "WAGE" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    IF match_type = "UBEN" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Period", IEVS_period)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Source of income", income_source)
-    CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim #" & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim #" & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" THEN CALL write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim #" & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    IF HC_claim_number <> "" THEN
-    	CALL write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Health Care responsible members", HC_resp_memb)
-    	CALL write_bullet_and_variable_in_CCOL_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-    	CALL write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-    END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-	CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
-	CALL write_variable_in_ccol_note(worker_signature)
-	PF3 ' to ensure we leave the CCOL case note'
-	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
-	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
-	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
-END IF
+script_end_procedure_with_error_report("Match has been acted on. Please take any additional actions needed for your case.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
