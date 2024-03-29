@@ -101,12 +101,11 @@ If DAIL_panel = "DAIL" then
 Else 
     If trim(MAXIS_Case_number) <> "" then Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 
-        Dialog1 = "" 'Blanking out previous dialog detail
     DO
     	DO
-    	   err_msg = ""
-           Dialog1 = ""
-           BeginDialog Dialog1, 0, 0, 201, 85, "PARIS Match Cleared"
+    	    err_msg = ""
+            Dialog1 = "" 'Blanking out previous dialog detail
+            BeginDialog Dialog1, 0, 0, 201, 85, "PARIS Match Cleared"
              EditBox 55, 5, 45, 15, MAXIS_case_number
              DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
              EditBox 80, 45, 115, 15, worker_signature
@@ -117,7 +116,7 @@ Else
              Text 5, 30, 70, 10, "Household member:"
              Text 5, 50, 60, 10, "Worker signature:"
              Text 5, 10, 45, 10, "Case number:"
-           EndDialog
+            EndDialog
     
     	    Dialog Dialog1
     	    cancel_without_confirmation
@@ -262,7 +261,6 @@ DO
 		'-------------------------------------------------------------------trims excess spaces of match_active_programs
 		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
 		DO
-
 			EMReadScreen other_state_active_programs, 22, row, 60
 			other_state_active_programs = TRIM(other_state_active_programs)
 			IF other_state_active_programs = "" THEN EXIT DO
@@ -315,6 +313,7 @@ IF notice_sent = "N" THEN
         OkButton 65, 55, 45, 15
         CancelButton 115, 55, 45, 15
     EndDialog
+
 	DO
     	DO
     		err_msg = ""
@@ -337,7 +336,7 @@ IF paris_action = "Yes, send the notice" then
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 376, 235, "Send PARIS Match Difference Notice"
     	Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
-    	Text 165, 15, 175, 10, "Client Name: "  & Client_Name
+    	Text 165, 15, 175, 10, "Resident Name: "  & Client_Name
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
     GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
@@ -376,8 +375,8 @@ IF paris_action = "Yes, send the notice" then
     	DO
     		err_msg = ""
     		Dialog Dialog1
-    		cancel_without_confirmation
-    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
+    		cancel_confirmation
+    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the resident accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
     		IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
@@ -408,8 +407,8 @@ IF paris_action = "Yes, send the notice" then
 
     '-----------------------------------------------------------------------The case note
     start_a_blank_CASE_NOTE
-    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") DIFF NOTICE SENT-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Diff Notice Sent-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Resident Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
     'formatting for multiple states
     For item = 0 to Ubound(state_array, 2)
@@ -418,7 +417,7 @@ IF paris_action = "Yes, send the notice" then
     	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
     NEXT
     CALL write_variable_in_CASE_NOTE ("-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Resident accessing benefits in other state", bene_other_state)
     CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", contact_other_state)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
@@ -433,7 +432,7 @@ Else
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS Match Cleared"
      Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
-     Text 165, 15, 175, 10, "Client Name: "  & Client_Name
+     Text 165, 15, 175, 10, "Resident Name: "  & Client_Name
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
      Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
 	 GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
@@ -474,7 +473,7 @@ Else
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
+    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the resident accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
 			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
@@ -517,8 +516,8 @@ Else
 
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
-    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS Match " & "(" & first_name &  ") Cleared " & rez_status & "-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Resident Name", Client_Name)
     CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
 	Call write_bullet_and_variable_in_case_note("Discovery date", discovery_date)
 	Call write_bullet_and_variable_in_case_note("Period", INTM_period)
@@ -529,11 +528,11 @@ Else
     	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
     NEXT
     CALL write_variable_in_CASE_NOTE ("-----")
-    CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Resident accessing benefits in other state", bene_other_state)
     CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", contact_other_state)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification used to clear", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Resolution Status", resolution_status)
-	IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Client has failed to cooperate with PARIS Match - has not provided requested verifications showing they are living in MN. Client will need to provide this before the case is reopened.")
+	IF rez_status = "FR" THEN CALL write_variable_in_CASE_NOTE("Resident has failed to cooperate with PARIS Match - has not provided requested verifications showing they are living in MN. Resident will need to provide this before the case is reopened.")
 	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
@@ -543,44 +542,47 @@ END IF
 
 script_end_procedure_with_error_report(closing_msg)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------06/21/2022
-'--Tab orders reviewed & confirmed----------------------------------------------06/21/2022
-'--Mandatory fields all present & Reviewed--------------------------------------06/21/2022
-'--All variables in dialog match mandatory fields-------------------------------06/21/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/29/2024
+'--Tab orders reviewed & confirmed----------------------------------------------03/29/2024
+'--Mandatory fields all present & Reviewed--------------------------------------03/29/2024
+'--All variables in dialog match mandatory fields-------------------------------03/29/2024
+'Review dialog names for content and content fit in dialog----------------------03/29/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------06/21/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------06/21/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/21/2022
+'--All variables are CASE:NOTEing (if required)---------------------------------03/29/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/29/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/29/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-03/29/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/21/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------06/21/2022------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------06/21/2022
-'--Out-of-County handling reviewed----------------------------------------------06/21/2022------------------N/A
-'--script_end_procedures (w/ or w/o error messaging)----------------------------06/21/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------06/21/2022------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/21/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/29/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/29/2024------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/29/2024
+'--Out-of-County handling reviewed----------------------------------------------03/29/2024------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/29/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------03/29/2024------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/29/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------06/21/2022------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------06/21/2022------------------N/A
-'--Denomination reviewed -------------------------------------------------------06/21/2022
-'--Script name reviewed---------------------------------------------------------06/21/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------06/21/2022------------------N/A
+'--Manual time study reviewed --------------------------------------------------03/29/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------03/29/2024
+'--Denomination reviewed -------------------------------------------------------03/29/2024
+'--Script name reviewed---------------------------------------------------------03/29/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/29/2024------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------06/21/2022
-'--comment Code-----------------------------------------------------------------06/21/2022
-'--Update Changelog for release/update------------------------------------------06/21/2022
-'--Remove testing message boxes-------------------------------------------------06/21/2022
-'--Remove testing code/unnecessary code-----------------------------------------06/21/2022
-'--Review/update SharePoint instructions----------------------------------------06/21/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/21/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/21/2022
-'--Complete misc. documentation (if applicable)---------------------------------06/21/2022
-'--Update project team/issue contact (if applicable)----------------------------06/21/2022
+'--Confirm all GitHub tasks are complete----------------------------------------03/29/2024
+'--comment Code-----------------------------------------------------------------03/29/2024
+'--Update Changelog for release/update------------------------------------------03/29/2024
+'--Remove testing message boxes-------------------------------------------------03/29/2024
+'--Remove testing code/unnecessary code-----------------------------------------03/29/2024
+'--Review/update SharePoint instructions----------------------------------------03/29/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/29/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/29/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/29/2024
+'--Complete misc. documentation (if applicable)---------------------------------03/29/2024
+'--Update project team/issue contact (if applicable)----------------------------03/29/2024
