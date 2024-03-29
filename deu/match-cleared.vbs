@@ -253,7 +253,7 @@ IF instr(Active_Programs, "M") THEN programs = programs & "Medical Assistance, "
 IF instr(Active_Programs, "S") THEN programs = programs & "MFIP, "
 'trims excess spaces of programs
 programs = trim(programs)
-'takes the last comma off of programs when autofilled into dialog
+'takes the last comma off of programs when auto-filled into dialog
 IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
 '----------------------------------------------------------------------------------------------------Employer info & difference notice info
 IF match_type = "UBEN" THEN income_source = "Unemployment"
@@ -386,7 +386,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please advise what other verification was used to clear the match."
-		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the residentrespond to Difference Notice?"
+		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the resident respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date received must be completed."
@@ -395,126 +395,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
-
-    IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
-	    discovery_date = date
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    BeginDialog Dialog1, 0, 0, 361, 260, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
-		  Text 5, 5, 245, 15, "Income source: " & income_source
-		  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", fraud_referral
-	      EditBox 65, 25, 40, 15, discovery_date
-	      DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
-	      EditBox 130, 65, 30, 15, OP_from
-	      EditBox 180, 65, 30, 15, OP_to
-	      EditBox 245, 65, 35, 15, Claim_number
-	      EditBox 305, 65, 45, 15, Claim_amount
-	      DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
-	      EditBox 130, 85, 30, 15, OP_from_II
-	      EditBox 180, 85, 30, 15, OP_to_II
-	      EditBox 245, 85, 35, 15, Claim_number_II
-	      EditBox 305, 85, 45, 15, Claim_amount_II
-	      DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
-	      EditBox 130, 105, 30, 15, OP_from_III
-	      EditBox 180, 105, 30, 15, OP_to_III
-	      EditBox 245, 105, 35, 15, claim_number_III
-	      EditBox 305, 105, 45, 15, Claim_amount_III
-	      DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
-	      EditBox 130, 125, 30, 15, OP_from_IV
-	      EditBox 180, 125, 30, 15, OP_to_IV
-	      EditBox 245, 125, 35, 15, claim_number_IV
-	      EditBox 305, 125, 45, 15, Claim_amount_IV
-		  EditBox 130, 155, 30, 15, HC_from
-		  EditBox 180, 155, 30, 15, HC_to
-		  EditBox 245, 155, 35, 15, HC_claim_number
-		  EditBox 305, 155, 45, 15, HC_claim_amount
-		  EditBox 80, 155, 20, 15, HC_resp_memb
-		  EditBox 305, 175, 45, 15, Fed_HC_AMT
-	      CheckBox 235, 205, 120, 10, "Earned income disregard allowed", EI_checkbox
-	      EditBox 70, 200, 160, 15, EVF_used
-	      EditBox 200, 25, 45, 15, income_rcvd_date
-	      EditBox 70, 220, 285, 15, Reason_OP
-		  EditBox 330, 25, 20, 15, OT_resp_memb
-		  CheckBox 70, 240, 105, 10, "EVF/ATR is still needed", ATR_needed_checkbox
-		  ButtonGroup ButtonPressed
-		    OkButton 260, 240, 45, 15
-		    CancelButton 310, 240, 45, 15
-		  Text 265, 30, 60, 10, "OT resp. Memb #:"
-		  Text 260, 10, 50, 10, "Fraud referral:"
-		  Text 5, 30, 55, 10, "Discovery date: "
-		  Text 5, 205, 65, 10, "Income verif used:"
-		  Text 10, 160, 70, 10, "OT resp. Memb(s) #:"
-		  Text 230, 180, 75, 10, "Total federal HC AMT:"
-		  Text 5, 225, 60, 10, "Reason for Claim:"
-		  Text 140, 30, 60, 10, "Date income rcvd: "
-		  Text 285, 160, 20, 10, "AMT:"
-		  Text 105, 160, 20, 10, "From:"
-		  Text 215, 160, 25, 10, "Claim #"
-		  Text 165, 160, 10, 10, "To:"
-		  GroupBox 5, 145, 350, 50, "HC Programs Only"
-		  Text 15, 70, 30, 10, "Program:"
-		  Text 165, 70, 10, 10, "To:"
-		  GroupBox 5, 45, 350, 100, "Overpayment Information"
-		  Text 130, 55, 30, 10, "(MM/YY)"
-	      Text 180, 55, 30, 10, "(MM/YY)"
-		  Text 15, 70, 30, 10, "Program:"
-	      Text 15, 110, 30, 10, "Program:"
-	      Text 15, 90, 30, 10, "Program:"
-		  Text 15, 130, 30, 10, "Program:"
-		  Text 105, 70, 20, 10, "From:"
-		  Text 105, 90, 20, 10, "From:"
-		  Text 105, 110, 20, 10, "From:"
-	      Text 105, 130, 20, 10, "From:"
-		  Text 165, 70, 10, 10, "To:"
-		  Text 165, 90, 10, 10, "To:"
-		  Text 165, 110, 10, 10, "To:"
-	      Text 165, 130, 10, 10, "To:"
-		  Text 215, 70, 25, 10, "Claim #"
-		  Text 215, 90, 25, 10, "Claim #"
-		  Text 215, 110, 25, 10, "Claim #"
-	      Text 215, 130, 25, 10, "Claim #"
-		  Text 285, 70, 20, 10, "AMT:"
-		  Text 285, 90, 20, 10, "AMT:"
-		  Text 285, 110, 20, 10, "AMT:"
-	      Text 285, 130, 20, 10, "AMT:"
-		EndDialog
-	    Do
-	        Do
-	        	err_msg = ""
-	        	DIALOG Dialog1
-	        	cancel_confirmation
-	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-				If OP_program = "Select:" THEN err_msg = err_msg & vbNewLine &  "* Please enter the overpayment program for the first claim."
-				IF OP_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred."
-				IF Claim_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-				IF Claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	           	IF OP_program_II <> "Select:" THEN
-	    			IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
-	        		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	        		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	        	END IF
-	    		IF OP_program_III <> "Select:" THEN
-	    			IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
-	    			IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	    			IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	    		END IF
-	    		IF OP_program_IV <> "Select:" THEN
-	    			IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
-	    			IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-	    			IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	    		END IF
-	        	IF HC_claim_number <> "" THEN
-	        		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
-	        		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
-	        		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	        	END IF
-	        	IF EVF_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	        LOOP UNTIL err_msg = ""
-	        CALL check_for_password_without_transmit(are_we_passworded_out)
-	    Loop until are_we_passworded_out = false
-	END IF
 
 	IF resolution_status = "CF-Future Save" THEN
 	    Dialog1 = "" 'Blanking out previous dialog detail
@@ -586,8 +466,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
     IF resolution_status = "BU-Unable To Verify" THEN IULA_res_status = "BU"
     IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
     IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
-    'checked these all to programS'
-
+    '
     EMwritescreen IULA_res_status, 12, 58
     IF IULA_res_status = "CC" THEN
         col = 57
@@ -709,40 +588,6 @@ script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Act
 script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
 script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
 script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
-script_run_lowdown = script_run_lowdown & vbCr & "Fraud referral: " & fraud_referral
-script_run_lowdown = script_run_lowdown & vbCr & "Discovery Date: " & discovery_date & vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM I" & vbCR & "OP Program: " & OP_program
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM II" & vbCR & "OP Program: " & OP_program_II
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_II
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_II
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & Claim_number_II
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_II& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM III" & vbCR & "OP Program: " & OP_program_III
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_III
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_III
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_III
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_III& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "CLAIM IV" & vbCR & "OP Program: " & OP_program_IV
-script_run_lowdown = script_run_lowdown & vbCr & "OP from: " & OP_from_IV
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & OP_to_IV
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & claim_number_IV
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & Claim_amount_IV& vbCR
-script_run_lowdown = script_run_lowdown & vbCr & "HC CLAIM" & vbCR & "OP from: " & HC_from
-script_run_lowdown = script_run_lowdown & vbCr & "OP to: " & HC_to
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Number: " & HC_claim_number
-script_run_lowdown = script_run_lowdown & vbCr & "Claim Amount: " & HC_claim_amount
-script_run_lowdown = script_run_lowdown & vbCr & "HC Resp member: " & HC_resp_memb
-script_run_lowdown = script_run_lowdown & vbCr & "FED HC Amount: " & Fed_HC_AMT
-script_run_lowdown = script_run_lowdown & vbCr & "" & EI_checkbox
-If EI_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "Earned income disregard allowed"
-script_run_lowdown = script_run_lowdown & vbCr & "EVF Used: " & EVF_used
-script_run_lowdown = script_run_lowdown & vbCr & "Income Received Date: " & income_rcvd_date
-script_run_lowdown = script_run_lowdown & vbCr & "OP Reason: " & Reason_OP
-script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_resp_memb
 If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
 
 '-------------------------------------------------------------------The case note & case note related code
