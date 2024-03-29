@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/29/2024", "Enhanced PARIS Match script to be used from the DAIL Scrubber, or from the DEU Main Menu.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/23/2022", "Added fix for PARIS matches that were not the 1st DAIL message for a case.", "Ilse Ferris, Hennepin County")
@@ -84,7 +85,7 @@ If DAIL_panel = "DAIL" then
         EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
         If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
         EMReadScreen stat_check, 4, 20, 21
-        If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+        If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get into STAT panels due to an error. Clear the error screen, if applicable, then try the script again.")
     
         Call write_value_and_transmit("MEMB", 20, 71)
         Call write_value_and_transmit(member_number, 20, 76)
@@ -98,37 +99,48 @@ If DAIL_panel = "DAIL" then
     If SSN_present = False then EmWriteScreen client_SSN, 3, 63
     CALL write_value_and_transmit("INTM", 20, 71)
 Else 
-    memb_number = "01" 'default to MEMB 01
-    '-------------------------------------------------------------------------------------------------DIALOG
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 211, 65, "PARIS MATCH CLEARED"
-      EditBox 70, 5, 50, 15, MAXIS_case_number
-      EditBox 180, 5, 20, 15, MEMB_number
-      EditBox 70, 25, 130, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 105, 45, 45, 15
-        CancelButton 155, 45, 45, 15
-      Text 5, 10, 50, 10, "Case Number:"
-      Text 125, 10, 55, 10, "MEMB Number:"
-      Text 5, 30, 60, 10, "Worker Signature:"
-    EndDialog
-    
+    If trim(MAXIS_Case_number) <> "" then Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+
+        Dialog1 = "" 'Blanking out previous dialog detail
     DO
     	DO
-        	err_msg = ""
-        	Dialog Dialog1
-        	cancel_without_confirmation
-         	Call validate_MAXIS_case_number(err_msg, "*")
-         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Please enter a valid 2 digit member number."
-    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-        LOOP UNTIL err_msg = ""
-    	CALL check_for_password_without_transmit(are_we_passworded_out)
-    Loop until are_we_passworded_out = false
+    	   err_msg = ""
+           Dialog1 = ""
+           BeginDialog Dialog1, 0, 0, 201, 85, "PARIS Match Cleared"
+             EditBox 55, 5, 45, 15, MAXIS_case_number
+             DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+             EditBox 80, 45, 115, 15, worker_signature
+             ButtonGroup ButtonPressed
+               PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+               OkButton 90, 65, 50, 15
+               CancelButton 145, 65, 50, 15
+             Text 5, 30, 70, 10, "Household member:"
+             Text 5, 50, 60, 10, "Worker signature:"
+             Text 5, 10, 45, 10, "Case number:"
+           EndDialog
     
+    	    Dialog Dialog1
+    	    cancel_without_confirmation
+    	    Call validate_MAXIS_case_number(err_msg, "*")
+    	    IF ButtonPressed = search_button Then 'this will check for if the worker is on the DAIL and the script cant find a case number'
+    	    	IF trim(MAXIS_case_number) = "" Then
+    	    		MsgBox "Cannot search without a case number, please try again."
+    	    	Else
+    	    		HH_Memb_DropDown = ""
+    	    		Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+    	    	End If
+    	    End If
+    		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Select a resident to update."
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
     ''----------------------------------------------------------------------------------------------------STAT
     CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-    IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
+    IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. The script will now end.")
+    MEMB_number = left(clt_to_update, 2)	'Setting the reference number
     Call write_value_and_transmit(MEMB_number, 20, 76)
 
     EMReadscreen SSN_number_read, 11, 7, 42
@@ -146,14 +158,7 @@ IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data yo
 '----------------------------------------------------------------------------------------------------selecting the correct wage match
 Row = 8
 DO
-	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
-	'UR Unresolved, System Entered Only
-	'PR Person Removed From Household
-	'HM Household Moved Out Of State
-	'RV Residency Verified, Person in MN
-	'FR Failed Residency Verification Request
-	'PC Person Closed, Not PARIS Interstate
-	'CC Case Closed, Not PARIS Interstate
+	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into INSM'
 	EMReadScreen INTM_period, 5, row, 59
 	IF INTM_match_status = "  " THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
 	IF INTM_match_status = "RV" THEN
@@ -171,7 +176,7 @@ DO
     END IF
 LOOP UNTIL INTM_info_confirmation = vbYes
 '-----------------------------------------------------navigating into the match
-CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
+CALL write_value_and_transmit("X", row, 3) 'navigating to INSM'
 
 'Ensuring that the client has not already had a difference notice sent
 EMReadScreen notice_sent, 1, 8, 73
@@ -196,8 +201,6 @@ ELSE                                'In cases where the last name takes up the e
 END IF
 first_name = trim(first_name)
 
-'converts the name to all CAPS
-client_name = UCase(client_name)
 '----------------------------------------------------------------------Minnesota active programs
 EMReadScreen MN_Active_Programs, 15, 6, 59
 MN_active_programs = Trim(MN_active_programs)
@@ -266,17 +269,19 @@ DO
 			IF other_state_active_programs = "FOOD SUPPORT" THEN match_active_programs = match_active_programs & "FS, "
 			IF other_state_active_programs = "HEALTH CARE" THEN match_active_programs = match_active_programs &  "HC, "
 			IF other_state_active_programs = "STATE SSI" THEN match_active_programs = match_active_programs & "SSI, "
-			IF other_state_active_programs = "NONE IDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
+			IF other_state_active_programs = "NONE INDICATED" THEN match_active_programs = match_active_programs &  "NONE INDICATED"
 			IF other_state_active_programs = "CASH" THEN match_active_programs = match_active_programs &  "CASH"
 			IF other_state_active_programs = "CHILD CARE" THEN match_active_programs = match_active_programs &  "CCA"
 			IF other_state_active_programs = "STATE WORKERS COMP" THEN match_active_programs = match_active_programs &  "WORKERS COMP"
 			row = row + 1
 		LOOP
+
 		match_active_programs = trim(match_active_programs)
 		IF right(match_active_programs, 1) = "," THEN match_active_programs = left(match_active_programs, len(match_active_programs) - 1)
 		state_array(progs, add_state) = match_active_programs
 		row = state_array(row_num, add_state)		're-establish the value of row to read phone and fax info
-		match_contact_info = ""
+		
+        match_contact_info = ""
 		phone_number = ""
 		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
@@ -330,7 +335,7 @@ IF paris_action = "Yes, send the notice" then
     proof_residency_CHECKBOX = 1
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 376, 235, "SEND PARIS MATCH DIFFERENCE NOTICE"
+    BeginDialog Dialog1, 0, 0, 376, 235, "Send PARIS Match Difference Notice"
     	Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
     	Text 165, 15, 175, 10, "Client Name: "  & Client_Name
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
@@ -349,9 +354,9 @@ IF paris_action = "Yes, send the notice" then
     	Text 60, 180, 60, 10, "Referral to Fraud:"
       	Text 55, 160, 65, 10, "Contact Other State:"
     	Text 10, 140, 110, 10, "Accessing benefits in other state:"
-      	DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-      	DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
-      	DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
+      	DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", bene_other_state
+      	DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", contact_other_state
+      	DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Undetermined", fraud_referral
     GroupBox 205, 130, 160, 50, "Verification requested:"
       CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
       CheckBox 290, 145, 70, 10, "Shelter Verification", shelter_verf_CHECKBOX
@@ -426,7 +431,7 @@ Else
     'If user selects the paris_option of "Yes, send the notice", then this will support matches that already have a difference notice sent OR the staff can clear the match.
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS MATCH CLEARED"
+	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS Match Cleared"
      Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
      Text 165, 15, 175, 10, "Client Name: "  & Client_Name
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
@@ -443,9 +448,9 @@ Else
         Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
      End if
   	 Text 10, 140, 110, 10, "Accessing benefits in other state:"
-     DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
-     DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
-     DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"Undetermined", fraud_referral
+     DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", bene_other_state
+     DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", contact_other_state
+     DropListBox 120, 175, 55, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Undetermined", fraud_referral
   	 GroupBox 205, 130, 160, 50, "Verification used to clear: "
 	 CheckBox 210, 145, 50, 10, "Diff Notice", diff_notice_CHECKBOX
      CheckBox 290, 145, 70, 10, "Shelter Verification", shelter_verf_CHECKBOX
