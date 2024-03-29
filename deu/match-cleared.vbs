@@ -130,16 +130,8 @@ IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the s
 
 'redefine ref_numb'
 MEMB_number = left(clt_to_update, 2)	'Setting the reference number
-EMWriteScreen MEMB_number, 20, 76
-TRANSMIT
-EMReadScreen client_first_name, 12, 6, 63
-client_first_name = replace(client_first_name, "_", "")
-client_first_name = trim(client_first_name)
-EMReadScreen client_last_name, 25, 6, 30
-client_last_name = replace(client_last_name, "_", "")
-client_last_name = trim(client_last_name)
-EMReadscreen client_mid_initial, 1, 6, 79
-EMReadScreen client_DOB, 10, 8, 42
+Call write_value_and_transmit(MEMB_number, 20, 76)
+'Reading and cleaning up SSN for INFC
 EMReadscreen client_SSN, 11, 7, 42
 client_SSN = replace(client_SSN, " ", "")
 
