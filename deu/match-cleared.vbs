@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("03/29/2024", "Removed Overpayment functionality from the script. Please use more comprehensive functionality in the NOTES - OVERPAYMENT script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
@@ -128,7 +129,7 @@ CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 
 'redefine ref_numb'
-MEMB_number = left(clt_to_update, 2)	'Settin the reference number
+MEMB_number = left(clt_to_update, 2)	'Setting the reference number
 EMWriteScreen MEMB_number, 20, 76
 TRANSMIT
 EMReadScreen client_first_name, 12, 6, 63
@@ -146,6 +147,7 @@ client_SSN = replace(client_SSN, " ", "")
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(client_SSN, 3, 63)
+
 'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
@@ -158,12 +160,12 @@ DO
 	EMReadScreen IEVS_period, 11, row, 47
 	EMReadScreen number_IEVS_type, 3, row, 41
 	IF trim(IEVS_period) = "" THEN script_end_procedure_with_error_report("A match for the selected period could not be found. The script will now end.")
-	BeginDialog Dialog1, 0, 0, 171, 95, "CASE NUMBER: "  & MAXIS_case_number
+	BeginDialog Dialog1, 0, 0, 171, 95, "Case Number: "  & MAXIS_case_number
   	 Text 5, 10, 100, 10, "Navigate to the correct match:"
   	 Text 5, 25, 150, 10, "Match Type: " & number_IEVS_type
   	 Text 5, 40, 150, 10, "Match Period: "  & IEVS_period
   	 ButtonGroup ButtonPressed
-     PushButton 5, 60, 50, 15, "Confirm Match", match_confimation
+     PushButton 5, 60, 50, 15, "Confirm Match", match_confirmation
      PushButton 60, 60, 50, 15, "Next Match", next_match
      PushButton 115, 60, 50, 15, "Next Page", next_page
     CancelButton 60, 80, 50, 15
@@ -186,18 +188,18 @@ DO
 				row = 7
 				EMReadScreen IEVS_period, 11, row, 47
 			END IF
-			IF ButtonPressed = match_confimation THEN EXIT DO
+			IF ButtonPressed = match_confirmation THEN EXIT DO
 	        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	       LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
-LOOP UNTIL ButtonPressed = match_confimation
+LOOP UNTIL ButtonPressed = match_confirmation
 
 '---------------------------------------------------------------------Reading potential errors for out-of-county cases
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
-	script_end_procedure_with_error_report("Out-of-county case. Cannot update.")
+	script_end_procedure_with_error_report("Out-of-county case. The script will now end.")
 ELSE
     EMReadScreen number_IEVS_type, 3, 7, 12 'read the match type'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
@@ -301,8 +303,8 @@ EMReadScreen clear_code, 2, 12, 58
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 IF notice_sent = "N" THEN
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
-	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", difference_notice_action_dropdown
+	BeginDialog Dialog1, 0, 0, 271, 185, "Difference Notice Not Sent For: " & MAXIS_case_number
+	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No", difference_notice_action_dropdown
 	  CheckBox 175, 15, 70, 10, "Difference Notice", diff_notice_checkbox
 	  CheckBox 175, 25, 90, 10, "Authorization to Release", ATR_verf_checkbox
 	  CheckBox 175, 35, 90, 10, "Employment Verification", EVF_checkbox
@@ -336,7 +338,7 @@ IF notice_sent = "N" THEN
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a trasnmit due to navigation in IUL screens'
+	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a transmit due to navigation in IUL screens'
 END IF
 
 IF difference_notice_action_dropdown =  "YES" THEN '--------------------------------------------------------------------sending the notice in IULA
@@ -347,10 +349,10 @@ IF difference_notice_action_dropdown =  "YES" THEN '----------------------------
 	TRANSMIT'exiting IULA, helps prevent errors when going to the case note
     '-----------------------------------------------------------------------------------Claim Referral Tracking
     action_date = date & ""
-ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or clear_code <> "__" '
+ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or clear_code <> "__" '
 	'-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 326, 170, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
+    BeginDialog Dialog1, 0, 0, 326, 170, "Match Cleared - Case Number: "  & MAXIS_case_number
       EditBox 175, 5, 15, 15, resolve_time
       DropListBox 75, 35, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BO-Other"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"NC-Non Cooperation", resolution_status
       DropListBox 120, 50, 70, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
@@ -394,14 +396,14 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF change_response = "Select One:" THEN err_msg = err_msg & vbNewLine & "Did the client respond to Difference Notice?"
 		IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
 		IF resolution_status = "BE-No Change" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE other notes must be completed."
-		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
+		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date received must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 
-	IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
+    IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
 	    discovery_date = date
 	    '-------------------------------------------------------------------------------------------------DIALOG
 	    Dialog1 = "" 'Blanking out previous dialog detail
@@ -619,7 +621,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     '----------------------------------------------------------------------------------------writing the note on IULB
 	other_notes = trim(other_notes)
 	EMReadScreen panel_name, 4, 02, 52
-    IF panel_name = "IULB" and (difference_notice_action_dropdown = "NO" OR notice_sent = "Y") THEN
+    IF panel_name = "IULB" and (difference_notice_action_dropdown = "No" OR notice_sent = "Y") THEN
     	TRANSMIT
     	EMReadScreen MISC_error_check,  74, 24, 02
     	EMReadScreen IULB_enter_msg, 5, 24, 02
@@ -787,7 +789,6 @@ Do
 	EMReadScreen MISC_description, 25, row, 30
 	MISC_description = replace(MISC_description, "_", "")
 	If trim(MISC_description) = "" THEN
-		'PF9
 		EXIT DO
 	Else
 		row = row + 1
@@ -795,8 +796,8 @@ Do
 Loop Until row = 17
 If row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 
-'writing in the action taken and date to the MISC panel
-PF9
+
+PF9 'writing in the action taken and date to the MISC panel
 '_________________________ 25 characters to write on MISC
 IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
 IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
