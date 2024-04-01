@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Improve handling to determine if WCOM has been created already.", "Mark Riegel, Hennepin County")
 call changelog_update("06/21/2019", "Added program selection to initial dialog. Added search for MFIP in notices for WCOM only option.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -159,7 +160,7 @@ If error_selection = "WCOM only" then
     			Emwritescreen "x", wcom_row, 13
     			Transmit
     			PF9
-    			Emreadscreen fs_wcom_exists, 3, 3, 15
+    			Emreadscreen fs_wcom_exists, 3, 3, 17
     			If fs_wcom_exists <> "   " then script_end_procedure ("It appears you already have a WCOM added to this notice. The script will now end.")
     			fs_wcom_writen = true
     			'Writing in the SPEC/WCOM verbiage
