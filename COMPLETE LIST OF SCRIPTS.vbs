@@ -777,6 +777,7 @@ script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/07/2017#
+script_array(script_num).retirement_date        = #03/29/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -3234,7 +3235,14 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/17/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("","","","","","","","")
+script_array(script_num).policy_references(0)       = "CM PUBLIC_ASSISTANCE_REPORTING_INFORMATION_SYTSEM_(PARIS)_INTERSTATE_MATCH_PROGRAM 10.24.30"
+script_array(script_num).policy_references(1)       = "TE ACCESSING_AND_RESOLVING_PARIS_MATCHES 02.08.182"
+script_array(script_num).policy_references(2)       = "TE PARIS_DAILS_AND_ALERTS 02.08.181"
+script_array(script_num).policy_references(4)       = "TE PARIS_MATCH_TIMELINE_AND_DATA_SELECTION 02.08.180"
+script_array(script_num).policy_references(5)      = "SHAREPOINT Public_Assistance_Reporting_Information_System_(PARIS) https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/PARIS.aspx"
+script_array(script_num).policy_references(6)       = "ONESOURCE Process_PARIS_Matches https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170206"
+script_array(script_num).policy_references(7)      = "EPM 1.4_State_Residency https://hcopub.dhs.state.mn.us/epm/1_4.htm"
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3246,6 +3254,7 @@ script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "
 script_array(script_num).dlg_keys               = array("Cn", "Up", "Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #12/11/2017#
+script_array(script_num).retirement_date        = #03/29/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
