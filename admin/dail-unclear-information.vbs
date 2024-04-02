@@ -3637,7 +3637,7 @@ If HIRE_messages = 1 Then
 
     'Excel headers and formatting the columns
     objExcel.Cells(1, 1).Value = "Case Number"
-    objExcel.Cells(1, 2).Value = "Case & Household Member Name"
+    objExcel.Cells(1, 2).Value = "Case Name"
     objExcel.Cells(1, 3).Value = "DAIL Type"
     objExcel.Cells(1, 4).Value = "TIKL Date"
     objExcel.Cells(1, 5).Value = "TIKL Message"
@@ -5865,6 +5865,7 @@ If HIRE_messages = 1 Then
                     ' TIKL_comparison = "*" & name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
                     TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
                     msgbox TIKL_comparison
+                    msgbox dail_msg
 
                     If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
                         'This is a match for the TIKL, it can be deleted
@@ -5873,8 +5874,8 @@ If HIRE_messages = 1 Then
                         objExcel.Worksheets("HIRE TIKLs").Activate
 
                         'Add details for tracking TIKLs
-                        objExcel.Cells(TIKL_excel_row, 1).Value = MAXIS_case_number
-                        objExcel.Cells(TIKL_excel_row, 2).Value = name_and_case_number_for_TIKL 
+                        objExcel.Cells(TIKL_excel_row, 1).Value = tikl_case_number_check
+                        objExcel.Cells(TIKL_excel_row, 2).Value = tikl_case_name_check 
                         objExcel.Cells(TIKL_excel_row, 3).Value = dail_type 
                         objExcel.Cells(TIKL_excel_row, 4).Value = tikl_date 
                         objExcel.Cells(TIKL_excel_row, 5).Value = dail_msg 
