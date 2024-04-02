@@ -123,7 +123,7 @@ Function check_and_add_new_jobs_panel(testing_status)
     If testing_status = True Then MsgBox "Testing -- Ensure that we are on correct HH Member. Should be at HH Member: " & HIRE_memb_number
 
     'Check if no JOBS panel exists on HH Memb JOBS panel
-    EmReadScreen jobs_panel_check, 25, 24, 2
+    EmReadScreen jobs_panel_check, 40, 24, 2
 
     If InStr(jobs_panel_check, "DOES NOT EXIST") Then
         'There are no JOBS panels for this HH member. The script will add a new JOBS panel for the member
@@ -377,6 +377,11 @@ Function check_and_add_new_jobs_panel(testing_status)
             
             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for household member number: " & HIRE_memb_number & ". JOBS Panel and CASE/NOTE added for employer noted in HIRE message. Message should be deleted.")
         End If
+    ElseIf InStr(jobs_panel_check, "NOT IN THE HOUSEHOLD") Then
+
+        If testing_status = True then msgbox "Testing -- member is not in household for CM so will not add JOBS panel and will skip message."
+
+        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & " since the HH member does not exist on the case for CM. Review needed." & " Message should not be deleted."
 
     Else
         'There is at least 1 JOBS panel
@@ -408,7 +413,8 @@ Function check_and_add_new_jobs_panel(testing_status)
 
             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
-            list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+            ' list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+            list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
             ' "Verification of " & employer & "job via NEW HIRE should"
             If testing_status = True Then MsgBox list_of_TIKLs_to_delete
 
@@ -418,7 +424,8 @@ Function check_and_add_new_jobs_panel(testing_status)
 
             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
 
-            list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+            ' list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+            list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
             If testing_status = True Then MsgBox list_of_TIKLs_to_delete
 
             'Handling no longer needed since script will delete any created TIKLs
@@ -494,7 +501,8 @@ Function check_and_add_new_jobs_panel(testing_status)
             
                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
             
-                        list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                        ' list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                        list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
                         
                         If testing_status = True Then MsgBox list_of_TIKLs_to_delete
 
@@ -507,7 +515,8 @@ Function check_and_add_new_jobs_panel(testing_status)
             
                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
             
-                        list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                        ' list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                        list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
                         If testing_status = True Then MsgBox list_of_TIKLs_to_delete
                         
                         'Outdated handling
@@ -1457,7 +1466,7 @@ If CSES_messages = 1 Then
                                             reporting_status = trim(reporting_status)
 
                                             If reporting_status = "SIX MONTH" Then
-                                                If activate_msg_boxes = True Then MsgBox "Testing -- Six month reporting status"
+                                                ' If activate_msg_boxes = True Then MsgBox "Testing -- Six month reporting status"
                                                 'Navigate to STAT/REVW to confirm recertification and SR report date
                                                 EMWriteScreen "STAT", 19, 22
                                                 EMWaitReady 0, 0
@@ -1514,7 +1523,7 @@ If CSES_messages = 1 Then
                                                 End If
                         
                                                 If sr_report_date <> "SR Report Date is Missing" and recertification_date <> "Recertification Date is Missing" Then 
-                                                    If activate_msg_boxes = True Then MsgBox "Testing -- Both SR and recert dates are present"
+                                                    ' If activate_msg_boxes = True Then MsgBox "Testing -- Both SR and recert dates are present"
                                                     renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
 
                                                     If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
@@ -1533,7 +1542,7 @@ If CSES_messages = 1 Then
                                                 'Close the FS screen
                                                 transmit
                                             Else
-                                                If activate_msg_boxes = True Then MsgBox "Testing -- not 6 month reporter"
+                                                ' If activate_msg_boxes = True Then MsgBox "Testing -- not 6 month reporter"
                                                 sr_report_date = "N/A"
                                                 recertification_date = "N/A"
 
@@ -1765,7 +1774,7 @@ If CSES_messages = 1 Then
 
                                 'Gather details on DAIL message, should capture DAIL details in spreadsheet even if ultimately not actionable
                             
-                                If activate_msg_boxes = True Then MsgBox "Testing -- This is a new DAIL message. It should be processed accordingly."
+                                ' If activate_msg_boxes = True Then MsgBox "Testing -- This is a new DAIL message. It should be processed accordingly."
 
                                 'Reset the array
                                 ReDim Preserve DAIL_message_array(DAIL_excel_row_const, dail_count)
@@ -2563,7 +2572,7 @@ If CSES_messages = 1 Then
                                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
                                                 
                                                     ' Comment/uncomment for testing purposes
-                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Ignore for now."
+                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Working on handling."
 
                                                     list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                     'To do - ensure this is at the correct spot
@@ -2584,6 +2593,9 @@ If CSES_messages = 1 Then
                                                     ' JOBS_footer_month = ""
                                                     ' JOBS_footer_year = ""
 
+                                                    ' 'Reset date_hired variable
+                                                    ' date_hired = ""
+
                                                     ' 'Enters “X” on DAIL message to open full message. 
                                                     ' Call write_value_and_transmit("X", dail_row, 3)
 
@@ -2597,7 +2609,7 @@ If CSES_messages = 1 Then
                                                     '     'Since the entire message is displayed, script reads the reference number and employer name from the dail_msg string
                                                     '     caregiver_ref_nbr = Mid(check_full_dail_msg, instr(check_full_dail_msg, "REF NBR: ") + 9, 2)
                                                     '     employer_full_name = Mid(check_full_dail_msg, instr(check_full_dail_msg, "REF NBR: ") + 12, 8)
-                                                    '     MsgBox "caregiver_ref_nbr: " & caregiver_ref_nbr & "     employer_full_name: " & employer_full_name
+                                                    '     If activate_msg_boxes = True then MsgBox "caregiver_ref_nbr: " & caregiver_ref_nbr & "     employer_full_name: " & employer_full_name
 
                                                     '     'Remove x from dail message
                                                     '     EMWriteScreen " ", dail_row, 3
@@ -2605,16 +2617,9 @@ If CSES_messages = 1 Then
                                                     '     ' Script reads the full DAIL message so that it can process, or not process, as needed.
                                                         
                                                     '     EMReadScreen check_full_dail_msg_line_1, 60, 9, 5
-                                                    '     ' MsgBox check_full_dail_msg_line_1
-
                                                     '     EMReadScreen check_full_dail_msg_line_2, 60, 10, 5
-                                                    '     ' MsgBox check_full_dail_msg_line_2
-
                                                     '     EMReadScreen check_full_dail_msg_line_3, 60, 11, 5
-                                                    '     ' MsgBox check_full_dail_msg_line_3
-
                                                     '     EMReadScreen check_full_dail_msg_line_4, 60, 12, 5
-                                                    '     ' MsgBox check_full_dail_msg_line_4
 
                                                     '     If trim(check_full_dail_msg_line_2) = "" Then check_full_dail_msg_line_1 = trim(check_full_dail_msg_line_1)
 
@@ -2639,21 +2644,21 @@ If CSES_messages = 1 Then
                                                     '     End If
                                                     
                                                     '     employer_full_name = trim(employer_name_line_1 & check_full_dail_msg_line_2 & check_full_dail_msg_line_3 & check_full_dail_msg_line_4)
-                                                    '     MsgBox employer_full_name
 
-                                                    '     MsgBox "caregiver_ref_nbr: " & caregiver_ref_nbr & "     employer_full_name: " & employer_full_name
+                                                    '     If activate_msg_boxes = True then MsgBox "caregiver_ref_nbr: " & caregiver_ref_nbr & "     employer_full_name: " & employer_full_name
                                                         
                                                     '     'Transmit back to DAIL message
                                                     '     transmit
 
                                                     ' End If
 
-                                                    ' 'To do - delete after testing
-                                                    ' If check_full_dail_msg = full_dail_msg Then
-                                                    '     ' MsgBox "They match"
-                                                    ' Else
+                                                    ' If check_full_dail_msg <> full_dail_msg Then
                                                     '     MsgBox "Something went wrong. The DAIL messages do not match. Stop here"
                                                     ' End if
+
+                                                    ' 'Setting a date hired based on the DAIL month
+                                                    ' date_hired = 
+
 
                                                     ' 'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
                                                     ' Call write_value_and_transmit("S", dail_row, 3)
@@ -2663,191 +2668,361 @@ If CSES_messages = 1 Then
                                                     ' EMWriteScreen caregiver_ref_nbr, 20, 76
                                                     ' Call write_value_and_transmit("01", 20, 79)
                                                     
-                                                    ' 'Check if no JOBS panel exists
-                                                    ' EmReadScreen jobs_panel_check, 25, 24, 2
-                                                    
-                                                    ' msgbox "Script navigated to first JOBS panel. It will determine if no jobs exist, 1 job exists, or multiple jobs exist."
+                                                    ' 'started adding in new JOBS code from function here
+                                                    ' 'Need to navigate to JOBS panel for CM if not there already so will check if at CM right now
+                                                    ' EMReadScreen JOBS_footer_month_and_year, 5, 20, 55
 
-                                                    ' 'Check if JOBS panels exist for the caregiver reference number
+                                                    ' If JOBS_footer_month_and_year <> CM_mo & " " & CM_yr then 
+                                                    '     If testing_status = True Then MsgBox "Testing -- Need to navigate to CM"
+                                                    '     'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
+                                                    '     PF3
+                                                    '     Call write_value_and_transmit("H", dail_row, 3)
+                                                    '     EMReadScreen curr_panel_check, 4, 2, 55
+                                                    '     If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
+                                                    '     EMWriteScreen "STAT", 20, 22
+                                                    '     EMWriteScreen CM_mo, 20, 54
+                                                    '     EMWriteScreen CM_yr, 20, 57
+                                                    '     Call write_value_and_transmit("JOBS", 20, 69)
+
+                                                    '     'Open the first JOBS panel of the caregiver reference number
+                                                    '     EMWriteScreen HIRE_memb_number, 20, 76
+                                                    '     Call write_value_and_transmit("01", 20, 79)
+                                                    ' Else    
+                                                    '     If testing_status = True Then MsgBox "Testing -- Already at CM JOBS panel"
+                                                    ' End If
+
+                                                    ' 'Ensure we are on JOBS panel
+                                                    ' EmReadScreen jobs_panel_nav_check, 4, 2, 45
+                                                    ' If jobs_panel_nav_check <> "JOBS" Then MsgBox "Testing -- Not on JOBS panel. Stop here"
+                                                    
+                                                    ' If testing_status = True Then MsgBox "Testing -- Ensure that we are on correct HH Member. Should be at HH Member: " & HIRE_memb_number
+
+                                                    ' 'Check if no JOBS panel exists on HH Memb JOBS panel
+                                                    ' EmReadScreen jobs_panel_check, 25, 24, 2
+
                                                     ' If InStr(jobs_panel_check, "DOES NOT EXIST") Then
                                                     '     'There are no JOBS panels for this HH member. The script will add a new JOBS panel for the member
-                                                    '     MsgBox "No JOBS panel exist. Script will create new panel and fill it out. STOP HERE in production."
+                                                    '     If testing_status = True Then MsgBox "Testing -- No JOBS panel exist. Script will create new panel and fill it out. STOP HERE if needed in production."
 
                                                     '     Call write_value_and_transmit("NN", 20, 79)				'Creates new panel
 
-                                                    '     'Reads footer month for updating the panel
-                                                    '     EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                    '     EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                    '     'Validation to ensure that script is able to open a new JOBS panel
+                                                    '     EmReadScreen panel_count_plus_one_check, 1, 2, 73
+                                                    '     panel_count_plus_one_check = panel_count_plus_one_check * 1
+                                                    '     EmReadScreen panel_count_total_check, 1, 2, 78
+                                                    '     panel_count_total_check = panel_count_total_check * 1
 
-                                                    '     'Writes information to JOBS panel
-                                                    '     EMWriteScreen "O", 5, 34
-                                                    '     EMWriteScreen "4", 6, 34
-                                                    '     EMWriteScreen employer_full_name, 7, 42
-                                                    '     EmWriteScreen JOBS_footer_month, 12, 54
-                                                    '     EMWriteScreen "01", 12, 57
-                                                    '     EmWriteScreen JOBS_footer_year, 12, 60
-
-                                                    '     'Puts $0 in as the received income amt
-                                                    '     EMWriteScreen "0", 12, 67				
-                                                    '     'Puts 0 hours in as the worked hours
-                                                    '     EMWriteScreen "0", 18, 72		
-                                                        
-                                                    '     'Opens FS PIC
-                                                    '     Call write_value_and_transmit("X", 19, 38)
-                                                    '     Call create_MAXIS_friendly_date(date, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
-
-                                                    '     'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
-                                                    '     EMWriteScreen "1", 5, 64
-                                                    '     EMWriteScreen "0", 8, 64
-                                                    '     EMWriteScreen "0", 9, 66
-
-                                                    '     transmit
-                                                    '     EmReadScreen PIC_warning, 7, 20, 6
-                                                    '     IF PIC_warning = "WARNING" then transmit 'to clear message
-                                                    '     transmit 'back to JOBS panel
-                                                    '     MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '     MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '     ' transmit 'to save JOBS panel
-                                                
-                                                    '     'Check if information is expiring and needs to be added to CM + 1
-                                                    '     EMReadScreen expired_check, 6, 24, 17 
-
-
-                                                    '     If expired_check = "EXPIRE" THEN 
-                                                    '         'New JOBS panel is expiring so it needs to be added to CM + 1 as well
-                                                    '         msgbox "New JOBS panel is expiring so it needs to be added to CM + 1 as well"
-
-                                                    '         'PF3 to go to STAT/WRAP
-                                                    '         PF3
-
-                                                    '         'Enter Y to add JOBS panel to CM + 1
-                                                    '         Call write_value_and_transmit("Y", 16, 54)
-                                                    '         'Navigate to STAT/JOBS for CM + 1
-                                                    '         Call write_value_and_transmit("JOBS", 20, 71)
-
-                                                    '         'Add new panel to caregiver ref nbr
-                                                    '         EMWriteScreen caregiver_ref_nbr, 20, 76
-                                                    '         Call write_value_and_transmit("NN", 20, 79)
+                                                    '     If panel_count_plus_one_check <> panel_count_total_check + 1 then 
+                                                    '         If testing_status = True Then MsgBox "Testing -- unable to open a new JOBS panel. Will note in spreadsheet and continue"
+                                                    '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                    '     Else
+                                                            
+                                                    '         If testing_status = True Then MsgBox "Testing -- Script opened JOBS panel. Will add new panel"
 
                                                     '         'Reads footer month for updating the panel
                                                     '         EMReadScreen JOBS_footer_month, 2, 20, 55	
                                                     '         EMReadScreen JOBS_footer_year, 2, 20, 58	
 
+                                                    '         'Write the date hired date from NDNH message to JOBS panel
+                                                    '         Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
+
                                                     '         'Writes information to JOBS panel
                                                     '         EMWriteScreen "O", 5, 34
                                                     '         EMWriteScreen "4", 6, 34
                                                     '         EMWriteScreen employer_full_name, 7, 42
-                                                    '         EmWriteScreen JOBS_footer_month, 12, 54
-                                                    '         EMWriteScreen "01", 12, 57
-                                                    '         EmWriteScreen JOBS_footer_year, 12, 60
+                                                                
+                                                    '         IF month_hired = JOBS_footer_month THEN
+                                                    '             'If the footer month on the JOBS panel matches the month from the HIRE message then it writes the actual hired date from the message to the panel
+                                                    '             Call create_MAXIS_friendly_date(date_hired, 0, 12, 54)
+                                                    '         ELSE
+                                                    '             'Otherwise, write the panel footer month and date to the new panel
+                                                    '             EmWriteScreen JOBS_footer_month, 12, 54
+                                                    '             EMWriteScreen "01", 12, 57
+                                                    '             EmWriteScreen JOBS_footer_year, 12, 60
+                                                    '         END IF
 
-                                                    '         'Puts $0 in as the received income amt
+                                                    '         'Puts $0 in as the received income amt and 0 worked hours
                                                     '         EMWriteScreen "0", 12, 67				
-                                                    '         'Puts 0 hours in as the worked hours
-                                                    '         EMWriteScreen "0", 18, 72				
-
+                                                    '         EMWriteScreen "0", 18, 72	
+                                                            
+                                                    '         If testing_status = True Then msgbox "Testing -- Review the JOBS panel. Any potential errors or issues before it continues?"
+                                                            
                                                     '         'Opens FS PIC
                                                     '         Call write_value_and_transmit("X", 19, 38)
+                                                                
+                                                    '         'Write today's date to calculation since added today
                                                     '         Call create_MAXIS_friendly_date(date, 0, 5, 34)
-
-                                                    '         'Entering PIC information 
+                                                            
+                                                    '         'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
                                                     '         EMWriteScreen "1", 5, 64
                                                     '         EMWriteScreen "0", 8, 64
                                                     '         EMWriteScreen "0", 9, 66
+                                                    '         If testing_status = True Then msgbox "Testing -- Review the PIC panel. Any potential errors or issues before it continues?"
+
                                                     '         transmit
                                                     '         EmReadScreen PIC_warning, 7, 20, 6
                                                     '         IF PIC_warning = "WARNING" then transmit 'to clear message
                                                     '         transmit 'back to JOBS panel
-                                                    '         'To Do - Uncomment once finalized
-                                                    '         MsgBox "The script is about to save the JOBS panel for CM + 1. Stop here if in testing or production"
-                                                    '         MsgBox "The script is about to save the JOBS panel for CM + 1. Stop here if in testing or production"
-                                                    '         ' transmit 'to save JOBS panel
+                                                    '         If testing_status = True Then Msgbox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
+                                                    '         transmit 'to save JOBS panel
 
-                                                    '         MsgBox "Script will not CASE/NOTE information"
+                                                    '         'Check if information is expiring and needs to be added to a future month
+                                                    '         EMReadScreen expired_check, 6, 24, 17 
+                                                    '         EMReadScreen data_expiration_month, 2, 24, 27
+                                                    '         EMReadScreen jobs_panel_month, 2, 20, 55
+
+                                                    '         If expired_check = "EXPIRE" THEN 
+                                                    '             Do
+                                                    '                 'Do loop to add JOBS panels to every month from DAIL month through CM
+                                                    '                 If testing_status = True Then msgbox "Testing -- New JOBS panel is expiring so it needs to be added to CM + 1 as well"
+
+                                                    '                 'PF3 to go to STAT/WRAP
+                                                    '                 PF3
+
+                                                    '                 'Check to make sure on STAT/WRAP
+                                                    '                 EMReadScreen stat_wrap_check, 19, 2, 32
+                                                    '                 If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
+
+                                                    '                 'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                    '                 If data_expiration_month <> jobs_panel_month Then
+                                                    '                     If testing_status = True Then msgbox "Testing -- JOBS panel expires in future month"
+                                                    '                     Do
+                                                    '                         Call write_value_and_transmit("Y", 16, 54)
+                                                    '                         EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                    '                         If stat_wrap_month_check = data_expiration_month Then
+                                                    '                             'Script has reached the expiration month, it will go to next month and then exit
+                                                    '                             If testing_status = True Then msgbox "Testing -- script has found matching month"
+                                                    '                             PF3
+                                                    '                             Call write_value_and_transmit("Y", 16, 54)
+                                                    '                             Exit Do
+                                                    '                         Else
+                                                    '                             'Script has not yet reached the expiration month, it will PF3 back to STAT/WRAP to move to next month
+                                                    '                             If testing_status = True Then msgbox "Testing -- script has not reached matching month"
+                                                    '                             PF3
+                                                    '                         End If
+                                                    '                     Loop
+                                                    '                 Else
+                                                    '                     'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                    '                     Call write_value_and_transmit("Y", 16, 54)
+                                                    '                 End If
+
+                                                    '                 'Navigate to STAT/JOBS
+                                                    '                 Call write_value_and_transmit("JOBS", 20, 71)
+
+                                                    '                 EMReadScreen jobs_panel_nav_check, 8, 2, 43
+                                                    '                 If InStr(jobs_panel_nav_check, "JOBS") = 0 Then MsgBox "Testing -- Stop here. Not at JOBS panel"
+
+                                                    '                 If testing_status = True Then MsgBox "Testing -- Is it at the month after expiration? Expiration month was " & data_expiration_month
+
+                                                    '                 'Navigate to HH member
+                                                    '                 Call write_value_and_transmit(caregiver_ref_nbr, 20, 76)
+
+                                                    '                 'Making sure there aren't 5 jobs already
+                                                    '                 EMReadScreen five_jobs_check, 1, 2, 78
+                                                                    
+                                                    '                 If five_jobs_check = "5" Then 
+                                                    '                     script_end_procedure_with_error_report("Testing -- There are 5 JOBS panels already, it will error out. Must stop here!")
+                                                    '                 Else
+                                                    '                     Call write_value_and_transmit("NN", 20, 79)
+                                                    '                 End If
+                                                                    
+                                                    '                 EmReadScreen panel_count_plus_one_check, 1, 2, 73
+                                                    '                 panel_count_plus_one_check = panel_count_plus_one_check * 1
+                                                    '                 EmReadScreen panel_count_total_check, 1, 2, 78
+                                                    '                 panel_count_total_check = panel_count_total_check * 1
+
+                                                    '                 If panel_count_plus_one_check <> panel_count_total_check + 1 then script_end_procedure_with_error_report("Testing -- Unable to open a new JOBS panel. Script will stop here.")
+
+                                                    '                 'Reads footer month for updating the panel
+                                                    '                 EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                    '                 EMReadScreen JOBS_footer_year, 2, 20, 58
+                                                    '                 EmWriteScreen JOBS_footer_month, 12, 54
+                                                    '                 EMWriteScreen "01", 12, 57
+                                                    '                 EmWriteScreen JOBS_footer_year, 12, 60	
+
+                                                    '                 'Write the date hired date from NDNH message to JOBS panel
+                                                    '                 Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
+
+                                                    '                 'Writes information to JOBS panel
+                                                    '                 EMWriteScreen "O", 5, 34
+                                                    '                 EMWriteScreen "4", 6, 34
+                                                    '                 EMWriteScreen employer_full_name, 7, 42
+                                                                    
+                                                    '                 'Looking at CM + 1 so won't match the message, just writes footer month to panel
+                                                    '                 EmWriteScreen JOBS_footer_month, 12, 54
+                                                    '                 EMWriteScreen "01", 12, 57
+                                                    '                 EmWriteScreen JOBS_footer_year, 12, 60
+
+                                                    '                 'Puts $0 in as the received income amt
+                                                    '                 EMWriteScreen "0", 12, 67				
+                                                    '                 'Puts 0 hours in as the worked hours
+                                                    '                 EMWriteScreen "0", 18, 72		
+
+                                                    '                 If testing_status = True Then msgbox "Testing - Does everything look good on JOBS panel before heading to PIC?"
+                                                                    
+                                                    '                 'Opens FS PIC
+                                                    '                 Call write_value_and_transmit("X", 19, 38)
+                                                    '                 'Writes today's date on the panel
+                                                    '                 Call create_MAXIS_friendly_date(date, 0, 5, 34)
+
+                                                    '                 'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
+                                                    '                 EMWriteScreen "1", 5, 64
+                                                    '                 EMWriteScreen "0", 8, 64
+                                                    '                 EMWriteScreen "0", 9, 66
+                                                    '                 If testing_status = True Then msgbox "Testing - Does everything look good on JOBS panel before saving the PIC?"
+                                                                    
+                                                    '                 transmit
+                                                    '                 EmReadScreen PIC_warning, 7, 20, 6
+                                                    '                 IF PIC_warning = "WARNING" then transmit 'to clear message
+                                                    '                 transmit 'back to JOBS panel
+                                                    '                 If testing_status = True Then msgbox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
+                                                    '                 transmit 'to save JOBS panel
+                                                                    
+                                                    '                 'Check if information is expiring and needs to be added to CM + 1
+                                                    '                 EMReadScreen expired_check, 6, 24, 17 
+                                                    '                 EMReadScreen data_expiration_month, 2, 24, 27
+                                                    '                 EMReadScreen jobs_panel_month, 2, 20, 55 
+                                                                    
+                                                    '                 If expired_check <> "EXPIRE" THEN
+                                                    '                     'If data is not expiring, then the script can exit the do loop
+                                                    '                     If testing_status = True Then msgbox "Testing -- No expiration date. It will exit the do loop"
+                                                    '                     Exit Do
+                                                    '                 Else
+                                                    '                     If testing_status = True Then msgbox "Testing -- Data is expiring. It will continue with the do loop"
+                                                    '                 End If
+
+                                                    '             Loop
+
+                                                    '         End If
+
                                                     '         'Write information to CASE/NOTE
+                                                    '         If testing_status = True Then MsgBox "Testing -- Script will now CASE/NOTE information. Navigate to CASE/NOTE"
 
                                                     '         'PF4 to navigate to CASE/NOTE
                                                     '         PF4
+
+                                                    '         EMReadScreen case_note_check, 4, 2, 45
+                                                    '         If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+
                                                     '         'Open new CASE/NOTE
                                                     '         PF9
 
-                                                    '         CALL write_variable_in_case_note("-CS: NEW EMPLOYER REPORTED FOR (M" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                    '         CALL write_variable_in_case_note("DATE HIRED: " & JOBS_footer_month & " " & JOBS_footer_year)
-                                                    '         CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note("STAT/JOBS UPDATED WITH NEW HIRE INFORMATION FROM CSES DAIL MESSAGE.")
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE.")
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note(worker_signature)
+                                                    '         'Write information depending on whether NDNH or SDNH message
+                                                    '         If InStr(dail_msg, "NDNH MEMB") Then
+                                                    '             CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                    '             CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                    '             CALL write_variable_in_case_note("MAXIS NAME: " & NDNH_maxis_name)
+                                                    '             CALL write_variable_in_case_note("NEW HIRE NAME: " & NDNH_new_hire_name)
+                                                    '             CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note(worker_signature)
+                                                    '         ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
+                                                    '             CALL write_variable_in_case_note("-SDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                    '             CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                    '             CALL write_variable_in_case_note("MAXIS NAME: " & SDNH_maxis_name)
+                                                    '             CALL write_variable_in_case_note("NEW HIRE NAME: " & SDNH_new_hire_name)
+                                                    '             CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                    '             CALL write_variable_in_case_note("---")
+                                                    '             CALL write_variable_in_case_note(worker_signature)
+                                                    '         Else
+                                                    '             Msgbox "Testing -- something went wrong when writing the CASE/NOTE. Appears that message is neither NDNH or SDNH"
+                                                    '         End If
 
-
-                                                    '         MsgBox "The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
-                                                    '         MsgBox "The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
-
-                                                    '         'PF3 to save the CASE/NOTE
-                                                    '         ' PF3
-
-                                                    '         'PF3 to STAT/WRAP
-                                                    '         PF3
-
-                                                    '         'PF3 back to JOBS
-                                                    '         PF3
-
-                                                    '     Else
-                                                    '         'If the JOBS panel is not expiring then write the information to CASE/NOTE
-
-                                                    '         MsgBox "Information is not expiring in CM + 1. Script will navigate to CASE/NOTE"
-                                                            
-                                                    '         'PF4 to navigate to CASE/NOTE
-                                                    '         PF4
-                                                    '         'Open new CASE/NOTE
-                                                    '         PF9
-
-                                                    '         CALL write_variable_in_case_note("-CS: NEW EMPLOYER REPORTED FOR (M" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                    '         CALL write_variable_in_case_note("DATE HIRED: " & JOBS_footer_month & " " & JOBS_footer_year)
-                                                    '         CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note("STAT/JOBS UPDATED WITH NEW HIRE INFORMATION FROM CSES DAIL MESSAGE.")
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE.")
-                                                    '         CALL write_variable_in_case_note("---")
-                                                    '         CALL write_variable_in_case_note(worker_signature)
-
-
-                                                    '         MsgBox "The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
-                                                    '         MsgBox "The script is about to save the CASE/NOTE for CM + 1. Stop here if in testing or production"
+                                                    '         If testing_status = True Then msgbox "Testing -- The script is about to save the CASE/NOTE. Stop here if in testing or production"
 
                                                     '         'PF3 to save the CASE/NOTE
-                                                    '         ' PF3
-
-                                                    '         'PF3 back to JOBS
                                                     '         PF3
-
-
                                                             
+                                                    '         'PF3 to STAT/WRAP or JOBS
+                                                    '         PF3
+                                                            
+                                                    '         EMReadScreen panel_nav_check, 4, 2, 46
+                                                    '         If panel_nav_check <> "WRAP" Then
+                                                    '             PF3
+                                                    '             If testing_status = True Then msgbox "Testing -- The script should now be at STAT/WRAP. If it is not, then stop here."
+                                                    '         End If
+
+                                                    '         If testing_status = True Then msgbox "Testing -- No jobs panels existed. Created JOBS panel(s) through CM"
+                                                            
+                                                    '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for household member number: " & HIRE_memb_number & ". JOBS Panel and CASE/NOTE added for employer noted in HIRE message. Message should be deleted.")
                                                     '     End If
 
-                                                    '     ' 'PF3 back to DAIL
-                                                    '     ' PF3
-
-                                                    '     'Updates the processing notes for the DAIL message to reflect this
-                                                    '     msgbox "No jobs panels exist"
-                                                        
-                                                    '     DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for caregiver reference number: " & caregiver_ref_nbr & ". JOBS Panel and CASE/NOTE added for employer noted in CSES message. Message should be deleted.")
-
-                                                    
                                                     ' Else
-                                                    '     'Read the employer name
-                                                    '     EMReadScreen employer_name_jobs_panel, 30, 7, 42
+                                                    '     'There is at least 1 JOBS panel
+                                                    '     If testing_status = True Then MsgBox "Testing -- there is at least 1 JOBS panel."
+
+                                                    '     'Read the employer name, but only first 20 characters to align with max length for HIRE message for NDNH messages
+                                                    '     EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                     '     employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
+                                                    '     'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                    '     employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
 
-                                                    '     If employer_name_jobs_panel = employer_full_name Then
-                                                    '         MsgBox "The employer names match exactly. Message can be deleted."
+                                                    '     If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                    '         employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                    '         If testing_status = True Then MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word  
+                                                    '     Else
+                                                    '         employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                    '         If testing_status = True Then MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                    '     End If
+
+                                                    '     If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                    '         employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                    '         If testing_status = True Then MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                    '     End If
+
+                                                    '     If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '         'Add here
+                                                    '         If testing_status = True Then msgbox "Testing -- The employer names match exactly. Will add to delete list and TIKL delete list."
+
+                                                    '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                    '         list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                    '         ' "Verification of " & employer & "job via NEW HIRE should"
+                                                    '         If testing_status = True Then MsgBox list_of_TIKLs_to_delete
+
+                                                    '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+
+                                                    '         If testing_status = True Then msgbox "Testing -- there is an exact match for employer name first word only. Will add to delete list and TIKL delete list."
+
+                                                    '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+
+                                                    '         list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                    '         If testing_status = True Then MsgBox list_of_TIKLs_to_delete
+
+                                                    '         'Handling no longer needed since script will delete any created TIKLs
+                                                    '         ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                    '         ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                    '         ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
                                                             
-                                                    '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ". No CASE/NOTE created. Message should be deleted."
+                                                    '         ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
 
+                                                    '         ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                    '         '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                
+                                                    '         '     If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '         '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. No CASE/NOTE created. Message should be deleted."
+                                                    '         '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
+                                                    '         '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. No CASE/NOTE created. Message should be deleted."
+                                                    '         '     End If
+                                                                    
+                                                    '         ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                    '         '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+
+                                                    '         '     If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '         '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                    '         '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
+                                                    '         '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                    '         '     End If
+                                                    '         ' End If 
                                                     '     Else
                                                     '         'Check how many panels exist for the HH member
                                                     '         EMReadScreen jobs_panels_count, 1, 2, 78
@@ -2855,44 +3030,93 @@ If CSES_messages = 1 Then
                                                     '         jobs_panels_count = jobs_panels_count * 1
                                                     '         'If there is more than just 1 JOBS panel, loop through them all to check for matching employers
                                                     '         If jobs_panels_count = 1 Then
-                                                    '             MsgBox "There is only one JOBS panel and they do not match. It will open the dialog to compare"
-
-                                                    '             'It adds the employer name to the list of employers so that it can be displayed on the dialog for verification
-                                                    '             list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+                                                    '             If testing_status = True Then MsgBox "Testing -- There is only one JOBS panel and they do not match. The script will skip the message since there is no exact match"
 
                                                     '             'Set variable below to true to trigger dialog
                                                     '             no_exact_JOBS_panel_matches = True
-
-                                                            
                                                             
                                                     '         ElseIf jobs_panels_count <> 1 Then
-                                                    '             MsgBox "There are multiple JOBS panels and they do not match. It will open the dialog to compare"
+                                                    '             If testing_status = True Then MsgBox "Testing -- There are multiple JOBS panels. Script will determine if there are any perfect matches."
                                                                 
-                                                    '             'It adds the first employer name to the list of employers so that it can be displayed on the dialog for verification
-                                                    '             list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
-
                                                     '             'Set incrementor for do loop
                                                     '             panel_count = 1
 
                                                     '             Do
                                                     '                 panel_count = panel_count + 1
-                                                    '                 EMWriteScreen caregiver_ref_nbr, 20, 76
+                                                    '                 EMWriteScreen HIRE_memb_number, 20, 76
                                                     '                 Call write_value_and_transmit("0" & panel_count, 20, 79)
 
                                                     '                 'Read the employer name
-                                                    '                 EMReadScreen employer_name_jobs_panel, 30, 7, 42
+                                                    '                 EMReadScreen employer_name_jobs_panel, 20, 7, 42
                                                     '                 employer_name_jobs_panel = trim(replace(employer_name_jobs_panel, "_", " "))
 
-                                                    '                 If employer_name_jobs_panel = employer_full_name Then
-                                                    '                     MsgBox "That's convenient. The employer names match exactly"
-                                                                    
-                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ". No CASE/NOTE created. Message should be deleted."
+                                                    '                 'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                    '                 employer_name_jobs_panel_split = split(employer_name_jobs_panel, " ")
+
+                                                    '                 If len(employer_name_jobs_panel_split(0)) < 4 and Ubound(employer_name_jobs_panel_split) > 0 Then
+                                                    '                     employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0) & " " & employer_name_jobs_panel_split(1)
+                                                    '                     If testing_status = True Then MsgBox "First word less than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word  
+                                                    '                 Else
+                                                    '                     employer_name_jobs_panel_first_word = employer_name_jobs_panel_split(0)   
+                                                    '                     If testing_status = True Then MsgBox "First word longer than 3 characters long. employer_name_jobs_panel_first_word is " & employer_name_jobs_panel_first_word
+                                                    '                 End If
+
+                                                    '                 If instr(len(employer_name_jobs_panel_first_word), employer_name_jobs_panel_first_word, ",") = len(employer_name_jobs_panel_first_word) then 
+                                                    '                     employer_name_jobs_panel_first_word = Mid(employer_name_jobs_panel_first_word, 1, len(employer_name_jobs_panel_first_word) - 1)
+                                                    '                     If testing_status = True Then MsgBox "Last character is a comma. employer_name_jobs_panel_first_word is now " & employer_name_jobs_panel_first_word
+                                                    '                 End If
+
+                                                    '                 If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '                     If testing_status = True Then msgbox "Testing -- The employer names match exactly. Will add to delete list and TIKL delete list."
+                                                            
+                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches HIRE employer name exactly. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                            
+                                                    '                     list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                                        
+                                                    '                     If testing_status = True Then MsgBox list_of_TIKLs_to_delete
 
                                                     '                     'Exit the do loop since an exact match was found
                                                     '                     Exit Do
-                                                    '                 Else
-                                                    '                     'If the employer names do not match, then it adds to the employer name to the list of employers for review in dialog
-                                                    '                     list_of_employers_on_jobs_panels = list_of_employers_on_jobs_panels & employer_name_jobs_panel & "*"
+                                                            
+                                                    '                 ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then
+                                                            
+                                                    '                     If testing_status = True Then msgbox "Testing -- there is an exact match for employer name first word only. Will add to delete list and TIKL delete list."
+                                                            
+                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". JOBS panel matches first word of HIRE employer name. No CASE/NOTE created. Created TIKLs should be removed. Message should be deleted." 
+                                                            
+                                                    '                     list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & name_and_case_number_for_TIKL & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
+                                                    '                     If testing_status = True Then MsgBox list_of_TIKLs_to_delete
+                                                                        
+                                                    '                     'Outdated handling
+                                                    '                     ' If testing_status = True Then msgbox "Testing -- The employer names match exactly or first word matches exactly. Will determine the month if it needs to flag and skip or delete."
+                                                            
+                                                    '                     ' EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                    '                     ' EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                    '                     ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
+                                                                        
+                                                    '                     ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
+                                                            
+                                                    '                     ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
+                                                    '                     '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
+                                                                            
+                                                    '                     '     If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '                     '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. No CASE/NOTE created. Message should be deleted."
+                                                    '                     '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
+                                                    '                     '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. No CASE/NOTE created. Message should be deleted."
+                                                    '                     '     End If
+                                                                                
+                                                    '                     ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
+                                                    '                     '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
+                                                            
+                                                    '                     '     If employer_name_jobs_panel = HIRE_employer_name Then
+                                                    '                     '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                    '                     '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
+                                                    '                     '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
+                                                    '                     '     End If
+                                                    '                     ' End If 
+
+                                                    '                     'Exit the do loop since an exact match was found
+                                                    '                     Exit Do
 
                                                     '                 End If
 
@@ -2901,7 +3125,7 @@ If CSES_messages = 1 Then
                                                     '                 jobs_panels_count = jobs_panels_count * 1
                                                                     
                                                     '                 If panel_count = jobs_panels_count Then
-                                                    '                     msgbox "2931 Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True"
+                                                    '                     If testing_status = True Then msgbox "Testing -- 5045 Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True"
                                                     '                     'Since there were no exact employer matches, setting no_exact_JOBS_panel_matches = True
                                                     '                     no_exact_JOBS_panel_matches = True
                                                     '                     Exit Do
@@ -2910,290 +3134,309 @@ If CSES_messages = 1 Then
                                                     '         End If
 
                                                     '         'Convert string of the employer names into an array for use in the dialog
-                                                    '         'To do - add handling for when it has already been determined that there is a match on the employer names
                                                     '         If no_exact_JOBS_panel_matches = True Then
-                                                    '             'Remove ending *
-                                                    '             list_of_employers_on_jobs_panels = Left(list_of_employers_on_jobs_panels, len(list_of_employers_on_jobs_panels) - 1)
-                                                    '             'Remove starting *
-                                                    '             list_of_employers_on_jobs_panels = Right(list_of_employers_on_jobs_panels, len(list_of_employers_on_jobs_panels) - 1)
-                                                    '             'Convert list of employer names from a string to a single dimensional array
-                                                    '             list_of_employers_on_jobs_panels = split(list_of_employers_on_jobs_panels, "*")
 
-                                                    '             'Alternative dialog and approach
-                                                    '             BeginDialog Dialog1, 0, 0, 321, 255, "Employers on JOBS Panel"
-                                                    '                 Text 5, 5, 100, 10, "Caregiver Reference Number:"
-                                                    '                 Text 105, 5, 20, 10, caregiver_ref_nbr
-                                                    '                 Text 55, 20, 50, 10, "Case Number:"
-                                                    '                 Text 105, 20, 80, 10, MAXIS_case_number
-                                                    '                 GroupBox 5, 40, 310, 115, "Employer on JOBS Panels"
-                                                    '                 Text 25, 55, 75, 10, "CSES - New Employer:"
-                                                    '                 Text 100, 55, 210, 10, employer_full_name
-                                                    '                 Text 10, 75, 90, 10, "Employer - JOBS Panel 01: "
-                                                    '                 Text 100, 75, 210, 10, list_of_employers_on_jobs_panels(0)
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) >= 1 Then
-                                                    '                     Text 10, 90, 90, 10, "Employer - JOBS Panel 02:"
-                                                    '                     Text 100, 90, 210, 10, list_of_employers_on_jobs_panels(1)
-                                                    '                 End if
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) >= 2 Then
-                                                    '                     Text 10, 105, 90, 10, "Employer - JOBS Panel 03:"
-                                                    '                     Text 100, 105, 210, 10, list_of_employers_on_jobs_panels(2)
-                                                    '                 End If
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) >= 3 Then
-                                                    '                     Text 10, 120, 90, 10, "Employer - JOBS Panel 04:"
-                                                    '                     Text 100, 120, 210, 10, list_of_employers_on_jobs_panels(3)
-                                                    '                 End if
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) >= 4 Then
-                                                    '                     Text 10, 135, 90, 10, "Employer - JOBS Panel 05:"
-                                                    '                     Text 100, 135, 210, 10, list_of_employers_on_jobs_panels(4)
-                                                    '                 End If
-                                                    '                 GroupBox 5, 160, 310, 65, "Employer Match Verification"
-                                                    '                 Text 10, 175, 110, 10, "Indicate if any Employers Match:"
-                                                    '                 DropListBox 120, 175, 190, 15, "[Select Option]"+chr(9)+"No Exact Match - Create New JOBS Panel"+chr(9)+"Potential Match(es) - Flag for Review"+chr(9)+"Exact Match Found - Delete Message", employer_match_determination
-                                                    '                 Text 10, 195, 235, 10, "Select the matching panel or indicate N/A:"
-                                                    '                 'To do - use cleaner code once workaround for no item in array is found
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) = 4 Then
-                                                    '                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2)+chr(9)+list_of_employers_on_jobs_panels(3)+chr(9)+list_of_employers_on_jobs_panels(4), matching_employer_panel
-                                                    '                 ElseIf UBound(list_of_employers_on_jobs_panels) = 3 Then
-                                                    '                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2)+chr(9)+list_of_employers_on_jobs_panels(3), matching_employer_panel
-                                                    '                 ElseIf UBound(list_of_employers_on_jobs_panels) = 2 Then
-                                                    '                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1)+chr(9)+list_of_employers_on_jobs_panels(2), matching_employer_panel
-                                                    '                 ElseIf UBound(list_of_employers_on_jobs_panels) = 1 Then
-                                                    '                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0)+chr(9)+list_of_employers_on_jobs_panels(1), matching_employer_panel
-                                                    '                 ElseIf UBound(list_of_employers_on_jobs_panels) = 0 Then
-                                                    '                     DropListBox 10, 205, 225, 15, "Not Applicable - No Match"+chr(9)+list_of_employers_on_jobs_panels(0), matching_employer_panel
-                                                    '                 End If
+                                                    '             'If there are 5 jobs already, it will not add another JOBS panel
+                                                    '             If jobs_panels_count = 5 Then
+                                                    '                 'Script will be unable to add another JOBS panel since there are 5 already so it will note as such and skip
+                                                    '                 If testing_status = True Then msgbox "Testing -- There are 5 JOBS panels already. Cannot add another JOBS panel."
 
-                                                    '                 ButtonGroup ButtonPressed
-                                                    '                     OkButton 200, 235, 50, 15
-                                                    '                     CancelButton 255, 235, 50, 15
-                                                    '             EndDialog
+                                                    '                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, unable to add new JOBS panel for employer since there are already 5 JOBS panels. Review needed." & " Message should not be deleted."
 
-                                                    '             'Show dialog
-                                                    '             DO
-                                                    '                 DO
-                                                    '                     err_msg = ""
-                                                    '                     Dialog Dialog1
-                                                    '                     cancel_confirmation
-                                                    '                     'Validation to ensure that match determination made
-                                                    '                     If employer_match_determination = "[Select Option]" Then err_msg = err_msg & vbNewLine & "* You must indicate if any employers match."
-                                                                        
-                                                    '                     'If one match is indicated, then the matching employer must be selected
-                                                    '                     If employer_match_determination = "Exact Match Found - Delete Message" AND matching_employer_panel = "Not Applicable - No Match" Then err_msg = err_msg & vbNewLine & "* You must select the matching employer."
+                                                    '             Else
+                                                    '                 'There are not 5 JOBS panels so it will check CM + 1 too before adding new JOBS panel before adding new JOBS panel
+                                                    '                 If testing_status = True Then MsgBox "Testing -- Need to navigate to CM + 1"
+                                                    '                 'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
+                                                    '                 PF3
+                                                    '                 Call write_value_and_transmit("H", dail_row, 3)
+                                                    '                 EMReadScreen curr_panel_check, 4, 2, 55
+                                                    '                 If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
+                                                    '                 EMWriteScreen "STAT", 20, 22
+                                                    '                 EMWriteScreen CM_plus_1_mo, 20, 54
+                                                    '                 EMWriteScreen CM_plus_1_yr, 20, 57
+                                                    '                 Call write_value_and_transmit("JOBS", 20, 69)
 
-                                                    '                     'If there isn't an exact match, then the N/A option must be selected
-                                                    '                     If (employer_match_determination = "Potential Match(es) - Flag for Review" OR employer_match_determination = "No Exact Match - Create New JOBS Panel") AND matching_employer_panel <> "Not Applicable - No Match" Then err_msg = err_msg & vbNewLine & "* You indicated there was no exact match so you must select the 'Not Applicable - No Match' option."
+                                                    '                 'Open the first JOBS panel of the caregiver reference number
+                                                    '                 EMWriteScreen HIRE_memb_number, 20, 76
+                                                    '                 Call write_value_and_transmit("01", 20, 79)
 
-                                                    '                     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-                                                    '                 LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-                                                    '                 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-                                                    '             LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+                                                    '                 'Read the number of JOBS panels to ensure there are not 5 already
+                                                    '                 EMReadScreen jobs_panels_count_CM_plus_1, 1, 2, 78
 
+                                                    '                 If jobs_panels_count_CM_plus_1 = "5" Then
+                                                    '                     If testing_status = True Then msgbox "Testing -- There are 5 JOBS panels already in CM + 1. Cannot add another JOBS panel."
 
-                                                    '             'Handling for match determination
-                                                    '             If employer_match_determination = "Potential Match(es) - Flag for Review" Then
-                                                    '                 'The message cannot be processed since no exact match exists
-                                                    '                 'Add the message to the skip list since it cannot be processed
+                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". However, unable to add new JOBS panel for employer since there are already 5 JOBS panels in CM + 1. Review needed." & " Message should not be deleted."
+                                                    '                 Else
+                                                    '                     'Navigate back to CM and add JOBS as originally intended
+                                                    '                     'There are not 5 JOBS panels so it will check CM + 1 too before adding new JOBS panel before adding new JOBS panel
+                                                    '                     If testing_status = True Then MsgBox "Testing -- Need to navigate to CM + 1"
+                                                    '                     'PF3 back to DAIL and navigate to CASE/CURR to change the footer month and get to JOBS panel for CM
+                                                    '                     PF3
+                                                    '                     Call write_value_and_transmit("H", dail_row, 3)
+                                                    '                     EMReadScreen curr_panel_check, 4, 2, 55
+                                                    '                     If curr_panel_check <> "CURR" Then MsgBox "Testing -- not at CASE/CURR"
+                                                    '                     EMWriteScreen "STAT", 20, 22
+                                                    '                     EMWriteScreen CM_mo, 20, 54
+                                                    '                     EMWriteScreen CM_yr, 20, 57
+                                                    '                     Call write_value_and_transmit("JOBS", 20, 69)
 
-                                                    '                 MsgBox "Potential Match(es) - Flag for Review"
+                                                    '                     'Open the first JOBS panel of the caregiver reference number
+                                                    '                     EMWriteScreen HIRE_memb_number, 20, 76
+                                                    '                     Call write_value_and_transmit("01", 20, 79)
 
-                                                    '                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There does not appear to be an exactly matching JOBS panel for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ". Review needed." & " Message should not be deleted."
-
-
-                                                    '             ElseIf employer_match_determination = "No Exact Match - Create New JOBS Panel" Then
-                                                                    
-                                                    '                 MsgBox "No Exact Match - Create New JOBS Panel"
-                                                    '                 '5 panels, note in array and don't add panel, add to skip list
-                                                    '                 If UBound(list_of_employers_on_jobs_panels) = 4 Then
-                                                    '                     MsgBox "There are 5 panels. Cannot add another. Message will not be deleted."
-
-                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ", but unable to add a panel because 5 JOBS panels exist already. Review needed." & " Message should not be deleted."
-                                                    '                 ElseIf UBound(list_of_employers_on_jobs_panels) < 4 Then
-                                                    '                     'Less than 5 panels, add panel
-
-                                                    '                     MsgBox "There are less than 5 panels. New JOBS panel will be added"
                                                     '                     Call write_value_and_transmit("NN", 20, 79)				'Creates new panel
 
-                                                    '                     'Reads footer month for updating the panel
-                                                    '                     EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                    '                     EMReadScreen JOBS_footer_year, 2, 20, 58	
+                                                    '                     'Validation to ensure that script is able to open a new JOBS panel
+                                                    '                     EmReadScreen panel_count_plus_one_check, 1, 2, 73
+                                                    '                     panel_count_plus_one_check = panel_count_plus_one_check * 1
+                                                    '                     EmReadScreen panel_count_total_check, 1, 2, 78
+                                                    '                     panel_count_total_check = panel_count_total_check * 1
 
-                                                    '                     'Writes information to JOBS panel
-                                                    '                     EMWriteScreen "O", 5, 34
-                                                    '                     EMWriteScreen "4", 6, 34
-                                                    '                     EMWriteScreen employer_full_name, 7, 42
-                                                    '                     EmWriteScreen JOBS_footer_month, 12, 54
-                                                    '                     EMWriteScreen "01", 12, 57
-                                                    '                     EmWriteScreen JOBS_footer_year, 12, 60
+                                                    '                     If panel_count_plus_one_check <> panel_count_total_check + 1 then 
+                                                    '                         If testing_status = True Then MsgBox "Testing -- unable to open a new JOBS panel. Will note in spreadsheet and continue"
+                                                    '                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "MAXIS programs are inactive. Unable to add a new JOBS panel for M" & HIRE_memb_number & ". Review needed." & " Message should not be deleted."
+                                                    '                     Else
+                                                                            
+                                                    '                         If testing_status = True Then MsgBox "Testing -- Script opened JOBS panel. Will add new panel"
 
-                                                    '                     'Puts $0 in as the received income amt
-                                                    '                     EMWriteScreen "0", 12, 67				
-                                                    '                     'Puts 0 hours in as the worked hours
-                                                    '                     EMWriteScreen "0", 18, 72				
+                                                    '                         'Reads footer month for updating the panel
+                                                    '                         EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                    '                         EMReadScreen JOBS_footer_year, 2, 20, 58	
 
-                                                    '                     'Opens FS PIC
-                                                    '                     Call write_value_and_transmit("X", 19, 38)
-                                                    '                     Call create_MAXIS_friendly_date(date, 0, 5, 34) 
+                                                    '                         'Write the date hired date from NDNH message to JOBS panel
+                                                    '                         Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
 
-                                                    '                     'Entering PIC information
-                                                    '                     EMWriteScreen "1", 5, 64
-                                                    '                     EMWriteScreen "0", 8, 64
-                                                    '                     EMWriteScreen "0", 9, 66
-                                                    '                     transmit
-                                                    '                     EmReadScreen PIC_warning, 7, 20, 6
-                                                    '                     IF PIC_warning = "WARNING" then transmit 'to clear message
-                                                    '                     transmit 'back to JOBS panel
-                                                                        
-                                                    '                     'To Do - Uncomment once finalized
-                                                    '                     MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '                     MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '                     ' transmit 'to save JOBS panel
-                                                                        
-                                                    '                     'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
-                                                    '                     EMReadScreen expired_check, 6, 24, 17 
-
-                                                    '                     If expired_check = "EXPIRE" THEN 
-
-                                                    '                         MsgBox "Info will expire at end of month. Navigating to CM + 1"
-
-                                                    '                         'PF3 to go to STAT/WRAP
-                                                    '                         PF3
-                                                    '                         'Enter Y to add JOBS panel to CM + 1
-                                                    '                         Call write_value_and_transmit("Y", 16, 54)
-                                                    '                         'Navigate to STAT/JOBS for CM + 1
-                                                    '                         Call write_value_and_transmit("JOBS", 20, 71)
-
-                                                    '                         'Check if there are 5 jobs already for CM + 1
-                                                    '                         EMReadScreen five_JOBS_panels_check, 1, 2, 78
-
-                                                    '                         If five_JOBS_panels_check = "5" Then
-                                                    '                             MsgBox "There are 5 panels in CM + 1. Cannot add another. Message will not be deleted"
-
-                                                    '                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel does not exist for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ". JOBS panel added for CM, but unable to add a JOBS panel to CM + 1 because 5 JOBS panels exist already. Review needed." & " Message should not be deleted."
-
-                                                    '                         Else
-                                                    '                             'There are less than 5 JOBS panels so add new panel to caregiver ref nbr
-                                                    '                             EMWriteScreen caregiver_ref_nbr, 20, 76
-                                                    '                             Call write_value_and_transmit("NN", 20, 79)
-
-                                                    '                             'Reads footer month for updating the panel
-                                                    '                             EMReadScreen JOBS_footer_month, 2, 20, 55	
-                                                    '                             EMReadScreen JOBS_footer_year, 2, 20, 58	
-
-                                                    '                             'Writes information to JOBS panel
-                                                    '                             EMWriteScreen "O", 5, 34
-                                                    '                             EMWriteScreen "4", 6, 34
-                                                    '                             EMWriteScreen employer_full_name, 7, 42
+                                                    '                         'Writes information to JOBS panel
+                                                    '                         'To do - using W instead of O. Is this correct?
+                                                    '                         EMWriteScreen "W", 5, 34
+                                                    '                         EMWriteScreen "4", 6, 34
+                                                    '                         EMWriteScreen HIRE_employer_name, 7, 42
+                                                                                
+                                                    '                         IF month_hired = JOBS_footer_month THEN
+                                                    '                             'If the footer month on the JOBS panel matches the month from the HIRE message then it writes the actual hired date from the message to the panel
+                                                    '                             Call create_MAXIS_friendly_date(date_hired, 0, 12, 54)
+                                                    '                         ELSE
+                                                    '                             'Otherwise, write the panel footer month and date to the new panel
                                                     '                             EmWriteScreen JOBS_footer_month, 12, 54
                                                     '                             EMWriteScreen "01", 12, 57
                                                     '                             EmWriteScreen JOBS_footer_year, 12, 60
+                                                    '                         END IF
 
-                                                    '                             'Puts $0 in as the received income amt
-                                                    '                             EMWriteScreen "0", 12, 67				
-                                                    '                             'Puts 0 hours in as the worked hours
-                                                    '                             EMWriteScreen "0", 18, 72				
-
-                                                    '                             'Opens FS PIC
-                                                    '                             Call write_value_and_transmit("X", 19, 38)
-                                                    '                             Call create_MAXIS_friendly_date(date, 0, 5, 34)
-
-                                                    '                             'Entering PIC information
-                                                    '                             EMWriteScreen "1", 5, 64
-                                                    '                             EMWriteScreen "0", 8, 64
-                                                    '                             EMWriteScreen "0", 9, 66
-                                                    '                             transmit
-                                                    '                             EmReadScreen PIC_warning, 7, 20, 6
-                                                    '                             IF PIC_warning = "WARNING" then transmit 'to clear message
-                                                    '                             transmit 'back to JOBS panel
-                                                                                
-                                                    '                             MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '                             MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-
-                                                    '                             transmit 'to save JOBS panel
-
-                                                    '                             'Write information to CASE/NOTE
-
-                                                    '                             'PF4 to navigate to CASE/NOTE
-                                                    '                             PF4
-                                                    '                             'Open new CASE/NOTE
-                                                    '                             PF9
-
-                                                    '                             CALL write_variable_in_case_note("-CS: NEW EMPLOYER REPORTED FOR (M" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                    '                             CALL write_variable_in_case_note("DATE HIRED: " & JOBS_footer_month & " " & JOBS_footer_year)
-                                                    '                             CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
-                                                    '                             CALL write_variable_in_case_note("---")
-                                                    '                             CALL write_variable_in_case_note("STAT/JOBS UPDATED WITH NEW HIRE INFORMATION FROM CSES DAIL MESSAGE.")
-                                                    '                             CALL write_variable_in_case_note("---")
-                                                    '                             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE.")
-                                                    '                             CALL write_variable_in_case_note("---")
-                                                    '                             CALL write_variable_in_case_note(worker_signature)
-
-                                                    '                             MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '                             MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-
-                                                                                
-                                                    '                             'PF3 to save the CASE/NOTE
-                                                    '                             PF3
-                                                    '                         End If
+                                                    '                         'Puts $0 in as the received income amt and 0 worked hours
+                                                    '                         EMWriteScreen "0", 12, 67				
+                                                    '                         EMWriteScreen "0", 18, 72	
                                                                             
-                                                    '                         'PF3 to STAT/WRAP
-                                                    '                         PF3
+                                                    '                         If testing_status = True Then msgbox "Testing -- Review the JOBS panel. Any potential errors or issues before it continues?"
+                                                                            
+                                                    '                         'Opens FS PIC
+                                                    '                         Call write_value_and_transmit("X", 19, 38)
+                                                                                
+                                                    '                         'Write today's date to calculation since added today
+                                                    '                         Call create_MAXIS_friendly_date(date, 0, 5, 34)
+                                                                            
+                                                    '                         'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
+                                                    '                         EMWriteScreen "1", 5, 64
+                                                    '                         EMWriteScreen "0", 8, 64
+                                                    '                         EMWriteScreen "0", 9, 66
+                                                    '                         If testing_status = True Then msgbox "Testing -- Review the PIC panel. Any potential errors or issues before it continues?"
 
-                                                    '                         'PF3 back to JOBS
-                                                    '                         PF3
+                                                    '                         transmit
+                                                    '                         EmReadScreen PIC_warning, 7, 20, 6
+                                                    '                         IF PIC_warning = "WARNING" then transmit 'to clear message
+                                                    '                         transmit 'back to JOBS panel
+                                                    '                         If testing_status = True Then Msgbox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
+                                                    '                         transmit 'to save JOBS panel
 
-                                                    '                     Else
-                                                    '                         'If not expiring at end of month, then add a CASE/NOTE
+                                                    '                         'Check if information is expiring and needs to be added to a future month
+                                                    '                         EMReadScreen expired_check, 6, 24, 17 
+                                                    '                         EMReadScreen data_expiration_month, 2, 24, 27
+                                                    '                         EMReadScreen jobs_panel_month, 2, 20, 55
+
+                                                    '                         If expired_check = "EXPIRE" THEN 
+                                                    '                             Do
+                                                    '                                 'Do loop to add JOBS panels to every month from DAIL month through CM
+                                                    '                                 If testing_status = True Then msgbox "Testing -- New JOBS panel is expiring so it needs to be added to CM + 1 as well"
+
+                                                    '                                 'PF3 to go to STAT/WRAP
+                                                    '                                 PF3
+
+                                                    '                                 'Check to make sure on STAT/WRAP
+                                                    '                                 EMReadScreen stat_wrap_check, 19, 2, 32
+                                                    '                                 If Instr(stat_wrap_check, "Wrap") = 0 Then MsgBox "Testing -- It didn't go to STAT/WRAP for some reason. Stop here!!"
+
+                                                    '                                 'Build do loop to get to expiration month so that it isn't creating a bunch of duplicate JOBS panels
+                                                    '                                 If data_expiration_month <> jobs_panel_month Then
+                                                    '                                     If testing_status = True Then msgbox "Testing -- JOBS panel expires in future month"
+                                                    '                                     Do
+                                                    '                                         Call write_value_and_transmit("Y", 16, 54)
+                                                    '                                         EMReadScreen stat_wrap_month_check, 2, 20, 55
+                                                    '                                         If stat_wrap_month_check = data_expiration_month Then
+                                                    '                                             'Script has reached the expiration month, it will go to next month and then exit
+                                                    '                                             If testing_status = True Then msgbox "Testing -- script has found matching month"
+                                                    '                                             PF3
+                                                    '                                             Call write_value_and_transmit("Y", 16, 54)
+                                                    '                                             Exit Do
+                                                    '                                         Else
+                                                    '                                             'Script has not yet reached the expiration month, it will PF3 back to STAT/WRAP to move to next month
+                                                    '                                             If testing_status = True Then msgbox "Testing -- script has not reached matching month"
+                                                    '                                             PF3
+                                                    '                                         End If
+                                                    '                                     Loop
+                                                    '                                 Else
+                                                    '                                     'If the expiration month and the jobs panel month are the same then it should add to next month too since it will expire at end of month
+                                                    '                                     Call write_value_and_transmit("Y", 16, 54)
+                                                    '                                 End If
+
+                                                    '                                 'Navigate to STAT/JOBS
+                                                    '                                 Call write_value_and_transmit("JOBS", 20, 71)
+
+                                                    '                                 EMReadScreen jobs_panel_nav_check, 8, 2, 43
+                                                    '                                 If InStr(jobs_panel_nav_check, "JOBS") = 0 Then MsgBox "Testing -- Stop here. Not at JOBS panel"
+
+                                                    '                                 If testing_status = True Then MsgBox "Testing -- Is it at the month after expiration? Expiration month was " & data_expiration_month
+
+                                                    '                                 'Navigate to HH member
+                                                    '                                 Call write_value_and_transmit(HIRE_memb_number, 20, 76)
+
+                                                    '                                 'Making sure there aren't 5 jobs already
+                                                    '                                 EMReadScreen five_jobs_check, 1, 2, 78
+                                                                                    
+                                                    '                                 If five_jobs_check = "5" Then 
+                                                    '                                     script_end_procedure_with_error_report("Testing -- There are 5 JOBS panels already, it will error out. Must stop here!")
+                                                    '                                 Else
+                                                    '                                     Call write_value_and_transmit("NN", 20, 79)
+                                                    '                                 End If
+                                                                                    
+                                                    '                                 EmReadScreen panel_count_plus_one_check, 1, 2, 73
+                                                    '                                 panel_count_plus_one_check = panel_count_plus_one_check * 1
+                                                    '                                 EmReadScreen panel_count_total_check, 1, 2, 78
+                                                    '                                 panel_count_total_check = panel_count_total_check * 1
+
+                                                    '                                 If panel_count_plus_one_check <> panel_count_total_check + 1 then script_end_procedure_with_error_report("Testing -- Unable to open a new JOBS panel. Script will stop here.")
+
+                                                    '                                 'Reads footer month for updating the panel
+                                                    '                                 EMReadScreen JOBS_footer_month, 2, 20, 55	
+                                                    '                                 EMReadScreen JOBS_footer_year, 2, 20, 58	
+
+                                                    '                                 'Write the date hired date from NDNH message to JOBS panel
+                                                    '                                 Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
+
+                                                    '                                 'Writes information to JOBS panel
+                                                    '                                 EMWriteScreen "W", 5, 34
+                                                    '                                 EMWriteScreen "4", 6, 34
+                                                    '                                 EMWriteScreen HIRE_employer_name, 7, 42
+                                                                                    
+                                                    '                                 'Looking at CM + 1 so won't match the message, just writes footer month to panel
+                                                    '                                 EmWriteScreen JOBS_footer_month, 12, 54
+                                                    '                                 EMWriteScreen "01", 12, 57
+                                                    '                                 EmWriteScreen JOBS_footer_year, 12, 60
+
+                                                    '                                 'Puts $0 in as the received income amt
+                                                    '                                 EMWriteScreen "0", 12, 67				
+                                                    '                                 'Puts 0 hours in as the worked hours
+                                                    '                                 EMWriteScreen "0", 18, 72		
+
+                                                    '                                 If testing_status = True Then msgbox "Testing - Does everything look good on JOBS panel before heading to PIC?"
+                                                                                    
+                                                    '                                 'Opens FS PIC
+                                                    '                                 Call write_value_and_transmit("X", 19, 38)
+                                                    '                                 'Writes today's date on the panel
+                                                    '                                 Call create_MAXIS_friendly_date(date, 0, 5, 34)
+
+                                                    '                                 'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
+                                                    '                                 EMWriteScreen "1", 5, 64
+                                                    '                                 EMWriteScreen "0", 8, 64
+                                                    '                                 EMWriteScreen "0", 9, 66
+                                                    '                                 If testing_status = True Then msgbox "Testing - Does everything look good on JOBS panel before saving the PIC?"
+                                                                                    
+                                                    '                                 transmit
+                                                    '                                 EmReadScreen PIC_warning, 7, 20, 6
+                                                    '                                 IF PIC_warning = "WARNING" then transmit 'to clear message
+                                                    '                                 transmit 'back to JOBS panel
+                                                    '                                 If testing_status = True Then msgbox "Testing -- It is about save the JOBS panel. Stop here if in testing or production"
+                                                    '                                 transmit 'to save JOBS panel
+                                                                                    
+                                                    '                                 'Check if information is expiring and needs to be added to CM + 1
+                                                    '                                 EMReadScreen expired_check, 6, 24, 17 
+                                                    '                                 EMReadScreen data_expiration_month, 2, 24, 27
+                                                    '                                 EMReadScreen jobs_panel_month, 2, 20, 55 
+                                                                                    
+                                                    '                                 If expired_check <> "EXPIRE" THEN
+                                                    '                                     'If data is not expiring, then the script can exit the do loop
+                                                    '                                     If testing_status = True Then msgbox "Testing -- No expiration date. It will exit the do loop"
+                                                    '                                     Exit Do
+                                                    '                                 Else
+                                                    '                                     If testing_status = True Then msgbox "Testing -- Data is expiring. It will continue with the do loop"
+                                                    '                                 End If
+
+                                                    '                             Loop
+
+                                                    '                         End If
 
                                                     '                         'Write information to CASE/NOTE
+                                                    '                         If testing_status = True Then MsgBox "Testing -- Script will now CASE/NOTE information. Navigate to CASE/NOTE"
+
                                                     '                         'PF4 to navigate to CASE/NOTE
                                                     '                         PF4
-                                                                            
+
+                                                    '                         EMReadScreen case_note_check, 4, 2, 45
+                                                    '                         If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+
                                                     '                         'Open new CASE/NOTE
                                                     '                         PF9
 
-                                                    '                         CALL write_variable_in_case_note("-CS: NEW EMPLOYER REPORTED FOR (M" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                    '                         CALL write_variable_in_case_note("DATE HIRED: " & JOBS_footer_month & " " & JOBS_footer_year)
-                                                    '                         CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
-                                                    '                         CALL write_variable_in_case_note("---")
-                                                    '                         CALL write_variable_in_case_note("STAT/JOBS UPDATED WITH NEW HIRE INFORMATION FROM CSES DAIL MESSAGE.")
-                                                    '                         CALL write_variable_in_case_note("---")
-                                                    '                         CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE.")
-                                                    '                         CALL write_variable_in_case_note("---")
-                                                    '                         CALL write_variable_in_case_note(worker_signature)
+                                                    '                         'Write information depending on whether NDNH or SDNH message
+                                                    '                         If InStr(dail_msg, "NDNH MEMB") Then
+                                                    '                             CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                    '                             CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                    '                             CALL write_variable_in_case_note("MAXIS NAME: " & NDNH_maxis_name)
+                                                    '                             CALL write_variable_in_case_note("NEW HIRE NAME: " & NDNH_new_hire_name)
+                                                    '                             CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. INFC CLEARED.")
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note(worker_signature)
+                                                    '                         ElseIf InStr(dail_msg, "SDNH NEW JOB DETAILS") Then
+                                                    '                             CALL write_variable_in_case_note("-SDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                    '                             CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                    '                             CALL write_variable_in_case_note("MAXIS NAME: " & SDNH_maxis_name)
+                                                    '                             CALL write_variable_in_case_note("NEW HIRE NAME: " & SDNH_new_hire_name)
+                                                    '                             CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN HIRE MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN HIRE DAIL MESSAGE. HIRE MESSAGE DELETED.")
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                    '                             CALL write_variable_in_case_note("---")
+                                                    '                             CALL write_variable_in_case_note(worker_signature)
+                                                    '                         Else
+                                                    '                             Msgbox "Testing -- something went wrong when writing the CASE/NOTE. Appears that message is neither NDNH or SDNH"
+                                                    '                         End If
 
-                                                    '                         MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
-                                                    '                         MsgBox "It is about save the JOBS panel. Stop here if in testing or production"
+                                                    '                         If testing_status = True Then msgbox "Testing -- The script is about to save the CASE/NOTE. Stop here if in testing or production"
 
                                                     '                         'PF3 to save the CASE/NOTE
                                                     '                         PF3
-
-                                                    '                         'PF3 back to JOBS
+                                                                            
+                                                    '                         'PF3 to STAT/WRAP or JOBS
                                                     '                         PF3
+                                                                            
+                                                    '                         EMReadScreen panel_nav_check, 4, 2, 46
+                                                    '                         If panel_nav_check <> "WRAP" Then
+                                                    '                             PF3
+                                                    '                             If testing_status = True Then msgbox "Testing -- The script should now be at STAT/WRAP. If it is not, then stop here."
+                                                    '                         End If
 
+                                                    '                         If testing_status = True Then msgbox "Testing -- No jobs panels existed. Created JOBS panel(s) through CM"
+                                                                            
+                                                    '                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " No JOBS panels exist for household member number: " & HIRE_memb_number & " that match the HIRE message. JOBS Panel and CASE/NOTE added for employer noted in HIRE message. Message should be deleted.")
+                                                                            
                                                     '                     End If
-
-                                                    '                     DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did not exist for employer: " & employer_full_name & " for M" & caregiver_ref_nbr & ". A JOBS panel for this employer was successfully added, along with a CASE/NOTE." & " Message should be deleted."
-                                                                    
-                                                    '                     'Unecessary to back out of DAIL here
-                                                    '                     ' PF3
                                                     '                 End If
-
-                                                    '             ElseIf employer_match_determination = "Exact Match Found - Delete Message" Then
-                                                    '                 'There is an exact match for the employer, delete the message
-
-                                                    '                 MsgBox "Exact Match Found - Delete Message"
-
-                                                    '                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel did match for employer: " & employer_name_jobs_panel & " for M" & caregiver_ref_nbr & "." & " Message should be deleted."
-
-                                                    '                 'Add message to delete list
-                                                    '                 'PF3 back to DAIL?
-
                                                     '             End If
-                                                                    
-
-
                                                     '         End if
-
                                                     '     End If
                                                     ' End If
 
@@ -3914,7 +4157,7 @@ If HIRE_messages = 1 Then
                         If Instr(list_of_all_case_numbers, "*" & MAXIS_case_number & "*") = 0 Then
                             'If the MAXIS case number is NOT in the list of all case numbers, then it is a new case number and the script will gather case details
 
-                            If activate_msg_boxes = True then MsgBox "Testing -- This is a new case number. Will gather details."
+                            ' If activate_msg_boxes = True then MsgBox "Testing -- This is a new case number. Will gather details."
                             
                             'Redim the case details array and add to array
                             ReDim Preserve case_details_array(case_excel_row_const, case_count)
@@ -3982,7 +4225,7 @@ If HIRE_messages = 1 Then
                                             reporting_status = trim(reporting_status)
 
                                             If reporting_status = "SIX MONTH" Then
-                                                If activate_msg_boxes = True then MsgBox "Testing -- six month reporter"
+                                                ' If activate_msg_boxes = True then MsgBox "Testing -- six month reporter"
                                                 'Navigate to STAT/REVW to confirm recertification and SR report date
                                                 EMWriteScreen "STAT", 19, 22
                                                 EMWaitReady 0, 0
@@ -4041,7 +4284,7 @@ If HIRE_messages = 1 Then
                                                 End If
                         
                                                 If sr_report_date <> "SR Report Date is Missing" and recertification_date <> "Recertification Date is Missing" Then 
-                                                    If activate_msg_boxes = True then MsgBox "Both SR and recert dates are present"
+                                                    ' If activate_msg_boxes = True then MsgBox "Testing -- Both SR and recert dates are present"
                                                     renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
 
                                                     If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
@@ -4060,7 +4303,7 @@ If HIRE_messages = 1 Then
                                                 'Close the FS screen
                                                 transmit
                                             Else
-                                                If activate_msg_boxes = True then MsgBox "not 6 month reporter"
+                                                ' If activate_msg_boxes = True then MsgBox "not 6 month reporter"
                                                 sr_report_date = "N/A"
                                                 recertification_date = "N/A"
 
@@ -4183,7 +4426,7 @@ If HIRE_messages = 1 Then
 
                                 Else
                                     
-                                    If activate_msg_boxes = True then MsgBox "Testing -- Not a NDNH. full_dail_msg_line_1 is " & full_dail_msg_line_1 
+                                    ' If activate_msg_boxes = True then MsgBox "Testing -- Not a NDNH. full_dail_msg_line_1 is " & full_dail_msg_line_1 
                                 End If
 
                                 'Transmit back to dail
@@ -4536,7 +4779,7 @@ If HIRE_messages = 1 Then
 
                                 'Gather details on DAIL message, should capture DAIL details in spreadsheet even if ultimately not actionable
                             
-                                If activate_msg_boxes = True then MsgBox "This is a new DAIL message. It should be processed accordingly."
+                                ' If activate_msg_boxes = True then MsgBox "This is a new DAIL message. It should be processed accordingly."
 
                                 'Reset the array
                                 ReDim Preserve DAIL_message_array(DAIL_excel_row_const, dail_count)
@@ -4581,7 +4824,7 @@ If HIRE_messages = 1 Then
 
                                         If case_details_array(processable_based_on_case_const, each_case) = False Then
                                             
-                                            If activate_msg_boxes = True then Msgbox "case_details_array(processable_based_on_case_const, each_case) = False"
+                                            ' If activate_msg_boxes = True then Msgbox "case_details_array(processable_based_on_case_const, each_case) = False"
 
                                             If case_details_array(case_processing_notes_const, each_case) = "SR Report Date and Recertification are not 6 months apart" Then
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed. SR Report Date and Recertification are not 6 months apart."
@@ -4678,8 +4921,10 @@ If HIRE_messages = 1 Then
                                                     hire_message_member_name = ""
                                                     hire_message_case_number = ""
                                                     HIRE_employer_name_first_word = ""
-                                                    name_and_case_number_for_TIKL = ""
+                                                    ' name_and_case_number_for_TIKL = ""
                                                     HIRE_employer_name_TIKL = ""
+                                                    tikl_case_number = ""
+                                                    tikl_case_name = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -4699,8 +4944,8 @@ If HIRE_messages = 1 Then
                                                     EMReadScreen hire_message_case_number, 8, dail_row - 1, 73
                                                     hire_message_case_number = trim(hire_message_case_number)
 
-                                                    'Read name and case name and case number to delete TIKLs later if needed
-                                                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+                                                    ' 'Read name and case name and case number to delete TIKLs later if needed
+                                                    ' EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
@@ -4725,6 +4970,12 @@ If HIRE_messages = 1 Then
                                                     If check_full_dail_msg <> full_dail_msg Then
                                                         MsgBox "Testing -- Something went wrong. check_full_dail_msg " & check_full_dail_msg & vbNewLine & vbNewLine & " full_dail_msg " & full_dail_msg
                                                     End if
+
+                                                    'Read the Case Name and Case Number to process TIKLs as needed
+                                                    EmReadScreen tikl_case_number, 10, 6, 57
+                                                    tikl_case_number = trim(tikl_case_number)
+                                                    EmReadScreen tikl_case_name, 25, 7, 55
+                                                    tikl_case_name = trim(tikl_case_name)
 
                                                     'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
                                                     'Set row and col
@@ -4986,7 +5237,7 @@ If HIRE_messages = 1 Then
                                                             EMWriteScreen HIRE_memb_number, 20, 76
                                                             Call write_value_and_transmit("01", 20, 79)
 
-                                                            Call check_and_add_new_jobs_panel(True)
+                                                            Call check_and_add_new_jobs_panel(False)
                                                             
                                                         End If
                                                     End If
@@ -5070,8 +5321,10 @@ If HIRE_messages = 1 Then
                                                     hire_message_member_name = ""
                                                     hire_message_case_number = ""
                                                     HIRE_employer_name_first_word = ""
-                                                    name_and_case_number_for_TIKL = ""
+                                                    ' name_and_case_number_for_TIKL = ""
                                                     HIRE_employer_name_TIKL = ""
+                                                    tikl_case_number = ""
+                                                    tikl_case_name = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -5093,8 +5346,8 @@ If HIRE_messages = 1 Then
 
                                                     'If it is in the NDNH list, then add to delete list
 
-                                                    'Read name and case name and case number to delete TIKLs later if needed
-                                                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+                                                    ' 'Read name and case name and case number to delete TIKLs later if needed
+                                                    ' EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
@@ -5119,6 +5372,12 @@ If HIRE_messages = 1 Then
                                                     If check_full_dail_msg <> full_dail_msg Then
                                                         MsgBox "Testing -- messages do not match. check_full_dail_msg " & check_full_dail_msg & "    " & " full_dail_msg " & full_dail_msg
                                                     End if
+
+                                                    'Read the Case Name and Case Number to process TIKLs as needed
+                                                    EmReadScreen tikl_case_number, 10, 6, 57
+                                                    tikl_case_number = trim(tikl_case_number)
+                                                    EmReadScreen tikl_case_name, 25, 7, 55
+                                                    tikl_case_name = trim(tikl_case_name)
 
                                                     'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
                                                     'Set row and col
@@ -5216,7 +5475,7 @@ If HIRE_messages = 1 Then
                                                         transmit
 
                                                     Else
-                                                        If activate_msg_boxes = True then MsgBox "Testing -- Not a duplicate SDNH. Will transmit and process accordingly."
+                                                        ' If activate_msg_boxes = True then MsgBox "Testing -- Not a duplicate SDNH. Will transmit and process accordingly."
 
                                                         'Transmit back to DAIL
                                                         transmit
@@ -5413,7 +5672,7 @@ If HIRE_messages = 1 Then
                                                                 EMWriteScreen HIRE_memb_number, 20, 76
                                                                 Call write_value_and_transmit("01", 20, 79)
 
-                                                                Call check_and_add_new_jobs_panel(True)
+                                                                Call check_and_add_new_jobs_panel(False)
                                                                 
                                                             End If
                                                         End If
@@ -5534,7 +5793,7 @@ If HIRE_messages = 1 Then
         EmWriteScreen CM_plus_2_mo, 4, 67
         EmWriteScreen "01", 4, 70
         EmWriteScreen CM_plus_2_yr, 4, 73
-        If activate_msg_boxes = True then msgbox "did it write correctly?"
+        ' If activate_msg_boxes = True then msgbox "did it write correctly?"
         Call write_value_and_transmit("X", 4, 12)
         EmWriteScreen "_", 7, 39
         EmWriteScreen "X", 19, 39
@@ -5552,7 +5811,9 @@ If HIRE_messages = 1 Then
 
             DO
 
-                name_and_case_number_for_TIKL = ""
+                ' name_and_case_number_for_TIKL = ""
+                tikl_case_name_check = ""
+                tikl_case_number_check = ""
                 
                 'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
                 EMReadScreen new_case, 8, dail_row, 63
@@ -5583,17 +5844,27 @@ If HIRE_messages = 1 Then
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
 
-                EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+                ' EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
 
-                If Instr(list_of_TIKLs_to_delete, name_and_case_number_for_TIKL) Then msgbox "It has encountered this case name in the list of tikls to delete"
-
-                If InStr(dail_msg, "VERIFICATION OF ") and Instr(dail_msg, "VIA NEW HIRE") Then
+                ' If Instr(list_of_TIKLs_to_delete, name_and_case_number_for_TIKL) Then msgbox "It has encountered this case name in the list of tikls to delete"
+                If InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, "VIA NEW HIRE") <> 0 Then
                     'The DAIL message is a TIKL for new hire script
 
-                    'Read name and case name and case number to delete TIKLs later if needed
-                    EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+                    Call write_value_and_transmit("X", dail_row, 3)
 
-                    TIKL_comparison = "*" & name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
+                    'Read the Case Name and Case Number to process TIKLs as needed
+                    EmReadScreen tikl_case_number_check, 10, 6, 57
+                    tikl_case_number_check = trim(tikl_case_number_check)
+                    EmReadScreen tikl_case_name_check, 25, 7, 55
+                    tikl_case_name_check = trim(tikl_case_name_check)
+                    transmit
+
+                    'Read name and case name and case number to delete TIKLs later if needed
+                    ' EMReadScreen name_and_case_number_for_TIKL, 76, dail_row - 1, 5
+
+                    ' TIKL_comparison = "*" & name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
+                    TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
+                    msgbox TIKL_comparison
 
                     If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
                         'This is a match for the TIKL, it can be deleted
@@ -5621,9 +5892,8 @@ If HIRE_messages = 1 Then
                             all_done = true
                         End If
 
-                        If activate_msg_boxes = True then msgbox "Testing -- make sure it added initial info to excel sheet correctly"
+                        If activate_msg_boxes = True then msgbox "Testing -- make sure it added initial info to excel sheet correctly. It is about to delete the TIKL message. Confirm before proceeding."
 
-                        If activate_msg_boxes = True then MsgBox "It is about to delete the TIKL message. Confirm before proceeding."
                         'Delete the message
                         Call write_value_and_transmit("D", dail_row, 3)
 
@@ -5707,7 +5977,7 @@ If HIRE_messages = 1 Then
                         TIKL_excel_row = TIKL_excel_row + 1
                     
                     Else
-                        ' MsgBox "No match found 6912"
+                        MsgBox "No match found 6912"
 
                     End If
                 Else
@@ -5734,6 +6004,9 @@ If HIRE_messages = 1 Then
         LOOP
 
     Next
+
+    If activate_msg_boxes = True then msgbox "Testing -- It is about to save the Excel sheet - cancel?"
+    If activate_msg_boxes = True then msgbox "Testing -- It is about to save the Excel sheet - cancel?"
 
     'Update Stats Info
     'Activate the stats sheet
