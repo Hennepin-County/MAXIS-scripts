@@ -231,7 +231,6 @@ Do
         End if 
     End if 
     excel_row = excel_row + 1
-    msgbox excel_row 
 Loop until trim(objExcel.cells(excel_row, 2).value) = ""
 
 script_end_procedure("Success!!")
