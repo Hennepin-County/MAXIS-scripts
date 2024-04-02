@@ -528,6 +528,7 @@ Const table_type_2			= 9
 Const table_prog_3			= 10
 Const table_type_3			= 11
 Const memb_smi_numb_const	= 12
+Const memb_appears_ex_parte = 13
 
 Const unea_type_01_esists	= 20
 Const unea_type_02_esists	= 21
@@ -2619,7 +2620,7 @@ If ex_parte_function = "Prep 1" Then
 				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
 					If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then		'If the PMI matches one in the array, we are going to set the information to that array instance
 						memb_known = True															'identifies that we know about this person and they are already in the array
-
+						MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = True 'Default this members ex_parte status to True
 						'figuring out which program type location the information should be saved in for this table data
 						'each person on a case may have up to three different lines for different programs
 						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
@@ -2633,23 +2634,23 @@ If ex_parte_function = "Prep 1" Then
 							MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
 						End If
 						'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-						If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "DP" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "CK" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "CX" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "CB" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "CM" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "13" Then appears_ex_parte = False 	'TYMA
-						If objELIGRecordSet("EligType") = "14" Then appears_ex_parte = False 	'TYMA
-						If objELIGRecordSet("EligType") = "09" Then appears_ex_parte = False 	'Adoption Assistance
-						If objELIGRecordSet("EligType") = "11" Then appears_ex_parte = False 	'Auto Newborn
-						If objELIGRecordSet("EligType") = "10" Then appears_ex_parte = False 	'Adoption Assistance
-						If objELIGRecordSet("EligType") = "25" Then appears_ex_parte = False 	'Foster Care
-						If objELIGRecordSet("EligType") = "PX" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
-						If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
+						If objELIGRecordSet("MajorProgram") = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+						If objELIGRecordSet("EligType") = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+						If objELIGRecordSet("EligType") = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+						If objELIGRecordSet("EligType") = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Auto Newborn
+						If objELIGRecordSet("EligType") = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+						If objELIGRecordSet("EligType") = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Foster Care
+						If objELIGRecordSet("EligType") = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+						If objELIGRecordSet("EligType") = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
 
 						If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 						If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
@@ -2674,25 +2675,25 @@ If ex_parte_function = "Prep 1" Then
 					MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
 
 					'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-					If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "DP" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "CK" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "CX" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "CB" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "CM" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "13" Then appears_ex_parte = False 	'TYMA
-					If objELIGRecordSet("EligType") = "14" Then appears_ex_parte = False 	'TYMA
-					If objELIGRecordSet("EligType") = "09" Then appears_ex_parte = False 	'Adoption Assistance
-					If objELIGRecordSet("EligType") = "11" Then appears_ex_parte = False 	'Auto Newborn
-					If objELIGRecordSet("EligType") = "10" Then appears_ex_parte = False 	'Adoption Assistance
-					If objELIGRecordSet("EligType") = "25" Then appears_ex_parte = False 	'Foster Care
-					If objELIGRecordSet("EligType") = "PX" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
-					If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
+					If objELIGRecordSet("MajorProgram") = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+					If objELIGRecordSet("EligType") = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+					If objELIGRecordSet("EligType") = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+					If objELIGRecordSet("EligType") = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
+					If objELIGRecordSet("EligType") = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+					If objELIGRecordSet("EligType") = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
+					If objELIGRecordSet("EligType") = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+					If objELIGRecordSet("EligType") = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
 
-					If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+					If MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 					If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 
 					MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
@@ -2707,7 +2708,11 @@ If ex_parte_function = "Prep 1" Then
 			objELIGConnection.Close
 			Set objELIGRecordSet=nothing
 			Set objELIGConnection=nothing
-
+			'Checking if any of the members met Ex Parte, so we can set the case Ex Parte status
+			For case_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If MEMBER_INFO_ARRAY(memb_appears_ex_parte, case_memb) = True Then appears_ex_parte = True
+			Next
+			
 			'If the ELIG types still indicate that the case is Ex Parte, we are going to check REVW to make sure the case meets renewal requirements
 			If appears_ex_parte = True Then
 				'check HC ER date in STAT/REVW
@@ -2810,23 +2815,23 @@ If ex_parte_function = "Prep 1" Then
 										End If
 
 										'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-										If clt_hc_prog = "EH" Then appears_ex_parte = False
-										If pers_type = "AX" Then appears_ex_parte = False
-										If pers_type = "AA" Then appears_ex_parte = False
-										If pers_type = "DP" Then appears_ex_parte = False
-										If pers_type = "CK" Then appears_ex_parte = False
-										If pers_type = "CX" Then appears_ex_parte = False
-										If pers_type = "CB" Then appears_ex_parte = False
-										If pers_type = "CM" Then appears_ex_parte = False
-										If pers_type = "13" Then appears_ex_parte = False 	'TYMA
-										If pers_type = "14" Then appears_ex_parte = False 	'TYMA
-										If pers_type = "09" Then appears_ex_parte = False 	'Adoption Assistance
-										If pers_type = "11" Then appears_ex_parte = False 	'Auto Newborn
-										If pers_type = "10" Then appears_ex_parte = False 	'Adoption Assistance
-										If pers_type = "25" Then appears_ex_parte = False 	'Foster Care
-										If pers_type = "PX" Then appears_ex_parte = False
-										If pers_type = "PC" Then appears_ex_parte = False
-										If pers_type = "BC" Then appears_ex_parte = False
+										If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+										If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+										If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+										If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
+										If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+										If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
+										If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
 
 										If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 										If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
@@ -2844,23 +2849,23 @@ If ex_parte_function = "Prep 1" Then
 									MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(pers_type)
 
 									'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-									If clt_hc_prog = "EH" Then appears_ex_parte = False
-									If pers_type = "AX" Then appears_ex_parte = False
-									If pers_type = "AA" Then appears_ex_parte = False
-									If pers_type = "DP" Then appears_ex_parte = False
-									If pers_type = "CK" Then appears_ex_parte = False
-									If pers_type = "CX" Then appears_ex_parte = False
-									If pers_type = "CB" Then appears_ex_parte = False
-									If pers_type = "CM" Then appears_ex_parte = False
-									If pers_type = "13" Then appears_ex_parte = False 	'TYMA
-									If pers_type = "14" Then appears_ex_parte = False 	'TYMA
-									If pers_type = "09" Then appears_ex_parte = False 	'Adoption Assistance
-									If pers_type = "11" Then appears_ex_parte = False 	'Auto Newborn
-									If pers_type = "10" Then appears_ex_parte = False 	'Adoption Assistance
-									If pers_type = "25" Then appears_ex_parte = False 	'Foster Care
-									If pers_type = "PX" Then appears_ex_parte = False
-									If pers_type = "PC" Then appears_ex_parte = False
-									If pers_type = "BC" Then appears_ex_parte = False
+									If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+									If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+									If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+									If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
+									If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+									If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
+									If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+									If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
 
 									If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 									If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
@@ -2946,7 +2951,7 @@ If ex_parte_function = "Prep 1" Then
 					If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then									'UNEA income exists each type code will set the boolean about that income typr for this case
 						If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
-						If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
+						If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSI_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "16" Then RR_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
@@ -3016,8 +3021,8 @@ If ex_parte_function = "Prep 1" Then
 				'Here we used to exclude cases that are not in Hennepin or are Closed
 				'we are not going to exclude for inactive or out of county uuntil Phase 1 at this point
 
-				'Any other UNEA, or JOBS/BUSI income requires the case be on SNAP or MFIP at this point
-				If Other_UNEA_income_exists = True OR JOBS_income_exists = True OR BUSI_income_exists = True Then
+				'Any other UNEA, or JOBS/BUSI income requires the case be on SNAP or MFIP at this point, unless they are SSI
+				If (Other_UNEA_income_exists = True OR JOBS_income_exists = True OR BUSI_income_exists = True) AND SSI_income_exists = false Then
 					appears_ex_parte = False									'if there is JOBS/BUSI/Other UNEA - this cannot be ex parte
 					If mfip_status = "ACTIVE" Then appears_ex_parte = True		'unless MFIP or SNAP is active
 					If snap_status = "ACTIVE" Then appears_ex_parte = True
@@ -3026,7 +3031,7 @@ If ex_parte_function = "Prep 1" Then
 
 			'If the case still appears Ex Parte at this point, we need to start the verifications
 			If appears_ex_parte = True Then
-				'For each case that is indicated as potentially ExParte, we are going to take preperation actions
+				'For each case that is indicated as potentially ExParte, we are going to take preparation actions
 				last_va_count = va_count			'These are counting variables to set for each loop
 				last_uc_count = uc_count
 				last_rr_count = rr_count
