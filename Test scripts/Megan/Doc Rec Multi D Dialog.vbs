@@ -1325,6 +1325,7 @@ Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_DHS_6054_
 
 
 function atr_dialog()
+	Text 60, 20, 45, 10, MAXIS_case_number
 	EditBox 175, 15, 45, 15, atr_effective_date
 	EditBox 300, 15, 45, 15, atr_date_received		
 	DropListBox 50, 40, 100, 15, HH_Memb_DropDown, atr_member_dropdown
@@ -1333,40 +1334,35 @@ function atr_dialog()
 	DropListBox 80, 60, 70, 15, ""+chr(9)+"Verbal"+chr(9)+"Written", atr_authorization_type
 	DropListBox 65, 95, 60, 15, ""+chr(9)+"Organization"+chr(9)+"Person", atr_contact_type
 	EditBox 160, 95, 170, 15, atr_name
-	EditBox 70, 115, 175, 15, atr_address
-	EditBox 35, 135, 85, 15, atr_city
-	DropListBox 155, 135, 30, 15, ""+chr(9)+"AL"+chr(9)+"AK"+chr(9)+"AZ"+chr(9)+"AR"+chr(9)+"CA"+chr(9)+"CO"+chr(9)+"CT"+chr(9)+"DE"+chr(9)+"DC"+chr(9)+"FL"+chr(9)+"GA"+chr(9)+"HI"+chr(9)+"ID"+chr(9)+"IL"+chr(9)+"IN"+chr(9)+"IA"+chr(9)+"KS"+chr(9)+"KY"+chr(9)+"LA"+chr(9)+"ME"+chr(9)+"MD"+chr(9)+"MA"+chr(9)+"MI"+chr(9)+"MN"+chr(9)+"MS"+chr(9)+"MO"+chr(9)+"MT"+chr(9)+"NE"+chr(9)+"NV"+chr(9)+"NH"+chr(9)+"NJ"+chr(9)+"NM"+chr(9)+"NY"+chr(9)+"NC"+chr(9)+"ND"+chr(9)+"OH"+chr(9)+"OK"+chr(9)+"OR"+chr(9)+"PA"+chr(9)+"RI"+chr(9)+"SC"+chr(9)+"SD"+chr(9)+"TN"+chr(9)+"TX"+chr(9)+"UT"+chr(9)+"VT"+chr(9)+"VA"+chr(9)+"WA"+chr(9)+"WV"+chr(9)+"WI"+chr(9)+"WY", atr_state
-	EditBox 230, 135, 35, 15, atr_zipcode
-	EditBox 70, 160, 75, 15, atr_phone_number
-	CheckBox 35, 200, 170, 10, "to continue evaluation or treatment", atr_eval_treat_checkbox
-	CheckBox 35, 210, 170, 10, "to coordinate services", atr_coor_serv_checkbox
-	CheckBox 35, 220, 170, 10, "to determine eligibility for assistance/service", atr_elig_serv_checkbox
-	CheckBox 35, 230, 170, 10, "for court proceedings", atr_court_checkbox
-	CheckBox 35, 240, 80, 10, "other (specify below)", atr_other_checkbox
-	EditBox 50, 250, 90, 15, atr_other
-	EditBox 50, 280, 230, 15, atr_comments
+	EditBox 70, 120, 75, 15, atr_phone_number
+	EditBox 175, 120, 80, 15, atr_fax_number
+	EditBox 45, 140, 205, 15, atr_email
+	CheckBox 35, 175, 170, 10, "to continue evaluation or treatment", atr_eval_treat_checkbox
+	CheckBox 35, 185, 170, 10, "to coordinate services", atr_coor_serv_checkbox
+	CheckBox 35, 195, 170, 10, "to determine eligibility for assistance/service", atr_elig_serv_checkbox
+	CheckBox 35, 205, 170, 10, "for court proceedings", atr_court_checkbox
+	CheckBox 35, 215, 80, 10, "other (specify below)", atr_other_checkbox
+	EditBox 50, 225, 90, 15, atr_other
+	EditBox 50, 255, 230, 15, atr_comments
 	Text 5, 5, 220, 10, "ATR- AUTHORIZATION TO RELEASE"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 60, 20, 45, 10, MAXIS_case_number
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 55, 10, "Document Date:"
 	Text 15, 45, 30, 10, "Member"
 	Text 170, 45, 35, 10, "Start Date"
 	Text 265, 45, 30, 10, "End Date"
 	Text 15, 65, 65, 10, "Authorization Type"
-	GroupBox 10, 85, 340, 95, "Contact Person/Organization"
+	GroupBox 10, 85, 340, 85, "Contact Person/Organization"
 	Text 20, 100, 45, 10, "Contact Type"
 	Text 140, 100, 20, 10, "Name"
-	Text 20, 120, 50, 10, "Street Address"
-	Text 20, 140, 15, 10, "City"
-	Text 135, 140, 20, 10, "State"
-	Text 200, 140, 30, 10, "Zip code"
-	Text 20, 165, 50, 10, "Phone Number"
-	GroupBox 10, 190, 335, 80, "Record requested will be used: "
-	Text 10, 285, 35, 10, "Comments"
+	Text 20, 125, 50, 10, "Phone Number"
+	Text 160, 125, 15, 10, "Fax"
+	Text 20, 145, 25, 10, "Email: "
+	GroupBox 10, 165, 340, 80, "Record requested will be used: "
+	Text 10, 260, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_address, atr_city, atr_state, atr_zipcode, atr_phone_number, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
+Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_phone_number, atr_fax_number, atr_email, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number	
@@ -1920,7 +1916,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If atr_authorization_type = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a valid authorization type from the dropdown"
 				If atr_contact_type = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a valid contact type from the dropdown"
 				If atr_name = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter contact name"
-				If trim(atr_address = "") OR trim(atr_city = "") OR trim(atr_state = "") OR trim(atr_zipcode = "") Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter the street address"
 				If atr_phone_number = "" Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter phone number"
 				If (atr_eval_treat_checkbox = 0 and atr_coor_serv_checkbox = 0 and atr_elig_serv_checkbox = 0 and atr_court_checkbox = 0 and atr_other_checkbox = 0) Then atr_err_msg = atr_err_msg & vbNewLine & "* Must check at least one checkbox indicating use of requested record"
 				If (atr_other_checkbox = checked and atr_other = "") Then err_msg = err_msg & vbNewLine & "* Other checkbox checked, specify details in the box below checkbox"
@@ -4024,9 +4019,9 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 	' 'ATR Case Notes
 	'TODO: Should this be a person note?
-	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 
+	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 'TODO: Determine if we need to structure this differently in order to search for this release
 		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** ATR RECEIVED FOR" & atr_name & " ***")
+		CALL write_variable_in_case_note("*** ATR RECEIVED FOR " & atr_name & "Release End Date: " & atr_end_date & " ***")
 		CALL write_bullet_and_variable_in_case_note("Effective Date", atr_effective_date)
 		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
 		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
@@ -4035,11 +4030,9 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
 		CALL write_bullet_and_variable_in_case_note("Contact Type", atr_contact_type)
 		CALL write_bullet_and_variable_in_case_note("  Contact Name", atr_name)
-		CALL write_bullet_and_variable_in_case_note("  Address", atr_address)
-		CALL write_bullet_and_variable_in_case_note("  City", atr_city)
-		CALL write_bullet_and_variable_in_case_note("  State", atr_state)
-		CALL write_bullet_and_variable_in_case_note("  Zip Code", atr_zipcode)
 		CALL write_bullet_and_variable_in_case_note("  Phone Number", atr_phone_number)
+		CALL write_bullet_and_variable_in_case_note("  Fax Number", atr_fax_number)
+		CALL write_bullet_and_variable_in_case_note("  Email", atr_email)
 
 		If atr_eval_treat_checkbox = checked Then
 			CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
