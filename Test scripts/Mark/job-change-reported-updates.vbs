@@ -44,10 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
-call changelog_update("01/12/2023", "BUG FIX to handle for New Jobs that started prior to the initial application for the case. The script would get stuck trying to go too far in the past. The script will now initially try to update only starting in the application month.", "Casey Love, Hennepin County")
-call changelog_update("05/28/2020", "Added virtual drop box information to SPEC/MEMO.", "MiKayla Handley, Hennepin County")
-call changelog_update("04/24/2020", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("05/24/2024", "Initial version.", "Mark Riegel and Megan Geissler, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -56,11 +53,13 @@ changelog_display
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'connecting to MAXIS & grabbing the case number
 EMConnect ""
-call MAXIS_case_number_finder(MAXIS_case_number)
-
 get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+
+
+testing_status = True		'Testing Status: Update status to true to display all testing msgbox or false to hide all testing msgbox
 
 'Initial dialog to gather case details
 Dialog1 = ""
@@ -129,8 +128,9 @@ End If
 
 call generate_client_list(list_of_hh_membs_with_jobs, "New Job Reported")
 client_name_array = split(list_of_hh_membs_with_jobs, chr(9))
-
 call generate_client_list(list_of_all_hh_members, "Select or Type")
+Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+
 
 hh_memb_and_current_jobs =  "*"
 
@@ -145,10 +145,10 @@ For i = 1 to ubound(client_name_array) 	'looping through all the reference numbe
 	EMReadScreen total_jobs, 1, 2, 78                                   'look for how many JOBS panels there are so we can loop through them all
 	If total_jobs <> "0" Then       'if there are no JOBS panels listed for this member, we should't try to read them.
 		Do
-			EMReadScreen employer, 30, 7, 42                'reading the employer name
-			employer = replace(employer, "_", "")           'taking out the underscores
+			EMReadScreen employer_name, 30, 7, 42                'reading the employer name
+			employer_name = replace(employer_name, "_", "")           'taking out the underscores
 
-			hh_memb_and_current_jobs = hh_memb_and_current_jobs & client_name_array(i) &  "-" & employer & "*"
+			hh_memb_and_current_jobs = hh_memb_and_current_jobs & client_name_array(i) &  "-" & employer_name & "*"
 
 			transmit
 			EMReadScreen last_job, 7, 24, 2
@@ -160,29 +160,25 @@ Next
 ' call generate_client_list(hh_memb_and_current_jobs, "Type or Select")
 hh_memb_and_current_jobs = replace(hh_memb_and_current_jobs, "*", chr(9))
 hh_memb_and_current_jobs = left(hh_memb_and_current_jobs, len(hh_memb_and_current_jobs) - 1)
-msgbox hh_memb_and_current_jobs
+If testing_status = True Then msgbox hh_memb_and_current_jobs
 
-
-
-BeginDialog Dialog1, 0, 0, 386, 210, "Job Change Selection"
-  DropListBox 110, 20, 255, 15, "New Job Reported" + hh_memb_and_current_jobs, hh_memb_and_current_jobs
-  DropListBox 180, 45, 150, 15, list_of_all_hh_members, hh_memb_new_job
-  DropListBox 85, 70, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
-  ComboBox 110, 90, 115, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  ComboBox 85, 115, 140, 15, list_of_all_hh_members, person_who_reported_job
-  EditBox 80, 135, 55, 15, reported_date
-  CheckBox 5, 165, 305, 10, "Check here if the employee gave verbal authorization to check the Work Number", work_number_verbal_checkbox
+  BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_case_number
+  DropListBox 125, 5, 255, 15, "New Job Reported" + hh_memb_and_current_jobs, hhmember_current_jobs
+  DropListBox 245, 20, 135, 15, HH_Memb_DropDown, hh_memb_with_new_job
+  DropListBox 75, 45, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
+  ComboBox 290, 45, 90, 15, list_of_all_hh_members, person_who_reported_job
+  ComboBox 105, 65, 110, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
+  EditBox 290, 65, 55, 15, reported_date
+  CheckBox 15, 90, 305, 10, "Check here if the employee gave verbal authorization to check the Work Number", work_number_verbal_checkbox
   ButtonGroup ButtonPressed
-    OkButton 265, 190, 50, 15
-    CancelButton 325, 190, 50, 15
-  Text 15, 140, 55, 10, "Date reported?"
-  Text 5, 5, 45, 10, "Case number:"
-  Text 45, 45, 130, 20, "If memb/job combination does not exist, select HH memb to create new job:"
-  Text 55, 5, 55, 10, MAXIS_case_number
-  Text 15, 25, 95, 10, "Member/Jobs listed on case: "
-  Text 15, 75, 60, 10, "Job Change Type:"
-  Text 15, 120, 55, 10, "Who reported?"
-  Text 15, 95, 90, 10, "How was the job reported?"
+    OkButton 270, 105, 50, 15
+    CancelButton 330, 105, 50, 15
+  Text 235, 70, 55, 10, "Date reported:"
+  Text 85, 25, 155, 10, "If New Job Repored, select Member of New Job:"
+  Text 15, 10, 110, 10, "Member(s)-Job(s) listed on case: "
+  Text 15, 50, 60, 10, "Job Change Type:"
+  Text 235, 50, 55, 10, "Who reported?"
+  Text 15, 70, 90, 10, "How was the job reported?"
 EndDialog
 
 Do
@@ -190,10 +186,14 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-      	' Call validate_MAXIS_case_number(err_msg, "*")
-        ' If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
+		If (hhmember_current_jobs = "New Job Reported" AND (hh_memb_with_new_job = "Select One:" OR job_change_type <> "New Job Reported")) OR (job_change_type = "New Job Reported" AND (hhmember_current_jobs <> "New Job Reported" OR hh_memb_with_new_job = "Select One:")) Then err_msg = err_msg & vbNewLine & "* To add a new job: Member-Jobs list and Job Change Type must both say New Job Reported and Member of New Job must be selected"
+		If hh_memb_with_new_job <>  "Select One:" AND (hhmember_current_jobs <> "New Job Reported" AND job_change_type <> "New Job Reported") Then err_msg = err_msg & vbNewLine & "* Cannot select Member of New Job if New Job Reported is not selected for Member-Jobs list and Job Change Type"
+		If job_change_type = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select valid Job Change Type"
+		If person_who_reported_job = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Select who reported the job change"
+		If job_report_type = "Type or Select" Then err_msg = err_msg & vbNewLine & "* Select how the job was reported"
+		If IsDate(reported_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter valid date reported." 
+        If err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = "" 
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -201,26 +201,21 @@ call generate_client_list(list_of_members, "Type or Select")
 client_name_array = split(list_of_members, chr(9))
 
 ' call HH_member_custom_dialog(HH_member_array)   'finding who should be looked at for income on the case
-'FUTURE FUNCTIONALITY - Stop work should be added in before we add information to the EARNED_INCOME_PANELS_ARRAY
 
 Call navigate_to_MAXIS_screen("STAT", "JOBS")       'Starting with JOBS panels
 For i = 1 to ubound(client_name_array)                  'We are going to look at each HH member checked in the HH_member dialog
+	If testing_status = True Then msgbox client_name_array(i)
 	EMWriteScreen left(client_name_array(i), 2) , 20, 76                    'going to the member in JOBS
 	Transmit
-
 	EMReadScreen number_of_jobs_panels, 1, 2, 78    'finding the total number of panels currently existing for the current member.
 
 	If number_of_jobs_panels <> "0" Then            'if there are 0 panels we don't need to do anything else in JOBS for this member
 		number_of_jobs_panels = number_of_jobs_panels * 1       'making the number read and actual number
-
+		
 		For panel = 1 to number_of_jobs_panels      'we are going to cycle through each of the panels for this member
 			EMWriteScreen "0" & panel, 20, 79       'navigating to the panel instance
 			transmit
-			'FUTURE FUNCTIONALITY - Stop work should be added in before we add information to the EARNED_INCOME_PANELS_ARRAY
-
 			save_this_panel = TRUE                  'we are always at this point going to save the panel to the EARNED_INCOME_PANELS_ARRAY
-													'FUTURE FUNCTIONALITY where we may be deleting old panels, in which case we would NOT be saving the panel to the array
-
 			EMReadScreen end_date, 8, 9, 49         'finding the end date
 
 			If end_date <> "__ __ __" Then
@@ -243,7 +238,6 @@ For i = 1 to ubound(client_name_array)                  'We are going to look at
 				If GRH_case = TRUE Then EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, the_panel) = checked
 
 				'Reading the information from the panel
-				'FUTURE FUNCTIONALITY - add ability to read current income from the panel/PIC etc. so that partial work can be screen scraped instead of having to retype it
 				EMReadScreen type_of_job, 1, 5, 34
 				EMReadScreen job_verif, 25, 6, 34
 				EMReadScreen listed_hrly_wage, 6, 6, 75
@@ -283,9 +277,11 @@ For i = 1 to ubound(client_name_array)                  'We are going to look at
 
 				EARNED_INCOME_PANELS_ARRAY(income_list_indct, the_panel) = "NONE"       'This is where all of the array items from LIST_OF_INCOME_ARRAY will be added that are associated with this panel
 				EARNED_INCOME_PANELS_ARRAY(this_is_a_new_panel, the_panel) = FALSE      'identifies if a panel was created by the script or not - these are currently existing - changes CNote
-
 				the_panel = the_panel + 1       'incrementing our counter to be ready for the next panel/member/income type
+
 			End If      'If save_this_panel = TRUE Then
 		Next            'For panel = 1 to number_of_jobs_panels
 	End If              'If number_of_jobs_panels <> "0" Then
 Next                    'For each member in HH_member_array
+
+
