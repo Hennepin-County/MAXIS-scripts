@@ -55,7 +55,7 @@ deleted_count = 0
 archived_count = 0
 
 
-If user_ID_for_validation = "HOAB001" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "MEGE001" OR user_ID_for_validation = "MARI001" OR user_ID_for_validation = "DACO003" OR user_ID_for_validation = "AMKH001" user_ID_for_validation = "AMKH001.ADM" Then
+If user_ID_for_validation = "HOAB001" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "MEGE001" OR user_ID_for_validation = "MARI001" OR user_ID_for_validation = "DACO003" OR user_ID_for_validation = "AMKH001" OR user_ID_for_validation = "AMKH001.ADM" Then
 
 	Dialog1 = ""												
 	BeginDialog Dialog1, 0, 0, 206, 105, "XML Cleanup"
