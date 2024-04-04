@@ -157,7 +157,7 @@ Function check_and_add_new_jobs_panel(testing_status)
             EMWriteScreen "4", 6, 34
             EMWriteScreen HIRE_employer_name, 7, 42
                 
-            IF month_hired = JOBS_footer_month THEN
+            IF month_hired = JOBS_footer_month and year_hired = JOBS_footer_year THEN
                 'If the footer month on the JOBS panel matches the month from the HIRE message then it writes the actual hired date from the message to the panel
                 Call create_MAXIS_friendly_date(date_hired, 0, 12, 54)
             ELSE
@@ -645,7 +645,7 @@ Function check_and_add_new_jobs_panel(testing_status)
                             EMWriteScreen "4", 6, 34
                             EMWriteScreen HIRE_employer_name, 7, 42
                                 
-                            IF month_hired = JOBS_footer_month THEN
+                            IF month_hired = JOBS_footer_month and year_hired = JOBS_footer_year THEN
                                 'If the footer month on the JOBS panel matches the month from the HIRE message then it writes the actual hired date from the message to the panel
                                 Call create_MAXIS_friendly_date(date_hired, 0, 12, 54)
                             ELSE
@@ -5864,8 +5864,8 @@ If HIRE_messages = 1 Then
 
                     ' TIKL_comparison = "*" & name_and_case_number_for_TIKL & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
                     TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
-                    msgbox TIKL_comparison
-                    msgbox dail_msg
+                    If activate_msg_boxes = True then msgbox TIKL_comparison
+                    If activate_msg_boxes = True then msgbox dail_msg
 
                     If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
                         'This is a match for the TIKL, it can be deleted
@@ -5978,7 +5978,7 @@ If HIRE_messages = 1 Then
                         TIKL_excel_row = TIKL_excel_row + 1
                     
                     Else
-                        MsgBox "No match found 6912"
+                        If activate_msg_boxes = True then MsgBox "No match found 6912"
 
                     End If
                 Else
