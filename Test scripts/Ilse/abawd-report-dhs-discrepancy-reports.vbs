@@ -809,6 +809,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             'Support for if banked months are already set up
         Elseif (data_wreg = "30" and data_abawd = "13") then
             If (best_wreg_code = "30" and best_abawd_code = "10") then 
+                best_abawd_code = "13" 'for output in the spreadsheet 
                 updates_needed = False
                 ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Banked Months already set up. No action needed."
             End if 
