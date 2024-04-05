@@ -2690,7 +2690,7 @@ If ex_parte_function = "Prep 1" Then
 				'If this is an unknown member, and has not been added to the array already, we need to add it
 				If memb_known = False Then
 					ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
-
+					MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = True 'Set the member status to true by defualt
 					'setting personal information to the array
 					MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
 					MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
@@ -2738,214 +2738,182 @@ If ex_parte_function = "Prep 1" Then
 			objELIGConnection.Close
 			Set objELIGRecordSet=nothing
 			Set objELIGConnection=nothing
-			'Checking if any of the members met Ex Parte, so we can set the case Ex Parte status
-			For case_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+
+			'If we did not find people in the ELIG list, we are going to check ELIG/HC
+			If person_found = False Then
+				Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Creating new ELIG results
+				'Send the case through background
+				Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
+				EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
+				If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
+				EMWaitReady 0, 0												'give a pause here
+				EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
+				If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
+				'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
+				Call back_to_SELF												'Need to get to SELF
+				Call MAXIS_background_check
+				Call navigate_to_MAXIS_screen("ELIG", "HC  ")		'Navigate to ELIG/HC
+				'Here we start at the top of ELIG/HC and read each row to find HC information
+				hc_row = 8
+				Do
+					pers_type = ""		'blanking out variables so they don't carry over from loop to loop
+					std = ""
+					meth = ""
+					waiv = ""
+					'reading the main HC Elig information - member, program, status
+					EMReadScreen read_ref_numb, 2, hc_row, 3
+					EMReadScreen clt_hc_prog, 4, hc_row, 28
+					EMReadScreen hc_prog_status, 6, hc_row, 50
+					ref_row = hc_row
+					Do while read_ref_numb = "  "				'this will read for the reference number if there are multiple programs for a single member
+						ref_row = ref_row - 1
+						EMReadScreen read_ref_numb, 2, ref_row, 3
+					Loop
+					If hc_prog_status = "ACTIVE" Then			'If HC is currently active, we need to read more details about the program/eligibility
+						clt_hc_prog = trim(clt_hc_prog)			'formatting this to remove whitespace
+						If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then		'these are non-hc persons
+							Call write_value_and_transmit("X", hc_row, 26)									'opening the ELIG detail spans
+							If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then		'If it is an MSP, we want to read the type only from a specific place
+								elig_msp_prog = clt_hc_prog
+								EMReadScreen pers_type, 2, 6, 56
+							Else																			'These are MA type programs (not MSP)
+								'Now we have to fund the current month in elig to get the current elig type
+								col = 19
+								Do
+									EMReadScreen span_month, 2, 6, col										'reading the month in ELIG
+									EMReadScreen span_year, 2, 6, col+3
+									'if the span month matchest current month plus 1, we are going to grab elig from that month
+									If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then
+										EMReadScreen pers_type, 2, 12, col - 2								'reading the ELIG TYPE
+										EMReadScreen std, 1, 12, col + 3
+										EMReadScreen meth, 1, 13, col + 2
+										EMReadScreen waiv, 1, 17, col + 2
+										Exit Do																'leaving once we've found the information for this elig
+									End If
+									col = col + 11			'this goes to the next column
+								Loop until col = 85			'This is off the page - if we hit this, we did NOT find the elig type in this elig result
+								'If we hit 85, we did not get the information. So we are going to read it from the last budget month (most current)
+								If col = 85 Then
+									EMReadScreen pers_type, 2, 12, 72										'reading the ELIG TYPE
+									EMReadScreen std, 1, 12, 77
+									EMReadScreen meth, 1, 13, 76
+									EMReadScreen waiv, 1, 17, 76
+								End If
+							End If
+							PF3			'leaving the elig detail information
+							'now we need to add the information we just read to the member array
+							memb_known = False										'default that the member know is false
+							For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)								'Looking at all the members known in the array
+								If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then	'if the member reference from ELIG matches the ARRAY, we are going to add more elig details
+									memb_known = True														'look we found a person
+									If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then				'finding which area of the array is blank to save the elig information there
+										MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= pers_type
+									ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
+										MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= pers_type
+									ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+										MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= clt_hc_prog
+										MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= pers_type
+									End If
+									MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = True 'Default this member to true
+									'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
+									If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+									If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+									If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+									If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Auto Newborn
+									If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+									If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Foster Care
+									If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+									If MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+									If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
+								End If
+							Next
+							'If this is an unknown member, and has not been added to the array already, we need to add it
+							If memb_known = False Then
+								ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
+								MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = True 'Defaulting this member to true
+								'setting personal information to the array
+								MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = read_ref_numb
+								MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+								MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(clt_hc_prog)
+								MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(pers_type)
+								'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
+								If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+								If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
+								If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+								If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
+								If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
+								If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
+								If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+								If MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+								If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
+								MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
+								MEMBER_INFO_ARRAY(sql_va_income_exists, memb_count) = False
+								MEMBER_INFO_ARRAY(sql_uc_income_exists, memb_count) = False
+								memb_count = memb_count + 1 	'incrementing the array counter up for the next loop
+							End If
+						End If
+					End If
+					hc_row = hc_row + 1												'now we go to the next row
+					EMReadScreen next_ref_numb, 2, hc_row, 3						'read the next HC information to find when we've reeached the end of the list
+					EMReadScreen next_maj_prog, 4, hc_row, 28
+				Loop until next_ref_numb = "  " and next_maj_prog = "    "
+				CALL back_to_SELF()													'going to STAT/MEMB - because there is misssing personal information for the members discovered in this way
+				Do
+					CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+					EMReadScreen memb_check, 4, 2, 48
+				Loop until memb_check = "MEMB"
+				at_least_one_hc_active = False										'this is a default to identify if HC is active on the case
+				For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
+					Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)		'navigate to the member for this instance of the array
+					EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
+					EMReadscreen first_name, 12, 6, 63
+					last_name = trim(replace(last_name, "_", "")) & " "
+					first_name = trim(replace(first_name, "_", "")) & " "
+					MEMBER_INFO_ARRAY(memb_name_const, known_membs) = first_name & " " & last_name
+					EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
+					PMI_numb = trim(PMI_numb)
+					MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
+					EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42							'catpturing the SSN
+					MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), " ", "")
+					MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), "_", "")
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
+					If MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" Then at_least_one_hc_active = True
+					If MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then at_least_one_hc_active = True
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then
+						list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "		'adding individuals to our list of members on HC
+					End If
+					If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" AND MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" AND MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+						MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 'If this member isn't on HC, this member is not ex_parte
+					End If
+				Next
+				If at_least_one_hc_active = False Then appears_ex_parte = False			'if no one is on HC, this cannot be Ex Parte
+			End If
+			For case_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2) 'looking through household to see if anyone is still ex parte
 				If MEMBER_INFO_ARRAY(memb_appears_ex_parte, case_memb) = True Then appears_ex_parte = True
 			Next
 			
-			'If the ELIG types still indicate that the case is Ex Parte, we are going to check REVW to make sure the case meets renewal requirements
-			If appears_ex_parte = True Then
-				'check HC ER date in STAT/REVW
-				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)
-				If is_this_priv = True Then appears_ex_parte = False						'excluding cases that are privileged
-				If is_this_priv = False Then
-					Call write_value_and_transmit("X", 5, 71)
-					EMReadScreen STAT_HC_ER_mo, 2, 8, 27
-					EMReadScreen STAT_HC_ER_yr, 2, 8, 33
-					If ep_revw_mo <> STAT_HC_ER_mo or ep_revw_yr <> STAT_HC_ER_yr Then  appears_ex_parte = False		'if this does not have the correct renewal month, we will exclude it from Ex Parte
-				End If
-			End If
-
-			'If the case still appears Ex Parte, we are going to check if we are missing people, and check income for further determination of Ex Parte
-			If appears_ex_parte = True Then
-				'If we did not find people in the ELIG list, we are going to check ELIG/HC
-				If person_found = False Then
-					Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Creating new ELIG results
-					'Send the case through background
-					Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
-					EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
-					If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
-					EMWaitReady 0, 0												'give a pause here
-					EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
-					If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
-					'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
-					Call back_to_SELF												'Need to get to SELF
-
-					Call MAXIS_background_check
-
-					Call navigate_to_MAXIS_screen("ELIG", "HC  ")		'Navigate to ELIG/HC
-					'Here we start at the top of ELIG/HC and read each row to find HC information
-					hc_row = 8
-					Do
-						pers_type = ""		'blanking out variables so they don't carry over from loop to loop
-						std = ""
-						meth = ""
-						waiv = ""
-
-						'reading the main HC Elig information - member, program, status
-						EMReadScreen read_ref_numb, 2, hc_row, 3
-						EMReadScreen clt_hc_prog, 4, hc_row, 28
-						EMReadScreen hc_prog_status, 6, hc_row, 50
-						ref_row = hc_row
-						Do while read_ref_numb = "  "				'this will read for the reference number if there are multiple programs for a single member
-							ref_row = ref_row - 1
-							EMReadScreen read_ref_numb, 2, ref_row, 3
-						Loop
-
-						If hc_prog_status = "ACTIVE" Then			'If HC is currently active, we need to read more details about the program/eligibility
-							clt_hc_prog = trim(clt_hc_prog)			'formatting this to remove whitespace
-							If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "" Then		'these are non-hc persons
-
-								Call write_value_and_transmit("X", hc_row, 26)									'opening the ELIG detail spans
-								If clt_hc_prog = "QMB" or clt_hc_prog = "SLMB" or clt_hc_prog = "QI1" Then		'If it is an MSP, we want to read the type only from a specific place
-									elig_msp_prog = clt_hc_prog
-									EMReadScreen pers_type, 2, 6, 56
-								Else																			'These are MA type programs (not MSP)
-									'Now we have to fund the current month in elig to get the current elig type
-									col = 19
-									Do
-										EMReadScreen span_month, 2, 6, col										'reading the month in ELIG
-										EMReadScreen span_year, 2, 6, col+3
-
-										'if the span month matchest current month plus 1, we are going to grab elig from that month
-										If span_month = MAXIS_footer_month and span_year = MAXIS_footer_year Then
-											EMReadScreen pers_type, 2, 12, col - 2								'reading the ELIG TYPE
-											EMReadScreen std, 1, 12, col + 3
-											EMReadScreen meth, 1, 13, col + 2
-											EMReadScreen waiv, 1, 17, col + 2
-											Exit Do																'leaving once we've found the information for this elig
-										End If
-										col = col + 11			'this goes to the next column
-									Loop until col = 85			'This is off the page - if we hit this, we did NOT find the elig type in this elig result
-
-									'If we hit 85, we did not get the information. So we are going to read it from the last budget month (most current)
-									If col = 85 Then
-										EMReadScreen pers_type, 2, 12, 72										'reading the ELIG TYPE
-										EMReadScreen std, 1, 12, 77
-										EMReadScreen meth, 1, 13, 76
-										EMReadScreen waiv, 1, 17, 76
-									End If
-								End If
-								PF3			'leaving the elig detail information
-
-								'now we need to add the information we just read to the member array
-								memb_known = False										'default that the member know is false
-								For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)								'Looking at all the members known in the array
-									If MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs) = read_ref_numb Then	'if the member reference from ELIG matches the ARRAY, we are going to add more elig details
-										memb_known = True														'look we found a person
-										If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then				'finding which area of the array is blank to save the elig information there
-											MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= clt_hc_prog
-											MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= pers_type
-										ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
-											MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= clt_hc_prog
-											MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= pers_type
-										ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
-											MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= clt_hc_prog
-											MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= pers_type
-										End If
-
-										'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-										If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
-										If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
-										If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
-										If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Auto Newborn
-										If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
-										If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Foster Care
-										If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-										If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
-
-										If MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
-										If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
-									End If
-								Next
-
-								'If this is an unknown member, and has not been added to the array already, we need to add it
-								If memb_known = False Then
-									ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)								'resizing the array
-
-									'setting personal information to the array
-									MEMBER_INFO_ARRAY(memb_ref_numb_const, memb_count) = read_ref_numb
-									MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
-									MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(clt_hc_prog)
-									MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(pers_type)
-
-									'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-									If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
-									If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
-									If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
-									If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
-									If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
-									If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
-									If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-									If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-
-									If MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
-									If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
-
-									MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
-									MEMBER_INFO_ARRAY(sql_va_income_exists, memb_count) = False
-									MEMBER_INFO_ARRAY(sql_uc_income_exists, memb_count) = False
-
-									memb_count = memb_count + 1 	'incrementing the array counter up for the next loop
-								End If
-
-							End If
-						End If
-						hc_row = hc_row + 1												'now we go to the next row
-						EMReadScreen next_ref_numb, 2, hc_row, 3						'read the next HC information to find when we've reeached the end of the list
-						EMReadScreen next_maj_prog, 4, hc_row, 28
-					Loop until next_ref_numb = "  " and next_maj_prog = "    "
-
-					CALL back_to_SELF()													'going to STAT/MEMB - because there is misssing personal information for the members discovered in this way
-					Do
-						CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-						EMReadScreen memb_check, 4, 2, 48
-					Loop until memb_check = "MEMB"
-
-					at_least_one_hc_active = False										'this is a default to identify if HC is active on the case
-					For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)					'loop through the member array
-						Call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, known_membs), 20, 76)		'navigate to the member for this instance of the array
-						EMReadscreen last_name, 25, 6, 30								'read and cormat the name from MEMB
-						EMReadscreen first_name, 12, 6, 63
-						last_name = trim(replace(last_name, "_", "")) & " "
-						first_name = trim(replace(first_name, "_", "")) & " "
-						MEMBER_INFO_ARRAY(memb_name_const, known_membs) = first_name & " " & last_name
-						EMReadScreen PMI_numb, 8, 4, 46									'capturing the PMI number
-						PMI_numb = trim(PMI_numb)
-						MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) = right("00000000" & PMI_numb, 8)			'we have to format the pmi to match the data list format (8 digits with leading 0s included)
-						EMReadScreen MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), 11, 7, 42							'catpturing the SSN
-						MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), " ", "")
-						MEMBER_INFO_ARRAY(memb_ssn_const, known_membs) = replace(MEMBER_INFO_ARRAY(memb_ssn_const, known_membs), "_", "")
-						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" Then at_least_one_hc_active = True		'setting the variable that identifies there is HC active based on the ELIG read from HC/ELIG
-						If MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" Then at_least_one_hc_active = True
-						If MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then at_least_one_hc_active = True
-						If MEMBER_INFO_ARRAY(table_prog_1, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_2, known_membs) <> "" or MEMBER_INFO_ARRAY(table_prog_3, known_membs) <> "" Then
-							list_of_membs_on_hc = list_of_membs_on_hc & MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) & " "		'adding individuals to our list of members on HC
-						End If
-
-					Next
-					If at_least_one_hc_active = False Then appears_ex_parte = False			'if no one is on HC, this cannot be Ex Parte
-				End If
-			End If
-
 			If is_this_priv = False and appears_ex_parte = True Then
 				Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
 				Call get_list_of_members
@@ -3240,7 +3208,7 @@ If ex_parte_function = "Prep 1" Then
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
 	Loop
-
+	If developer_mode = true Then script_end_procedure("Developer test run complete.")
 	'now we format and save the verification lists
 	For col_to_autofit = 1 to 9								'adjusting the column widths
 		If va_excel_created = True Then objVAExcel.columns(col_to_autofit).AutoFit()
