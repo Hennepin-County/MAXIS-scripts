@@ -141,20 +141,25 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 Call check_for_MAXIS(true)
 leave_excel_open = "No - Close the file"
+run_spotchecks_list = False
 
 'Declaring the only dialog
 Do
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 306, 90, "Expedited Determination Report"
-		DropListBox 10, 70, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
+	BeginDialog Dialog1, 0, 0, 306, 140, "Expedited Determination Report"
+		DropListBox 10, 120, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
+		EditBox 150, 85, 30, 15, run_time_limit_min
 		ButtonGroup ButtonPressed
-			OkButton 260, 70, 40, 15
+			OkButton 260, 120, 40, 15
 			PushButton 240, 10, 60, 15, "Reset HSS List", reset_HSS_List
 		Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
 		Text 10, 45, 225, 10, "When the script is complete, the Excel will be saved."
-		Text 10, 60, 235, 10, "At the end of the script run, would you like the Excel file to remain open:"
+		Text 10, 65, 270, 10, "**** The Script will NOT update the Sharepoint List for Expedited Spot Checks ****"
+		' CheckBox 10, 65, 285, 10, "Check here to have the script update the Sharepoint List for Expedited Spot Checks", Check1
+		Text 10, 90, 140, 10, "Enter a Time Limit to restrict the run time:"
+		Text 185, 90, 50, 10, "minutes"
+		Text 10, 110, 235, 10, "At the end of the script run, would you like the Excel file to remain open:"
 	EndDialog
-
 
 	'showing the dialog - there is no loop because there is nothing to manage and no password handling.
 	dialog Dialog1
@@ -162,6 +167,15 @@ Do
 
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = False					'loops until user passwords back in
+
+run_time_limit_sec = ""
+run_time_limit_min = trim(run_time_limit_min)
+If run_time_limit_min <> "" Then
+	If IsNumeric(run_time_limit_min) = True Then
+		run_time_limit_sec = run_time_limit_min * 60
+	End If
+End If
+run_time_start = timer
 
 If ButtonPressed = reset_HSS_List Then
 
@@ -274,10 +288,10 @@ report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improv
 hss_report_file = "C:\Users\" & user_ID_for_validation & "\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
 
 'HERE we REVIEW ALL THE TXT FILES
-	'If EXPEDITED - check MAXIS to see if SNAP is still pending or not.
+'If EXPEDITED - check MAXIS to see if SNAP is still pending or not.
 
 Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
-Call excel_open(hss_report_file, True, True, ObjHSSExcel, objHSSWorkbook)  			'opens the selected excel file'
+If run_spotchecks_list = True Then Call excel_open(hss_report_file, True, True, ObjHSSExcel, objHSSWorkbook)  			'opens the selected excel file'
 
 const hss_rept_report_day_col			= 1
 const hss_rept_case_number_col			= 2
@@ -311,134 +325,137 @@ const hss_email_const 	= 5
 const pm_name_const 	= 6
 const pm_email_const 	= 7
 
-'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
-Dim WORKER_ARRAY()
-ReDim WORKER_ARRAY(pm_email_const, 0)
+	If run_spotchecks_list = True Then
 
-ObjHSSExcel.worksheets("HSS List").Activate
+	'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
+	Dim WORKER_ARRAY()
+	ReDim WORKER_ARRAY(pm_email_const, 0)
 
-excel_row = 2
-worker_count = 0
-Do
-	ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
+	ObjHSSExcel.worksheets("HSS List").Activate
 
-	WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
-	WORKER_ARRAY(hsr_mx_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_mx_id_col))
-	WORKER_ARRAY(hsr_hc_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_hc_id_col))
-	WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_email_col))
-	WORKER_ARRAY(hss_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_name_col))
-	WORKER_ARRAY(hss_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
-	WORKER_ARRAY(pm_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_name_col))
-	WORKER_ARRAY(pm_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_email_col))
-
-	excel_row = excel_row + 1
-	worker_count = worker_count + 1
-	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
-Loop until next_worker_info = ""
-
-'This functionality is to access worker information directly from the SQL table.
-'It will currently never execute because we haven't worked out access
-worker_has_access_to_SQL = False
-If worker_has_access_to_SQL = True Then
-	' click_stopwatch = timer
-
-	'Creating objects for Access
-	Set objConnection = CreateObject("ADODB.Connection")
-	Set objRecordSet = CreateObject("ADODB.Recordset")
-
-	SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
-
-	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
-
-	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+	excel_row = 2
+	worker_count = 0
+	Do
 		ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
 
-		WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
-		WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
-		WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
-		WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
-		WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
-		WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
+		WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
+		WORKER_ARRAY(hsr_mx_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_mx_id_col))
+		WORKER_ARRAY(hsr_hc_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_hc_id_col))
+		WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_email_col))
+		WORKER_ARRAY(hss_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_name_col))
+		WORKER_ARRAY(hss_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
+		WORKER_ARRAY(pm_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_name_col))
+		WORKER_ARRAY(pm_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_email_col))
 
+		excel_row = excel_row + 1
 		worker_count = worker_count + 1
+		next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
+	Loop until next_worker_info = ""
 
-		objRecordSet.MoveNext											'Going to the next row in the table
-	Loop
+	'This functionality is to access worker information directly from the SQL table.
+	'It will currently never execute because we haven't worked out access
+	worker_has_access_to_SQL = False
+	If worker_has_access_to_SQL = True Then
+		' click_stopwatch = timer
 
-	'Now we disconnect from the table and close the connections
-	objRecordSet.Close
-	objConnection.Close
-	Set objRecordSet=nothing
-	Set objConnection=nothing
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-	For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-		For worker_check = 0 to UBound(WORKER_ARRAY, 2)
-			If WORKER_ARRAY(hss_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
-				WORKER_ARRAY(hss_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
-			End If
-			If WORKER_ARRAY(pm_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
-				WORKER_ARRAY(pm_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
-			End If
-		Next
-	Next
-	' how_long_did_it_take = timer - click_stopwatch
-	' MsgBox "it took " & how_long_did_it_take & " seconds"
-	' For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-	' 	MsgBox "This is the information for each person:" & vbCr &_
-	' 			"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
-	' 			"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
-	' 			"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
-	' 			"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
-	' 			"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
-	' 			"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
-	' 			"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
-	' 			"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
-	' Next
-End If
+		SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
 
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
+		'This is the file path the data tables
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
-'Now we are going to read all of the txt files generated from the Expedited Determination script runs. If they need review, they will be added to the report out file - otherwise they will be saved in the large Excel list
-ObjHSSExcel.worksheets("Case Email List").Activate							'activating the sheet
+		Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+			ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
 
-'finding the last row of the HSS Report Out ffile
-hss_excel_row = 1																'default to the first row
-Do
-	hss_excel_row = hss_excel_row + 1											'increment to the next row
-	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)			'check to see if there is information on this row - if not, the script will leave the loop and know the first blank row
-	row_deleted = False															'defaulting the row to NOT being deleted.
+			WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
+			WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
+			WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
+			WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
+			WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
+			WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
 
-	'deleting old rows - historical information is not saved in this excel, just pulled from it and added to a sharepoint list.
-	report_day = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value)		'this is the day the row was created.
-	If report_day <> "" Then													'if the report day is not blank we are going to check and see if it is old.
-		report_day = DateAdd("d", 0, report_day)								'first we make sure it is a date
-		If DateDiff("d", report_day, date) >= 30 Then							'if that date was more than 30 days ago, we don't need it.
-			row_deleted = True													'if more than 30 days old, we are deleting the row
-			SET objRange = ObjHSSExcel.Cells(hss_excel_row, 1).EntireRow		'select the row
-			objRange.Delete														'delete the selection
-			hss_excel_row = hss_excel_row - 1									'now we go back a row, since this one no longer exists.
-		End If
-	End If
-	'here we are going to fill in the HSR information if it is missing
-	If row_deleted = False Then													'if the row was deleted, there is nothing else to do with it
-		If trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value) = "" Then	'if the email is blank, add it from the worker array'
-			For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-				If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value) Then
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
-					ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
+			worker_count = worker_count + 1
+
+			objRecordSet.MoveNext											'Going to the next row in the table
+		Loop
+
+		'Now we disconnect from the table and close the connections
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+
+		For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+			For worker_check = 0 to UBound(WORKER_ARRAY, 2)
+				If WORKER_ARRAY(hss_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
+					WORKER_ARRAY(hss_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
+				End If
+				If WORKER_ARRAY(pm_name_const, each_wrkr) = WORKER_ARRAY(hsr_name_const, worker_check) Then
+					WORKER_ARRAY(pm_email_const, each_wrkr) = WORKER_ARRAY(hsr_email_const, worker_check)
 				End If
 			Next
-		End If
+		Next
+		' how_long_did_it_take = timer - click_stopwatch
+		' MsgBox "it took " & how_long_did_it_take & " seconds"
+		' For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+		' 	MsgBox "This is the information for each person:" & vbCr &_
+		' 			"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
+		' 			"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
+		' 			"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
+		' 			"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
+		' 			"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
+		' 			"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
+		' 			"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
+		' 			"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
+		' Next
 	End If
-	report_day = ""
-Loop Until this_case_number = ""
+
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+
+	'Now we are going to read all of the txt files generated from the Expedited Determination script runs. If they need review, they will be added to the report out file - otherwise they will be saved in the large Excel list
+	ObjHSSExcel.worksheets("Case Email List").Activate							'activating the sheet
+
+	'finding the last row of the HSS Report Out ffile
+	hss_excel_row = 1																'default to the first row
+	Do
+		hss_excel_row = hss_excel_row + 1											'increment to the next row
+		this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)			'check to see if there is information on this row - if not, the script will leave the loop and know the first blank row
+		row_deleted = False															'defaulting the row to NOT being deleted.
+
+		'deleting old rows - historical information is not saved in this excel, just pulled from it and added to a sharepoint list.
+		report_day = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value)		'this is the day the row was created.
+		If report_day <> "" Then													'if the report day is not blank we are going to check and see if it is old.
+			report_day = DateAdd("d", 0, report_day)								'first we make sure it is a date
+			If DateDiff("d", report_day, date) >= 30 Then							'if that date was more than 30 days ago, we don't need it.
+				row_deleted = True													'if more than 30 days old, we are deleting the row
+				SET objRange = ObjHSSExcel.Cells(hss_excel_row, 1).EntireRow		'select the row
+				objRange.Delete														'delete the selection
+				hss_excel_row = hss_excel_row - 1									'now we go back a row, since this one no longer exists.
+			End If
+		End If
+		'here we are going to fill in the HSR information if it is missing
+		If row_deleted = False Then													'if the row was deleted, there is nothing else to do with it
+			If trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value) = "" Then	'if the email is blank, add it from the worker array'
+				For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+					If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value) Then
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
+					End If
+				Next
+			End If
+		End If
+		report_day = ""
+	Loop Until this_case_number = ""
+End If
 
 'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
 total_excel_row = 1																'default to the first row
@@ -528,55 +545,58 @@ For Each objFile in colFiles																'looping through each file
 				If line_info(0) = "CASE NUMBER" Then case_nbr_hold = line_info(1)	''saving the case number so we can do things in a second
 			End If
 		Next
-		'if the case is expedited, we need to see if it is pending
-		If exp_det = True Then
-			MAXIS_case_number = case_nbr_hold									'setting the case number
-			Call back_to_SELF
-			Call navigate_to_MAXIS_screen("CASE", "CURR")						'go check CASE CURR - we are looking for FS PENDING
-			row = 1
-			col = 1
-			EMSearch "FS:", row, col
-			If row <> 0 Then									'If we found FS listed - we will look for the current program status
-				EMReadScreen fs_status, 9, row, col + 4
-				fs_status = trim(fs_status)
-				If fs_status = "PENDING" Then report_to_HSS = True			'if the program status is PENDING, then action has not been taken and the case needs to be reviewed.
-			End If
-			Call back_to_SELF
-			MAXIS_case_number = ""			''blanking out the case number
-		End If
 
-		''if determined that the case needs to be reviewed - then we need to add it to the Excel for the HSS Report Out
-		If report_to_HSS = True Then
-			For Each text_line in exp_det_details										'read each line in the file
-				If Instr(text_line, "^*^*^") <> 0 Then
-					line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
-					line_info(0) = trim(line_info(0))
-
-					'we only save relevant information to the HSS Report Out Excel
-					If line_info(0) = "CASE NUMBER" 			Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_case_number_col).Value = line_info(1)
-					If line_info(0) = "DATE OF APPLICATION" 	Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_application_date_col).Value  = line_info(1)
-					If line_info(0) = "DATE OF INTERVIEW" 		Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_interview_date_col).Value = line_info(1)
-					If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_approval_delay_detail_col).Value = line_info(1)
-					If line_info(0) = "WORKER USER ID" Then
-						ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value = line_info(1)
-						For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-							If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = line_info(1) Then
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
-							End If
-						Next
-						If ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = "" Then missing_HSRs = missing_HSRs & vbCr & line_info(1)
-					End If
-
+		If run_spotchecks_list = True Then
+			'if the case is expedited, we need to see if it is pending
+			If exp_det = True Then
+				MAXIS_case_number = case_nbr_hold									'setting the case number
+				Call back_to_SELF
+				Call navigate_to_MAXIS_screen("CASE", "CURR")						'go check CASE CURR - we are looking for FS PENDING
+				row = 1
+				col = 1
+				EMSearch "FS:", row, col
+				If row <> 0 Then									'If we found FS listed - we will look for the current program status
+					EMReadScreen fs_status, 9, row, col + 4
+					fs_status = trim(fs_status)
+					If fs_status = "PENDING" Then report_to_HSS = True			'if the program status is PENDING, then action has not been taken and the case needs to be reviewed.
 				End If
-			Next
-			ObjHSSExcel.Cells(hss_excel_row, hss_rept_total_report_row_col).Value = total_excel_row
-			ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value = date
-			hss_excel_row = hss_excel_row + 1
+				Call back_to_SELF
+				MAXIS_case_number = ""			''blanking out the case number
+			End If
+
+			'if determined that the case needs to be reviewed - then we need to add it to the Excel for the HSS Report Out
+			If report_to_HSS = True Then
+				For Each text_line in exp_det_details										'read each line in the file
+					If Instr(text_line, "^*^*^") <> 0 Then
+						line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
+						line_info(0) = trim(line_info(0))
+
+						'we only save relevant information to the HSS Report Out Excel
+						If line_info(0) = "CASE NUMBER" 			Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_case_number_col).Value = line_info(1)
+						If line_info(0) = "DATE OF APPLICATION" 	Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_application_date_col).Value  = line_info(1)
+						If line_info(0) = "DATE OF INTERVIEW" 		Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_interview_date_col).Value = line_info(1)
+						If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_approval_delay_detail_col).Value = line_info(1)
+						If line_info(0) = "WORKER USER ID" Then
+							ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value = line_info(1)
+							For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+								If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = line_info(1) Then
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
+									ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
+								End If
+							Next
+							If ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = "" Then missing_HSRs = missing_HSRs & vbCr & line_info(1)
+						End If
+
+					End If
+				Next
+				ObjHSSExcel.Cells(hss_excel_row, hss_rept_total_report_row_col).Value = total_excel_row
+				ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value = date
+				hss_excel_row = hss_excel_row + 1
+			End If
 		End If
 
 		total_excel_row = total_excel_row + 1										'advance to the next row
@@ -596,16 +616,22 @@ For Each objFile in colFiles																'looping through each file
 		' If Err.Number <> 0 Then MsgBox "FILE IS DUPLICATE ???" & vbCr & "this_file_path - " & this_file_path & vbCr & "archive pather - " & txt_file_archive_path & "\" & this_file_name & ".txt"
 		' On Error Goto 0
 	End If
+	If run_time_limit_sec <> "" Then
+		run_time = timer
+		If run_time - run_time_start > run_time_limit_sec Then Exit For
+	End If
 Next
 objWorkbook.Save()		'saving the excel
-objHSSWorkbook.Save()		'saving the excel
+If run_spotchecks_list = True Then objHSSWorkbook.Save()		'saving the excel
 
 'closing all the files if requested'
 If leave_excel_open = "No - Close the file" Then
-	ObjHSSExcel.ActiveWorkbook.Close
+	If run_spotchecks_list = True Then
+		ObjHSSExcel.ActiveWorkbook.Close
 
-	ObjHSSExcel.Application.Quit
-	ObjHSSExcel.Quit
+		ObjHSSExcel.Application.Quit
+		ObjHSSExcel.Quit
+	End If
 
 	objExcel.ActiveWorkbook.Close
 
@@ -613,16 +639,26 @@ If leave_excel_open = "No - Close the file" Then
 	objExcel.Quit
 End If
 
-'This will send an email if HSR information is missing in the data
-If missing_HSRs <> "" Then
-	email_subject = "Missing HSR Detial in HSS Expedited Report"
+If run_spotchecks_list = True Then
+	'This will send an email if HSR information is missing in the data
+	If missing_HSRs <> "" Then
+		email_subject = "Missing HSR Detial in HSS Expedited Report"
 
-	email_body = "The Expedited Determination Report script has run and was unable to match the HSR User ID in at least one instance. Review the Worker List sheet in the Report Excel and update to include the followin User ID(s):"
-	email_body = email_body & missing_HSRs
-	email_body = email_body & vbCr & vbCr & "This email is automated as a part of the script run of ADMIN - Expedited Determination Report."
+		email_body = "The Expedited Determination Report script has run and was unable to match the HSR User ID in at least one instance. Review the Worker List sheet in the Report Excel and update to include the followin User ID(s):"
+		email_body = email_body & missing_HSRs
+		email_body = email_body & vbCr & vbCr & "This email is automated as a part of the script run of ADMIN - Expedited Determination Report."
 
-	send_email = True
-	Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
+		send_email = True
+		Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", send_email)
+	End If
+End If
+
+If run_time_limit_sec <> "" Then
+	If run_time - run_time_start > run_time_limit_sec Then
+		min_running = Int((timer-run_time_start)/60)
+		timer_reached_msg = "Expedited Determination Report has ended since it has been running for " & min_running & " minutes." &vbCr & vbCr & "A timer was set to limit the script run to " & run_time_limit_min & " minutes." & vbcr & vbCr & "It is likely there are still Expedited Determination Case Items to be recorded. Additionally, file clean up was not completed."
+		call script_end_procedure("Expedited ")
+	End If
 End If
 
 ' Here we go and delete the txt files that are generated with the Exp Det script run from the archive files IF the file is more than 2 weeks old.
