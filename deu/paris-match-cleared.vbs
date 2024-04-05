@@ -73,30 +73,11 @@ If DAIL_panel = "DAIL" then
         EmReadscreen MAXIS_case_number, 8, 5, 73
         MAXIS_case_number = trim(MAXIS_case_number)
     End if 
-        'determining if the old message with the SSN functionality will be needed or not.
-    EMReadScreen memb_confirmation, 7, 6, 20
-    If left(memb_confirmation, 4) = "MEMB" then
-        SSN_present = False
-        member_number = right(memb_confirmation, 2)
-    
-        'Heading to STAT to get the Member's SSN
-        Call write_value_and_transmit("S", 6, 3)
-        'PRIV Handling
-        EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-        If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
-        EMReadScreen stat_check, 4, 20, 21
-        If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get into STAT panels due to an error. Clear the error screen, if applicable, then try the script again.")
-    
-        Call write_value_and_transmit("MEMB", 20, 71)
-        Call write_value_and_transmit(member_number, 20, 76)
-        EmReadscreen client_SSN, 11, 7, 42
-        client_SSN = replace(client_SSN, " ", "")
-        PF3 ' back to the DAIL
-    End if
-
     'Going to INFC
     Call write_value_and_transmit("I", 6, 3) 'to INFC
-    If SSN_present = False then EmWriteScreen client_SSN, 3, 63
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
     CALL write_value_and_transmit("INTM", 20, 71)
 Else 
     If trim(MAXIS_Case_number) <> "" then Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
