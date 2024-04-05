@@ -2921,6 +2921,7 @@ If ex_parte_function = "Prep 1" Then
 
 			'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
 			SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
+			SSI_income_exists = False
 			RR_income_exists = False
 			VA_income_exists = False
 			UC_income_exists = False
