@@ -624,7 +624,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 			Call write_value_and_transmit(member_number, 20, 76)
 		    EMReadScreen num_of_PREG, 1, 2, 78
             IF num_of_PREG <> "0" THEN
-				ObjExcel.Cells(excel_row, notes_col).Value = "Found PX case!"
+				'ObjExcel.Cells(excel_row, notes_col).Value = "Found PX case!"
                 EMReadScreen preg_due_dt, 8, 10, 53
                 preg_due_dt = replace(preg_due_dt, " ", "/")
             	EMReadScreen preg_end_dt, 8, 12, 53
@@ -703,7 +703,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    'filter the list here for best_wreg_code
 	    If trim(verified_wreg) = "" then
 	    	best_wreg_code = "30"
-	    	If verified_abawd = "" then
+            If verified_abawd = "" then
 	    		best_abawd_code = "10"
 	    	Else
 	    		best_abawd_code = verified_abawd 'this should only be 06 for now but maybe more later
@@ -742,8 +742,6 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    If best_wreg_code = "17" then best_abawd_code = "12"
 	    If best_wreg_code = "23" then best_abawd_code = "05"
     
-		
-
 		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
 		EMReadScreen next_revw_mo, 2, 9, 57
@@ -753,26 +751,19 @@ Function BULK_ABAWD_FSET_exemption_finder()
 		If next_SNAP_revw = next_month then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP Review Next Month."
 	
 	    If best_wreg_code = "30" or age_50 = True then Call ABAWD_Tracking_Record(abawd_counted_months, member_number, MAXIS_footer_month)
-	    
-        'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned. 
         updates_needed = True
-        If snap_status = "ACTIVE" then
-            If data_wreg = best_wreg_code then
-                If data_abawd = best_abawd_code then
-					updates_needed = False
-                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed."
-                End if
-            End if
-		Else 
-			ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP is " & snap_status 	
-        End if
-
+    
 		    '----------------------------------------------------------------------------------------------------Age 50 - 52 WREG and ABAWD Tracking Record Handling 
 		If age_50 = True then
-	    	If best_wreg_code = "30" then 
-				'changing codes per temp policy 
-				best_wreg_code = "16"
-				best_abawd_code = "03"
+	    	If best_wreg_code = "30" then
+                If abawd_counted_months => 3 then
+                    best_abawd_code = "13" 'banked months for the 50-52 year old workarounds 
+                    banked_months = True 
+                Else      
+				    'changing codes per temp policy 
+				    best_wreg_code = "16"
+				    best_abawd_code = "03"
+                End if 
 	    		Call navigate_to_MAXIS_screen("STAT", "WREG")
             	Call write_value_and_transmit(member_number, 20, 76)
             	PF9
@@ -815,6 +806,12 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				ObjExcel.Cells(excel_row, notes_col).Value = cl_age & " year old!"
 				ObjExcel.Cells(excel_row, auto_wreg_col).Value = True	'adding notes as updates needed to spreadsheet, but we don't need the additional functionality handled in the boolean. 
 	    	End if
+            'Support for if banked months are already set up
+        Elseif (data_wreg = "30" and data_abawd = "13") then
+            If (best_wreg_code = "30" and best_abawd_code = "10") then 
+                updates_needed = False
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Banked Months already set up. No action needed."
+            End if 
 	    Else
             'script will update the WREG panel for the member if an update
             Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -846,9 +843,26 @@ Function BULK_ABAWD_FSET_exemption_finder()
         End if
     End if 
 
-    If best_abawd_code = "10" or age_50 = True then 
-        If abawd_counted_months => 3 then ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Time-Limits have been met. Evaluate to set to close."
-    End if
+    'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned. 
+    If updates_needed = True then 
+        If snap_status = "ACTIVE" then
+            If data_wreg = best_wreg_code then
+                If data_abawd = best_abawd_code then
+	    			updates_needed = False
+                    ObjExcel.Cells(excel_row, auto_wreg_col).Value = "No Updates Needed."
+                End if
+            End if
+	    Else 
+	    	ObjExcel.Cells(excel_row, auto_wreg_col).Value = "SNAP is " & snap_status 	
+        End if
+        If best_abawd_code = "10" or age_50 = True then
+            If banked_months = True then 
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Assess for banked months. All TLR months used."
+            ElseIf abawd_counted_months => 3 then 
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Time-Limits have been met. Evaluate to set to close."
+            End if 
+        End if
+    End if 
 
 	ObjExcel.Cells(excel_row, best_WREG_col).Value = best_wreg_code
     ObjExcel.Cells(excel_row, best_abawd_col).Value = best_abawd_code
