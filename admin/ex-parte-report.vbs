@@ -1187,6 +1187,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 
 		'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
 		SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
+		SSI_income_exists = False
 		RR_income_exists = False
 		VA_income_exists = False
 		UC_income_exists = False
@@ -2395,7 +2396,34 @@ End If
 'This will evaluate the cases for Ex Parte, send the initial SVES QURY and create the other verification lists
 If ex_parte_function = "Prep 1" Then
 	STATS_manualtime = 135
+	'Developer mode - gives the option of updating an excel sheet instead of SQL table, and will not send queries or update income lists. Use for testing case selection
+	If  user_ID_for_validation = "DACO003" THEN
+		developer_msg = msgbox("Greetings weary traveler. Do you wish to complete this quest in developer mode?", vbYesNo)
+		If developer_msg = vbYes Then 
+			msgbox "Developer mode engaged. No lists will be updated."
+			developer_mode = true
+			'set up excel for case tracking of ex parte status
+			Set objDevExcel = CreateObject("Excel.Application")				'opening a new Excel sheet
+			objDevExcel.Visible = True
+			Set objDevWorkbook = objDevExcel.Workbooks.Add()
+			objDevExcel.DisplayAlerts = True
 
+			objDevExcel.Cells(1, 1).Value = "CASE NUMBER"					'Putting the headers in place for the Excel sheet
+			objDevExcel.Cells(1, 2).Value = "PREP STATUS"
+			objDevExcel.Cells(1, 3).Value = "ALL HC IS ABD"
+			objDevExcel.Cells(1, 4).Value = "Review Date"
+			objDevExcel.Cells(1, 5).Value = "SSI Income Exists"
+			objDevExcel.Cells(1, 6).Value = "Appears Ex Parte"
+			objDevExcel.columns(2).NumberFormat = "@" 		'formatting as text
+
+			FOR i = 1 to 9		'formatting the cells'
+				objDevExcel.Cells(1, i).Font.Bold = True		'bold font'
+			NEXT
+			Dev_excel_row = 2
+						
+		End If
+
+	End If 
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
 	smrt_cut_off = DateAdd("m", 1, review_date)				'This is the cutoff date for SMRT ending to identify which ones we want to have evaluated
@@ -2573,6 +2601,7 @@ If ex_parte_function = "Prep 1" Then
 
 			all_hc_is_ABD = ""				'resetting all these variables to blank at the beginning of each loop so information doesn't carry over from one case to another
 			SSA_income_exists = ""
+			SSI_income_exists = ""
 			JOBS_income_exists = ""
 			VA_income_exists = ""
 			BUSI_income_exists = ""
@@ -2587,15 +2616,16 @@ If ex_parte_function = "Prep 1" Then
 
 			'Here we are setting the PREP_Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
+			If developer_mode <> True Then 
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
-			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
-			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-
+				'opening the connections and data table
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			End If 
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
 			memb_count = 0										'resetting the counting variable to size the member array
 			list_of_membs_on_hc = " "							'we need to keep a list members by pmi to know if a person is already accounted for as we find all the members and programs
@@ -2652,7 +2682,7 @@ If ex_parte_function = "Prep 1" Then
 						If objELIGRecordSet("EligType") = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
 						If objELIGRecordSet("EligType") = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
 
-						If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+						If MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 						If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 					End If
 				Next
@@ -2815,25 +2845,25 @@ If ex_parte_function = "Prep 1" Then
 										End If
 
 										'This will read the ELIG type information and use it to identify if a case does NOT appear Ex Parte
-										If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
-										If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'TYMA
-										If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
-										If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Auto Newborn
-										If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Adoption Assistance
-										If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False 	'Foster Care
-										If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
-										If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
+										If clt_hc_prog = "EH" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "AX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "AA" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "DP" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "CK" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "CX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "CB" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "CM" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "13" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+										If pers_type = "14" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'TYMA
+										If pers_type = "09" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+										If pers_type = "11" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Auto Newborn
+										If pers_type = "10" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Adoption Assistance
+										If pers_type = "25" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False 	'Foster Care
+										If pers_type = "PX" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
+										If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False
 
-										If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+										If MEMBER_INFO_ARRAY(memb_appears_ex_parte, known_membs) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 										If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 									End If
 								Next
@@ -2867,7 +2897,7 @@ If ex_parte_function = "Prep 1" Then
 									If pers_type = "PC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
 									If pers_type = "BC" Then MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False
 
-									If appears_ex_parte = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
+									If MEMBER_INFO_ARRAY(memb_appears_ex_parte, memb_count) = False AND pers_type <> "DP" Then all_hc_is_ABD = False		'identifying if the case has ABD basis or not
 									If pers_type = "DP" Then case_has_EPD = True										'identifying if the case has MA-EPD
 
 									MEMBER_INFO_ARRAY(sql_rr_income_exists, memb_count) = False		'defaulting the income types for this case to false
@@ -2983,6 +3013,7 @@ If ex_parte_function = "Prep 1" Then
 						If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
 						If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
+						If SSI_income_exists = true Then SSA_income_exists = True
 					End If
 					If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True					'we do not need to clarify further for JOBS or BUSI income, just indicate if these incomes exist.
 					If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
@@ -3030,7 +3061,7 @@ If ex_parte_function = "Prep 1" Then
 			End If
 
 			'If the case still appears Ex Parte at this point, we need to start the verifications
-			If appears_ex_parte = True Then
+			If appears_ex_parte = True And developer_mode <> True Then
 				'For each case that is indicated as potentially ExParte, we are going to take preparation actions
 				last_va_count = va_count			'These are counting variables to set for each loop
 				last_uc_count = uc_count
@@ -3039,7 +3070,7 @@ If ex_parte_function = "Prep 1" Then
 				Call find_unea_information			'Now we are reading UNEA information for all the HH members
 
 				Call back_to_SELF
-
+				
 				'Send a SVES/CURY for all persons on a case
 				Call navigate_to_MAXIS_screen("INFC", "SVES")
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
@@ -3187,15 +3218,25 @@ If ex_parte_function = "Prep 1" Then
 			prep_status = date														'prep status should be a date
 			If appears_ex_parte = False Then prep_status = "Not Ex Parte"			'if this case is not ex parte, the prep status is reset
 
-			'here is the update statement. setting the exparte eval and the income/case information for the case running
-			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
+			If developer_mode = true Then
+				objDevExcel.Cells(Dev_excel_row, 1).Value = MAXIS_case_number					'Putting the headers in place for the Excel sheet
+				objDevExcel.Cells(Dev_excel_row, 2).Value = prep_status
+				objDevExcel.Cells(Dev_excel_row, 3).Value = all_hc_is_ABD
+				objDevExcel.Cells(Dev_excel_row, 4).Value = review_date
+				objDevExcel.Cells(Dev_excel_row, 5).Value = SSA_income_exists
+				objDevExcel.Cells(Dev_excel_row, 6).Value = appears_ex_parte
+				Dev_excel_row = Dev_excel_row + 1
+			Else
+				'here is the update statement. setting the exparte eval and the income/case information for the case running
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', PREP_Complete = '" & prep_status & "', AllHCisABD = '" & all_hc_is_ABD & "', SSAIncomExist = '" & SSA_income_exists & "', WagesExist = '" & JOBS_income_exists & "', VAIncomeExist = '" & VA_income_exists & "', SelfEmpExists = '" & BUSI_income_exists & "', NoIncome = '" & case_has_no_income & "', EPDonCase = '" & case_has_EPD & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
-			Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
-			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
+				Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+				'opening the connections and data table
+				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			End If 
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
 	Loop
