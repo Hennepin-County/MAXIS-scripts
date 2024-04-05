@@ -2608,7 +2608,7 @@ If ex_parte_function = "Prep 1" Then
 			case_has_no_income = ""
 			case_has_EPD = ""
 
-			appears_ex_parte = True			'we default this to true and find reasons that exclude the case from Ex Parte as we look at case data.
+			appears_ex_parte = False			'we default this to true and find reasons that exclude the case from Ex Parte as we look at case data.
 			all_hc_is_ABD = True
 			case_has_EPD = False
 			case_is_in_henn = False
