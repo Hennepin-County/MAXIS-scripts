@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/06/2024", "Removed workaround fix for WAGE match scrubber since the DHS interface with SSN is now repaired.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/16/2022", "Added fix for WAGE match scrubber while DHS interface with SSN is being repaired.", "05/16/2022, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -201,12 +202,12 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 
 									EMWriteScreen "X", hc_est_row, hc_est_col
 									transmit
-									'Reading the budgetted amount
+									'Reading the budgeted amount
 									EMReadScreen hc_inc_est, 8, 11, 63
 									hc_inc_est = replace(hc_inc_est, "_", "")
 									hc_inc_est = trim(hc_inc_est)
 									IF hc_inc_est = "" THEN hc_inc_est = 0.00
-									'Converting the budgetted amount per pay period to the monthly amount
+									'Converting the budgeted amount per pay period to the monthly amount
 									IF pay_freq = "1" THEN
 										income_matrix_array(num_of_income_panels, 6) = hc_inc_est
 									ELSEIF pay_freq = "2" OR pay_freq = "3" THEN
@@ -250,12 +251,12 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 									'Going into the HC Inc Est
 									EMWriteScreen "X", 19, 54
 									transmit
-									'Reading the budgetted amount
+									'Reading the budgeted amount
 									EMReadScreen hc_inc_est, 8, 11, 63
 									hc_inc_est = replace(hc_inc_est, "_", "")
 									hc_inc_est = trim(hc_inc_est)
 									IF hc_inc_est = "" THEN hc_inc_est = 0.00
-									'Converting the budgetted amount per pay period to the monthly amount
+									'Converting the budgeted amount per pay period to the monthly amount
 									IF pay_freq = "1" THEN
 										income_matrix_array(num_of_income_panels, 6) = hc_inc_est
 									ELSEIF pay_freq = "2" OR pay_freq = "3" THEN
@@ -355,7 +356,7 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 		Text 370, 45, 30, 10, "Prosp"
 		Text 410, 45, 30, 10, "PIC"
 		Text 450, 45, 40, 10, "Quarterly HC"
-		'Displaying quarterly wage info for each jaeorb
+		'Displaying quarterly wage info for each job
 		FOR z = 0 TO number_of_unique_employers
 			'Client name from jobs panel
 			Text 15, 55 + (10 * z), 120, 10, quarterly_output_array(z, 5)
@@ -427,7 +428,7 @@ If member_number = "00" then
         CALL write_value_and_transmit("S", 6, 3)
         'PRIV Handling
         EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-        If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+        If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
         PF11    'Sending the PF11
         EMReadScreen nav_check, 4, 1, 27    'Problem Reporting
         IF nav_check = "Prob" THEN
@@ -451,19 +452,6 @@ If member_number = "00" then
         script_end_procedure(closing_message)
     END IF
 Else
-    'gathering match information
-    CALL write_value_and_transmit("S", 6, 3)
-    'PRIV Handling
-    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-    EMWriteScreen "MEMB", 20, 71
-    EMWriteScreen member_number, 20, 76
-    Call write_value_and_transmit("01", 20, 79)
-    EmReadscreen client_SSN, 11, 7, 42
-    client_SSN = replace(client_SSN, " ", "")
-
-    PF3 ' back to the DAIL
-
     'Navigating deeper into the match interface
     CALL write_value_and_transmit("I", 6, 3)
     EMReadScreen MAXIS_case_number, 8, 20, 38
@@ -497,7 +485,7 @@ Else
     'Returning the user back to DAIL
     CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
-    STATS_counter = STATS_counter - 1 'for acuurate counts
+    STATS_counter = STATS_counter - 1 'for accurate counts
     script_end_procedure("")
 End if
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
