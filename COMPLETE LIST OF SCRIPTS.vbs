@@ -2765,7 +2765,15 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #11/14/2017#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("","","","","","","","", "")
+script_array(script_num).policy_references(0)   = "CM INCOME_AND_ELIGIBILTY_VERIFICATION_SYSTEM 10.24"
+script_array(script_num).policy_references(1)   = "TE IEVS_WAGE_MATCH_EARNER_DISCREPANCY 02.12.10"
+script_array(script_num).policy_references(2)   = "TE QTIP_#64_IVES_MATCH_USING_BC_CLOSED_CASE 19.164"
+script_array(script_num).policy_references(4)   = "TE IEVS_DAIL_MESSAGES 02.08.083"
+script_array(script_num).policy_references(5)   = "TE ACCESSING_INFORMATION_ABOUT_IEVS_MATCHES 02.08.084"
+script_array(script_num).policy_references(6)   = "SHAREPOINT IEVS_MATCHES https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/IEVS_Matches.aspx"
+script_array(script_num).policy_references(7)   = "SHAREPOINT IEVS https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/IEVS.aspx"
+script_array(script_num).policy_references(8)   = "SHAREPOINT TYPES_OF_IEVS_MATCHES https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Types_of_Matches.aspx"
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
