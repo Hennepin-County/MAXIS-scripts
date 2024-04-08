@@ -145,6 +145,7 @@ If dwp_status = "PENDING" Then application_notice_required = True
 If grh_status = "PENDING" Then application_notice_required = True
 If snap_status = "PENDING" Then application_notice_required = True
 If emer_status = "PENDING" Then application_notice_required = True
+If unknown_cash_pending = True Then application_notice_required = True
 
 'The script will end if this is NOT an application notice and it is NOT being run by a BZ Script Writer
 If application_notice_required = False and bz_writer = False Then
