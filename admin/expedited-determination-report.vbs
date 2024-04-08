@@ -639,6 +639,8 @@ If leave_excel_open = "No - Close the file" Then
 	objExcel.Quit
 End If
 
+If total_excel_row > 10001 Then Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "Expedited Determination Report Out is over 10,000", 1, False, "", "", False, "", "To maintain speed of operation, move the first 10,000 lines to the correct application date list and the archive files.", False, "", True)
+
 If run_spotchecks_list = True Then
 	'This will send an email if HSR information is missing in the data
 	If missing_HSRs <> "" Then
@@ -657,7 +659,7 @@ If run_time_limit_sec <> "" Then
 	If run_time - run_time_start > run_time_limit_sec Then
 		min_running = Int((timer-run_time_start)/60)
 		timer_reached_msg = "Expedited Determination Report has ended since it has been running for " & min_running & " minutes." &vbCr & vbCr & "A timer was set to limit the script run to " & run_time_limit_min & " minutes." & vbcr & vbCr & "It is likely there are still Expedited Determination Case Items to be recorded. Additionally, file clean up was not completed."
-		call script_end_procedure("Expedited ")
+		call script_end_procedure(timer_reached_msg)
 	End If
 End If
 
