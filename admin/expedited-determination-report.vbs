@@ -136,7 +136,7 @@ const exch_app_exp_status_col 				= 37
 
 'END DECLARATIONS BLOCK ====================================================================================================
 allow_bulk_run_use = False												'At this time the BULK runs can only be completed by AIT due to database access.
-' If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
+If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
 If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
 If user_ID_for_validation = "MARI001" Then allow_bulk_run_use = True
 If user_ID_for_validation = "MEGE001" Then allow_bulk_run_use = True
