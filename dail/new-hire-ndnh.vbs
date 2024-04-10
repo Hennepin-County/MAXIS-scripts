@@ -400,7 +400,6 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     				IF info_confirmation = vbCancel THEN script_end_procedure ("The script has ended. The match has not been acted on.")
     				IF info_confirmation = vbYes THEN
                         hire_match = TRUE
-                        match_row = row
                         EXIT DO
                     END IF
     			END IF
@@ -417,17 +416,17 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found for: " & employer & "." & vbcr & "Please review case for potential manual updates.")
 
     If clear_DAIL = vbYes then
-        'entering the INFC/HIRE match '
+        'entering the INFC/HIRE match - This is ONLY for MEMB 00 cases
         Call write_value_and_transmit("U", match_row, 3)
         EMReadscreen panel_check, 4, 2, 49
-        IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
+        IF panel_check <> "NHMD" THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
         EMWriteScreen "N", 16, 54
         EMWriteScreen "NA", 17, 54
         TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
         TRANSMIT 'this confirms the cleared status'
         PF3
         EMReadscreen cleared_confirmation, 1, match_row, 61
-        IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+        IF cleared_confirmation = " " THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
         PF3' this takes us back to DAIL/DAIL
     Else
         'This is a dialog asking if the job is known to the agency.
@@ -468,16 +467,14 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-	    'entering the INFC/HIRE match '
-	    EMWriteScreen "U", match_row, 3
-	    transmit
+	    
+        'entering the INFC/HIRE match '
+	    Call write_value_and_transmit("U", row, 3)
 	    EMReadscreen panel_check, 4, 2, 49
-	    IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
-	    IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
-	    IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
-	    IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
-	    IF Action_taken_droplist = "BR-Benefits Reduced" THEN EMWriteScreen "BR", 17, 54
-	    IF Action_taken_droplist = "CC-Case Closed" THEN EMWriteScreen "CC", 17, 54
+	    IF panel_check <> "NHMD" THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
+        EMWriteScreen left(Emp_known_droplist, 1), 16, 54
+        If Action_taken_droplist <> "Select One:" then EMWriteScreen left(Action_taken_droplist, 2), 17, 54
+	
 	    IF cost_savings <> "" THEN
 	    	cost_savings = round(cost_savings)
 	    	EMWriteScreen cost_savings, 18, 54
@@ -486,7 +483,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    TRANSMIT 'this confirms the cleared status'
 	    PF3
 	    EMReadscreen cleared_confirmation, 1, match_row, 61
-	    IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+        IF cleared_confirmation = " " THEN script_end_procedure("The match selected was unable to be entered. The script will now end.")
 	    PF3' this takes us back to DAIL/DAIL
 
 	    IF claim_referral_tracking_checkbox = CHECKED Then
@@ -512,7 +509,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	        	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
 	        End if
 	    	'writing in the action taken and date to the MISC panel
-	     	IF Action_taken_droplist = "CC-Case Closed" or  Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+	     	IF Action_taken_droplist = "CC-Case Closed" or Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken = "Determination-OP Entered" '"Claim Determination 25 character available
 	    	IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
 	    	IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
 	        EMWriteScreen MISC_action_taken, Row, 30
