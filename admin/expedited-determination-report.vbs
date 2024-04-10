@@ -135,6 +135,15 @@ const exch_app_exp_status_col 				= 37
 
 
 'END DECLARATIONS BLOCK ====================================================================================================
+allow_bulk_run_use = False												'At this time the BULK runs can only be completed by AIT due to database access.
+' If user_ID_for_validation = "CALO001" Then allow_bulk_run_use = True
+If user_ID_for_validation = "ILFE001" Then allow_bulk_run_use = True
+If user_ID_for_validation = "MARI001" Then allow_bulk_run_use = True
+If user_ID_for_validation = "MEGE001" Then allow_bulk_run_use = True
+If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
+
+'stopping the script run if someone else tries to run the script for the bulk options.
+If allow_bulk_run_use = False Then script_end_procedure("Expedited Determination Report is locked to use by the Automation and Integration Team. The script will now end.")
 
 EMConnect ""
 MAXIS_footer_month = CM_mo
@@ -325,7 +334,7 @@ const hss_email_const 	= 5
 const pm_name_const 	= 6
 const pm_email_const 	= 7
 
-	If run_spotchecks_list = True Then
+If run_spotchecks_list = True Then
 
 	'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
 	Dim WORKER_ARRAY()
