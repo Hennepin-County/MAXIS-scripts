@@ -2267,7 +2267,7 @@ Set objWorkRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
 objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
+working_list_count = UBound(WORKING_LIST_CASES_ARRAY, 2)+1
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	' If WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) <> date and WORKING_LIST_CASES_ARRAY(priv_case, case_entry) = False Then
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = False Then
@@ -2614,5 +2614,5 @@ End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
 
-end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases."
+end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases." & vbCr & vbCr & "The script has reviewed " & working_list_count & " cases."
 script_end_procedure_with_error_report(end_msg)  'WE'RE DONE!
