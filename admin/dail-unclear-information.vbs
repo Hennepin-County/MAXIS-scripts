@@ -5283,14 +5283,14 @@ If HIRE_messages = 1 Then
 
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No JOBS panels exist for household member number") Then
-                                                            EMWaitReady 2, 2000
+                                                            EMWaitReady 1, 1000
                                                         End If
                                                     End If
                                                     
                                                     Call nav_back_to_dail_check(True)
 
                                                     'Navigate back to DAIL message - case name and number
-                                                    EMWriteScreen hire_message_case_number, 20, 38
+                                                    ' EMWriteScreen hire_message_case_number, 20, 38
                                                     EMWriteScreen hire_message_member_name, 21, 25
                                                     transmit
 
@@ -5703,11 +5703,11 @@ If HIRE_messages = 1 Then
                                                     Call nav_back_to_dail_check(True)
                                                     
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then 
-                                                        EMWaitReady 2, 2000
+                                                        EMWaitReady 1, 1000
                                                     End If
 
                                                     'Navigate back to DAIL message - case name and number
-                                                    EMWriteScreen hire_message_case_number, 20, 38
+                                                    ' EMWriteScreen hire_message_case_number, 20, 38
                                                     EMWriteScreen hire_message_member_name, 21, 25
                                                     transmit
 
