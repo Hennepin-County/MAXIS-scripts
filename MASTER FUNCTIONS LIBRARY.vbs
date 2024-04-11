@@ -6770,7 +6770,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable = 10 Then fpg_200_percent = 10580
             If hh_size_variable > 10 Then fpg_200_percent = 10580 + ((hh_size_variable - 10) * 897)
 
-        'Otherwise use the April 2023 200% FPG    
+        'Otherwise use the April 2023 200% FPG
         Else
             If hh_size_variable = 1 Then fpg_200_percent = 2430
             If hh_size_variable = 2 Then fpg_200_percent = 3287
@@ -6785,7 +6785,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
         End If
     ElseIf program_determination = "SNAP" Then
-        'If application date is 10/1/23 or after 10/01/23 or there is no application date then use October 2023 200% FPG 
+        'If application date is 10/1/23 or after 10/01/23 or there is no application date then use October 2023 200% FPG
         If application_date_variable_diff >= 0 OR no_application_date_variable = True Then
             If hh_size_variable = 1 Then fpg_200_percent = 2430
             If hh_size_variable = 2 Then fpg_200_percent = 3287
@@ -6799,7 +6799,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable = 10 Then fpg_200_percent = 10140
             If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
 
-        'If application date is before 10/1/23 then use the October 2022 200% FPG 
+        'If application date is before 10/1/23 then use the October 2022 200% FPG
         ElseIf application_date_variable_diff < 0 Then
             If hh_size_variable = 1 Then fpg_200_percent = 2265
             If hh_size_variable = 2 Then fpg_200_percent = 3052
@@ -6814,7 +6814,7 @@ function determine_200_percent_of_FPG(program_determination, application_date_va
             If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
         End If
     ElseIf program_determination = "EGA" Then
-        
+
         'If application date is 4/1/24 or after 04/01/24 OR there is no application date AND today's date is 4/1/24 or after 4/1/24 then use April 2023 200% FPG
         If application_date_variable_diff >= 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2024#, date)) >= 0) Then
             If hh_size_variable = 1 Then fpg_200_percent = 2430
@@ -13894,61 +13894,86 @@ function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
-    EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    memo_col = 17										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-    'The following figures out if we need a new page
-    Do
-        EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
-        line_test = trim(line_test)
-        'MsgBox line_test
-        If line_test <> "" OR memo_row >= 18 Then
-            memo_row = memo_row + 1
+	EMReadScreen in_memo, 24, 2, 30
+	EMReadScreen in_wcom, 27, 2, 28
+	ready_to_write = False
+	If in_memo = "Client Memo Input Screen" Then ready_to_write = True
+	If in_wcom = "Worker Comment Input Screen" Then ready_to_write = True
+	If ready_to_write = True Then
+		EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+		memo_col = 17										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+		'The following figures out if we need a new page
+		Do
+			EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
+			line_test = trim(line_test)
+			'MsgBox line_test
+			If line_test <> "" OR memo_row >= 18 Then
+				memo_row = memo_row + 1
 
-            'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-            If memo_row >= 18 then
-                PF8
-                memo_row = 3					'Resets this variable to 3
-            End if
-        End If
+				'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+				If memo_row >= 18 then
+					PF8
+					memo_row = 3					'Resets this variable to 3
+				End if
+			End If
 
-        EMReadScreen page_full_check, 12, 24, 2
-        'MsgBox page_full_check
-        If page_full_check = "END OF INPUT" Then script_end_procedure("The WCOM/MEMO area is already full and no additional informaion can be added. This script should be run prior to adding manual wording.")
+			EMReadScreen page_full_check, 12, 24, 2
+			'MsgBox page_full_check
+			If page_full_check = "END OF INPUT" Then
+				If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+					script_end_procedure("The WCOM/MEMO area is already full and no additional informaion can be added. This script should be run prior to adding manual wording.")
+				Else
+					PF10
+					PF3
+					PF3
+				End If
+			End If
 
-    Loop until line_test = ""
+		Loop until line_test = ""
 
-    'Each word becomes its own member of the array called variable_array.
-    variable_array = split(variable, " ")
+		'Each word becomes its own member of the array called variable_array.
+		variable_array = split(variable, " ")
 
-    For each word in variable_array
-        'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
-        If len(word) + memo_col > 76 then
-            memo_row = memo_row + 1
-            memo_col = 17
-        End if
+		For each word in variable_array
+			'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
+			If len(word) + memo_col > 76 then
+				memo_row = memo_row + 1
+				memo_col = 17
+			End if
 
-        'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-        If memo_row >= 18 then
-            PF8
-            memo_row = 3					'Resets this variable to 3
-        End if
+			'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+			If memo_row >= 18 then
+				PF8
+				memo_row = 3					'Resets this variable to 3
+			End if
 
-        EMReadScreen page_full_check, 12, 24, 2
-        'MsgBox page_full_check
-        If page_full_check = "END OF INPUT" Then
-            PF10
-            end_msg = "The WCOM/MEMO area is already full and no additional informaion can be added. The wording that was not added and the script ended on is:" & vbNewLine & vbNewLine & variable & vbNewLine & vbNewLine & "**This script should be run prior to adding manual wording.**"
-            script_end_procedure(end_msg)
-        End If
-        'Writes the word and a space using EMWriteScreen
-        EMWriteScreen word & " ", memo_row, memo_col
+			EMReadScreen page_full_check, 12, 24, 2
+			'MsgBox page_full_check
+			If page_full_check = "END OF INPUT" Then
+				PF10
+				If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+					end_msg = "The WCOM/MEMO area is already full and no additional informaion can be added. The wording that was not added and the script ended on is:" & vbNewLine & vbNewLine & variable & vbNewLine & vbNewLine & "**This script should be run prior to adding manual wording.**"
+					script_end_procedure(end_msg)
+				Else
+					PF3
+					PF3
+				End If
+			End If
+			'Writes the word and a space using EMWriteScreen
+			EMWriteScreen word & " ", memo_row, memo_col
 
-        'Increases memo_col the length of the word + 1 (for the space)
-        memo_col = memo_col + (len(word) + 1)
-    Next
+			'Increases memo_col the length of the word + 1 (for the space)
+			memo_col = memo_col + (len(word) + 1)
+		Next
 
-    'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
-    EMSetCursor memo_row + 1, 15
+		'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
+		EMSetCursor memo_row + 1, 15
+	Else
+		If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+			end_msg = "It does not appear that the script is currently in a SPEC/MEMO or SPEC/WCOM and information cannot be added to a notice. The line that was attempted to be added was: " & vbCr & vbCr & variable
+			script_end_procedure(end_msg)
+		End If
+	End If
 end function
 
 function write_variable_in_TIKL(variable)
