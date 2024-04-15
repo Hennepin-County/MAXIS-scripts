@@ -5149,14 +5149,15 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 			'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 			'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
-			EMReadScreen income_renewal_date, 8, 7, 27
+			EMReadScreen income_renewal_date, 8, 8, 27
 			' EMReadScreen elig_renewal_date, 8, 8, 27
 			elig_renewal_date = review_month_from_SQL
-			EMReadScreen HC_ex_parte_determination, 1, 9, 27
-			EMReadScreen income_asset_renewal_date, 8, 7, 71
-			EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-			EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
-
+			'EMReadScreen HC_ex_parte_determination, 1, 9, 27 'EX PARTE FIELD!!!
+			EMReadScreen income_asset_renewal_date, 8, 8, 71
+			EMReadScreen exempt_6_mo_ir_form, 1, 9, 71
+			'EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+			'EXPARTEFIXES - maybe go to HCMI here - possibly a check_HCMI function in case we need to do it elsewhere
+			'maybe do the dialog below with a HH_member list and checks - then check/update ex_parte accordingly??? run by casey then ben
 			'Dialog and review of HC renewal for approval of ex parte
 			If ex_parte_determination = "Appears Ex Parte" Then
 
@@ -5171,7 +5172,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
 				Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
 				Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 95, 145, 10, "- ExParte: Enter Y"
+				Text 10, 95, 145, 10, "- ExParte: Enter Y" 'EXPARTEFIXES: need to change this to do something with HCMI
 				Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
 				EndDialog
 
@@ -5212,12 +5213,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						' CALL navigate_to_MAXIS_screen("STAT", "REVW")
 						' CALL write_value_and_transmit("X", 5, 71)
 						' EMReadScreen check_income_renewal_date, 8, 7, 27
-						EMReadScreen check_elig_renewal_date, 8, 8, 27
-						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						'EMReadScreen check_HC_ex_parte_determination, 1, 9, 27 'EX PARTE FIELD!!!!
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+						'EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
@@ -5244,7 +5245,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 						'Validate that ExParte field updated to Y
 						If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
-
+						'EXPARTEFIXES - need to replace this
 						'Validate that ExParte Renewal Month is correct
 						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
 						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
@@ -5305,13 +5306,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							CALL write_value_and_transmit("X", 5, 71)
 						End If
 
-						EMReadScreen check_income_renewal_date, 8, 7, 27
-						EMReadScreen check_elig_renewal_date, 8, 8, 27
-						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+						EMReadScreen check_income_renewal_date, 8, 8, 27
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						'EMReadScreen check_HC_ex_parte_determination, 1, 9, 27 'EX PARTE FIELD!!!!
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+						'EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
@@ -5511,15 +5512,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					PushButton 190, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 				Text 10, 10, 230, 20, "To reschedule the Renewal Month for a standard Renewal, the STAT/REVW panel should be reviewed and updated correctly."
 				Text 10, 40, 210, 10, "This is what the STAT/REVW HC Pop-Up should look like:"
-				GroupBox 10, 55, 280, 55, "HEALTH CARE RENEWALS"
+				GroupBox 10, 55, 280, 40, "HEALTH CARE RENEWALS"
 				Text 20, 70, 110, 10, "Income Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 150, 70, 125, 10, "Income/Asset Renewal Date: __ __ __"
 				Text 30, 80, 110, 10, "Elig Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 175, 80, 85, 10, "Exempt from 6 Mo IR: N"
-				Text 45, 90, 60, 10, "ExParte (Y/N): N"
-				Text 165, 90, 120, 10, "ExParte Renewal Month: " & ex_parte_renewal_month & " 20" & ex_parte_renewal_year
-				Text 15, 120, 265, 10, "If these fields are different, CHANGE THEM NOW, while this dialog is displayed."
-				Text 15, 130, 200, 10, "(IR and AR coding can be switched based on case scenario.)"
+				Text 20, 100, 260, 10, "Update ExParte fields on STAT/HCMI for each individual renewing as follows:"
+				Text 45, 110, 60, 10, "ExParte (Y/N): N"
+				Text 165, 110, 120, 10, "ExParte Renewal Month: " & ex_parte_renewal_month & " 20" & ex_parte_renewal_year
+				Text 15, 125, 265, 10, "If these fields are different, CHANGE THEM NOW, while this dialog is displayed."
+				Text 15, 135, 200, 10, "(IR and AR coding can be switched based on case scenario.)"
 			EndDialog
 
 			DO
@@ -5548,8 +5550,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					End If
 
 					'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
-					EMReadScreen income_renewal_date, 8, 7, 27
-					EMReadScreen income_asset_renewal_date, 8, 7, 71
+					EMReadScreen income_renewal_date, 8, 8, 27
+					EMReadScreen income_asset_renewal_date, 8, 8, 71
 					If income_renewal_date <> "__ __ __" Then
 						sr_date = income_renewal_date
 					ElseIf	income_asset_renewal_date <> "__ __ __" Then
@@ -5557,12 +5559,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					End If
 					sr_month = left(sr_date, 2)
 					sr_year = right(sr_date, 2)
-					EMReadScreen elig_renewal_month, 2, 8, 27
-					EMReadScreen elig_renewal_year, 2, 8, 33
-					EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen REVW_ex_parte_renewal_month, 2, 9, 71
-					EMReadScreen REVW_ex_parte_renewal_year, 2, 9, 76
+					EMReadScreen elig_renewal_month, 2, 9, 27
+					EMReadScreen elig_renewal_year, 2, 9, 33
+					EMReadScreen exempt_6_mo_ir_form, 1, 9, 71
+					'Future update needed - We're removing these reads for now - ex parte fields have moved to HCMI panel
+					'EMReadScreen HC_ex_parte_determination, 1, 9, 27 'EX PARTE FIELD!!!
+					'EMReadScreen REVW_ex_parte_renewal_month, 2, 9, 71
+					'EMReadScreen REVW_ex_parte_renewal_year, 2, 9, 76
 
 					revw_panel_err = ""
 
@@ -5577,14 +5580,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If sr_month <> updated_hc_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_month & " listed as the month."
 						If sr_year <> updated_hc_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_year & " listed as the month."
 					End If
+					'Future update needed - removing ex-parte error handling for now, future update needed to read HCMI panel
+					'If HC_ex_parte_determination = "Y" Then revw_panel_err = revw_panel_err & vbCr & "* Update the Ex Parte yes/no indicator to 'N', since you are recording that you cannot process as Ex Parte."
 
-					If HC_ex_parte_determination = "Y" Then revw_panel_err = revw_panel_err & vbCr & "* Update the Ex Parte yes/no indicator to 'N', since you are recording that you cannot process as Ex Parte."
-
-					If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
-						revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
-						If REVW_ex_parte_renewal_month <> ex_parte_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has " & REVW_ex_parte_renewal_month & " entered."
-						If REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has 20" & REVW_ex_parte_renewal_year & " entered."
-					End If
+					'If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
+					'	revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
+					'	If REVW_ex_parte_renewal_month <> ex_parte_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has " & REVW_ex_parte_renewal_month & " entered."
+					'	If REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has 20" & REVW_ex_parte_renewal_year & " entered."
+					'End If
 
 					'Error message handling
 					IF revw_panel_err <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & revw_panel_err & vbNewLine
@@ -5597,7 +5600,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		ex_parte_determination = "Cannot be Processed as Ex Parte"
 
 		If MX_region <> "TRAINING" Then
-			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" AND user_ID_for_validation <> "DACO003" Then
 				sql_format_phase_2_denial_reason = replace(phase_1_changes_summary, "'", "")
 				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_2_SQL_month & "'"
 
