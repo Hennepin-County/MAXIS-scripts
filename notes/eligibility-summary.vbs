@@ -9380,11 +9380,13 @@ class dwp_eligibility_detail
 			End If
 
 			Call write_value_and_transmit("X", 8, 41)
-			EmReadScreen pop_up_menu_title, 15, 5, 32
-			If pop_up_menu_title = "Unearned Income" Then
-				'TODO - read member specific unearned income
-				transmit
-			End If
+			Do
+				EmReadScreen pop_up_menu_title, 15, 5, 32
+				If pop_up_menu_title = "Unearned Income" Then
+					'TODO - read member specific unearned income
+					transmit
+				End If
+			Loop until pop_up_menu_title <> "Unearned Income"
 
 			Call write_value_and_transmit("X", 9, 41)
 			Do
