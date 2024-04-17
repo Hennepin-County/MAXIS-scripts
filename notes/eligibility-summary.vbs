@@ -4366,7 +4366,7 @@ function dwp_elig_case_note()
 					beginning_text = "                       "
 				End If
 				If DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4))) & " - Recoupment")
+					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4) & " - Recoupment")
 					beginning_text = "                       "
 				End If
 				Call write_variable_in_CASE_NOTE(beginning_text & "| $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount, ".00", "") & "     ", 4) & " - Net Grant Amount")
@@ -23615,7 +23615,7 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
-'CHECKING FOR 'U' code on REVW and MONT. Prompts user to correct month by month. 
+'CHECKING FOR 'U' code on REVW and MONT. Prompts user to correct month by month.
 Call date_array_generator(first_footer_month, first_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
 MAXIS_footer_month = first_footer_month
 MAXIS_footer_year = first_footer_year
@@ -23624,7 +23624,7 @@ For each_month = 0 to Ubound(footer_month_array)
 	MAXIS_footer_month = datepart("m", footer_month_array(each_month)) 'Need to assign footer month / year each time through
 	If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(each_month)), 2)
-	
+
 	Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 	Call navigate_to_MAXIS_screen("STAT", "REVW")
 	EMReadScreen stat_revw_cash_code, 1, 7, 40
@@ -23637,7 +23637,7 @@ For each_month = 0 to Ubound(footer_month_array)
 	If stat_revw_snap_code = "U" Then revw_u_code_string = revw_u_code_string & ", SNAP"
 	If stat_revw_hc_code = "U" Then revw_u_code_string = revw_u_code_string & ", HC"
 	If left(revw_u_code_string, 1) = "," Then revw_u_code_string = right(revw_u_code_string, len(revw_u_code_string)-2)
-	
+
 	Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 	Call navigate_to_MAXIS_screen("STAT", "MONT")
 	EMReadScreen stat_mont_cash_status, 1, 11, 43
@@ -23655,12 +23655,12 @@ For each_month = 0 to Ubound(footer_month_array)
 	If (stat_mont_cash_status = "U" OR stat_mont_snap_status = "U" OR stat_mont_hc_status = "U" OR stat_revw_cash_code = "U" OR stat_revw_snap_code = "U" OR stat_revw_hc_code = "U") Then
 	Do
 		Do
-			err_msg = ""	
+			err_msg = ""
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 281, 90, "REVW and MONT- U Code Verification"
 				Text 5, 5, 220, 25, "The program(s) below have a 'U' status for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Approve program(s) or change status to 'i' then press OK to continue. "
-				If mont_u_code_string <> "" Then Text 30, 30, 160, 10, "MONT Panel: " & mont_u_code_string		
-				If revw_u_code_string <> "" Then Text 30, 40, 160, 10, "REVW Panel: " & revw_u_code_string						
+				If mont_u_code_string <> "" Then Text 30, 30, 160, 10, "MONT Panel: " & mont_u_code_string
+				If revw_u_code_string <> "" Then Text 30, 40, 160, 10, "REVW Panel: " & revw_u_code_string
 				ButtonGroup ButtonPressed
 					PushButton 230, 20, 45, 15, "REVW", stat_revw_btn
 					PushButton 230, 35, 45, 15, "MONT", stat_mont_btn
@@ -23688,7 +23688,7 @@ For each_month = 0 to Ubound(footer_month_array)
 			If stat_mont_snap_status = "U" Then mont_u_code_string = mont_u_code_string & ", SNAP"
 			If stat_mont_hc_status = "U" Then mont_u_code_string = mont_u_code_string & ", HC"
 			If left(mont_u_code_string, 1) = "," Then mont_u_code_string = right(mont_u_code_string, len(mont_u_code_string)-2)
-			
+
 			Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 			Call navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen stat_revw_cash_code, 1, 7, 40
