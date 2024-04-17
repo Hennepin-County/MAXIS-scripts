@@ -4369,6 +4369,10 @@ function dwp_elig_case_note()
 					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4) & " - Recoupment")
 					beginning_text = "                       "
 				End If
+				If DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued, ".00", "") & "     ", 4) & " - Amount Already Issued")
+					beginning_text = "                       "
+				End If
 				Call write_variable_in_CASE_NOTE(beginning_text & "| $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount, ".00", "") & "     ", 4) & " - Net Grant Amount")
 				beginning_text = "                       "
 				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion <> "0.00" Then Call write_variable_in_CASE_NOTE(beginning_text & "| Net Grant Amount: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4))
