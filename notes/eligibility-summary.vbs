@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/15/2024", "Additional support added to check for 'U' code on REVW and MONT.", "Megan Geissler, Hennepin County")
 call changelog_update("03/15/2024", "Updated the dialogs and CASE NOTE information with some details for ##~## - If a program is closed for a death, the date of death will be listed in the dialog and CASE/NOTE.##~## - For HC programs, if ineligible due to death, the eff date in the CAE/NOTE header will be for the date of death.##~## - Added some additional support around Designated Providers##~## - Removed 'Denied' and 'Closed' indicators from the HC CASE/NOTE Headers because they were not reliable. THIS IS TEMPORARY and will be returned when more support is built.##~##", "Casey Love, Hennpin County")
 call changelog_update("03/08/2024", "Updates to support for ELIG/HC functionality to provide additional information and process guidance ##~## - Added date for 1503 Form. ##~## - Review for Remedial Care Bills when member is in a GRH Facility but is not active GRH.##~## ##~##Please report any issues or question on this script run if you find them.", "Casey Love, Hennepin County")
 call changelog_update("01/05/2024", "Verification Requests can be sent less than 10 days ago if the program is also ineligible for 'FAIL TO FILE' for a HRF or REVW process in the month being assessed.##~## ##~##All other instances still require that verifications reqests are given at least 10 days from the date being sent for a case to be approved as ineligible for failing verifications.##~## ##~##This is also true if a program is ineligible for other reasons, as long as verifications are failed, we need to give residents at least 10 days before denying for failing verification requirements.##~##", "Casey Love, Hennepin County")
@@ -4365,7 +4366,11 @@ function dwp_elig_case_note()
 					beginning_text = "                       "
 				End If
 				If DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4))) & " - Recoupment")
+					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_recoupment_amount, ".00", "") & "     ", 4) & " - Recoupment")
+					beginning_text = "                       "
+				End If
+				If DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(beginning_text & "| (-) $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued, ".00", "") & "     ", 4) & " - Amount Already Issued")
 					beginning_text = "                       "
 				End If
 				Call write_variable_in_CASE_NOTE(beginning_text & "| $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount, ".00", "") & "     ", 4) & " - Net Grant Amount")
@@ -9379,11 +9384,13 @@ class dwp_eligibility_detail
 			End If
 
 			Call write_value_and_transmit("X", 8, 41)
-			EmReadScreen pop_up_menu_title, 15, 5, 32
-			If pop_up_menu_title = "Unearned Income" Then
-				'TODO - read member specific unearned income
-				transmit
-			End If
+			Do
+				EmReadScreen pop_up_menu_title, 15, 5, 32
+				If pop_up_menu_title = "Unearned Income" Then
+					'TODO - read member specific unearned income
+					transmit
+				End If
+			Loop until pop_up_menu_title <> "Unearned Income"
 
 			Call write_value_and_transmit("X", 9, 41)
 			Do
@@ -23614,6 +23621,105 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+'CHECKING FOR 'U' code on REVW and MONT. Prompts user to correct month by month.
+Call date_array_generator(first_footer_month, first_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
+MAXIS_footer_month = first_footer_month
+MAXIS_footer_year = first_footer_year
+
+For each_month = 0 to Ubound(footer_month_array)
+	MAXIS_footer_month = datepart("m", footer_month_array(each_month)) 'Need to assign footer month / year each time through
+	If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(each_month)), 2)
+
+	Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+	Call navigate_to_MAXIS_screen("STAT", "REVW")
+	EMReadScreen stat_revw_cash_code, 1, 7, 40
+	EMReadScreen stat_revw_snap_code, 1, 7, 60
+	EMReadScreen stat_revw_hc_code, 1, 7, 73
+	stat_revw_cash_code = replace(stat_revw_cash_code, "_", "")
+	stat_revw_snap_code = replace(stat_revw_snap_code, "_", "")
+	stat_revw_hc_code = replace(stat_revw_hc_code, "_", "")
+	If stat_revw_cash_code = "U" Then revw_u_code_string = revw_u_code_string & ", Cash/GRH"
+	If stat_revw_snap_code = "U" Then revw_u_code_string = revw_u_code_string & ", SNAP"
+	If stat_revw_hc_code = "U" Then revw_u_code_string = revw_u_code_string & ", HC"
+	If left(revw_u_code_string, 1) = "," Then revw_u_code_string = right(revw_u_code_string, len(revw_u_code_string)-2)
+
+	Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+	Call navigate_to_MAXIS_screen("STAT", "MONT")
+	EMReadScreen stat_mont_cash_status, 1, 11, 43
+	EMReadScreen stat_mont_snap_status, 1, 11, 53
+	EMReadScreen stat_mont_hc_status, 1, 11, 63
+	stat_mont_cash_status = replace(stat_mont_cash_status, "_", "")
+	stat_mont_snap_status = replace(stat_mont_snap_status, "_", "")
+	stat_mont_hc_status = replace(stat_mont_hc_status, "_", "")
+	mont_u_code_string = ""
+	If stat_mont_cash_status = "U" Then mont_u_code_string = mont_u_code_string & ", Cash/GRH"
+	If stat_mont_snap_status = "U" Then mont_u_code_string = mont_u_code_string & ", SNAP"
+	If stat_mont_hc_status = "U" Then mont_u_code_string = mont_u_code_string & ", HC"
+	If left(mont_u_code_string, 1) = "," Then mont_u_code_string = right(mont_u_code_string, len(mont_u_code_string)-2)
+
+	If (stat_mont_cash_status = "U" OR stat_mont_snap_status = "U" OR stat_mont_hc_status = "U" OR stat_revw_cash_code = "U" OR stat_revw_snap_code = "U" OR stat_revw_hc_code = "U") Then
+	Do
+		Do
+			err_msg = ""
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 281, 90, "REVW and MONT- U Code Verification"
+				Text 5, 5, 220, 25, "The program(s) below have a 'U' status for " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". Approve program(s) or change status to 'i' then press OK to continue. "
+				If mont_u_code_string <> "" Then Text 30, 30, 160, 10, "MONT Panel: " & mont_u_code_string
+				If revw_u_code_string <> "" Then Text 30, 40, 160, 10, "REVW Panel: " & revw_u_code_string
+				ButtonGroup ButtonPressed
+					PushButton 230, 20, 45, 15, "REVW", stat_revw_btn
+					PushButton 230, 35, 45, 15, "MONT", stat_mont_btn
+					PushButton 5, 70, 50, 15, "TE02.04.04", te_02_04_04_btn
+					OkButton 170, 70, 50, 15
+					CancelButton 225, 70, 50, 15
+				Text 235, 10, 35, 10, "-----Nav-----"
+			EndDialog
+
+			Do
+				dialog Dialog1
+				cancel_confirmation
+				If ButtonPressed = te_02_04_04_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.04.04%20AUTOCLOSE%20%20%20MAXIS%20PROCESSES%20FOR%20HRF%20REVW.pdf?csf=1&web=1&e=1sbOFR"
+				If ButtonPressed = stat_revw_btn Then Call navigate_to_MAXIS_screen("STAT", "REVW")
+				If ButtonPressed = stat_mont_btn Then Call navigate_to_MAXIS_screen("STAT", "MONT")
+			Loop Until ButtonPressed = -1
+
+			Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+			Call navigate_to_MAXIS_screen("STAT", "MONT")
+			EMReadScreen stat_mont_cash_status, 1, 11, 43
+			EMReadScreen stat_mont_snap_status, 1, 11, 53
+			EMReadScreen stat_mont_hc_status, 1, 11, 63
+			mont_u_code_string = ""
+			If stat_mont_cash_status = "U" Then mont_u_code_string = mont_u_code_string & ", Cash/GRH"
+			If stat_mont_snap_status = "U" Then mont_u_code_string = mont_u_code_string & ", SNAP"
+			If stat_mont_hc_status = "U" Then mont_u_code_string = mont_u_code_string & ", HC"
+			If left(mont_u_code_string, 1) = "," Then mont_u_code_string = right(mont_u_code_string, len(mont_u_code_string)-2)
+
+			Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			EMReadScreen stat_revw_cash_code, 1, 7, 40
+			EMReadScreen stat_revw_snap_code, 1, 7, 60
+			EMReadScreen stat_revw_hc_code, 1, 7, 73
+			If stat_revw_cash_code = "U" Then revw_u_code_string = revw_u_code_string & ", Cash/GRH"
+			revw_u_code_string = ""
+			If stat_revw_snap_code = "U" Then revw_u_code_string = revw_u_code_string & ", SNAP"
+			If stat_revw_hc_code = "U" Then revw_u_code_string = revw_u_code_string & ", HC"
+			If left(revw_u_code_string, 1) = "," Then revw_u_code_string = right(revw_u_code_string, len(revw_u_code_string)-2)
+
+			If stat_mont_cash_status = "U" then err_msg = err_msg & vbNewLine & "* MONT: Cash/GRH- Must complete approval or change status to 'i'."
+			If stat_mont_snap_status = "U" then err_msg = err_msg & vbNewLine & "* MONT: SNAP- Must complete approval or change status to 'i'."
+			If stat_mont_hc_status = "U" then err_msg = err_msg & vbNewLine & "* MONT: HC- Must complete approval or change status to 'i'."
+			If stat_revw_cash_code = "U" then err_msg = err_msg & vbNewLine & "* REVW: Cash/GRH- Must complete approval or change status to 'i'."
+			If stat_revw_snap_code = "U" then err_msg = err_msg & vbNewLine & "* REVW: SNAP- Must complete approval or change status to 'i'."
+			If stat_revw_hc_code = "U" then err_msg = err_msg & vbNewLine & "* REVW: HC- Must complete approval or change status to 'i'."
+			If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
+	End If
+Next
+Call back_to_SELF
+
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 row = 1
 col = 1
@@ -24915,7 +25021,6 @@ Next
 EMWriteScreen MAXIS_case_number, 18, 43
 
 If approvals_not_created_today <> "" Then
-
 	'making sure that the footer month fields are accurate before trying to do date things
 	check_day = first_month_not_created_today & "/1/" & first_year_not_created_today			'making sure the entered footer month is not later than CM+1
 	check_day = DateAdd("d", 0, check_day)
