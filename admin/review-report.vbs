@@ -3282,8 +3282,8 @@ If renewal_option = "Send NOMIs" Then
 			send_nomi_now = False
 			in_county = True
 
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
+			'If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
 
 			If send_nomi_now = True Then
 				If notes_info = "PRIV Case." Then send_nomi_now = False
