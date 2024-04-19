@@ -4920,7 +4920,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			DropListBox 45, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
 			Text 225, 280, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
 			Text 180, 295, 45, 10, "Explanation:"
-			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
+			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Case has assets that cannot be verified without resident interaction."+chr(9)+ "Verified/reported assets are not reasonably compatible."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
 			Text 20, 315, 80, 10, "Not Ex Parte Notes:"
 			EditBox 100, 310, 440, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
 			Text 20, 345, 100, 10, "Notes about Mixed Household"
