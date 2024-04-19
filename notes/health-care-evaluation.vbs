@@ -5191,7 +5191,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
 				Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
 				Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 100, 145, 10, "Update the following on STAT/HCMI for each member renewing HC:"
+				Text 10, 100, 225, 10, "Update the following on STAT/HCMI for each member renewing HC:"
 				Text 10, 115, 255, 10, "- ExParte: Enter Y/N accordingly for each member"
 				Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
 				EndDialog
