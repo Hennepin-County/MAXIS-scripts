@@ -119,6 +119,7 @@ End function
 '	to force the value of ButtonPressed to hold in near infinite iterations.
 button_placeholder 			    = 24601
 dlg_len = ""
+Dialog1 = ""
 
 'Displays the dialog
 Do
@@ -150,6 +151,7 @@ Do
 	Next
 
     ' MsgBox script_to_run
+	Dialog1 = ""
 Loop until ready_to_exit_loop = true
 
 call run_from_GitHub(script_to_run)
