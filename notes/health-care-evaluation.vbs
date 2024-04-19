@@ -221,6 +221,9 @@ end function
 
 Function check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
 	'This function reads through the HCMI panels and returns whether any members are coded Ex Parte
+	'HCMI_status - returns an error message if no HCMI panels exist.
+	'ex_parte_member = boolean that stores whether ANY members are set to ex-parte "Y". False if no member has a "Y" coded on HCMI
+	'check_ex_parte_renewal_month_year - will return the ex_parte renewal month from the last HCMI panel that was marked "Y" for ex parte
 	check_ex_parte_renewal_month_year = "" 
 	Call navigate_to_MAXIS_screen("STAT", "HCMI")
 	EMReadScreen total_panels, 1, 2, 78
@@ -5337,10 +5340,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
-												'Now run through HCMI and check coding
+						'Now run through HCMI and check coding
+						hcmi_status = ""
 						Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
 						'Validate that at least one member is set as ex parte "Y"
 						If ex_parte_member = True THEN err_msg = err_msg & vbCr & "* HCMI is coded as ExParte 'Y' for at least 1 member. No members should be coded 'Y' for a case that is not ExParte."
+											
+						If hcmi_status <> "" Then err_msg = err_msg & vbCr & hcmi_status 'This error lets the worker know they don't have any HCMI panels
 						'Validation to ensure that elig renewal date has not changed
 						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
@@ -5593,10 +5599,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If sr_month <> updated_hc_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_month & " listed as the month."
 						If sr_year <> updated_hc_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_year & " listed as the month."
 					End If
-					'TODO - Future update needed - removing ex-parte error handling for now, future update needed to read HCMI panel
-					'
-					'Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year) 'this checks coding on HCMI panel(s)
-					'If HC_ex_parte_determination = "Y" Then revw_panel_err = revw_panel_err & vbCr & "* Update the Ex Parte yes/no indicator to 'N', since you are recording that you cannot process as Ex Parte."
+					'TODO - Future update needed - better handling of HCMI panel to check members and dates
+					hcmi_status = ""
+					Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year) 'this checks coding on HCMI panel(s)
+					If hcmi_status <> "" Then revw_panel_err = revw_panel_err & vbCr & hcmi_status 'This error lets the worker know they don't have any HCMI panels
 
 					'If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
 					'	revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
