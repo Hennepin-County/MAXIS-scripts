@@ -237,7 +237,7 @@ Function check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_y
 			transmit
 		Next
 	End If 
-'TO DO - probably just make this dang thing into an array
+'TO DO - will need to look at a person-based array in order to accurately assess HCMI.
 End Function 
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
@@ -5279,15 +5279,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 				Dialog1 = ""
 
-				BeginDialog Dialog1, 0, 0, 331, 120, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
+				BeginDialog Dialog1, 0, 0, 331, 140, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
 				ButtonGroup ButtonPressed
-					PushButton 205, 100, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					PushButton 205, 115, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
 				Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
 				Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
 				Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 65, 145, 10, "- ExParte: Enter N"
-				Text 10, 80, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+				Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
+				Text 10, 80, 145, 10, "- ExParte: Enter N"
+				Text 10, 95, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
 				EndDialog
 
 
