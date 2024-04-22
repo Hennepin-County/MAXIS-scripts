@@ -44,8 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
-call changelog_update("11/27/2019", "Initial version.", "MiKayla Handley, Hennepin County")
+call changelog_update("04/22/2024", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -54,23 +53,18 @@ changelog_display
 
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Initial dialog to determine food benefit replacement option and action
-BeginDialog Dialog1, 0, 0, 201, 150, "Food Benefits Replacement"
-  Text 5, 10, 50, 10, "Case number: "
-  EditBox 55, 5, 45, 15, MAXIS_case_number
-  Text 5, 30, 45, 10, "Footer Month:"
-  EditBox 55, 25, 15, 15, MAXIS_footer_month
-  Text 85, 30, 20, 10, "Year:"
-  EditBox 105, 25, 15, 15, MAXIS_footer_year
-  Text 5, 50, 175, 10, "Select the food benefits replacement process below:"
-  DropListBox 5, 65, 190, 50, "Select Option:"+chr(9)+"Food Destroyed in Misfortune/Disaster"+chr(9)+"Replacing Stolen EBT Food - Client Notified"+chr(9)+"Replacing Stolen EBT Food - Client Requests", benefit_replacement_process
-  Text 5, 90, 165, 10, "Select the action to take below:"
-  DropListBox 5, 100, 190, 30, "Select Option:"+chr(9)+"Enter CASE/NOTE regarding request"+chr(9)+"Send SPEC/MEMO regarding decision on request", benefit_replacement_action
+BeginDialog Dialog1, 0, 0, 246, 90, "EBT Stolen Benefits"
   ButtonGroup ButtonPressed
-    OkButton 95, 130, 50, 15
-    CancelButton 145, 130, 50, 15
+    OkButton 75, 70, 45, 15
+    CancelButton 125, 70, 45, 15
+  EditBox 75, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 45, 95, 15, worker_signature
+  Text 10, 10, 50, 10, "Case Number:"
+  Text 10, 50, 60, 10, "Worker Signature:"
+  Text 10, 30, 65, 10, "Action to complete:"
+  DropListBox 75, 25, 165, 20, "[Select action]"+chr(9)+"Initial report by resident of stolen benefits"+chr(9)+"Take action on replacement request (DHS-8557)"+chr(9)+"Request approved by DHS – send SPEC/MEMO", action_step
 EndDialog
 
 'Dialog validation
@@ -79,16 +73,13 @@ Do
     err_msg = ""
     DIALOG dialog1
     Cancel_confirmation
-    If benefit_replacement_process = "[Select Process]" or benefit_replacement_action = "[Select Process]" Then err_msg = err_msg & vbCr & "* You must select the food benefit replacement process and action." 
+    If action_step = "[Select action]" Then err_msg = err_msg & vbCr & "* You must select the action to complete for EBT stolen benefits replacement request." 
     Call validate_MAXIS_case_number(err_msg, "*")
-    Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+    If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* You must provide a worker signature."
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
   LOOP UNTIL err_msg = ""									'loops until all errors are resolved
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-
-'To do - verify client vs resident language
 
 'If Food Destroyed in Disaster/Misfortune and CASE/NOTE options selected
 If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
