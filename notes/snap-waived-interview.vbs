@@ -5,6 +5,8 @@ STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
+run_locally = true
+script_repository = "C:\MAXIS-Scripts\"
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
@@ -55,76 +57,7 @@ changelog_display
 
 'DECLARATIONS ==============================================================================================================
 
-const ref_number					= 0
-const access_denied					= 1
-const full_name_const				= 2
-const last_name_const				= 3
-const first_name_const				= 4
-const mid_initial					= 5
-const other_names					= 6
-const age							= 7
-const date_of_birth					= 8
-const ssn							= 9
-const ssn_verif						= 10
-const birthdate_verif				= 11
-const gender						= 12
-const race							= 13
-const spoken_lang					= 14
-const written_lang					= 15
-const interpreter					= 16
-const alias_yn						= 17
-const ethnicity_yn					= 18
-const id_verif						= 19
-const rel_to_applcnt				= 20
-const cash_minor					= 21
-const snap_minor					= 22
-const marital_status				= 23
-const spouse_ref					= 24
-const spouse_name					= 25
-const last_grade_completed 			= 26
-const citizen						= 27
-const other_st_FS_end_date 			= 28
-const in_mn_12_mo					= 29
-const residence_verif				= 30
-const mn_entry_date					= 31
-const former_state					= 32
-const fs_pwe						= 33
-const button_one					= 34
-const button_two					= 35
-const imig_status 					= 36
-const clt_has_sponsor				= 37
-const client_verification			= 38
-const client_verification_details	= 39
-const client_notes					= 40
-const intend_to_reside_in_mn		= 41
-const race_a_checkbox				= 42
-const race_b_checkbox				= 43
-const race_n_checkbox				= 44
-const race_p_checkbox				= 45
-const race_w_checkbox				= 46
-const snap_req_checkbox				= 47
-const cash_req_checkbox				= 48
-const emer_req_checkbox				= 49
-const none_req_checkbox				= 50
-const ssn_no_space					= 51
-const edrs_msg						= 52
-const edrs_match					= 53
-const edrs_notes 					= 54
-const ignore_person                 = 55
-const pers_in_maxis                 = 56
-const memb_is_caregiver             = 57
-const cash_request_const            = 58
-const hours_per_week_const          = 59
-const exempt_from_ed_const          = 60
-const comply_with_ed_const          = 61
-const orientation_needed_const      = 62
-const orientation_done_const        = 63
-const orientation_exempt_const      = 64
-const exemption_reason_const        = 65
-const emps_exemption_code_const     = 66
-const choice_form_done_const        = 67
-const orientation_notes             = 68
-const last_const					= 69
+
 
 
 Dim HH_MEMB_ARRAY()
@@ -1222,6 +1155,39 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 
 
 End Function
+
+function check_application_date()
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
+redirect_constant_boolean = FALSE
+	If CAF_datestamp >= "11/22/2023" Then 
+		Do 
+			Do 
+				BeginDialog Dialog1, 0, 0, 356, 105, "SNAP Waived Interview NOT Applicable - INTERVIEW REQUIRED"
+				ButtonGroup ButtonPressed
+					PushButton 245, 15, 100, 15, "SNAP Waived Interview Ends", snap_waived_interview_ends_btn
+					PushButton 5, 85, 140, 15, "Client reached- Run Interview Script", run_interview_btn
+					PushButton 150, 85, 140, 15, "Client NOT reached- Run Client Contact", run_client_contact_btn
+					CancelButton 295, 85, 50, 15
+					Text 45, 50, 80, 10, phone_one
+					Text 45, 60, 80, 10, phone_two
+					Text 45, 70, 80, 10, phone_three
+					Text 10, 5, 200, 25, "Interview is required for case: " & MAXIS_case_number & " with CAF Date:" & CAF_datestamp & " because application/recertification received after 04/30/24."
+					Text 255, 5, 75, 10, "-------RESOURCES-------"
+					Text 15, 40, 150, 10, "-------ATTEMPT TO CONTACT RESIDENT-------"
+				EndDialog
+				Dialog Dialog1
+				If ButtonPressed = run_interview_btn then 
+					redirect_constant_boolean = true 
+					Call run_from_GitHub(script_repository & "notes/interview.vbs")
+				End If
+				If ButtonPressed = run_client_contact_btn then Call run_from_GitHub(script_repository & "notes/client-contact.vbs")	
+				If ButtonPressed = snap_waived_interview_ends_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Processing-SNAP-Applications-with-Waived-Interviews.aspx"
+			Loop until ButtonPressed = -1 
+			CALL check_for_password(are_we_passworded_out) 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+		Loop until are_we_passworded_out = false					 'loops until user passwords back in
+	End if
+end function 
 
 
 function define_main_dialog(questions_array)
@@ -2447,7 +2413,6 @@ function dialog_movement()
 	'		questions_array(unea_question)(29) = "No"
 	'		questions_array(unea_question)(30) = ""
 	'	End if
-
 
 end function
 
@@ -8878,6 +8843,11 @@ work_rules 						= 727
 contact_completed 				= 728
 no_contact						= 729
 view_previous_verifs_btn		= 730
+
+run_interview_btn 				= 201
+snap_waived_interview_ends_btn 	= 202
+run_client_contact_btn 			= 203
+
 btn_placeholder = 4000
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
 	JOBS_ARRAY(jobs_edit_btn, each_job) = btn_placeholder
@@ -10726,11 +10696,12 @@ If form_type = "MNBenefits" Then
 End If
 
 
+
 Do
 	Do
 		Do
 			Do
-
+				call check_application_date
 				call define_main_dialog(questions_array)
 
 				err_msg = ""
@@ -10772,6 +10743,80 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+If redirect_constant_boolean = false Then
+	const ref_number					= 0
+	const access_denied					= 1
+	const full_name_const				= 2
+	const last_name_const				= 3
+	const first_name_const				= 4
+	const mid_initial					= 5
+	const other_names					= 6
+	const age							= 7
+	const date_of_birth					= 8
+	const ssn							= 9
+	const ssn_verif						= 10
+	const birthdate_verif				= 11
+	const gender						= 12
+	const race							= 13
+	const spoken_lang					= 14
+	const written_lang					= 15
+	const interpreter					= 16
+	const alias_yn						= 17
+	const ethnicity_yn					= 18
+	const id_verif						= 19
+	const rel_to_applcnt				= 20
+	const cash_minor					= 21
+	const snap_minor					= 22
+	const marital_status				= 23
+	const spouse_ref					= 24
+	const spouse_name					= 25
+	const last_grade_completed 			= 26
+	const citizen						= 27
+	const other_st_FS_end_date 			= 28
+	const in_mn_12_mo					= 29
+	const residence_verif				= 30
+	const mn_entry_date					= 31
+	const former_state					= 32
+	const fs_pwe						= 33
+	const button_one					= 34
+	const button_two					= 35
+	const imig_status 					= 36
+	const clt_has_sponsor				= 37
+	const client_verification			= 38
+	const client_verification_details	= 39
+	const client_notes					= 40
+	const intend_to_reside_in_mn		= 41
+	const race_a_checkbox				= 42
+	const race_b_checkbox				= 43
+	const race_n_checkbox				= 44
+	const race_p_checkbox				= 45
+	const race_w_checkbox				= 46
+	const snap_req_checkbox				= 47
+	const cash_req_checkbox				= 48
+	const emer_req_checkbox				= 49
+	const none_req_checkbox				= 50
+	const ssn_no_space					= 51
+	const edrs_msg						= 52
+	const edrs_match					= 53
+	const edrs_notes 					= 54
+	const ignore_person                 = 55
+	const pers_in_maxis                 = 56
+	const memb_is_caregiver             = 57
+	const cash_request_const            = 58
+	const hours_per_week_const          = 59
+	const exempt_from_ed_const          = 60
+	const comply_with_ed_const          = 61
+	const orientation_needed_const      = 62
+	const orientation_done_const        = 63
+	const orientation_exempt_const      = 64
+	const exemption_reason_const        = 65
+	const emps_exemption_code_const     = 66
+	const choice_form_done_const        = 67
+	const orientation_notes             = 68
+	const last_const					= 69
+End If
+
 call check_for_MAXIS(True)
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
