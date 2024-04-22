@@ -3586,7 +3586,7 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "REPT-IEVC List"																		'Script name
+script_array(script_num).script_name 			= "IEVC List"																		'Script name
 script_array(script_num).category               = "DEU"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
@@ -3615,7 +3615,7 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "REPT-INTR List"																		'Script name
+script_array(script_num).script_name 			= "INTR List"																		'Script name
 script_array(script_num).category               = "DEU"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("SNAP", "MFIP", "DWP", "HS/GRH", "Adult Cash", "EMER", "Health Care")
