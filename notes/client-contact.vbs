@@ -87,30 +87,42 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 
-'Initial dialog for CLIENT CONTACT, gasp!
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
-  ButtonGroup ButtonPressed
-    OkButton 75, 45, 45, 15
-    CancelButton 125, 45, 45, 15
-  EditBox 75, 5, 45, 15, MAXIS_case_number
-  EditBox 75, 25, 95, 15, worker_signature
-  Text 20, 10, 50, 10, "Case Number:"
-  Text 10, 30, 60, 10, "Worker Signature:"
-EndDialog
+'Temporary: SNAP Waived Interview - presetting certain values 
+'MsgBox "redirect_interview_boolean" & redirect_interview_boolean
+If redirect_interview_boolean = TRUE Then 
+    phone_interview_attempt_checkbox = checked
+    contact_type = "Phone call"
+    contact_direction = "to"
+    contact_reason = "Attempted phone interview- no answer"
+End If
+'Temporary: SNAP Waived Interview 
 
-'Runs the first dialog - which confirms the case number
-Do
-	Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-      	Call validate_MAXIS_case_number(err_msg, "*")
-        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+If redirect_interview_boolean = FALSE then  'Temporary: SNAP Waived Interview - skipping initial dialog since we already have the case number
+    'Initial dialog for CLIENT CONTACT, gasp!
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
+    ButtonGroup ButtonPressed
+        OkButton 75, 45, 45, 15
+        CancelButton 125, 45, 45, 15
+    EditBox 75, 5, 45, 15, MAXIS_case_number
+    EditBox 75, 25, 95, 15, worker_signature
+    Text 20, 10, 50, 10, "Case Number:"
+    Text 10, 30, 60, 10, "Worker Signature:"
+    EndDialog
+
+    'Runs the first dialog - which confirms the case number
+    Do
+        Do
+            err_msg = ""
+            Dialog Dialog1
+            cancel_without_confirmation
+            Call validate_MAXIS_case_number(err_msg, "*")
+            If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+End If
 
 Call check_for_MAXIS(False)
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
@@ -297,6 +309,10 @@ If basket_number = "X127FB1" then suggested_population = "YET"
 If basket_number = "X127FA9" then suggested_population = "YET"
 
 '-------------------------------------------------------------------------------------------------DIALOG
+
+
+
+
 Dialog1 = "" 'Blanking out previous dialog detail
 Do
     Do
