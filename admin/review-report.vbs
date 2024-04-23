@@ -2511,8 +2511,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 				notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
 
-				If er_with_intherview = True Then 'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-				' If er_with_intherview = True AND MFIP_status = True Then
+				If er_with_intherview = True Then 
 					'Writing the SPEC MEMO - dates will be input from the determination made earlier.
 					' MsgBox "We're writing a MEMO here"
 					Call start_a_new_spec_memo_and_continue(memo_started)
@@ -2834,7 +2833,7 @@ ElseIf renewal_option = "Create Worklist" Then
 
 				' If cash_review_status <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = cash_review_status		'Enter all the information into Excel
 				' If snap_review_status <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = snap_review_status
-				' If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
+				' If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status`
 				' If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
 				' If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
 				ReDim Preserve review_array(notes_const, recert_cases)		'resizing the array
@@ -3282,8 +3281,7 @@ If renewal_option = "Send NOMIs" Then
 			send_nomi_now = False
 			in_county = True
 
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						
 
 			If send_nomi_now = True Then
 				If notes_info = "PRIV Case." Then send_nomi_now = False
