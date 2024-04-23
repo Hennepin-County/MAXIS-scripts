@@ -224,22 +224,38 @@ Function check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_y
 	'HCMI_status - returns an error message if no HCMI panels exist.
 	'ex_parte_member = boolean that stores whether ANY members are set to ex-parte "Y". False if no member has a "Y" coded on HCMI
 	'check_ex_parte_renewal_month_year - will return the ex_parte renewal month from the last HCMI panel that was marked "Y" for ex parte
+	
+	'First gather all the reference numbers
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+    transmit
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+		client_array = client_array & ref_nbr
+		transmit
+	    Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_array = TRIM(client_array)
+	client_array = split(client_array, " ")
 	check_ex_parte_renewal_month_year = "" 
 	Call navigate_to_MAXIS_screen("STAT", "HCMI")
-	EMReadScreen total_panels, 1, 2, 78
-	If total_panels = 0 Then 
-		hcmi_status = "No HCMI panels exist on this case. Create panels for members with HC in order to record Ex Parte status."
-	Else 
-		ex_parte_member = false
-		For membs = 1 to total_panels
+	total_panels = 0
+	ex_parte_member = false
+	For each ref_number in client_array
+		call write_value_and_transmit(ref_number, 20, 76)
+		EMReadScreen panel_exists, 1, 2, 78
+		If panel_exists = 1 Then
+			total_panels = total_panels + panel_exists
 			EMReadScreen ex_parte_y_n, 1, 12, 57
 			If ex_parte_y_n = "Y" Then 
 				ex_parte_member = true
 				EMReadScreen check_ex_parte_renewal_month_year, 8, 13, 57
 			End If 
-			transmit
-		Next
-	End If 
+		End If 
+	Next
+	If total_panels = 0 Then hcmi_status = "No HCMI panels exist on this case. Create panels for members with HC in order to record Ex Parte status."
+	
 'TO DO - will need to look at a person-based array in order to accurately assess HCMI.
 End Function 
 
