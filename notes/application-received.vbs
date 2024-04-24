@@ -147,7 +147,7 @@ caseload_info.add "X127ET8", "Families - General"
 caseload_info.add "X127ET9", "Families - General"
 caseload_info.add "X127EZ1", "Families - General"
 caseload_info.add "X127EY9", "Families - Cash"
-caseload_info.add "X127EY8", "Families - Cash"
+' caseload_info.add "X127EY8", "Families - Cash"		removed from assignment selection until additional process clarification can be identified. There are concerns with all cases being entered into a single basket with pending status.
 caseload_info.add "X127EN6", "TEFRA"
 caseload_info.add "X127EG1", "Foster Care / IV-E"
 caseload_info.add "X127EW6", "Foster Care / IV-E"
