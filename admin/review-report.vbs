@@ -2831,11 +2831,6 @@ ElseIf renewal_option = "Create Worklist" Then
 				If snap_review_status = "_" Then snap_review_status = ""
 				If hc_review_status = "_" Then hc_review_status = ""
 
-				' If cash_review_status <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = cash_review_status		'Enter all the information into Excel
-				' If snap_review_status <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = snap_review_status
-				' If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status`
-				' If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
-				' If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
 				ReDim Preserve review_array(notes_const, recert_cases)		'resizing the array
 
 				review_array(CASH_revw_status_const, 	recert_cases) = cash_review_status
