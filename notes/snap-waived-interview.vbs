@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/01/2024", "For applications/recertifications received after 04/30/2024, the script either directs the user to manually run NOTES-Interview if they reached the resident, or redirects the user to NOTES-Client Contact if the resident was unreachable.", "Megan Geissler, Hennepin County")
 call changelog_update("02/22/2024", "The script now allows for case noting additional info during a resident contact. A button for extra info is now available on the final dialog, allowing for noting of additional information provided during the contact that was not originally included in the information needed.", "Dave Courtright, Hennepin County")
 call changelog_update("01/19/2024", "Added new functionality to run this script a second time on a case to capture the Information needed to assess SNAP from the detail in CASE/NOTEs. This will allow the script to display the 'Contact Dialog' within the script independently.##~##In order for the 'Return Contact' functionality to work, the script must have been run on the case in the first place and the 'No Contact' option selected.##~## ##~##This script can now better support the follow up contact with the resident to address the missing information from the application form.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/10/2024", "The script has had several bug fixes and minor enhancements to streamline dialogs, as well as pre-filling qualification questions on the MNBenefits apps. Please continue to report further issues as this script is in testing.", "Dave Courtright, Hennepin County")
@@ -1219,9 +1220,10 @@ function create_waiver_question_in_dialog(this_question, questions_Array, questi
 	End If
 End Function
 
+'===================================================================================================================================================
+' 'Sundown Waived Interview- Dialog to Intercept misuse
 function temp_check_application_date()	'Temporary: SNAP Waived Interview - interception dialog to stop workers from using waived interview for cases that required an interview aka those received after 04/30/24
 Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
 redirect_interview_boolean = FALSE
 If DateDiff("d", "05/01/24", CAF_datestamp) => 0 Then 
 'MsgBox DateDiff("d", "05/01/24", CAF_datestamp)
@@ -1229,9 +1231,10 @@ If DateDiff("d", "05/01/24", CAF_datestamp) => 0 Then
 		Do 
 			BeginDialog Dialog1, 0, 0, 356, 105, "SNAP Waived Interview NOT Applicable - INTERVIEW REQUIRED"
 			ButtonGroup ButtonPressed
-				PushButton 240, 15, 105, 15, "SNAP Waived Interview Ends", snap_waived_interview_ends_btn
-				PushButton 5, 85, 125, 15, "Client reached- Run Interview Script", run_interview_btn
-				PushButton 140, 85, 155, 15, "Client NOT reached- Redirect to Client Contact", run_client_contact_btn
+				'PushButton 245, 20, 110, 15, "SNAP Waived Interview Ends", snap_waived_interview_ends_btn	''TODO Add in link once we have link to resource
+				PushButton 245, 35, 110, 15, "SNAP Waived Interview Process", snap_waived_interview_process_btn	
+				PushButton 5, 85, 150, 15, "Contact made- Manually run Interview", run_interview_btn
+    			PushButton 160, 85, 130, 15, "Contact not made- Run Client Contact", run_client_contact_btn
 				CancelButton 300, 85, 50, 15
 				y_pos = 50
 				If phone_one <> "" Then 
@@ -1244,30 +1247,30 @@ If DateDiff("d", "05/01/24", CAF_datestamp) => 0 Then
 				End If
 				If phone_three <> "" Then Text 45, y_pos, 80, 10, phone_three
 				Text 10, 5, 200, 25, "Interview is required for case " & MAXIS_case_number & " with CAF Date " & CAF_datestamp & " because application/recertification received after 04/30/24."
-				Text 255, 5, 75, 10, "-------RESOURCES-------"
+				Text 265, 5, 75, 10, "-------RESOURCES-------"		
 				Text 15, 40, 150, 10, "-------ATTEMPT TO CONTACT RESIDENT-------"
 			EndDialog
 			Dialog Dialog1
 			cancel_without_confirmation
 			If ButtonPressed = run_interview_btn then 
 				redirect_interview_boolean = true 
-				'MsgBox "redirect_interview_boolean" & redirect_interview_boolean
-				Call script_end_procedure_with_error_report("           ~~SNAP Waived Interview Script Ending~~" & vbcr & vbcr &  "-------------------------------------------------------------------------" & vbcr & "RUN NOTES-INTERVIEW TO CAPTURE INTERVIEW DETAILS" & vbcr &  "-------------------------------------------------------------------------")
+				Call script_end_procedure_with_error_report("           ~~SNAP Waived Interview Script Ending~~" & vbcr & vbcr &  "-------------------------------------------------------------------------" & vbcr &"MANUALLY RUN NOTES-INTERVIEW TO CAPTURE INTERVIEW" & vbcr  & "-------------------------------------------------------------------------")
 				'Call run_from_GitHub(script_repository & "notes/interview.vbs")	'TODO: get interview to redirect 
 			End If
 			If ButtonPressed = run_client_contact_btn then 
 				redirect_interview_boolean = TRUE
 				MsgBox "REDIRECTING TO - CLIENT CONTACT"
-				'MsgBox "redirect_interview_boolean" & redirect_interview_boolean
 				Call run_from_GitHub(script_repository & "notes/client-contact.vbs")
 			End If
-			If ButtonPressed = snap_waived_interview_ends_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Processing-SNAP-Applications-with-Waived-Interviews.aspx"		'TODO: Need to update with correct link once we have it
-		Loop until ButtonPressed = -1 
+		 'If ButtonPressed = snap_waived_interview_ends_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"			''TODO Add in link once we have link to resource
+		 If ButtonPressed = snap_waived_interview_process_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Processing-SNAP-Applications-with-Waived-Interviews.aspx"
+		 Loop until ButtonPressed = -1 
 		CALL check_for_password(are_we_passworded_out) 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					 'loops until user passwords back in
 End if
 end function 
 dim redirect_interview_boolean
+'===================================================================================================================================================
 
 function define_main_dialog(questions_array)
 
@@ -8923,9 +8926,13 @@ contact_completed 				= 728
 no_contact						= 729
 view_previous_verifs_btn		= 730
 
-run_interview_btn 				= 201
-snap_waived_interview_ends_btn 	= 202
-run_client_contact_btn 			= 203
+' 'Sundown waived interview 
+run_interview_btn 					= 201
+snap_waived_interview_ends_btn 		= 202
+run_client_contact_btn 				= 203
+snap_waived_interview_process_btn	= 204
+' 'Sundown waived interview 
+
 
 btn_placeholder = 4000
 for each_job = 0 to UBOUND(JOBS_ARRAY, 2)
