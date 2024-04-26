@@ -92,6 +92,9 @@ End function
 
 'THE SCRIPT==================================================================================================================
 EMConnect ""
+activate_msg_boxes = True
+'String for HIRE messages that are for cases that cannot be processed - i.e. privileged case
+case_numbers_to_skip = "*"
 Call Check_for_MAXIS(False)
 dail_to_decimate = "ALL"
 all_workers_check = 1
@@ -205,6 +208,7 @@ For each worker in worker_array
 			dail_msg = ""
             dail_month = ""
             MAXIS_case_number = ""
+			dail_months_old = ""
 
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
@@ -215,6 +219,8 @@ For each worker in worker_array
 			ELSEIF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
 				Call write_value_and_transmit("T", dail_row, 3)
 			End if
+
+			' If activate_msg_boxes = True then msgbox "Should be at next message now with the message topped"
 
             dail_row = 6  'resetting the DAIL row
 
@@ -230,38 +236,267 @@ For each worker in worker_array
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
 
-            If dail_type = "HIRE" Then
-                'process message
-                dail_month_date = replace(dail_month, " ", "/01/20")
-                dail_month_date = dateadd("m", 1, dail_month_date)
-                dail_months_old = DateDiff("m", dail_month_date, this_month_date)
+			If dail_type = "HIRE" Then
+				dail_month_date = replace(dail_month, " ", "/01/20")
+				dail_month_date = dateadd("m", 1, dail_month_date)
+				dail_months_old = DateDiff("m", dail_month_date, this_month_date)
 
-                If dail_months_old > 13 Then
-                    'should be deleted
-			    	objExcel.Cells(excel_row, 1).Value = worker
-			    	objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-			    	objExcel.Cells(excel_row, 3).Value = dail_type
-			    	objExcel.Cells(excel_row, 4).Value = dail_month
-			    	objExcel.Cells(excel_row, 5).Value = dail_msg
-			    	
-                    msgbox "Message would be deleted"
-                    ' Call write_value_and_transmit("D", dail_row, 3)
-			        EMReadScreen other_worker_error, 13, 24, 2
-			        If other_worker_error = "** WARNING **" then transmit
-			    	objExcel.Cells(excel_row, 6).Value = "Message deleted."
+				If dail_months_old > 13 Then
+					If Instr(case_numbers_to_skip, MAXIS_case_number) = 0 then
+						If Instr(dail_msg, "NDNH") Then
+							'Update spreadsheet with DAIL message details
+							objExcel.Cells(excel_row, 1).Value = worker
+							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+							objExcel.Cells(excel_row, 3).Value = dail_type
+							objExcel.Cells(excel_row, 4).Value = dail_month
+							objExcel.Cells(excel_row, 5).Value = dail_msg
 
-                    excel_row = excel_row + 1
-                    deleted_dails = deleted_dails + 1
-                    stats_counter = stats_counter + 1   'I increment thee
+							'Script will need to read full HIRE message to determine details for INFC
 
-                Else
-                    dail_row = dail_row + 1
-                End If
+							'Reset variables
+							HIRE_memb_number = ""
+							date_hired = ""
+							HIRE_employer_name = ""
+							priv_case_escape = 1
 
-            Else
-                'Not a HIRE message so can be skipped
-                dail_row = dail_row + 1
-            End If
+							'Enters “X” on DAIL message to open full message. 
+							Call write_value_and_transmit("X", dail_row, 3)
+
+							'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+							'Set row and col
+							row = 1
+							col = 1
+							EMSearch "NDNH MEMB", row, col
+							EMReadScreen HIRE_memb_number, 2, row, col + 10
+							HIRE_memb_number = trim(HIRE_memb_number)
+							If HIRE_memb_number = "00" then msgbox "Testing -- HH MEMB 00 - this is an error message. Need handling for this situation"
+
+							'Identify where 'DATE HIRED   :' text is so that script can account for slight changes in location in MAXIS
+							'Set row and col
+							row = 1
+							col = 1
+							EMSearch "DATE HIRED   :", row, col
+							EMReadScreen date_hired, 10, row, col + 15
+							date_hired = trim(date_hired)
+
+							If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
+								msgbox "Testing -- date hired is EM or unknown. How to handle?"
+							Else
+								Call ONLY_create_MAXIS_friendly_date(date_hired)
+								date_split = split(date_hired, "/")
+								month_hired = date_split(0)
+								day_hired = date_split(1)
+								year_hired = date_split(2)
+							End if
+
+							'Identify where ' Employer:' text is so that script can account for slight changes in location in MAXIS
+							'Set row and col
+							row = 1
+							col = 1
+							EMSearch "EMPLOYER: ", row, col
+							EMReadScreen HIRE_employer_name, 20, row, col + 10
+							HIRE_employer_name = trim(HIRE_employer_name)
+
+							'Transmit back to DAIL message
+							transmit
+
+							' Resetting variables so they do not carry forward
+							hire_match = ""
+							
+							'Navigate to INFC
+							If activate_msg_boxes = True then msgbox "testing -- Navigate to INFC"
+							Call write_value_and_transmit("I", dail_row, 3)
+							EmReadScreen infc_screen_check, 4, 2, 45
+							If infc_screen_check <> "INFC" Then
+								If activate_msg_boxes = True then MsgBox "Privileged case? Kicked out of INFC"
+								EmReadScreen self_screen_check, 4, 2, 50
+								If self_screen_check = "SELF" Then
+									EMReadScreen privileged_check, 22, 24, 2
+									If privileged_check = "YOU ARE NOT PRIVILEGED" Then
+										EMWriteScreen "DAIL", 16, 43
+										EMWriteScreen "________", 18, 43
+										EMWriteScreen priv_case_escape, 18, 43
+										EMWriteScreen cm_mo, 20, 43
+										EMWriteScreen CM_yr, 20, 46
+										EMWriteScreen "DAIL", 21, 70
+										transmit
+										EMReadScreen invalid_case_check, 12, 24, 2
+										If invalid_case_check = "INVALID CASE" Then
+											Do
+												priv_case_escape = priv_case_escape + 1
+												EMWriteScreen priv_case_escape, 18, 43
+												transmit
+												EMReadScreen privileged_check, 22, 24, 2
+												If privileged_check <> "INVALID CASE" Then Exit Do
+											Loop
+										End If
+									End If
+								End If
+
+								'Get back to HIRE messages for current X number
+								EMWriteScreen worker, 21, 6
+								transmit
+								EMWriteScreen "X", 4, 12
+								transmit
+								EMWriteScreen "_", 7, 39
+								EMWriteScreen "X", 13, 39
+								transmit
+
+								If activate_msg_boxes = True then MsgBox "Are we back at the DAIL?"
+
+								'Skip this case moving forward
+								case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
+								objExcel.Cells(excel_row, 6).Value = "Likely privileged - message skipped."
+
+							Else
+
+								EMReadScreen SSN_present_check, 9, 3, 63
+								If SSN_present_check = "_________" Then script_end_procedure("Testing -- The script will end because there is a missing SSN. This means handling is needed for these situations.")
+
+								'Navigate to HIRE interface
+								Call write_value_and_transmit("HIRE", 20, 71)
+								If activate_msg_boxes = True then MsgBox "Testing -- Navigate to HIRE INFC"
+
+								EMReadScreen infc_hire_check, 8, 2, 50
+								If InStr(infc_hire_check, "HIRE") = 0 Then MsgBox "Testing -- Stop here. Not at INFC/HIRE"
+
+								'checking for IRS non-disclosure agreement.
+								EMReadScreen agreement_check, 9, 2, 24
+								IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
+								'Navigate through the interface panel to find the matching employer
+								row = 9
+								DO
+									EMReadScreen infc_case_number, 8, row, 5
+									infc_case_number = trim(infc_case_number)
+									IF infc_case_number = full_dail_msg_case_number_only THEN
+										EMReadScreen infc_employer, 20, row, 36
+										infc_employer = trim(infc_employer)
+										IF trim(infc_employer) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
+										IF infc_employer = full_dail_employer_full_name THEN
+											EMReadScreen known_by_agency, 1, row, 61
+											IF known_by_agency = " " THEN
+												EmReadscreen infc_hire_date, 8, row, 20
+												EmReadscreen infc_hire_state, 2, row, 31
+												infc_hire_state = trim(infc_hire_state)
+												If infc_hire_state = "" Then
+													If infc_hire_date = full_dail_date_hired Then
+														hire_match = TRUE
+														match_row = row
+														EXIT DO
+													End IF
+												ElseIf infc_hire_state <> "" Then
+													If infc_hire_state = full_dail_state AND infc_hire_date = full_dail_date_hired Then
+														hire_match = TRUE
+														match_row = row
+														EXIT DO
+													End If
+												End If
+											END IF
+										END IF
+									END IF
+									row = row + 1
+									IF row = 19 THEN
+										PF8
+										EmReadscreen end_of_list, 9, 24, 14
+										If end_of_list = "LAST PAGE" Then Exit Do
+										row = 9
+									END IF
+								LOOP UNTIL infc_case_number = ""
+								
+								IF hire_match <> TRUE THEN 
+									If activate_msg_boxes = True then MsgBox "Testing -- No match found in INFC/HIRE"
+									'The total DAILs decreased by 1, message deleted successfully
+									objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. No match found in INFC/HIRE."
+									case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
+								ElseIf hire_match = TRUE Then
+									'entering the INFC/HIRE match '
+									Call write_value_and_transmit("U", match_row, 3)
+									EMReadscreen panel_check, 4, 2, 49
+									IF panel_check <> "NHMD" THEN msgbox "Testing -- We did not enter to clear the match. STOP HERE!!!"
+									EMWriteScreen "Y", 16, 54
+									'Agency action must be blank
+									If activate_msg_boxes = True then MsgBox "Testing -- Validate that correct information has been written to the case! Script is about to save update INFC update. STOP here if needed."
+									TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+									TRANSMIT 'this confirms the cleared status'
+									PF3
+									EMReadscreen cleared_confirmation, 1, match_row, 61
+									IF cleared_confirmation = " " THEN 
+										If activate_msg_boxes = True then MsgBox "Testing -- the match did not appear to clear"
+										'The total DAILs decreased by 1, message deleted successfully
+										objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. No match found in INFC/HIRE."
+										case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
+									ElseIf cleared_confirmation <> " " THEN 
+										If activate_msg_boxes = True then MsgBox "Testing -- the match appears to have cleared. Verify manually before continuing"
+										'The total DAILs decreased by 1, message deleted successfully
+										dail_row = dail_row - 1
+										dail_msg_deleted_count = dail_msg_deleted_count + 1
+										objExcel.Cells(excel_row, 6).Value = "INFC message successfully cleared."
+									End If
+								End If
+
+								PF3' this takes us back to DAIL/DAIL
+
+								EMReadScreen dail_panel_check, 8, 2, 46
+								If InStr(dail_panel_check, "DAIL") = 0 Then 
+								If activate_msg_boxes = True then msgbox "Testing -- did not return to DAIL. It will PF3 again"
+									PF3
+									EMReadScreen dail_panel_check, 8, 2, 46
+									If InStr(dail_panel_check, "DAIL") = 0 Then 
+									If activate_msg_boxes = True then MsgBox "Testing -- Script is still not at DAIL despite second PF3"
+									End IF
+								End If
+
+								EMReadScreen infc_clear_error, 40, 24, 2
+								infc_clear_error = trim(infc_clear_error)
+								If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC"
+								
+								If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+
+							End If
+
+						ElseIf Instr(dail_msg, "SDNH") Then
+							'Update spreadsheet with DAIL message details
+							objExcel.Cells(excel_row, 1).Value = worker
+							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+							objExcel.Cells(excel_row, 3).Value = dail_type
+							objExcel.Cells(excel_row, 4).Value = dail_month
+							objExcel.Cells(excel_row, 5).Value = dail_msg
+							
+							If activate_msg_boxes = True then msgbox "Message will be deleted"
+							' Call write_value_and_transmit("D", dail_row, 3)
+							EMReadScreen dail_priv_check, 4, 2, 48
+							If dail_priv_check <> "HIRE" Then msgbox "Not on DAIL - privileged case?"
+							EMReadScreen other_worker_error, 13, 24, 2
+							If other_worker_error = "** WARNING **" then transmit
+							EMReadScreen dail_priv_check, 4, 2, 48
+							If dail_priv_check <> "HIRE" Then msgbox "Not on DAIL - privileged case?"
+							objExcel.Cells(excel_row, 6).Value = "Message deleted."
+
+							' dail_row = dail_row - 1 
+							excel_row = excel_row + 1
+							deleted_dails = deleted_dails + 1
+							stats_counter = stats_counter + 1   'I increment thee
+
+						Else
+							'Not SDNH or NDNH message - skip?
+							
+							objExcel.Cells(excel_row, 1).Value = worker
+							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+							objExcel.Cells(excel_row, 3).Value = dail_type
+							objExcel.Cells(excel_row, 4).Value = dail_month
+							objExcel.Cells(excel_row, 5).Value = dail_msg
+							objExcel.Cells(excel_row, 6).Value = "Not a NDNH or SDNH HIRE message."
+
+						End If
+					End If
+				End If
+			End If
+
+			'Go to next dail_row
+			dail_row = dail_row + 1
+			' If activate_msg_boxes = True then msgbox "Increased DAIL row - at correct spot?"
+
 
             'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
 			EMReadScreen next_dail_check, 7, dail_row, 3
