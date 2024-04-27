@@ -137,19 +137,19 @@ If all_workers_check = checked then
 Else
     adults_baskets = "X127ED8,X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EG4,X127EH8,X127EL1,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EL9,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EN7,X127EP6,X127EP7,X127EQ1,X127EQ3,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EX1,X127EX2,"
     LTC_plus_baskets = "X127EH1,X127EH3,X127EH4,X127EH5,X127EH6,X127EH7,X127EJ4,X127EJ8,X127EK1,X127EK2,X127EK3,X127EK4,X127EK6,X127EK7,X127EK8,X127EK9,X127EM9,X127EN6,X127EP5,X127EP9,X127EZ5,X127F3F,X127FE5,X127FH4,X127FH5,X127FI2,X127FI7,"
-    families_baskets = "X127EA0,X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127EZ1,X127EZ7,"
+    families_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127EZ1,X127EZ7,"
 
     worker_numbers = ""     'Creating and valuing incrementor variables
 
     If adults_checkbox = 1 then worker_numbers = worker_numbers & adults_baskets
     If families_checkbox = 1 then worker_numbers = worker_numbers & families_baskets
     If LTC_checkbox = 1 then worker_numbers = worker_numbers & LTC_plus_baskets
-    If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selected. Not incremented variable.
 
     worker_array = split(worker_numbers, ",")
 End if
 
-'----------------------------------------------------------------------------------------------------Setting up and valueing the array
+'----------------------------------------------------------------------------------------------------Setting up and valuing the array
 Dim DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
