@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("04/29/2024", "Enhanced SPEC/XFER reminder when ransferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 Call changelog_update("04/27/2024", "Added reminder option prior to SPEC/XFER about transferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 call changelog_update("03/25/2024", "Update to alight with Caseload Assignment and Transfer Process updates. This functionality supports a large number of Caseloads and reduces the transfering of cases within the county. There is also support to reduce the number of caseloads with PND2 display limits.", "Casey Love, Hennepin County")
 call changelog_update("01/22/2023", "BUG FIX - the script would error anytime an apostrophe (') was in the case name when loading into a data table at the very end. This fix will resolve this error by substituting a dash in place of the apostrophe.", "Casey Love, Hennepin County")
@@ -1313,6 +1314,8 @@ BeginDialog Dialog1, 0, 0, 325, dlg_len, "Actions in MAXIS"
 	Text 25, 40, 250, 10, "Correct caseload - " & new_caseload
   ElseIf transfer_needed = True Then
 	Text 25, 30, 250, 10, "** Case will be transferred to " & new_caseload
+    Text 35, 45, 135, 10, "Case has been transferred in ECF Next?"
+    DropListBox 170, 40, 65, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", ECF_transfer_confirmation
   Else
 	Text 25, 30, 250, 10, "** Case is currently in " & current_caseload & ", which is the correct caseload."
 	Text 30, 40, 250, 10, "The case will not be transferred."
@@ -1417,6 +1420,9 @@ Do
             IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
             IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg &  vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
         End If
+        If transfer_needed = True Then
+            If ECF_transfer_confirmation = "Select one..." then err_msg = err_msg & vbNewLine & "* This case needs to be transferred in ECF Next first. Transfer the case in ECF Next now."
+        End if 
         If ButtonPressed = on_demand_waiver_button Then
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx"
             err_msg = "LOOP"
@@ -1562,17 +1568,6 @@ action_completed = TRUE
 
 If transfer_to_worker <> "" Then        'If a transfer_to_worker was entered - we are attempting the transfer
 	transfer_case = True
-    '----------------------------------------------------------------------------------------------------Reminder to staff re: transferring work item notifications in ECF 1st
-    'Staff need to confirm that they've transferred the case in ECF Next 1st
-    Do
-        Do
-            transfer_confirmation = MsgBox("Has this case been transferred in ECF Next?", vbQuestion + vbYesNo, "Tranfer Case Reminder")
-            If transfer_confirmation = vbNo then msgbox "This case needs to be transferred in ECF Next first." & vbcr & vbcr & "Transfer the case in ECF Next now."
-            If transfer_confirmation = vbYes then exit do
-        Loop
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
 	EMWriteScreen "x", 7, 16                               'transfer within county option
 	transmit
