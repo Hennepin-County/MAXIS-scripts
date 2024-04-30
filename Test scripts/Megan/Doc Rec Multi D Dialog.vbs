@@ -442,7 +442,8 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 
-					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp	'TODO: This seems unnecessary
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received	'TODO: This seems unnecessary
+					
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
 					'Dialog to fill the ACCT panel
@@ -509,7 +510,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
 							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
 							If IsNumeric(ASSETS_ARRAY(ast_balance, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
-							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
 							If IsNumeric(share_ratio_num) = FALSE Then
 								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
 							ElseIf share_ratio_num > 9 Then
@@ -756,7 +757,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					If share_ratio_denom = "" Then share_ratio_denom = "1"
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 					If (asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "") Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
-					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
 					' MsgBox ASSETS_ARRAY(ast_type, asset_counter)
@@ -824,7 +825,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 12 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
 							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
 							If IsNumeric(ASSETS_ARRAY(ast_csv, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
-							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
 							If left(ASSETS_ARRAY(ast_type, asset_counter), 2) = "LI" Then
 								If ASSETS_ARRAY(ast_face_value, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* A life insurance policy requires a face value."
 								If count_snap_checkbox = checked Then
@@ -1092,7 +1093,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					If share_ratio_denom = "" Then share_ratio_denom = "1"
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
 					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
-					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received
 
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
@@ -1317,8 +1318,6 @@ function asset_dialog()
 	Text 5, 5, 220, 10, asset_form_name
 	Text 15, 220, 45, 10, "Action Taken:"
 	Text 40, 255, 90, 10, "DHS 6054 Document Date:"
-	
-
 end function
 Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_DHS_6054_date, asset_update_panels_checkbox
 'ASSET CODE-END
@@ -1858,7 +1857,7 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 	If form_count = Ubound(form_type_array, 2) AND ButtonPressed = -1 Then ButtonPressed = complete_btn	'If the enter button is selected the script will handle this as if Complete was selected
 	If ButtonPressed = next_btn AND err_msg = "" Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed = previous_btn AND err_msg = "" Then form_count = form_count - 1	'If previous is selected, it will iterate to the previous form in the array and display this dialog
-	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonePressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) AND err_msg = "" Then
+	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) AND err_msg = "" Then
 		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the correct dialog
 			If ButtonPressed = asset_btn and form_type_array(form_type_const, i) = asset_form_name Then form_count = i 
 			If ButtonPressed = atr_btn and form_type_array(form_type_const, i) = atr_form_name Then form_count = i 
@@ -1896,11 +1895,11 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 end function 
 
 function main_error_handling()	'Error handling for main dialog of forms
-	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonePressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
 		For form_errors = 0 to Ubound(form_type_array, 2)
 			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form
 				actions_taken = Trim(actions_taken)
-				actions_taken = actions_taken & ", "
+				If actions_taken <> "" Then actions_taken = actions_taken & ", "
 				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
 				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
 				If (asset_dhs_6054_checkbox = checked AND IsDate(asset_DHS_6054_date) = FALSE) Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter DHS6054 Document Date."
@@ -2210,7 +2209,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 CALL Generate_Client_List(client_dropdown, "Select One...")	
 CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
-Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
+'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
 
 
 'DIALOGS COLLECTING FORM SELECTION===========================================================================
@@ -2484,7 +2483,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 
 	'ASSET CODE-START
 	If form_type_array(form_type_const, maxis_panel_read) = asset_form_name Then 'MAXIS NAVIGATION FOR ASSET
-		'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
+		Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
 		asset_counter = 0
 		skip_asset = FALSE
 		Call navigate_to_MAXIS_screen("STAT", "ACCT")
@@ -3178,201 +3177,240 @@ Next
 form_count = 0
 
 Do
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
-		If form_type_array(form_type_const, form_count) = asset_form_name then 
-			Call asset_dialog
-			current_dialog = "asset"
-			docs_rec = docs_rec & ", ASST"
-			
-		End If
-		If form_type_array(form_type_const, form_count) = atr_form_name Then 
-			Call atr_dialog
-			current_dialog = "atr"
-			docs_rec = docs_rec & ", ATR"
-
-		End If
-		If form_type_array(form_type_const, form_count) = arep_form_name then 
-			Call arep_dialog
-			current_dialog = "arep"
-			docs_rec = docs_rec & ", AREP"
-
-		End If
-		If form_type_array(form_type_const, form_count) = change_form_name Then 
-			Call change_dialog
-			current_dialog = "chng"
-			docs_rec = docs_rec & ", CHNG"
-
-		End If
-		If form_type_array(form_type_const, form_count) = evf_form_name Then 
-			Call evf_dialog
-			current_dialog = "evf"
-			docs_rec = docs_rec & ", EVF"
-
-		End If
-		If form_type_array(form_type_const, form_count) = hosp_form_name Then 
-			Call hospice_dialog
-			current_dialog = "hosp"
-			docs_rec = docs_rec & ", HOSP"
-
-		End If
-		If form_type_array(form_type_const, form_count) = iaa_form_name Then 
-			Call iaa_dialog
-			current_dialog = "iaa"
-			docs_rec = docs_rec & ", IAA(s)"
-
-		End If
-		If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then 
-			Call ltc_1503_dialog
-			current_dialog = "ltc 1503"
-			docs_rec = docs_rec & ", LTC-1503"
-
-		End If
-		If form_type_array(form_type_const, form_count) = mof_form_name Then 
-			Call mof_dialog
-			current_dialog = "mof"
-			docs_rec = docs_rec & ", MOF"
-
-		End If
-		If form_type_array(form_type_const, form_count) = mtaf_form_name Then 
-			Call mtaf_dialog
-			current_dialog = "mtaf"
-			docs_rec = docs_rec & ", MTAF"
-
-		End If
-		If form_type_array(form_type_const, form_count) = psn_form_name Then 
-			Call psn_dialog
-			current_dialog = "psn"
-			docs_rec = docs_rec & ", PSN"
-
-		End If
-		If form_type_array(form_type_const, form_count) = sf_form_name Then 
-			Call sf_dialog
-			current_dialog = "sf"
-			docs_rec = docs_rec & ", SF"
-
-		End If
-		If form_type_array(form_type_const, form_count) = diet_form_name Then 
-			Call diet_dialog
-			current_dialog = "diet"
-			docs_rec = docs_rec & ", DIET"
-
-		End If
-		
-		If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
-
-		btn_pos = 45		'variable to iterate down for each necessary button
-		''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
-		For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
-			If form_type_array(form_type_const, current_form) = asset_form_name then
-				form_type_array(btn_name_const, form_count) = "ASSET"
-				form_type_array(btn_number_const, form_count) = 400
-				PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
-				'PushButton 395, btn_pos, 45, 15, "ASSET-" & asset_count, asset_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-				' MsgBox "asset name" & form_type_array(form_type_const, current_form) 'TEST
-				' MsgBox "asset btn" & form_type_array(btn_name_const, form_count)	'TEST
-				' MsgBox "asset numb" & form_type_array(btn_number_const, form_count) 'TEST
-			End If
-			If form_type_array(form_type_const, current_form) = atr_form_name Then 
-				form_type_array(btn_name_const, form_count) = "ATR"
-				form_type_array(btn_number_const, form_count) = 401
-				PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
-				'PushButton 395, btn_pos, 45, 15, "ATR-" & atr_count, atr_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			' 	MsgBox "atr name" & form_type_array(form_type_const, current_form) 'TEST
-			' 	MsgBox "atr btn" & form_type_array(btn_name_const, form_count)	'TEST
-			' 	MsgBox "atr numb" & form_type_array(btn_number_const, form_count) 'TEST
-			End If
-			If form_type_array(form_type_const, current_form) = arep_form_name then 
-				form_type_array(btn_name_const, form_count) = "AREP"
-				form_type_array(btn_number_const, form_count) = 402
-				PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
-				'PushButton 395, btn_pos, 45, 15, "AREP-" & arep_count, arep_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = change_form_name  then 
-				form_type_array(btn_name_const, form_count) = "CHNG"
-				form_type_array(btn_number_const, form_count) = 403
-				PushButton 395, btn_pos, 45, 15, "CHNG", change_btn 
-				'PushButton 395, btn_pos, 45, 15, "CHNG-" & change_count, change_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = evf_form_name  then 
-				form_type_array(btn_name_const, form_count) = "EVF"
-				form_type_array(btn_number_const, form_count) = 404		
-				PushButton 395, btn_pos, 45, 15, "EVF", evf_btn 
-				'PushButton 395, btn_pos, 45, 15, "EVF-" & evf_count, evf_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = hosp_form_name  then 
-				form_type_array(btn_name_const, form_count) = "HOSP"
-				form_type_array(btn_number_const, form_count) = 405
-				PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn 
-				'PushButton 395, btn_pos, 45, 15, "HOSP-" & hosp_count, hospice_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = iaa_form_name  then 
-				form_type_array(btn_name_const, form_count) = "IAA"
-				form_type_array(btn_number_const, form_count) = 406
-				PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
-				'PushButton 395, btn_pos, 45, 15, "IAA-" & iaa_count, iaa_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = ltc_1503_form_name then 
-				form_type_array(btn_name_const, form_count) = ltc_1503_form_name
-				form_type_array(btn_number_const, form_count) = 408
-				PushButton 395, btn_pos, 45, 15, ltc_1503_form_name, ltc_1503_btn 
-				'PushButton 395, btn_pos, 45, 15, "LTC-1503-" & ltc_1503_count, ltc_1503_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = mof_form_name then 
-				form_type_array(btn_name_const, form_count) = "MOF"
-				form_type_array(btn_number_const, form_count) = 409
-				PushButton 395, btn_pos, 45, 15, "MOF", mof_btn 
-				'PushButton 395, btn_pos, 45, 15, "MOF-" & mof_count, mof_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = mtaf_form_name then 
-				form_type_array(btn_name_const, form_count) = "MTAF"
-				form_type_array(btn_number_const, form_count) = 410
-				PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
-				'PushButton 395, btn_pos, 45, 15, "MTAF-" & mtaf_count, mtaf_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = psn_form_name then 
-				form_type_array(btn_name_const, form_count) = "PSN"
-				form_type_array(btn_number_const, form_count) = 411
-				PushButton 395, btn_pos, 45, 15, "PSN", psn_btn 
-				'PushButton 395, btn_pos, 45, 15, "PSN-" & psn_count, psn_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = sf_form_name then 
-				form_type_array(btn_name_const, form_count) = "SF"
-				form_type_array(btn_number_const, form_count) = 412
-				PushButton 395, btn_pos, 45, 15, "SF", sf_btn
-				'PushButton 395, btn_pos, 45, 15, "SF-" & sf_count, sf_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			If form_type_array(form_type_const, current_form) = diet_form_name then 
-				form_type_array(btn_name_const, form_count) = "DIET"
-				form_type_array(btn_number_const, form_count) = 413
-				PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
-				'PushButton 395, btn_pos, 45, 15, "DIET-" & diet_count, diet_btn 'TEST - example of adding number to name of button
-				btn_pos = btn_pos + 15
-			End If
-			'MsgBox "Current form" & form_type_array(form_type_const, current_form)
-		Next
-
-		If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
-		If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
-		If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
-		'MsgBox "Ubound(form_type_array, 2)" & Ubound(form_type_array, 2) 
-						
-	EndDialog
-
 	Do
 		Do
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received"
+				If form_type_array(form_type_const, form_count) = asset_form_name then 
+					Call asset_dialog
+					current_dialog = "asset"
+					If InStr(docs_rec,"ASST") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", ASST"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = atr_form_name Then 
+					Call atr_dialog
+					current_dialog = "atr"
+					If InStr(docs_rec,"ATR") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", ATR"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = arep_form_name then 
+					Call arep_dialog
+					current_dialog = "arep"
+					If InStr(docs_rec,"AREP") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", AREP"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = change_form_name Then 
+					Call change_dialog
+					current_dialog = "chng"
+					If InStr(docs_rec,"CHNG") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", CHNG"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = evf_form_name Then 
+					Call evf_dialog
+					current_dialog = "evf"
+					If InStr(docs_rec,"EVF") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", EVF"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = hosp_form_name Then 
+					Call hospice_dialog
+					current_dialog = "hosp"
+					If InStr(docs_rec,"HOSP") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", HOSP"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = iaa_form_name Then 
+					Call iaa_dialog
+					current_dialog = "iaa"
+					If InStr(docs_rec,"IAA(s)") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", IAA(s)"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then 
+					Call ltc_1503_dialog
+					current_dialog = "ltc 1503"
+					If InStr(docs_rec,"LTC-1503") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", LTC-1503"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = mof_form_name Then 
+					Call mof_dialog
+					current_dialog = "mof"
+					If InStr(docs_rec,"MOF") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", MOF"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = mtaf_form_name Then 
+					Call mtaf_dialog
+					current_dialog = "mtaf"
+					If InStr(docs_rec,"MTAF") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", MTAF"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = psn_form_name Then 
+					Call psn_dialog
+					current_dialog = "psn"
+					If InStr(docs_rec,"PSN") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", PSN"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = sf_form_name Then 
+					Call sf_dialog
+					current_dialog = "sf"
+					If InStr(docs_rec,"SF") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", SF"
+					End If
+				End If
+				If form_type_array(form_type_const, form_count) = diet_form_name Then 
+					Call diet_dialog
+					current_dialog = "diet"
+					If InStr(docs_rec,"DIET") Then
+						docs_rec = docs_rec
+					Else
+						docs_rec = docs_rec & ", DIET"
+					End If
+				End If
+				
+				If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
+
+				btn_pos = 45		'variable to iterate down for each necessary button
+				''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
+				For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
+					If form_type_array(form_type_const, current_form) = asset_form_name then
+						form_type_array(btn_name_const, form_count) = "ASSET"
+						form_type_array(btn_number_const, form_count) = 400
+						PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
+						'PushButton 395, btn_pos, 45, 15, "ASSET-" & asset_count, asset_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+						' MsgBox "asset name" & form_type_array(form_type_const, current_form) 'TEST
+						' MsgBox "asset btn" & form_type_array(btn_name_const, form_count)	'TEST
+						' MsgBox "asset numb" & form_type_array(btn_number_const, form_count) 'TEST
+					End If
+					If form_type_array(form_type_const, current_form) = atr_form_name Then 
+						form_type_array(btn_name_const, form_count) = "ATR"
+						form_type_array(btn_number_const, form_count) = 401
+						PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
+						'PushButton 395, btn_pos, 45, 15, "ATR-" & atr_count, atr_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					' 	MsgBox "atr name" & form_type_array(form_type_const, current_form) 'TEST
+					' 	MsgBox "atr btn" & form_type_array(btn_name_const, form_count)	'TEST
+					' 	MsgBox "atr numb" & form_type_array(btn_number_const, form_count) 'TEST
+					End If
+					If form_type_array(form_type_const, current_form) = arep_form_name then 
+						form_type_array(btn_name_const, form_count) = "AREP"
+						form_type_array(btn_number_const, form_count) = 402
+						PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
+						'PushButton 395, btn_pos, 45, 15, "AREP-" & arep_count, arep_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = change_form_name  then 
+						form_type_array(btn_name_const, form_count) = "CHNG"
+						form_type_array(btn_number_const, form_count) = 403
+						PushButton 395, btn_pos, 45, 15, "CHNG", change_btn 
+						'PushButton 395, btn_pos, 45, 15, "CHNG-" & change_count, change_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = evf_form_name  then 
+						form_type_array(btn_name_const, form_count) = "EVF"
+						form_type_array(btn_number_const, form_count) = 404		
+						PushButton 395, btn_pos, 45, 15, "EVF", evf_btn 
+						'PushButton 395, btn_pos, 45, 15, "EVF-" & evf_count, evf_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = hosp_form_name  then 
+						form_type_array(btn_name_const, form_count) = "HOSP"
+						form_type_array(btn_number_const, form_count) = 405
+						PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn 
+						'PushButton 395, btn_pos, 45, 15, "HOSP-" & hosp_count, hospice_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = iaa_form_name  then 
+						form_type_array(btn_name_const, form_count) = "IAA"
+						form_type_array(btn_number_const, form_count) = 406
+						PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
+						'PushButton 395, btn_pos, 45, 15, "IAA-" & iaa_count, iaa_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = ltc_1503_form_name then 
+						form_type_array(btn_name_const, form_count) = ltc_1503_form_name
+						form_type_array(btn_number_const, form_count) = 408
+						PushButton 395, btn_pos, 45, 15, ltc_1503_form_name, ltc_1503_btn 
+						'PushButton 395, btn_pos, 45, 15, "LTC-1503-" & ltc_1503_count, ltc_1503_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = mof_form_name then 
+						form_type_array(btn_name_const, form_count) = "MOF"
+						form_type_array(btn_number_const, form_count) = 409
+						PushButton 395, btn_pos, 45, 15, "MOF", mof_btn 
+						'PushButton 395, btn_pos, 45, 15, "MOF-" & mof_count, mof_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = mtaf_form_name then 
+						form_type_array(btn_name_const, form_count) = "MTAF"
+						form_type_array(btn_number_const, form_count) = 410
+						PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
+						'PushButton 395, btn_pos, 45, 15, "MTAF-" & mtaf_count, mtaf_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = psn_form_name then 
+						form_type_array(btn_name_const, form_count) = "PSN"
+						form_type_array(btn_number_const, form_count) = 411
+						PushButton 395, btn_pos, 45, 15, "PSN", psn_btn 
+						'PushButton 395, btn_pos, 45, 15, "PSN-" & psn_count, psn_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = sf_form_name then 
+						form_type_array(btn_name_const, form_count) = "SF"
+						form_type_array(btn_number_const, form_count) = 412
+						PushButton 395, btn_pos, 45, 15, "SF", sf_btn
+						'PushButton 395, btn_pos, 45, 15, "SF-" & sf_count, sf_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					If form_type_array(form_type_const, current_form) = diet_form_name then 
+						form_type_array(btn_name_const, form_count) = "DIET"
+						form_type_array(btn_number_const, form_count) = 413
+						PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
+						'PushButton 395, btn_pos, 45, 15, "DIET-" & diet_count, diet_btn 'TEST - example of adding number to name of button
+						btn_pos = btn_pos + 15
+					End If
+					'MsgBox "Current form" & form_type_array(form_type_const, current_form)
+				Next
+				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
+				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
+				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
+				'MsgBox "Ubound(form_type_array, 2)" & Ubound(form_type_array, 2) 
+								
+			EndDialog
+
+	
 			err_msg = ""
 			asset_err_msg = ""
 			atr_err_msg = ""
@@ -3391,14 +3429,13 @@ Do
 
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
-			
+
 			Call main_error_handling	'function for error handling of main dialog of forms 
 			Call dialog_movement	'function to move throughout the dialogs
-
-			
 		Loop until err_msg = ""
 	
 		'MsgBox "complete_btn" & complete_btn
+
 	Loop until ButtonPressed = complete_btn
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -3953,7 +3990,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
           '  If LTC_case = vbNo Then
 			If asset_dhs_6054_checkbox = checked Then
                 Call write_variable_in_CASE_NOTE("* Signed Personal Statement about Assets for Cash Received (DHS 6054)")
-                Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", st_verif_date)
+                Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", asset_DHS_6054_date)
                 If signed_by_one <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_one & " on: " & signed_one_date)
                 If signed_by_two <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_two & " on: " & signed_two_date)
                 If signed_by_three <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_three & " on: " & signed_three_date)
@@ -3986,7 +4023,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                 For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
                         Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                         If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
                     End If
@@ -3996,7 +4033,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
                         If left(ASSETS_ARRAY(ast_type, the_asset), 2) <> "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset))
                         If left(ASSETS_ARRAY(ast_type, the_asset), 2) = "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset) & " LI Face Value: $" & ASSETS_ARRAY(ast_face_value, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * Security is shared. Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " owns " & ASSETS_ARRAY(ast_own_ratio, the_asset) & " of the security.")
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                     End If
@@ -4005,13 +4042,14 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                 For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
                         Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset) & " - Trade-In Value: $" & ASSETS_ARRAY(ast_trd_in, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_owe_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * $" & ASSETS_ARRAY(ast_amt_owed, the_asset) & " owed as of " & ASSETS_ARRAY(ast_owed_date, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_owe_verif, the_asset), len(ASSETS_ARRAY(ast_owe_verif, the_asset)) - 4))
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                     End If
                 Next
             End If
 
+			If Right(actions_taken, 2) = ", " Then actions_taken = left(actions_taken, len(actions_taken)-2)
 			call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 		
 		Call write_variable_in_case_note("---")
