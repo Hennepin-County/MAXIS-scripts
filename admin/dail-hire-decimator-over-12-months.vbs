@@ -92,7 +92,7 @@ End function
 
 'THE SCRIPT==================================================================================================================
 EMConnect ""
-activate_msg_boxes = False
+activate_msg_boxes = True
 
 'String for HIRE messages that are for cases that cannot be processed - i.e. privileged case
 case_numbers_to_skip = "*"
@@ -240,9 +240,9 @@ For each worker in worker_array
 				dail_month_date = dateadd("m", 1, dail_month_date)
 				dail_months_old = DateDiff("m", dail_month_date, this_month_date)
 
-				If dail_months_old > 13 Then
+				If dail_months_old >= 13 Then
 					If Instr(case_numbers_to_skip, MAXIS_case_number) = 0 then
-						If Instr(dail_msg, "NDNH") Then
+						If Instr(dail_msg, "NDNH") or Instr(dail_msg, "JOB DETAILS FOR  ") Then
 							'Update spreadsheet with DAIL message details
 							objExcel.Cells(excel_row, 1).Value = worker
 							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
@@ -253,7 +253,6 @@ For each worker in worker_array
 							'Script will need to read full HIRE message to determine details for INFC
 
 							'Reset variables
-							HIRE_memb_number = ""
 							date_hired = ""
 							HIRE_employer_name = ""
 							priv_case_escape = 1
@@ -269,48 +268,37 @@ For each worker in worker_array
 							EMReadScreen full_dail_msg_case_number_only, 12, 6, 57
                             full_dail_msg_case_number_only = trim(full_dail_msg_case_number_only)
 
-							'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
-							'Set row and col
-							row = 1
-							col = 1
-							EMSearch "NDNH MEMB", row, col
-							EMReadScreen HIRE_memb_number, 2, row, col + 10
-							HIRE_memb_number = trim(HIRE_memb_number)
-							If HIRE_memb_number = "00" then msgbox "Testing -- HH MEMB 00 - this is an error message. Need handling for this situation"
-
-							'Identify where 'DATE HIRED   :' text is so that script can account for slight changes in location in MAXIS
-							'Set row and col
-							row = 1
-							col = 1
-							EMSearch "DATE HIRED   :", row, col
-							EMReadScreen date_hired, 10, row, col + 15
-							date_hired = trim(date_hired)
-
-							If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
-								msgbox "Testing -- date hired is EM or unknown. How to handle?"
-							Else
-								Call ONLY_create_MAXIS_friendly_date(date_hired)
-								date_split = split(date_hired, "/")
-								month_hired = date_split(0)
-								day_hired = date_split(1)
-								year_hired = date_split(2)
-							End if
-
 							'Read the NDNH message to find the date hired and convert to MM/DD/YY format
 							row = 1
 							col = 1
 							EMSearch "DATE HIRED   :", row, col
 							EMReadScreen full_dail_date_hired, 10, row, col + 15
+							If full_dail_date_hired = "  -  -  EM" OR full_dail_date_hired = "UNKNOWN  E" then
+								msgbox "Testing -- date hired is EM or unknown. How to handle?"
+							End If
 							full_dail_date_hired = trim(full_dail_date_hired)
 							If len(full_dail_date_hired) <> 10 then MsgBox "it is not a 10 character date format"
 							full_dail_date_hired = Left(full_dail_date_hired, 6) & Right(full_dail_date_hired, 2)
 
-							'Read the state of employment
-							row = 1
-							col = 1
-							EMSearch "NDNH MEMB", row, col
-							EMReadScreen full_dail_state, 2, row, col + 17
-							full_dail_state = trim(full_dail_state)
+							If Instr(dail_msg, "NDNH") Then
+								'Read the state of employment
+								row = 1
+								col = 1
+								EMSearch "NDNH MEMB", row, col
+								EMReadScreen full_dail_state, 2, row, col + 17
+								full_dail_state = trim(full_dail_state)
+
+							ElseIf Instr(dail_msg, "JOB DETAILS FOR  ") Then
+								'Read the state of employment
+								row = 1
+								col = 1
+								EMReadScreen dail_msg_line_1, 74, 9, 5
+								dail_msg_line_1 = trim(dail_msg_line_1)
+								full_dail_state_array = split(dail_msg_line_1, " ")
+								full_dail_state = full_dail_state_array(2)
+								MsgBox "full_dail_state_array(2)" & full_dail_state_array(2)
+							End If
+
 
 							'Identify where ' Employer:' text is so that script can account for slight changes in location in MAXIS
 							'Read NDNH message employer
@@ -321,7 +309,6 @@ For each worker in worker_array
 							full_dail_employer_full_name = trim(full_dail_employer_full_name)
 							If activate_msg_boxes = True then msgbox "full_dail_employer_full_name " & full_dail_employer_full_name
 							
-
 							'Transmit back to DAIL message
 							transmit
 
@@ -377,6 +364,7 @@ For each worker in worker_array
 									MsgBox "Testing -- SSN is missing so unable to navigate to INFC."
 									objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. SSN is missing so unable to navigate to INFC/HIRE."
 									case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
+
 									'PF3 back to DAIL
 									PF3
 
@@ -470,11 +458,11 @@ For each worker in worker_array
 
 									EMReadScreen dail_panel_check, 8, 2, 46
 									If InStr(dail_panel_check, "DAIL") = 0 Then 
-									If activate_msg_boxes = True then msgbox "Testing -- did not return to DAIL. It will PF3 again"
+										If activate_msg_boxes = True then msgbox "Testing -- did not return to DAIL. It will PF3 again"
 										PF3
 										EMReadScreen dail_panel_check, 8, 2, 46
 										If InStr(dail_panel_check, "DAIL") = 0 Then 
-										If activate_msg_boxes = True then MsgBox "Testing -- Script is still not at DAIL despite second PF3"
+											If activate_msg_boxes = True then MsgBox "Testing -- Script is still not at DAIL despite second PF3"
 										End IF
 									End If
 
@@ -490,7 +478,7 @@ For each worker in worker_array
 							'Increase the excel row
 							excel_row = excel_row + 1
 
-						ElseIf Instr(dail_msg, "SDNH") Then
+						ElseIf Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
 
 							'Update spreadsheet with DAIL message details
 							objExcel.Cells(excel_row, 1).Value = worker
