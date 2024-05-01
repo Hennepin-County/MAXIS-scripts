@@ -43,7 +43,7 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-CALL changelog_update("04/17/24", "Initial version.", "Mark Riegel, Hennepin County")
+CALL changelog_update("04/17/2024", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -92,12 +92,12 @@ End function
 
 'THE SCRIPT==================================================================================================================
 EMConnect ""
-activate_msg_boxes = True
 
 'String for HIRE messages that are for cases that cannot be processed - i.e. privileged case
 case_numbers_to_skip = "*"
 Call Check_for_MAXIS(False)
-dail_to_decimate = "ALL"
+
+'Setting script to initially evaluate all x numbers
 all_workers_check = 1
 
 this_month = CM_mo & " " & CM_yr
@@ -151,7 +151,7 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
-'Changes name of Excel sheet to "DAIL List"
+'Changes name of Excel sheet to "Deleted DAILs"
 ObjExcel.ActiveSheet.Name = "Deleted DAILS"
 
 'Excel headers and formatting the columns
@@ -160,27 +160,15 @@ objExcel.Cells(1, 2).Value = "CASE #"
 objExcel.Cells(1, 3).Value = "DAIL TYPE"
 objExcel.Cells(1, 4).Value = "DAIL MO."
 objExcel.Cells(1, 5).Value = "DAIL MESSAGE"
-objExcel.Cells(1, 6).Value = "ACTION TAKEN"
+objExcel.Cells(1, 6).Value = "FULL DAIL MESSAGE"
+objExcel.Cells(1, 7).Value = "ACTION TAKEN"
 
 
-FOR i = 1 to 6		'formatting the cells'
+FOR i = 1 to 7		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
-
-DIM DAIL_array()
-ReDim DAIL_array(5, 0)
-Dail_count = 0              'Incremental for the array
-false_count = 0
-
-'constants for array
-const worker_const	            = 0
-const maxis_case_number_const   = 1
-const dail_type_const 	        = 2
-const dail_month_const		    = 3
-const dail_msg_const		    = 4
-const dail_action_const		    = 5
 
 'Sets variable for all of the Excel stuff
 excel_row = 2
@@ -236,19 +224,23 @@ For each worker in worker_array
             dail_month = trim(dail_month)
 
 			If dail_type = "HIRE" Then
+
+				'Determine if HIRE message is over 12 months old
 				dail_month_date = replace(dail_month, " ", "/01/20")
 				dail_month_date = dateadd("m", 1, dail_month_date)
 				dail_months_old = DateDiff("m", dail_month_date, this_month_date)
 
-				If dail_months_old >= 13 Then
+				If dail_months_old > 12 Then
 					If Instr(case_numbers_to_skip, MAXIS_case_number) = 0 then
 						If Instr(dail_msg, "NDNH") or Instr(dail_msg, "JOB DETAILS FOR  ") Then
+							
 							'Update spreadsheet with DAIL message details
 							objExcel.Cells(excel_row, 1).Value = worker
 							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 							objExcel.Cells(excel_row, 3).Value = dail_type
 							objExcel.Cells(excel_row, 4).Value = dail_month
 							objExcel.Cells(excel_row, 5).Value = dail_msg
+							
 
 							'Script will need to read full HIRE message to determine details for INFC
 
@@ -261,10 +253,30 @@ For each worker in worker_array
 							full_dail_msg = ""
                             full_dail_date_hired = ""
                             full_dail_state = ""
+							full_dail_msg_line_1 = ""
+							full_dail_msg_line_2 = ""
+							full_dail_msg_line_3 = ""
+							full_dail_msg_line_4 = ""
 
 							'Enters “X” on DAIL message to open full message. 
 							Call write_value_and_transmit("X", dail_row, 3)
 
+							'Read entire DAIL message
+							EMReadScreen full_dail_msg_line_1, 60, 9, 5
+							full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+							EMReadScreen full_dail_msg_line_2, 60, 10, 5
+							full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+							EMReadScreen full_dail_msg_line_3, 60, 11, 5
+							full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+							EMReadScreen full_dail_msg_line_4, 60, 12, 5
+							full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+
+							full_dail_msg = trim(full_dail_msg_case_number & " " & full_dail_msg_case_name & " " & full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4)
+
+							'Write full dail message to excel sheet
+							objExcel.Cells(excel_row, 6).Value = full_dail_msg
+
+							'Reads MAXIS case number for use in clearing INFC
 							EMReadScreen full_dail_msg_case_number_only, 12, 6, 57
                             full_dail_msg_case_number_only = trim(full_dail_msg_case_number_only)
 
@@ -274,10 +286,9 @@ For each worker in worker_array
 							EMSearch "DATE HIRED   :", row, col
 							EMReadScreen full_dail_date_hired, 10, row, col + 15
 							If full_dail_date_hired = "  -  -  EM" OR full_dail_date_hired = "UNKNOWN  E" then
-								msgbox "Testing -- date hired is EM or unknown. How to handle?"
+								script_end_procedure("Date hired is EM or unknown. Script will now end.")
 							End If
 							full_dail_date_hired = trim(full_dail_date_hired)
-							If len(full_dail_date_hired) <> 10 then MsgBox "it is not a 10 character date format"
 							full_dail_date_hired = Left(full_dail_date_hired, 6) & Right(full_dail_date_hired, 2)
 
 							If Instr(dail_msg, "NDNH") Then
@@ -296,9 +307,7 @@ For each worker in worker_array
 								dail_msg_line_1 = trim(dail_msg_line_1)
 								full_dail_state_array = split(dail_msg_line_1, " ")
 								full_dail_state = full_dail_state_array(2)
-								MsgBox "full_dail_state_array(2)" & full_dail_state_array(2)
 							End If
-
 
 							'Identify where ' Employer:' text is so that script can account for slight changes in location in MAXIS
 							'Read NDNH message employer
@@ -307,17 +316,14 @@ For each worker in worker_array
 							EMSearch "EMPLOYER: ", row, col
 							EMReadScreen full_dail_employer_full_name, 20, row, col + 10
 							full_dail_employer_full_name = trim(full_dail_employer_full_name)
-							If activate_msg_boxes = True then msgbox "full_dail_employer_full_name " & full_dail_employer_full_name
 							
 							'Transmit back to DAIL message
 							transmit
 
-							'Navigate to INFC
-							If activate_msg_boxes = True then msgbox "Testing -- Attempting to navigate to INFC"
+							'Navigate to INFC, includes handling to return to DAIL and skip if case is privileged
 							Call write_value_and_transmit("I", dail_row, 3)
 							EmReadScreen infc_screen_check, 4, 2, 45
 							If infc_screen_check <> "INFC" Then
-								If activate_msg_boxes = True then MsgBox "Privileged case? Kicked out of INFC"
 								EmReadScreen self_screen_check, 4, 2, 50
 								If self_screen_check = "SELF" Then
 									EMReadScreen privileged_check, 22, 24, 2
@@ -351,18 +357,16 @@ For each worker in worker_array
 								EMWriteScreen "X", 13, 39
 								transmit
 
-								If activate_msg_boxes = True then MsgBox "Are we back at the DAIL?"
-
 								'Skip this case moving forward
 								case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
-								objExcel.Cells(excel_row, 6).Value = "Likely privileged - message skipped."
+								objExcel.Cells(excel_row, 7).Value = "Likely privileged - message skipped."
 
 							Else
 
 								EMReadScreen SSN_present_check, 9, 3, 63
 								If SSN_present_check = "_________" Then 
-									MsgBox "Testing -- SSN is missing so unable to navigate to INFC."
-									objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. SSN is missing so unable to navigate to INFC/HIRE."
+									'Checks if SSN carried forward, if not, it will skip the case moving forward
+									objExcel.Cells(excel_row, 7).Value = "Message NOT deleted. SSN is missing so unable to navigate to INFC/HIRE."
 									case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 
 									'PF3 back to DAIL
@@ -372,10 +376,10 @@ For each worker in worker_array
 
 									'Navigate to HIRE interface
 									Call write_value_and_transmit("HIRE", 20, 71)
-									If activate_msg_boxes = True then MsgBox "Testing -- Navigate to HIRE INFC"
 
+									'Handling to ensure script navigated to INFC/HIRE, if not script will end
 									EMReadScreen infc_hire_check, 8, 2, 50
-									If InStr(infc_hire_check, "HIRE") = 0 Then MsgBox "Testing -- Stop here. Not at INFC/HIRE"
+									If InStr(infc_hire_check, "HIRE") = 0 Then MsgBox script_end_procedure("Script is unable to navigate to INFC/HIRE. Script will now end.")
 
 									'checking for IRS non-disclosure agreement.
 									EMReadScreen agreement_check, 9, 2, 24
@@ -421,36 +425,30 @@ For each worker in worker_array
 										END IF
 									LOOP UNTIL infc_case_number = ""
 
-									If activate_msg_boxes = True then MsgBox "Testing -- Making determination on the INFC"
-									
 									IF hire_match <> TRUE THEN 
-										If activate_msg_boxes = True then MsgBox "Testing -- No match found in INFC/HIRE"
-										'The total DAILs decreased by 1, message deleted successfully
-										objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. No match found in INFC/HIRE."
+										'Script failed to clear INFC match, will skip case number moving forward
+										objExcel.Cells(excel_row, 7).Value = "Message NOT deleted. No match found in INFC/HIRE."
 										case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 									ElseIf hire_match = TRUE Then
 										'entering the INFC/HIRE match '
 										Call write_value_and_transmit("U", match_row, 3)
 										EMReadscreen panel_check, 4, 2, 49
-										IF panel_check <> "NHMD" THEN msgbox "Testing -- We did not enter to clear the match. STOP HERE!!!"
+										IF panel_check <> "NHMD" THEN script_end_procedure("Script unable to enter to clear the match. Script will now end")
 										EMWriteScreen "Y", 16, 54
 										'Agency action must be blank
-										If activate_msg_boxes = True then MsgBox "Testing -- Validate that correct information has been written to the case! Script is about to save update INFC update. STOP here if needed."
 										TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
 										TRANSMIT 'this confirms the cleared status'
 										PF3
 										EMReadscreen cleared_confirmation, 1, match_row, 61
 										IF cleared_confirmation = " " THEN 
-											If activate_msg_boxes = True then MsgBox "Testing -- the match did not appear to clear"
 											'The total DAILs decreased by 1, message deleted successfully
-											objExcel.Cells(excel_row, 6).Value = "Message NOT deleted. No match found in INFC/HIRE."
+											objExcel.Cells(excel_row, 7).Value = "Message NOT deleted. No match found in INFC/HIRE."
 											case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 										ElseIf cleared_confirmation <> " " THEN 
-											If activate_msg_boxes = True then MsgBox "Testing -- the match appears to have cleared. Verify manually before continuing"
 											'The total DAILs decreased by 1, message deleted successfully
 											dail_row = dail_row - 1
 											deleted_dails = deleted_dails + 1
-											objExcel.Cells(excel_row, 6).Value = "INFC message successfully cleared."
+											objExcel.Cells(excel_row, 7).Value = "INFC message successfully cleared."
 										End If
 									End If
 
@@ -458,25 +456,40 @@ For each worker in worker_array
 
 									EMReadScreen dail_panel_check, 8, 2, 46
 									If InStr(dail_panel_check, "DAIL") = 0 Then 
-										If activate_msg_boxes = True then msgbox "Testing -- did not return to DAIL. It will PF3 again"
 										PF3
 										EMReadScreen dail_panel_check, 8, 2, 46
 										If InStr(dail_panel_check, "DAIL") = 0 Then 
-											If activate_msg_boxes = True then MsgBox "Testing -- Script is still not at DAIL despite second PF3"
+											MsgBox "Script unable to return to DAIL"
 										End IF
 									End If
 
 									EMReadScreen infc_clear_error, 40, 24, 2
+									EMReadScreen no_ssn_match_error, 15, 24, 5
 									infc_clear_error = trim(infc_clear_error)
-									If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") = 0 Then MsgBox "Testing -- Stop here. Something happened after clearing the INFC"
+									EmReadScreen dail_empty_check, 10, 3, 67
+									dail_empty_check = trim(dail_empty_check)
 									
-									If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
+									If Instr(infc_clear_error, "THIS IS NOT YOUR DAIL REPORT") and dail_empty_check = "" Then
+										'Handling for instances where the DAIL is blank after removing a NDNH message
+										PF5
+
+										'Get back to HIRE messages for current X number
+										EMWriteScreen worker, 21, 6
+										transmit
+										EMWriteScreen "X", 4, 12
+										transmit
+										EMWriteScreen "_", 7, 39
+										EMWriteScreen "X", 13, 39
+										transmit
+									End If
 
 								End If
 							End If
 
 							'Increase the excel row
 							excel_row = excel_row + 1
+
+							stats_counter = stats_counter + 1   'I increment thee
 
 						ElseIf Instr(dail_msg, "SDNH") or Instr(dail_msg, "NEW JOB DETAILS FOR SSN") Then
 
@@ -494,6 +507,11 @@ For each worker in worker_array
 							total_dail_msg_count_after = ""
 							all_done = ""
 							final_dail_error = ""
+							full_dail_msg_line_1 = ""
+							full_dail_msg_line_2 = ""
+							full_dail_msg_line_3 = ""
+							full_dail_msg_line_4 = ""
+							full_dail_msg = ""
 							
 							'Check if script is about to delete the last dail message to avoid DAIL bouncing backwards or issue with deleting only message in the DAIL
 							EMReadScreen last_dail_check, 12, 3, 67
@@ -507,7 +525,27 @@ For each worker in worker_array
 								all_done = true
 							End If
 
-							If activate_msg_boxes = True then msgbox "Testing -- Script will now delete the SDNH message"
+							'Open full Dail message
+							Call write_value_and_transmit("X", dail_row, 3)
+
+							'Capture full dail message details
+							EMReadScreen full_dail_msg_line_1, 60, 9, 5
+							full_dail_msg_line_1 = trim(full_dail_msg_line_1)
+							EMReadScreen full_dail_msg_line_2, 60, 10, 5
+							full_dail_msg_line_2 = trim(full_dail_msg_line_2)
+							EMReadScreen full_dail_msg_line_3, 60, 11, 5
+							full_dail_msg_line_3 = trim(full_dail_msg_line_3)
+							EMReadScreen full_dail_msg_line_4, 60, 12, 5
+							full_dail_msg_line_4 = trim(full_dail_msg_line_4)
+
+							full_dail_msg = trim(full_dail_msg_case_number & " " & full_dail_msg_case_name & " " & full_dail_msg_line_1 & " " & full_dail_msg_line_2 & " " & full_dail_msg_line_3 & " " & full_dail_msg_line_4)
+
+							'Write full dail message to excel sheet
+							objExcel.Cells(excel_row, 6).Value = full_dail_msg
+
+							'Transmit back to DAIL
+							transmit
+
 							'Delete the message
 							Call write_value_and_transmit("D", dail_row, 3)
 
@@ -519,7 +557,7 @@ For each worker in worker_array
 								'Script deleted the final message in the DAIL
 								dail_row = dail_row - 1
 								deleted_dails = deleted_dails + 1
-								objExcel.Cells(excel_row, 6).Value = "Message deleted."
+								objExcel.Cells(excel_row, 7).Value = "Message deleted."
 
 								'Exit do loop as all messages are deleted
 								all_done = true
@@ -538,10 +576,10 @@ For each worker in worker_array
 									'The total DAILs decreased by 1, message deleted successfully
 									dail_row = dail_row - 1
 									deleted_dails = deleted_dails + 1
-									objExcel.Cells(excel_row, 6).Value = "Message deleted."
+									objExcel.Cells(excel_row, 7).Value = "Message deleted."
 								Else
 									'The total DAILs did not decrease by 1, something went wrong
-									objExcel.Cells(excel_row, 6).Value = "Likely privileged or some other issue so unable to delete - message skipped."
+									objExcel.Cells(excel_row, 7).Value = "Likely privileged or some other issue so unable to delete - message skipped."
 									'Skip this case moving forward
 									case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 
@@ -562,7 +600,7 @@ For each worker in worker_array
 									'All DAIL messages deleted so indicates deletion a success
 									dail_row = dail_row - 1
 									deleted_dails = deleted_dails + 1
-									objExcel.Cells(excel_row, 6).Value = "Message deleted."
+									objExcel.Cells(excel_row, 7).Value = "Message deleted."
 									'No more DAIL messages so exit do loop
 									all_done = True
 								ElseIf trim(final_dail_error) = "" Then
@@ -576,24 +614,24 @@ For each worker in worker_array
 										'The total DAILs decreased by 1, message deleted successfully
 										dail_row = dail_row - 1
 										deleted_dails = deleted_dails + 1
-										objExcel.Cells(excel_row, 6).Value = "Message deleted."
+										objExcel.Cells(excel_row, 7).Value = "Message deleted."
 									Else
 										'The total DAILs did not decrease by 1, something went wrong
-										objExcel.Cells(excel_row, 6).Value = "Likely privileged or some other issue so unable to delete - message skipped."
+										objExcel.Cells(excel_row, 7).Value = "Likely privileged or some other issue so unable to delete - message skipped."
 										'Skip this case moving forward
 										case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 									End If
 
 								Else
 									'The total DAILs did not decrease by 1, something went wrong
-									objExcel.Cells(excel_row, 6).Value = "Likely privileged or some other issue so unable to delete - message skipped."
+									objExcel.Cells(excel_row, 7).Value = "Likely privileged or some other issue so unable to delete - message skipped."
 									'Skip this case moving forward
 									case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 								End if
 								
 							Else
 								'The total DAILs did not decrease by 1, something went wrong
-								objExcel.Cells(excel_row, 6).Value = "Likely privileged or some other issue so unable to delete - message skipped."
+								objExcel.Cells(excel_row, 7).Value = "Likely privileged or some other issue so unable to delete - message skipped."
 								'Skip this case moving forward
 								case_numbers_to_skip = case_numbers_to_skip & MAXIS_case_number & "*" 
 							End If
@@ -601,17 +639,15 @@ For each worker in worker_array
 							excel_row = excel_row + 1
 							stats_counter = stats_counter + 1   'I increment thee
 
-							If activate_msg_boxes = True then MsgBox "The message has been deleted. Did anything go wrong? If so, stop here!"
-
 						Else
-							'Not SDNH or NDNH message - skip?
+							'Handling just in case an unusual HIRE message comes up
 							
 							objExcel.Cells(excel_row, 1).Value = worker
 							objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 							objExcel.Cells(excel_row, 3).Value = dail_type
 							objExcel.Cells(excel_row, 4).Value = dail_month
 							objExcel.Cells(excel_row, 5).Value = dail_msg
-							objExcel.Cells(excel_row, 6).Value = "Not a NDNH or SDNH HIRE message."
+							objExcel.Cells(excel_row, 7).Value = "Not a NDNH or SDNH HIRE message."
 
 							excel_row = excel_row + 1
 
@@ -619,8 +655,7 @@ For each worker in worker_array
 					End If
 				End If
 			ElseIf dail_type = "TIKL" or dail_type = "CSES" or dail_type = "PEPR" Then
-				'If for some reason, ALL DAILs are showing then it will reset to HIRE only
-				MsgBox "Testing -- resetting back to HIRE messages only"
+				'If for some reason, ALL DAILs are showing again then it will reset to HIRE only
 				EMWriteScreen worker, 21, 6
 				transmit
 				EMWriteScreen "X", 4, 12
@@ -683,50 +718,50 @@ objExcel.Application.Quit
 objExcel.Quit
 
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("")
+script_end_procedure("Success! HIRE messages over 12 months old have been cleared.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/01/2024
+'--Tab orders reviewed & confirmed----------------------------------------------05/01/2024
+'--Mandatory fields all present & Reviewed--------------------------------------05/01/2024
+'--All variables in dialog match mandatory fields-------------------------------05/01/2024
+'Review dialog names for content and content fit in dialog----------------------05/01/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/01/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/01/2024
+'--PRIV Case handling reviewed -------------------------------------------------05/01/2024
+'--Out-of-County handling reviewed----------------------------------------------05/01/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/01/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------05/01/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/01/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------05/01/2024
+'--Denomination reviewed -------------------------------------------------------05/01/2024
+'--Script name reviewed---------------------------------------------------------05/01/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/01/2024
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/01/2024
+'--comment Code-----------------------------------------------------------------05/01/2024
+'--Update Changelog for release/update------------------------------------------05/01/2024
+'--Remove testing message boxes-------------------------------------------------05/01/2024
+'--Remove testing code/unnecessary code-----------------------------------------05/01/2024
+'--Review/update SharePoint instructions----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/01/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
 
