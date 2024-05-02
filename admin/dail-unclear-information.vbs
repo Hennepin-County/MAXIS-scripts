@@ -428,31 +428,6 @@ Function check_and_add_new_jobs_panel(testing_status)
             list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
             If testing_status = True Then MsgBox list_of_TIKLs_to_delete
 
-            'Handling no longer needed since script will delete any created TIKLs
-            ' EMReadScreen JOBS_footer_month, 2, 20, 55	
-            ' EMReadScreen JOBS_footer_year, 2, 20, 58	
-            ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-            
-            ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
-
-            ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-            '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
-                
-            '     If employer_name_jobs_panel = HIRE_employer_name Then
-            '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. No CASE/NOTE created. Message should be deleted."
-            '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
-            '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. No CASE/NOTE created. Message should be deleted."
-            '     End If
-                    
-            ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-            '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
-
-            '     If employer_name_jobs_panel = HIRE_employer_name Then
-            '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-            '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
-            '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-            '     End If
-            ' End If 
         Else
             'Check how many panels exist for the HH member
             EMReadScreen jobs_panels_count, 1, 2, 78
@@ -519,34 +494,6 @@ Function check_and_add_new_jobs_panel(testing_status)
                         list_of_TIKLs_to_delete = list_of_TIKLs_to_delete & tikl_case_number & "-" & tikl_case_name & "-" & "VERIFICATION OF " & HIRE_employer_name_TIKL & "*" 
                         If testing_status = True Then MsgBox list_of_TIKLs_to_delete
                         
-                        'Outdated handling
-                        ' If testing_status = True Then msgbox "Testing -- The employer names match exactly or first word matches exactly. Will determine the month if it needs to flag and skip or delete."
-            
-                        ' EMReadScreen JOBS_footer_month, 2, 20, 55	
-                        ' EMReadScreen JOBS_footer_year, 2, 20, 58	
-                        ' JOBS_footer_month_year_check = JOBS_footer_month & " " & JOBS_footer_year
-                        
-                        ' current_MAXIS_footer_month_year_check = MAXIS_footer_month & " " & MAXIS_footer_year
-            
-                        ' If current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check Then
-                        '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check = JOBS_footer_month_year_check. So it can delete the message."
-                            
-                        '     If employer_name_jobs_panel = HIRE_employer_name Then
-                        '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. No CASE/NOTE created. Message should be deleted."
-                        '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
-                        '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "A JOBS panel exists for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. No CASE/NOTE created. Message should be deleted."
-                        '     End If
-                                
-                        ' ElseIf current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check Then
-                        '     If testing_status = True Then MsgBox "Testing -- current_MAXIS_footer_month_year_check <> JOBS_footer_month_year_check. So it cannot delete the message."
-            
-                        '     If employer_name_jobs_panel = HIRE_employer_name Then
-                        '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". Entire employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                        '     ElseIf employer_name_jobs_panel_first_word = HIRE_employer_name_first_word Then 
-                        '         DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "There is a matching JOBS panel for employer: " & HIRE_employer_name & " for M" & HIRE_memb_number & ". First word of employer name matches. However, JOBS panel is from previous month so review is needed." & " Message should not be deleted."
-                        '     End If
-                        ' End If 
-
                         'Exit the do loop since an exact match was found
                         Exit Do
 
@@ -1387,8 +1334,6 @@ If CSES_messages = 1 Then
                 If actionable_dail = True AND dail_type = "CSES" Then
                     'Read the MAXIS Case Number, if it is a new case number then pull case details. If it is not a new case number, then do not pull new case details.
                     
-                    If activate_msg_boxes = True Then Msgbox "actionable_dail = True AND dail_type = 'CSES'"
-
                     EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                     MAXIS_case_number = trim(MAXIS_case_number)
 
@@ -1456,8 +1401,6 @@ If CSES_messages = 1 Then
                                         If app_status = "" or app_status <> "APPROVED" then
                                             case_details_array(case_processing_notes_const, case_count) = case_details_array(case_processing_notes_const, case_count) & "No approved eligibility results exists in " & MAXIS_footer_month & "/" & MAXIS_footer_year & ". "
                                             case_details_array(processable_based_on_case_const, case_count) = False
-                                            'To do - since pulling cases for REPT/ACTV, this may never trigger but using message box just in case. Delete after testing on all worker numbers
-                                            MsgBox "Testing -- Instance where SNAP is active but there is not app status or it is not approved"
                                         Elseif app_status = "APPROVED" then
                                             EMReadScreen vers_number, 1, status_row, 23
                                             Call write_value_and_transmit(vers_number, 18, 54)
@@ -1466,7 +1409,6 @@ If CSES_messages = 1 Then
                                             reporting_status = trim(reporting_status)
 
                                             If reporting_status = "SIX MONTH" Then
-                                                ' If activate_msg_boxes = True Then MsgBox "Testing -- Six month reporting status"
                                                 'Navigate to STAT/REVW to confirm recertification and SR report date
                                                 EMWriteScreen "STAT", 19, 22
                                                 EMWaitReady 0, 0
@@ -1508,7 +1450,6 @@ If CSES_messages = 1 Then
                                                 'Adds slashes to dates then converts to datedate from string to date
                                                 If sr_report_date = "__ 01 __" Then
                                                     sr_report_date = "SR Report Date is Missing"
-                                                    If activate_msg_boxes = True Then MsgBox "Testing -- SR Report Date Not Entered"
                                                 Else
                                                     sr_report_date = replace(sr_report_date, " ", "/")
                                                     sr_report_date = DateAdd("m", 0, sr_report_date)
@@ -1516,14 +1457,12 @@ If CSES_messages = 1 Then
 
                                                 If recertification_date = "__ 01 __" Then
                                                     recertification_date = "Recertification Date is Missing"
-                                                    If activate_msg_boxes = True Then MsgBox "Testing -- Recertification Date Not Entered"
                                                 Else
                                                     recertification_date = replace(recertification_date, " ", "/")
                                                     recertification_date = DateAdd("m", 0, recertification_date)
                                                 End If
                         
                                                 If sr_report_date <> "SR Report Date is Missing" and recertification_date <> "Recertification Date is Missing" Then 
-                                                    ' If activate_msg_boxes = True Then MsgBox "Testing -- Both SR and recert dates are present"
                                                     renewal_6_month_difference = DateDiff("M", sr_report_date, recertification_date)
 
                                                     If renewal_6_month_difference = "6" or renewal_6_month_difference = "-6" then 
@@ -1534,7 +1473,6 @@ If CSES_messages = 1 Then
                                                     End if
                                                 
                                                 Else
-                                                    If activate_msg_boxes = True Then MsgBox "Testing -- One or both dates are missing"
                                                     renewal_6_month_check = False
                                                     case_details_array(case_processing_notes_const, case_count) = "SR Report Date and/or Recertification Date is missing"
                                                 End If
@@ -1542,19 +1480,13 @@ If CSES_messages = 1 Then
                                                 'Close the FS screen
                                                 transmit
                                             Else
-                                                ' If activate_msg_boxes = True Then MsgBox "Testing -- not 6 month reporter"
                                                 sr_report_date = "N/A"
                                                 recertification_date = "N/A"
 
                                             End If
 
-                                            'Change the footer month and year back to CM/CY otherwise the DAIL will carry forward footer month and year from previous DAIL message as it moves to the next one and could cause error
-                                            'To do - is this necessary?
-                                            ' EMWriteScreen MAXIS_footer_month, 19, 54
-                                            ' EMWriteScreen MAXIS_footer_year, 19, 57
-                                        End if
+                                        End If
                                         
-                                        If activate_msg_boxes = True Then MsgBox "Testing -- Updating the case_details_array"
                                         'Update the array with new case details
                                         case_details_array(reporting_status_const, case_count) = trim(reporting_status)
                                         case_details_array(recertification_date_const, case_count) = trim(recertification_date)
@@ -1567,11 +1499,6 @@ If CSES_messages = 1 Then
                                     case_details_array(sr_report_date_const, case_count) = "N/A"
                                     case_details_array(case_processing_notes_const, case_count) = "N/A"
                                     case_details_array(snap_only_const, case_count) = "Not SNAP Only"
-
-                                    ' 'Update the footer month and year to CM/CY on CASE/CURR before returning to DAIL
-                                    ' 'To do - is this necessary?
-                                    ' EMWriteScreen MAXIS_footer_month, 20, 54
-                                    ' EMWriteScreen MAXIS_footer_year, 20, 57
 
                                 End If
 
@@ -1618,7 +1545,6 @@ If CSES_messages = 1 Then
                             'Before determining whether the DAIL is processable, script determines if it has encountered this DAIL message previously. Based on determination, it then processes (deletes) the dail, skips it, or makes processable determination
 
                             'Resetting the full_dail_msg to ensure it is not carrying forward to subsequent loops
-                            'To do - necessary?
                             full_dail_msg = ""
 
                             'Script opens the entire DAIL message to evaluate if it is a new message or not
@@ -1654,8 +1580,6 @@ If CSES_messages = 1 Then
                                     transmit
 
                                 End If
-                            Else
-                                If activate_msg_boxes = True Then MsgBox "Testing -- Dail type is not CSES. Something went wrong. Dail type is " & dail_type
                             End If
 
                             'The script has the full DAIL message and can compare against delete and skip lists to determine if it is a new message
@@ -1774,8 +1698,6 @@ If CSES_messages = 1 Then
 
                                 'Gather details on DAIL message, should capture DAIL details in spreadsheet even if ultimately not actionable
                             
-                                ' If activate_msg_boxes = True Then MsgBox "Testing -- This is a new DAIL message. It should be processed accordingly."
-
                                 'Reset the array
                                 ReDim Preserve DAIL_message_array(DAIL_excel_row_const, dail_count)
                                 DAIL_message_array(dail_maxis_case_number_const, DAIL_count) = MAXIS_case_number
@@ -1819,8 +1741,6 @@ If CSES_messages = 1 Then
 
                                         If case_details_array(processable_based_on_case_const, each_case) = False Then
                                             
-                                            If activate_msg_boxes = True Then Msgbox " Testing -- case_details_array(processable_based_on_case_const, each_case) = False"
-
                                             If case_details_array(case_processing_notes_const, each_case) = "SR Report Date and Recertification are not 6 months apart" Then
                                                 DAIL_message_array(dail_processing_notes_const, dail_count) = "QI review needed. SR Report Date and Recertification are not 6 months apart."
                                                 QI_flagged_msg_count = QI_flagged_msg_count + 1
@@ -1848,16 +1768,11 @@ If CSES_messages = 1 Then
                                         
                                         ElseIf case_details_array(processable_based_on_case_const, each_case) = True Then     
                                             
-                                            If activate_msg_boxes = True Then Msgbox "Testing -- case_details_array(processable_based_on_case_const, each_case) = True Then " 
-
                                             'If the recertification date or SR report date is next month, then we will check if the DAIL month matches based on the message type
                                             If DateAdd("m", 0, case_details_array(recertification_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) or DateAdd("m", 0, case_details_array(sr_report_date_const, each_case)) = DateAdd("m", 1, footer_month_day_year) Then
                                                 If activate_msg_boxes = True Then Msgbox "The recertification date is equal to CM + 1 OR SR report date is equal to CM + 1"
 
                                                 If dail_type = "CSES" Then
-                                                    
-                                                    If activate_msg_boxes = True Then Msgbox "dail type is CSES"
-                                                    If activate_msg_boxes = True Then Msgbox "dail_month: " & dail_month
                                                     
                                                     If DateAdd("m", 0, Replace(dail_month, " ", "/01/")) = DateAdd("m", 1, footer_month_day_year) Then
 
@@ -1876,13 +1791,10 @@ If CSES_messages = 1 Then
                                                         process_dail_message = True
 
                                                     End If
-                                                Else
-                                                    If activate_msg_boxes = True Then MsgBox "Testing -- something went wrong on line 809. Not a CSES message"
                                                 End If
 
                                             Else
                                                 'If neither the recertification or SR report date is next month then we assume the dail message can be processed since processable based on case details is True. So set the process_dail_message to True to gather more information about the dail message
-                                                If activate_msg_boxes = True Then MsgBox "Testing - process_dail_message = True"
                                                 process_dail_message = True
                                                 
                                             End If
@@ -1892,7 +1804,6 @@ If CSES_messages = 1 Then
 
                                                 If InStr(dail_msg, "DISB CS (TYPE 36) OF") Then
 
-                                                    If activate_msg_boxes = True Then Msgbox "InStr(dail_msg, 'DISB CS (TYPE 36) OF'): "
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
 
@@ -1942,7 +1853,6 @@ If CSES_messages = 1 Then
                                                     transmit
 
                                                     ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
-                                                    If activate_msg_boxes = True Then Msgbox "Testing -- Navigate to CASE/PERS"
                                                     Call write_value_and_transmit("H", dail_row, 3)
 
                                                     EMWriteScreen "PERS", 20, 69
@@ -1969,7 +1879,6 @@ If CSES_messages = 1 Then
                                                         for each_PMI = 0 to UBound(PMI_and_ref_nbr_array, 2)
 
                                                             If pmi_number_pers_panel = PMI_and_ref_nbr_array(PMI_const, each_PMI) Then
-                                                                If activate_msg_boxes = True Then Msgbox "There is a match on the PMI"
                                                                 PMI_and_ref_nbr_array(ref_nbr_const, each_PMI) = ref_number_pers_panel
                                                                 PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI) = True
                                                             End If
@@ -1994,10 +1903,8 @@ If CSES_messages = 1 Then
                                                     'If there are PMIs listed on the DAIL message that do not align, then that DAIL message needs to be flagged for QI
                                                     for each_individual = 0 to UBound(PMI_and_ref_nbr_array, 2)
                                                         If PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) <> True Then
-                                                            If activate_msg_boxes = True Then Msgbox "Some PMIs not matched"
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " not found on case.")
                                                         ElseIf PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) = True Then
-                                                            If activate_msg_boxes = True Then Msgbox "PMI matched"
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " found on case (M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & ").")
                                                         Else
                                                             MsgBox "Testing -- Script unable to determine if all or only some PMIs matched."
@@ -2011,9 +1918,6 @@ If CSES_messages = 1 Then
                                                         'Update the processing notes to indicate that all PMIs found on the case rather than listing out on by one
                                                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = "All PMIs found on case. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
-                                                        If activate_msg_boxes = True Then MsgBox "Testing -- PMIs all found on case"
-
-                                                        If activate_msg_boxes = True Then Msgbox "Testing -- Moving to STAT"
                                                         EMWriteScreen "STAT", 19, 22
                                                         Call write_value_and_transmit("UNEA", 19, 69)
 
@@ -2021,7 +1925,6 @@ If CSES_messages = 1 Then
 
                                                         If trim(no_unea_panels_exist) = "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
                                                             'If no UNEA panels exist for the case, then the case needs to be flagged for QI
-                                                            If activate_msg_boxes = True Then Msgbox "Testing -- no_unea_panels_exist: " & no_unea_panels_exist
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = " No UNEA panels exist for any member on the case." & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
                                                         ElseIf trim(no_unea_panels_exist) <> "UNEA DOES NOT EXIST FOR ANY MEMBER" Then
@@ -2088,14 +1991,12 @@ If CSES_messages = 1 Then
 
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") Then
                                                             'There is at least one missing Type 36 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            If activate_msg_boxes = True Then MsgBox "There is at least one missing Type 36 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review."
                                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                             QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                         ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                             'All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted.
-                                                            If activate_msg_boxes = True Then MsgBox "All of the identified HH members have a corresponding Type 36 UNEA panel. The message can be deleted."
                                                             list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
@@ -2105,8 +2006,6 @@ If CSES_messages = 1 Then
 
                                                     Else
                                                         'There are PMIs in the DAIL message that are not on the case. Therefore, this message should be flagged for QI and added to the DAIL skip list when it is encountered again.
-                                                        If activate_msg_boxes = True Then MsgBox "There are PMIs in the DAIL message that are not on the case. Therefore, this message should be flagged for QI and added to the DAIL skip list when it is encountered again."
-
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
                                                         'Update the excel spreadsheet with processing notes
@@ -2216,14 +2115,12 @@ If CSES_messages = 1 Then
 
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") Then
                                                             'There is at least one missing Type 37 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            If activate_msg_boxes = True Then MsgBox "There is at least one missing Type 37 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review."
                                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                             QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                         ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                             'All of the identified HH members have a corresponding Type 37 UNEA panel. The message can be deleted.
-                                                            If activate_msg_boxes = True Then MsgBox "All of the identified HH members have a corresponding Type 37 UNEA panel. The message can be deleted."
                                                             list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
@@ -2235,7 +2132,6 @@ If CSES_messages = 1 Then
                                                     PF3
 
                                                 ElseIf InStr(dail_msg, "DISB CS ARREARS (TYPE 39) OF") Then
-                                                    If activate_msg_boxes = True Then Msgbox "InStr(dail_msg, 'DISB CS (TYPE 39) OF'): "
                                                     'Enters “X” on DAIL message to open full message. 
                                                     Call write_value_and_transmit("X", dail_row, 3)
 
@@ -2284,7 +2180,6 @@ If CSES_messages = 1 Then
                                                     transmit
 
                                                     ' Navigate to CASE/PERS to match PMIs and Ref Nbrs for checking UNEA panel
-                                                    If activate_msg_boxes = True Then Msgbox "Navigate to CASE/PERS"
                                                     Call write_value_and_transmit("H", dail_row, 3)
 
                                                     EMWriteScreen "PERS", 20, 69
@@ -2311,7 +2206,6 @@ If CSES_messages = 1 Then
                                                         for each_PMI = 0 to UBound(PMI_and_ref_nbr_array, 2)
 
                                                             If pmi_number_pers_panel = PMI_and_ref_nbr_array(PMI_const, each_PMI) Then
-                                                                If activate_msg_boxes = True Then Msgbox "There is a match on the PMI"
                                                                 PMI_and_ref_nbr_array(ref_nbr_const, each_PMI) = ref_number_pers_panel
                                                                 PMI_and_ref_nbr_array(PMI_match_found_const, each_PMI) = True
                                                             End If
@@ -2335,10 +2229,8 @@ If CSES_messages = 1 Then
                                                     'If there are PMIs listed on the DAIL message that do not align, then that DAIL message needs to be flagged for QI
                                                     for each_individual = 0 to UBound(PMI_and_ref_nbr_array, 2)
                                                         If PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) <> True Then
-                                                            If activate_msg_boxes = True Then Msgbox "Some PMIs not matched"
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " not found on case.")
                                                         ElseIf PMI_and_ref_nbr_array(PMI_match_found_const, each_individual) = True Then
-                                                            If activate_msg_boxes = True Then Msgbox "PMI matched"
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " PMI #: " & PMI_and_ref_nbr_array(PMI_const, each_individual) & " found on case (M" & PMI_and_ref_nbr_array(ref_nbr_const, each_individual) & ").")
                                                         Else
                                                             MsgBox "Testing -- Something went wrong with matching PMIs for Type 39"
@@ -2352,7 +2244,6 @@ If CSES_messages = 1 Then
                                                         'Update the processing notes to indicate that all PMIs found on the case rather than listing out on by one
                                                         DAIL_message_array(dail_processing_notes_const, DAIL_count) = "All PMIs found on case. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
 
-                                                        If activate_msg_boxes = True Then Msgbox "Moving to STAT"
                                                         EMWriteScreen "STAT", 19, 22
                                                         Call write_value_and_transmit("UNEA", 19, 69)
 
@@ -2425,14 +2316,12 @@ If CSES_messages = 1 Then
 
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") Then
                                                             'There is at least one missing Type 39 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            If activate_msg_boxes = True Then msgbox "There is at least one missing Type 39 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review."
                                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                             QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                         ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                             'All of the identified HH members have a corresponding Type 39 UNEA panel. The message can be deleted.
-                                                            If activate_msg_boxes = True Then msgbox "All of the identified HH members have a corresponding Type 39 UNEA panel. The message can be deleted."
                                                             list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
@@ -2443,7 +2332,6 @@ If CSES_messages = 1 Then
 
                                                     Else
                                                         'There are PMIs in the DAIL message that are not on the case. Therefore, this message should be flagged for QI and added to the DAIL skip list when it is encountered again.
-                                                        If activate_msg_boxes = True Then MsgBox "PMIs NOT ALL found on case"
 
                                                         list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
 
@@ -2551,14 +2439,12 @@ If CSES_messages = 1 Then
 
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") Then
                                                             'There is at least one missing Type 40 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review.
-                                                            If activate_msg_boxes = True Then MsgBox "There is at least one missing Type 40 UNEA panel for a HH member. The DAIL message should be added to the skip list as it cannot be deleted and requires QI review."
                                                             list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
                                                             QI_flagged_msg_count = QI_flagged_msg_count + 1
                                                         ElseIf InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No UNEA panel") = 0 Then
                                                             'All of the identified HH members have a corresponding Type 40 UNEA panel. The message can be deleted.
-                                                            If activate_msg_boxes = True Then MsgBox "All of the identified HH members have a corresponding Type 40 UNEA panel. The message can be deleted."
                                                             list_of_DAIL_messages_to_delete = list_of_DAIL_messages_to_delete & full_dail_msg & "*"
                                                             'Update the excel spreadsheet with processing notes
                                                             objExcel.Cells(dail_excel_row, 7).Value = "Message added to delete list. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
@@ -2655,10 +2541,6 @@ If CSES_messages = 1 Then
                                                     ' If check_full_dail_msg <> full_dail_msg Then
                                                     '     MsgBox "Something went wrong. The DAIL messages do not match. Stop here"
                                                     ' End if
-
-                                                    ' 'Setting a date hired based on the DAIL month
-                                                    ' date_hired = 
-
 
                                                     ' 'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
                                                     ' Call write_value_and_transmit("S", dail_row, 3)
