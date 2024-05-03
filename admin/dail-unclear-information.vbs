@@ -854,6 +854,7 @@ EMWriteScreen MAXIS_footer_month, 20, 43
 EMWriteScreen MAXIS_footer_year, 20, 46
 
 'Initial dialog - select whether to create a list or process a list
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 306, 220, "DAIL Unclear Information"
   GroupBox 10, 5, 290, 65, "Using the DAIL Unclear Information Script"
   Text 20, 15, 275, 50, "A BULK script that gathers and processes selected (HIRE and/or CSES) DAIL messages for the agency that fall under the Food and Nutrition Service's unclear information rules. As the DAIL messages are reviewed, the script will process DAIL messages for 6-month reporters on SNAP-only and process the DAIL messages accordingly. The data will be exported in a Microsoft Excel file type (.xlsx) and saved in the LAN. "
@@ -4872,6 +4873,7 @@ If HIRE_messages = 1 Then
                                                             Call write_value_and_transmit("X", 13, 39)
 
                                                             'Initial dialog - select whether to create a list or process a list
+                                                            Dialog1 = ""
                                                             BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
                                                             
                                                             ButtonGroup ButtonPressed
@@ -5304,6 +5306,7 @@ If HIRE_messages = 1 Then
                                                                 Call write_value_and_transmit("X", 13, 39)
 
                                                                 'Initial dialog - select whether to create a list or process a list
+                                                                Dialog1 = ""
                                                                 BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
                                                                 
                                                                 ButtonGroup ButtonPressed
@@ -5827,3 +5830,48 @@ If HIRE_messages = 1 Then
     script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
     
 End If
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/03/2024
+'--Tab orders reviewed & confirmed----------------------------------------------05/03/2024
+'--Mandatory fields all present & Reviewed--------------------------------------05/03/2024
+'--All variables in dialog match mandatory fields-------------------------------05/03/2024
+'Review dialog names for content and content fit in dialog----------------------05/03/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/03/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/03/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/03/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/03/2024
+'--PRIV Case handling reviewed -------------------------------------------------05/03/2024
+'--Out-of-County handling reviewed----------------------------------------------05/03/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/03/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/03/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
