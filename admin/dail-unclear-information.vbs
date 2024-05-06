@@ -2458,16 +2458,19 @@ If CSES_messages = 1 Then
 
                                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
 
+                                                    activate_msg_boxes = True
+                                                    testing_status = True
+
                                                     If activate_msg_boxes = True then MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: - In-scope message, evaluate how it works!"
                                                 
-                                                    ' Comment/uncomment for testing purposes
-                                                    DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Working on handling."
+                                                    ' ' Comment/uncomment for testing purposes
+                                                    ' DAIL_message_array(dail_processing_notes_const, DAIL_count) = "New Employer reported. Working on handling."
 
-                                                    list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
-                                                    'To do - ensure this is at the correct spot
-                                                    'Update the excel spreadsheet with processing notes
-                                                    objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
-                                                    QI_flagged_msg_count = QI_flagged_msg_count + 1
+                                                    ' list_of_DAIL_messages_to_skip = list_of_DAIL_messages_to_skip & full_dail_msg & "*"
+                                                    ' 'To do - ensure this is at the correct spot
+                                                    ' 'Update the excel spreadsheet with processing notes
+                                                    ' objExcel.Cells(dail_excel_row, 7).Value = "QI review needed. " & DAIL_message_array(dail_processing_notes_const, DAIL_count)
+                                                    ' QI_flagged_msg_count = QI_flagged_msg_count + 1
 
                                                     'Reset variables
                                                     caregiver_ref_nbr = ""
@@ -2546,10 +2549,10 @@ If CSES_messages = 1 Then
 
                                                     If len(employer_full_name_split(0)) < 4 and Ubound(employer_full_name_split) > 0 Then
                                                         employer_full_name_first_word = employer_full_name_split(0) & " " & employer_full_name_split(1)
-                                                        If activate_msg_boxes = True then MsgBox "First word less than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word  
+                                                        If activate_msg_boxes = True then MsgBox "First word less than 3 characters long. employer_full_name_first_word is " & employer_full_name_first_word  
                                                     Else
                                                         employer_full_name_first_word = employer_full_name_split(0)   
-                                                        If activate_msg_boxes = True then MsgBox "First word longer than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word
+                                                        If activate_msg_boxes = True then MsgBox "First word longer than 3 characters long. employer_full_name_first_word is " & employer_full_name_first_word
                                                     End If
 
                                                     If instr(len(employer_full_name_first_word), employer_full_name_first_word, ",") = len(employer_full_name_first_word) then 
@@ -2592,7 +2595,7 @@ If CSES_messages = 1 Then
                                                     EmReadScreen jobs_panel_nav_check, 4, 2, 45
                                                     If jobs_panel_nav_check <> "JOBS" Then MsgBox "Testing -- Not on JOBS panel. Stop here"
                                                     
-                                                    If testing_status = True Then MsgBox "Testing -- Ensure that we are on correct HH Member. Should be at HH Member: " & HIRE_memb_number
+                                                    If testing_status = True Then MsgBox "Testing -- Ensure that we are on correct HH Member. Should be at HH Member: " & caregiver_ref_nbr
 
                                                     'Check if no JOBS panel exists on HH Memb JOBS panel
                                                     EmReadScreen jobs_panel_check, 25, 24, 2
@@ -2801,8 +2804,8 @@ If CSES_messages = 1 Then
                                                             PF9
 
                                                             'Write information regarding CS EMPLOYER REPORTED match
-                                                            CALL write_variable_in_case_note("-CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                            CALL write_variable_in_case_note("DATE MONTH: " & dail_month)
+                                                            CALL write_variable_in_case_note("-CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & caregiver_ref_nbr & " for " & trim(employer_full_name) & "-")
+                                                            CALL write_variable_in_case_note("DAIL MONTH: " & dail_month)
                                                             CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
                                                             CALL write_variable_in_case_note("---")
                                                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN CSES MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN CSES DAIL MESSAGE.")
@@ -3193,8 +3196,8 @@ If CSES_messages = 1 Then
                                                                             PF9
 
                                                                             'Write information regarding CS EMPLOYER REPORTED match
-                                                                            CALL write_variable_in_case_note("-CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:" & caregiver_ref_nbr & ") for " & trim(employer_full_name) & "-")
-                                                                            CALL write_variable_in_case_note("DATE MONTH: " & dail_month)
+                                                                            CALL write_variable_in_case_note("-CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: " & caregiver_ref_nbr & " for " & trim(employer_full_name) & "-")
+                                                                            CALL write_variable_in_case_note("DAIL MONTH: " & dail_month)
                                                                             CALL write_variable_in_case_note("EMPLOYER: " & employer_full_name)
                                                                             CALL write_variable_in_case_note("---")
                                                                             CALL write_variable_in_case_note("NO CORRESPONDING JOBS PANEL EXISTED FOR EMPLOYER NOTED IN CSES MESSAGE. STAT/JOBS PANEL ADDED FOR EMPLOYER IDENTIFIED IN CSES DAIL MESSAGE.")
@@ -3249,6 +3252,9 @@ If CSES_messages = 1 Then
                                                     PF3
 
                                                     MsgBox "The message has been processed and script will navigate back to DAIL now."
+
+                                                    activate_msg_boxes = False
+                                                    testing_status = False
 
                                                 ElseIf InStr(dail_msg, "REPORTED: CHILD REF NBR:") Then
                                                     'No action on these, simply note in spreadsheet that QI team to review
@@ -4867,10 +4873,84 @@ If HIRE_messages = 1 Then
 
                                                         EMReadSCreen back_to_dail_check, 8, 1, 72
                                                         If back_to_dail_check = "FMKDLAM6" Then
-                                                            MsgBox "It is back at DAIL. Ensure that it reset the DAIL to INFO and is at the correct message before continuing"
+
+                                                            MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
+
+                                                            'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
+                                                            Call write_value_and_transmit("H", dail_row, 3)
+                                                            PF3
+
+                                                            MsgBox "DAIL should now be reset to all DAIL messages"
+
+                                                            'Reset DAIL to only HIRE messages
                                                             Call write_value_and_transmit("X", 4, 12)
                                                             EMWriteScreen "_", 7, 39
                                                             Call write_value_and_transmit("X", 13, 39)
+
+                                                            MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
+
+                                                            'Script should now navigate to specific member name, or at least get close
+                                                            EMWriteScreen hire_message_member_name, 21, 25
+                                                            transmit
+
+                                                            MsgBox "DAIL should now be back to member name. It will enter do loop now"
+
+                                                            'Script will enter do loop to find match
+
+                                                            Do
+                                                                return_full_dail_msg = ""
+                                                                return_full_dail_msg_case_number = ""
+                                                                return_full_dail_msg_case_name = ""
+                                                                return_full_dail_msg_line_1 = ""
+                                                                return_full_dail_msg_line_2 = ""
+                                                                return_full_dail_msg_line_3 = ""
+                                                                return_full_dail_msg_line_4 = ""
+
+                                                                'Enters “X” on DAIL message to open full message. 
+                                                                Call write_value_and_transmit("X", dail_row, 3)
+
+                                                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                                EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
+                                                                return_full_dail_msg_case_number = trim(return_full_dail_msg_case_number)
+                                                                EMReadScreen return_full_dail_msg_case_name, 35, 7, 44
+                                                                return_full_dail_msg_case_name = trim(return_full_dail_msg_case_name)
+
+                                                                EMReadScreen return_full_dail_msg_line_1, 60, 9, 5
+                                                                return_full_dail_msg_line_1 = trim(return_full_dail_msg_line_1)
+                                                                EMReadScreen return_full_dail_msg_line_2, 60, 10, 5
+                                                                return_full_dail_msg_line_2 = trim(return_full_dail_msg_line_2)
+                                                                EMReadScreen return_full_dail_msg_line_3, 60, 11, 5
+                                                                return_full_dail_msg_line_3 = trim(return_full_dail_msg_line_3)
+                                                                EMReadScreen return_full_dail_msg_line_4, 60, 12, 5
+                                                                return_full_dail_msg_line_4 = trim(return_full_dail_msg_line_4)
+
+                                                                return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
+
+                                                                If return_full_dail_msg = check_full_dail_msg Then 
+                                                                    msgbox "It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                    Exit Do
+                                                                Else
+                                                                    msgbox "It did not find the matching message"
+                                                                    dail_row = dail_row + 1
+
+                                                                    'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+                                                                    EMReadScreen new_case, 8, dail_row, 63
+                                                                    new_case = trim(new_case)
+                                                                    IF new_case <> "CASE NBR" THEN 
+                                                                        'If there is NOT a new case number, the script will top the message
+                                                                        Call write_value_and_transmit("T", dail_row, 3)
+                                                                    ELSEIF new_case = "CASE NBR" THEN
+                                                                        'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                                                        Call write_value_and_transmit("T", dail_row + 1, 3)
+                                                                    End if
+                                                                End If
+
+                                                            Loop
+
+                                                            'Reset the dail_row back to 6
+                                                            dail_row = 6
+
+                                                            msgbox "Did it get close to correct message?"
 
                                                             'Initial dialog - select whether to create a list or process a list
                                                             Dialog1 = ""
@@ -5074,7 +5154,7 @@ If HIRE_messages = 1 Then
 
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then
                                                         If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "No JOBS panels exist for household member number") Then
-                                                            EMWaitReady 1, 1000
+                                                            ' EMWaitReady 1, 1000
                                                         End If
                                                     End If
                                                     
@@ -5297,13 +5377,87 @@ If HIRE_messages = 1 Then
                                                             EMWriteScreen "DAIL", 16, 43
                                                             EMWriteScreen "DAIL", 21, 70
                                                             transmit
-                                                            MsgBox "Is it back at DAIL? If so, is it on the exact same message or the first one???"
+
                                                             EMReadSCreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
-                                                                MsgBox "It is back at DAIL. Ensure that it reset the DAIL to INFO and is at the correct message before continuing"
+
+                                                                MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
+
+                                                                'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
+                                                                Call write_value_and_transmit("H", dail_row, 3)
+                                                                PF3
+
+                                                                MsgBox "DAIL should now be reset to all DAIL messages"
+
+                                                                'Reset DAIL to only HIRE messages
                                                                 Call write_value_and_transmit("X", 4, 12)
                                                                 EMWriteScreen "_", 7, 39
                                                                 Call write_value_and_transmit("X", 13, 39)
+
+                                                                MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
+
+                                                                'Script should now navigate to specific member name, or at least get close
+                                                                EMWriteScreen hire_message_member_name, 21, 25
+                                                                transmit
+
+                                                                MsgBox "DAIL should now be back to member name. It will enter do loop now"
+
+                                                                'Script will enter do loop to find match
+
+                                                                Do
+                                                                    return_full_dail_msg = ""
+                                                                    return_full_dail_msg_case_number = ""
+                                                                    return_full_dail_msg_case_name = ""
+                                                                    return_full_dail_msg_line_1 = ""
+                                                                    return_full_dail_msg_line_2 = ""
+                                                                    return_full_dail_msg_line_3 = ""
+                                                                    return_full_dail_msg_line_4 = ""
+
+                                                                    'Enters “X” on DAIL message to open full message. 
+                                                                    Call write_value_and_transmit("X", dail_row, 3)
+
+                                                                    ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                                    EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
+                                                                    return_full_dail_msg_case_number = trim(return_full_dail_msg_case_number)
+                                                                    EMReadScreen return_full_dail_msg_case_name, 35, 7, 44
+                                                                    return_full_dail_msg_case_name = trim(return_full_dail_msg_case_name)
+
+                                                                    EMReadScreen return_full_dail_msg_line_1, 60, 9, 5
+                                                                    return_full_dail_msg_line_1 = trim(return_full_dail_msg_line_1)
+                                                                    EMReadScreen return_full_dail_msg_line_2, 60, 10, 5
+                                                                    return_full_dail_msg_line_2 = trim(return_full_dail_msg_line_2)
+                                                                    EMReadScreen return_full_dail_msg_line_3, 60, 11, 5
+                                                                    return_full_dail_msg_line_3 = trim(return_full_dail_msg_line_3)
+                                                                    EMReadScreen return_full_dail_msg_line_4, 60, 12, 5
+                                                                    return_full_dail_msg_line_4 = trim(return_full_dail_msg_line_4)
+
+                                                                    return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
+
+                                                                    If return_full_dail_msg = check_full_dail_msg Then 
+                                                                        msgbox "It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                        Exit Do
+                                                                    Else
+                                                                        msgbox "It did not find the matching message"
+                                                                        dail_row = dail_row + 1
+
+                                                                        'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+                                                                        EMReadScreen new_case, 8, dail_row, 63
+                                                                        new_case = trim(new_case)
+                                                                        IF new_case <> "CASE NBR" THEN 
+                                                                            'If there is NOT a new case number, the script will top the message
+                                                                            Call write_value_and_transmit("T", dail_row, 3)
+                                                                        ELSEIF new_case = "CASE NBR" THEN
+                                                                            'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                                                            Call write_value_and_transmit("T", dail_row + 1, 3)
+                                                                        End if
+                                                                    End If
+
+                                                                Loop
+
+                                                                'Reset the dail_row back to 6
+                                                                dail_row = 6
+
+                                                                msgbox "Did it get close to correct message?"
 
                                                                 'Initial dialog - select whether to create a list or process a list
                                                                 Dialog1 = ""
@@ -5317,6 +5471,7 @@ If HIRE_messages = 1 Then
                                                                 Do
                                                                     Dialog Dialog1
                                                                 Loop until ButtonPressed = OK
+
 
                                                                 EMWriteScreen "S", dail_row, 3
                                                                 EMSendKey "<enter>"
@@ -5495,7 +5650,7 @@ If HIRE_messages = 1 Then
                                                     Call nav_back_to_dail_check(True)
                                                     
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should be deleted") Then 
-                                                        EMWaitReady 1, 1000
+                                                        ' EMWaitReady 1, 1000
                                                     End If
 
                                                     'Navigate back to DAIL message - case name and number
