@@ -177,9 +177,6 @@ Do
     If basket_number = "X127FE9" then suggested_population = "DWP"
     If basket_number = "X127EY8" then suggested_population = "DWP"    
     If basket_number = "X127EY9" then suggested_population = "DWP"
-
-    If basket_number = "X127EP8" then suggested_population = "EGA"
-    If basket_number = "X127EQ2" then suggested_population = "EGA"
    
     If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
     'Housing Supports Baskets     
