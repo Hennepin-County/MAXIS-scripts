@@ -137,40 +137,43 @@ EndDialog
 
 'Info to the user of what this script currently covers
 Do
-    Do
-	    err_msg = ""
-	    DIALOG dialog1
-	    Cancel_confirmation
-	    IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
-	    IF rei_replacement = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select if the replacement was REI."
-		IF replacement_status = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the status of the replacement."
-		IF replacement_status = "Pending Verification(s)" and verif_needed = "" THEN err_msg = err_msg & vbCr & "* Please complete the pending verifications field"
-		If IsDate(loss_date) <> TRUE or loss_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client reports the loss occured."
-		If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client reported the loss of food to county."
-		If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please complete the amount the client reported."
-		If disaster_description = "" Then err_msg = err_msg & vbCr & "* Please complete the type of disaster if power outage - specify what caused the power outage."
-		If how_verif = "" Then err_msg = err_msg & vbCr & "* Please complete how the disaster was verified - news reports, Social Worker, RedCross, Excel confirmation etc."
-		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_done_date) <> TRUE or dhs1609_done_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the date the county signed the form or enter N/A."
-		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_rcvd_date) <> TRUE or dhs1609_rcvd_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date county received the request or write N/A."
-		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_sig_date) <> TRUE or dhs1609_sig_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client signed the form or write N/A."
-    	IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Submitted Request to TSS BENE" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
- 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Do
+    err_msg = ""
+    DIALOG dialog1
+    Cancel_confirmation
+    Call validate_MAXIS_case_number(err_msg, "*")
+    IF process_step = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the step in the process you are providing an update on."
+    IF rei_replacement = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select if the replacement was REI, or select NA."
+    IF replacement_status = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the status of the replacement."
+    IF replacement_status = "N/A - Pending Verification(s)" and verif_needed = "" THEN err_msg = err_msg & vbCr & "* Please complete the pending verifications field."
+    If IsDate(loss_date) <> TRUE or loss_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reports the loss occurred."
+    If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reported the loss of food to county."
+    If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please enter the dollar amount the client reported."
+    If disaster_description = "" Then err_msg = err_msg & vbCr & "* Please descrive the type of disaster. If it was a power outage, please specify what caused the power outage."
+    If how_verif = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster was verified - news reports, social worker, Red Cross, utility confirmation, etc."
+    IF replacement_status <> "N/A - Pending Complete DHS-1609" Then
+      If IsDate(dhs1609_done_date) <> TRUE or dhs1609_done_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the date the county signed the form or enter N/A."
+      IF IsDate(dhs1609_rcvd_date) <> TRUE or dhs1609_rcvd_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date county received the request or write N/A."
+      IF IsDate(dhs1609_sig_date) <> TRUE or dhs1609_sig_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client signed the form or write N/A."
+    End If
+    IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Request Approved" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+  LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-
+'Write CASE/NOTE with information
 start_a_blank_case_note
-'writes case note for Baby Born
 CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster Reported - " & replacement_status & "--")
+CALL write_bullet_and_variable_in_Case_Note("Update on Request", process_step)
 CALL write_bullet_and_variable_in_Case_Note("Type of Disaster", disaster_description)
 CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
 CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
 CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
 CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
 CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
-IF TSS_BENE_sent_checkbox <> CHECKED THEN CALL write_bullet_and_variable_in_Case_Note("Stauts of Request", replacement_status)
+IF TSS_BENE_sent_checkbox <> CHECKED THEN CALL write_bullet_and_variable_in_Case_Note("Status of Request", replacement_status)
 CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason)
 CALL write_bullet_and_variable_in_Case_Note("Verifcations Requested", verif_needed)
 IF TSS_BENE_sent_checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Submitted a TSS BENE request (webform) through SIR")
