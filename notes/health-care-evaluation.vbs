@@ -5279,11 +5279,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Now run through HCMI and check coding
 						Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
 						'Validate that at least one member is set as ex parte "Y"
+		
 						If ex_parte_member = false THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte on HCMI for at least 1 member."
 
 						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
 						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
-						If check_ex_parte_renewal_month_year <> correct_ex_parte_revw_month_code Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on HCMI should be " & correct_ex_parte_revw_month_code & "."
+						If trim(check_ex_parte_renewal_month_year) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on HCMI should be " & correct_ex_parte_revw_month_code & "."
 
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
