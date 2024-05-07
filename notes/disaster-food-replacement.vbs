@@ -87,44 +87,52 @@ Call check_for_MAXIS(False)
 'Initial Dialog Box
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 331, 265, "Replacing Food Destroyed in a Disaster"
-  EditBox 65, 25, 35, 15, MAXIS_case_number
-  EditBox 155, 25, 45, 15, loss_date
-  EditBox 280, 25, 45, 15, amount_loss
-  EditBox 65, 45, 135, 15, disaster_type
-  EditBox 110, 65, 60, 15, how_verif
-  EditBox 110, 85, 45, 15, report_date
-  DropListBox 80, 105, 120, 15, "Select One:"+chr(9)+"Pending Complete DHS-1609"+chr(9)+"Pending Verification(s)"+chr(9)+"Submitted Request to TSS BENE", replacement_status
-  DropListBox 275, 105, 50, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"NA", rei_replacement
-  EditBox 80, 125, 245, 15, verif_needed
-  EditBox 80, 145, 245, 15, denial_reason
-  EditBox 135, 175, 45, 15, dhs1609_sig_date
-  EditBox 135, 195, 45, 15, dhs1609_rcvd_date
-  EditBox 135, 215, 45, 15, dhs1609_done_date
-  CheckBox 210, 175, 115, 10, "Request was sent to TSS BENE", TSS_BENE_sent_checkbox
-  EditBox 75, 240, 165, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 336, 405, "Replacing Food Destroyed in a Disaster"
+  EditBox 55, 30, 35, 15, MAXIS_case_number
+  DropListBox 150, 30, 120, 15, "Select One:"+chr(9)+"Initial report of loss of food"+chr(9)+"Update on replacement request"+chr(9)+"Decision on replacement request", process_step
+  EditBox 110, 60, 45, 15, loss_date
+  EditBox 110, 80, 45, 15, amount_loss
+  EditBox 110, 100, 45, 15, report_date
+  EditBox 110, 120, 210, 15, disaster_description
+  EditBox 110, 140, 120, 15, how_verif
+  EditBox 110, 160, 45, 15, loss_verification_date
+  EditBox 110, 180, 45, 15, dhs_1609_due_date
+  CheckBox 160, 185, 95, 10, "Create TIKL for DHS-1609", dhs_1609_tikl
+  EditBox 90, 220, 235, 15, verif_needed
+  DropListBox 90, 240, 50, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"NA", rei_replacement
+  DropListBox 90, 255, 180, 15, "Select One:"+chr(9)+"N/A - Pending Complete DHS-1609"+chr(9)+"N/A - Pending Verification(s)"+chr(9)+"Request Approved"+chr(9)+"Request Denied", replacement_status
+  EditBox 90, 270, 235, 15, denial_reason
+  Text 10, 390, 60, 10, "Worker Signature: "
+  EditBox 135, 320, 45, 15, dhs1609_sig_date
+  EditBox 135, 340, 45, 15, dhs1609_rcvd_date
+  EditBox 135, 360, 45, 15, dhs1609_done_date
+  EditBox 75, 385, 165, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 250, 240, 35, 15
-    CancelButton 290, 240, 35, 15
-  Text 105, 30, 45, 10, "Date of Loss:"
-  Text 205, 30, 75, 10, "Amount of Food Loss: "
-  Text 5, 50, 60, 10, "Type of Disaster:"
-  Text 205, 50, 115, 10, "(specify the cause of power outage)"
-  Text 175, 70, 150, 10, "(news reports, Social Worker, Red Cross etc.)"
-  Text 5, 110, 60, 10, "Approval Status: "
-  Text 10, 180, 120, 10, "Date DHS-1609 signed by the client:"
-  Text 10, 245, 60, 10, "Worker Signature: "
-  GroupBox 5, 165, 190, 70, "Nonreceipt/Replacement Affidavit (DHS-1609)"
-  Text 215, 110, 55, 10, "Replace as REI: "
-  Text 10, 200, 115, 10, "Date DHS-1609 received by county: "
-  Text 5, 150, 65, 10, "Reason for Denial: "
-  Text 5, 90, 100, 10, "Date client reported to county:"
-  Text 5, 130, 70, 10, "Verifications Needed: "
-  Text 5, 70, 105, 10, "How the disaster was verified:"
-  Text 5, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
+    OkButton 250, 385, 35, 15
+    CancelButton 290, 385, 35, 15
   Text 5, 5, 265, 10, "When a client reports food destroyed in a disaster and all requirements are met"
-  Text 5, 30, 50, 10, "Case number:"
-  Text 10, 220, 125, 10, "Date DHS-1609 completed by county: "
+  Text 5, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
+  Text 5, 35, 50, 10, "Case number:"
+  Text 100, 35, 50, 10, "Process Step:"
+  GroupBox 5, 50, 325, 150, "Food Loss Details"
+  Text 10, 65, 45, 10, "Date of Loss:"
+  Text 10, 85, 80, 10, "Amount of Food Loss ($): "
+  Text 10, 105, 95, 10, "Date loss reported to county:"
+  Text 10, 125, 75, 10, "Describe the disaster:"
+  Text 10, 145, 90, 10, "How disaster was verified:"
+  Text 240, 140, 80, 20, "(news report, social worker, Red Cross, etc.)"
+  Text 10, 165, 65, 10, "Date Loss verified:"
+  Text 10, 185, 80, 10, "Due Date for DHS-1609:"
+  GroupBox 5, 210, 325, 95, "Information for Replacement Request"
+  Text 10, 225, 70, 10, "Verifications Needed: "
+  Text 10, 240, 55, 10, "Replace as REI: "
+  Text 10, 255, 70, 10, "Decision on Request: "
+  Text 10, 275, 65, 10, "Reason for Denial: "
+  CheckBox 10, 290, 135, 10, "Request was sent to TSS BENE Unit", TSS_BENE_sent_checkbox
+  GroupBox 5, 310, 325, 70, "Nonreceipt/Replacement Affidavit (DHS-1609)"
+  Text 10, 325, 120, 10, "Date DHS-1609 signed by the client:"
+  Text 10, 345, 115, 10, "Date DHS-1609 received by county: "
+  Text 10, 365, 125, 10, "Date DHS-1609 completed by county: "
 EndDialog
 
 'Info to the user of what this script currently covers
@@ -140,7 +148,7 @@ Do
 		If IsDate(loss_date) <> TRUE or loss_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client reports the loss occured."
 		If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client reported the loss of food to county."
 		If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please complete the amount the client reported."
-		If disaster_type = "" Then err_msg = err_msg & vbCr & "* Please complete the type of disaster if power outage - specify what caused the power outage."
+		If disaster_description = "" Then err_msg = err_msg & vbCr & "* Please complete the type of disaster if power outage - specify what caused the power outage."
 		If how_verif = "" Then err_msg = err_msg & vbCr & "* Please complete how the disaster was verified - news reports, Social Worker, RedCross, Excel confirmation etc."
 		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_done_date) <> TRUE or dhs1609_done_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the date the county signed the form or enter N/A."
 		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_rcvd_date) <> TRUE or dhs1609_rcvd_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date county received the request or write N/A."
@@ -156,7 +164,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 start_a_blank_case_note
 'writes case note for Baby Born
 CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster Reported - " & replacement_status & "--")
-CALL write_bullet_and_variable_in_Case_Note("Type of Disaster", disaster_type)
+CALL write_bullet_and_variable_in_Case_Note("Type of Disaster", disaster_description)
 CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
 CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
 CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
