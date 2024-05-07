@@ -4936,9 +4936,11 @@ If HIRE_messages = 1 Then
 
                                                                 If return_full_dail_msg = check_full_dail_msg Then 
                                                                     msgbox "It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                    transmit
                                                                     Exit Do
                                                                 Else
                                                                     msgbox "It did not find the matching message"
+                                                                    transmit
                                                                     dail_row = dail_row + 1
 
                                                                     'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
@@ -5443,9 +5445,11 @@ If HIRE_messages = 1 Then
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then 
                                                                         msgbox "It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                        transmit
                                                                         Exit Do
                                                                     Else
                                                                         msgbox "It did not find the matching message"
+                                                                        transmit
                                                                         dail_row = dail_row + 1
 
                                                                         'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
