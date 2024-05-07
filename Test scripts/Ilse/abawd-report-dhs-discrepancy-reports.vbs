@@ -794,11 +794,23 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 EMReadScreen ATR_code, 1, bene_yr_row, bene_mo_col
                 'This bit will only update to the manual codes if the month isn't already reflecting that. 
                 If manual_code = "F" then 
-                    If ATR_code = "E" or ATR_code = "F" then exit for 'F and E are exmept
+                    If ATR_code = "E" or ATR_code = "F" then
+                        exit for 'F and E are exmept
+                    Else 
+                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                    End if 
                 ELSEIF manual_code = "C" then 
-                    If ATR_code = "C" or uATR_code = "B" then exit for ' C and B are banked months
+                    If ATR_code = "C" or ATR_code = "B" then 
+                        exit for ' C and B are banked months
+                    Else 
+                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                    End if 
                 ELSEIF manual_code = "M" then 
-                    If ATR_code = "X" or ATR_code = "M" then exit for 'X and M are counted months
+                    If ATR_code = "X" or ATR_code = "M" then 
+                        exit for 'X and M are counted months
+                    Else 
+                        Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
+                    End if 
                 Else 
                     Call write_value_and_transmit(update_code, bene_yr_row,bene_mo_col)
                 End if 
