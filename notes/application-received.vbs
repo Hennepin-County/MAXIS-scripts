@@ -473,16 +473,17 @@ EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number 
 
 'Initial Dialog - Case number
 Dialog1 = ""                                        'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 191, 135, "Application Received"
+BeginDialog Dialog1, 0, 0, 191, 150, "Application Received"
   EditBox 60, 35, 45, 15, MAXIS_case_number
+  If running_from_ca_menu = True Then CheckBox 60, 55, 105, 10, "Check here if case is PRIV", priv_case_checkbox
   ButtonGroup ButtonPressed
-    PushButton 90, 95, 95, 15, "Script Instructions", script_instructions_btn
-    OkButton 80, 115, 50, 15
-    CancelButton 135, 115, 50, 15
+    PushButton 90, 110, 95, 15, "Script Instructions", script_instructions_btn
+    OkButton 80, 130, 50, 15
+    CancelButton 135, 130, 50, 15
   Text 5, 10, 185, 20, "Multiple CASE:NOTEs will be entered with this script run to document the actions for pending new applications."
   Text 5, 40, 50, 10, "Case Number:"
-  Text 5, 55, 185, 10, "This case should be in PND2 status for this script to run."
-  Text 5, 65, 185, 30, "If the programs requested on the application are not yet pending in MAXIS, cancel this script run, pend the case to PND2 status and run the script again."
+  Text 5, 70, 185, 10, "This case should be in PND2 status for this script to run."
+  Text 5, 80, 185, 30, "If the programs requested on the application are not yet pending in MAXIS, cancel this script run, pend the case to PND2 status and run the script again."
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -1297,6 +1298,7 @@ IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
+If priv_case_checkbox = checked Then transfer_needed = False
 If mx_region = "TRAINING" Then transfer_needed = False
 transfer_to_worker = right(new_caseload, 3)
 If transfer_needed = False Then
@@ -1422,7 +1424,7 @@ Do
         End If
         If transfer_needed = True Then
             If ECF_transfer_confirmation = "Select one..." then err_msg = err_msg & vbNewLine & "* This case needs to be transferred in ECF Next first. Transfer the case in ECF Next now."
-        End if 
+        End if
         If ButtonPressed = on_demand_waiver_button Then
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx"
             err_msg = "LOOP"
