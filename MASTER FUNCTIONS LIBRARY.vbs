@@ -1351,7 +1351,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		resi_street_full = trim(resi_line_one & " " & resi_line_two)
         resi_city = replace(city_line, "_", "")
         resi_zip = replace(zip_line, "_", "")
-
         If county_line = "01" Then addr_county = "01 Aitkin"					'Adding the county name to the county string
         If county_line = "02" Then addr_county = "02 Anoka"
         If county_line = "03" Then addr_county = "03 Becker"
@@ -1443,6 +1442,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         resi_county = addr_county
 
 		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
+		Call remove_dash_from_droplist(state_list)
 
         If homeless_line = "Y" Then addr_homeless = "Yes"						'formatting the Y and N to 'Yes' or 'No'
         If homeless_line = "N" Then addr_homeless = "No"
@@ -1490,7 +1490,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If living_sit_line = "09" Then living_situation = "09 - Declined"
         If living_sit_line = "10" Then living_situation = "10 - Unknown"
         addr_living_sit = living_situation
-
+		
         EMReadScreen addr_eff_date, 8, 4, 43									'reading the dates on the panel
         EMReadScreen addr_future_date, 8, 4, 66
 
@@ -1521,13 +1521,13 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMReadScreen phone_two, 12, 17, 33
 			EMReadScreen phone_three, 12, 18, 33
 
-			EMReadScreen type_one, 1, 16, 61
-			EMReadScreen type_two, 1, 17, 61
-			EMReadScreen type_three, 1, 18, 61
+			EMReadScreen type_one, 1, 16, 52
+			EMReadScreen type_two, 1, 17, 52
+			EMReadScreen type_three, 1, 18, 52
 
-			EMReadScreen text_yn_one, 1, 16, 76
-			EMReadScreen text_yn_two, 1, 17, 76
-			EMReadScreen text_yn_three, 1, 18, 76
+			EMReadScreen text_yn_one, 1, 16, 66
+			EMReadScreen text_yn_two, 1, 17, 66
+			EMReadScreen text_yn_three, 1, 18, 66
 
 
 			EMReadScreen addr_email, 50, 19, 31
@@ -1542,7 +1542,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         mail_city = replace(mail_city_line, "_", "")
         mail_state = replace(mail_state_line, "_", "")
         mail_zip = replace(mail_zip_line, "_", "")
-
+		Call get_state_name_from_state_code(mail_state_line, mail_state, TRUE)		'This function makes the state code to be the state name written out - including the code
 		If text_yn_one = "_" Then text_yn_one = ""								'Changing blanks to nulls
 		If text_yn_two = "_" Then text_yn_two = ""
 		If text_yn_three = "_" Then text_yn_three = ""
@@ -1552,7 +1552,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			If left(addr_email, 1) = "_" Then addr_email = right(addr_email, len(addr_email) - 1)
 		Loop until right(addr_email, 1) <> "_" AND  left(addr_email, 1) <> "_"
 
-        notes_on_address = "Address effective on " & addr_eff_date & "."
+		notes_on_address = "Address effective on " & addr_eff_date & "."
         ' If mail_line_one <> "" Then
         '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
         '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
@@ -1598,9 +1598,8 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		original_information = UCASE(original_information)
     End If
 
-    If access_type = "WRITE" Then
+	If access_type = "WRITE" Then
 		' verif_received 'add functionality to change how this is updated based on if we have verif or not.
-
 		update_attempted = False
 		resi_line_one = trim(resi_line_one)
 		resi_line_two = trim(resi_line_two)
@@ -1619,6 +1618,12 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		mail_city = trim(mail_city)
 		mail_state = trim(mail_state)
 		mail_zip = trim(mail_zip)
+		var_month = datepart("m", addr_eff_date)
+		IF len(var_month) = 1 THEN var_month = "0" & var_month
+		var_day = datepart("d", addr_eff_date)
+		IF len(var_day) = 1 THEN var_day = "0" & var_day
+		var_year = Right(addr_eff_date, 2)
+		addr_eff_date = var_month & "/" & var_day & "/" & var_year
 		addr_eff_date = trim(addr_eff_date)
 		addr_future_date = trim(addr_future_date)
 		phone_one = trim(phone_one)
@@ -1628,13 +1633,11 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		type_two = trim(type_two)
 		type_three = trim(type_three)
 		verif_received = trim(verif_received)
-
 		current_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
 							  addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
 							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&_
 							  text_yn_one&"|"&text_yn_two&"|"&text_yn_three&"|"&addr_email&"|"&addr_verif
-
-
+		
 		current_information = UCase(current_information)
 		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
 		If current_information <> original_information Then						'If the information in the beginning and the information inthe end do not match - we need to update
@@ -1663,23 +1666,23 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				Call clear_line_of_text(15, 49) 	'mail state
 				Call clear_line_of_text(15, 58) 	'mail zip
 
-				Call clear_line_of_text(16, 39)		'phone information'
-				Call clear_line_of_text(16, 45)
-				Call clear_line_of_text(16, 49)
-				Call clear_line_of_text(16, 61)
-				Call clear_line_of_text(16, 76)
+				Call clear_line_of_text(16, 33)		'phone information'
+				Call clear_line_of_text(16, 37)
+				Call clear_line_of_text(16, 41)
+				Call clear_line_of_text(16, 52)
+				Call clear_line_of_text(16, 66)
 
-				Call clear_line_of_text(17, 39)
-				Call clear_line_of_text(17, 45)
-				Call clear_line_of_text(17, 49)
-				Call clear_line_of_text(17, 61)
-				Call clear_line_of_text(17, 76)
+				Call clear_line_of_text(17, 33)
+				Call clear_line_of_text(17, 37)
+				Call clear_line_of_text(17, 41)
+				Call clear_line_of_text(17, 52)
+				Call clear_line_of_text(17, 66)
 
-				Call clear_line_of_text(18, 39)
-				Call clear_line_of_text(18, 45)
-				Call clear_line_of_text(18, 49)
-				Call clear_line_of_text(18, 61)
-				Call clear_line_of_text(18, 76)
+				Call clear_line_of_text(18, 33)
+				Call clear_line_of_text(18, 37)
+				Call clear_line_of_text(18, 41)
+				Call clear_line_of_text(18, 52)
+				Call clear_line_of_text(18, 66)
 
 				Call clear_line_of_text(19, 31)
 			End If
@@ -1708,10 +1711,9 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
-
-			resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
-			If len(resi_line_one) > 22 or len(resi_line_two) > 22 Then
-				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			If len(resi_street_full) > 22 Then 
 	            resi_words = split(resi_street_full, " ")
 	            write_resi_line_one = ""
 	            write_resi_line_two = ""
@@ -1729,8 +1731,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	                End If
 	            Next
 	        Else
-	            write_resi_line_one = resi_line_one
-				write_resi_line_two = resi_line_two
+				write_resi_line_one = resi_street_full
 	        End If
 	        EMWriteScreen write_resi_line_one, 6, 43
 	        EMWriteScreen write_resi_line_two, 7, 43
@@ -1744,10 +1745,8 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			IF addr_reservation = "No" THEN Call clear_line_of_text(11, 74)
 
 	        EMWriteScreen left(addr_verif, 2), 9, 74
-
-			mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
-			If len(mail_line_one) > 22 or len(mail_line_two) > 22 Then
-				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			If len(mail_street_full) > 22 Then
 	            mail_words = split(mail_street_full, " ")
 	            write_mail_line_one = ""
 	            write_mail_line_two = ""
@@ -1765,8 +1764,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	                End If
 	            Next
 	        Else
-	            write_mail_line_one = mail_line_one
-				write_mail_line_two = mail_line_two
+	            write_mail_line_one = mail_street_full
 	        End If
 
 
@@ -1808,23 +1806,23 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
 		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
 
-		        EMWriteScreen phone_one_left, 16, 39
-		        EMWriteScreen phone_one_mid, 16, 45
-		        EMWriteScreen phone_one_right, 16, 49
-		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 61
-				If phone_one <> "" Then EMWriteScreen text_yn_one, 16, 76
+		        EMWriteScreen phone_one_left, 16, 33
+		        EMWriteScreen phone_one_mid, 16, 37
+		        EMWriteScreen phone_one_right, 16, 41
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 52
+				If phone_one <> "" Then EMWriteScreen text_yn_one, 16, 66
 
-		        EMWriteScreen phone_two_left, 17, 39
-		        EMWriteScreen phone_two_mid, 17, 45
-		        EMWriteScreen phone_two_right, 17, 49
-		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 61
-				If phone_two <> "" Then EMWriteScreen text_yn_two, 17, 76
+		        EMWriteScreen phone_two_left, 17, 33
+		        EMWriteScreen phone_two_mid, 17, 37
+		        EMWriteScreen phone_two_right, 17, 41
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 52
+				If phone_two <> "" Then EMWriteScreen text_yn_two, 17, 66
 
-		        EMWriteScreen phone_three_left, 18, 39
-		        EMWriteScreen phone_three_mid, 18, 45
-		        EMWriteScreen phone_three_right, 18, 49
-		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 61
-				If phone_three <> "" Then EMWriteScreen text_yn_three, 18, 76
+		        EMWriteScreen phone_three_left, 18, 33
+		        EMWriteScreen phone_three_mid, 18, 37
+		        EMWriteScreen phone_three_right, 18, 41
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 52
+				If phone_three <> "" Then EMWriteScreen text_yn_three, 18, 66
 
 				EMSetCursor 19, 31
 				EMSendKey "<eraseEOF>"
