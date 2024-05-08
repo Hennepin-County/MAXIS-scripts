@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/08/2024", "New support to display Expedited approvals more accurately, ensuring we are only documenting information for months that will be issued.##~####~##Additional information to have clearer information about ineligible results due to non-cooperation and cases where there is not a limit to shelter expense.", "Casey Love, Hennpin County")
 call changelog_update("03/15/2024", "Additional support added to check for 'U' code on REVW and MONT.", "Megan Geissler, Hennepin County")
 call changelog_update("03/15/2024", "Updated the dialogs and CASE NOTE information with some details for ##~## - If a program is closed for a death, the date of death will be listed in the dialog and CASE/NOTE.##~## - For HC programs, if ineligible due to death, the eff date in the CAE/NOTE header will be for the date of death.##~## - Added some additional support around Designated Providers##~## - Removed 'Denied' and 'Closed' indicators from the HC CASE/NOTE Headers because they were not reliable. THIS IS TEMPORARY and will be returned when more support is built.##~##", "Casey Love, Hennpin County")
 call changelog_update("03/08/2024", "Updates to support for ELIG/HC functionality to provide additional information and process guidance ##~## - Added date for 1503 Form. ##~## - Review for Remedial Care Bills when member is in a GRH Facility but is not active GRH.##~## ##~##Please report any issues or question on this script run if you find them.", "Casey Love, Hennepin County")
@@ -3976,7 +3977,11 @@ function define_snap_elig_dialog()
 	  	Text 305, 110, 145, 10, "Total Shelter Costs . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total
 	  	Text 305, 120, 145, 10, "Half of Net Income . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc & "  ( - )"
 	  	Text 305, 130, 145, 10, "Adjusted Shelter Costs . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs
-	  	Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel <> "" Then
+			Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
+		Else
+			Text 305, 140, 90, 20, "No maximum shelter cost on this case."
+		End If
 	  	Text 305, 160, 145, 10, "Allowed Shelter Expense . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
 
 	  Else
@@ -4021,7 +4026,34 @@ function define_snap_elig_dialog()
 				Text 130, 145, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
 			End if
 		Else
-			Text 15, 120, 300, 10, "This case is ineligible because it hasn't met the requirements for SNAP Eligibility. The case tests above show what requirements have not been met."
+			y_pos = 110
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+
+					If STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" Then
+						Text 15, y_pos, 375, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" Then
+						Text 15, y_pos, 375, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" Then
+						Text 15, y_pos, 375, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" Then
+						Text 15, y_pos, 375, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" Then
+						Text 15, y_pos, 375, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb)
+						y_pos = y_pos + 10
+					End If
+				Next
+			End If
+
+			Text 15, y_pos, 375, 10, "This case is ineligible because it hasn't met the requirements for SNAP Eligibility. The case tests above show what requirements have not been met."
 	    End if
 
 	  End If
@@ -4042,10 +4074,21 @@ function define_snap_elig_dialog()
 		PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
 		y_pos = 25
 		for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+			SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = ""
 			If SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
 				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app)
 			ElseIF SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+				If SNAP_UNIQUE_APPROVALS(package_is_expedited_const, approval_selected) = False Then
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+				ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_exp_verif_status_all_provided = True Then
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+				ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_exp_package_includes_month_two = False Then
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " only"
+					SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = first_month
+				Else
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " and " & mid(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), 7, 5)
+					SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = first_month & "~" & mid(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), 7, 5)
+				End If
 			Else
 				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & SNAP_UNIQUE_APPROVALS(last_mo_const, each_app)
 			End if
@@ -4065,11 +4108,19 @@ function define_snap_elig_dialog()
 		  app_x_pos = 10
 		  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
 		  	If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				Text app_x_pos, app_y_pos, 85, 10, SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt
-				app_y_pos = app_y_pos + 10
-				If app_y_pos = 152 Then
-					app_y_pos = 132
-					app_x_pos = app_x_pos + 90
+				display_benefit = False
+				If SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+					display_benefit = True
+				ElseIf InStr(SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					Text app_x_pos, app_y_pos, 85, 10, SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt
+					app_y_pos = app_y_pos + 10
+					If app_y_pos = 152 Then
+						app_y_pos = 132
+						app_x_pos = app_x_pos + 90
+					End If
 				End If
 			End If
 		  Next
@@ -4785,23 +4836,28 @@ function dwp_elig_case_note()
 
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
 				End If
 			Next
@@ -5209,23 +5265,28 @@ function mfip_elig_case_note()
 
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
 				End If
 			Next
@@ -6194,23 +6255,28 @@ function ga_elig_case_note()
 			Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
 				End If
 			Next
@@ -7952,23 +8018,36 @@ function snap_elig_case_note()
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
 			If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
-					' " 10/21:     Entitlement: $ 1,125.00 ¦ Issued to Resident: $ 1,125.00    10/21"
-					Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-				Else
-					If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then
-						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
-						If SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then Call write_variable_in_CASE_NOTE("                               | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
-						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
-					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then
-						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
-						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
-					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then
-						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+				display_benefit = False
+				If SNAP_UNIQUE_APPROVALS(limit_benefit_months, unique_app) = "" Then
+					display_benefit = True
+				ElseIf InStr(SNAP_UNIQUE_APPROVALS(limit_benefit_months, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					If divider_needed = True Then
+						Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+						display_benefit = False
 					End If
 
-					Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-					If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+					If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
+						' " 10/21:     Entitlement: $ 1,125.00 ¦ Issued to Resident: $ 1,125.00    10/21"
+						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+					Else
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then
+							Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
+							If SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then Call write_variable_in_CASE_NOTE("                               | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
+							If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+						ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then
+							Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
+							If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+						ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then
+							Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+						End If
+
+						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+						divider_needed = True
+					End If
 				End If
 			End If
 		Next
@@ -8287,9 +8366,14 @@ function snap_elig_case_note()
 
 
 		Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
-		Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel <> "" Then
+			Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+		Else
+			Call write_variable_in_CASE_NOTE("            MAX Allowable:  NO LIMIT  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+		End If
 		Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
+
 		Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
 		Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
@@ -8397,23 +8481,28 @@ function snap_elig_case_note()
 			Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_one_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_two_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_three_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_four_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
 				End If
 				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					Call write_variable_in_CASE_NOTE("   - MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " &  STAT_INFORMATION(month_ind).stat_disq_five_non_coop_note_text(each_memb))
+					Call write_variable_in_CASE_NOTE("     " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
 				End If
 			Next
@@ -16570,6 +16659,14 @@ class snap_eligibility_detail
 
 			snap_budg_max_allow_shel = trim(snap_budg_max_allow_shel)
 			snap_budg_shel_expenses = trim(snap_budg_shel_expenses)
+
+			If snap_budg_shel_expenses <> "" Then
+				numb_snap_budg_shel_expenses = snap_budg_shel_expenses*1
+				numb_snap_budg_max_allow_shel = snap_budg_max_allow_shel*1
+				If numb_snap_budg_shel_expenses > numb_snap_budg_max_allow_shel Then
+					snap_budg_max_allow_shel = ""
+				End If
+			End If
 			' fsb2_net_adj_inc = trim(fsb2_net_adj_inc)
 			snap_budg_max_net_adj_inc = trim(snap_budg_max_net_adj_inc)
 			snap_benefit_monthly_fs_allot = trim(snap_benefit_monthly_fs_allot)
@@ -16677,10 +16774,14 @@ class snap_eligibility_detail
 				EMReadScreen snap_exp_criteria_migrant_destitute, 1, 15, 5
 				EMReadScreen snap_exp_criteria_resource_100_income_150, 1, 16, 5
 				EMReadScreen snap_exp_criteria_resource_income_less_shelter, 1, 19, 5
+				' MsgBox "snap_exp_criteria_migrant_destitute - " & snap_exp_criteria_migrant_destitute
 
 				EMReadScreen snap_exp_verif_status_postponed, 1, 15, 52
 				EMReadScreen snap_exp_verif_status_out_of_state, 1, 17, 52
 				EMReadScreen snap_exp_verif_status_all_provided, 1, 19, 52
+				' MsgBox "snap_exp_verif_status_postponed - " & snap_exp_verif_status_postponed & vbCr &_
+				' "snap_exp_verif_status_out_of_state - " & snap_exp_verif_status_out_of_state & vbCr &_
+				' "snap_exp_verif_status_all_provided - " & snap_exp_verif_status_all_provided & vbCr & "1"
 				transmit
 
 				If exp_status_issuance_on_or_before_15th = "X" Then snap_exp_package_includes_month_one = True
@@ -16691,18 +16792,21 @@ class snap_eligibility_detail
 				If exp_status_issuance_app_month_fs_denial = "X" Then snap_exp_package_includes_month_two = True
 
 				If snap_exp_criteria_migrant_destitute = "X" Then snap_exp_criteria_migrant_destitute = True
-				If snap_exp_criteria_migrant_destitute = "_" Then snap_exp_criteria_migrant_destitute = False
+				If snap_exp_criteria_migrant_destitute = " " Then snap_exp_criteria_migrant_destitute = False
 				If snap_exp_criteria_resource_100_income_150 = "X" Then snap_exp_criteria_resource_100_income_150 = True
-				If snap_exp_criteria_resource_100_income_150 = "_" Then snap_exp_criteria_resource_100_income_150 = False
+				If snap_exp_criteria_resource_100_income_150 = " " Then snap_exp_criteria_resource_100_income_150 = False
 				If snap_exp_criteria_resource_income_less_shelter = "X" Then snap_exp_criteria_resource_income_less_shelter = True
-				If snap_exp_criteria_resource_income_less_shelter = "_" Then snap_exp_criteria_resource_income_less_shelter = False
+				If snap_exp_criteria_resource_income_less_shelter = " " Then snap_exp_criteria_resource_income_less_shelter = False
 
 				If snap_exp_verif_status_postponed = "X" Then snap_exp_verif_status_postponed = True
-				If snap_exp_verif_status_postponed = "_" Then snap_exp_verif_status_postponed = False
+				If snap_exp_verif_status_postponed = " " Then snap_exp_verif_status_postponed = False
 				If snap_exp_verif_status_out_of_state = "X" Then snap_exp_verif_status_out_of_state = True
-				If snap_exp_verif_status_out_of_state = "_" Then snap_exp_verif_status_out_of_state = False
+				If snap_exp_verif_status_out_of_state = " " Then snap_exp_verif_status_out_of_state = False
 				If snap_exp_verif_status_all_provided = "X" Then snap_exp_verif_status_all_provided = True
-				If snap_exp_verif_status_all_provided = "_" Then snap_exp_verif_status_all_provided = False
+				If snap_exp_verif_status_all_provided = " " Then snap_exp_verif_status_all_provided = False
+				' MsgBox "snap_exp_verif_status_postponed - " & snap_exp_verif_status_postponed & vbCr &_
+				' "snap_exp_verif_status_out_of_state - " & snap_exp_verif_status_out_of_state & vbCr &_
+				' "snap_exp_verif_status_all_provided - " & snap_exp_verif_status_all_provided & vbCr & "2"
 
 
 			End If
@@ -17696,7 +17800,7 @@ class hc_eligibility_detail
 												Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
 												EMReadScreen budget_exist, 22, 24, 15
 												If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
-												' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
+												MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
 											End If
 											' MsgBox "hc_prog_elig_method(hc_prog_count) - " & hc_prog_elig_method(hc_prog_count)
 											If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
@@ -17714,7 +17818,7 @@ class hc_eligibility_detail
 												' LBUD
 												' ABUD
 												budget_found = False
-												' MsgBox "budg_panel - " & budg_panel
+												MsgBox "budg_panel - " & budg_panel
 
 												If InStr(budg_panel, "ABUD") <> 0 Then
 													' MsgBox "ABUD"
@@ -19216,6 +19320,7 @@ class stat_detail
 	public stat_disq_one_exists()
 	public stat_disq_one_program()
 	public stat_disq_one_type_code()
+	public stat_disq_one_non_coop_note_text()
 	public stat_disq_one_type_info()
 	public stat_disq_one_begin_date()
 	public stat_disq_one_end_date()
@@ -19233,6 +19338,7 @@ class stat_detail
 	public stat_disq_two_exists()
 	public stat_disq_two_program()
 	public stat_disq_two_type_code()
+	public stat_disq_two_non_coop_note_text()
 	public stat_disq_two_type_info()
 	public stat_disq_two_begin_date()
 	public stat_disq_two_end_date()
@@ -19250,6 +19356,7 @@ class stat_detail
 	public stat_disq_three_exists()
 	public stat_disq_three_program()
 	public stat_disq_three_type_code()
+	public stat_disq_three_non_coop_note_text()
 	public stat_disq_three_type_info()
 	public stat_disq_three_begin_date()
 	public stat_disq_three_end_date()
@@ -19267,6 +19374,7 @@ class stat_detail
 	public stat_disq_four_exists()
 	public stat_disq_four_program()
 	public stat_disq_four_type_code()
+	public stat_disq_four_non_coop_note_text()
 	public stat_disq_four_type_info()
 	public stat_disq_four_begin_date()
 	public stat_disq_four_end_date()
@@ -19284,6 +19392,7 @@ class stat_detail
 	public stat_disq_five_exists()
 	public stat_disq_five_program()
 	public stat_disq_five_type_code()
+	public stat_disq_five_non_coop_note_text()
 	public stat_disq_five_type_info()
 	public stat_disq_five_begin_date()
 	public stat_disq_five_end_date()
@@ -19985,6 +20094,7 @@ class stat_detail
 		ReDim stat_disq_one_exists(0)
 		ReDim stat_disq_one_program(0)
 		ReDim stat_disq_one_type_code(0)
+		ReDim stat_disq_one_non_coop_note_text(0)
 		ReDim stat_disq_one_type_info(0)
 		ReDim stat_disq_one_begin_date(0)
 		ReDim stat_disq_one_end_date(0)
@@ -20002,6 +20112,7 @@ class stat_detail
 		ReDim stat_disq_two_exists(0)
 		ReDim stat_disq_two_program(0)
 		ReDim stat_disq_two_type_code(0)
+		ReDim stat_disq_two_non_coop_note_text(0)
 		ReDim stat_disq_two_type_info(0)
 		ReDim stat_disq_two_begin_date(0)
 		ReDim stat_disq_two_end_date(0)
@@ -20019,6 +20130,7 @@ class stat_detail
 		ReDim stat_disq_three_exists(0)
 		ReDim stat_disq_three_program(0)
 		ReDim stat_disq_three_type_code(0)
+		ReDim stat_disq_three_non_coop_note_text(0)
 		ReDim stat_disq_three_type_info(0)
 		ReDim stat_disq_three_begin_date(0)
 		ReDim stat_disq_three_end_date(0)
@@ -20036,6 +20148,7 @@ class stat_detail
 		ReDim stat_disq_four_exists(0)
 		ReDim stat_disq_four_program(0)
 		ReDim stat_disq_four_type_code(0)
+		ReDim stat_disq_four_non_coop_note_text(0)
 		ReDim stat_disq_four_type_info(0)
 		ReDim stat_disq_four_begin_date(0)
 		ReDim stat_disq_four_end_date(0)
@@ -20053,6 +20166,7 @@ class stat_detail
 		ReDim stat_disq_five_exists(0)
 		ReDim stat_disq_five_program(0)
 		ReDim stat_disq_five_type_code(0)
+		ReDim stat_disq_five_non_coop_note_text(0)
 		ReDim stat_disq_five_type_info(0)
 		ReDim stat_disq_five_begin_date(0)
 		ReDim stat_disq_five_end_date(0)
@@ -20627,6 +20741,7 @@ class stat_detail
 			ReDim preserve stat_disq_one_exists(memb_count)
 			ReDim preserve stat_disq_one_program(memb_count)
 			ReDim preserve stat_disq_one_type_code(memb_count)
+			ReDim preserve stat_disq_one_non_coop_note_text(memb_count)
 			ReDim preserve stat_disq_one_type_info(memb_count)
 			ReDim preserve stat_disq_one_begin_date(memb_count)
 			ReDim preserve stat_disq_one_end_date(memb_count)
@@ -20645,6 +20760,7 @@ class stat_detail
 			ReDim preserve stat_disq_two_exists(memb_count)
 			ReDim preserve stat_disq_two_program(memb_count)
 			ReDim preserve stat_disq_two_type_code(memb_count)
+			ReDim preserve stat_disq_two_non_coop_note_text(memb_count)
 			ReDim preserve stat_disq_two_type_info(memb_count)
 			ReDim preserve stat_disq_two_begin_date(memb_count)
 			ReDim preserve stat_disq_two_end_date(memb_count)
@@ -20662,6 +20778,7 @@ class stat_detail
 			ReDim preserve stat_disq_three_exists(memb_count)
 			ReDim preserve stat_disq_three_program(memb_count)
 			ReDim preserve stat_disq_three_type_code(memb_count)
+			ReDim preserve stat_disq_three_non_coop_note_text(memb_count)
 			ReDim preserve stat_disq_three_type_info(memb_count)
 			ReDim preserve stat_disq_three_begin_date(memb_count)
 			ReDim preserve stat_disq_three_end_date(memb_count)
@@ -20679,6 +20796,7 @@ class stat_detail
 			ReDim preserve stat_disq_four_exists(memb_count)
 			ReDim preserve stat_disq_four_program(memb_count)
 			ReDim preserve stat_disq_four_type_code(memb_count)
+			ReDim preserve stat_disq_four_non_coop_note_text(memb_count)
 			ReDim preserve stat_disq_four_type_info(memb_count)
 			ReDim preserve stat_disq_four_begin_date(memb_count)
 			ReDim preserve stat_disq_four_end_date(memb_count)
@@ -20696,6 +20814,7 @@ class stat_detail
 			ReDim preserve stat_disq_five_exists(memb_count)
 			ReDim preserve stat_disq_five_program(memb_count)
 			ReDim preserve stat_disq_five_type_code(memb_count)
+			ReDim preserve stat_disq_five_non_coop_note_text(memb_count)
 			ReDim preserve stat_disq_five_type_info(memb_count)
 			ReDim preserve stat_disq_five_begin_date(memb_count)
 			ReDim preserve stat_disq_five_end_date(memb_count)
@@ -22528,6 +22647,14 @@ class stat_detail
 				If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_source(each_memb) = "NON-COOP"
 				If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_source(each_memb) = "NON-COOP"
 				If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_source(each_memb) = "NON-COOP" Then
+					If stat_disq_one_type_code(each_memb) = "06" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_one_type_code(each_memb) = "07" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_one_type_code(each_memb) = "08" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_one_type_code(each_memb) = "12" Then stat_disq_one_source(each_memb) = "TRANSFER"
 				If stat_disq_one_type_code(each_memb) = "20" Then stat_disq_one_source(each_memb) = "TRANSFER"
@@ -22642,6 +22769,14 @@ class stat_detail
 				If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_source(each_memb) = "NON-COOP"
 				If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_source(each_memb) = "NON-COOP"
 				If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_one_source(each_memb) = "NON-COOP" Then
+					If stat_disq_two_type_code(each_memb) = "06" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_two_type_code(each_memb) = "07" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_two_type_code(each_memb) = "08" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_two_type_code(each_memb) = "12" Then stat_disq_two_source(each_memb) = "TRANSFER"
 				If stat_disq_two_type_code(each_memb) = "20" Then stat_disq_two_source(each_memb) = "TRANSFER"
@@ -22756,6 +22891,14 @@ class stat_detail
 				If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_source(each_memb) = "NON-COOP"
 				If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_source(each_memb) = "NON-COOP"
 				If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_one_source(each_memb) = "NON-COOP" Then
+					If stat_disq_three_type_code(each_memb) = "06" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_three_type_code(each_memb) = "07" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_three_type_code(each_memb) = "08" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_three_type_code(each_memb) = "12" Then stat_disq_three_source(each_memb) = "TRANSFER"
 				If stat_disq_three_type_code(each_memb) = "20" Then stat_disq_three_source(each_memb) = "TRANSFER"
@@ -22870,6 +23013,14 @@ class stat_detail
 				If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_source(each_memb) = "NON-COOP"
 				If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_source(each_memb) = "NON-COOP"
 				If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_source(each_memb) = "NON-COOP" Then
+					If stat_disq_four_type_code(each_memb) = "06" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_four_type_code(each_memb) = "07" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_four_type_code(each_memb) = "08" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_four_type_code(each_memb) = "12" Then stat_disq_four_source(each_memb) = "TRANSFER"
 				If stat_disq_four_type_code(each_memb) = "20" Then stat_disq_four_source(each_memb) = "TRANSFER"
@@ -22984,6 +23135,14 @@ class stat_detail
 				If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_source(each_memb) = "NON-COOP"
 				If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_source(each_memb) = "NON-COOP"
 				If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_source(each_memb) = "NON-COOP" Then
+					If stat_disq_five_type_code(each_memb) = "06" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with State Quality Control."
+					If stat_disq_five_type_code(each_memb) = "07" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Federal Quality Control."
+					If stat_disq_five_type_code(each_memb) = "08" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Employment and Training."
+					If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_non_coop_note_text(each_memb) = "Data Match (IEVS) Non-cooperation."
+					If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with US Citizenship/ID Requirment."
+					If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_non_coop_note_text(each_memb) = "Non-cooperation with Immigration Status Requirment."
+				End If
 
 				If stat_disq_five_type_code(each_memb) = "12" Then stat_disq_five_source(each_memb) = "TRANSFER"
 				If stat_disq_five_type_code(each_memb) = "20" Then stat_disq_five_source(each_memb) = "TRANSFER"
@@ -23741,6 +23900,7 @@ End If
 developer_mode = False
 allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
+' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "" Then allow_late_note = True
@@ -25405,7 +25565,7 @@ app_incorrect_btn		= 120
 explain_why_we_are_processing_btn = 130
 
 const months_in_approval			= 0
-
+const limit_benefit_months			= 1
 const verif_request_date			= 4
 const verif_request_details			= 5
 const pact_inelig_reasons			= 6
@@ -29526,9 +29686,20 @@ If enter_CNOTE_for_SNAP = True Then
 
 		program_detail = "- SNAP"
 		header_end = ""
+		SNAP_UNIQUE_APPROVALS(limit_benefit_months, unique_app) = ""
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
-				header_end = " - Ongoing"
+				If SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = False Then
+					header_end = " - Ongoing"
+				ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_exp_verif_status_all_provided = True Then
+					header_end = " - Ongoing"
+				ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_exp_package_includes_month_two = False Then
+					header_end = " only"
+					SNAP_UNIQUE_APPROVALS(limit_benefit_months, unique_app) = first_month
+				Else
+					header_end = " and " & mid(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 7, 5) & " only"
+					SNAP_UNIQUE_APPROVALS(limit_benefit_months, unique_app) = first_month & "~" & mid(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 7, 5)
+				End If
 			ElseIf len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
 				header_end = " - " & last_month
 			Else
