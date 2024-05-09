@@ -874,7 +874,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
                 Call write_variable_in_CASE_NOTE(Worker_Signature)
 	    		PF3
 	    	End if 
-        End if
+        End if 
     End if 
 
     'Additional notes for the assignment as to when to give it out. Basically if the approval or data wreg/abawd codes match the best codes they don't need to get updated or reassigned. 
@@ -893,7 +893,7 @@ Function BULK_ABAWD_FSET_exemption_finder()
             If banked_months = True then 
                 ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Assess for banked months. All TLR months used."
             ElseIf abawd_counted_months => 3 then 
-                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Time-Limits have been met. Evaluate to set to close."
+                ObjExcel.Cells(excel_row, auto_wreg_col).Value = "Assess for banked months. All TLR months used."
             End if 
         End if
     End if 
