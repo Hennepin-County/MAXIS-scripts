@@ -163,9 +163,9 @@ Do
     IF IsDate(dhs1609_sig_date) <> TRUE and trim(dhs1609_sig_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the client signed the form."
     IF IsDate(dhs1609_rcvd_date) <> TRUE and trim(dhs1609_rcvd_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county received the request."
     If IsDate(dhs1609_done_date) <> TRUE and trim(dhs1609_done_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county signed the form."
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    IF err_msg <> "" and ButtonPressed <> TSS_BENE_webform_btn THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-  LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+  LOOP UNTIL err_msg = "" and ButtonPressed <> TSS_BENE_webform_btn									'loops until all errors are resolved
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
