@@ -66,17 +66,47 @@ Call check_for_MAXIS(False)
 families_checkbox = 1
 adults_checkbox = 1
 
-'Defaulting auto-checks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
-If DateDiff("d", date, ten_day_cutoff_date) > 0 then
-    'Defaulting these messages to checked as these are the most assigned cases.
-    cola_check = 1
-    cses_check = 1
-    info_check = 1
-    pepr_check = 1
-    tikl_check = 1
-Else
-    tikl_check = 1
-End if
+
+''Creating 10-day/10-day variable to determine which dates to create list of DAIL's to capture 
+'IF CM_mo = "04" AND CM_yr = "24" THEN
+'    ten_day_10_day = #04/08/2024#
+'ELSEIF CM_mo = "05" AND CM_yr = "24" THEN
+'    ten_day_10_day = #05/11/2024#
+'ELSEIF CM_mo = "06" AND CM_yr = "24" THEN
+'    ten_day_10_day = #06/10/2024#
+'ELSEIF CM_mo = "07" AND CM_yr = "24" THEN
+'    ten_day_10_day = #07/09/2024#
+'ELSEIF CM_mo = "08" AND CM_yr = "24" THEN
+'    ten_day_10_day = #08/11/2024#
+'ELSEIF CM_mo = "09" AND CM_yr = "24" THEN
+'    ten_day_10_day = #09/09/2024#
+'ELSEIF CM_mo = "10" AND CM_yr = "24" THEN
+'    ten_day_10_day = #10/11/2024#
+'ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
+'    ten_day_10_day = #11/09/2024#
+'ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
+'    ten_day_10_day = #12/09/2024#
+'END IF 
+'
+''Defaulting auto-checks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
+'If DateDiff("d", date, ten_day_cutoff_date) > 0 then
+'    'Defaulting these messages to checked as these are the most assigned cases.
+'    cola_check = 1
+'    cses_check = 1
+'    info_check = 1
+'    pepr_check = 1
+'    tikl_check = 1
+'Elseif 'put TIKL condition here
+'    tikl_check = 1
+'Elseif 'last day of the month condition
+'    cola_check = 1
+'    cses_check = 1
+'    info_check = 1
+'    pepr_check = 1
+'    tikl_check = 1
+'Else
+'    script_end_procedure("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time.")
+'End if
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
