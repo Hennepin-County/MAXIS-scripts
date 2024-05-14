@@ -174,7 +174,7 @@ If dhs_1609_tikl = CHECKED Then Call create_TIKL("DHS-1609 was sent 10 days ago 
 
 'Write CASE/NOTE with information
 start_a_blank_case_note
-CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster Reported - " & replacement_status & "--")
+CALL write_variable_in_Case_Note("--Food Destroyed in Disaster Reported - " & replacement_status & "--")
 CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
 CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
 CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
