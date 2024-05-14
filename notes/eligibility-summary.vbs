@@ -7925,62 +7925,64 @@ function deny_elig_case_note()
 		verif_header = True
 	End If
 
-	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
-		End if
+	If verif_header = True Then
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+			End if
 
-		If (STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-		End if
-		If (STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-		End if
-		If (STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-		End if
+			If (STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+			End if
+			If (STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+			End if
+			If (STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+			End if
 
-		If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
-		End if
-		If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then
-			Call enter_verif_missing_header(verif_header)
-			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
-		End if
-	Next
+			If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+			End if
+			If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then
+				Call enter_verif_missing_header(verif_header)
+				Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+			End if
+		Next
+	End If
 
 	If DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("======================= WCOM of DENIAL INFORMATION ADDED ====================")
