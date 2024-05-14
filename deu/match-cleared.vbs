@@ -110,14 +110,14 @@ DO
 	    cancel_confirmation
 	    Call validate_MAXIS_case_number(err_msg, "*")
 	    IF ButtonPressed = search_button Then 'this will check for if the worker is on the DAIL and the script cant find a case number'
-	    	IF MAXIS_case_number = "" Then
+	    	IF trim(MAXIS_case_number) = "" Then
 	    		MsgBox "Cannot search without a case number, please try again."
 	    	Else
 	    		HH_Memb_DropDown = ""
 	    		Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 	    	End If
 	    End If
-		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Select a resident to update."
+		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Select a resident to update."
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
@@ -449,39 +449,15 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 	End If
 
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
-    IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULA_res_status = "CB"
-    IF resolution_status = "CC-Overpayment Only" THEN IULA_res_status = "CC" 'Claim Entered" CC cannot be used - ACTION ODE FOR ACTH OR ACTM IS INVALID
-    IF resolution_status = "CF-Future Save" THEN IULA_res_status = "CF"
-    IF resolution_status = "CA-Excess Assets" THEN IULA_res_status = "CA"
-    IF resolution_status = "CI-Benefit Increase" THEN IULA_res_status = "CI"
-    IF resolution_status = "CP-Applicant Only Savings" THEN IULA_res_status = "CP"
-    IF resolution_status = "BC-Case Closed" THEN IULA_res_status = "BC"
-    IF resolution_status = "BE-Child" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-No Change" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-Overpayment Entered" THEN IULA_res_status = "BE"
-    IF resolution_status = "BE-NC-Non-collectible" THEN IULA_res_status = "BE"
-    IF resolution_status = "BI-Interface Prob" THEN IULA_res_status = "BI"
-    IF resolution_status = "BN-Already Known-No Savings" THEN IULA_res_status = "BN"
-    IF resolution_status = "BP-Wrong Person" THEN IULA_res_status = "BP"
-    IF resolution_status = "BU-Unable To Verify" THEN IULA_res_status = "BU"
-    IF resolution_status = "BO-Other" THEN IULA_res_status = "BO"
-    IF resolution_status = "NC-Non Cooperation" THEN IULA_res_status = "NC"
-    '
-    EMwritescreen IULA_res_status, 12, 58
-    IF IULA_res_status = "CC" THEN
-        col = 57
-        Do
-        	EMReadscreen action_header, 4, 11, col
-        	If action_header <> "    " Then
-        		If action_header = "ACTH" Then
-        			EMWriteScreen "BE", 12, col+1
-				Else
-        			EMWriteScreen "CC", 12, col+1
-				End If
-        	End If
-        	col = col + 6
-        Loop until action_header = "    "
-    END IF
+    '----------------------------------------------------------------------------------------------------Adding resolution status for single or multiple programs on match.
+    col = 57 'start col
+
+    Do 	
+        EMReadScreen cleared_header, 4, 11, col 
+        If trim(cleared_header) = "" then exit do 
+        EMWriteScreen left(resolution_status, 2), 12, col + 1
+        col = col + 6
+    Loop 
 
     IF change_response = "Yes" THEN
     	EMwritescreen "Y", 15, 37
@@ -634,9 +610,9 @@ ELSEIF resolution_status = "CC-Overpayment Only" THEN
 ELSEIF resolution_status = "NC-Non Cooperation" THEN
 		cleared_header = "NON-COOPERATION "
 ELSEIF resolution_status <> "CC-Overpayment Only" OR resolution_status <> "NC-Non Cooperation" THEN
-	cleared_header = "CLEARED " & IULA_res_status
+	cleared_header = "CLEARED " & left(resolution_status, 2)
 ELSEIF resolution_status = "BE-NC-Non-collectible" THEN
-	cleared_header = "CLEARED " & IULA_res_status & "Non-Collectible"
+	cleared_header = "CLEARED " & left(resolution_status, 2) & " Non-Collectible"
 END IF
 
 IF match_type = "BEER" THEN match_type_letter = "B"
@@ -736,7 +712,7 @@ script_run_lowdown = script_run_lowdown & vbCr & "Resolution Status: " & resolut
 script_run_lowdown = script_run_lowdown & vbCr & "Change Response: " & change_response
 script_run_lowdown = script_run_lowdown & vbCr & "DISQ Action: " & DISQ_action & vbCR
 script_run_lowdown = script_run_lowdown & vbCr & "Active Programs Codes: " & Active_Programs
-script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & IULA_res_status
+script_run_lowdown = script_run_lowdown & vbCr & "IULA Resolution Status: " & left(resolution_status, 2)
 script_run_lowdown = script_run_lowdown & vbCr & "IULB Enter Msg: " & IULB_enter_msg
 script_run_lowdown = script_run_lowdown & vbCr & "Other Notes: " & other_notes & vbCr
 
