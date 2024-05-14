@@ -69,6 +69,23 @@ call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+' REVIEW BLOCK --- These are the possibilities for completing QC Reviews -------
+QCR_random_SNAP_approvals = False
+QCR_random_MFIP_approvals = False
+QCR_random_DWP_approvals = False
+QCR_random_MSA_approvals = False
+QCR_random_GA_approvals = False
+QCR_random_GRH_approvals = False
+QCR_random_HC_approvals = False
+QCR_random_EMER_approvals = False
+QCR_random_DENY_approvals = False
+QCR_SNAP_ABAWD_30_09_Eligible = False
+QCR_SNAP_ABAWD_30_10_All = False
+QCR_SNAP_Homeless_SHELTER_Expense_All = True
+	SNAP_Homeless_SHELTER_Expense_Min = 179.66
+' ------------------------------------------------------------------------------
+
+
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
 	If variable = "" Then variable = 0
@@ -8398,6 +8415,15 @@ function snap_elig_case_note()
 
 	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
 		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+		for each_month = 0 to UBound(SPECIAL_PROCESSES_BY_MONTH, 2)
+			If SPECIAL_PROCESSES_BY_MONTH(footer_mo_const, each_month) = SNAP_ELIG_APPROVALS(elig_ind).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(elig_ind).elig_footer_year Then
+				If SPECIAL_PROCESSES_BY_MONTH(SNAP_to_MFIP_const, each_month) = True then
+					Call write_variable_in_CASE_NOTE("SNAP is closed as an individual program as the case is MFIP eligible.")
+					Call write_variable_in_CASE_NOTE("     Eligibility for Food Support benefits will be determined ")
+					Call write_variable_in_CASE_NOTE("     as a part of the MFIP package. SNAP TO MFIP TRANSITION")
+				End If
+			End If
+		Next
 
 		Call write_variable_in_CASE_NOTE("* SNAP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for SNAP benefits was withdrawn. (APPLICATION WITHDRAWN)")
@@ -18724,6 +18750,11 @@ class stat_detail
 	public footer_month
 	public footer_year
 	public children_on_case
+
+	public stat_addr_homeless_yn
+	public stat_addr_residence_county
+	public stat_addr_living_situation
+
 	public stat_prog_cash_I_appl_date
 	public stat_prog_cash_I_elig_begin_date
 	public stat_prog_cash_I_interview_date
@@ -19460,6 +19491,11 @@ class stat_detail
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
 		MAXIS_footer_year = footer_year
+
+		Call navigate_to_MAXIS_screen("STAT", "ADDR")
+		EMReadScreen stat_addr_homeless_yn, 1, 10, 43
+		EMReadScreen stat_addr_residence_county, 2, 9, 66
+		EMReadScreen stat_addr_living_situation, 2, 11, 43
 
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
@@ -24060,6 +24096,26 @@ If numb_EMER_versions <> "" Then
 	' 		transactions
 End If
 
+const footer_mo_const 		= 0
+const MX_foot_mo_const 		= 1
+const MX_foot_yr_const 		= 2
+const MFIP_app_const 		= 3
+const DWP_app_const 		= 4
+const GA_app_const 			= 5
+const MSA_app_const 		= 6
+const DENY_app_const 		= 7
+const GRH_app_const			= 8
+const SNAP_app_const 		= 9
+const ELIG_app_const 		= 10
+const HC_app_const 			= 11
+const MFIP_to_SNAP_const 	= 12
+const SNAP_to_MFIP_const 	= 13
+const Homeless_SHELTER_deducation = 14
+const final_month_const 	= 20
+
+Dim SPECIAL_PROCESSES_BY_MONTH()
+ReDim SPECIAL_PROCESSES_BY_MONTH(final_month_const, 0)
+
 approvals_not_created_today = ""
 first_month_not_created_today = ""
 first_year_not_created_today = ""
@@ -24074,6 +24130,23 @@ For each footer_month in MONTHS_ARRAY
 	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
 	approval_found_for_this_month = False
+
+	ReDim Preserve SPECIAL_PROCESSES_BY_MONTH(final_month_const, month_count)
+	SPECIAL_PROCESSES_BY_MONTH(footer_mo_const, month_count) 		= MAXIS_footer_month & "/" & MAXIS_footer_year
+	SPECIAL_PROCESSES_BY_MONTH(MX_foot_mo_const, month_count) 		= MAXIS_footer_month
+	SPECIAL_PROCESSES_BY_MONTH(MX_foot_yr_const, month_count) 		= MAXIS_footer_year
+	SPECIAL_PROCESSES_BY_MONTH(MFIP_to_SNAP_const, month_count) 	= false
+	SPECIAL_PROCESSES_BY_MONTH(SNAP_to_MFIP_const, month_count) 	= false
+	SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = false
+	SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) 		= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(DWP_app_const, month_count) 			= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(GA_app_const, month_count) 			= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(MSA_app_const, month_count) 			= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) 		= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(GRH_app_const, month_count) 			= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(SNAP_app_const, month_count) 		= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(ELIG_app_const, month_count) 		= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) 			= "NONE"
 
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
@@ -24101,6 +24174,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_DWP_approval = "" Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			IF DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(DWP_app_const, month_count) = DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
 		ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, DWP_ELIG_APPROVALS(dwp_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " DWP approved today." & vbCr
@@ -24131,6 +24205,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
 		ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, MFIP_ELIG_APPROVALS(mfip_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MFIP approved today." & vbCr
@@ -24163,6 +24238,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_MSA_approval = "" Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(MSA_app_const, month_count) = MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
 		ElseIf MSA_ELIG_APPROVALS(msa_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, MSA_ELIG_APPROVALS(msa_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MSA approved today." & vbCr
@@ -24191,6 +24267,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_GA_approval = "" Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(GA_app_const, month_count) = GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
 		ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, GA_ELIG_APPROVALS(ga_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GA approved today." & vbCr
@@ -24219,6 +24296,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_DENY_approval = "" Then first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) = "INELIGIBLE"
 		ElseIf CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_version_found = True Then
 			If DateDiff("d", date, CASH_DENIAL_APPROVALS(cash_deny_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " CASH DENY approved today." & vbCr
@@ -24256,6 +24334,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_GRH_approval = "" Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(GRH_app_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
 		ElseIf GRH_ELIG_APPROVALS(grh_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, GRH_ELIG_APPROVALS(grh_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GRH approved today." & vbCr
@@ -24288,6 +24367,7 @@ For each footer_month in MONTHS_ARRAY
 			If first_SNAP_approval = "" Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
 			If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result = "INELIGIBLE" Then ineligible_approval_exists = True
+			SPECIAL_PROCESSES_BY_MONTH(SNAP_app_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result
 		ElseIf SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, SNAP_ELIG_APPROVALS(snap_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " SNAP approved today." & vbCr
@@ -24299,6 +24379,13 @@ For each footer_month in MONTHS_ARRAY
 		End If
 
 	End If
+
+	'here we can compare approvals to identify some specific situations that require certain handling.
+	If SPECIAL_PROCESSES_BY_MONTH(SNAP_app_const, month_count) = "INELIGIBLE" and SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) = "ELIGIBLE" Then
+		For each_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_mfip_elig)
+			If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_mfip_elig(each_memb) = "FAILED" Then SPECIAL_PROCESSES_BY_MONTH(SNAP_to_MFIP_const, month_count) = True
+		Next
+	End if
 
 	'TODO - add back in for HC functionality'
 	reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
@@ -24324,6 +24411,8 @@ For each footer_month in MONTHS_ARRAY
 	' 	   elig_list
 
    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
+
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
 
@@ -25059,6 +25148,22 @@ For each footer_month in MONTHS_ARRAY
 			REPORTING_COMPLETE_ARRAY(snap_elig_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result
 			REPORTING_COMPLETE_ARRAY(snap_budg_cycle_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_budget_cycle
 
+			If STAT_INFORMATION(month_count).stat_addr_homeless_yn = "Y" Then
+				For each_elig_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_count).stat_shel_exists(each_elig_memb) = True Then
+						If STAT_INFORMATION(month_count).stat_shel_prosp_rent_amount(each_elig_memb) <> 0 Then
+							If STAT_INFORMATION(month_count).stat_shel_prosp_rent_verif_code(each_elig_memb) <> "NO" and STAT_INFORMATION(month_count).stat_shel_prosp_rent_verif_code(each_elig_memb) <> "?_" Then SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = True
+						End If
+						If STAT_INFORMATION(month_count).stat_shel_prosp_lot_rent_amount(each_elig_memb) <> 0 Then
+							If STAT_INFORMATION(month_count).stat_shel_retro_lot_rent_verif_code(each_elig_memb) <> "NO" and STAT_INFORMATION(month_count).stat_shel_retro_lot_rent_verif_code(each_elig_memb) <> "?_" Then SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = True
+						End If
+						If STAT_INFORMATION(month_count).stat_shel_prosp_room_amount(each_elig_memb) <> 0 Then
+							If STAT_INFORMATION(month_count).stat_shel_prosp_room_verif_code(each_elig_memb) <> "NO" and STAT_INFORMATION(month_count).stat_shel_prosp_room_verif_code(each_elig_memb) <> "?_" Then SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = True
+						End If
+					End If
+				Next
+			End If
+
 			If STAT_INFORMATION(month_count).stat_revw_snap_code = "A" Then
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_month = True
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_snap_code
@@ -25171,9 +25276,7 @@ For each footer_month in MONTHS_ARRAY
 	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
-
 	month_count = month_count + 1					'This is way down here because I want to be able to reference the information in the current month for this class.
-
 
 	Call back_to_SELF
 Next
@@ -29780,6 +29883,49 @@ If enter_CNOTE_for_SNAP = True Then
 
 		'Here we entere the CASENOTE
 		Call snap_elig_case_note
+
+		For month_count = 0 to UBound(SPECIAL_PROCESSES_BY_MONTH, 2)
+			If SPECIAL_PROCESSES_BY_MONTH(footer_mo_const, month_count) = SNAP_ELIG_APPROVALS(elig_ind).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(elig_ind).elig_footer_year Then
+				If QCR_SNAP_Homeless_SHELTER_Expense_All = True Then
+					record_for_review = False
+					If SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = True Then
+						If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses = "" Then
+							record_for_review = True
+						Else
+							numb_snap_budg_shel_exp = SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses * 1
+							If numb_snap_budg_shel_exp < SNAP_Homeless_SHELTER_Expense_Min Then record_for_review = True
+						End If
+					End If
+					If record_for_review = True Then
+						'RECORD QCR Cookie here
+						txt_file_name = "SNAP_review_homeless_shleter_expense_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+						qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+						Call find_user_name(script_run_worker)
+
+						'CREATING THE TESTING REPORT
+						With (CreateObject("Scripting.FileSystemObject"))
+							'Creating an object for the stream of text which we'll use frequently
+							Dim objTextStream
+
+							Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+							objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+							objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+							objTextStream.WriteLine "RunDateTime^&*^&*" & now
+							objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+							objTextStream.WriteLine "ELIGProgram^&*^&*SNAP"
+							objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & SNAP_ELIG_APPROVALS(elig_ind).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(elig_ind).elig_footer_year
+							objTextStream.WriteLine "Homeless^&*^&*Y"
+							objTextStream.WriteLine "BudgetedSHELExpense^&*^&*" & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
+							objTextStream.WriteLine "POLICY^&*^&*CM 0018_15"
+
+							objTextStream.Close
+						End With
+					End If
+				End If
+			End If
+		Next
 
 		If developer_mode = True Then
 			MsgBox "SNAP NOTE REVIEW"			'TESTING OPTION'
