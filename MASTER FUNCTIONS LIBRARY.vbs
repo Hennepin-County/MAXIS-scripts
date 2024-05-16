@@ -1541,9 +1541,8 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		mail_street_full = trim(mail_line_one & " " & mail_line_two)
         mail_city = replace(mail_city_line, "_", "")
 		Call get_state_name_from_state_code(mail_state_line, mail_state, TRUE)		'This function makes the state code to be the state name written out - including the code
-		mail_state = replace(mail_state_line, "_", "")
+		mail_state = replace(mail_state, "_", "")
 		mail_state_line = replace(mail_state_line, "_", "")
-		mail_state = trim(mail_state)
 		mail_state_line = trim(mail_state_line)
 		mail_zip = replace(mail_zip_line, "_", "")
 		If text_yn_one = "_" Then text_yn_one = ""								'Changing blanks to nulls
