@@ -120,12 +120,16 @@ DO
 		End If
 		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
-		IF ButtonPressed = CASH_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "011", "") 'TE02.08.011' RETURNED MAIL PROCESSING - CASH
-		IF ButtonPressed = SNAP_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "012", "") 'TE02.08.012' RETURNED MAIL PROCESSING - SNAP
+		IF ButtonPressed = CASH_POLI_TEMP_button THEN 
+			Call back_to_self
+			CALL view_poli_temp("02", "08", "011", "") 'TE02.08.011' RETURNED MAIL PROCESSING - CASH
+		ElseIf ButtonPressed = SNAP_POLI_TEMP_button THEN 
+			Call back_to_self
+			CALL view_poli_temp("02", "08", "012", "") 'TE02.08.012' RETURNED MAIL PROCESSING - SNAP
+		End If
 		IF ButtonPressed = one_source_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/cs/login/login.htm"
 		IF ButtonPressed = one_source_button or ButtonPressed = SNAP_POLI_TEMP_button or ButtonPressed = CASH_POLI_TEMP_button THEN
 			err_msg = "LOOP"
-			CALL back_to_self ' this is for if the worker has used the POLI/TEMP navigation'
 		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		End If
