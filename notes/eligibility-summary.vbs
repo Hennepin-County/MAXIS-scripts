@@ -17846,7 +17846,7 @@ class hc_eligibility_detail
 												' LBUD
 												' ABUD
 												budget_found = False
-												MsgBox "budg_panel - " & budg_panel
+												' MsgBox "budg_panel - " & budg_panel
 
 												If InStr(budg_panel, "ABUD") <> 0 Then
 													' MsgBox "ABUD"
