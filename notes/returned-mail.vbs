@@ -73,7 +73,7 @@ SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg, are_we
 msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, _
 emer_type, case_status, list_active_programs, list_pending_programs, ADHI_button, HSR_manual_button, new_addr_line_one, new_addr_line_two, new_addr_city, new_addr_state, _
 new_addr_zip, new_addr_street_full, begining_of_footer_month, resi_street_full, county_code, date_verifications_requested, error_message, mets_addr_correspondence, open_cash1, open_cash2, _
-pact_pop_up, closing_message, end_msg, received_error_confirmation, HC_only, row, col
+pact_pop_up, closing_message, end_msg, received_error_confirmation, HC_only, row, col, unclear_information_case, no_SNAP, status_row, app_status, vers_number, reporting_status
 
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -86,7 +86,7 @@ BeginDialog Dialog1, 0, 0, 221, 225, "RETURNED MAIL"
   EditBox 75, 65, 50, 15, MAXIS_case_number
   EditBox 75, 85, 50, 15, date_received
   EditBox 75, 105, 50, 15, METS_case_number
-  DropListBox 75, 125, 140, 15, "Select:"+chr(9)+"forwarding address provided"+chr(9)+"no forwarding address provided"+chr(9)+"no response received"+chr(9)+"address confirmed - received in error", ADDR_actions
+  DropListBox 75, 125, 140, 15, "Select:"+chr(9)+"Forwarding Address Provided"+chr(9)+"No Forwarding Address Provided"+chr(9)+"No Response Received"+chr(9)+"Address Confirmed - Received in Error", ADDR_actions
   EditBox 70, 185, 145, 15, worker_signature
   ButtonGroup ButtonPressed
     PushButton 135, 65, 80, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
@@ -118,7 +118,7 @@ DO
 		Else
 			IF Cdate(date_received) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future and is in the footer month that you are working in."
 		End If
-		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
+		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please choose an action for the returned mail."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
 		IF ButtonPressed = CASH_POLI_TEMP_button THEN 
 			Call back_to_self
@@ -136,6 +136,98 @@ DO
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
+
+'Defaulting unclear_information to false
+unclear_information_case = False
+
+'Determine if case falls under unclear information
+If ADDR_actions = "No Forwarding Address Provided" Then
+	
+	'Pull case details from CASE/CURR, maintains connection to DAIL
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+	If case_active = TRUE AND list_active_programs = "SNAP" AND list_pending_programs = "" Then
+
+		'Navigate to ELIG/FS from CASE/CURR to maintain tie to DAIL
+		EMWriteScreen "ELIG", 20, 22
+		Call write_value_and_transmit("FS  ", 20, 69)
+
+		EMReadScreen no_SNAP, 10, 24, 2
+		If no_SNAP <> "NO VERSION" then						'NO SNAP version means no determination
+			EMWriteScreen "99", 19, 78
+			transmit
+			'This brings up the FS versions of eligibility results to search for approved versions
+			status_row = 7
+			Do
+				EMReadScreen app_status, 8, status_row, 50
+				app_status = trim(app_status)
+				If app_status = "" then
+					PF3
+					exit do 	'if end of the list is reached then exits the do loop
+				End if
+				If app_status = "UNAPPROV" Then status_row = status_row + 1
+			Loop until app_status = "APPROVED" or app_status = ""
+
+			If app_status = "APPROVED" then
+				EMReadScreen vers_number, 1, status_row, 23
+				Call write_value_and_transmit(vers_number, 18, 54)
+				Call write_value_and_transmit("FSSM", 19, 70)
+				EmReadscreen reporting_status, 12, 8, 31
+				reporting_status = trim(reporting_status)
+
+				If reporting_status = "SIX MONTH" Then
+					'Case falls under unclear information - it is a SNAP-only, 6-month case
+					unclear_information_case = True
+				End If
+			End if
+		End If
+	End If
+	Call back_to_SELF
+End If
+
+'If case is an active SNAP-only, 6-month reporting case then it will create CASE/NOTE
+If unclear_information_case = True Then
+
+	Dialog1 = "" 'Running the unclear info dialog
+	BeginDialog Dialog1, 0, 0, 221, 145, "Undeliverable Returned Mail"
+	EditBox 80, 80, 135, 15, returned_mail
+	EditBox 80, 100, 135, 15, other_notes
+	ButtonGroup ButtonPressed
+		OkButton 110, 125, 50, 15
+		CancelButton 165, 125, 50, 15
+	Text 10, 5, 50, 10, "Case Number:"
+	Text 65, 5, 95, 10, MAXIS_case_number
+	GroupBox 5, 20, 210, 55, "Request for Contact:"
+	Text 10, 30, 200, 40, "This case is an active SNAP-only, 6-month reporter so the undeliverable mail is unclear information. This information should be entered into a CASE/NOTE and should be followed-up on at the next scheduled certification action or periodic report about the potential change in residence."
+	Text 10, 85, 65, 10, "What was returned:"
+	Text 10, 105, 45, 10, "Other notes:"
+	EndDialog
+
+	DO
+		DO
+			err_msg = ""
+			DIALOG Dialog1
+			cancel_confirmation
+
+			If trim(returned_mail) = "" Then err_msg = err_msg & vbCr & "Please indicate what the returned mail was."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		Loop until err_msg = ""
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
+
+	'Navigate to CASE/NOTE
+	CALL start_a_blank_CASE_NOTE()
+	CALL write_variable_in_CASE_NOTE("RETURNED MAIL RECEIVED - " & ADDR_actions)
+	CALL write_bullet_and_variable_in_CASE_NOTE("RECEIVED ON", date_received)
+	CALL write_bullet_and_variable_in_CASE_NOTE("WHAT WAS RETURNED", returned_mail)
+	CALL write_bullet_and_variable_in_CASE_NOTE("OTHER NOTES", other_notes)
+	CALL write_variable_in_case_note("---")
+	CALL write_variable_in_case_note("REVIEW POTENTIAL CHANGE IN RESIDENCE WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING. VERIFICATION REQUEST IS NOT REQUIRED AND NEGATIVE ACTION SHOULD NOT BE TAKEN ON THE CASE.")
+	CALL write_variable_in_case_note("---")
+	CALL write_variable_in_case_note(worker_signature)
+
+	script_end_procedure("CASE/NOTE successfully added. No negative action should be taken on case as it is a SNAP-only six-month reporting case. Script will now end.")
+End If
 
 'setting the footer month to make the updates in'
 CALL convert_date_into_MAXIS_footer_month(date_received, MAXIS_footer_month, MAXIS_footer_year)
