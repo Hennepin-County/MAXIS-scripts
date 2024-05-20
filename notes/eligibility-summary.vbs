@@ -17828,7 +17828,7 @@ class hc_eligibility_detail
 												Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
 												EMReadScreen budget_exist, 22, 24, 15
 												If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
-												MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
+												' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
 											End If
 											' MsgBox "hc_prog_elig_method(hc_prog_count) - " & hc_prog_elig_method(hc_prog_count)
 											If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
