@@ -1425,7 +1425,6 @@ Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_update_pa
 
 function atr_dialog()
 	Text 60, 20, 45, 10, MAXIS_case_number
-	EditBox 175, 15, 45, 15, atr_effective_date
 	EditBox 300, 15, 45, 15, atr_date_received		
 	DropListBox 50, 40, 100, 15, HH_Memb_DropDown, atr_member_dropdown
 	EditBox 205, 40, 45, 15, atr_start_date
@@ -1445,7 +1444,6 @@ function atr_dialog()
 	EditBox 50, 255, 230, 15, atr_comments
 	Text 5, 5, 220, 10, "ATR- AUTHORIZATION TO RELEASE"
 	Text 5, 20, 50, 10, "Case Number:"
-	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 55, 10, "Document Date:"
 	Text 15, 45, 30, 10, "Member"
 	Text 170, 45, 35, 10, "Start Date"
@@ -1461,7 +1459,7 @@ function atr_dialog()
 	Text 10, 260, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_phone_number, atr_fax_number, atr_email, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
+Dim atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_phone_number, atr_fax_number, atr_email, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number	
@@ -2089,7 +2087,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = atr_form_name Then 'Error handling for ATR Form 
-				If IsDate(atr_effective_date) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				If IsDate(atr_date_received) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If atr_member_dropdown = "Select" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a member from the Member dropdown."
 				If IsDate(atr_start_date) = FALSE Then  atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Start Date."
@@ -4345,12 +4342,11 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
+
 	' 'ATR Case Notes
-	'TODO: Should this be a person note?
-	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 'TODO: Determine if we need to structure this differently in order to search for this release
+	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 
 		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** ATR RECEIVED FOR " & atr_name & "Release End Date: " & atr_end_date & " ***")
-		CALL write_bullet_and_variable_in_case_note("Effective Date", atr_effective_date)
+		CALL write_variable_in_case_note("*** ATR RECEIVED *** FOR " & atr_name & " - Release Ends: " & atr_end_date)
 		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
 		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
 		CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
@@ -4362,21 +4358,11 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("  Fax Number", atr_fax_number)
 		CALL write_bullet_and_variable_in_case_note("  Email", atr_email)
 
-		If atr_eval_treat_checkbox = checked Then
-			CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
-		End If
-		If atr_coor_serv_checkbox = checked Then
-			CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
-		End If
-		If atr_elig_serv_checkbox = checked Then
-			CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
-		End If
-		If atr_court_checkbox = checked Then
-			CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
-		End If
-		If atr_other_checkbox = checked Then
-			CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
-		End If
+		If atr_eval_treat_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
+		If atr_coor_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
+		If atr_elig_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
+		If atr_court_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
+		If atr_other_checkbox = checked Then CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
 		CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
