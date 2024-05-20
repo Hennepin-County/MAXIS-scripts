@@ -1516,7 +1516,6 @@ end function
 Dim  arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
 
 function change_dialog()
-	EditBox 175, 15, 45, 15, chng_effective_date
 	EditBox 310, 15, 45, 15, chng_date_received		
 	EditBox 50, 45, 320, 15, chng_address_notes
 	EditBox 50, 65, 320, 15, chng_household_notes
@@ -1529,12 +1528,11 @@ function change_dialog()
 	EditBox 65, 220, 305, 15, chng_other_notes
 	EditBox 75, 240, 295, 15, chng_verifs_requested
 	DropListBox 105, 265, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", chng_notable_change
+	DropListBox 270, 265, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", chng_changes_continue
 	CheckBox 10, 285, 140, 10, "Check here to navigate to DAIL/WRIT", chng_tikl_nav_check		'TODO: handling for tikl - nav to dail/writ
-	DropListBox 270, 280, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", chng_changes_continue
 	Text 5, 5, 220, 10, change_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
-	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	GroupBox 5, 35, 370, 150, "CHANGES REPORTED"
 	Text 15, 50, 30, 10, "Address:"
@@ -1549,11 +1547,11 @@ function change_dialog()
 	Text 15, 225, 45, 10, "Other Notes:"
 	Text 15, 245, 60, 10, "Verifs Requested:"
 	Text 10, 270, 95, 10, "Notable changes reported? "
-	Text 180, 285, 90, 10, "The changes client reports:"
+	Text 180, 270, 90, 10, "The changes client reports:"
 	Text 395, 35, 45, 10, "    --Forms--"
 
 end function
-Dim chng_effective_date, chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
+Dim chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
 
 
 function evf_dialog()
@@ -2134,7 +2132,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = change_form_name then 'Error handling for Change Form 
-				If IsDate(trim(chng_effective_date)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* You must enter a valid Effective Date." ' Validate that Date Effective field is not empty and is in a proper date format
 				If IsDate(trim(chng_date_received)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* You must enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
 				If trim(chng_actions_taken) = "" AND trim(chng_other_notes) = "" AND trim(chng_verifs_requested) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All of the Actions fields are blank. At least one need info."  ' Validate the Actions fields to ensure that at least one field is filled in
@@ -4400,7 +4397,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, each_case_note) = change_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** CHANGE REPORT FORM RECEIVED ***")
-		CALL write_bullet_and_variable_in_case_note("Change Effective Date", chng_effective_date)
 		CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
 		CALL write_bullet_and_variable_in_case_note("Date Received", chng_date_received)
 		CALL write_bullet_and_variable_in_case_note("Address", chng_address_notes)
