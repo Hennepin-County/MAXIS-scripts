@@ -434,6 +434,9 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					err_msg = ""
 					dialog Dialog1
 					Call cancel_confirmation
+					If signed_by_one <> "Select or Type" and signed_one_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature one"
+					If signed_by_two <> "Select or Type" and signed_two_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature two"
+					If signed_by_three <> "Select or Type" and signed_three_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature three"
 					If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 				Loop until err_msg = ""
 				Call check_for_password(are_we_passworded_out)
@@ -541,7 +544,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 
-					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received	'TODO: This seems unnecessary
+					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received	
 					
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
@@ -1412,13 +1415,11 @@ function asset_dialog()
 	Text 395, 35, 45, 10, "    --Forms--"
 	EditBox 60, 215, 295, 15, actions_taken
 	CheckBox 15, 235, 345, 15, "Check here if DHS 6054 received. Assets for SNAP/Cash are self attested and are reported on this form.", asset_dhs_6054_checkbox
-	EditBox 130, 250, 45, 15, asset_DHS_6054_date
-	CheckBox 15, 270, 345, 15, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", asset_update_panels_checkbox
+	CheckBox 15, 250, 345, 15, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", asset_update_panels_checkbox
 	Text 5, 5, 220, 10, asset_form_name
 	Text 15, 220, 45, 10, "Action Taken:"
-	Text 40, 255, 90, 10, "DHS 6054 Document Date:"
 end function
-Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_DHS_6054_date, asset_update_panels_checkbox
+Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_update_panels_checkbox
 'ASSET CODE-END
 
 
@@ -2084,7 +2085,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If actions_taken <> "" Then actions_taken = actions_taken & ", "
 				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
 				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
-				If (asset_dhs_6054_checkbox = checked AND IsDate(asset_DHS_6054_date) = FALSE) Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter DHS6054 Document Date."
 				Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
 			End If
 
@@ -2221,9 +2221,9 @@ function main_error_handling()	'Error handling for main dialog of forms
 
 
 			If form_type_array(form_type_const, form_errors) = mtaf_form_name then 'Error handling for MTAF Form
-				If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
-				If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
-				If mtaf_sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housing is subsidized or not."
+				If IsDate(MTAF_date) = False Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Enter the date the MTAF was received."
+				If MTAF_status_dropdown = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate the status of the MTAF."
+				If mtaf_sub_housing_droplist = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate if housing is subsidized or not."
 			End If
 
 			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
@@ -4280,7 +4280,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
           '  If LTC_case = vbNo Then
 			If asset_dhs_6054_checkbox = checked Then
                 Call write_variable_in_CASE_NOTE("* Signed Personal Statement about Assets for Cash Received (DHS 6054)")
-                Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", asset_DHS_6054_date)
+                'Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", asset_DHS_6054_date)
                 If signed_by_one <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_one & " on: " & signed_one_date)
                 If signed_by_two <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_two & " on: " & signed_two_date)
                 If signed_by_three <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_three & " on: " & signed_three_date)
@@ -4313,7 +4313,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                 For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "ACCT" Then
                         Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " account. At: " & ASSETS_ARRAY(ast_location, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Balance: $" & ASSETS_ARRAY(ast_balance, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                         If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("      " & ASSETS_ARRAY(ast_share_note, the_asset))
                     End If
@@ -4323,7 +4323,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "SECU" Then
                         If left(ASSETS_ARRAY(ast_type, the_asset), 2) <> "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset))
                         If left(ASSETS_ARRAY(ast_type, the_asset), 2) = "LI" Then Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & right(ASSETS_ARRAY(ast_type, the_asset), len(ASSETS_ARRAY(ast_type, the_asset)) - 5) & " CSV: $" & ASSETS_ARRAY(ast_csv, the_asset) & " LI Face Value: $" & ASSETS_ARRAY(ast_face_value, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_jnt_owner_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * Security is shared. Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & " owns " & ASSETS_ARRAY(ast_own_ratio, the_asset) & " of the security.")
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                     End If
@@ -4332,7 +4332,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                 For the_asset = 0 to Ubound(ASSETS_ARRAY, 2)
                     If ASSETS_ARRAY(cnote_panel, the_asset) = checked AND  ASSETS_ARRAY(ast_panel, the_asset) = "CARS" Then
                         Call write_variable_in_CASE_NOTE("  - Memb " & ASSETS_ARRAY(ast_ref_nbr, the_asset) & ": " & ASSETS_ARRAY(ast_year, the_asset) & " " & ASSETS_ARRAY(ast_make, the_asset) & " " & ASSETS_ARRAY(ast_model, the_asset) & " - Trade-In Value: $" & ASSETS_ARRAY(ast_trd_in, the_asset))
-                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4)) '& " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
+                        Call write_variable_in_CASE_NOTE("      Verif: " & right(ASSETS_ARRAY(ast_verif, the_asset), len(ASSETS_ARRAY(ast_verif, the_asset)) - 4) & " - Rec'vd On: " & ASSETS_ARRAY(ast_verif_date, the_asset))
                         If ASSETS_ARRAY(ast_owe_YN, the_asset) = "Y" Then Call write_variable_in_CASE_NOTE("    * $" & ASSETS_ARRAY(ast_amt_owed, the_asset) & " owed as of " & ASSETS_ARRAY(ast_owed_date, the_asset) & " - Verif: " & right(ASSETS_ARRAY(ast_owe_verif, the_asset), len(ASSETS_ARRAY(ast_owe_verif, the_asset)) - 4))
                         If ASSETS_ARRAY(ast_note, the_asset) <> "" Then Call write_variable_in_CASE_NOTE("      Notes: " & ASSETS_ARRAY(ast_note, the_asset))
                     End If
