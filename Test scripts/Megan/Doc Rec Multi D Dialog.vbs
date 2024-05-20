@@ -1475,19 +1475,19 @@ function arep_dialog()
 	CheckBox 20, 160, 60, 10, "Forms to AREP", arep_forms_to_arep_checkbox
 	CheckBox 95, 160, 75, 10, "MMIS Mail to AREP", arep_mmis_mail_to_arep_checkbox
 	CheckBox 20, 175, 185, 10, "Check here to have the script update the AREP Panel", arep_update_AREP_panel_checkbox
-	EditBox 120, 200, 50, 15, AREP_recvd_date
-	CheckBox 20, 220, 75, 10, "ID on file for AREP?", AREP_ID_check
-	CheckBox 20, 235, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", arep_TIKL_check
-	EditBox 140, 250, 65, 15, arep_signature_date
-	CheckBox 255, 55, 115, 10, "AREP Req - MHCP - DHS-3437", arep_dhs_3437_checkbox
-	CheckBox 255, 75, 105, 10, "AREP Req - HC12729", arep_HC_12729_checkbox
-	CheckBox 255, 95, 100, 10, "SNAP AREP Choice - D405", arep_D405_checkbox
-	CheckBox 255, 115, 105, 10, "AREP on CAF", arep_CAF_AREP_page_checkbox
-	CheckBox 255, 135, 100, 10, "AREP on any HC App", arep_HCAPP_AREP_checkbox
-	CheckBox 255, 155, 75, 10, "Power of Attorney", arep_power_of_attorney_checkbox
-	CheckBox 265, 215, 35, 10, "SNAP", arep_SNAP_AREP_checkbox
-	CheckBox 265, 225, 50, 10, "Health Care", arep_HC_AREP_checkbox
-	CheckBox 265, 235, 30, 10, "Cash", arep_CASH_AREP_checkbox
+	EditBox 140, 200, 55, 15, AREP_recvd_date
+	EditBox 140, 220, 55, 15, arep_signature_date
+	CheckBox 20, 240, 75, 10, "ID on file for AREP?", AREP_ID_check
+	CheckBox 20, 255, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", arep_TIKL_check
+	CheckBox 260, 55, 35, 10, "SNAP", arep_SNAP_AREP_checkbox
+	CheckBox 260, 65, 50, 10, "Health Care", arep_HC_AREP_checkbox
+  	CheckBox 260, 75, 30, 10, "Cash", arep_CASH_AREP_checkbox
+	CheckBox 255, 110, 115, 10, "AREP Req - MHCP - DHS-3437", arep_dhs_3437_checkbox
+	CheckBox 255, 130, 105, 10, "AREP Req - HC12729", arep_HC_12729_checkbox
+	CheckBox 255, 150, 100, 10, "SNAP AREP Choice - D405", arep_D405_checkbox
+	CheckBox 255, 170, 105, 10, "AREP on CAF", arep_CAF_AREP_page_checkbox
+	CheckBox 255, 190, 100, 10, "AREP on any HC App", arep_HCAPP_AREP_checkbox
+	CheckBox 255, 210, 75, 10, "Power of Attorney", arep_power_of_attorney_checkbox
 	Text 5, 5, 220, 10, arep_form_name
 	Text 5, 25, 50, 10, "Case Number:"
 	GroupBox 10, 45, 225, 145, "Panel Information"
@@ -1501,16 +1501,16 @@ function arep_dialog()
 	Text 20, 140, 25, 10, "Phone:"
 	Text 100, 140, 15, 10, "Ext."
 	Text 20, 205, 95, 10, "Date of AREP Form Received"
-	Text 20, 255, 115, 10, "Date form was signed (MM/DD/YY):"
-	GroupBox 245, 45, 125, 155, "Specific FORM Received"
-	Text 275, 65, 50, 10, "(HC)"
-	Text 275, 85, 60, 10, "(Cash and SNAP)"
-	Text 275, 105, 75, 10, "(SNAP and EBT Card)"
-	Text 275, 125, 60, 10, "(Cash and SNAP)"
-	Text 275, 145, 50, 10, "(HC)"
-	Text 275, 165, 60, 10, "(HC, SNAP, Cash)"
-	Text 250, 175, 110, 20, "Checking the FORM will indicate the programs in the CASE/NOTE"
-	Text 255, 205, 85, 10, "Programs Authorized for:"
+	Text 20, 225, 115, 10, "Date form was signed (MM/DD/YY)"
+	GroupBox 245, 100, 125, 155, "Specific FORM Received"
+	Text 270, 120, 50, 10, "(HC)"
+	Text 270, 140, 60, 10, "(Cash and SNAP)"
+	Text 270, 160, 75, 10, "(SNAP and EBT Card)"
+	Text 270, 180, 60, 10, "(Cash and SNAP)"
+	Text 270, 200, 50, 10, "(HC)"
+	Text 270, 220, 60, 10, "(HC, SNAP, Cash)"
+	GroupBox 245, 45, 125, 45, "Programs Authorized for:"
+	Text 250, 230, 110, 20, "Checking the FORM will indicate the programs in the CASE/NOTE"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
 Dim  arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
@@ -2103,7 +2103,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 			If form_type_array(form_type_const, form_errors) = arep_form_name then 'Error handling for AREP Form 
 				If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
 				If arep_update_AREP_panel_checkbox = checked Then
-					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
+					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the address of the AREP."
 					If len(arep_name) > 37 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
 					If len(arep_street) > 44 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
 					If len(arep_city) > 15 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
@@ -3766,9 +3766,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			EMWriteScreen "               ", 7, 32
 			EMWriteScreen "  ", 7, 55
 			EMWriteScreen "     ", 7, 64
-
-			MsgBox "street" & arep_street
-
 			EMWriteScreen arep_name, 4, 32
 			arep_street = trim(arep_street)
 			If len(arep_street) > 22 Then
@@ -4377,7 +4374,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		If arep_HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
 		If arep_D405_checkbox = checked Then
 			Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
-			Call write_variable_in_CASE_NOTE("  - AREP also authorixed to get and use EBT Card.")
+			Call write_variable_in_CASE_NOTE("  - AREP also authorized to get and use EBT Card.")
 		End If
 		If arep_CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
 		If arep_HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
