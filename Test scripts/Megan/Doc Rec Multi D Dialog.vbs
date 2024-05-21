@@ -2079,8 +2079,8 @@ function main_error_handling()	'Error handling for main dialog of forms
 			If form_type_array(form_type_const, form_errors) = asset_form_name Then 'Error handling for Asset Form 
 				actions_taken = Trim(actions_taken)
 				If actions_taken <> "" Then actions_taken = actions_taken & ", "
-				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
-				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
+				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
+				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* Enter your actions taken."
 				Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
 			End If
 
@@ -2132,7 +2132,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = change_form_name then 'Error handling for Change Form 
-				If IsDate(trim(chng_date_received)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* You must enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
+				If IsDate(trim(chng_date_received)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
 				If trim(chng_actions_taken) = "" AND trim(chng_other_notes) = "" AND trim(chng_verifs_requested) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All of the Actions fields are blank. At least one need info."  ' Validate the Actions fields to ensure that at least one field is filled in
 				If chng_notable_change = "" Then chng_err_msg = chng_err_msg & vbNewLine & "* Notable changes reported is blank, make a selection."
@@ -2141,14 +2141,14 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = evf_form_name then 'Error handling for EVF Form 
-				IF IsDate(evf_effective_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid Effective Date."
-				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid date for date the EVF was received."
-				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* You must select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
-				IF evf_employer = "" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the employers name."  'checks if the employer name has been entered
-				IF evf_client = "Select" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the MEMB information."  'checks if the client name has been entered
-				IF evf_info = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* You must select if additional info was requested."  'checks if completed by employer was selected
-				IF evf_info = "yes" and IsDate(evf_info_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
-				IF evf_info = "yes" and evf_request_info = "" THEN evf_err_msg = evf_err_msg & vbCr & "* You must enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
+				IF IsDate(evf_effective_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a valid Effective Date."
+				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a vaid Document Date."
+				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* Select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
+				IF evf_employer = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the employers name."  'checks if the employer name has been entered
+				IF evf_client = "Select" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the MEMB information."  'checks if the client name has been entered
+				IF evf_info = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* Select if additional info was requested."  'checks if completed by employer was selected
+				IF evf_info = "yes" and IsDate(evf_info_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a valid date that additional info was requested."  'checks that there is a info request date entered if the it was requested
+				IF evf_info = "yes" and evf_request_info = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
 				If evf_info = "no" and evf_request_info <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
 				If evf_info = "no" and evf_info_date <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
 				'TODO: TIKL
@@ -2169,8 +2169,8 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = iaa_form_name then 'Error handling for IAA Form 
-				IF IsDate(iaa_effective_date) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Effective Date."
-				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* You must enter a valid Document date."
+				IF IsDate(iaa_effective_date) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Effective Date."
+				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Document date."
 				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
 				If iaa_form_received_checkbox = Checked and iaa_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select Type of interim assistance for IAA"
@@ -2198,7 +2198,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If IsDate(mof_effective_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid effective dated."
 				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date the document was received."
 				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
-				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
+				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
 				If MOF_TTL_email_checkbox = checked Then
 					If IsDate(mof_TTL_email_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date for the date an email about this MOF was sent to TTL."
 				End If
@@ -2221,7 +2221,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
-				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* You must enter a valid Document Date."
+				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* Enter a valid Document Date."
 				If psn_member_dropdown = "Select" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If psn_section_1_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 1 make selection from dropdown."
 				If psn_section_2_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 2 make selection from dropdown."
@@ -4418,8 +4418,8 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, each_case_note) = evf_form_name Then 
 		Call start_a_blank_case_note
 		Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
-
 		Call write_variable_in_CASE_NOTE("* EVF received " & evf_date_received & ": " & EVF_status_dropdown & "*")
+		Call write_variable_in_CASE_NOTE("  - EVF effective date " & evf_effective_date)
 		evf_ref_numb = left(evf_client, 2)
 		Call write_variable_in_CASE_NOTE("  - Employer Name: " & evf_employer)
 		Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
@@ -4430,6 +4430,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		Else
 			Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
 		END IF
+		Call write_variable_in_CASE_NOTE("  - Actions: " & evf_actions_taken)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
