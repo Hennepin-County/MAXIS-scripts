@@ -1583,35 +1583,33 @@ end function
 Dim evf_effective_date, evf_date_received, EVF_status_dropdown, evf_employer, evf_client, evf_info, evf_info_date, evf_request_info, EVF_TIKL_checkbox, evf_actions_taken
 
 function hospice_dialog()
-	EditBox 175, 20, 45, 15, hosp_effective_date
 	EditBox 310, 20, 45, 15, hosp_date_received		
 	DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
 	EditBox 100, 65, 205, 15, hosp_name
 	EditBox 100, 85, 80, 15, hosp_npi_number
 	EditBox 100, 105, 50, 15, hosp_entry_date
-	EditBox 205, 105, 50, 15, hosp_exit_date
-	EditBox 100, 125, 50, 15, hosp_mmis_updated_date
-	EditBox 30, 160, 275, 15, hosp_reason_not_updated
-	EditBox 30, 190, 275, 15, hosp_other_notes
+	EditBox 100, 125, 50, 15, hosp_exit_date
+	EditBox 100, 145, 50, 15, hosp_mmis_updated_date
+	EditBox 30, 180, 275, 15, hosp_reason_not_updated
+	EditBox 30, 210, 275, 15, hosp_other_notes
 	ButtonGroup ButtonPressed
 		PushButton 5, 280, 50, 15, "TE 02.07.081", hosp_TE0207081_btn
 		PushButton 65, 280, 50, 15, "MA-Hospice", hosp_SP_hospice_btn
 	Text 5, 5, 220, 10, hosp_form_name
 	Text 5, 25, 50, 10, "Case Number:"
-	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
 	Text 50, 50, 45, 10, "Client Name:"
 	Text 35, 70, 60, 10, "Name of Hospice:"
 	Text 50, 90, 45, 10, "NPI Number:"
 	Text 55, 110, 40, 10, "Entry Date:"
-	Text 170, 110, 35, 10, "Exit Date:"
-	Text 30, 130, 70, 10, "MMIS Updated as of "
-	Text 30, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
-	Text 30, 180, 50, 10, "Other Notes:"
+	Text 60, 130, 35, 10, "Exit Date:"
+	Text 30, 150, 70, 10, "MMIS Updated as of "
+	Text 30, 170, 165, 10, "If MMIS has not yet been updated, explain reason:"
+	Text 30, 200, 50, 10, "Other Notes:"
 	Text 60, 25, 45, 10, MAXIS_case_number
 	Text 395, 35, 45, 10, "    --Forms--"		
 end function 
-Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
+Dim  hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
 	Text 60, 20, 45, 10, MAXIS_case_number
@@ -2161,7 +2159,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 				' End If
 			End If
 			If form_type_array(form_type_const, form_errors) = hosp_form_name then 'Error handling for Hospice Form 
-				If IsDate(hosp_effective_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
 				If IsDate(hosp_date_received) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
 				If hosp_resident_name = "Select" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Select the resident that is in hospice."
 				If trim(hosp_name) = "" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
@@ -4439,13 +4436,11 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, each_case_note) = hosp_form_name Then 
 		Call start_a_blank_case_note
 		Call write_variable_in_case_note("*** HOSPICE TRANSACTION FORM RECEIVED ***") 'DO NOT cchange name for Hospice.Must keep the same header otherwise reading of past case notes won't work/continue 
-		'Call write_bullet_and_variable_in_CASE_NOTE("Effective Date", hosp_effective_date)
 		Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
 		Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
 		Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
 		Call write_bullet_and_variable_in_CASE_NOTE("Date of Entry", hosp_entry_date)
 		Call write_bullet_and_variable_in_CASE_NOTE("Exit Date", hosp_exit_date)
-		'Call write_bullet_and_variable_in_MMIS_NOTE("Exit due to", exit_cause)         'This field is not currently in use so commented out - workers are testing, may add it back in
 		Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
 		Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
 		Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
