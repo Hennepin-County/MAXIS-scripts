@@ -160,7 +160,6 @@ diet_btn			= 413
 
 'Define resource buttons
 iaa_CM121203_btn				= 2000	
-iaa_sp_pben_btn					= 2001
 iaa_te021214_btn				= 2002
 iaa_smi_btn 					= 2003
 diet_link_CM_special_diet		= 2004
@@ -1634,9 +1633,8 @@ function iaa_dialog()
 	EditBox 50, 245, 315, 15, iaa_comments
 	ButtonGroup ButtonPressed
 		PushButton 5, 280, 50, 15, "CM12.12.03", iaa_CM121203_btn
-		PushButton 65, 280, 50, 15, "TE02.12.14", iaa_te021214_btn
-		PushButton 125, 280, 70, 15, "HSRM- PBEN Panel", iaa_sp_pben_btn
-		PushButton 205, 280, 120, 15, "SMI- Verify Date Applied for PBEN", iaa_smi_btn
+		PushButton 60, 280, 50, 15, "TE02.12.14", iaa_te021214_btn
+		PushButton 115, 280, 120, 15, "SMI- Verify Date Applied for PBEN", iaa_smi_btn
 	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION"
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 125, 20, 50, 10, "Effective Date:"
@@ -2056,7 +2054,6 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 	If ButtonPressed = hosp_SP_hospice_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
 	If ButtonPressed = iaa_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
 	If ButtonPressed = iaa_te021214_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.12.14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE.pdf?csf=1&web=1&e=tUXs96"
-	If ButtonPressed = iaa_sp_pben_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
 	If ButtonPressed = iaa_smi_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://smi.dhs.state.mn.us/login"
 	If ButtonPressed = mtaf_cm101801_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00101801"
 	If ButtonPressed = mtaf_cm0510_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_000510"
@@ -2176,13 +2173,14 @@ function main_error_handling()	'Error handling for main dialog of forms
 					If (iaa_benefit_type = "" or iaa_referral_date = "" or iaa_disposition_code_dropdown = "" or iaa_iaa_date = "") Then 	'Only requiring fields that are required in pben panel to save. 
 						iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN field requirements:"
 						If iaa_benefit_type = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select benefit type"
+						If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
 						If IsDate(iaa_referral_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid Referral Date"
 						'If iaa_verification_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Verifiction Type"
 						'If IsDate(iaa_date_applied_pben) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid date for Date Applied to PBEN"
-						If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
 						If IsDate(iaa_iaa_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid IAA date"
 					End If
 				End If
+				If iaa_update_pben_checkbox = unchecked and (iaa_benefit_type <> "" or iaa_referral_date <> "" or iaa_disposition_code_dropdown <> "" or iaa_iaa_date <> "" or iaa_verification_dropdown <> "" or iaa_date_applied_pben <> "") Then iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN fields must be empty if not updating PBEN panel"
 				If iaa_update_pben_checkbox = unchecked AND iaa_comments = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must explain in comments why PBEN is not being created/updated. "
 			End If
 
@@ -3826,6 +3824,7 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 	If form_type_array(form_type_const, maxis_panel_write) = iaa_form_name Then	'MAXIS NAVIGATION FOR IAA read/write SCREEN
 		If iaa_update_pben_checkbox = checked Then 
+			pben_updated = FALSE
 			Do
 				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
 				EMReadScreen nav_check, 4, 2, 49
@@ -3852,13 +3851,14 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 
 			Do 
 				EMReadScreen pben_exist, 2, pben_row, 24
-				If pben_exist = "__" Then 										
+				If pben_exist = "__" Then 	
 					EMReadScreen numb_of_panels, 1, 2, 78
 					IF numb_of_panels = "0" Then 										'If PBEN panel does not exist, create a panel, write dialog entries into fields
-						Call write_value_and_transmit("NN", 20, 79)								
+						Call write_value_and_transmit("NN", 20, 79)			
 					Else
 						PF9																'If PBEN panel exists but benefit type is empty, write dialog entries into fields
 					End IF
+					pben_updated = TRUE									
 					EMWaitReady 0, 0
 					EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24				'Filling out the panel
 					EMWriteScreen iaa_referral_date_month, pben_row, 40
@@ -3873,13 +3873,10 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 					EMWriteScreen iaa_date_year, pben_row, 72
 					EMWriteScreen Left(iaa_disposition_code_dropdown, 1), pben_row, 77
 					iaa_update_pben_checkbox = checked
-					MsgBox "update pben checkbox" & iaa_update_pben_checkbox
-					MsgBox "pause to verify all fields were entered"
 					Exit Do
 
 				ElseIf pben_exist = "02" Then 
 					If Left(iaa_benefit_type, 2) = "02" Then 								'If 02 benefit type already exists, must evaluate to see if it is AEPN status. If so, we cannot update the panel. 
-						MsgBox "benefit type" & Left(iaa_benefit_type, 2)					'Read line of code if benefit type is 02
 						EMReadScreen pben_benefit_type, 2, pben_row, 24
 						EMReadScreen pben_referral_date, 8, pben_row, 40
 						EMReadScreen pben_date_applied, 8, pben_row, 51
@@ -3889,7 +3886,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 						pben_disp_code_string = pben_disp_code_string & pben_disp_code		
 				
 						If Instr(pben_disp_code_string, "A") or Instr(pben_disp_code_string, "E") or Instr(pben_disp_code_string, "P") or Instr(pben_disp_code_string, "N") Then 
-							MsgBox "instring contains AEPN"
 							If Left(iaa_disposition_code_dropdown, 1) = "A" or Left(iaa_disposition_code_dropdown, 1) = "E" or Left(iaa_disposition_code_dropdown, 1) = "P" or Left(iaa_disposition_code_dropdown, 1) = "N" Then 
 								MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
 								iaa_update_pben_checkbox = unchecked
@@ -4460,14 +4456,17 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		If iaa_form_received_checkbox = checked Then CALL write_bullet_and_variable_in_CASE_NOTE("IAA Assistance Type", iaa_type_assistance)
 		If iaa_ssi_form_received_checkbox = checked Then CALL write_bullet_and_variable_in_CASE_NOTE("IAA-SSI Interim Assistance", iaa_ssi_type_assistance)
 		CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
-		If iaa_update_pben_checkbox = checked Then CALL write_variable_in_case_note("* PBEN Panel updated")
-		If iaa_update_pben_checkbox = unchecked Then CALL write_variable_in_case_note("* PBEN Panel NOT updated")
-		CALL write_bullet_and_variable_in_CASE_NOTE("Benefit type", iaa_benefit_type)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Verification", iaa_verification_dropdown)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Disposition Code", iaa_disposition_code_dropdown)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Date Applied PBEN", iaa_date_applied_pben)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", iaa_referral_date)
-		CALL write_bullet_and_variable_in_CASE_NOTE("IAA Date", iaa_iaa_date)
+		If pben_updated = TRUE Then
+			CALL write_variable_in_case_note("* PBEN Panel updated")
+			CALL write_bullet_and_variable_in_CASE_NOTE("    Benefit type", iaa_benefit_type)
+			CALL write_bullet_and_variable_in_CASE_NOTE("    Verification", iaa_verification_dropdown)
+			CALL write_bullet_and_variable_in_CASE_NOTE("    Disposition Code", iaa_disposition_code_dropdown)
+			CALL write_bullet_and_variable_in_CASE_NOTE("    Date Applied PBEN", iaa_date_applied_pben)
+			CALL write_bullet_and_variable_in_CASE_NOTE("    Referral Date", iaa_referral_date)
+			CALL write_bullet_and_variable_in_CASE_NOTE("    IAA Date", iaa_iaa_date)
+		Else 
+			CALL write_variable_in_case_note("* PBEN Panel NOT updated")
+		End If
 		CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
