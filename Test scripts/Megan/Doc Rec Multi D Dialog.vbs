@@ -1683,7 +1683,7 @@ function ltc_1503_dialog()
 	EditBox 130, 260, 25, 15, ltc_1503_faci_footer_year
 	EditBox 245, 260, 75, 15, ltc_1503_mets_case_number
 	EditBox 30, 280, 330, 15, ltc_1503_notes
-	Text 5, 5, 220, 10, "LTC 1503	"
+	Text 5, 5, 220, 10, ltc_1503_form_name
 	Text 5, 25, 50, 10, "Case Number:"
 	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
@@ -2185,7 +2185,19 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name then 'Error handling for LTC 1503 Form
-				'LTC 1503 -- didn't appear to be any error handling 
+				If IsDate(ltc_1503_effective_date) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Effective Date."
+				If IsDate(ltc_1503_date_received) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Document date."
+				If ltc_1503_admit_date <> "" AND IsDate(ltc_1503_admit_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid admission date"
+				If ltc_1503_discharge_date <> "" AND IsDate(ltc_1503_discharge_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid discharge date"
+				If ltc_1503_FACI_update_checkbox = checked AND (ltc_1503_FACI_1503 = "" OR ltc_1503_length_of_stay = "" OR ltc_1503_level_of_care = "" OR ltc_1503_admit_date = "" OR ltc_1503_faci_footer_month = "" OR ltc_1503_faci_footer_year = "") Then 
+					ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Update FACI Panel selected. Complete the required fields:"
+					If ltc_1503_FACI_1503 = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "-   Enter facility name"
+					If ltc_1503_length_of_stay = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "-   Select length of stay"
+					If ltc_1503_level_of_care = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "-   Select level of care"
+					If IsDate(ltc_1503_admit_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "-   Enter vaid admission date"
+					IF IsNumeric(ltc_1503_faci_footer_month) = FALSE OR IsNumeric(ltc_1503_faci_footer_year) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbNewLine &  "-   Enter valid FACI footer month and year."
+				End If
+				If ltc_1503_sent_verif_request_checkbox = checked AND ltc_1503_sent_request_to = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Select/Enter verif sent to"
 			End If
 
 
@@ -3927,7 +3939,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			EMReadScreen nav_check, 4, 2, 44
 			EMWaitReady 0, 0
 		Loop until nav_check = "FACI"
-		MsgBox "are we in faci?"
 
 		'FACI
 		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
