@@ -89,7 +89,7 @@ CALL write_value_and_transmit("I", 6, 3)
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
 If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
-EMWriteScreen trimmed_client_SSN, 3, 63
+EMReadScreen client_SSN, 9, 3, 63
 
 'Ensuring that we're on the right footer month/year as the DAIL message. Otherwise errors can occur.
 EmReadscreen bndx_month, 2, 20, 55
@@ -153,6 +153,7 @@ Call write_value_and_transmit("MEMB", 20, 71)
 
 DO
 	EMReadScreen memb_ssn, 11, 7, 42
+	memb_ssn = replace(memb_ssn, " ", "")
 	IF client_SSN = memb_ssn THEN
 		EMReadScreen member_number, 2, 4, 33
 	ELSE
