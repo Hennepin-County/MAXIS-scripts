@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2024", "Added additional details from SDNH New Hire message to TIKL (hire date and HH Memb #).", "Mark Riegel, Hennepin County")
 call changelog_update("04/06/2024", "Removed workaround fix for WAGE match scrubber since the DHS interface with SSN is now repaired.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/08/2023", "Fixed bug when entering a job that starting the same month as the HIRE message was generated.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance.", "Ilse Ferris, Hennepin County")
@@ -239,7 +240,7 @@ If create_JOBS_checkbox = checked then
 END IF
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
+Call create_TIKL("Verification of " & employer & " job (hire date: " & date_hired & ") via NEW HIRE for HH Memb " & HH_memb & " should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
 reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 If Outlook_reminder_checkbox = CHECKED THEN
