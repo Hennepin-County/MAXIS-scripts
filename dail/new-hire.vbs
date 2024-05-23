@@ -239,7 +239,7 @@ If create_JOBS_checkbox = checked then
 END IF
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
+Call create_TIKL("Verification of " & employer & " job (hire date: " & date_hired & ") via NEW HIRE for HH Memb " & HH_memb & " should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
 reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
 If Outlook_reminder_checkbox = CHECKED THEN
