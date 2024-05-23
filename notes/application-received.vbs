@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("05/23/2024", "Added contracted caseload selection for HCMC and North Memorial.", "Casey Love, Hennepin County.")
 Call changelog_update("04/29/2024", "Enhanced SPEC/XFER reminder when ransferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 Call changelog_update("04/27/2024", "Added reminder option prior to SPEC/XFER about transferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 call changelog_update("03/25/2024", "Update to alight with Caseload Assignment and Transfer Process updates. This functionality supports a large number of Caseloads and reduces the transfering of cases within the county. There is also support to reduce the number of caseloads with PND2 display limits.", "Casey Love, Hennepin County")
@@ -211,6 +212,11 @@ caseload_info.add "X127FF5", "Contracted - North Ridge Facilities"
 caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
 caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
 caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
+
+caseload_info.add "X127FF8", "Contracted - North Memorial"
+caseload_info.add "X127FF6", "Contracted - HCMC"
+caseload_info.add "X127FF7", "Contracted - HCMC"
+
 caseload_info.add "X127FI1", "METS Retro Request"
 
 ' MsgBox "The caseload type of Families - General is " & join(caseload_info.item("Families - General"), ", ")
@@ -951,6 +957,8 @@ app_facilities = app_facilities+chr(9)+"Ebenezer Care Center"				'EBENEZER/MARTI
 app_facilities = app_facilities+chr(9)+"Ebenezer Loren on Park"				'EBENEZER/MARTIN LUTHER
 app_facilities = app_facilities+chr(9)+"Martin Luther Care Center"			'EBENEZER/MARTIN LUTHER
 app_facilities = app_facilities+chr(9)+"Meadow Woods"						'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"North Memorial"
+app_facilities = app_facilities+chr(9)+"HCMC"
 
 'since this dialog has different displays for SNAP cases vs non-snap cases - there are differences in the dialog size
 dlg_len = 190
