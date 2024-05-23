@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("05/23/2024", "BUG FIX - Ensuring the case can be updated in STAT if run in production. This will prevent errors in panels not updating on inactive or out of county cases.", "Casey Love, Hennepin County")
 Call changelog_update("03/14/2024", "BUG FIX - Error when trying to find the correct JOBS panel in instances where the job name changes. This should now provide an option to select the correct panel.", "Casey Love, Hennepin County")
 Call changelog_update("07/26/2023", "Multiple updates to the script##~####~##ENHANCEMENTS: ##~##-Added 'Save your Work' functionality.##~##-Added an option to identify a check is a 'Bonus Check'.##~##-Option to break out pay amount in different types.##~##-Added a YTD Calculator.##~####~##BUG FIXED: ##~##-If more than 5 unique check dates are entered for a month, they will be entered as a lump payment.##~##-If multiple checks are entered for the same date, JOBS panel will be updated as a single payment.##~##-Better handling for a job for a new HH member by checking the arrival date.##~##-Allow for worker to select the correct JOBS panel to update if the script cannot find it.##~####~##There is a lot of new functionality and this is a fairly complicated script run. Please contact the script team if you have any concerns or questions.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/25/2021", "Added information buttons to the dialogs.##~## ##~##There are a number of new buttons with a '!' on it that will display some tips about the policy and use of these dialogs. Click on them to find out more.##~## ##~##There are also direct links to the instruction documents on SharePoint.##~##", "Casey Love, Hennepin County")
@@ -884,6 +885,25 @@ End If
 If developer_mode = TRUE then MsgBox "Developer Mode ACTIVATED!"        'developer mode difference is that the MAXIS update detail is shown in a messagebox instead of updating the panel
 If developer_mode = TRUE Then script_run_lowdown = "Run in INQUIRY"
 
+'If we are not running in developer mode - making sure we can edit STAT panels on this case
+If developer_mode = False Then
+	Call navigate_to_MAXIS_screen("STAT", "ADDR")		'want to use a panel that every case has and there is only one of
+	PF9													'Try to put it in EDIT Mode
+	EMReadScreen edit_mode_code, 1, 20, 8
+	If edit_mode_code <> "E" Then
+		EMReadScreen MAXIS_edit_mode_error_message, 78, 24, 2
+		MAXIS_edit_mode_error_message = trim(MAXIS_edit_mode_error_message)
+		cannot_edit_end_msg = "It appears this case cannot be updated in STAT at this time." & vbCr & vbCr &_
+							"* * * * MAXIS message * * * *" & vbCr & vbCr & MAXIS_edit_mode_error_message & vbCr & vbCr &_
+							"-----------------------------------------------------------------------------" & vbCr & vbCr &_
+							"The EARNED INCOME BUDGETING Script will now end." & vbCr &_
+							"Review the case and try again once STAT panels can be updated."
+		script_end_procedure_with_error_report(cannot_edit_end_msg)
+	Else
+		PF10 											'Oops out of the edit
+		Call back_to_SELF
+	End If
+End If
 vars_filled = FALSE
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
