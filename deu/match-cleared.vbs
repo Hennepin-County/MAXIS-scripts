@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("05/23/2024", "Updated messaging for matches where the county name is missing. The MAXIS system will not allow county workers to enter those matches.", "Ilse Ferris, Hennepin County")
 Call changelog_update("03/29/2024", "Removed Overpayment functionality from the script. Please use more comprehensive functionality in the NOTES - OVERPAYMENT script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
@@ -107,7 +108,7 @@ DO
        EndDialog
 
 	    Dialog Dialog1
-	    cancel_confirmation
+	    Cancel_without_confirmation
 	    Call validate_MAXIS_case_number(err_msg, "*")
 	    IF ButtonPressed = search_button Then 'this will check for if the worker is on the DAIL and the script cant find a case number'
 	    	IF trim(MAXIS_case_number) = "" Then
@@ -191,7 +192,12 @@ LOOP UNTIL ButtonPressed = match_confirmation
 CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 EMReadScreen OutOfCounty_error, 12, 24, 2
 IF OutOfCounty_error = "MATCH IS NOT" THEN
-	script_end_procedure_with_error_report("Out-of-county case. The script will now end.")
+    EMReadScreen no_worker, 25, 7, 5
+    If trim(no_worker) = "" then 
+        script_end_procedure_with_error_report("The worker name is blank, and the MAXIS system will not allow you to enter the match. Please call the MAXIS Help Desk to resolve.")
+    Else 
+	    script_end_procedure_with_error_report("Out-of-county case. The script will now end.")
+    End if 
 ELSE
     EMReadScreen number_IEVS_type, 3, 7, 12 'read the match type'
     IF number_IEVS_type = "A30" THEN match_type = "BNDX"
