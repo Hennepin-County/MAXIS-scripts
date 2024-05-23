@@ -309,7 +309,7 @@ DIALOG Dialog1
 		END IF
 ELSE
 	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
-	MSGBox error_message
+	script_end_procedure(error_message)
 END IF
 
 script_end_procedure("")
