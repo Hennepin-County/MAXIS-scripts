@@ -398,6 +398,8 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+back_to_self() 'This is needed to make sure the user isn't in a case note 
+
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
 If phone_interview_attempt_checkbox = checked Then write_variable_in_CASE_NOTE("Phone Interview Attempted but Interview NOT Completed")
