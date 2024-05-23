@@ -5959,7 +5959,6 @@ end function
 function write_needed_info_CASE_NOTE(needed_info_array)
 	STATS_manualtime = STATS_manualtime + 30
 	Call start_a_blank_case_note
-
 	If contact_status = "complete" or run_return_contact = True Then
 		Call write_variable_in_CASE_NOTE("*SNAP waived interview info provided by resident.*")
 		If run_return_contact = True Then
@@ -10197,6 +10196,7 @@ If run_return_contact = True Then
 		Loop Until proceed_confirm <> vbNo AND ButtonPressed <> 3704
 		Call check_for_password(are_we_passworded_out)
 	Loop Until are_we_passworded_out = false
+
 	call write_needed_info_CASE_NOTE(needed_info_array)
 	PF3
 	Call write_verification_CASE_NOTE(create_verif_note)
@@ -11128,6 +11128,7 @@ Call back_to_SELF
 ' update_prog = False
 
 If update_prog = True Then
+	if interview_date = "" Then interview_date = date
 	intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
 	intv_day = DatePart("d", interview_date)
 	intv_yr = DatePart("yyyy", interview_date)
@@ -11140,12 +11141,8 @@ If update_prog = True Then
 	CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
 
 		CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
-		PF9                                             'Edit
-		If prog_update_snap_checkbox = checked Then
-			EMWriteScreen intv_mo, 10, 55               'SNAP Row
-			EMWriteScreen intv_day, 10, 58
-			EMWriteScreen intv_yr, 10, 61
-		End If
+		PF9    
+		call create_mainframe_friendly_date(interview_date, 10, 55, 0)    'enters interview date on PROG
 		EMWriteScreen left(exp_migrant_seasonal_formworker_yn, 1), 18, 67
 		transmit                                    'Saving the panel
 
