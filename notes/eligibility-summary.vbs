@@ -4415,6 +4415,7 @@ function rept_pnd2_dialog()
 end function
 
 function dwp_elig_case_note()
+	Call back_to_SELF
 	CASE_NOTE_entered = True
 	call start_a_blank_case_note
 
@@ -4978,7 +4979,7 @@ function dwp_elig_case_note()
 end function
 
 function mfip_elig_case_note()
-
+	Call back_to_SELF
 	CASE_NOTE_entered = True
 	call start_a_blank_case_note
 
@@ -5415,7 +5416,6 @@ function mfip_elig_case_note()
 end function
 
 function msa_elig_case_note()
-
 	CASE_NOTE_entered = True
 	Call start_a_blank_case_note
 
@@ -5892,7 +5892,6 @@ function msa_elig_case_note()
 end function
 
 function ga_elig_case_note()
-
 	CASE_NOTE_entered = True
 	Call start_a_blank_case_note
 
@@ -7508,7 +7507,6 @@ function emer_elig_case_note()
 
 	CASE_NOTE_entered = True
 	end_msg_info = end_msg_info & "NOTE entered for EMER - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & " eff " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & vbCr
-	Call back_to_SELF
 
 	Call start_a_blank_case_note
 
@@ -8021,7 +8019,6 @@ function deny_elig_case_note()
 end function
 
 function snap_elig_case_note()
-
 	CASE_NOTE_entered = True
 	Call start_a_blank_case_note
 
@@ -26260,6 +26257,7 @@ If enter_CNOTE_for_DWP = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 	' Loop until (ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If dwp_approval_is_incorrect = True Then
@@ -26715,6 +26713,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 	' Loop until (ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If mfip_approval_is_incorrect = True Then
@@ -26997,6 +26996,7 @@ If enter_CNOTE_for_MSA = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 	' Loop until (ButtonPressed = app_confirmed_btn and all_msa_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If msa_approval_is_incorrect = True Then
@@ -27315,6 +27315,7 @@ If enter_CNOTE_for_GA = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 
 	If ga_approval_is_incorrect = True Then
 		enter_CNOTE_for_GA = False
@@ -27614,7 +27615,7 @@ If enter_CNOTE_for_DENY = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
-	' MsgBox "STOP HERE NO NOTE IS READY YET."
+
 	If deny_approval_is_incorrect = True Then
 		enter_CNOTE_for_DENY = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for Cash DENY Approvals from " & first_DENY_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
@@ -27675,6 +27676,7 @@ If enter_CNOTE_for_DENY = True Then
 			DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) = trim(deny_wcom_info_three)
 		Next
 	End If
+	Call back_to_SELF
 End if
 
 If enter_CNOTE_for_GRH = True Then
@@ -28009,6 +28011,7 @@ If enter_CNOTE_for_GRH = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 
 	If grh_approval_is_incorrect = True Then
 		enter_CNOTE_for_GRH = False
@@ -28420,6 +28423,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			Loop until move_from_dialog = True
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = False
+		Call back_to_SELF
 
 		If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
 
@@ -28719,6 +28723,7 @@ If enter_CNOTE_for_EMER = True Then
 		Loop until confirm_emer_budget_selection <> "Indicate if the Budget is Accurate" and err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 
 	EMER_ELIG_APPROVAL.bus_ticket_detail = TEMP_bus_ticket_info
 
@@ -29083,6 +29088,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 
 	If snap_approval_is_incorrect = True Then
 		enter_CNOTE_for_SNAP = False
@@ -29628,7 +29634,6 @@ If ex_parte_approval = True Then
 		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 	End If
 
-
 	Call start_a_blank_CASE_NOTE
 
 	Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
@@ -29955,6 +29960,7 @@ If denials_found_on_pnd2 = True Then
 		Loop until denial_accurate <> "Indicate if the Denial is Accurate"
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call back_to_SELF
 
 	If denial_accurate = "No - I need to update the denial" Then end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for REPT/PND2 denial as it was indicated the information was not accurate." & vbCr
 
@@ -30221,6 +30227,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 				Loop until err_msg = ""
 				Call check_for_password(are_we_passworded_out)
 			Loop until are_we_passworded_out = False
+			Call back_to_SELF
 
 			If review_processed_selection = "No Review for Programs in this Approval" Then REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = False
 			If mfip_checkbox = unchecked Then REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = False
