@@ -7508,6 +7508,7 @@ function emer_elig_case_note()
 
 	CASE_NOTE_entered = True
 	end_msg_info = end_msg_info & "NOTE entered for EMER - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & " eff " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & vbCr
+	Call back_to_SELF
 
 	Call start_a_blank_case_note
 
