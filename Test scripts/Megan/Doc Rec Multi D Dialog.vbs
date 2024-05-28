@@ -1707,7 +1707,6 @@ Dim ltc_1503_effective_date, ltc_1503_date_received, ltc_1503_FACI_1503, ltc_150
 
 function mof_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
-		EditBox 175, 20, 45, 15, mof_effective_date
 		EditBox 310, 20, 45, 15, mof_date_received		
 		DropListBox 45, 50, 140, 15, HH_Memb_DropDown, mof_hh_memb
 		CheckBox 220, 50, 85, 10, "Client signed release?", mof_clt_release_checkbox
@@ -1723,7 +1722,6 @@ function mof_dialog()
 		EditBox 95, 215, 65, 15, mof_TTL_email_date
 		Text 5, 5, 220, 10, mof_form_name
 		Text 5, 25, 50, 10, "Case Number:"
-		Text 125, 25, 50, 10, "Effective Date:"
 		Text 245, 25, 60, 10, "Document Date:"
 		Text 15, 55, 30, 10, "Member:"
 		Text 15, 80, 60, 10, "Date of last exam: "
@@ -1736,7 +1734,7 @@ function mof_dialog()
 		Text 35, 220, 55, 10, "Date email sent:"
 		Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim mof_effective_date, mof_date_received, mof_hh_memb, mof_clt_release_checkbox, mof_last_exam_date, mof_time_condition_will_last, mof_doctor_date, mof_ability_to_work, mof_other_notes, mof_actions_taken, mof_SSA_application_indicated_checkbox, mof_TTL_to_update_checkbox, MOF_TTL_email_checkbox, mof_TTL_email_date
+Dim mof_date_received, mof_hh_memb, mof_clt_release_checkbox, mof_last_exam_date, mof_time_condition_will_last, mof_doctor_date, mof_ability_to_work, mof_other_notes, mof_actions_taken, mof_SSA_application_indicated_checkbox, mof_TTL_to_update_checkbox, MOF_TTL_email_checkbox, mof_TTL_email_date
 
 function mtaf_dialog()	
 	CheckBox 165, 5, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
@@ -2202,8 +2200,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 
 
 			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
-				If IsDate(mof_effective_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid effective dated."
-				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date the document was received."
+				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid Document date."
 				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
 				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
 				If MOF_TTL_email_checkbox = checked Then
