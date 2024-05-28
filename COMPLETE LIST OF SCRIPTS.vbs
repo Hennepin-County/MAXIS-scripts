@@ -2151,6 +2151,7 @@ script_array(script_num).tags                   = array("Reports", "Health Care"
 script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #01/31/2023#
+script_array(script_num).retirement_date        = #05/23/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
