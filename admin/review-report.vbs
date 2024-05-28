@@ -496,7 +496,7 @@ function read_case_details_for_review_report(incrementor_var)
 							EMReadScreen CSR_yr, 2, 8, 77
 						End if
 						EMReadScreen recert_mo, 2, 9, 27
-						EMReadScreen recert_yr, 2, 9 33
+						EMReadScreen recert_yr, 2, 9, 33
 
 						HC_CSR_date = CSR_mo & "/" & CSR_yr
 						If HC_CSR_date = "__/__" then HC_CSR_date = ""
