@@ -219,44 +219,18 @@ function check_for_errors(eval_questions_clear)
 	Next
 end function
 
-Function check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
-	'This function reads through the HCMI panels and returns whether any members are coded Ex Parte
-	'HCMI_status - returns an error message if no HCMI panels exist.
-	'ex_parte_member = boolean that stores whether ANY members are set to ex-parte "Y". False if no member has a "Y" coded on HCMI
-	'check_ex_parte_renewal_month_year - will return the ex_parte renewal month from the last HCMI panel that was marked "Y" for ex parte
+Function check_HCMI_for_members()
+'This function reads the info from each HCMI panel into the MEMBER_INFO_ARRAY so it can be used for error checks
 	
-	'First gather all the reference numbers
-	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
-    transmit
-	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-		EMReadscreen ref_nbr, 3, 4, 33
-		client_array = client_array & ref_nbr
-		transmit
-	    Emreadscreen edit_check, 7, 24, 2
-	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-
-	client_array = TRIM(client_array)
-	client_array = split(client_array, " ")
-	check_ex_parte_renewal_month_year = "" 
-	Call navigate_to_MAXIS_screen("STAT", "HCMI")
-	total_panels = 0
-	ex_parte_member = false
-	For each ref_number in client_array
-		call write_value_and_transmit(ref_number, 20, 76)
-		EMReadScreen panel_exists, 1, 2, 78
-		If panel_exists = 1 Then
-			total_panels = total_panels + panel_exists
-			EMReadScreen ex_parte_y_n, 1, 12, 57
-			If ex_parte_y_n = "Y" Then 
-				ex_parte_member = true
-				EMReadScreen check_ex_parte_renewal_month_year, 8, 13, 57
-			End If 
-		End If 
+	For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+		'Navigate to each member's HCMI panel
+		Call navigate_to_MAXIS_screen("STAT", "HCMI") 
+		call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb), 20, 76)
+		'Read info into the array 
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_panel_exists, this_memb), 1, 2, 78 'This will be '1' if the panel exists for this member, '0' if not
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_ex_parte_status, this_memb), 1, 12, 57
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_ex_parte_month, this_memb), 8, 13, 57
 	Next
-	If total_panels = 0 Then hcmi_status = "No HCMI panels exist on this case. Create panels for members with HC in order to record Ex Parte status."
-	
-'TO DO - will need to look at a person-based array in order to accurately assess HCMI.
 End Function 
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
@@ -4134,6 +4108,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Const hc_prog_3				= 11
 	Const hc_type_3				= 12
 	Const memb_smi_numb_const	= 13
+	Const Memb_ex_parte_status  = 14
 
 	Const MEDI_expt_exists_const= 20
 	Const MEDI_update_date		= 21
@@ -4180,7 +4155,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Const PDED_PICKLE_thrshld_RSDI	= 76
 	Const PDED_PICKLE_dsrgd_amt		= 77
 	Const PDED_DAC_exists 			= 78
-
+	
+	Const HCMI_ex_parte_status      = 80
+	Const HCMI_ex_parte_month	    = 81
+	Const HCMI_panel_exists			= 82
 
 	Const memb_last_const 		= 90
 
@@ -4930,64 +4908,13 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		Dialog1 = ""
 
 		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
-			Text 100, 325, 425, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total combined character limit is 255."
-			GroupBox 10, 280, 540, 80, "Ex Parte Evaluation"
-			Text 15, 295, 30, 10, "Eval:"
-			DropListBox 45, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
-			Text 225, 280, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
-			Text 180, 295, 45, 10, "Explanation:"
-			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Case has assets that cannot be verified without resident interaction."+chr(9)+ "Verified/reported assets are not reasonably compatible."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
-			Text 20, 315, 80, 10, "Not Ex Parte Notes:"
-			EditBox 100, 310, 440, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
-			Text 20, 345, 100, 10, "Notes about Mixed Household"
-			EditBox 120, 340, 420, 15, mixed_household_notes
-			Text 15, 370, 70, 10, "Worker Signature:"
-			EditBox 80, 365, 110, 15, worker_signature
-			' GroupBox 10, 0, 455, 25, "Case Information"
-			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
-			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
-			' Text 65, 10, 70, 10, MAXIS_case_number
-			Text 375, 5, 75, 10, "Review Month: " & phase_1_review_month
-			Text 280, 15, 125, 10, "SNAP Status: " & snap_status
-			Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
-			ButtonGroup ButtonPressed
-				OkButton 440, 365, 50, 15
-				CancelButton 500, 365, 50, 15
-				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-				PushButton 475, 15, 80, 15, "Instructions", instructions_button
-				Text 495, 40, 45, 10, "--- POLICY ---"
-				PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
-				' PushButton 490, 65, 55, 15, policy_2, policy_2_button
-				' PushButton 490, 80, 55, 15, policy_3, policy_3_button
-				Text 490, 105, 55, 10, "--- NAVIGATE ---"
-				PushButton 485, 117, 25, 10, "ACCI", acci_button
-				PushButton 515, 117, 25, 10, "BILS", bils_button
-				PushButton 485, 130, 25, 10, "BUDG", budg_button
-				PushButton 515, 130, 25, 10, "BUSI", busi_button
-				PushButton 485, 143, 25, 10, "DISA", disa_button
-				PushButton 515, 143, 25, 10, "EMMA", emma_button
-				PushButton 485, 156, 25, 10, "FACI", faci_button
-				PushButton 515, 156, 25, 10, "HCMI", hcmi_button
-				PushButton 485, 169, 25, 10, "IMIG", imig_button
-				PushButton 515, 169, 25, 10, "INSA", insa_button
-				PushButton 485, 182, 25, 10, "JOBS", jobs_button
-				PushButton 515, 182, 25, 10, "LUMP", lump_button
-				PushButton 485, 195, 25, 10, "MEDI", medi_button
-				PushButton 515, 195, 25, 10, "MEMB", memb_button
-				PushButton 485, 208, 25, 10, "MEMI", memi_button
-				PushButton 515, 208, 25, 10, "PBEN", pben_button
-				PushButton 485, 221, 25, 10, "PDED", pded_button
-				PushButton 515, 221, 25, 10, "REVW", revw_button
-				PushButton 485, 234, 25, 10, "SPON", spon_button
-				PushButton 515, 234, 25, 10, "STWK", stwk_button
-				PushButton 485, 247, 25, 10, "UNEA", unea_button
-
+			
 			If NO_HC_EXISTS = True Then
 				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
 			Else
 				y_pos = 10
 				If all_update_dates_are_current = False Then
-					Text 15, y_pos, 255, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURRING PREP MONTH * * * *"
+					Text 15, y_pos, 255, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURING PREP MONTH * * * *"
 					Text 55, y_pos+10, 185, 10, "* * * * Manual Review of this case is important. * * * *"
 					y_pos = y_pos + 25
 				Else
@@ -5100,7 +5027,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						Else
 							If y_pos > last_y_pos Then last_y_pos = y_pos
 						End If
-						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+5, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+						DropListBox x_pos + 85, y_pos, 115, 10, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be processed as Ex Parte"+chr(9)+"Health Care closed for member", MEMBER_INFO_ARRAY(Memb_ex_parte_status, each_memb)
+  						Text x_pos, y_pos+5, 80, 10, "Member Ex Parte Status:"
+
+						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+20, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
 						x_pos = x_pos + 230
 					End If
 				Next
@@ -5125,6 +5055,58 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
 
 			End If
+			Text 100, 325, 425, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total combined character limit is 255."
+			GroupBox 10, 280, 540, 80, "Ex Parte Evaluation"
+			Text 15, 295, 30, 10, "Eval:"
+			DropListBox 45, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
+			Text 225, 280, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
+			Text 180, 295, 45, 10, "Explanation:"
+			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Case has assets that cannot be verified without resident interaction."+chr(9)+ "Verified/reported assets are not reasonably compatible."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
+			Text 20, 315, 80, 10, "Not Ex Parte Notes:"
+			EditBox 100, 310, 440, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
+			Text 20, 345, 100, 10, "Notes about Mixed Household"
+			EditBox 120, 340, 420, 15, mixed_household_notes
+			Text 15, 370, 70, 10, "Worker Signature:"
+			EditBox 80, 365, 110, 15, worker_signature
+			' GroupBox 10, 0, 455, 25, "Case Information"
+			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
+			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
+			' Text 65, 10, 70, 10, MAXIS_case_number
+			Text 375, 5, 75, 10, "Review Month: " & phase_1_review_month
+			Text 280, 15, 125, 10, "SNAP Status: " & snap_status
+			Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
+			ButtonGroup ButtonPressed
+				OkButton 440, 365, 50, 15
+				CancelButton 500, 365, 50, 15
+				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+				PushButton 475, 15, 80, 15, "Instructions", instructions_button
+				Text 495, 40, 45, 10, "--- POLICY ---"
+				PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
+				' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+				' PushButton 490, 80, 55, 15, policy_3, policy_3_button
+				Text 490, 105, 55, 10, "--- NAVIGATE ---"
+				PushButton 485, 117, 25, 10, "ACCI", acci_button
+				PushButton 515, 117, 25, 10, "BILS", bils_button
+				PushButton 485, 130, 25, 10, "BUDG", budg_button
+				PushButton 515, 130, 25, 10, "BUSI", busi_button
+				PushButton 485, 143, 25, 10, "DISA", disa_button
+				PushButton 515, 143, 25, 10, "EMMA", emma_button
+				PushButton 485, 156, 25, 10, "FACI", faci_button
+				PushButton 515, 156, 25, 10, "HCMI", hcmi_button
+				PushButton 485, 169, 25, 10, "IMIG", imig_button
+				PushButton 515, 169, 25, 10, "INSA", insa_button
+				PushButton 485, 182, 25, 10, "JOBS", jobs_button
+				PushButton 515, 182, 25, 10, "LUMP", lump_button
+				PushButton 485, 195, 25, 10, "MEDI", medi_button
+				PushButton 515, 195, 25, 10, "MEMB", memb_button
+				PushButton 485, 208, 25, 10, "MEMI", memi_button
+				PushButton 515, 208, 25, 10, "PBEN", pben_button
+				PushButton 485, 221, 25, 10, "PDED", pded_button
+				PushButton 515, 221, 25, 10, "REVW", revw_button
+				PushButton 485, 234, 25, 10, "SPON", spon_button
+				PushButton 515, 234, 25, 10, "STWK", stwk_button
+				PushButton 485, 247, 25, 10, "UNEA", unea_button
+
 		EndDialog
 
 		'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
@@ -5140,9 +5122,25 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				ex_parte_denial_explanation = trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", ""))
 				ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
 				ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
-				' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
-
-
+				
+				'Validating / storing the ex parte status selected for each member
+				exparte_membs = 0
+				For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+					
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then
+						exparte_membs = exparte_membs + 1
+						If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "" Then err_msg = err_msg & vbCr & "* You must select each member's ex parte status."
+						If exparte_membs = 1 Then first_ex_parte_status = MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb)
+						If exparte_membs = 2 Then second_ex_parte_status = MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb)
+					End If 				
+				Next
+				If exparte_membs = 2 Then 
+					If first_ex_parte_status <> second_ex_parte_status Then mixed_household = True
+				End If 
+				'Add validation for mixed households field
+				If mixed_household = true Then 
+					If mixed_household_notes = "" Then err_msg = err_msg & vbCr & "* This is a mixed household. You must enter mixed household notes to explain which members are not ex parte and why."
+				End if 
 				'Add placeholder link to script instructions - To DO - update with correct link
 				If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
 
@@ -5150,7 +5148,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-062948"
 				' If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
 				' If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-
+				'Add validation for each HC member having ex parte stats entered
 
 				'Add validation to ensure ex parte determination is made
 				If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
@@ -5197,24 +5195,22 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			EMReadScreen exempt_6_mo_ir_form, 1, 9, 71
 			'maybe do the dialog below with a HH_member list and checks - then check/update ex_parte accordingly??? 
 			'Dialog and review of HC renewal for approval of ex parte
-			If ex_parte_determination = "Appears Ex Parte" Then
-
+			If ex_parte_determination = "Appears Ex Parte" and mixed_household <> True Then
 				Dialog1 = "" 'blanking out dialog name
-
-				BeginDialog Dialog1, 0, 0, 331, 170, "Health Care Renewal Updates - Appears Ex Parte"
-				ButtonGroup ButtonPressed
-					PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
-				Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
-				Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
-				Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
-				Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
-				Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 100, 225, 10, "Update the following on STAT/HCMI for each member renewing HC:"
-				Text 10, 115, 255, 10, "- ExParte: Enter Y/N accordingly for each member"
-				Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
-				EndDialog
-
+						
+					BeginDialog Dialog1, 0, 0, 331, 170, "Health Care Renewal Updates - Appears Ex Parte"
+					ButtonGroup ButtonPressed
+						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+					Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
+					Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+					Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
+					Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
+					Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+					Text 10, 100, 225, 10, "Update the following on STAT/HCMI for each member renewing HC:"
+					Text 10, 115, 255, 10, "- ExParte (Y/N): Enter Y for each member on HC."
+					Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
+					EndDialog
 
 				DO
 					Do
@@ -5277,15 +5273,19 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validate that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
 						'Now run through HCMI and check coding
-						Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
-						'Validate that at least one member is set as ex parte "Y"
-		
-						If ex_parte_member = false THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte on HCMI for at least 1 member."
-
-						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
-						If trim(check_ex_parte_renewal_month_year) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on HCMI should be " & correct_ex_parte_revw_month_code & "."
-
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "Y" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'Y' on HCMI panel."
+							
+								If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+							End If 
+						Next
+					
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 					Loop until err_msg = ""
@@ -5293,7 +5293,94 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 			End If
+			If ex_parte_determination = "Appears Ex Parte" and mixed_household = true Then 'This is the mixed household section
+				Dialog1 = ""			
+				BeginDialog Dialog1, 0, 0, 331, 170, "Health Care Renewal Updates - Mixed Household"
+					ButtonGroup ButtonPressed
+						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+					Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
+					Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+					Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+					Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
+					Text 10, 115, 255, 10, "- ExParte (Y/N): Enter Y/N accordingly for each member"
+					Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
+				EndDialog
+				DO
+					Do
+						err_msg = ""    'This is the error message handling
+						Dialog Dialog1
+						cancel_confirmation
 
+						EMReadScreen stat_check, 4, 20, 21
+						EMReadScreen revw_panel_check, 4, 2, 46
+						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+							If hc_revw_pop_up_check = "REVW" Then
+								EMReadScreen pop_up_open, 1, 4, 22
+								If pop_up_open <> "*" Then PF3
+								' Call write_value_and_transmit({"X", 5, 71)
+							ElseIf stat_check = "STAT" Then
+								Call write_value_and_transmit("REVW", 20, 71)
+								' Call write_value_and_transmit({"X", 5, 71)
+							Else
+								Call MAXIS_background_check
+								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							End If
+							CALL write_value_and_transmit("X", 5, 71)
+						End If
+
+						EMReadScreen check_income_renewal_date, 8, 8, 27
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+
+						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						elig_renewal_date = replace(elig_renewal_date, " ", "/")
+						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+						'Now run through HCMI and check coding
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(memb_ex_parte_status, memb) = "Appears Ex Parte" Then 
+									If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "Y" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'Y' on HCMI panel."
+									If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+								Else ' non ex parte members
+									If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel."
+									If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+								End If 
+							End If 
+						Next
+																	
+						'Validation to ensure that elig renewal date has not changed
+						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
+
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed
+						If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+
+						'Validation to ensure that Exempt from 6 Mo IR is set to N
+						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+
+						'Error message handling
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+					Loop until err_msg = ""
+						'Add to all dialogs where you need to work within BLUEZONE
+						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+				LOOP UNTIL are_we_passworded_out = false	
+			End If 
 			'Dialog and review of HC renewal for denial of ex parte
 			If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
 
@@ -5307,7 +5394,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
 				Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
 				Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
-				Text 10, 80, 145, 10, "- ExParte: Enter N"
+				Text 10, 80, 145, 10, "- ExParte (Y/N): Enter N"
 				Text 10, 95, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
 				EndDialog
 
@@ -5358,12 +5445,17 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
 						'Now run through HCMI and check coding
-						hcmi_status = ""
-						Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year)
-						'Validate that at least one member is set as ex parte "Y"
-						If ex_parte_member = True THEN err_msg = err_msg & vbCr & "* HCMI is coded as ExParte 'Y' for at least 1 member. No members should be coded 'Y' for a case that is not ExParte."
-											
-						If hcmi_status <> "" Then err_msg = err_msg & vbCr & hcmi_status 'This error lets the worker know they don't have any HCMI panels
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel."
+								If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+							End If 
+						Next
 						'Validation to ensure that elig renewal date has not changed
 						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
@@ -5459,7 +5551,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ex_parte_determination = "Health Care has been Closed" Then
 			CALL write_variable_in_case_note("No renewal required on case as the Health Care is no longer active.")
 		End If
-		CALL write_bullet_and_variable_in_case_note("Detials about Mixed Household Ex parte", mixed_household_notes)
+		'Noting individual HH member statuses
+		call write_variable_in_case_note("HH Members active on HC and member ex parte status:")
+		For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB" & MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb) & " " & MEMBER_INFO_ARRAY(memb_name_const, this_memb) & ": " & MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb))
+			End If 				
+		Next
+		CALL write_bullet_and_variable_in_case_note("Details about Mixed Household Ex parte", mixed_household_notes)
 
 		'Add worker signature
 		CALL write_variable_in_case_note("---")
