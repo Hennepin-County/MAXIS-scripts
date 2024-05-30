@@ -3089,7 +3089,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			IF next_note_date = "        " then Exit Do
 		Loop until datevalue(next_note_date) < one_year_ago 'looking ahead at the next case note kicking out the dates before app'
 
-		If hospice_exit_date <> "" Then     'if there is an exit date in the note found then we don't want to use the information from that note
+		If hosp_exit_date <> "" Then     'if there is an exit date in the note found then we don't want to use the information from that note
 			hosp_resident_name = ""          'since if they exited already - the HOSPICE will be different - resetting these variables to NOT fill
 			hosp_name = ""
 			hosp_npi_number = ""
@@ -3481,20 +3481,10 @@ Do
 				If form_type_array(form_type_const, form_count) = atr_form_name Then 
 					Call atr_dialog
 					current_dialog = "atr"
-					If InStr(docs_rec,"ATR") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", ATR"
-					End If
 				End If
 				If form_type_array(form_type_const, form_count) = arep_form_name then 
 					Call arep_dialog
 					current_dialog = "arep"
-					If InStr(docs_rec,"AREP") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", AREP"
-					End If
 				End If
 				If form_type_array(form_type_const, form_count) = change_form_name Then 
 					Call change_dialog
@@ -3535,11 +3525,6 @@ Do
 				If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then 
 					Call ltc_1503_dialog
 					current_dialog = "ltc 1503"
-					If InStr(docs_rec,"LTC-1503") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", LTC-1503"
-					End If
 				End If
 				If form_type_array(form_type_const, form_count) = mof_form_name Then 
 					Call mof_dialog
@@ -4232,7 +4217,7 @@ Else
 	Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
 End If
 
-'For/Next creates one casenote for all documents received. 
+'For/Next creates one casenote for all documents received that should not be casenoted on their own. 
 For each_case_note = 0 to Ubound(form_type_array, 2)			
 
 	'MTAF Case Notes
@@ -4338,62 +4323,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		'Call write_variable_in_case_note(worker_signature)
 	End If
 
-	' 'ATR Case Notes
-	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 
-		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** ATR RECEIVED *** FOR " & atr_name & " - Release Ends: " & atr_end_date)
-		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
-		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
-		CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
-		CALL write_bullet_and_variable_in_case_note("End Date", atr_end_date)
-		CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
-		CALL write_bullet_and_variable_in_case_note("Contact Type", atr_contact_type)
-		CALL write_bullet_and_variable_in_case_note("  Contact Name", atr_name)
-		CALL write_bullet_and_variable_in_case_note("  Phone Number", atr_phone_number)
-		CALL write_bullet_and_variable_in_case_note("  Fax Number", atr_fax_number)
-		CALL write_bullet_and_variable_in_case_note("  Email", atr_email)
-
-		If atr_eval_treat_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
-		If atr_coor_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
-		If atr_elig_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
-		If atr_court_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
-		If atr_other_checkbox = checked Then CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
-		CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
-		Call write_variable_in_case_note("---")
-		'Call write_variable_in_case_note(worker_signature)
-	End If
-
-	'AREP Case Notes
-	If form_type_array(form_type_const, each_case_note) = arep_form_name then 
-		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** AREP Received ***")
-		call write_variable_in_CASE_NOTE("* Received: " & AREP_recvd_date & ". AREP: " & arep_name)
-		If arep_dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
-		If arep_HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
-		If arep_D405_checkbox = checked Then
-			Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
-			Call write_variable_in_CASE_NOTE("  - AREP also authorized to get and use EBT Card.")
-		End If
-		If arep_CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
-		If arep_HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
-		If arep_power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
-		If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
-		If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
-		Call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
-		IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
-		IF arep_TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
-		If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
-		Call write_variable_in_case_note("---")
-		
-		'Call write_variable_in_case_note(worker_signature)
-	'LTC Related I think
-	' call write_bullet_and_variable_in_case_note("ADDR", ADDR)
-	' call write_bullet_and_variable_in_case_note("FACI", FACI)
-	' call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
-	' call write_bullet_and_variable_in_case_note("DISA", DISA)
-
-
-	End If
 	'Change Reported Case Note
 	If form_type_array(form_type_const, each_case_note) = change_form_name Then 
 		Call start_a_blank_case_note
@@ -4480,46 +4409,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		'Call write_variable_in_case_note(worker_signature)
 	End If
 
-
-	'LTC 1503 Case Notes
-	If form_type_array(form_type_const, each_case_note) = ltc_1503_form_name Then 
-		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** LTC-1503 FORM RECEIVED ***")
-		If ltc_1503_processed_1503_checkbox = checked then
-			call write_variable_in_CASE_NOTE("***Processed 1503 from " & ltc_1503_FACI_1503 & "***")
-		Else
-			call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & ltc_1503_FACI_1503 & ", DID NOT PROCESS***")
-		End if
-		Call write_bullet_and_variable_in_case_note("Length of stay", ltc_1503_length_of_stay)
-		Call write_bullet_and_variable_in_case_note("Recommended level of care", ltc_1503_level_of_care)
-		Call write_bullet_and_variable_in_case_note("Admitted from", ltc_1503_admitted_from)
-		Call write_bullet_and_variable_in_case_note("Hospital admitted from", ltc_1503_hospital_admitted_from)
-		Call write_bullet_and_variable_in_case_note("Admit date", ltc_1503_admit_date)
-		Call write_bullet_and_variable_in_case_note("Discharge date", ltc_1503_discharge_date)
-		Call write_variable_in_CASE_NOTE("---")
-		If ltc_1503_updated_RLVA_checkbox = checked and ltc_1503_updated_FACI_checkbox = checked then
-			Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
-		Else
-			If ltc_1503_updated_RLVA_checkbox = checked then Call write_variable_in_case_note("* Updated RLVA.")
-			If ltc_1503_updated_FACI_checkbox = checked then Call write_variable_in_case_note("* Updated FACI.")
-		End if
-		If ltc_1503_need_3543_checkbox = checked then Call write_variable_in_case_note("* A 3543 is needed for the client.")
-		If ltc_1503_need_3531_checkbox = checked then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
-		If ltc_1503_need_asset_assessment_checkbox = checked then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
-		If ltc_1503_sent_3050_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
-		If ltc_1503_sent_5181_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
-		Call write_bullet_and_variable_in_case_note("Verifs needed", ltc_1503_verifs_needed)
-		If ltc_1503_sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & ltc_1503_sent_request_to)
-		If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
-		If ltc_1503_TIKL_checkbox = checked then Call write_variable_in_case_note("TIKL'd for " & ltc_1503_TIKL_multiplier & " days to check length of stay.")
-		Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", ltc_1503_mets_case_number)
-		Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
-		Call write_variable_in_case_note("---")
-		'Call write_variable_in_case_note(worker_signature)
-		MAXIS_footer_month = Original_footer_month
-		MAXIS_footer_year = Original_footer_year
-	End If
-
 	'MOF Case Notes
 	If form_type_array(form_type_const, each_case_note) = mof_form_name Then 
 		Call start_a_blank_case_note
@@ -4542,7 +4431,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	
 
 	'PSN Case Notes
-	'TODO: Should this be a person note?
 	If form_type_array(form_type_const, each_case_note) = psn_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
@@ -4584,7 +4472,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	'Special Diet Case Notes
-	'TODO: Should this be a person note?
 	If form_type_array(form_type_const, each_case_note) = diet_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
@@ -4616,8 +4503,111 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		'CALL write_variable_in_case_note(worker_signature)
 	End If
 Next
-
 CALL write_variable_in_case_note(worker_signature)
+
+'For/Next creates individual case notes for the following documents. Casenoting these individually so we can search for them in the future.
+For unique_case_notes = 0 to Ubound(form_type_array, 2)			
+	' 'ATR Case Notes
+	If form_type_array(form_type_const, unique_case_notes) = atr_form_name Then 
+		PF3
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** ATR RECEIVED *** FOR " & atr_name & " - Release Ends: " & atr_end_date)
+		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
+		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
+		CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
+		CALL write_bullet_and_variable_in_case_note("End Date", atr_end_date)
+		CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
+		CALL write_bullet_and_variable_in_case_note("Contact Type", atr_contact_type)
+		CALL write_bullet_and_variable_in_case_note("  Contact Name", atr_name)
+		CALL write_bullet_and_variable_in_case_note("  Phone Number", atr_phone_number)
+		CALL write_bullet_and_variable_in_case_note("  Fax Number", atr_fax_number)
+		CALL write_bullet_and_variable_in_case_note("  Email", atr_email)
+
+		If atr_eval_treat_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
+		If atr_coor_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
+		If atr_elig_serv_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
+		If atr_court_checkbox = checked Then CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
+		If atr_other_checkbox = checked Then CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
+		CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
+		Call write_variable_in_case_note("---")
+		Call write_variable_in_case_note(worker_signature)
+	End If
+
+	'AREP Case Notes
+	If form_type_array(form_type_const, unique_case_notes) = arep_form_name then 
+		PF3
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** AREP Received ***")
+		call write_variable_in_CASE_NOTE("* Received: " & AREP_recvd_date & ". AREP: " & arep_name)
+		If arep_dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
+		If arep_HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
+		If arep_D405_checkbox = checked Then
+			Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
+			Call write_variable_in_CASE_NOTE("  - AREP also authorized to get and use EBT Card.")
+		End If
+		If arep_CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
+		If arep_HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
+		If arep_power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
+		If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
+		If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
+		Call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
+		IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
+		IF arep_TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
+		If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
+		Call write_variable_in_case_note("---")
+		Call write_variable_in_case_note(worker_signature)
+	'LTC Related I think
+	' call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+	' call write_bullet_and_variable_in_case_note("FACI", FACI)
+	' call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+	' call write_bullet_and_variable_in_case_note("DISA", DISA)
+
+
+	End If
+
+	'LTC 1503 Case Notes
+	If form_type_array(form_type_const, unique_case_notes) = ltc_1503_form_name Then 
+		PF3
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** LTC-1503 FORM RECEIVED ***")
+		If ltc_1503_processed_1503_checkbox = checked then
+			call write_variable_in_CASE_NOTE("***Processed 1503 from " & ltc_1503_FACI_1503 & "***")
+		Else
+			call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & ltc_1503_FACI_1503 & ", DID NOT PROCESS***")
+		End if
+		Call write_bullet_and_variable_in_case_note("Length of stay", ltc_1503_length_of_stay)
+		Call write_bullet_and_variable_in_case_note("Recommended level of care", ltc_1503_level_of_care)
+		Call write_bullet_and_variable_in_case_note("Admitted from", ltc_1503_admitted_from)
+		Call write_bullet_and_variable_in_case_note("Hospital admitted from", ltc_1503_hospital_admitted_from)
+		Call write_bullet_and_variable_in_case_note("Admit date", ltc_1503_admit_date)
+		Call write_bullet_and_variable_in_case_note("Discharge date", ltc_1503_discharge_date)
+		Call write_variable_in_CASE_NOTE("---")
+		If ltc_1503_updated_RLVA_checkbox = checked and ltc_1503_updated_FACI_checkbox = checked then
+			Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
+		Else
+			If ltc_1503_updated_RLVA_checkbox = checked then Call write_variable_in_case_note("* Updated RLVA.")
+			If ltc_1503_updated_FACI_checkbox = checked then Call write_variable_in_case_note("* Updated FACI.")
+		End if
+		If ltc_1503_need_3543_checkbox = checked then Call write_variable_in_case_note("* A 3543 is needed for the client.")
+		If ltc_1503_need_3531_checkbox = checked then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
+		If ltc_1503_need_asset_assessment_checkbox = checked then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
+		If ltc_1503_sent_3050_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+		If ltc_1503_sent_5181_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
+		Call write_bullet_and_variable_in_case_note("Verifs needed", ltc_1503_verifs_needed)
+		If ltc_1503_sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & ltc_1503_sent_request_to)
+		If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+		If ltc_1503_TIKL_checkbox = checked then Call write_variable_in_case_note("TIKL'd for " & ltc_1503_TIKL_multiplier & " days to check length of stay.")
+		Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", ltc_1503_mets_case_number)
+		Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
+		Call write_variable_in_case_note("---")
+		Call write_variable_in_case_note(worker_signature)
+		MAXIS_footer_month = Original_footer_month
+		MAXIS_footer_year = Original_footer_year
+	End If
+
+
+Next
+
 'change  
 	'If we checked to TIKL out, it goes to TIKL and sends a TIKL
 	' IF tikl_nav_check = 1 THEN
@@ -4647,7 +4637,6 @@ CALL write_variable_in_case_note(worker_signature)
     ' If TIKL_checkbox = checked then Call create_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.", TIKL_multiplier, admit_date, False, TIKL_note_text)
 
   
-	
 script_end_procedure_with_error_report(end_msg)
 
 
