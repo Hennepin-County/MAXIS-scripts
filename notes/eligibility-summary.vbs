@@ -86,6 +86,46 @@ QCR_SNAP_Homeless_SHELTER_Expense_All = True
 ' ------------------------------------------------------------------------------
 
 
+function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
+'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP. Info Source: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
+'~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
+'~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
+'===== Keywords: SNAP, calculation, Income Test
+	month_to_review = footer_month & "/1/" & footer_year		'making this a date
+	month_to_review = DateAdd("d", 0, month_to_review)
+
+	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+		hh_size = hh_size*1
+		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'on or after 10/1/23
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 291
+			If hh_size = 2 Then thrifty_food_plan = 535
+			If hh_size = 3 Then thrifty_food_plan = 766
+			If hh_size = 4 Then thrifty_food_plan = 973
+			If hh_size = 5 Then thrifty_food_plan = 1155
+			If hh_size = 6 Then thrifty_food_plan = 1386
+			If hh_size = 7 Then thrifty_food_plan = 1532
+			If hh_size = 8 Then thrifty_food_plan = 1751
+
+			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then			'between 10/22-09/23
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 250
+			If hh_size = 2 Then thrifty_food_plan = 459
+			If hh_size = 3 Then thrifty_food_plan = 658
+			If hh_size = 4 Then thrifty_food_plan = 835
+			If hh_size = 5 Then thrifty_food_plan = 992
+			If hh_size = 6 Then thrifty_food_plan = 1190
+			If hh_size = 7 Then thrifty_food_plan = 1316
+			If hh_size = 8 Then thrifty_food_plan = 1504
+
+			If hh_size > 8 Then thrifty_food_plan = 1504 + (188 * (hh_size-8))
+		End If
+	End If
+end function
+
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
 	If variable = "" Then variable = 0
@@ -748,6 +788,41 @@ function define_dwp_elig_dialog()
 
 	EndDialog
 
+end function
+
+function define_mf_special_diet_dialog()
+	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Special DIET"
+		ButtonGroup ButtonPressed
+			Text 10, 370, 165, 10, "Confirm you have reviewed the check approval:"
+			DropListBox 175, 365, 155, 45, "Indicate if the Check is Accurate"+chr(9)+"Yes - check is Accurate"+chr(9)+"No - do not CASE/NOTE this information", SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month)
+
+			GroupBox 5, 10, 285, 85, "MONY/CHCK Issued for MFIP Special Diets"
+			Text 15, 30, 240, 10, "Issue Date: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_issue_date
+			Text 15, 45, 240, 10, "Check Amount: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_transaction_amount
+			Text 15, 60, 240, 10, "Benefit Period: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_from_date & " - " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_to_date
+			Text 15, 75, 240, 10, "Payment Reason: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_payment_reason
+
+			for each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then
+					grp_len = 30
+					If STAT_INFORMATION(month_select).stat_diet_mf_type_code_one(each_memb) <> "" Then
+						Text 15, 115, 240, 10, "DIET Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_one(each_memb)
+						Text 25, 130, 240, 10, "Amount: $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_one(each_memb)
+						Text 25, 145, 240, 10, "Verif: " & STAT_INFORMATION(month_select).stat_diet_mf_verif_one(each_memb)
+						grp_len = grp_len + 40
+					End If
+					If STAT_INFORMATION(month_select).stat_diet_mf_type_code_two(each_memb) <> "" Then
+						Text 15, 160, 240, 10, "DIET Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_two(each_memb)
+						Text 25, 175, 240, 10, "Amount: $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_two(each_memb)
+						Text 25, 190, 240, 10, "Verif: " & STAT_INFORMATION(month_select).stat_diet_mf_verif_two(each_memb)
+						grp_len = grp_len + 40
+						Text 10, grp_len+105, 400, 10, "The check issued is for the diet that gives the largest benefit. These amounts are not combined."
+					End If
+					GroupBox 5, 100, 285, grp_len, "MFIP Special Diet for MEMB " & STAT_INFORMATION(month_select).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_select).stat_memb_full_name_no_initial(each_memb)
+				End If
+			next
+			PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
+	EndDialog
 end function
 
 function define_mfip_elig_dialog()
@@ -5410,6 +5485,33 @@ function mfip_elig_case_note()
 	End If
 	If MFIP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(process_for_note, unique_app))
 	If MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app))
+
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+end function
+
+function mfip_special_diet_case_note()
+	Call back_to_SELF
+	CASE_NOTE_entered = True
+	end_msg_info = end_msg_info & "NOTE entered for MFIP Special Diet - Check Issued for " & left( MFIP_ELIG_APPROVALS(elig_select).MFSD_check_from_date, 2) & "/" & right( MFIP_ELIG_APPROVALS(elig_select).MFSD_check_from_date, 2) & vbCr
+
+	call start_a_blank_case_note
+	Call write_variable_in_CASE_NOTE("APPROVAL - MFIP Special Diet Issuance for " & left( MFIP_ELIG_APPROVALS(elig_select).MFSD_check_from_date, 2) & "/" & right( MFIP_ELIG_APPROVALS(elig_select).MFSD_check_from_date, 2))
+	Call write_bullet_and_variable_in_CASE_NOTE("Check Issued Date", MFIP_ELIG_APPROVALS(elig_select).MFSD_check_issue_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Check Issued For", "MEMB " & STAT_INFORMATION(month_select).stat_memb_ref_numb(memb_select) & " - " & STAT_INFORMATION(month_select).stat_memb_full_name_no_initial(memb_select))
+	Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
+	Call write_bullet_and_variable_in_CASE_NOTE("Check Amount", MFIP_ELIG_APPROVALS(elig_select).MFSD_check_transaction_amount)
+	Call write_variable_in_CASE_NOTE("=============================== DIET INFORMATION ============================")
+
+	If STAT_INFORMATION(month_select).stat_diet_mf_type_code_one(memb_select) <> "" and STAT_INFORMATION(month_select).stat_diet_mf_verif_one(memb_select) = "Y" Then
+		Call write_variable_in_CASE_NOTE("* Diet Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_one(memb_select) & " - $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_one(memb_select))
+	End If
+
+	If STAT_INFORMATION(month_select).stat_diet_mf_type_code_two(memb_select) <> "" and STAT_INFORMATION(month_select).stat_diet_mf_verif_two(memb_select) = "Y" Then
+		Call write_variable_in_CASE_NOTE("* Diet Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_two(memb_select) & " - $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_two(memb_select))
+		Call write_variable_in_CASE_NOTE("  The check issued is for the diet that gives the largest benefit.")
+		Call write_variable_in_CASE_NOTE("  These amounts are not combined.")
+	End If
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -10329,6 +10431,19 @@ class mfip_eligibility_detail
 	public mfip_case_summary_food_portion
 	public mfip_case_summary_housing_grant
 
+	public MFSD_check_found
+	public MFSD_approved_today
+	public MFSD_check_issue_date
+	public MFSD_check_status_code
+	public MFSD_check_warrant_number
+	public MFSD_check_transaction_amount
+	public MFSD_check_type_code
+	public MFSD_check_transaction_number
+	public MFSD_check_from_date
+	public MFSD_check_to_date
+	public MFSD_check_payment_reason
+
+
 	public sub read_elig()
 		mfip_cash_opt_out = False
 		mfip_HG_opt_out = False
@@ -11636,8 +11751,73 @@ class mfip_eligibility_detail
 		End If
 
 		Call Back_to_SELF
-	end sub
 
+
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+		EMWriteScreen initial_search_month, 6, 38
+		EMWriteScreen initial_search_year, 6, 41
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+		transmit
+		' MsgBox "Looking at MONY/INQX"
+
+		inqd_row = 6
+		tx_count = 0
+		EMReadScreen chck_prog, 7, inqd_row, 16
+		chck_prog = trim(chck_prog)
+
+		Do while chck_prog <> ""
+			If chck_prog = "SA" Then
+				MFSD_check_found = True
+				EMReadScreen MFSD_check_issue_date, 8, inqd_row, 7
+				MFSD_check_issue_date = trim(MFSD_check_issue_date)
+
+				EMReadScreen MFSD_check_status_code, 1, inqd_row, 26
+				EMReadScreen MFSD_check_warrant_number, 8, inqd_row, 28
+				EMReadScreen MFSD_check_transaction_amount, 9, inqd_row, 37
+				MFSD_check_transaction_amount = trim(MFSD_check_transaction_amount)
+				EMReadScreen MFSD_check_type_code, 1, inqd_row, 48
+				EMReadScreen MFSD_check_transaction_number, 9, inqd_row, 51
+				EMReadScreen MFSD_check_from_date, 8, inqd_row, 62
+				EMReadScreen MFSD_check_to_date, 8, inqd_row, 73
+				EMReadScreen MFSD_check_month, 2, inqd_row, 62
+				EMReadScreen MFSD_check_year, 2, inqd_row, 68
+				If MFSD_check_month <> elig_footer_month or MFSD_check_year <> elig_footer_year Then MFSD_check_found = False
+
+				Call write_value_and_transmit("I", inqd_row, 4)
+				EMReadScreen MFSD_check_payment_reason, 	30, 7, 17
+				MFSD_check_payment_reason = trim(MFSD_check_payment_reason)
+				If UCase(MFSD_check_payment_reason) <> "SPECIAL DIET" Then MFSD_check_found = False
+				PF3
+
+				If MFSD_check_found = True Then
+					If IsDate(MFSD_check_issue_date) = True Then
+						' MsgBox "MFSD_check_issue_date - " & MFSD_check_issue_date
+						If DateDiff("d", date, MFSD_check_issue_date) = 0 Then
+							' MsgBox "Date Match"
+							If MFSD_check_found = True then MFSD_approved_today = True
+						End If
+						If developer_mode = True Then MFSD_approved_today = True			'TESTING OPTION'
+						' MsgBox "MFSD_approved_today - " & MFSD_approved_today
+					End if
+				End If
+				If MFSD_approved_today = True Then Exit Do
+			End If
+
+			tx_count = tx_count + 1
+			inqd_row = inqd_row + 1
+			If inqd_row = 18 Then
+				PF8
+				inqd_row = 6
+				EMReadScreen end_of_list, 9, 24, 14
+				If end_of_list = "LAST PAGE" Then Exit Do
+			End If
+
+			EMReadScreen chck_prog, 7, inqd_row, 16
+			chck_prog = trim(chck_prog)
+		Loop
+		PF3
+	end sub
 end class
 
 class msa_eligibility_detail
@@ -16772,22 +16952,13 @@ class snap_eligibility_detail
 			If snap_budg_net_adj_inc = "" Then snap_budg_net_adj_inc = 0
 			snap_budg_net_adj_inc = snap_budg_net_adj_inc*1
 			snap_bug_30_percent_net_adj_inc = .3 * snap_budg_net_adj_inc
-			snap_bug_30_percent_net_adj_inc = Round(snap_bug_30_percent_net_adj_inc)
+			snap_bug_30_percent_net_adj_inc = snap_bug_30_percent_net_adj_inc + 1
+			snap_bug_30_percent_net_adj_inc = FormatNumber(snap_bug_30_percent_net_adj_inc, 0, -1, 0, -1)
 			snap_budg_net_adj_inc = FormatNumber(snap_budg_net_adj_inc, 2, -1, 0, -1)
-			snap_bug_30_percent_net_adj_inc = FormatNumber(snap_bug_30_percent_net_adj_inc, 2, -1, 0, -1)
 
 			If snap_budg_numb_in_assist_unit = "" Then snap_budg_numb_in_assist_unit = 0
 			snap_budg_numb_in_assist_unit = snap_budg_numb_in_assist_unit*1
-			If snap_budg_numb_in_assist_unit = 0 Then snap_budg_thrifty_food_plan = "0.00"
-			If snap_budg_numb_in_assist_unit = 1 Then snap_budg_thrifty_food_plan = "250.00"
-			If snap_budg_numb_in_assist_unit = 2 Then snap_budg_thrifty_food_plan = "459.00"
-			If snap_budg_numb_in_assist_unit = 3 Then snap_budg_thrifty_food_plan = "658.00"
-			If snap_budg_numb_in_assist_unit = 4 Then snap_budg_thrifty_food_plan = "835.00"
-			If snap_budg_numb_in_assist_unit = 5 Then snap_budg_thrifty_food_plan = "992.00"
-			If snap_budg_numb_in_assist_unit = 6 Then snap_budg_thrifty_food_plan = "1,190.00"
-			If snap_budg_numb_in_assist_unit = 7 Then snap_budg_thrifty_food_plan = "1,316.00"
-			If snap_budg_numb_in_assist_unit = 8 Then snap_budg_thrifty_food_plan = "1,504.00"
-			If snap_budg_numb_in_assist_unit > 8 Then snap_budg_thrifty_food_plan = 1504 + ((snap_budg_numb_in_assist_unit-8)*188)
+			Call determine_thrifty_food_plan(elig_footer_month, elig_footer_year, snap_budg_numb_in_assist_unit, snap_budg_thrifty_food_plan)
 			snap_budg_thrifty_food_plan = snap_budg_thrifty_food_plan & ""
 
 			EMReadScreen fssm_expedited_info_exists, 16, 14, 44
@@ -19488,6 +19659,17 @@ class stat_detail
 	Public stat_faci_county_approval_placement_yn()
 	Public stat_faci_approval_county()
 
+	public stat_diet_exists()
+	public stat_diet_mf_type_code_one()
+	public stat_diet_mf_type_info_one()
+	public stat_diet_mf_verif_one()
+	public stat_diet_mf_amount_one()
+	public stat_diet_mf_type_code_two()
+	public stat_diet_mf_type_info_two()
+	public stat_diet_mf_verif_two()
+	public stat_diet_mf_amount_two()
+
+
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
 		MAXIS_footer_year = footer_year
@@ -20267,6 +20449,15 @@ class stat_detail
 		ReDim stat_faci_county_approval_placement_yn(0)
 		ReDim stat_faci_approval_county(0)
 
+		ReDim stat_diet_exists(0)
+		ReDim stat_diet_mf_type_code_one(0)
+		ReDim stat_diet_mf_type_info_one(0)
+		ReDim stat_diet_mf_verif_one(0)
+		ReDim stat_diet_mf_amount_one(0)
+		ReDim stat_diet_mf_type_code_two(0)
+		ReDim stat_diet_mf_type_info_two(0)
+		ReDim stat_diet_mf_verif_two(0)
+		ReDim stat_diet_mf_amount_two(0)
 
 		stat_shel_prosp_all_total = 0
 		children_on_case = False
@@ -20914,6 +21105,16 @@ class stat_detail
 			ReDim preserve stat_faci_LTC_begin_date(memb_count)
 			ReDim preserve stat_faci_county_approval_placement_yn(memb_count)
 			ReDim preserve stat_faci_approval_county(memb_count)
+
+			ReDim preserve stat_diet_exists(memb_count)
+			ReDim preserve stat_diet_mf_type_code_one(memb_count)
+			ReDim preserve stat_diet_mf_type_info_one(memb_count)
+			ReDim preserve stat_diet_mf_verif_one(memb_count)
+			ReDim preserve stat_diet_mf_amount_one(memb_count)
+			ReDim preserve stat_diet_mf_type_code_two(memb_count)
+			ReDim preserve stat_diet_mf_type_info_two(memb_count)
+			ReDim preserve stat_diet_mf_verif_two(memb_count)
+			ReDim preserve stat_diet_mf_amount_two(memb_count)
 
 			EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 			EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
@@ -23469,6 +23670,76 @@ class stat_detail
 			End If
 		Next
 
+		Call navigate_to_MAXIS_screen("STAT", "DIET")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_diet_exists(each_memb) = True
+			If existance_check = "0" Then stat_diet_exists(each_memb) = False
+
+			If stat_diet_exists(each_memb) = True Then
+				Call determine_thrifty_food_plan(footer_month, footer_year, 1, thrifty_food_plan_for_diet)
+
+				EMReadScreen stat_diet_mf_type_code_one(each_memb), 2, 8, 40
+				EMReadScreen stat_diet_mf_verif_one(each_memb), 	1, 8, 51
+				If stat_diet_mf_type_code_one(each_memb) = "__" Then stat_diet_mf_type_code_one(each_memb) = ""
+				If stat_diet_mf_type_code_one(each_memb) = "01" Then stat_diet_mf_type_info_one(each_memb) = "High Protein > 79 Grams/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "02" Then stat_diet_mf_type_info_one(each_memb) = "Cntrl Protein 40-60 Gr/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "03" Then stat_diet_mf_type_info_one(each_memb) = "Cntrl Protein < 40 Grams/Day"
+				If stat_diet_mf_type_code_one(each_memb) = "04" Then stat_diet_mf_type_info_one(each_memb) = "Low Cholesterol"
+				If stat_diet_mf_type_code_one(each_memb) = "05" Then stat_diet_mf_type_info_one(each_memb) = "High Residue"
+				If stat_diet_mf_type_code_one(each_memb) = "06" Then stat_diet_mf_type_info_one(each_memb) = "Pregnancy And Lactation"
+				If stat_diet_mf_type_code_one(each_memb) = "07" Then stat_diet_mf_type_info_one(each_memb) = "Gluten Free"
+				If stat_diet_mf_type_code_one(each_memb) = "08" Then stat_diet_mf_type_info_one(each_memb) = "Lactose Free"
+				If stat_diet_mf_type_code_one(each_memb) = "09" Then stat_diet_mf_type_info_one(each_memb) = "Anti-Dumping"
+				If stat_diet_mf_type_code_one(each_memb) = "10" Then stat_diet_mf_type_info_one(each_memb) = "Hypoglycemic"
+				If stat_diet_mf_type_code_one(each_memb) = "11" Then stat_diet_mf_type_info_one(each_memb) = "Ketogenic"
+
+				stat_diet_mf_amount_one(each_memb) = 0
+				If stat_diet_mf_type_code_one(each_memb) = "02" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet
+				If stat_diet_mf_type_code_one(each_memb) = "03" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*1.25
+				If stat_diet_mf_type_code_one(each_memb) = "06" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.35
+				If stat_diet_mf_type_code_one(each_memb) = "07" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "01" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "11" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "08" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "04" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_one(each_memb) = "05" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.20
+				If stat_diet_mf_type_code_one(each_memb) = "10" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.15
+				IF stat_diet_mf_type_code_one(each_memb) = "09" Then stat_diet_mf_amount_one(each_memb) = thrifty_food_plan_for_diet*0.15
+
+				EMReadScreen stat_diet_mf_type_code_two(each_memb), 2, 9, 40
+				EMReadScreen stat_diet_mf_verif_two(each_memb), 	1, 9, 51
+				If stat_diet_mf_type_code_two(each_memb) = "__" Then stat_diet_mf_type_code_two(each_memb) = ""
+				If stat_diet_mf_type_code_two(each_memb) = "01" Then stat_diet_mf_type_info_two(each_memb) = "High Protein > 79 Grams/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "02" Then stat_diet_mf_type_info_two(each_memb) = "Cntrl Protein 40-60 Gr/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "03" Then stat_diet_mf_type_info_two(each_memb) = "Cntrl Protein < 40 Grams/Day"
+				If stat_diet_mf_type_code_two(each_memb) = "04" Then stat_diet_mf_type_info_two(each_memb) = "Low Cholesterol"
+				If stat_diet_mf_type_code_two(each_memb) = "05" Then stat_diet_mf_type_info_two(each_memb) = "High Residue"
+				If stat_diet_mf_type_code_two(each_memb) = "06" Then stat_diet_mf_type_info_two(each_memb) = "Pregnancy And Lactation"
+				If stat_diet_mf_type_code_two(each_memb) = "07" Then stat_diet_mf_type_info_two(each_memb) = "Gluten Free"
+				If stat_diet_mf_type_code_two(each_memb) = "08" Then stat_diet_mf_type_info_two(each_memb) = "Lactose Free"
+				If stat_diet_mf_type_code_two(each_memb) = "09" Then stat_diet_mf_type_info_two(each_memb) = "Anti-Dumping"
+				If stat_diet_mf_type_code_two(each_memb) = "10" Then stat_diet_mf_type_info_two(each_memb) = "Hypoglycemic"
+				If stat_diet_mf_type_code_two(each_memb) = "11" Then stat_diet_mf_type_info_two(each_memb) = "Ketogenic"
+
+				stat_diet_mf_amount_two(each_memb) = 0
+				If stat_diet_mf_type_code_two(each_memb) = "02" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet
+				If stat_diet_mf_type_code_two(each_memb) = "03" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*1.25
+				If stat_diet_mf_type_code_two(each_memb) = "06" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.35
+				If stat_diet_mf_type_code_two(each_memb) = "07" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "01" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "11" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "08" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "04" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.25
+				If stat_diet_mf_type_code_two(each_memb) = "05" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.20
+				If stat_diet_mf_type_code_two(each_memb) = "10" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
+				If stat_diet_mf_type_code_two(each_memb) = "09" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
+
+			End If
+		Next
+
 		Call navigate_to_MAXIS_screen("STAT", "BILS")
 		stat_bils_remedial_care_entered = False
 
@@ -23937,6 +24208,7 @@ developer_mode = False
 allow_late_note = False
 If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") AND MX_region <> "TRAINING" Then developer_mode = True
 ' If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or user_ID_for_validation = "MEGE001" or user_ID_for_validation = "MARI001" or user_ID_for_validation = "DACO003") Then developer_mode = True
+' developer_mode = True
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
 If MAXIS_case_number = "1023459" Then allow_late_note = True
@@ -24096,22 +24368,25 @@ If numb_EMER_versions <> "" Then
 	' 		transactions
 End If
 
-const footer_mo_const 		= 0
-const MX_foot_mo_const 		= 1
-const MX_foot_yr_const 		= 2
-const MFIP_app_const 		= 3
-const DWP_app_const 		= 4
-const GA_app_const 			= 5
-const MSA_app_const 		= 6
-const DENY_app_const 		= 7
-const GRH_app_const			= 8
-const SNAP_app_const 		= 9
-const ELIG_app_const 		= 10
-const HC_app_const 			= 11
-const MFIP_to_SNAP_const 	= 12
-const SNAP_to_MFIP_const 	= 13
-const Homeless_SHELTER_deducation = 14
-const final_month_const 	= 20
+const footer_mo_const 				= 0
+const MX_foot_mo_const 				= 1
+const MX_foot_yr_const 				= 2
+const MFIP_app_const 				= 3
+const MFIP_special_diet_const		= 4
+const MF_elig_index					= 5
+const MFIP_special_diet_confirm		= 6
+const DWP_app_const 				= 7
+const GA_app_const 					= 8
+const MSA_app_const 				= 9
+const DENY_app_const 				= 10
+const GRH_app_const					= 11
+const SNAP_app_const 				= 12
+const ELIG_app_const 				= 13
+const HC_app_const 					= 14
+const MFIP_to_SNAP_const 			= 15
+const SNAP_to_MFIP_const 			= 16
+const Homeless_SHELTER_deducation 	= 17
+const final_month_const 			= 20
 
 Dim SPECIAL_PROCESSES_BY_MONTH()
 ReDim SPECIAL_PROCESSES_BY_MONTH(final_month_const, 0)
@@ -24120,6 +24395,8 @@ approvals_not_created_today = ""
 first_month_not_created_today = ""
 first_year_not_created_today = ""
 first_prog_not_created_today = ""
+special_diet_check_exists = False
+
 For each footer_month in MONTHS_ARRAY
 	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
 	REPORTING_COMPLETE_ARRAY(month_const, month_count) = footer_month
@@ -24139,6 +24416,7 @@ For each footer_month in MONTHS_ARRAY
 	SPECIAL_PROCESSES_BY_MONTH(SNAP_to_MFIP_const, month_count) 	= false
 	SPECIAL_PROCESSES_BY_MONTH(Homeless_SHELTER_deducation, month_count) = false
 	SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) 		= "NONE"
+	SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count)= False
 	SPECIAL_PROCESSES_BY_MONTH(DWP_app_const, month_count) 			= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(GA_app_const, month_count) 			= "NONE"
 	SPECIAL_PROCESSES_BY_MONTH(MSA_app_const, month_count) 			= "NONE"
@@ -24215,6 +24493,14 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "MFIP"
 			End If
 		End If
+
+		' MsgBox "Approved Today - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today & vbCr & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month
+		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today = True Then
+			SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count) = True
+			SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, month_count) = mfip_elig_months_count
+			special_diet_check_exists = True
+		End If
+		' If add_new_note_for_MFSD = "No - Eligibility is the same - No NOTE Needed" Then special_diet_check_exists = False
 		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
@@ -25732,6 +26018,7 @@ ReDim HC_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 approval_note_found_for_DWP = False
 approval_note_found_for_MFIP = False
+approval_note_found_for_MFSD = False
 approval_note_found_for_MSA = False
 approval_note_found_for_GA = False
 approval_note_found_for_DENY = False
@@ -25754,7 +26041,8 @@ Do
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
-		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
+		If InStr(note_title, "MFIP - ") <> 0 Then approval_note_found_for_MFIP = True
+		If InStr(note_title, "MFIP Special") <> 0 Then approval_note_found_for_MFSD = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
 		If InStr(note_title, " GA") <> 0 Then approval_note_found_for_GA = True
 		If InStr(note_title, "CASH") <> 0 Then approval_note_found_for_DENY = True
@@ -25780,6 +26068,7 @@ Do
 
 	' If approval_note_found_for_DWP = True Then approval_note_found = True
 	If approval_note_found_for_MFIP = True Then approval_note_found = True
+	If approval_note_found_for_MFSD = True Then approval_note_found = True
 	If approval_note_found_for_MSA = True Then approval_note_found = True
 	If approval_note_found_for_GA = True Then approval_note_found = True
 	If approval_note_found_for_DENY = True Then approval_note_found = True
@@ -25803,6 +26092,7 @@ If approval_note_found = True Then
 	dlg_len = 45
 	If approval_note_found_for_DWP = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_MFIP = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_MFSD = True Then dlg_len = dlg_len +20
 	If approval_note_found_for_MSA = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_GA = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_DENY = True Then dlg_len = dlg_len + 20
@@ -25823,6 +26113,11 @@ If approval_note_found = True Then
 	  If approval_note_found_for_MFIP = True Then
 		  Text 15, y_pos+5, 330, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_MFSD = True Then
+		  Text 15, y_pos+5, 350, 10, "MF Special Diet Check CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFSD
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MSA = True Then
@@ -25875,6 +26170,7 @@ If approval_note_found = True Then
 
 			If approval_note_found_for_DWP = True and add_new_note_for_DWP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for DWP Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_MFIP = True and add_new_note_for_MFIP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MFIP Eligibility should be Reviewed and Entered into MAXIS."
+			If approval_note_found_for_MFSD = True and add_new_note_for_MFSD = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MFIP Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_MSA = True and add_new_note_for_MSA = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MSA Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_GA = True and add_new_note_for_GA = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for GA Eligibility should be Reviewed and Entered into MAXIS."
 			If approval_note_found_for_DENY = True and add_new_note_for_DENY = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for Cash DENY Eligibility should be Reviewed and Entered into MAXIS."
@@ -25890,52 +26186,63 @@ If approval_note_found = True Then
 
 	If add_new_note_for_DWP = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & vbCr & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP."
+	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
+
 	If add_new_note_for_MFIP = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_MFIP = False
-		end_msg_info = end_msg_info & vbCr & "MFIP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "MFIP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP."
+	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP." & vbCr
+
+	If add_new_note_for_MFSD = "No - Eligibility is the same - No NOTE Needed" Then
+		end_msg_info = end_msg_info & "MFIP Special Diet had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
+		special_diet_check_exists = False
+	End If
+	If add_new_note_for_MFSD = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP Special Diet, it was requested to enter a new note about eligibility for MFIP." & vbCr
+
 	If add_new_note_for_MSA = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_MSA = False
-		end_msg_info = end_msg_info & vbCr & "MSA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "MSA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA."
+	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA." & vbCr
+
 	If add_new_note_for_GA = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_GA = False
-		end_msg_info = end_msg_info & vbCr & "GA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "GA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA."
+	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA." & vbCr
+
 	If add_new_note_for_DENY = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_DENY = False
-		end_msg_info = end_msg_info & vbCr & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY."
+	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY." & vbCr
+
 	If add_new_note_for_GRH = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_GRH = False
-		end_msg_info = end_msg_info & vbCr & "GRH had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "GRH had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH."
+	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH." & vbCr
+
 	If add_new_note_for_SNAP = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_SNAP = False
-		end_msg_info = end_msg_info & vbCr & "SNAP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "SNAP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP."
+	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP." & vbCr
+
 	If add_new_note_for_HC = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_HC = False
-		end_msg_info = end_msg_info & vbCr & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC."
+	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC." & vbCr
+
 	If add_new_note_for_EMER = "No - Eligibility is the same - No NOTE Needed" Then
 		enter_CNOTE_for_EMER = False
-		end_msg_info = end_msg_info & vbCr & "EMER had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+		end_msg_info = end_msg_info & "EMER had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_EMER = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER."
-
-
-
+	If add_new_note_for_EMER = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER." & vbCr
 End If
 
 Call back_to_SELF
@@ -26721,6 +27028,32 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
 
+End If
+
+If special_diet_check_exists = True Then
+	For info_month = 0 to UBound(SPECIAL_PROCESSES_BY_MONTH, 2)
+		If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, info_month) = True Then
+			elig_select = SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, info_month)
+			for stat_month = 0 to UBound(STAT_INFORMATION)
+				If SPECIAL_PROCESSES_BY_MONTH(MX_foot_mo_const, info_month)  = STAT_INFORMATION(stat_month).footer_month and SPECIAL_PROCESSES_BY_MONTH(MX_foot_yr_const, info_month) = STAT_INFORMATION(stat_month).footer_year Then month_select = stat_month
+			next
+
+			Dialog1 = ""
+			call define_mf_special_diet_dialog
+
+			Do
+				dialog Dialog1
+				cancel_confirmation
+
+				err_msg = ""
+				If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
+				If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+			Loop until err_msg = ""
+
+			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Yes - check is Accurate" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = True
+			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "No - do not CASE/NOTE this information" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = False
+		End If
+	Next
 End If
 
 If enter_CNOTE_for_MSA = True Then
@@ -29273,6 +29606,31 @@ If enter_CNOTE_for_MFIP = True Then
 	Next
 End If
 
+If special_diet_check_exists = True Then
+	For info_month = 0 to UBound(SPECIAL_PROCESSES_BY_MONTH, 2)
+		month_select = ""
+		memb_select = ""
+		If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, info_month) = True and SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = True Then
+			elig_select = SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, info_month)
+			for stat_month = 0 to UBound(STAT_INFORMATION)
+				If SPECIAL_PROCESSES_BY_MONTH(MX_foot_mo_const, info_month)  = STAT_INFORMATION(stat_month).footer_month and SPECIAL_PROCESSES_BY_MONTH(MX_foot_yr_const, info_month) = STAT_INFORMATION(stat_month).footer_year Then month_select = stat_month
+			next
+			for each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then memb_select = each_memb
+			next
+
+			Call mfip_special_diet_case_note
+
+			If developer_mode = True Then
+				MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result		'TESTING OPTION'
+				PF10
+				Msgbox "You forgot - but the NOTE is gone"
+			End If
+			PF3
+		End If
+	Next
+End If
+
 if enter_CNOTE_for_MSA = True Then
 	For unique_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
 		first_month = left(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
@@ -30368,6 +30726,7 @@ Next
 script_run_lowdown = script_run_lowdown & vbCr & "ga_status - " & ga_status
 script_run_lowdown = script_run_lowdown & vbCr & "msa_status - " & msa_status
 script_run_lowdown = script_run_lowdown & vbCr & "mfip_status - " & mfip_status
+script_run_lowdown = script_run_lowdown & vbCr & "special_diet_check_exists - " & special_diet_check_exists
 script_run_lowdown = script_run_lowdown & vbCr & "dwp_status - " & dwp_status
 script_run_lowdown = script_run_lowdown & vbCr & "grh_status - " & grh_status
 script_run_lowdown = script_run_lowdown & vbCr & "snap_status - " & snap_status
