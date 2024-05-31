@@ -24564,21 +24564,11 @@ For each footer_month in MONTHS_ARRAY
 			End If
 		End If
 
-		' MsgBox "Approved Today - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today & vbCr & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today = True Then
 			SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count) = True
 			SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, month_count) = mfip_elig_months_count
 			special_diet_check_exists = True
 		End If
-		' If add_new_note_for_MFSD = "No - Eligibility is the same - No NOTE Needed" Then special_diet_check_exists = False
-		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
-
-		' MsgBox "mfip_elig_months_count: " & mfip_elig_months_count
 	End If
 
 	If numb_MSA_versions <> " " Then
