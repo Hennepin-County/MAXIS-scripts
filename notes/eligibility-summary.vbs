@@ -88,7 +88,7 @@ QCR_SNAP_Homeless_SHELTER_Expense_All = True
 
 
 function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
-'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP. Info Source: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
+'--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
 '~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
@@ -485,7 +485,7 @@ function define_dwp_elig_dialog()
 			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
 			GroupBox 5, 10, 450, 45, "DWP Closed "
@@ -834,7 +834,7 @@ function define_mfip_elig_dialog()
 			Text 10, 350, 550, 10, "NOTES: " & MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
@@ -1127,7 +1127,7 @@ function define_msa_elig_dialog()
 		Text 10, 350, 550, 10, "NOTES: " & MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	' MsgBox MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
@@ -1443,7 +1443,7 @@ function define_ga_elig_dialog()
 		  Text 10, 350, 550, 10, "NOTES: " & GA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If GA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	  If GA_ELIG_APPROVALS(elig_ind).ga_elig_faci_file_unit_type_code = " " Then 				'If this is _, it means the budget is INDVIDUAL based'
@@ -2265,7 +2265,7 @@ function define_deny_elig_dialog()
 		End If
 
 		Text 10, 370, 175, 10, "Confirm you have reviewed the approval for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		for each_app = 0 to UBound(DENY_UNIQUE_APPROVALS, 2)
@@ -2433,7 +2433,7 @@ function define_grh_elig_dialog()
 			Text 10, 350, 550, 10, "NOTES: " & GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then
 			month_display = GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected)
@@ -2969,7 +2969,7 @@ function define_hc_elig_dialog()
 			Text 10, 350, 550, 10, "NOTES: " & HC_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & HC_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		y_pos = 10
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
@@ -3559,7 +3559,7 @@ function define_hc_elig_dialog()
 		'     PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		'   GroupBox 460, 10, 85, 105, "HC Approvals"
 		'   Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		'   DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection
+		'   DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GRH_UNIQUE_APPROVALS(confirm_budget_selection
 		'   GroupBox 10, 10, 440, 95, "MEMB 01 - NAME GOES HERE - ELIGIBLE for MA"
 		'   Text 25, 35, 95, 10, "Elig Type: DX - Detail"
 		'   Text 25, 45, 95, 10, "Standard: E - 100% FPG"
@@ -4005,7 +4005,7 @@ function define_emer_elig_dialog()
 
 		End If
 		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", confirm_emer_budget_selection
+		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", confirm_emer_budget_selection
 
 		ButtonGroup ButtonPressed
 			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
@@ -4035,7 +4035,7 @@ function define_snap_elig_dialog()
 		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	GroupBox 5, 10, 285, 105, "Approval Detail"
@@ -26537,13 +26537,13 @@ If enter_CNOTE_for_DWP = True Then
 			err_msg = ""
 			move_from_dialog = False
 
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible DWP approval."
 				Else
 					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-						DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+						DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 					End If
 				End If
 			End If
@@ -26584,7 +26584,7 @@ If enter_CNOTE_for_DWP = True Then
 				If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -26629,7 +26629,7 @@ If enter_CNOTE_for_DWP = True Then
 
 	If dwp_approval_is_incorrect = True Then
 		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for DWP Approvals from " & first_DWP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for DWP Approvals from " & first_DWP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 End If
 
@@ -26851,7 +26851,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			err_msg = ""
 			move_from_dialog = False
 
-			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
@@ -26859,7 +26859,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file <> "FAILED" Then
 							'TODO add functionality to allow less than 10 days for a FAIL to FILE - MFIP_ELIG_APPROVALS(approval).mfip_case_test_fail_file ="FAILED"
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+							MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
 					End If
 				End If
@@ -27040,7 +27040,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					MFIP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					MFIP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					MFIP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					MFIP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -27085,7 +27085,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 	If mfip_approval_is_incorrect = True Then
 		enter_CNOTE_for_MFIP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 End If
@@ -27309,14 +27309,14 @@ If enter_CNOTE_for_MSA = True Then
 
 			err_msg = ""
 
-			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+							MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
 					End If
 				End If
@@ -27349,7 +27349,7 @@ If enter_CNOTE_for_MSA = True Then
 				If MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					MSA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					MSA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					MSA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					MSA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -27394,7 +27394,7 @@ If enter_CNOTE_for_MSA = True Then
 
 	If msa_approval_is_incorrect = True Then
 		enter_CNOTE_for_MSA = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MSA Approvals from " & first_MSA_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MSA Approvals from " & first_MSA_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 End If
@@ -27624,14 +27624,14 @@ If enter_CNOTE_for_GA = True Then
 			err_msg = ""
 			move_from_dialog = False
 
-			If (GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" OR GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info = "No Proof Given") and GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If (GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" OR GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info = "No Proof Given") and GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", GA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+							GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
 					End If
 				End If
@@ -27667,7 +27667,7 @@ If enter_CNOTE_for_GA = True Then
 				If GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					GA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					GA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					GA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					GA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -27712,7 +27712,7 @@ If enter_CNOTE_for_GA = True Then
 
 	If ga_approval_is_incorrect = True Then
 		enter_CNOTE_for_GA = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GA Approvals from " & first_GA_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GA Approvals from " & first_GA_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 End If
@@ -27922,7 +27922,7 @@ If enter_CNOTE_for_DENY = True Then
 				Else
 					If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-						DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+						DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 					End If
 				End If
 			ElseIf trim(DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)) <> "" Then
@@ -27932,7 +27932,7 @@ If enter_CNOTE_for_DENY = True Then
 				Else
 					If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-						DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+						DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 					End If
 				End If
 			End if
@@ -27967,7 +27967,7 @@ If enter_CNOTE_for_DENY = True Then
 				If DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 					DENY_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					DENY_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					DENY_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					DENY_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -28011,7 +28011,7 @@ If enter_CNOTE_for_DENY = True Then
 
 	If deny_approval_is_incorrect = True Then
 		enter_CNOTE_for_DENY = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for Cash DENY Approvals from " & first_DENY_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for Cash DENY Approvals from " & first_DENY_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 	If enter_CNOTE_for_DENY = True Then
@@ -28310,14 +28310,14 @@ If enter_CNOTE_for_GRH = True Then
 
 
 
-			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+							GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
 					End If
 				End If
@@ -28362,7 +28362,7 @@ If enter_CNOTE_for_GRH = True Then
 				If GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 					GRH_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					GRH_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					GRH_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					GRH_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -28408,7 +28408,7 @@ If enter_CNOTE_for_GRH = True Then
 
 	If grh_approval_is_incorrect = True Then
 		enter_CNOTE_for_GRH = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GRH Approvals from " & first_GRH_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GRH Approvals from " & first_GRH_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 End If
@@ -28765,7 +28765,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 					If HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 						HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-					ElseIf HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+					ElseIf HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 						HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 						HC_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 					End If
@@ -28822,7 +28822,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 		If hc_approval_is_incorrect = True Then
 			enter_CNOTE_for_HC = False
-			end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+			end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 		End if
 	End If
 End If
@@ -29078,13 +29078,13 @@ If enter_CNOTE_for_EMER = True Then
 
 			err_msg = ""
 
-			If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" and confirm_emer_budget_selection <> "No - I need to complete a new Approval" then
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" and confirm_emer_budget_selection <> "No - do not CASE/NOTE this information" then
 				If Isdate(emer_verif_request_date) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", emer_verif_request_date, date) < 10 AND confirm_emer_budget_selection = "Yes - budget is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_request_date & " is less than 10 days ago and we should not be taking action yet."
-						confirm_emer_budget_selection = "No - I need to complete a new Approval"
+						confirm_emer_budget_selection = "No - do not CASE/NOTE this information"
 					End If
 				End If
 			End If
@@ -29143,7 +29143,7 @@ If enter_CNOTE_for_EMER = True Then
 
 	If trim(emer_past_30_days_income) <> "" Then income_limit_details = True
 
-	If confirm_emer_budget_selection = "No - I need to complete a new Approval" Then
+	If confirm_emer_budget_selection = "No - do not CASE/NOTE this information" Then
 		enter_CNOTE_for_EMER = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for EMER Approvals as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
@@ -29377,14 +29377,14 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			move_from_dialog = False
 
 			If right(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), 1) = "." Then SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected) = left(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected))- 1)
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" and SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" and SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
 					If DateDiff("d", SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						If expedited_package_approved = False and SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-							SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+							SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
 					End If
 				End If
@@ -29430,7 +29430,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				If SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					SNAP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
 					SNAP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
-				ElseIf SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				ElseIf SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information" Then
 					SNAP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
 					SNAP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 				End If
@@ -29485,7 +29485,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 
 	If snap_approval_is_incorrect = True Then
 		enter_CNOTE_for_SNAP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for SNAP Approvals from " & first_SNAP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for SNAP Approvals from " & first_SNAP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
 
 End If
