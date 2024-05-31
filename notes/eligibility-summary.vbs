@@ -79,7 +79,8 @@ QCR_random_GRH_approvals = False
 QCR_random_HC_approvals = False
 QCR_random_EMER_approvals = False
 QCR_random_DENY_approvals = False
-QCR_SNAP_ABAWD_30_09_Eligible = False
+QCR_SNAP_ABAWD_30_09_Eligible = True
+	QCR_SNAP_ABAWD_30_09_String = " "
 QCR_SNAP_ABAWD_30_10_All = False
 QCR_SNAP_Homeless_SHELTER_Expense_All = True
 	SNAP_Homeless_SHELTER_Expense_Min = 179.66
@@ -19669,6 +19670,11 @@ class stat_detail
 	public stat_diet_mf_verif_two()
 	public stat_diet_mf_amount_two()
 
+	public stat_wreg_exists()
+	public stat_wreg_fset_status_code()
+	public stat_wreg_fset_status_info()
+	public stat_wreg_abawd_status_code()
+	public stat_wreg_abawd_status_info()
 
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
@@ -20459,6 +20465,12 @@ class stat_detail
 		ReDim stat_diet_mf_verif_two(0)
 		ReDim stat_diet_mf_amount_two(0)
 
+		ReDim stat_wreg_exists(0)
+		ReDim stat_wreg_fset_status_code(0)
+		ReDim stat_wreg_fset_status_info(0)
+		ReDim stat_wreg_abawd_status_code(0)
+		ReDim stat_wreg_abawd_status_info(0)
+
 		stat_shel_prosp_all_total = 0
 		children_on_case = False
 
@@ -21115,6 +21127,12 @@ class stat_detail
 			ReDim preserve stat_diet_mf_type_info_two(memb_count)
 			ReDim preserve stat_diet_mf_verif_two(memb_count)
 			ReDim preserve stat_diet_mf_amount_two(memb_count)
+
+			ReDim preserve stat_wreg_exists(memb_count)
+			ReDim preserve stat_wreg_fset_status_code(memb_count)
+			ReDim preserve stat_wreg_fset_status_info(memb_count)
+			ReDim preserve stat_wreg_abawd_status_code(memb_count)
+			ReDim preserve stat_wreg_abawd_status_info(memb_count)
 
 			EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 			EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
@@ -23670,6 +23688,56 @@ class stat_detail
 			End If
 		Next
 
+		Call navigate_to_MAXIS_screen("STAT", "WREG")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_wreg_exists(each_memb) = True
+			If existance_check = "0" Then stat_wreg_exists(each_memb) = False
+
+			If stat_wreg_exists(each_memb) = True Then
+				EMReadScreen stat_wreg_fset_status_code(each_memb), 2, 8, 50
+				If stat_wreg_fset_status_code(each_memb) = "03" Then stat_wreg_fset_status_info(each_memb) = "Unfit For Employment"
+				If stat_wreg_fset_status_code(each_memb) = "04" Then stat_wreg_fset_status_info(each_memb) = "Responsible For Care Of Incapacitated Person"
+				If stat_wreg_fset_status_code(each_memb) = "05" Then stat_wreg_fset_status_info(each_memb) = "Age 60 Or Older"
+				If stat_wreg_fset_status_code(each_memb) = "06" Then stat_wreg_fset_status_info(each_memb) = "Under Age 16"
+				If stat_wreg_fset_status_code(each_memb) = "07" Then stat_wreg_fset_status_info(each_memb) = "Age 16-17, Living W/Pare/Crgvr"
+				If stat_wreg_fset_status_code(each_memb) = "08" Then stat_wreg_fset_status_info(each_memb) = "Responsible For Care Of Child < 6 Years Old"
+				If stat_wreg_fset_status_code(each_memb) = "09" Then stat_wreg_fset_status_info(each_memb) = "Empl 30 Hrs/Wk Or Earnings At Least = To Min Wage X 30 Hrs/Wk"
+				If stat_wreg_fset_status_code(each_memb) = "10" Then stat_wreg_fset_status_info(each_memb) = "Matching Grant Participant"
+				If stat_wreg_fset_status_code(each_memb) = "11" Then stat_wreg_fset_status_info(each_memb) = "Rcvg UI or Work Compliant While UI Pending"
+				If stat_wreg_fset_status_code(each_memb) = "12" Then stat_wreg_fset_status_info(each_memb) = "Enrolled In School, Training Prog Or Higher Ed At Least ½ Time"
+				If stat_wreg_fset_status_code(each_memb) = "13" Then stat_wreg_fset_status_info(each_memb) = "Participating In CD Program"
+				If stat_wreg_fset_status_code(each_memb) = "14" Then stat_wreg_fset_status_info(each_memb) = "ES Compliant While Receiving MFIP"
+				If stat_wreg_fset_status_code(each_memb) = "20" Then stat_wreg_fset_status_info(each_memb) = "ES Compliant While Pending/Receiving DWP"
+				If stat_wreg_fset_status_code(each_memb) = "15" Then stat_wreg_fset_status_info(each_memb) = "Age 16-17 Not Lvg W/Pare/Crgvr"
+				If stat_wreg_fset_status_code(each_memb) = "16" Then stat_wreg_fset_status_info(each_memb) = "50-59 Years Old"
+				If stat_wreg_fset_status_code(each_memb) = "21" Then stat_wreg_fset_status_info(each_memb) = "Child < 18 Living in SNAP Unit"
+				If stat_wreg_fset_status_code(each_memb) = "17" Then stat_wreg_fset_status_info(each_memb) = "Receiving RCA"
+				If stat_wreg_fset_status_code(each_memb) = "23" Then stat_wreg_fset_status_info(each_memb) = "Pregnant"
+				If stat_wreg_fset_status_code(each_memb) = "30" Then stat_wreg_fset_status_info(each_memb) = "Mandatory FSET Participant"
+				If stat_wreg_fset_status_code(each_memb) = "02" Then stat_wreg_fset_status_info(each_memb) = "Fail To Cooperate With FSET"
+				If stat_wreg_fset_status_code(each_memb) = "33" Then stat_wreg_fset_status_info(each_memb) = "Non-Coop Being Referred"
+
+				EMReadScreen stat_wreg_abawd_status_code(each_memb), 2, 13, 50
+				If stat_wreg_abawd_status_code(each_memb) = "01" Then stat_wreg_abawd_status_info(each_memb) = "Work Reg Exmpt"
+				If stat_wreg_abawd_status_code(each_memb) = "02" Then stat_wreg_abawd_status_info(each_memb) = "Under Age 18"
+				If stat_wreg_abawd_status_code(each_memb) = "03" Then stat_wreg_abawd_status_info(each_memb) = "Age 50 Or Over"
+				If stat_wreg_abawd_status_code(each_memb) = "04" Then stat_wreg_abawd_status_info(each_memb) = "Minor Child in SNAP Unit"
+				If stat_wreg_abawd_status_code(each_memb) = "05" Then stat_wreg_abawd_status_info(each_memb) = "Pregnant"
+				If stat_wreg_abawd_status_code(each_memb) = "06" Then stat_wreg_abawd_status_info(each_memb) = "Employed, in-kind or Volunteer Avg of 20 Hrs/Wk"
+				If stat_wreg_abawd_status_code(each_memb) = "07" Then stat_wreg_abawd_status_info(each_memb) = "Wrk Experience Participant"
+				If stat_wreg_abawd_status_code(each_memb) = "08" Then stat_wreg_abawd_status_info(each_memb) = "Other E & T Services"
+				If stat_wreg_abawd_status_code(each_memb) = "09" Then stat_wreg_abawd_status_info(each_memb) = "Resides In A Waivered Area"
+				If stat_wreg_abawd_status_code(each_memb) = "10" Then stat_wreg_abawd_status_info(each_memb) = "ABAWD Counted Month"
+				If stat_wreg_abawd_status_code(each_memb) = "11" Then stat_wreg_abawd_status_info(each_memb) = "2nd-3rd Month Period Of Elig"
+				If stat_wreg_abawd_status_code(each_memb) = "12" Then stat_wreg_abawd_status_info(each_memb) = "RCA"
+				If stat_wreg_abawd_status_code(each_memb) = "13" Then stat_wreg_abawd_status_info(each_memb) = "ABAWD Banked Months"
+			End If
+		Next
+
+
 		Call navigate_to_MAXIS_screen("STAT", "DIET")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -24021,10 +24089,12 @@ Dim process_being_completed, income_change_checkbox, assets_change_checkbox, exp
 Dim address_change_checkbox, hh_comp_change_checkbox, relationship_change_checkbox, participation_change_checkbox
 Dim time_limit_change_checkbox, policy_change_checkbox, correction_change_checkbox, appeal_change_checkbox
 Dim snap_prorate_reason, dwp_prorate_reason, mfip_prorate_reason, ga_prorate_reason, msa_prorate_reason, grh_prorate_reason
+Dim objTextStream
 
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
+Call find_user_name(script_run_worker)
 
 Call hest_standards(heat_AC_amt, electric_amt, phone_amt, date)		'Currently only used in EMER for a reference.'
 end_msg_info = ""
@@ -30262,18 +30332,17 @@ If enter_CNOTE_for_SNAP = True Then
 							If numb_snap_budg_shel_exp < SNAP_Homeless_SHELTER_Expense_Min Then record_for_review = True
 						End If
 					End If
+					If MX_region = "TRAINING" Then record_for_review = False
+					If developer_mode = True Then record_for_review = False
+
 					If record_for_review = True Then
 						'RECORD QCR Cookie here
-						txt_file_name = "SNAP_review_homeless_shleter_expense_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+						txt_file_name = "SNAP_review_homeless_shelter_expense_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
 						qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
-
-						Call find_user_name(script_run_worker)
 
 						'CREATING THE TESTING REPORT
 						With (CreateObject("Scripting.FileSystemObject"))
 							'Creating an object for the stream of text which we'll use frequently
-							Dim objTextStream
-
 							Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
 
 							objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
@@ -30300,6 +30369,68 @@ If enter_CNOTE_for_SNAP = True Then
 		End If
 		PF3
 	Next
+
+	'WORKING HERE
+	If QCR_SNAP_ABAWD_30_09_Eligible = True Then
+		For each_month = 0 to UBound(SNAP_ELIG_APPROVALS)
+			If SNAP_ELIG_APPROVALS(each_month).snap_elig_result = "ELIGIBLE" Then
+				For stat_month = 0 to UBound(STAT_INFORMATION)
+					If SNAP_ELIG_APPROVALS(each_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(each_month).elig_footer_year = STAT_INFORMATION(stat_month).footer_month & "/" & STAT_INFORMATION(stat_month).footer_year Then
+						For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+							If InStr(SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) <> 0 Then
+								If STAT_INFORMATION(month_ind).stat_wreg_fset_status_code(each_memb) = "30" and STAT_INFORMATION(month_ind).stat_wreg_abawd_status_code(each_memb) = "09" Then
+									If InStr(QCR_SNAP_ABAWD_30_09_String, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) = 0 Then
+										QCR_SNAP_ABAWD_30_09_String = QCR_SNAP_ABAWD_30_09_String & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " "
+									End If
+								End If
+							End If
+						Next
+					End If
+				Next
+			End If
+		Next
+
+		QCR_SNAP_ABAWD_30_09_String = trim(QCR_SNAP_ABAWD_30_09_String)
+		If MX_region = "TRAINING" Then QCR_SNAP_ABAWD_30_09_String = ""
+		If developer_mode = True Then QCR_SNAP_ABAWD_30_09_String = ""
+
+		If QCR_SNAP_ABAWD_30_09_String <> "" Then
+			'RECORD QCR Cookie here
+			txt_file_name = "SNAP_WREG_30_09_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+			qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+			'CREATING THE TESTING REPORT
+			With (CreateObject("Scripting.FileSystemObject"))
+				'Creating an object for the stream of text which we'll use frequently
+				Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+				objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+				objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+				objTextStream.WriteLine "RunDateTime^&*^&*" & now
+				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+				objTextStream.WriteLine "ELIGProgram^&*^&*SNAP"
+				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+				objTextStream.WriteLine "ABAWDMembs^&*^&*MEMB " & replace(QCR_SNAP_ABAWD_30_09_String, " ", ", MEMB ")
+				objTextStream.WriteLine "POLICY^&*^&*CM 0011_24"
+
+				objTextStream.Close
+			End With
+
+			email_subject = "TEST - SNAP Case with WREG coded 30/09 - Case: " & MAXIS_case_number
+			email_body = "A case was just approved with an eligible member coded as residing in a waivered area."
+			email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+			email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+			email_body = email_body & vbCr & "SNAP Eligible"
+			email_body = email_body & vbCr & "Initial month of approval: " & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+			email_body = email_body & vbCr & "ABAWD Members coded 30/09: MEMB " & replace(QCR_SNAP_ABAWD_30_09_String, " ", ", MEMB ")
+			email_body = email_body & vbCr & ""
+			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+
+			email_recip = "kerry.walsh@hennepin.us; brooke.reilley@hennepin.us"
+			email_recip_CC = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+		End If
+	End If
 
 End If
 
