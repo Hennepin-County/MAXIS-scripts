@@ -4046,8 +4046,8 @@ function define_snap_elig_dialog()
 	  	Text 15, 50, 135, 10, "Shelter Expense . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses & "  ( - )"
 	  	Text 15, 60, 135, 10, "Net Adjusted Income . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc
 
-	  	Text 15, 75, 135, 10, "Thrifty Food Plan . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan
-	  	Text 15, 85, 135, 10, "30% of Net Adj Income . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc & "  ( - )"
+	  	Text 15, 75, 135, 10, "Thrifty Food Plan . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan & ".00"
+	  	Text 15, 85, 135, 10, "30% of Net Adj Income . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc & ".00  ( - )"
 
 	  	Text 40, 100, 105, 10, "Entitlement . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
 	  	' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
