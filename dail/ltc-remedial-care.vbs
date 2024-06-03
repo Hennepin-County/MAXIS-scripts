@@ -62,8 +62,8 @@ changelog_display
 
 EMConnect ""
 'EPM Reference for Remedial Care: http://hcopub.dhs.state.mn.us/epm/appendix_f.htm?rhhlterm=remedial%20care&rhsearch=remedial%20care
-remedial_care_amt = "275.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "01/01/2024" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
+remedial_care_amt = "278.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "07/01/2024" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
