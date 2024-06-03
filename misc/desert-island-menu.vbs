@@ -2,7 +2,7 @@
 name_of_script = "DESERT ISLAND MAIN MENU.vbs"
 start_time = timer
 
-desert_island_respository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
+desert_island_repository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
 on_the_desert_island = TRUE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -39,7 +39,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 If git_hub_issue_known = FALSE Then
-    email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the respository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
+    email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the repository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
     Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "URGENT! - Reporting a Possible GitHub Issue", 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
@@ -168,36 +168,36 @@ Do
 
             dialog Dialog1
         Case check_edrs_btn
-            call run_another_script(desert_island_respository & "check-edrs.vbs")
+            call run_another_script(desert_island_repository & "check-edrs.vbs")
         Case transfer_case_btn
-            call run_another_script(desert_island_respository & "transfer-case.vbs")
+            call run_another_script(desert_island_repository & "transfer-case.vbs")
         Case application_received_btn
-            call run_another_script(desert_island_respository & "application-received.vbs")
+            call run_another_script(desert_island_repository & "application-received.vbs")
         Case caf_btn
-            call run_another_script(desert_island_respository & "caf.vbs")
+            call run_another_script(desert_island_repository & "caf.vbs")
         Case client_contact_btn
-            call run_another_script(desert_island_respository & "client-contact.vbs")
+            call run_another_script(desert_island_repository & "client-contact.vbs")
         Case csr_btn
-            call run_another_script(desert_island_respository & "csr.vbs")
+            call run_another_script(desert_island_repository & "csr.vbs")
         Case documents_received_btn
-            call run_another_script(desert_island_respository & "documents-received.vbs")
+            call run_another_script(desert_island_repository & "documents-received.vbs")
         Case elig_summary_btn
-            call run_another_script(desert_island_respository & "eligibility-summary.vbs")
+            call run_another_script(desert_island_repository & "eligibility-summary.vbs")
         Case emergency_btn
-			call run_another_script(desert_island_respository & "emergency.vbs")
+			call run_another_script(desert_island_repository & "emergency.vbs")
 		Case expedited_determination_btn
-            call run_another_script(desert_island_respository & "expedited-determination.vbs")
+            call run_another_script(desert_island_repository & "expedited-determination.vbs")
         Case health_care_btn
-            call run_another_script(desert_island_respository & "health-care-evaluation.vbs")
+            call run_another_script(desert_island_repository & "health-care-evaluation.vbs")
         Case hrf_btn
-            call run_another_script(desert_island_respository & "hrf.vbs")
+            call run_another_script(desert_island_repository & "hrf.vbs")
 		Case interview_btn
-            call run_another_script(desert_island_respository & "interview.vbs")
+            call run_another_script(desert_island_repository & "interview.vbs")
         Case waived_btn
-            call run_another_script(desert_island_respository & "snap-waived-interview.vbs")    
+            call run_another_script(desert_island_repository & "snap-waived-interview.vbs")    
         Case verifications_needed_btn
-            call run_another_script(desert_island_respository & "verifications-needed.vbs")
+            call run_another_script(desert_island_repository & "verifications-needed.vbs")
         Case add_wcom_btn
-            call run_another_script(desert_island_respository & "add-wcom.vbs")
+            call run_another_script(desert_island_repository & "add-wcom.vbs")
     End Select
 Loop
