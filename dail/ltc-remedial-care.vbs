@@ -84,6 +84,7 @@ Call write_value_and_transmit("S", 6, 3)
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
 If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
+EMReadscreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
 Call write_value_and_transmit("BILS", 20, 71)
