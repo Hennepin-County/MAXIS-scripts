@@ -77,44 +77,41 @@ Do
               PushButton 10, 110, 115, 15, "Application Received", application_received_btn
             Text 135, 115, 445, 10, "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable)."
             ButtonGroup ButtonPressed
-              PushButton 10, 125, 115, 15, "Application Check", application_check_btn
-            Text 135, 130, 445, 10, "Template for documenting details and tracking pending cases."
+              PushButton 10, 125, 115, 15, "CAF", caf_btn
+            Text 135, 130, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
             ButtonGroup ButtonPressed
-              PushButton 10, 140, 115, 15, "CAF", caf_btn
-            Text 135, 145, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
+              PushButton 10, 140, 115, 15, "Client Contact", client_contact_btn
+            Text 135, 145, 445, 10, "Template for documenting client contact, either from or to a client."
             ButtonGroup ButtonPressed
-              PushButton 10, 155, 115, 15, "Client Contact", client_contact_btn
-            Text 135, 160, 445, 10, "Template for documenting client contact, either from or to a client."
+              PushButton 10, 155, 115, 15, "CSR", csr_btn
+            Text 135, 160, 445, 10, "Template for the Combined Six-month Report (CSR)."
             ButtonGroup ButtonPressed
-              PushButton 10, 170, 115, 15, "CSR", csr_btn
-            Text 135, 175, 445, 10, "Template for the Combined Six-month Report (CSR)."
+              PushButton 10, 170, 115, 15, "Documents Received", documents_received_btn
+            Text 135, 175, 445, 10, "Template for case noting information about documents received."
             ButtonGroup ButtonPressed
-              PushButton 10, 185, 115, 15, "Documents Received", documents_received_btn
-            Text 135, 190, 445, 10, "Template for case noting information about documents received."
+              PushButton 10, 185, 115, 15, "Eligibility Summary", elig_summary_btn
+            Text 135, 190, 445, 10, "All-in-one case noting for approved, denied and/or closed programs."
             ButtonGroup ButtonPressed
-              PushButton 10, 200, 115, 15, "Eligibility Summary", elig_summary_btn
-            Text 135, 205, 445, 10, "All-in-one case noting for approved, denied and/or closed programs."
+              PushButton 10, 200, 115, 15, "Emergency", emergency_btn
+            Text 135, 205, 445, 10, "Template for EA/EGA applications."
             ButtonGroup ButtonPressed
-              PushButton 10, 215, 115, 15, "Emergency", emergency_btn
-            Text 135, 220, 445, 10, "Template for EA/EGA applications."
+              PushButton 10, 215, 115, 15, "Expedited Determination", expedited_determination_btn
+            Text 135, 220, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
             ButtonGroup ButtonPressed
-              PushButton 10, 230, 115, 15, "Expedited Determination", expedited_determination_btn
-            Text 135, 235, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
+              PushButton 10, 230, 115, 15, "Health Care Evaluation", health_care_btn
+            Text 135, 235, 445, 10, "Template for Health Care applications and/or renewals."
             ButtonGroup ButtonPressed
-              PushButton 10, 245, 115, 15, "Health Care Evaluation", health_care_btn
-            Text 135, 250, 445, 10, "Template for Health Care applications and/or renewals."
+              PushButton 10, 245, 115, 15, "HRF", hrf_btn
+            Text 135, 250, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
             ButtonGroup ButtonPressed
-              PushButton 10, 260, 115, 15, "HRF", hrf_btn
-            Text 135, 265, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
+              PushButton 10, 260, 115, 15, "Interview", interview_btn
+            Text 135, 265, 445, 10, "Workflow for a quality interview."
             ButtonGroup ButtonPressed
-              PushButton 10, 275, 115, 15, "Interview", interview_btn
-            Text 135, 280, 445, 10, "Workflow for a quality interview."
+              PushButton 10, 275, 115, 15, "SNAP Waived Interview", waived_btn
+            Text 135, 280, 445, 10, "Support for temporary SNAP Interview Waiver. "
             ButtonGroup ButtonPressed
-              PushButton 10, 290, 115, 15, "SNAP Waived Interview", waived_btn
-            Text 135, 295, 445, 10, "Support for temporary SNAP Interview Waiver. "
-            ButtonGroup ButtonPressed
-              PushButton 10, 305, 115, 15, "Verifications Needed", verifications_needed_btn
-            Text 135, 310, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
+              PushButton 10, 290, 115, 15, "Verifications Needed", verifications_needed_btn
+            Text 135, 295, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
             ButtonGroup ButtonPressed
             CancelButton 530, 325, 50, 15
     EndDialog
@@ -176,8 +173,6 @@ Do
             call run_another_script(desert_island_respository & "transfer-case.vbs")
         Case application_received_btn
             call run_another_script(desert_island_respository & "application-received.vbs")
-        Case application_check_btn
-            call run_another_script(desert_island_respository & "application-check.vbs")
         Case caf_btn
             call run_another_script(desert_island_respository & "caf.vbs")
         Case client_contact_btn
