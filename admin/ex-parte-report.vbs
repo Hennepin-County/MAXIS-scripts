@@ -3513,7 +3513,7 @@ If ex_parte_function = "Prep 2" Then
 					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
-
+					If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 					EMReadScreen present_pay_month, 2, 8, 5
 					EMReadScreen present_pay_year, 2, 8, 8
 					cola_row = 9
@@ -4651,7 +4651,7 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
 							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb)
-
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 							EMReadScreen present_pay_month, 2, 8, 5
 							EMReadScreen present_pay_year, 2, 8, 8
 							cola_row = 9
