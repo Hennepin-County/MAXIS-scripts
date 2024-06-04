@@ -699,10 +699,11 @@ script_array(script_num).tags                   = array("Adult Cash", "Applicati
 script_array(script_num).dlg_keys               = array("Cn", "Oa", "Tk")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #12/12/2016#
+script_array(script_num).retirement_date        = #06/03/2024#
 ' script_array(script_num).hot_topic_date			= #04/18/2023#
 ' script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/power-pad-and-health-care-script-updates.aspx"
-script_array(script_num).hot_topic_date			= #11/15/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Notes-%e2%80%93-Application-Check-Updated-to-Support-Day-30-Processing.aspx"
+'script_array(script_num).hot_topic_date			= #11/15/2022#
+'script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Notes-%e2%80%93-Application-Check-Updated-to-Support-Day-30-Processing.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 

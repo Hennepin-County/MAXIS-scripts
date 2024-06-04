@@ -2,7 +2,7 @@
 name_of_script = "DESERT ISLAND MAIN MENU.vbs"
 start_time = timer
 
-desert_island_respository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
+desert_island_repository = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\"
 on_the_desert_island = TRUE
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -39,7 +39,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 If git_hub_issue_known = FALSE Then
-    email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the respository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
+    email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the repository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCr & vbCr & "EMAIL sent from Desert Island Menu." & vbCr & vbCr & worker_signature
     Call create_outlook_email("", "HSPH.EWS.BlueZoneScripts@hennepin.us", "", "", "URGENT! - Reporting a Possible GitHub Issue", 1, False, "", "", False, "", email_body, False, "", True)
 End If
 
@@ -77,44 +77,41 @@ Do
               PushButton 10, 110, 115, 15, "Application Received", application_received_btn
             Text 135, 115, 445, 10, "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable)."
             ButtonGroup ButtonPressed
-              PushButton 10, 125, 115, 15, "Application Check", application_check_btn
-            Text 135, 130, 445, 10, "Template for documenting details and tracking pending cases."
+              PushButton 10, 125, 115, 15, "CAF", caf_btn
+            Text 135, 130, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
             ButtonGroup ButtonPressed
-              PushButton 10, 140, 115, 15, "CAF", caf_btn
-            Text 135, 145, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
+              PushButton 10, 140, 115, 15, "Client Contact", client_contact_btn
+            Text 135, 145, 445, 10, "Template for documenting client contact, either from or to a client."
             ButtonGroup ButtonPressed
-              PushButton 10, 155, 115, 15, "Client Contact", client_contact_btn
-            Text 135, 160, 445, 10, "Template for documenting client contact, either from or to a client."
+              PushButton 10, 155, 115, 15, "CSR", csr_btn
+            Text 135, 160, 445, 10, "Template for the Combined Six-month Report (CSR)."
             ButtonGroup ButtonPressed
-              PushButton 10, 170, 115, 15, "CSR", csr_btn
-            Text 135, 175, 445, 10, "Template for the Combined Six-month Report (CSR)."
+              PushButton 10, 170, 115, 15, "Documents Received", documents_received_btn
+            Text 135, 175, 445, 10, "Template for case noting information about documents received."
             ButtonGroup ButtonPressed
-              PushButton 10, 185, 115, 15, "Documents Received", documents_received_btn
-            Text 135, 190, 445, 10, "Template for case noting information about documents received."
+              PushButton 10, 185, 115, 15, "Eligibility Summary", elig_summary_btn
+            Text 135, 190, 445, 10, "All-in-one case noting for approved, denied and/or closed programs."
             ButtonGroup ButtonPressed
-              PushButton 10, 200, 115, 15, "Eligibility Summary", elig_summary_btn
-            Text 135, 205, 445, 10, "All-in-one case noting for approved, denied and/or closed programs."
+              PushButton 10, 200, 115, 15, "Emergency", emergency_btn
+            Text 135, 205, 445, 10, "Template for EA/EGA applications."
             ButtonGroup ButtonPressed
-              PushButton 10, 215, 115, 15, "Emergency", emergency_btn
-            Text 135, 220, 445, 10, "Template for EA/EGA applications."
+              PushButton 10, 215, 115, 15, "Expedited Determination", expedited_determination_btn
+            Text 135, 220, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
             ButtonGroup ButtonPressed
-              PushButton 10, 230, 115, 15, "Expedited Determination", expedited_determination_btn
-            Text 135, 235, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
+              PushButton 10, 230, 115, 15, "Health Care Evaluation", health_care_btn
+            Text 135, 235, 445, 10, "Template for Health Care applications and/or renewals."
             ButtonGroup ButtonPressed
-              PushButton 10, 245, 115, 15, "Health Care Evaluation", health_care_btn
-            Text 135, 250, 445, 10, "Template for Health Care applications and/or renewals."
+              PushButton 10, 245, 115, 15, "HRF", hrf_btn
+            Text 135, 250, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
             ButtonGroup ButtonPressed
-              PushButton 10, 260, 115, 15, "HRF", hrf_btn
-            Text 135, 265, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
+              PushButton 10, 260, 115, 15, "Interview", interview_btn
+            Text 135, 265, 445, 10, "Workflow for a quality interview."
             ButtonGroup ButtonPressed
-              PushButton 10, 275, 115, 15, "Interview", interview_btn
-            Text 135, 280, 445, 10, "Workflow for a quality interview."
+              PushButton 10, 275, 115, 15, "SNAP Waived Interview", waived_btn
+            Text 135, 280, 445, 10, "Support for temporary SNAP Interview Waiver. "
             ButtonGroup ButtonPressed
-              PushButton 10, 290, 115, 15, "SNAP Waived Interview", waived_btn
-            Text 135, 295, 445, 10, "Support for temporary SNAP Interview Waiver. "
-            ButtonGroup ButtonPressed
-              PushButton 10, 305, 115, 15, "Verifications Needed", verifications_needed_btn
-            Text 135, 310, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
+              PushButton 10, 290, 115, 15, "Verifications Needed", verifications_needed_btn
+            Text 135, 295, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
             ButtonGroup ButtonPressed
             CancelButton 530, 325, 50, 15
     EndDialog
@@ -171,38 +168,36 @@ Do
 
             dialog Dialog1
         Case check_edrs_btn
-            call run_another_script(desert_island_respository & "check-edrs.vbs")
+            call run_another_script(desert_island_repository & "check-edrs.vbs")
         Case transfer_case_btn
-            call run_another_script(desert_island_respository & "transfer-case.vbs")
+            call run_another_script(desert_island_repository & "transfer-case.vbs")
         Case application_received_btn
-            call run_another_script(desert_island_respository & "application-received.vbs")
-        Case application_check_btn
-            call run_another_script(desert_island_respository & "application-check.vbs")
+            call run_another_script(desert_island_repository & "application-received.vbs")
         Case caf_btn
-            call run_another_script(desert_island_respository & "caf.vbs")
+            call run_another_script(desert_island_repository & "caf.vbs")
         Case client_contact_btn
-            call run_another_script(desert_island_respository & "client-contact.vbs")
+            call run_another_script(desert_island_repository & "client-contact.vbs")
         Case csr_btn
-            call run_another_script(desert_island_respository & "csr.vbs")
+            call run_another_script(desert_island_repository & "csr.vbs")
         Case documents_received_btn
-            call run_another_script(desert_island_respository & "documents-received.vbs")
+            call run_another_script(desert_island_repository & "documents-received.vbs")
         Case elig_summary_btn
-            call run_another_script(desert_island_respository & "eligibility-summary.vbs")
+            call run_another_script(desert_island_repository & "eligibility-summary.vbs")
         Case emergency_btn
-			call run_another_script(desert_island_respository & "emergency.vbs")
+			call run_another_script(desert_island_repository & "emergency.vbs")
 		Case expedited_determination_btn
-            call run_another_script(desert_island_respository & "expedited-determination.vbs")
+            call run_another_script(desert_island_repository & "expedited-determination.vbs")
         Case health_care_btn
-            call run_another_script(desert_island_respository & "health-care-evaluation.vbs")
+            call run_another_script(desert_island_repository & "health-care-evaluation.vbs")
         Case hrf_btn
-            call run_another_script(desert_island_respository & "hrf.vbs")
+            call run_another_script(desert_island_repository & "hrf.vbs")
 		Case interview_btn
-            call run_another_script(desert_island_respository & "interview.vbs")
+            call run_another_script(desert_island_repository & "interview.vbs")
         Case waived_btn
-            call run_another_script(desert_island_respository & "snap-waived-interview.vbs")    
+            call run_another_script(desert_island_repository & "snap-waived-interview.vbs")    
         Case verifications_needed_btn
-            call run_another_script(desert_island_respository & "verifications-needed.vbs")
+            call run_another_script(desert_island_repository & "verifications-needed.vbs")
         Case add_wcom_btn
-            call run_another_script(desert_island_respository & "add-wcom.vbs")
+            call run_another_script(desert_island_repository & "add-wcom.vbs")
     End Select
 Loop
