@@ -44,322 +44,200 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/07/2024", "Update to align with updated 02/2024 POLI/TEMP.", "Mark Riegel, Hennepin County") '#1796
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/27/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 'Connecting to BlueZone
-
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Initial dialog to determine food benefit replacement option and action
-BeginDialog Dialog1, 0, 0, 201, 150, "Food Benefits Replacement"
-  Text 5, 10, 50, 10, "Case number: "
-  EditBox 55, 5, 45, 15, MAXIS_case_number
-  Text 5, 30, 45, 10, "Footer Month:"
-  EditBox 55, 25, 15, 15, MAXIS_footer_month
-  Text 85, 30, 20, 10, "Year:"
-  EditBox 105, 25, 15, 15, MAXIS_footer_year
-  Text 5, 50, 175, 10, "Select the food benefits replacement process below:"
-  DropListBox 5, 65, 190, 50, "Select Option:"+chr(9)+"Food Destroyed in Misfortune/Disaster"+chr(9)+"Replacing Stolen EBT Food - Client Notified"+chr(9)+"Replacing Stolen EBT Food - Client Requests", benefit_replacement_process
-  Text 5, 90, 165, 10, "Select the action to take below:"
-  DropListBox 5, 100, 190, 30, "Select Option:"+chr(9)+"Enter CASE/NOTE regarding request"+chr(9)+"Send SPEC/MEMO regarding decision on request", benefit_replacement_action
+'Gather case details as applicable
+get_county_code
+Call check_for_MAXIS(False)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'Initial dialog to gather case details
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
+  EditBox 75, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 25, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 95, 130, 50, 15
-    CancelButton 145, 130, 50, 15
+    OkButton 75, 45, 45, 15
+    CancelButton 125, 45, 45, 15
+  Text 20, 10, 50, 10, "Case Number:"
+  Text 10, 30, 60, 10, "Worker Signature:"
 EndDialog
 
-'Dialog validation
+'Runs the first dialog - which confirms the case number
+Do
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+      	Call validate_MAXIS_case_number(err_msg, "*")
+        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
+
+'Dialog to gather details on the request
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 336, 410, "Replacing Food Destroyed in a Disaster"
+  EditBox 65, 30, 35, 15, MAXIS_case_number
+  EditBox 110, 60, 45, 15, loss_date
+  EditBox 110, 80, 45, 15, amount_loss
+  EditBox 110, 100, 45, 15, report_date
+  EditBox 110, 120, 210, 15, disaster_description
+  EditBox 110, 140, 120, 15, how_verif
+  EditBox 110, 160, 45, 15, loss_verification_date
+  DropListBox 90, 195, 180, 15, "Select One:"+chr(9)+"Pending Complete DHS-1609"+chr(9)+"Pending Verification(s)"+chr(9)+"Request Approved"+chr(9)+"Request Denied", replacement_status
+  DropListBox 90, 210, 50, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"NA", rei_replacement
+  EditBox 90, 225, 235, 15, denial_reason
+  EditBox 90, 245, 235, 15, verif_needed
+  CheckBox 10, 270, 135, 10, "Request was sent to TSS BENE Unit", TSS_BENE_sent_checkbox
+  ButtonGroup ButtonPressed
+    PushButton 145, 265, 180, 15, "TSS BENE Unit Webform", TSS_BENE_webform_btn
+  EditBox 135, 305, 45, 15, dhs_1609_due_date
+  CheckBox 190, 305, 95, 10, "Create TIKL for DHS-1609", dhs_1609_tikl
+  EditBox 135, 325, 45, 15, dhs1609_sig_date
+  EditBox 135, 345, 45, 15, dhs1609_rcvd_date
+  EditBox 135, 365, 45, 15, dhs1609_done_date
+  EditBox 75, 390, 165, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 250, 390, 35, 15
+    CancelButton 290, 390, 35, 15
+  Text 5, 5, 265, 10, "When a client reports food destroyed in a disaster and all requirements are met"
+  Text 5, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
+  Text 10, 35, 50, 10, "Case number:"
+  GroupBox 5, 50, 325, 130, "Food Loss Details"
+  Text 10, 65, 45, 10, "Date of Loss:"
+  Text 10, 85, 80, 10, "Amount of Food Loss ($): "
+  Text 10, 105, 95, 10, "Date loss reported to county:"
+  Text 10, 125, 75, 10, "Describe the disaster:"
+  Text 10, 145, 90, 10, "How disaster was verified:"
+  Text 240, 140, 80, 20, "(news report, social worker, Red Cross, etc.)"
+  Text 10, 165, 65, 10, "Date Loss verified:"
+  Text 10, 310, 95, 10, "Date DHS-1609 is due back:"
+  GroupBox 5, 185, 325, 100, "Information for Replacement Request"
+  Text 10, 250, 70, 10, "Verifications Needed: "
+  Text 10, 210, 55, 10, "Replace as REI: "
+  Text 10, 195, 70, 10, "Status of Request: "
+  Text 10, 230, 65, 10, "Reason for Denial: "
+  GroupBox 5, 290, 325, 95, "Nonreceipt/Replacement Affidavit (DHS-1609)"
+  Text 10, 330, 120, 10, "Date DHS-1609 signed by the client:"
+  Text 10, 350, 115, 10, "Date DHS-1609 received by county: "
+  Text 10, 370, 125, 10, "Date DHS-1609 completed by county: "
+  Text 10, 395, 60, 10, "Worker Signature: "
+EndDialog
+
+'Info to the user of what this script currently covers
 Do
   Do
     err_msg = ""
     DIALOG dialog1
     Cancel_confirmation
-    If benefit_replacement_process = "[Select Process]" or benefit_replacement_action = "[Select Process]" Then err_msg = err_msg & vbCr & "* You must select the food benefit replacement process and action." 
     Call validate_MAXIS_case_number(err_msg, "*")
-    Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-  LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    If IsDate(loss_date) <> TRUE or loss_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reports the loss occurred."
+    If amount_loss = "" Then err_msg = err_msg & vbCr & "* Please enter the dollar amount the client reported."
+    If IsDate(report_date) <> TRUE or report_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the client reported the loss of food to county."
+    If trim(disaster_description) = "" Then err_msg = err_msg & vbCr & "* Please describe the type of disaster. If it was a power outage, please specify what caused the power outage."
+    If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* Please indicate how the disaster was verified - news reports, social worker, Red Cross, utility confirmation, etc."
+    If IsDate(loss_verification_date) <> TRUE or loss_verification_date = "" Then err_msg = err_msg & vbCr & "* Please enter the date the county verified the loss of food."
+    IF replacement_status = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the status of the replacement."
+    IF replacement_status = "Pending Verification(s)" and verif_needed = "" THEN err_msg = err_msg & vbCr & "* Please complete the pending verifications field."
+    IF replacement_status = "Request Denied" and trim(denial_reason) = "" THEN err_msg = err_msg & vbCr & "* Please provide a reason for the denial."
+    IF replacement_status <> "Request Denied" and denial_reason <> "" THEN err_msg = err_msg & vbCr & "* The reason for the denial field should be blank if the request is not being denied."
+    IF replacement_status <> "Pending Verification(s)" and verif_needed <> "" THEN err_msg = err_msg & vbCr & "* The pending verifications field should be blank unless the 'Pending Verifications' decision on request option is selected."
+    IF rei_replacement = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select if the replacement was REI, or select NA."
+    IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Request Approved" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
+    IF TSS_BENE_sent_checkbox = CHECKED and replacement_status <> "Request Approved" THEN err_msg = err_msg & vbCr & "* Please only check the TSS BENE Webform checkbox if you are approving the request."
+    If ButtonPressed = TSS_BENE_webform_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://owa.dhssir.cty.dhs.state.mn.us/csedforms/MMR/TSSBENE_BENE_request.asp"
+    If IsDate(dhs_1609_due_date) <> TRUE and trim(dhs_1609_due_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the DHS-1609 is due back."
+    IF IsDate(dhs1609_sig_date) <> TRUE and trim(dhs1609_sig_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the client signed the form."
+    IF IsDate(dhs1609_rcvd_date) <> TRUE and trim(dhs1609_rcvd_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county received the request."
+    If IsDate(dhs1609_done_date) <> TRUE and trim(dhs1609_done_date) <> "" Then err_msg = err_msg & vbCr & "* Please enter the date the county signed the form."
+    IF err_msg <> "" and ButtonPressed <> TSS_BENE_webform_btn THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+  LOOP UNTIL err_msg = "" and ButtonPressed <> TSS_BENE_webform_btn									'loops until all errors are resolved
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Create TIKL if selected
+If dhs_1609_tikl = CHECKED Then Call create_TIKL("DHS-1609 was sent 10 days ago and is now due back.", 10, date, False, TIKL_note_text)
 
-'To do - verify client vs resident language
+'Write CASE/NOTE with information
+start_a_blank_case_note
+CALL write_variable_in_Case_Note("--Food Destroyed in Disaster Reported - " & replacement_status & "--")
+CALL write_bullet_and_variable_in_Case_Note("Date of Loss", loss_date)
+CALL write_bullet_and_variable_in_Case_Note("Amount of Food Loss", amount_loss)
+CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
+CALL write_bullet_and_variable_in_Case_Note("Description of Disaster", disaster_description)
+CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
+CALL write_bullet_and_variable_in_Case_Note("Date Loss Verified", loss_verification_date)
+CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
+CALL write_bullet_and_variable_in_Case_Note("Status of Request", replacement_status)
+IF replacement_status = "Request Denied" Then CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason)
+CALL write_bullet_and_variable_in_Case_Note("Verifications Requested", verif_needed)
+IF TSS_BENE_sent_checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Submitted a TSS BENE request (webform) through SIR")
+CALL write_variable_in_Case_Note("Nonreceipt/Replacement Affidavit (DHS-1609)")
+CALL write_variable_in_Case_Note(" Date DHS-1609 is due back from the client: " & dhs_1609_due_date)
+If dhs_1609_tikl = CHECKED Then write_variable_in_Case_Note(" TIKL created for DHS-1609 due date.")
+CALL write_variable_in_Case_Note(" Date DHS-1609 was signed by the client: " & dhs1609_sig_date)
+CALL write_variable_in_Case_Note(" Date DHS-1609 was received by the county: " & dhs1609_rcvd_date)
+CALL write_variable_in_Case_Note(" Date DHS-1609 was completed by the county: " & dhs1609_done_date)
+CALL write_variable_in_Case_Note("----")
+CALL write_variable_in_Case_Note(worker_signature)
 
-'If Food Destroyed in Disaster/Misfortune and CASE/NOTE options selected
-If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
-  'Food Destroyed in Disaster/Misfortune Dialog
+script_end_procedure_with_error_report("The case note has been created. If request has been approved, please be sure to send verifications to ECF and submit a TSS BENE request (webform) through SIR.")
 
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Food Destroyed in a Disaster"
-    Text 10, 5, 265, 10, "When a client reports food destroyed in a disaster and all requirements are met"
-    Text 10, 15, 125, 10, "(see CM0024.06.03.15 or TE02.11.18)"
-    GroupBox 10, 25, 330, 75, "Loss Information"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 120, 40, 45, 10, "Date of Loss:"
-    EditBox 170, 35, 50, 15, loss_date
-    Text 225, 40, 70, 10, "Amount of Food Loss: "
-    EditBox 300, 35, 35, 15, amount_loss
-    Text 15, 60, 60, 10, "Type of Disaster:"
-    EditBox 75, 55, 175, 15, disaster_type
-    Text 255, 55, 80, 20, "(describe the disaster - power outage, fire, etc.)"
-    Text 15, 80, 105, 10, "How the disaster was verified:"
-    EditBox 120, 75, 130, 15, how_verif
-    Text 255, 75, 80, 20, "(news reports, Social Worker, Red Cross etc.)"
-    GroupBox 10, 255, 285, 70, "Nonreceipt/Replacement Affidavit (DHS-1609)"
-    Text 15, 270, 225, 10, "Date DHS-1609 signed by the client (enter N/A if Pending DHS-1609):"
-    EditBox 245, 265, 45, 15, dhs1609_sig_date
-    Text 15, 290, 225, 10, "Date DHS-1609 received by county (enter N/A if Pending DHS-1609):"
-    EditBox 245, 285, 45, 15, dhs1609_rcvd_date
-    Text 15, 310, 230, 10, "Date DHS-1609 completed by county (enter N/A if Pending DHS-1609):"
-    EditBox 245, 305, 45, 15, dhs1609_done_date
-    GroupBox 10, 105, 330, 145, "County Review"
-    Text 15, 120, 115, 10, "Date client reported loss to county:"
-    EditBox 130, 115, 50, 15, report_date
-    Text 185, 120, 100, 10, "Date loss verified by county:"
-    EditBox 285, 115, 50, 15, loss_verified_date
-    Text 15, 135, 65, 10, "Status of Request:"
-    DropListBox 90, 135, 120, 15, "Select One:"+chr(9)+"Pending Complete DHS-1609"+chr(9)+"Pending Verification(s)"+chr(9)+"All Required Request Info Received", request_status
-    Text 225, 135, 55, 10, "Replace as REI: "
-    DropListBox 285, 135, 50, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", rei_replacement
-    Text 15, 155, 75, 10, "Verifications Needed: "
-    EditBox 90, 155, 245, 15, verif_needed
-    Text 15, 175, 75, 10, "Decision on Request: "
-    DropListBox 90, 175, 120, 15, "Select One:"+chr(9)+"Pending Additional Information"+chr(9)+"Request Approved"+chr(9)+"Request Denied", request_decision
-    Text 15, 195, 100, 15, "If denied, provide explanation:"
-    EditBox 115, 195, 220, 15, denial_reason
-    CheckBox 15, 215, 260, 10, "If approved, indicate here that request info has been submitted to TSS BENE", TSS_BENE_sent_checkbox
-    ButtonGroup ButtonPressed
-      PushButton 15, 230, 105, 15, "TSS BENE Submission Form", TSS_BENE_webform_link
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/08/2024
+'--Tab orders reviewed & confirmed----------------------------------------------05/08/2024
+'--Mandatory fields all present & Reviewed--------------------------------------05/08/2024
+'--All variables in dialog match mandatory fields-------------------------------05/08/2024
+'Review dialog names for content and content fit in dialog----------------------05/08/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/08/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/08/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/08/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/08/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/08/2024
+'--PRIV Case handling reviewed -------------------------------------------------05/08/2024
+'--Out-of-County handling reviewed----------------------------------------------05/08/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/08/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/08/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/08/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------05/08/2024
+'--Denomination reviewed -------------------------------------------------------05/08/2024
+'--Script name reviewed---------------------------------------------------------05/08/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation for Loss Information group box
-      Call validate_MAXIS_case_number(err_msg, "*")
-      If IsDate(trim(loss_date)) <> True Then err_msg = err_msg & vbCr & "* You must enter the date the loss occurred."
-      If trim(amount_loss) = "" Then err_msg = err_msg & vbCr & "* You must enter the dollar amount of food loss."
-      If trim(disaster_type) = "" Then err_msg = err_msg & vbCr & "* You must enter the type of disaster - power outage, fire, etc."
-      If trim(how_verif) = "" Then err_msg = err_msg & vbCr & "* You must explain how the disaster was verified - news reports, Social Worker, Red Cross, etc."
-      
-      'Validation for Nonreceipt/Replacement Affidavit (DHS-1609) group box
-      If request_status = "Pending Complete DHS-1609" and (dhs1609_sig_date <> "N/A" or dhs1609_done_date <> "N/A" or dhs1609_rcvd_date <> "N/A") Then err_msg = err_msg & vbCr & "* You indicated that the request is Pending a Complete DHS-1609. Enter N/A for each of the DHS-1609 Dates."
-      If (request_status = "Pending Verification(s)" or request_status = "All Required Request Info Received") and (IsDate(trim(dhs1609_sig_date)) <> True or IsDate(trim(dhs1609_done_date)) <> True or IsDate(trim(dhs1609_rcvd_date)) <> True) Then err_msg = err_msg & vbCr & "* You must enter dates in the for each of the DHS-1609 fields."
-
-      'Validation for County review group box
-      If IsDate(trim(report_date)) <> TRUE Then err_msg = err_msg & vbCr & "* You must enter the date the resident reported the loss to the county."
-      If request_status = "All Required Request Info Received" and IsDate(trim(loss_verified_date)) <> TRUE Then err_msg = err_msg & vbCr & "* You must enter the date the county verified the loss."
-      If request_status = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select the status of the request."
-      If request_decision = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select the status of the replacement."
-      IF rei_replacement = "Select One:" THEN err_msg = err_msg & vbCr & "* You must make a selection for the Replace as REI field."
-
-      If request_status = "Pending Verification(s)" and trim(verif_needed) = "" THEN err_msg = err_msg & vbCr & "* You must fill out the verifications needed field."
-      If request_status = "All Required Request Info Received" and (request_decision = "Pending Additional Information" or request_decision = "Select One:") THEN err_msg = err_msg & vbCr & "* You indicated that all required request information has been received so you must indicate the decision made on the decision on request dropdown."
-      If request_status <> "All Required Request Info Received" and request_decision <> "Pending Additional Information" THEN err_msg = err_msg & vbCr & "* You indicated that information regarding the request is pending so you cannot select the request approved option for the decision on request dropdown."
-      If request_decision = "Request Denied" and trim(denial_reason) = "" THEN err_msg = err_msg & vbCr & "* You indicated the request is denied so you must provide a explanation for the denial."
-      If request_decision = "Request Approved" and TSS_BENE_sent_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You indicated the request is approved so you must submit the request to the TSS BENE Unit and check the box to confirm the request has been sent."
-      If request_decision <> "Request Approved" and TSS_BENE_sent_checkbox = CHECKED THEN err_msg = err_msg & vbCr & "* The TSS BENE checkbox should only be checked if the request has been approved."
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-  'Navigate to CASE/NOTE to document food benefits replacement request
-  start_a_blank_case_note
-  
-  'Write information to CASE/NOTE
-  CALL write_variable_in_Case_Note("--Food Destroyed in a Disaster/Misfortune Reported - " & request_status & "--")
-  CALL write_bullet_and_variable_in_Case_Note("Type of disaster", disaster_type)
-  CALL write_bullet_and_variable_in_Case_Note("How the disaster was verified", how_verif)
-  CALL write_bullet_and_variable_in_Case_Note("Date of loss", loss_date)
-  CALL write_bullet_and_variable_in_Case_Note("Amount of food loss", amount_loss)
-  CALL write_variable_in_Case_Note("Nonreceipt/Replacement Affidavit (DHS-1609)")
-  CALL write_variable_in_Case_Note(" Date DHS-1609 was signed by the client: " & dhs1609_sig_date)
-  CALL write_variable_in_Case_Note(" Date DHS-1609 was received by the county: " & dhs1609_rcvd_date)
-  CALL write_variable_in_Case_Note(" Date DHS-1609 was completed by the county: " & dhs1609_done_date)
-  CALL write_bullet_and_variable_in_Case_Note("Date client reported the loss of food to county", report_date)
-  CALL write_bullet_and_variable_in_Case_Note("Date loss verified by county", loss_verified_date)
-  CALL write_bullet_and_variable_in_Case_Note("Status of request", request_status)
-  CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_decision)
-  CALL write_bullet_and_variable_in_Case_Note("Replace as REI", rei_replacement)
-  If request_status = "Pending Verification(s)" Then CALL write_bullet_and_variable_in_Case_Note("Verifications Requested", verif_needed)
-  If request_decision = "Request Denied" Then CALL write_bullet_and_variable_in_Case_Note("Reason for Denial", denial_reason)
-  IF request_decision = "Request Approved" and TSS_BENE_sent_checkbox = CHECKED THEN CALL write_variable_in_Case_Note("* Submitted a TSS BENE request (webform) through SIR")
-  CALL write_variable_in_Case_Note("----")
-  CALL write_variable_in_Case_Note(worker_signature)
-  PF3
-  
-  If request_decision = "Pending Additional Information" Then script_end_procedure_with_error_report("The CASE/NOTE has been created. Please run this script again to provide updates as the request is reviewed and a decision is made on the request.")
-  If request_decision = "Request Approved" Then script_end_procedure_with_error_report("The CASE/NOTE has been created please be sure to send verifications to ECF and submit a TSS BENE request (webform) through SIR.")
-  If request_decision = "Request Denied" Then script_end_procedure_with_error_report("The CASE/NOTE has been created. Please ensure that it includes a detailed explanation for why the request does not meet the policy criteria in 0024.06.03.15.")
-
-End If
-
-'If Food Destroyed in Disaster/Misfortune and SPEC/MEMO options selected
-If benefit_replacement_process = "Food Destroyed in Misfortune/Disaster" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
-  MsgBox "Functionality to be added"
-
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Food Destroyed in a Disaster"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
-
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation handling
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-End If
-
-'If Replacing Stolen EBT Food - Client Notified and CASE/NOTE options selected
-If benefit_replacement_process = "Replacing Stolen EBT Food - Client Notified" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
-  MsgBox "Functionality to be added"
-
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Notified"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
-
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation handling
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-End If
-
-'If Replacing Stolen EBT Food - Client Notified and SPEC/MEMO options selected
-If benefit_replacement_process = "Replacing Stolen EBT Food - Client Notified" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
-  MsgBox "Functionality to be added"
-
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Notified"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
-
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation handling
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-End If
-
-'If Replacing Stolen EBT Food - Client Requests and CASE/NOTE options selected
-If benefit_replacement_process = "Replacing Stolen EBT Food - Client Requests" and benefit_replacement_action = "Enter CASE/NOTE regarding request" Then
-  MsgBox "Functionality to be added"
-
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Requests"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
-
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation handling
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-End If
-
-'If Replacing Stolen EBT Food - Client Requests and SPEC/MEMO options selected
-If benefit_replacement_process = "Replacing Stolen EBT Food - Client Requests" and benefit_replacement_action = "Send SPEC/MEMO regarding decision on request" Then
-  MsgBox "Functionality to be added"
-
-  Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 346, 350, "Replacing Stolen EBT Food - Client Requests"
-    Text 15, 40, 50, 10, "Case number:"
-    EditBox 75, 35, 40, 15, MAXIS_case_number
-    Text 15, 335, 60, 10, "Worker Signature: "
-    EditBox 80, 330, 165, 15, worker_signature
-    ButtonGroup ButtonPressed
-      OkButton 255, 330, 35, 15
-      CancelButton 295, 330, 35, 15
-  EndDialog
-
-  'Validation for dialog fields
-  Do
-    Do
-      err_msg = ""
-      DIALOG dialog1
-      Cancel_confirmation
-      'Validation handling
-
-      IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-      IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-  Loop until are_we_passworded_out = false					'loops until user passwords back in
-  
-End If
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/08/2024
+'--comment Code-----------------------------------------------------------------05/08/2024
+'--Update Changelog for release/update------------------------------------------05/08/2024
+'--Remove testing message boxes-------------------------------------------------05/08/2024
+'--Remove testing code/unnecessary code-----------------------------------------05/08/2024
+'--Review/update SharePoint instructions----------------------------------------05/08/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/08/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/08/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/08/2024
+'--Complete misc. documentation (if applicable)---------------------------------05/08/2024
+'--Update project team/issue contact (if applicable)----------------------------05/08/2024
