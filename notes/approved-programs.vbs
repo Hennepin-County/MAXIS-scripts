@@ -66,6 +66,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/03/2024", "* * * Approved Programs has been retired. * * *##~####~##NOTES - Eligibility Summary will now run every time you press the button for Approved Programs.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/23/2024", "* * * THIS SCRIPT IS BEING RETIRED ON 06/01/2024 * * *##~####~##NOTES - Eligibility Summary will be used to document any Approval starting 6/1/24, you will no longer be able to select for Approved Programs to continue with the old functionality.##~## ##~##If you have any concerns about Eligibility Summary, please report them right away so we can review.##~## ##~##" & ascii_sundown, "Casey Love, Hennepin County")
 call changelog_update("05/01/2023", "* * * THIS SCRIPT IS BEING RETIRED ON 05/08/2023 * * *##~####~##Be sure to try using NOTES - Eligibility Summary before this retirement date for CASE/NOTEs on denials. This is the time to become accustomeed to the functionality of NOTES - Eligibility Summary.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/13/2021", "Added temporary checkbox to case note 15% food benefit increase. Removed SNAP Banked Months case noting options.", "Ilse Ferris, Hennepin County")
@@ -77,6 +78,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+script_run_lowdown = script_run_lowdown & vbCr & "STARTED FROM APPROVED PROGRAMS"
+script_url = script_repository & "notes\eligibility-summary.vbs"
+Call run_from_GitHub(script_url)
+script_end_procedure("")
 
 get_county_code 'Checks for county info from global variables, or asks if it is not already defined.
 EMConnect "" 'connecting to MAXIS
