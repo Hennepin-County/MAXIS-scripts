@@ -1345,7 +1345,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen reservation_line, 1, 10, 74
         EMReadScreen living_sit_line, 2, 11, 43
 		EMReadScreen reservation_name, 2, 11, 74
-
         resi_line_one = replace(line_one, "_", "")								'formatting the residence address information to remove the '_'
         resi_line_two = replace(line_two, "_", "")
 		resi_street_full = trim(resi_line_one & " " & resi_line_two)
@@ -1605,6 +1604,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		update_attempted = False
 		resi_line_one = trim(resi_line_one)
 		resi_line_two = trim(resi_line_two)
+		If resi_line_one <> "" OR resi_line_two <> "" Then resi_street_full = trim(resi_line_one & " " & resi_line_two)
 		resi_street_full = trim(resi_street_full)
 		resi_city = trim(resi_city)
 		resi_state = trim(resi_state)
@@ -1616,6 +1616,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		addr_living_sit = trim(addr_living_sit)
 		mail_line_one = trim(mail_line_one)
 		mail_line_two = trim(mail_line_two)
+		If mail_line_one <> "" OR mail_line_two <> "" Then mail_street_full = trim(mail_line_one & " " & mail_line_two)
 		mail_street_full = trim(mail_street_full)
 		mail_city = trim(mail_city)
 		mail_state = trim(mail_state)
@@ -1715,26 +1716,55 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
 			
 			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-			If len(resi_street_full) > 22 Then 
-	            resi_words = split(resi_street_full, " ")
-	            write_resi_line_one = ""
-	            write_resi_line_two = ""
-	            For each word in resi_words
-	                If write_resi_line_one = "" Then
-	                    write_resi_line_one = word
-	                ElseIf len(write_resi_line_one & " " & word) =< 22 Then
-	                    write_resi_line_one = write_resi_line_one & " " & word
-	                Else
-	                    If write_resi_line_two = "" Then
-	                        write_resi_line_two = word
-	                    Else
-	                        write_resi_line_two = write_resi_line_two & " " & word
-	                    End If
-	                End If
-	            Next
-	        Else
-				write_resi_line_one = resi_street_full
-	        End If
+			move_to_line_two = FALSE
+			If resi_line_one = "" AND resi_line_two = "" Then 
+				If len(resi_street_full) > 22 Then 
+					resi_words = split(resi_street_full, " ")
+					write_resi_line_one = ""
+					write_resi_line_two = ""
+					For each word in resi_words
+						If write_resi_line_one = "" Then
+							write_resi_line_one = word
+						ElseIf len(write_resi_line_one & " " & word) =< 22 AND move_to_line_two = FALSE Then
+							write_resi_line_one = write_resi_line_one & " " & word
+						Else
+							move_to_line_two = TRUE
+							If write_resi_line_two = "" Then
+								write_resi_line_two = word
+							Else
+								write_resi_line_two = write_resi_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_resi_line_one = resi_street_full
+				End If
+
+			Else
+				resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
+				If len(resi_line_one) or len(resi_line_two) > 22 Then 
+					resi_words = split(resi_street_full, " ")
+					write_resi_line_one = ""
+					write_resi_line_two = ""
+					For each word in resi_words
+						If write_resi_line_one = "" Then
+							write_resi_line_one = word
+						ElseIf len(write_resi_line_one & " " & word) =< 22 AND move_to_line_two = FALSE Then
+							write_resi_line_one = write_resi_line_one & " " & word
+						Else
+							move_to_line_two = TRUE
+							If write_resi_line_two = "" Then
+								write_resi_line_two = word
+							Else
+								write_resi_line_two = write_resi_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_resi_line_one = resi_line_one
+					write_resi_line_two = resi_line_two
+				End If
+			End If
 	        EMWriteScreen write_resi_line_one, 6, 43
 	        EMWriteScreen write_resi_line_two, 7, 43
 	        EMWriteScreen resi_city, 8, 43
@@ -1745,30 +1775,57 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMWriteScreen left(addr_homeless, 1), 10, 43
 			EMWriteScreen left(addr_reservation, 1), 10, 74
 			IF addr_reservation = "No" THEN Call clear_line_of_text(11, 74)
-
 	        EMWriteScreen left(addr_verif, 2), 9, 74
-			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-			If len(mail_street_full) > 22 Then
-	            mail_words = split(mail_street_full, " ")
-	            write_mail_line_one = ""
-	            write_mail_line_two = ""
-	            For each word in mail_words
-	                If write_mail_line_one = "" Then
-	                    write_mail_line_one = word
-	                ElseIf len(write_mail_line_one & " " & word) =< 22 Then
-	                    write_mail_line_one = write_mail_line_one & " " & word
-	                Else
-	                    If write_mail_line_two = "" Then
-	                        write_mail_line_two = word
-	                    Else
-	                        write_mail_line_two = write_mail_line_two & " " & word
-	                    End If
-	                End If
-	            Next
-	        Else
-	            write_mail_line_one = mail_street_full
-	        End If
 
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			mail_move_to_line_two = FALSE
+			If mail_line_one = "" AND mail_line_two = "" Then 
+				If len(mail_street_full) > 22 Then
+					mail_words = split(mail_street_full, " ")
+					write_mail_line_one = ""
+					write_mail_line_two = ""
+					For each word in mail_words
+						If write_mail_line_one = "" Then
+							write_mail_line_one = word
+						ElseIf len(write_mail_line_one & " " & word) =< 22 AND mail_move_to_line_two = FALSE Then
+							write_mail_line_one = write_mail_line_one & " " & word
+						Else
+							mail_move_to_line_two = TRUE
+							If write_mail_line_two = "" Then
+								write_mail_line_two = word
+							Else
+								write_mail_line_two = write_mail_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_mail_line_one = mail_street_full
+				End If
+			Else 
+				mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
+				If len(mail_line_one) or len(mail_line_two) > 22 Then 
+					mail_words = split(mail_street_full, " ")
+					write_mail_line_one = ""
+					write_mail_line_two = ""
+					For each word in mail_words
+						If write_mail_line_one = "" Then
+							write_mail_line_one = word
+						ElseIf len(write_mail_line_one & " " & word) =< 22 AND mail_move_to_line_two = FALSE Then
+							write_mail_line_one = write_mail_line_one & " " & word
+						Else
+							mail_move_to_line_two = TRUE
+							If write_mail_line_two = "" Then
+								write_mail_line_two = word
+							Else
+								write_mail_line_two = write_mail_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_mail_line_one = mail_line_one
+					write_mail_line_two = mail_line_two
+				End If
+			End If
 
 			If new_version = False then
 				EMWriteScreen write_mail_line_one, 13, 43
@@ -1839,7 +1896,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
 	            EMReadScreen mail_standard_note, 31, 24, 2
 	            If mail_standard_note = "MAILING ADDRESS IS STANDARDIZED" Then transmit
-
 				EMReadScreen warn_msg, 60, 24, 2
 				warn_msg = trim(warn_msg)
 				If warn_msg = "ENTER A VALID COMMAND OR PF-KEY" Then Exit Do
