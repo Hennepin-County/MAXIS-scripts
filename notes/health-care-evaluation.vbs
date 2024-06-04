@@ -233,6 +233,7 @@ Function check_HCMI_for_members()
 	Next
 End Function 
 
+
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 'function specific to this script that can display the errors in the err string with headers that identify the dialog page.
     If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
@@ -5716,9 +5717,21 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If sr_year <> updated_hc_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_year & " listed as the month."
 					End If
 					'TODO - Future update needed - better handling of HCMI panel to check members and dates
-					hcmi_status = ""
-					Call check_hcmi(hcmi_status, ex_parte_member, check_ex_parte_renewal_month_year) 'this checks coding on HCMI panel(s)
-					If hcmi_status <> "" Then revw_panel_err = revw_panel_err & vbCr & hcmi_status 'This error lets the worker know they don't have any HCMI panels
+					correct_hcmi_ex_parte_date = updated_hc_renewal_month & " 20" & updated_hc_renewal_year
+
+					Call check_HCMI_for_members()
+					
+					For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+						If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+							'Make sure active member has a panel that exists
+							If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then revw_panel_err = revw_panel_err & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+							'Check that status/month are coded correctly
+							If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then revw_panel_err = revw_panel_err & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel if being rescheduled for paper renewal."
+							
+							If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_hcmi_ex_parte_date) Then revw_panel_err = revw_panel_err & vbCr & "* Member " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_hcmi_ex_parte_date
+						End If 
+					Next
+					
 
 					'If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
 					'	revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
