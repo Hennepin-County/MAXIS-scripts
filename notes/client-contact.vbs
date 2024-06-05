@@ -380,7 +380,7 @@ Do
         If trim(contact_type) = "Phone call" then
             If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number."
         End if
-        If trim(contact_type) <> "Phone call" AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted phone interview should only be checked for the phone call contact type."
+        If (trim(contact_type) <> "Phone call" and trim(contact_type) <> "Voicemail") AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted phone interview should only be checked for the phone call or voiemail contact type."
         If phone_interview_attempt_checkbox <> checked Then
             If inStr(ucase(trim(regarding)), "INTERVIEW") or inStr(ucase(trim(regarding)), "INTVW") or inStr(ucase(trim(regarding)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Re:' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
             If inStr(ucase(trim(contact_reason)), "INTERVIEW") or inStr(ucase(trim(contact_reason)), "INTVW") or inStr(ucase(trim(contact_reason)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Reason for contact' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
