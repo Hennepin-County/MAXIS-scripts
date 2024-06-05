@@ -53,7 +53,7 @@ BeginDialog Dialog1, 0, 0, 190, 85, "Data Test"
   ButtonGroup ButtonPressed
     OkButton 80, 65, 50, 15
     CancelButton 135, 65, 50, 15
-  Text 5, 10, 185, 10, "Enter a CASE Numberfor the test."
+  Text 5, 10, 185, 10, "Enter a CASE Number for the test."
   Text 5, 30, 50, 10, "Case Number:"
   Text 5, 45, 185, 20, "This script is just to test access to some of the data structures we have. "
 EndDialog
@@ -107,7 +107,7 @@ email_subject = "Usage Log Database Access Test Completed for " & assigned_worke
 email_body = "The Usage Log test was successful."
 
 Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
-MsgBox "Test 1 Successfull"
+MsgBox "Test 1 Successful"
 
 '==== PENDING CASES TABLE =========================================
 
@@ -148,7 +148,7 @@ email_subject = "Cases Pending Database Access Test Completed for " & assigned_w
 email_body = "The Cases Pending test was successful."
 
 Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
-MsgBox "Test 2 Successfull"
+MsgBox "Test 2 Successful"
 
 
 Call script_end_procedure("Test Complete.")
