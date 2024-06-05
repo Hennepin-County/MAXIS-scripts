@@ -2399,7 +2399,7 @@ If ex_parte_function = "Prep 1" Then
 	'Developer mode - gives the option of updating an excel sheet instead of SQL table, and will not send queries or update income lists. Use for testing case selection
 	If  user_ID_for_validation = "DACO003" THEN
 		developer_msg = msgbox("Greetings weary traveler. Do you wish to complete this quest in developer mode?", vbYesNo)
-		If developer_msg = vbYes Then 
+		If developer_msg = vbYes Then
 			msgbox "Developer mode engaged. No lists will be updated."
 			developer_mode = true
 			'set up excel for case tracking of ex parte status
@@ -2420,10 +2420,10 @@ If ex_parte_function = "Prep 1" Then
 				objDevExcel.Cells(1, i).Font.Bold = True		'bold font'
 			NEXT
 			Dev_excel_row = 2
-						
+
 		End If
 
-	End If 
+	End If
 	review_date = ep_revw_mo & "/1/" & ep_revw_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
 	review_date = DateAdd("d", 0, review_date)
 	smrt_cut_off = DateAdd("m", 1, review_date)				'This is the cutoff date for SMRT ending to identify which ones we want to have evaluated
@@ -2616,7 +2616,7 @@ If ex_parte_function = "Prep 1" Then
 
 			'Here we are setting the PREP_Complete to 'In Progress' to hold the case as being worked.
 			'This portion of the script is required to be able to have more than one person operating the BULK run at the same time.
-			If developer_mode <> True Then 
+			If developer_mode <> True Then
 				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET PREP_Complete = 'In Progress'  WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
 
 				Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
@@ -2625,7 +2625,7 @@ If ex_parte_function = "Prep 1" Then
 				'opening the connections and data table
 				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-			End If 
+			End If
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)			'This is defined here without a preserve to blank it out at the beginning of every loop with a new case
 			memb_count = 0										'resetting the counting variable to size the member array
 			list_of_membs_on_hc = " "							'we need to keep a list members by pmi to know if a person is already accounted for as we find all the members and programs
@@ -2913,7 +2913,7 @@ If ex_parte_function = "Prep 1" Then
 			For case_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2) 'looking through household to see if anyone is still ex parte
 				If MEMBER_INFO_ARRAY(memb_appears_ex_parte, case_memb) = True Then appears_ex_parte = True
 			Next
-			
+
 			If is_this_priv = False and appears_ex_parte = True Then
 				Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
 				Call get_list_of_members
@@ -3039,7 +3039,7 @@ If ex_parte_function = "Prep 1" Then
 				Call find_unea_information			'Now we are reading UNEA information for all the HH members
 
 				Call back_to_SELF
-				
+
 				'Send a SVES/CURY for all persons on a case
 				Call navigate_to_MAXIS_screen("INFC", "SVES")
 				'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
@@ -3205,7 +3205,7 @@ If ex_parte_function = "Prep 1" Then
 				'opening the connections and data table
 				objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 				objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-			End If 
+			End If
 		End If
 		objRecordSet.MoveNext			'now we go to the next case
 	Loop
@@ -4294,7 +4294,7 @@ If ex_parte_function = "Prep 2" Then
 	email_header = "Ex Parte Members with a Date of Death is SVES"
 	email_body = "Hello, " & vbCr & vbCr & "Here is the list of persons from cases on the " & ep_revw_mo & "-" & ep_revw_yr & " Ex Parte list that have a date of death listed in the TPQY response." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
 	email_attachment_array = Array(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "ben.teskey@hennepin.us", ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us, email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
+	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "ben.teskey@hennepin.us", "ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us", email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
 
 
 	'We are going to set the display message for the end of the script run
