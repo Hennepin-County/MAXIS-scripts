@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/05/2024", "Updated remedial care amount to $278.00 for July 2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2023", "Updated remedial care amount to $275.00 for January 2024.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("06/06/2023", "Updated remedial care amount to $271.00 for July 2023.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("06/17/2022", "Updated remedial care amount to $234.00 for July 2022.", "Ilse Ferris, Hennepin County") ''#873
@@ -88,7 +89,6 @@ EMReadscreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
 Call write_value_and_transmit("BILS", 20, 71)
-
 PF9 'into edit mode
 
 Do
