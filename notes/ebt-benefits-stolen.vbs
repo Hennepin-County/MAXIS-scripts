@@ -51,8 +51,40 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'Connecting to BlueZone
 
+'Connecting to BlueZone
 EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number) 'Finds the case number
+
+'Gather case details as applicable
+get_county_code
+Call check_for_MAXIS(False)
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+'Initial dialog to gather case details
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
+  EditBox 75, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 25, 95, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 75, 45, 45, 15
+    CancelButton 125, 45, 45, 15
+  Text 20, 10, 50, 10, "Case Number:"
+  Text 10, 30, 60, 10, "Worker Signature:"
+EndDialog
+
+'Runs the first dialog - which confirms the case number
+Do
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+      	Call validate_MAXIS_case_number(err_msg, "*")
+        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
 
 'Initial dialog to determine food benefit replacement option and action
 BeginDialog Dialog1, 0, 0, 246, 90, "EBT Stolen Benefits"
