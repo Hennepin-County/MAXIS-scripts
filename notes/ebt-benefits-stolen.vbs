@@ -96,7 +96,7 @@ BeginDialog Dialog1, 0, 0, 246, 90, "EBT Stolen Benefits"
   Text 10, 10, 50, 10, "Case Number:"
   Text 10, 50, 60, 10, "Worker Signature:"
   Text 10, 30, 65, 10, "Action to complete:"
-  DropListBox 75, 25, 165, 20, "[Select action]"+chr(9)+"Initial report by resident of stolen benefits"+chr(9)+"Take action on replacement request (DHS-8557)"+chr(9)+"Request approved by DHS – send SPEC/MEMO", action_step
+  DropListBox 75, 25, 165, 20, "Select one:"+chr(9)+"CASE/NOTE Information about Request"+chr(9)+"Send SPEC/MEMO regarding Request", action_step
 EndDialog
 
 'Dialog validation
@@ -105,7 +105,7 @@ Do
     err_msg = ""
     DIALOG dialog1
     Cancel_confirmation
-    If action_step = "[Select action]" Then err_msg = err_msg & vbCr & "* You must select the action to complete for EBT stolen benefits replacement request." 
+    If action_step = "Select one:" Then err_msg = err_msg & vbCr & "* You must select the action to complete for EBT stolen benefits replacement request." 
     Call validate_MAXIS_case_number(err_msg, "*")
     If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* You must provide a worker signature."
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
