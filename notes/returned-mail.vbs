@@ -274,7 +274,7 @@ If ma_case = True or msp_case = true then
 End if
 
 '-------------------------------------------------------------------------------------------------DIALOG
-IF ADDR_actions <> "no response received" THEN
+IF ADDR_actions <> "No Response Received" THEN
     residential_address_confirmed = "YES"
 	mailing_address_confirmed = "NO"
     If mail_line_one <> "" Then
@@ -303,7 +303,7 @@ IF ADDR_actions <> "no response received" THEN
       Text 290, 80, 265, 10, "Send out a Request for Contact(Verification Request Form - DHS 2919) to the"
       Text 290, 90, 170, 10, "correct address and ensure STAT/ADDR is updated."
       Text 5, 120, 40, 10, "Other notes:"
-      IF ADDR_actions = "address confirmed - received in error" THEN
+      IF ADDR_actions = "Address Confirmed - Received in Error" THEN
       	Text 5, 140, 200, 10, "How did you confirm the returned mail was received in error?"
        	EditBox 220, 135, 215, 15, received_error_confirmation
 		EditBox 90, 95, 190, 15, other_notes
@@ -341,7 +341,7 @@ IF ADDR_actions <> "no response received" THEN
 			IF mailing_address_confirmed = "YES" and mail_street_full = "" THEN err_msg = err_msg & vbCr & "Please confirm what mailing address the agency attempted to deliver mail to, this address appears to be blank."
 			IF residential_address_confirmed = "YES" and resi_addr_street_full = "" THEN err_msg = err_msg & vbCr & "Please confirm the residential address the agency attempted to deliver mail to, this address appears to be blank."
 			IF trim(returned_mail) = "" or len(returned_mail) < 3 THEN err_msg = err_msg & vbCr & "Please explain in detail what mail was returned."
-			IF ADDR_actions = "address confirmed - received in error" THEN
+			IF ADDR_actions = "Address Confirmed - Received in Error" THEN
 				IF received_error_confirmation = "" or len(received_error_confirmation) < 5 THEN err_msg = err_msg & vbNewLine & "Please explain in detail how you confirmed the address on file is correct."
 			ELSE
 				IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verification(s) requested due date."
@@ -354,7 +354,7 @@ IF ADDR_actions <> "no response received" THEN
 
 '-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	IF ADDR_actions = "forwarding address provided" THEN
+	IF ADDR_actions = "Forwarding Address Provided" THEN
 		new_addr_state = "MN"
 	    BeginDialog Dialog1, 0, 0, 206, 125, "RETURNED MAIL "
 	      EditBox 40, 15, 155, 15, new_addr_line_one
@@ -399,7 +399,7 @@ IF ADDR_actions <> "no response received" THEN
 	END IF
 END IF 'forwarding address provided
 
-IF ADDR_actions = "no response received" THEN
+IF ADDR_actions = "No Response Received" THEN
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 351, 185, "Request for contact to the resident with no response"
   	 EditBox 105, 5, 50, 15, date_verifications_requested
@@ -487,7 +487,7 @@ IF ADDR_actions = "no response received" THEN
     'we cannot close HC currently but this is the place for that handling'
 END IF 'no response received '
     '----------------------------------------------------------------------------------------------------TIKL
-IF ADDR_actions = "forwarding address provided" or ADDR_actions = "no forwarding address provided" THEN
+IF ADDR_actions = "Forwarding Address Provided" or ADDR_actions = "No Forwarding Address Provided" THEN
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL("Returned mail received, contact from resident should have occurred re: address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
 END IF
@@ -516,13 +516,13 @@ IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation
 CALL write_bullet_and_variable_in_CASE_NOTE("Address detail", notes_on_address)
 CALL write_bullet_and_variable_in_case_note("Verification(s) requested", verifications_requested)
 CALL write_bullet_and_variable_in_case_note("Verification(s) due", due_date)
-IF ADDR_actions = "forwarding address provided" THEN
+IF ADDR_actions = "Forwarding Address Provided" THEN
 	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail.")
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications.")
-ELSEIF ADDR_actions = "no response received" THEN
+ELSEIF ADDR_actions = "No Response Received" THEN
 	CALL write_variable_in_CASE_NOTE ("* Case file reviewed for requested verifications.")
 	CALL write_variable_in_CASE_NOTE("* Date verification(s) requested: " & date_verifications_requested)
 	CALL write_variable_in_case_note("* Resident was provided 10 days to return requested verifications.")
@@ -538,17 +538,17 @@ script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_mes
 'Checks if this is a METS case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" THEN end_msg = "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
 
-IF ADDR_actions = "forwarding address provided" or ADDR_actions = "no forwarding address provided" THEN
+IF ADDR_actions = "Forwarding Address Provided" or ADDR_actions = "No Forwarding Address Provided" THEN
 	closing_message = closing_message & "Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "  & vbCr & end_msg 'FOR EVERYTHING ELSE'
 END IF
-IF ADDR_actions = "no response received" THEN
+IF ADDR_actions = "No Response Received" THEN
     IF snap_or_cash_case = TRUE THEN
 		closing_message = closing_message & "Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter using NOTICES SPEC/WCOM adding worker comments." & vbCr & end_msg 'WILL ONLY RUN IF SNAP OR CASH AND NO RESPONSE RCVD'
 	ELSE
 		closing_message = closing_message & "Success! A case note has been entered." & vbCr & end_msg 'this meets the requirement for HC'
 	END IF
 END IF
-IF ADDR_actions = "address confirmed - received in error" THEN closing_message = closing_message & "Success! A case note has been entered." & vbCr & end_msg 'this meets the requirement for HC'
+IF ADDR_actions = "Address Confirmed - Received in Error" THEN closing_message = closing_message & "Success! A case note has been entered." & vbCr & end_msg 'this meets the requirement for HC'
 
 CALL script_end_procedure_with_error_report(closing_message)
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
