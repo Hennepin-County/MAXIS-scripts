@@ -44,6 +44,7 @@ EMConnect ""		'Connects to BlueZone
 
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
+Call find_user_name(assigned_worker)
 
 ' MAXIS_case_number = "124312"
 'Initial Dialog - Case number
@@ -92,7 +93,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 closing_message = replace(closing_message, "'", "")
 
 'Opening DB
-stats_database_path = "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
 
 objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
@@ -100,8 +101,6 @@ objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, S
 
 'Closing the connection
 objConnection.Close
-
-Call find_user_name(assigned_worker)
 
 email_subject = "Usage Log Database Access Test Completed for " & assigned_worker
 email_body = "The Usage Log test was successful."
@@ -111,44 +110,44 @@ MsgBox "Test 1 Successful"
 
 '==== PENDING CASES TABLE =========================================
 
-MAXIS_case_number = trim(MAXIS_case_number)
-eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
+' MAXIS_case_number = trim(MAXIS_case_number)
+' eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
-cash_stat_code = "P"                    'determining the program codes for the table entry
-hc_stat_code = "I"
-ga_stat_code = "P"
-grh_stat_code = "P"
-emer_stat_code = "I"
-mfip_stat_code = "I"
-snap_stat_code = "P"
+' cash_stat_code = "P"                    'determining the program codes for the table entry
+' hc_stat_code = "I"
+' ga_stat_code = "P"
+' grh_stat_code = "P"
+' emer_stat_code = "I"
+' mfip_stat_code = "I"
+' snap_stat_code = "P"
 
-If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
-If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
-If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
+' If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
+' If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
+' If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
 
-'Creating objects for Access
-Set objPENDConnection = CreateObject("ADODB.Connection")
-Set objPENDRecordSet = CreateObject("ADODB.Recordset")
+' 'Creating objects for Access
+' Set objPENDConnection = CreateObject("ADODB.Connection")
+' Set objPENDRecordSet = CreateObject("ADODB.Recordset")
 
-'This is the BZST connection to SQL Database'
-objPENDConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' 'This is the BZST connection to SQL Database'
+' objPENDConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
-'delete a record if the case number matches
-' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objPENDConnection
-'Add a new record with this case information'
-objPENDRecordSet.Open 	"INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                  		"VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objPENDConnection, adOpenStatic, adLockOptimistic
+' 'delete a record if the case number matches
+' ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objPENDConnection
+' 'Add a new record with this case information'
+' objPENDRecordSet.Open 	"INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
+'                   		"VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objPENDConnection, adOpenStatic, adLockOptimistic
 
-'close the connection and recordset objects to free up resources
-objPENDConnection.Close
-Set objPENDRecordSet=nothing
-Set objPENDConnection=nothing
+' 'close the connection and recordset objects to free up resources
+' objPENDConnection.Close
+' Set objPENDRecordSet=nothing
+' Set objPENDConnection=nothing
 
-email_subject = "Cases Pending Database Access Test Completed for " & assigned_worker
-email_body = "The Cases Pending test was successful."
+' email_subject = "Cases Pending Database Access Test Completed for " & assigned_worker
+' email_body = "The Cases Pending test was successful."
 
-Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
-MsgBox "Test 2 Successful"
+' Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+' MsgBox "Test 2 Successful"
 
 
 Call script_end_procedure("Test Complete.")
