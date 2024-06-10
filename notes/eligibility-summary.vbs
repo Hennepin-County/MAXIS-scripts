@@ -3798,7 +3798,7 @@ function define_emer_elig_dialog()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "EMER Approval"
 		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
-			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE"
+			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE for $ " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
 			y_pos = 40
 			If EMER_ELIG_APPROVAL.mony_check_found = True Then
 				Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
@@ -29083,6 +29083,42 @@ If enter_CNOTE_for_EMER = True Then
 	TEMP_bus_ticket_info = EMER_ELIG_APPROVAL.bus_ticket_detail
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
 	If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then emer_test_verif_detail = verifs_in_case_note
+
+	'Identifies if the approval amount in ELIG/EMER is different from the total of MONY/CHCKs issued.
+	'We are prioritizing the amount in MONY/CHCK as that is the amount that will actually issue on the behalf of the resident.
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
+		total_payment = 0
+		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+			If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
+				chk_amt = EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)*1
+				total_payment = total_payment + chk_amt
+			End If
+		Next
+		elig_pymt = EMER_ELIG_APPROVAL.emer_elig_summ_payment *1
+		If elig_pymt <> total_payment Then
+			email_subject = "EMER Case with where EMER and CHCK do not match - Case: " & MAXIS_case_number
+			email_body = "The ELIG/EMER amount in the approval does not match the checks issued for Emergency."
+			email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+			email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+			email_body = email_body & vbCr & "EMER Amount: " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
+			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+				If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
+					email_body = email_body & vbCr & "Check: $ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck)
+				End If
+			Next
+			email_body = email_body & vbCr & "EMER Eligible"
+			email_body = email_body & vbCr & ""
+			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+
+			email_recip = "ilse.ferris@hennepin.us"
+			email_recip_CC = ""
+			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+
+			EMER_ELIG_APPROVAL.emer_elig_summ_payment = total_payment
+
+		End If
+	End If
+
 
 	Do
 		Do
