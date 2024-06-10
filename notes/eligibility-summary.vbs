@@ -8092,14 +8092,23 @@ function deny_elig_case_note()
 		Call write_variable_in_CASE_NOTE("* WCOM added to Denial Notice to detail Denial Information.")
 		Call write_variable_in_CASE_NOTE("Information added:")
 		CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
-		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+		' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 			CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
 			CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
+		Else
+			CALL write_variable_in_CASE_NOTE("DWP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
+			CALL write_variable_in_CASE_NOTE("MFIP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
 		End If
-		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+		' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 			CALL write_variable_in_CASE_NOTE("GA/MSA: Adult cash programs.")
 			CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
+		Else
+			CALL write_variable_in_CASE_NOTE("GA: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info)
+			CALL write_variable_in_CASE_NOTE("MSA: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
 		End if
+
 		If DENY_UNIQUE_APPROVALS(wcom_details_one, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_two, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) <> "" Then
 			CALL write_variable_in_CASE_NOTE("Reasons for Cash Denial:")
 		End If
@@ -24762,7 +24771,8 @@ For each footer_month in MONTHS_ARRAY
 
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-
+			number_of_rows = 0
+			On Error Resume Next
 			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
 
 			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_review_date & "' and [SelectExParte] = '1'"
@@ -24783,7 +24793,7 @@ For each footer_month in MONTHS_ARRAY
 			Set objRecordSet=nothing
 			Set objConnection=nothing
 
-
+			On Error Goto 0
 			If number_of_rows = 1 Then
 				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then
@@ -27939,12 +27949,14 @@ If enter_CNOTE_for_DENY = True Then
 			End if
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = True Then
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation = "" Then err_msg = err_msg & vbCr & "* The GA Denial Reason required additional detail. Add information about the GA Denial."
+				CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult"
 			End if
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation = "" Then err_msg = err_msg & vbCr & "* The MSA Denial Reason required additional detail. Add information about the MSA Denial."
+				CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult"
 			End if
 
-			If err_msg <> "" and ButtonPressed < 1100 Then
+			If err_msg <> "" and ButtonPressed < 1100 and ButtonPressed <> reload_btn Then
 				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 				If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
 			End If
@@ -28036,12 +28048,14 @@ If enter_CNOTE_for_DENY = True Then
 					    OkButton 415, 160, 75, 15
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) <> "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " - " & DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) & " ELIG/DENY Approval"
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) = "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " ELIG/DENY Approval"
-			    	  If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+			    	  ' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+					  If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 						  Text 15, 25, 130, 10, "Case is Adult. Script will add detail:"
 						  Text 20, 40, 230, 10, "MFIP/DWP are Family Cash Programs."
 						  Text 20, 50, 230, 10, "They require an eligible child/pregnant person to be eligible."
 					  End If
-					  If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+					  ' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+					  If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 						  Text 15, 25, 130, 10, "Case is Family. Script will add detail:"
 						  Text 20, 40, 230, 10, "GA/MSA are Adult Cash programs."
 						  Text 20, 50, 230, 10, "Available only for households without children."
@@ -29852,11 +29866,13 @@ If enter_CNOTE_for_DENY = True Then
 							DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
 							CALL write_variable_in_SPEC_MEMO("Explanation of CASH DENIALS:")
 							CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
-							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+							' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+							If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 								CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
 								CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
 							End If
-							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+							' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+							If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 								CALL write_variable_in_SPEC_MEMO("GA/MSA: These are Adult Cash programs.")
 								CALL write_variable_in_SPEC_MEMO("    Available only for households without children.")
 							End if
