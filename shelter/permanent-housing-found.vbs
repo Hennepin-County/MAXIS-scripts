@@ -196,11 +196,9 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure("")
-
 end_msg = "Success!"
 end_msg = end_msg & vbCr & vbCr & "Case noted Permanent Housing Found"
-script_end_procedure_with_error_report(end_msg)
+script_end_procedure(end_msg)
 
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
