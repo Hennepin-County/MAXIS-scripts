@@ -192,7 +192,7 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-		If (hh_member_current_jobs = "New Job Reported" AND (hh_memb_with_new_job = "Select One:" OR job_change_type <> "New Job Reported")) OR (job_change_type = "New Job Reported" AND (hh_member_current_jobs <> "New Job Reported" OR hh_memb_with_new_job = "Select One:")) Then err_msg = err_msg & vbNewLine & "* To add a new job: Member-Jobs list and Job Change Type must both say New Job Reported and Member of New Job must be selected"
+		' If (hh_member_current_jobs = "New Job Reported" AND (hh_memb_with_new_job = "Select One:" OR job_change_type <> "New Job Reported")) OR (job_change_type = "New Job Reported" AND (hh_member_current_jobs <> "New Job Reported" OR hh_memb_with_new_job = "Select One:")) Then err_msg = err_msg & vbNewLine & "* To add a new job: Member-Jobs list and Job Change Type must both say New Job Reported and Member of New Job must be selected"
 		If hh_memb_with_new_job <>  "Select One:" AND (hh_member_current_jobs <> "New Job Reported" AND job_change_type <> "New Job Reported") Then err_msg = err_msg & vbNewLine & "* Cannot select Member of New Job if New Job Reported is not selected for Member-Jobs list and Job Change Type"
 		If job_change_type = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select valid Job Change Type"
 		If person_who_reported_job = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Select who reported the job change"
@@ -356,6 +356,8 @@ If developer_mode = TRUE Then script_update_stat = "No - Update of JOBS not need
 
 'To do - needs to be validated
 
+Call generate_client_list(list_of_employees, "Select One ...")
+
 'This didalog has a different middle part based on the type of report that is happening
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 536, 370, "Job Change Details Dialog"
@@ -469,7 +471,6 @@ BeginDialog Dialog1, 0, 0, 536, 370, "Job Change Details Dialog"
           DropListBox 290, 260, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", refused_empl_yn
           EditBox 420, 260, 65, 15, refused_empl_date
           ' ComboBox 80, 260, 125, 45, "Select One..."+chr(9)+"1 - Employers Statement"+chr(9)+"2 - Seperation Notice"+chr(9)+"3 - Collateral Statement"+chr(9)+"4 - Other Document"+chr(9)+"N - No Verif Provided", stwk_verif
-
   End Select
 
   GroupBox 5, 280, 525, 65, "Actions"
