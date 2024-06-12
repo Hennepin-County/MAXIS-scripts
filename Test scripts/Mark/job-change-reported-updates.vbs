@@ -357,138 +357,129 @@ If developer_mode = TRUE Then script_update_stat = "No - Update of JOBS not need
 'To do - needs to be validated
 
 Call generate_client_list(list_of_employees, "Select One ...")
+Call generate_client_list(list_of_members, "Select One ...")
 
 'This didalog has a different middle part based on the type of report that is happening
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 536, 370, "Job Change Details Dialog"
-  GroupBox 5, 5, 525, 45, "Reporting Information"
-  Text 7, 20, 93, 10, "* How was the job reported?:"
-  Text 212, 20, 53, 10, "* Who reported?"
-  Text 410, 20, 55, 10, "* Date Reported:"
-  ComboBox 105, 15, 100, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  ComboBox 265, 15, 135, 45, list_of_members, person_who_reported_job
-  EditBox 470, 15, 50, 15, reported_date
-  CheckBox 105, 35, 275, 10, "Check here if the employee gave verbal authorization to check the Work Number.", work_number_verbal_checkbox
-
-  GroupBox 5, 55, 525, 90, "Job Information"
-  Text 7, 70, 83, 10, "* Employee (HH Member):"
-  Text 290, 70, 60, 10, "Work Number ID:"
+BeginDialog Dialog1, 0, 0, 520, 335, "Job Change Details Dialog"
+  GroupBox 5, 5, 250, 220, "Job Information"
+  Text 10, 20, 85, 10, "Employee (HH Member)*:"
+  Text 10, 40, 60, 10, "Work Number ID:"
   If job_ref_number <> "" Then Text 475, 65, 50, 10, "JOBS " & job_ref_number & " "  & job_instance
-  Text 45, 90, 45, 10, "Income Type:"
-  Text 245, 90, 85, 10, "Subsidized Income Type:"
-  Text 52, 110, 38, 10, "* Employer:"
-  Text 242, 110, 43, 10, "* Verification:"
-  Text 395, 110, 55, 10, "Pay Frequency:"
-  Text 30, 130, 60, 10, "Income start date:"
-  Text 165, 130, 60, 10, "Income End Date:"
-  Text 300, 130, 75, 10, "Contract through date:"
-  DropListBox 95, 65, 180, 45, list_of_employees, job_employee
-  EditBox 350, 65, 50, 15, work_numb_id
-  DropListBox 95, 85, 110, 15, "W - Wages"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", job_income_type
-  DropListBox 335, 85, 150, 15, ""+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-the-Job-Training"+chr(9)+"04 - AmeriCorps", job_subsidized_income_type
-  EditBox 95, 105, 140, 15, job_employer_name
-  DropListBox 290, 105, 95, 45, ""+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", job_verification
-  DropListBox 450, 105, 70, 45, " "+chr(9)+"1 - Monthly"+chr(9)+"2 - Semi-Monthly"+chr(9)+"3 - Biweekly"+chr(9)+"4 - Weekly"+chr(9)+"5 - Other", job_pay_frequency
-  EditBox 95, 125, 55, 15, job_income_start
-  EditBox 230, 125, 55, 15, job_income_end
-  EditBox 380, 125, 55, 15, job_contract_through_date
+  Text 10, 60, 45, 10, "Income Type:"
+  Text 10, 80, 85, 10, "Subsidized Income Type:"
+  Text 10, 100, 40, 10, "Employer*:"
+  Text 10, 120, 45, 10, "Verification*:"
+  Text 10, 140, 55, 10, "Pay Frequency:"
+  Text 10, 160, 60, 10, "Income start date:"
+  Text 10, 180, 60, 10, "Income End Date:"
+  Text 10, 200, 75, 10, "Contract through date:"
+  DropListBox 95, 15, 140, 45, list_of_employees, job_employee
+  EditBox 95, 35, 50, 15, work_numb_id
+  DropListBox 95, 55, 140, 15, "W - Wages"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", job_income_type
+  DropListBox 95, 75, 140, 15, "01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-the-Job-Training"+chr(9)+"04 - AmeriCorps", job_subsidized_income_type
+  EditBox 95, 95, 140, 15, job_employer_name
+  DropListBox 95, 115, 95, 45, "N - No Verif Provided"+chr(9)+"? - Delayed Verification", job_verification
+  DropListBox 95, 135, 95, 45, "1 - Monthly"+chr(9)+"2 - Semi-Monthly"+chr(9)+"3 - Biweekly"+chr(9)+"4 - Weekly"+chr(9)+"5 - Other", job_pay_frequency
+  EditBox 95, 155, 55, 15, job_income_start
+  EditBox 95, 175, 55, 15, job_income_end
+  EditBox 95, 195, 55, 15, job_contract_through_date
 
   Select Case job_change_type
       Case "New Job Reported"
-          GroupBox 5, 150, 525, 130, "Update Reported - NEW JOB"
-          Text 15, 170, 65, 10, "Date Work Started:"
-          Text 142, 170, 103, 10, "* Date Income started/will start:"
-          Text 370, 170, 95, 10, "Initial check GROSS amount:"
-          Text 10, 190, 65, 10, "Anticipated Income:"
-          Text 80, 190, 60, 10, "Hours per Week:"
-          Text 200, 190, 50, 10, "Hourly Wage:"
-          Text 15, 210, 65, 10, "Conversation with"
-          Text 225, 210, 25, 10, "details:"
-          Text 12, 260, 93, 10, "* Impact on WREG/ABAWD:"
-          EditBox 85, 165, 55, 15, date_work_started
-          EditBox 250, 165, 50, 15, new_job_income_start
-          EditBox 470, 165, 55, 15, initial_check_gross_amount
-          EditBox 140, 185, 50, 15, new_job_hours_per_week
-          EditBox 250, 185, 50, 15, new_job_hourly_wage
-          ComboBox 80, 205, 135, 45, list_of_members, conversation_with_person
-          EditBox 260, 205, 265, 15, conversation_detail
-          CheckBox 80, 225, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-          EditBox 105, 255, 420, 15, wreg_abawd_notes
+        GroupBox 260, 5, 250, 220, "Update Reported - NEW JOB"
+        Text 270, 20, 65, 10, "Date work started:"
+        Text 270, 40, 105, 10, "Date income started/will start*:"
+        Text 270, 60, 95, 10, "Initial check GROSS amount:"
+        Text 270, 80, 90, 10, "Anticipated hours per week:"
+        Text 270, 100, 80, 10, "Anticipated hourly wage:"
+        Text 270, 120, 65, 10, "Conversation with:"
+        Text 270, 135, 25, 10, "Details:"
+        Text 270, 175, 95, 10, "* Impact on WREG/ABAWD:"
+        EditBox 375, 15, 55, 15, date_work_started
+        EditBox 375, 35, 55, 15, new_job_income_start
+        EditBox 375, 55, 55, 15, initial_check_gross_amount
+        EditBox 375, 75, 55, 15, new_job_hours_per_week
+        EditBox 375, 95, 55, 15, new_job_hourly_wage
+        ComboBox 375, 120, 130, 45, list_of_members, conversation_with_person
+        EditBox 375, 135, 130, 15, conversation_detail
+        CheckBox 270, 155, 145, 10, "Check here if Work Number request sent", work_number_checkbox
+        EditBox 375, 170, 125, 15, wreg_abawd_notes
       Case "Income/Hours Change for Current Job"
-          GroupBox 5, 150, 525, 130, "Update Reported - JOB CHANGE"
-          Text 15, 165, 55, 10, "Date of Change:"
-          Text 145, 165, 70, 10, "* Change Reported:"
-          Text 15, 185, 80, 10, "Old Anticipated Income:"
-          Text 100, 185, 60, 10, "Hours per Week:"
-          Text 230, 185, 50, 10, "Hourly Wage:"
-          Text 340, 185, 55, 10, "Income Change:"
-          Text 10, 205, 85, 10, "* New Anticipated Income:"
-          Text 100, 205, 60, 10, "Hours per Week:"
-          Text 230, 205, 50, 10, "Hourly Wage:"
-          Text 377, 205, 83, 10, "* First Pay Date Impacted:"
-          Text 15, 225, 65, 10, "Conversation with"
-          Text 225, 225, 25, 10, "details:"
-          Text 12, 260, 93, 10, "* Impact on WREG/ABAWD:"
-          EditBox 70, 160, 55, 15, job_change_date
-          EditBox 210, 160, 315, 15, job_change_details
-          EditBox 165, 180, 50, 15, job_change_old_hours_per_week
-          EditBox 280, 180, 50, 15, job_change_old_hourly_wage
-          ComboBox 395, 180, 130, 45, "Select or Type"+chr(9)+"Increase"+chr(9)+"Decrease", income_change_type
-          EditBox 165, 200, 50, 15, job_change_new_hours_per_week
-          EditBox 280, 200, 50, 15, job_change_new_hourly_wage
-          EditBox 465, 200, 60, 15, first_pay_date_of_change
-          ComboBox 80, 220, 135, 45, list_of_members, conversation_with_person
-          EditBox 260, 220, 265, 15, conversation_detail
-          CheckBox 80, 240, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-          EditBox 105, 255, 420, 15, wreg_abawd_notes
+        GroupBox 260, 5, 250, 220, "Update Reported - JOB CHANGE"
+        Text 265, 20, 55, 10, "Date of Change:"
+        Text 265, 40, 70, 10, "* Change Reported:"
+        Text 265, 55, 90, 10, "-- Old Anticipated Income --"
+        Text 265, 70, 60, 10, "Hours per Week:"
+        Text 395, 70, 50, 10, "Hourly Wage:"
+        Text 265, 85, 55, 10, "Income Change:"
+        Text 265, 105, 95, 10, "-- New Anticipated Income* --"
+        Text 265, 120, 60, 10, "Hours per Week:"
+        Text 400, 120, 50, 10, "Hourly Wage:"
+        Text 265, 140, 85, 10, "First Pay Date Impacted*:"
+        Text 265, 155, 65, 10, "Conversation with:"
+        Text 265, 175, 25, 10, "Details:"
+        Text 265, 210, 95, 10, "Impact on WREG/ABAWD*:"
+        EditBox 340, 15, 55, 15, job_change_date
+        EditBox 340, 35, 165, 15, job_change_details
+        EditBox 340, 65, 50, 15, job_change_old_hours_per_week
+        EditBox 455, 65, 50, 15, job_change_old_hourly_wage
+        ComboBox 340, 85, 165, 45, "Select or Type"+chr(9)+"Increase"+chr(9)+"Decrease", income_change_type
+        EditBox 355, 115, 35, 15, job_change_new_hours_per_week
+        EditBox 455, 115, 50, 15, job_change_new_hourly_wage
+        EditBox 355, 135, 60, 15, first_pay_date_of_change
+        ComboBox 355, 155, 150, 45, list_of_members, conversation_with_person
+        EditBox 355, 170, 150, 15, conversation_detail
+        CheckBox 265, 190, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
+        EditBox 365, 205, 140, 15, wreg_abawd_notes      
       Case "Job Ended"
-          GroupBox 5, 150, 525, 130, "Update Reported - JOB ENDED"
-          Text 12, 170, 68, 10, "* Date Work Ended:"
-          Text 147, 170, 103, 10, "* Date Income ended/will end:"
-          Text 312, 170, 63, 10, "* Last pay amount:"
-          Text 15, 190, 60, 10, "Reason for STWK:"
-          Text 217, 190, 53, 10, "* Voluntary Quit:"
-          Text 350, 190, 100, 10, "Does this meet Good Cause?"
-          Text 15, 210, 65, 10, "Conversation with"
-          Text 225, 210, 25, 10, "details:"
-          Text 15, 230, 160, 10, "Is the client applying for Unemployment Income?"
-          Text 232, 230, 93, 10, "* Impact on WREG/ABAWD:"
-          Text 12, 265, 68, 10, "* STWK Verification:"
-          Text 235, 265, 50, 10, "Refused Empl:"
-          Text 350, 265, 65, 10, "Refused Empl Date:"
-          EditBox 80, 165, 55, 15, date_work_ended
-          EditBox 250, 165, 50, 15, job_end_income_end_date
-          EditBox 380, 165, 50, 15, last_pay_amount
-          EditBox 80, 185, 130, 15, stwk_reason
-          DropListBox 275, 185, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
-          DropListBox 450, 185, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
-          ComboBox 80, 205, 135, 45, list_of_members, conversation_with_person
-          EditBox 260, 205, 260, 15, conversation_detail
-          DropListBox 180, 225, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", uc_yn
-          EditBox 330, 225, 190, 15, wreg_abawd_notes
-          CheckBox 80, 245, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-          DropListBox 80, 260, 125, 45, "Select One..."+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", stwk_verif
-          DropListBox 290, 260, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", refused_empl_yn
-          EditBox 420, 260, 65, 15, refused_empl_date
-          ' ComboBox 80, 260, 125, 45, "Select One..."+chr(9)+"1 - Employers Statement"+chr(9)+"2 - Seperation Notice"+chr(9)+"3 - Collateral Statement"+chr(9)+"4 - Other Document"+chr(9)+"N - No Verif Provided", stwk_verif
+        GroupBox 260, 5, 250, 220, "Update Reported - JOB ENDED"
+        Text 270, 20, 70, 10, "Date Work Ended*:"
+        Text 270, 40, 105, 10, "Date income ended/will end*:"
+        Text 400, 20, 65, 10, "Last pay amount*:"
+        Text 270, 60, 60, 10, "Reason for STWK:"
+        Text 270, 90, 55, 10, "Voluntary Quit*:"
+        Text 395, 90, 60, 10, "Good cause met?"
+        Text 270, 145, 65, 10, "Conversation with:"
+        Text 270, 165, 25, 10, "Details:"
+        Text 270, 125, 160, 10, "Is the client applying for Unemployment Income?"
+        Text 270, 185, 95, 10, "Impact on WREG/ABAWD*:"
+        Text 270, 75, 70, 10, "STWK Verification*:"
+        Text 270, 110, 50, 10, "Refused Empl:"
+        Text 380, 110, 65, 10, "Refused Empl Date:"
+        EditBox 340, 15, 55, 15, date_work_ended
+        EditBox 375, 35, 50, 15, job_end_income_end_date
+        EditBox 465, 15, 40, 15, last_pay_amount
+        EditBox 340, 55, 130, 15, stwk_reason
+        DropListBox 340, 90, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
+        DropListBox 460, 90, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
+        ComboBox 340, 145, 165, 45, list_of_members, conversation_with_person
+        EditBox 340, 160, 165, 15, conversation_detail
+        DropListBox 440, 125, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", uc_yn
+        EditBox 365, 180, 140, 15, wreg_abawd_notes
+        CheckBox 270, 200, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
+        DropListBox 340, 75, 125, 45, "Select One..."+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", stwk_verif
+        DropListBox 340, 105, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", refused_empl_yn
+        EditBox 460, 105, 45, 15, refused_empl_date      
+        ' ComboBox 80, 260, 125, 45, "Select One..."+chr(9)+"1 - Employers Statement"+chr(9)+"2 - Seperation Notice"+chr(9)+"3 - Collateral Statement"+chr(9)+"4 - Other Document"+chr(9)+"N - No Verif Provided", stwk_verif
   End Select
 
-  GroupBox 5, 280, 525, 65, "Actions"
-  Text 10, 295, 105, 10, "Date verification Request Sent:"
-  Text 185, 295, 105, 10, "Time frame of verifs requested:"
-  Text 20, 330, 90, 10, "Have Script Update Panel:"
-  Text 10, 355, 25, 10, "Notes:"
-  EditBox 120, 290, 50, 15, verif_form_date
-  EditBox 295, 290, 75, 15, verif_time_frame
-  CheckBox 385, 295, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
-  CheckBox 120, 310, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  DropListBox 120, 325, 135, 45, "Select One..."+chr(9)+"No - Update of JOBS not needed"+chr(9)+"Yes - Update an existing JOBS Panel"+chr(9)+"Yes - Create a new JOBS Panel", script_update_stat
-  CheckBox 365, 325, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
-  CheckBox 365, 310, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
-  EditBox 40, 350, 370, 15, notes
+  GroupBox 5, 230, 505, 75, "Actions"
+  Text 10, 245, 105, 10, "Date verification Request Sent:"
+  Text 10, 265, 105, 10, "Time frame of verifs requested:"
+  Text 10, 285, 90, 10, "Have Script Update Panel:"
+  Text 10, 315, 25, 10, "Notes:"
+  EditBox 120, 240, 75, 15, verif_form_date
+  EditBox 120, 260, 75, 15, verif_time_frame
+  CheckBox 270, 240, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
+  CheckBox 270, 285, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  DropListBox 120, 285, 135, 45, "Select One..."+chr(9)+"No - Update of JOBS not needed"+chr(9)+"Yes - Update an existing JOBS Panel"+chr(9)+"Yes - Create a new JOBS Panel", script_update_stat
+  CheckBox 270, 270, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 270, 255, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
+  EditBox 40, 310, 340, 15, notes
   ButtonGroup ButtonPressed
-    OkButton 425, 350, 50, 15
-    CancelButton 480, 350, 50, 15
+    OkButton 405, 310, 50, 15
+    CancelButton 460, 310, 50, 15
 EndDialog
 
 Do                      'Showing the main dialog
