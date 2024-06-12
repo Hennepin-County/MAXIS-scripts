@@ -106,7 +106,9 @@ ElseIf (DateDiff("d", date, ten_day_cutoff_date) > 0 or date = last_day_of_month
     tikl_check = 1
 Else
     'on 10-day cutoff through the last day of the month
-    script_end_procedure("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time.")
+    dail_action_selection = msgbox ("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time. Do you want to redirect to ADMIN - DELETE DAIL TASKS?", VbQuestion + VbYesNo, "No DAILs need to be gathered for assignment.")
+    If dail_action_selection = VbNo then script_end_procedure("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time. The script will now end.")
+    If dail_action_selection = VbYes then call run_from_GitHub(script_repository & "admin/delete-dail-tasks.vbs")
 End if
 
 Dialog1 = ""
