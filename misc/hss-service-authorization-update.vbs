@@ -82,7 +82,7 @@ BeginDialog Dialog1, 0, 0, 481, 90, "HSS SERVICE AUTHORIZATION UPDATE"
     CancelButton 420, 65, 50, 15
   EditBox 15, 45, 400, 15, file_selection_path
   Text 15, 20, 455, 20, "This script should be used when a list of recipients who have Supplemental Service Rate adjustments in MMIS due to overlapping Housing Stabilization Services (HSS)."
-  Text 30, 70, 335, 10, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  Text 30, 70, 335, 10, "Select the Excel file that contains your information by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 465, 80, "Using this script:"
 EndDialog
 
@@ -108,7 +108,7 @@ ObjExcel.Cells(1, rate_reduction_col).Value = "Rate Reduction Status"   'col 27
 objExcel.Cells(1, 27).Font.Bold = True		'bold font'
 objExcel.Columns(27).ColumnWidth = 120		'sizing the last column
 
-Dim adjustment_array()                        'Delcaring array
+Dim adjustment_array()                        'Declaring array
 ReDim adjustment_array(rr_status_const, 0)     'Resizing the array to size of last const
 
 const recip_PMI_const               = 0         'creating array constants
@@ -147,7 +147,7 @@ Do
     If recip_PMI = "" then exit do
 
     SA_number       = trim(objExcel.cells(excel_row, SA_number_col).Value)
-    SA_number = right("00000000" & SA_number, 11) 'ensures the variable is 11 digits. Inhibiting erorr
+    SA_number = right("00000000" & SA_number, 11) 'ensures the variable is 11 digits. Inhibiting error
 
     'Adding recipient information to the array
     ReDim Preserve adjustment_array(rr_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
@@ -237,7 +237,7 @@ For item = 0 to Ubound(adjustment_array, 2)
     If rate_reduction_status <> "Failed Case Test(s): " then adjustment_array(rr_status_const, item) = rate_reduction_status
 Next
 
-'If duplicates still exist after the intital case tests, then these need to be figured out manually at this point.
+'If duplicates still exist after the initial case tests, then these need to be figured out manually at this point.
 For item = 0 to Ubound(adjustment_array, 2)
     recip_PMI = adjustment_array(recip_PMI_const, item)
     PMI_count = 0
@@ -306,7 +306,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                         EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
                         PF3
                         adjustment_array(reduce_rate_const, item) = False
-                        'creating status message if reduce is already in exisitance.
+                        'creating status message if reduce is already in existence.
                         If line_2_rate = "7.94" then
                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 7.94."
                         Else
@@ -351,7 +351,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                             Else
                                 'Creating a date that is the day before the HSS start date/conversion date - for LINE 1
                                 new_line_1_end_date = dateadd("d", -1, adjustment_array(adjustment_start_date_const, item))
-                                'using the HSS start date as this is after 07/01/21 (future date from initial coversion date of 07/01/21)
+                                'using the HSS start date as this is after 07/01/21 (future date from initial conversion date of 07/01/21)
                                 Call ONLY_create_MAXIS_friendly_date(new_line_1_end_date)
 
                                 'removing date formatting for ASA3 input
@@ -359,7 +359,7 @@ For item = 0 to Ubound(adjustment_array, 2)
 
                                 line_1_total_units = datediff("d", Line_1_start_date, new_line_1_end_date) + 1
 
-                                'Unable to close agreements that have been overbilled by the facility.
+                                'Unable to close agreements that have been over billed by the facility.
                                 over_billed = True      'Defaulting to True
                                 EmReadscreen billed_units, 6, 11, 60
                                 billed_units = trim(billed_units)
@@ -377,11 +377,11 @@ For item = 0 to Ubound(adjustment_array, 2)
                                     EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
                                     PF3
                                     adjustment_array(reduce_rate_const, item) = False
-                                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & " Unable to reduce Line 1 agreement due to overbilling. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
+                                    adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & " Unable to reduce Line 1 agreement due to over billing. Billed units: & " & billed_units & " vs. " & line_1_total_units & "."
                                 Else
-                                    'Deleting the orginal agreement if the start dates are the same date
+                                    'Deleting the original agreement if the start dates are the same date
                                     If DateDiff("d", Line_1_start_date, adjustment_array(adjustment_start_date_const, item)) = 0 then
-                                        EmWriteScreen "D", 12, 19 'Deny orginal agreement
+                                        EmWriteScreen "D", 12, 19 'Deny original agreement
                                     Else
                                         '----------------------------------------------------------------------------------------------------Updating LINE 1 agreement
                                         EmWriteScreen write_new_line_1_end_date, 8, 67
@@ -392,9 +392,9 @@ For item = 0 to Ubound(adjustment_array, 2)
                                     EmWriteScreen "H0043", 13, 36
                                     EmWriteScreen "U5", 13, 44
 
-                                    write_new_agrement_start_date = replace(adjustment_array(adjustment_start_date_const, item), "/", "")
+                                    write_new_agreement_start_date = replace(adjustment_array(adjustment_start_date_const, item), "/", "")
 
-                                    EmWriteScreen write_new_agrement_start_date, 14, 60
+                                    EmWriteScreen write_new_agreement_start_date, 14, 60
                                     EmWriteScreen write_original_end_date, 14, 67
 
                                     EmReadscreen old_rate, 5, 9, 24
@@ -407,7 +407,7 @@ For item = 0 to Ubound(adjustment_array, 2)
 
                                     EMReadscreen agreement_NPI_number, 10, 10, 20   'Reading line 1 NPI Number
                                     EmReadscreen facility_name, 35, 10, 31
-                                    EmWriteScreen agreement_NPI_number, 16, 20      'Enetering NPI in Line 2 agreement
+                                    EmWriteScreen agreement_NPI_number, 16, 20      'Entering NPI in Line 2 agreement
 
                                     EmWriteScreen new_rate, 17, 20
                                     EmWriteScreen "MM", 17, 35
@@ -511,8 +511,8 @@ For item = 0 to Ubound(adjustment_array, 2)
 Next
 
 write_this_thing = "DHS SUPPLEMENTAL SERVICE RATE ADJUSTMENT" & "~" & "THERE IS AN ACTIVE HOUSING SUPPORT SUPPLEMENTAL SERVICE RATE (SSR)" & "~" & "SERVICE AUTHORIZATION IN MMIS FOR THIS MAXIS CASE. DHS ADJUSTED THE" & "~" &_
-				   "MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE" & "~" & "EXISITING END DATE OF THE SERVICE AUTHORIZATION." & "~" & "REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT" & "~" &_
-				   "ELIGBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED" & "~" & "SERVICE AUTORIZATION WITH THE CORRECT SSR PER DIEM TO THE HOUSING" & "~" & "SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION." & "~" &_
+				   "MMIS SERVICE AUTHORIZATION(S) FOR HOUSING SUPPORT SSR THROUGH THE" & "~" & "EXISTING END DATE OF THE SERVICE AUTHORIZATION." & "~" & "REVISIONS ARE BASED ON A DETERMINATION OF THE RECIPIENT'S CONCURRENT" & "~" &_
+				   "ELIGIBILITY HOUSING STABILIZATION SERVICES. MMIS ISSUED A REVISED" & "~" & "SERVICE AUTHORIZATION WITH THE CORRECT SSR PER DIEM TO THE HOUSING" & "~" & "SUPPORT PROVIDER ASSOCIATED WITH THE MMIS SERVICE AUTHORIZATION." & "~" &_
 				   "ELIGIBILITY WORKERS DO NOT NEED TO TAKE ANY ACTION IN MAXIS." & "~" & "**********************************************************************"
 AN_ARRAY_OF_THE_THING_TO_WRITE = split(write_this_thing, "~")
 '----------------------------------------------------------------------------------------------------DHS NOTES on ADHS screen in GRHU realm
@@ -636,7 +636,7 @@ script_end_procedure_with_error_report("Success! The script run is complete. Ple
 '--BULK - remove 1 incrementor at end of script reviewed------------------------08/13/2021
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------08/13/2021
+'--Confirm all GitHub tasks are complete----------------------------------------08/13/2021
 '--comment Code-----------------------------------------------------------------08/13/2021
 '--Update Changelog for release/update------------------------------------------08/13/2021
 '--Remove testing message boxes-------------------------------------------------08/13/2021
