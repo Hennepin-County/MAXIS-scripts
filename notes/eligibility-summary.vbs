@@ -29105,7 +29105,8 @@ If enter_CNOTE_for_EMER = True Then
 
 	'Identifies if the approval amount in ELIG/EMER is different from the total of MONY/CHCKs issued.
 	'We are prioritizing the amount in MONY/CHCK as that is the amount that will actually issue on the behalf of the resident.
-	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
+
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" and EMER_ELIG_APPROVAL.bus_ticket_approval = False Then
 		total_payment = 0
 		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
 			If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
@@ -29137,7 +29138,9 @@ If enter_CNOTE_for_EMER = True Then
 
 		End If
 	End If
-
+	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
+		EMER_ELIG_APPROVAL.emer_elig_summ_payment = EMER_ELIG_APPROVAL.emer_elig_summ_need_other
+	End If
 
 	Do
 		Do
