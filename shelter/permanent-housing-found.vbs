@@ -42,7 +42,7 @@ END IF
 changelog = array()
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("06/11/2023", "Updated Dialog: Removed self-pay fields.", "Megan Geissler, Hennepin County")
+CALL changelog_update("06/11/2024", "Updated Dialog: Removed self-pay fields.", "Megan Geissler, Hennepin County")
 CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -94,7 +94,7 @@ Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'functio
 
 
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 456, 245, "Permanent Housing Found - Case#" & MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 456, 245, "Permanent Housing Found - Case #" & MAXIS_case_number
   EditBox 105, 5, 40, 15, move_date
   EditBox 210, 5, 40, 15, monthly_rent
   EditBox 335, 5, 20, 15, num_days
@@ -141,7 +141,7 @@ BeginDialog Dialog1, 0, 0, 456, 245, "Permanent Housing Found - Case#" & MAXIS_c
 EndDialog
 
 'Running the initial dialog
-DO
+DO      
 	  DO
       err_msg = ""
       Dialog Dialog1
@@ -196,7 +196,6 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-end_msg = "Success!"
 end_msg = end_msg & vbCr & vbCr & "Case noted Permanent Housing Found"
 script_end_procedure(end_msg)
 
