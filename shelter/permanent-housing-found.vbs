@@ -92,58 +92,56 @@ If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_n
 phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
 Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
 
-
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 456, 245, "Permanent Housing Found - Case #" & MAXIS_case_number
-  EditBox 105, 5, 40, 15, move_date
-  EditBox 210, 5, 40, 15, monthly_rent
-  EditBox 335, 5, 20, 15, num_days
-  EditBox 110, 40, 60, 15, rent_needed
-  EditBox 110, 60, 60, 15, DD_needed
-  EditBox 110, 80, 60, 15, rent_subsidy_paid
-  EditBox 270, 40, 40, 15, earned_income
-  EditBox 270, 60, 40, 15, rent_subsidy
-  EditBox 400, 40, 40, 15, MFIP_DWP_income
-  EditBox 400, 60, 40, 15, UNEA_income
-  EditBox 400, 80, 40, 15, additional_funds
-  EditBox 110, 115, 145, 15, LL_name
-  EditBox 110, 135, 145, 15, LL_ADDR
-  EditBox 110, 155, 145, 15, REW
-  EditBox 110, 175, 40, 15, closed_servicepoint
-  EditBox 390, 115, 50, 15, mand_vend_date
-  ComboBox 365, 135, 75, 15, phone_numbers+chr(9)+client_phone, client_phone
-  EditBox 365, 155, 75, 15, client_work_phone
-  EditBox 65, 195, 375, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 345, 225, 50, 15
-    CancelButton 400, 225, 50, 15
-  Text 270, 10, 65, 10, "# of days in shelter:"
-  Text 320, 160, 45, 10, "Client work #:"
-  Text 20, 45, 80, 10, "Rent needed to move in:"
-  Text 55, 10, 45, 10, "Move in date:"
-  Text 20, 65, 90, 10, "DD amt needed to move in:"
-  Text 20, 200, 45, 10, "Other notes: "
-  Text 20, 85, 75, 10, "Rent subsidy paid by:"
-  Text 165, 10, 45, 10, "Monthly rent:"
-  Text 265, 120, 120, 10, "Mandatory vendor changed effective:"
-  Text 20, 180, 90, 10, "ServicePoint closed out on:"
-  Text 20, 120, 85, 10, "Landlord name/Vendor #:"
-  Text 20, 160, 85, 10, "Rapid Exit Worker (REW):"
-  Text 315, 140, 50, 10, "Client phone #:"
-  Text 220, 65, 45, 10, "Rent subsidy:"
-  Text 20, 140, 55, 10, "Landlord ADDR:"
-  Text 215, 45, 55, 10, "Earned income:"
-  Text 375, 65, 25, 10, "UNEA:"
-  Text 230, 85, 170, 10, "Balance of funds owed to the LL will be issued from:"
-  GroupBox 5, 30, 445, 80, "Resources for shelter funds:"
-  Text 345, 45, 55, 10, "MFIP/DWP/HG:"
-  GroupBox 5, 105, 445, 115, "Additional Info"
-EndDialog
-
-'Running the initial dialog
-DO      
+DO         
 	  DO
       err_msg = ""
+      Dialog1 = "" 'Blanking out previous dialog detail
+      BeginDialog Dialog1, 0, 0, 456, 245, "Permanent Housing Found - Case #" & MAXIS_case_number
+        EditBox 105, 5, 40, 15, move_date
+        EditBox 210, 5, 40, 15, monthly_rent
+        EditBox 335, 5, 20, 15, num_days
+        EditBox 110, 40, 60, 15, rent_needed
+        EditBox 110, 60, 60, 15, DD_needed
+        EditBox 110, 80, 60, 15, rent_subsidy_paid
+        EditBox 270, 40, 40, 15, earned_income
+        EditBox 270, 60, 40, 15, rent_subsidy
+        EditBox 400, 40, 40, 15, MFIP_DWP_income
+        EditBox 400, 60, 40, 15, UNEA_income
+        EditBox 400, 80, 40, 15, additional_funds
+        EditBox 110, 115, 145, 15, LL_name
+        EditBox 110, 135, 145, 15, LL_ADDR
+        EditBox 110, 155, 145, 15, REW
+        EditBox 110, 175, 40, 15, closed_servicepoint
+        EditBox 390, 115, 50, 15, mand_vend_date
+        ComboBox 365, 135, 75, 15, phone_numbers+chr(9)+client_phone, client_phone
+        EditBox 365, 155, 75, 15, client_work_phone
+        EditBox 65, 195, 375, 15, other_notes
+        ButtonGroup ButtonPressed
+          OkButton 345, 225, 50, 15
+          CancelButton 400, 225, 50, 15
+        Text 270, 10, 65, 10, "# of days in shelter:"
+        Text 320, 160, 45, 10, "Client work #:"
+        Text 20, 45, 80, 10, "Rent needed to move in:"
+        Text 55, 10, 45, 10, "Move in date:"
+        Text 20, 65, 90, 10, "DD amt needed to move in:"
+        Text 20, 200, 45, 10, "Other notes: "
+        Text 20, 85, 75, 10, "Rent subsidy paid by:"
+        Text 165, 10, 45, 10, "Monthly rent:"
+        Text 265, 120, 120, 10, "Mandatory vendor changed effective:"
+        Text 20, 180, 90, 10, "ServicePoint closed out on:"
+        Text 20, 120, 85, 10, "Landlord name/Vendor #:"
+        Text 20, 160, 85, 10, "Rapid Exit Worker (REW):"
+        Text 315, 140, 50, 10, "Client phone #:"
+        Text 220, 65, 45, 10, "Rent subsidy:"
+        Text 20, 140, 55, 10, "Landlord ADDR:"
+        Text 215, 45, 55, 10, "Earned income:"
+        Text 375, 65, 25, 10, "UNEA:"
+        Text 230, 85, 170, 10, "Balance of funds owed to the LL will be issued from:"
+        GroupBox 5, 30, 445, 80, "Resources for shelter funds:"
+        Text 345, 45, 55, 10, "MFIP/DWP/HG:"
+        GroupBox 5, 105, 445, 115, "Additional Info"
+      EndDialog
+
       Dialog Dialog1
       cancel_confirmation
       IF IsDate(move_date) = False then err_msg = err_msg & vbNewLine & "* Enter move in date in DD/MM/YY format."
@@ -196,7 +194,7 @@ Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-end_msg = end_msg & vbCr & vbCr & "Case noted Permanent Housing Found"
+end_msg = end_msg & vbCr & "Success! Case noted Permanent Housing Found"
 script_end_procedure(end_msg)
 
 
