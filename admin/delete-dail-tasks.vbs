@@ -56,7 +56,7 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Gathering windows user information for transpancy purposes.
+'Gathering windows user information for transparency purposes.
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 Call find_user_name(the_person_running_the_script)
@@ -107,6 +107,6 @@ objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, a
 objConnection.Close
 
 'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
-Call create_outlook_email("", "Faughn.Ramisch-Church@hennepin.us", "Ilse.Ferris@hennepin.us", "", "Task-Based Assignment DAIL Messages deleted in SQL Table by " & windows_user_ID & ": " & the_person_running_the_script & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
+Call create_outlook_email("", "Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based Assignment DAIL Messages deleted in SQL Table by " & windows_user_ID & ": " & the_person_running_the_script & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
 
 script_end_procedure("Success! The database has been deleted.")
