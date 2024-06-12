@@ -28068,6 +28068,25 @@ If enter_CNOTE_for_DENY = True Then
 
 					dialog Dialog1
 					cancel_confirmation
+
+					duplicate_info_deleted = False
+					deny_wcom_info_one = trim(deny_wcom_info_one)
+					deny_wcom_info_two = trim(deny_wcom_info_two)
+					deny_wcom_info_three = trim(deny_wcom_info_three)
+					If deny_wcom_info_three = deny_wcom_info_two Then
+						If deny_wcom_info_three <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_three = ""
+					End If
+					If deny_wcom_info_one = deny_wcom_info_two Then
+						If deny_wcom_info_two <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_two = ""
+					End If
+					If deny_wcom_info_one = deny_wcom_info_three Then
+						If deny_wcom_info_three <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_three = ""
+					End If
+					If duplicate_info_deleted = True then err_msg = err_msg & vbCr & "* The information entered in each line should not be duplicated as it creates a repeditive notice and CASE/NOTE."
+
 					If trim(deny_wcom_info_one) = "" and trim(deny_wcom_info_two) = "" and trim(deny_wcom_info_three) = "" Then
 						err_msg = err_msg & vbCr & "* WCOMs are required for all Cash DENY Approvals. Enter information into the dialog to explain cleearly to the resident why the Cash Request has been denied."
 					ElseIf len(deny_wcom_info_one) < 30 and len(deny_wcom_info_two) < 30 and len(deny_wcom_info_three) < 30 and (len(deny_wcom_info_one)+len(deny_wcom_info_two)+len(deny_wcom_info_three)) < 30 Then
