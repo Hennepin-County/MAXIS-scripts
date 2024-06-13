@@ -8550,43 +8550,41 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 '~~~~~ version_result: outputs the ELIG/INELIG information for the approved version
 '~~~~~ approval_found: BOOLEAN - If an appoved version was found
 '===== Keywords: MAXIS, find, ELIG
-	EMReadScreen msa_elig_check, 3, 2, 30
+	EMReadScreen msa_elig_check, 3, 2, 30							'capturing information about the approval to handle for weird MSA functionality
 	EMReadScreen curr_footer_month, 2, 20, 56
 	EMReadScreen curr_footer_year, 2, 20, 59
-	skip_99_window = False
+	skip_99_window = False											'allows for the function to skip entering the 99 code because sometimes it doesn't work.
 	Call write_value_and_transmit("99", cmd_row, cmd_col)			'opening the pop-up with all versions listed.
-	If msa_elig_check = "MSA" Then
-		Do
-			EMReadScreen msa_elig_double_check, 3, 2, 30
-			If msa_elig_double_check <> "MSA" Then
-				skip_99_window = True
-				Call navigate_to_MAXIS_screen("ELIG", "MSA ")
-				EMWriteScreen curr_footer_month, 20, 56
-				EMWriteScreen curr_footer_year, 20, 59
-				EMWriteScreen "MSA", 20, 71
-				transmit
-				Do
-					EMReadScreen approval_status, 8, 3, 3
-					EMReadScreen elig_version, 2, 2, 11
-					If approval_status = "APPROVED" Then
-						EMReadScreen elig_date, 8, 3, 14
-						version_date = elig_date
-						version_number = elig_version
-						version_result = approval_status
-						approval_found = True
-						Exit Do
-					ElseIf elig_version = "01" Then
-						approval_found = False
-						Exit Do
-					Else
-						elig_version = elig_version*1
-						prev_version = elig_version-1
-						prev_version = right("00"&prev_version, 2)
-						Call write_value_and_transmit(prev_version, 20, 79)
-					End If
-				Loop
-			End If
-		Loop until msa_elig_double_check = "MSA"
+	If msa_elig_check = "MSA" Then									'we only need to check this issue for MSA at this time
+		EMReadScreen msa_elig_double_check, 3, 2, 30				'if we are still in MSA with the code 99 - it will still display MSA at the top
+		If msa_elig_double_check <> "MSA" Then						'if MSA is not displayed - MAXIS kicked us out of the elig information
+			skip_99_window = True
+			Call navigate_to_MAXIS_screen("ELIG", "MSA ")			'go to MSA
+			EMWriteScreen curr_footer_month, 20, 56					'get to the right footer month
+			EMWriteScreen curr_footer_year, 20, 59
+			EMWriteScreen "MSA", 20, 71
+			transmit
+			Do
+				EMReadScreen approval_status, 8, 3, 3				'read the approval status and version
+				EMReadScreen elig_version, 2, 2, 11
+				If approval_status = "APPROVED" Then				'If approved, we can leave the loop and grab the informaiton from ELIG/MSA screen
+					EMReadScreen elig_date, 8, 3, 14
+					version_date = elig_date
+					version_number = elig_version
+					version_result = approval_status
+					approval_found = True
+					Exit Do
+				ElseIf elig_version = "01" Then						'If not approved and we are at version 1 - there is no approval
+					approval_found = False
+					Exit Do
+				Else												'otherwise try to get to a new approval.
+					elig_version = elig_version*1
+					prev_version = elig_version-1
+					prev_version = right("00"&prev_version, 2)
+					Call write_value_and_transmit(prev_version, 20, 79)
+				End If
+			Loop
+		End If
 	End If
 	If skip_99_window = False Then
 		approval_found = True											'default the approval to being found
