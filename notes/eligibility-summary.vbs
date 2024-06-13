@@ -18932,6 +18932,7 @@ class stat_detail
 	public footer_month
 	public footer_year
 	public children_on_case
+	public panels_not_verif_string
 
 	public stat_addr_homeless_yn
 	public stat_addr_residence_county
@@ -19694,6 +19695,8 @@ class stat_detail
 		EMReadScreen stat_addr_homeless_yn, 1, 10, 43
 		EMReadScreen stat_addr_residence_county, 2, 9, 66
 		EMReadScreen stat_addr_living_situation, 2, 11, 43
+		EMReadScreen addr_verif, 2, 9, 74
+		If addr_verif = "NO" Then panels_not_verif_string = panels_not_verif_string & "Residence not verified.; "
 
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
@@ -21161,6 +21164,9 @@ class stat_detail
 			EMReadScreen stat_memb_age(memb_count), 3, 8, 76
 			EMReadScreen stat_memb_id_verif_code(memb_count), 2, 9, 68
 			EMReadScreen stat_memb_rel_to_applct_code(memb_count), 2, 10, 42
+			EMReadScreen ssn_prov, 1, 7, 68
+			If stat_memb_id_verif_code(memb_count) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Identidy of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+			If ssn_prov = "N" Then panels_not_verif_string = panels_not_verif_string & "Social Sec Number of Memb " & stat_memb_ref_numb(memb_count) & " not provided.; "
 
 			stat_memb_age(memb_count) = trim(stat_memb_age(memb_count))
 			If stat_memb_age(memb_count) = "" Then stat_memb_age(memb_count) = 0
@@ -21222,6 +21228,8 @@ class stat_detail
 			If stat_memi_citizenship_verif_code(each_memb) = "PV" Then stat_memi_citizenship_verif_info(each_memb) = "Passport/Visa"
 			If stat_memi_citizenship_verif_code(each_memb) = "OT" Then stat_memi_citizenship_verif_info(each_memb) = "Other Document"
 			If stat_memi_citizenship_verif_code(each_memb) = "NO" Then stat_memi_citizenship_verif_info(each_memb) = "No Verif Provided"
+			' If stat_memi_citizenship_verif_code(each_memb) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Proof of Citizenship of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+
 		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "HCMI")
@@ -21242,7 +21250,9 @@ class stat_detail
 			EMReadScreen version_exists, 1, 2, 78
 			If version_exists = "1" Then
 				EMReadScreen end_date, 8, 12, 53
+				EMReadScreen preg_verf, 1, 6, 75
 				If end_date = "__ __ __" Then children_on_case = True
+				If preg_verf = "N" Then panels_not_verif_string = panels_not_verif_string & "Pregnancy of Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 		Next
 
@@ -21341,6 +21351,7 @@ class stat_detail
 				stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb))
 				If stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				If stat_jobs_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_one_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21434,6 +21445,7 @@ class stat_detail
 
 				stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_two_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21527,6 +21539,7 @@ class stat_detail
 
 				stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_three_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21620,6 +21633,7 @@ class stat_detail
 
 				stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_four_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21713,6 +21727,7 @@ class stat_detail
 
 				stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_five_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 		Next
@@ -21813,6 +21828,8 @@ class stat_detail
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "4" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "6" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then stat_busi_one_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -21910,6 +21927,10 @@ class stat_detail
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "4" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "6" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then stat_busi_two_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				End If
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22007,6 +22028,10 @@ class stat_detail
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "4" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "6" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then stat_busi_three_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				End If
 			End If
 
 		Next
@@ -22114,6 +22139,7 @@ class stat_detail
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -29105,7 +29131,6 @@ If enter_CNOTE_for_EMER = True Then
 
 	'Identifies if the approval amount in ELIG/EMER is different from the total of MONY/CHCKs issued.
 	'We are prioritizing the amount in MONY/CHCK as that is the amount that will actually issue on the behalf of the resident.
-
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" and EMER_ELIG_APPROVAL.bus_ticket_approval = False Then
 		total_payment = 0
 		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
