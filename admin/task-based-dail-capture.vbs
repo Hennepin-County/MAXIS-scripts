@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/12/2204", "Updated DAIL types that are selected based on the SOP processing calendar.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2024", "Housekeeping updates: streamlined code, and added supports when only DAIL message on a page is deleted.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("10/05/2022", "Ensured correct baskets are pulled for each population. Changed population verbiage (ADAD to adults, etc.)", "Ilse Ferris, Hennepin County")
@@ -66,16 +67,48 @@ Call check_for_MAXIS(False)
 families_checkbox = 1
 adults_checkbox = 1
 
+'Creating 10-day/10-day variable to determine which dates to create list of DAILs to capture 
+IF CM_mo = "04" AND CM_yr = "24" THEN
+    ten_day_10_day = #04/08/2024#
+ELSEIF CM_mo = "05" AND CM_yr = "24" THEN
+    ten_day_10_day = #05/11/2024#
+ELSEIF CM_mo = "06" AND CM_yr = "24" THEN
+    ten_day_10_day = #06/10/2024#
+ELSEIF CM_mo = "07" AND CM_yr = "24" THEN
+    ten_day_10_day = #07/09/2024#
+ELSEIF CM_mo = "08" AND CM_yr = "24" THEN
+    ten_day_10_day = #08/11/2024#
+ELSEIF CM_mo = "09" AND CM_yr = "24" THEN
+    ten_day_10_day = #09/09/2024#
+ELSEIF CM_mo = "10" AND CM_yr = "24" THEN
+    ten_day_10_day = #10/11/2024#
+ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
+    ten_day_10_day = #11/09/2024#
+ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
+    ten_day_10_day = #12/09/2024#
+END IF 
+
+'last day of the month logic 
+next_month = DateAdd("M", 1, date)
+next_month = DatePart("M", next_month) & "/1/" & DatePart("YYYY", next_month)
+last_day_of_month = dateadd("d", -1, next_month)
+
 'Defaulting auto-checks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
-If DateDiff("d", date, ten_day_cutoff_date) > 0 then
-    'Defaulting these messages to checked as these are the most assigned cases.
+If (DateDiff("d", date, ten_day_10_day) < 0 and DateDiff("d", date, ten_day_cutoff_date) > 0) then
+    'TIKLs issued out only after 10-day/10-day through the day before 10-day cut off. 
+    tikl_check = 1
+ElseIf (DateDiff("d", date, ten_day_cutoff_date) > 0 or date = last_day_of_month) then
+    'Defaulting these DAIL types prior to 10-day/10-day and on the last day of the month for 1st of month processing.
     cola_check = 1
     cses_check = 1
     info_check = 1
     pepr_check = 1
     tikl_check = 1
 Else
-    tikl_check = 1
+    'on 10-day cutoff through the last day of the month
+    dail_action_selection = msgbox ("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time. Do you want to redirect to ADMIN - DELETE DAIL TASKS?", VbQuestion + VbYesNo, "No DAILs need to be gathered for assignment.")
+    If dail_action_selection = VbNo then script_end_procedure("Today's date is on or after 10-day cut off for the month. No DAILs are captured during this time. The script will now end.")
+    If dail_action_selection = VbYes then call run_from_GitHub(script_repository & "admin/delete-dail-tasks.vbs")
 End if
 
 Dialog1 = ""
@@ -104,7 +137,7 @@ BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
     CancelButton 200, 185, 40, 15
   GroupBox 5, 80, 240, 50, "Step 1. Select the population"
   Text 65, 5, 95, 10, "---Task-Based DAIL Capture---"
-  Text 10, 35, 220, 35, "This script will evaluate and capture actionable DAIL messages from the DAIL type and population selected below. Once the DAIL messages are evaluated, actionable DAIL messages are sent to a SQL Database which feeds the Big Scoop Report."
+  Text 10, 35, 220, 35, "This script will evaluate and capture actionable DAIL messages from the DAIL type and population selected below. Once the DAIL messages are evaluated, actionable DAIL messages are sent to a SQL Database which feeds ES Workflow assignments."
   GroupBox 5, 20, 240, 55, "Using This Script:"
   GroupBox 5, 135, 240, 45, "Step 2. Select the type(s) of DAIL message to add to the report:"
   Text 10, 215, 220, 25, "The SQL Database takes up to 15 minutes to load. This happens after the DAIL has been evaluated. DO NOT stop the script. Wait until a success message box appears."
@@ -135,21 +168,21 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-    adults_baskets = "X127ED8,X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EG4,X127EH8,X127EL1,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EL9,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EN7,X127EP6,X127EP7,X127EQ1,X127EQ3,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EX1,X127EX2,"
+    adults_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL1,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EL9,X127EN1,X127EN2,X127EN3,X127EN5,X127EN4,X127EN7,X127EN8,X127EN9,X127EQ1,X127EQ2,X127EQ3,X127EQ4,X127EQ5,X127EQ6,X127EQ7,X127EQ8,X127EQ9,X127EX1,X127EX2,X127EX3,X127EX4,X127EX5,X127EX7,X127EX8,X127EX9,X127EG4,"
     LTC_plus_baskets = "X127EH1,X127EH3,X127EH4,X127EH5,X127EH6,X127EH7,X127EJ4,X127EJ8,X127EK1,X127EK2,X127EK3,X127EK4,X127EK6,X127EK7,X127EK8,X127EK9,X127EM9,X127EN6,X127EP5,X127EP9,X127EZ5,X127F3F,X127FE5,X127FH4,X127FH5,X127FI2,X127FI7,"
-    families_baskets = "X127EA0,X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127EZ1,X127EZ7,"
+    families_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127EZ1,X127EZ7,"
 
     worker_numbers = ""     'Creating and valuing incrementor variables
 
     If adults_checkbox = 1 then worker_numbers = worker_numbers & adults_baskets
     If families_checkbox = 1 then worker_numbers = worker_numbers & families_baskets
     If LTC_checkbox = 1 then worker_numbers = worker_numbers & LTC_plus_baskets
-    If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selected. Not incremented variable.
 
     worker_array = split(worker_numbers, ",")
 End if
 
-'----------------------------------------------------------------------------------------------------Setting up and valueing the array
+'----------------------------------------------------------------------------------------------------Setting up and valuing the array
 Dim DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
@@ -311,7 +344,7 @@ objConnection.Open "Provider = SQLOLEDB.1;Data Source= hssqlpw139;Initial Catalo
 'Deleting ALL data fom DAIL table prior to loading new DAIL messages.
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
 
-'Export informaiton to Excel re: case status
+'Export information to Excel re: case status
 For item = 0 to UBound(DAIL_array, 2)
     worker             = DAIL_array(worker_const, item)
     MAXIS_case_number  = DAIL_array(maxis_case_number_const, item)
@@ -333,7 +366,7 @@ objConnection.Close
 'Function create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
 Call create_outlook_email("", "Ilse.Ferris@hennepin.us", "Mary.McGuinness@Hennepin.us", "", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", 1, False, "", "", False, "", "", False, "", True)
 stats_counter = stats_counter -1
-script_end_procedure("Success! Actionable DAIL's have been added to the database.")
+script_end_procedure("Success! Actionable DAILs have been added to the database.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
