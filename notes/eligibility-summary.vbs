@@ -19462,22 +19462,37 @@ class stat_detail
 	public stat_acct_one_type()
 	public stat_acct_one_balence()
 	public stat_acct_one_count_snap_yn()
+	public stat_acct_one_info()
+	public stat_acct_one_count_cash_yn()
+	public stat_acct_one_verif()
 	public stat_acct_two_exists()
 	public stat_acct_two_type()
 	public stat_acct_two_balence()
 	public stat_acct_two_count_snap_yn()
+	public stat_acct_two_info()
+	public stat_acct_two_count_cash_yn()
+	public stat_acct_two_verif()
 	public stat_acct_three_exists()
 	public stat_acct_three_type()
 	public stat_acct_three_balence()
 	public stat_acct_three_count_snap_yn()
+	public stat_acct_three_info()
+	public stat_acct_three_count_cash_yn()
+	public stat_acct_three_verif()
 	public stat_acct_four_exists()
 	public stat_acct_four_type()
 	public stat_acct_four_balence()
 	public stat_acct_four_count_snap_yn()
+	public stat_acct_four_info()
+	public stat_acct_four_count_cash_yn()
+	public stat_acct_four_verif()
 	public stat_acct_five_exists()
 	public stat_acct_five_type()
 	public stat_acct_five_balence()
 	public stat_acct_five_count_snap_yn()
+	public stat_acct_five_info()
+	public stat_acct_five_count_cash_yn()
+	public stat_acct_five_verif()
 	public stat_shel_exists()
 	public stat_shel_subsidized_yn()
 	public stat_shel_shared_yn()
@@ -20259,22 +20274,37 @@ class stat_detail
 		ReDim stat_acct_one_type(0)
 		ReDim stat_acct_one_balence(0)
 		ReDim stat_acct_one_count_snap_yn(0)
+		ReDim stat_acct_one_info(0)
+		ReDim stat_acct_one_count_cash_yn(0)
+		ReDim stat_acct_one_verif(0)
 		ReDim stat_acct_two_exists(0)
 		ReDim stat_acct_two_type(0)
 		ReDim stat_acct_two_balence(0)
 		ReDim stat_acct_two_count_snap_yn(0)
+		ReDim stat_acct_two_info(0)
+		ReDim stat_acct_two_count_cash_yn(0)
+		ReDim stat_acct_two_verif(0)
 		ReDim stat_acct_three_exists(0)
 		ReDim stat_acct_three_type(0)
 		ReDim stat_acct_three_balence(0)
 		ReDim stat_acct_three_count_snap_yn(0)
+		ReDim stat_acct_three_info(0)
+		ReDim stat_acct_three_count_cash_yn(0)
+		ReDim stat_acct_three_verif(0)
 		ReDim stat_acct_four_exists(0)
 		ReDim stat_acct_four_type(0)
 		ReDim stat_acct_four_balence(0)
 		ReDim stat_acct_four_count_snap_yn(0)
+		ReDim stat_acct_four_info(0)
+		ReDim stat_acct_four_count_cash_yn(0)
+		ReDim stat_acct_four_verif(0)
 		ReDim stat_acct_five_exists(0)
 		ReDim stat_acct_five_type(0)
 		ReDim stat_acct_five_balence(0)
 		ReDim stat_acct_five_count_snap_yn(0)
+		ReDim stat_acct_five_info(0)
+		ReDim stat_acct_five_count_cash_yn(0)
+		ReDim stat_acct_five_verif(0)
 		ReDim stat_shel_exists(0)
 		ReDim stat_shel_subsidized_yn(0)
 		ReDim stat_shel_shared_yn(0)
@@ -20921,22 +20951,37 @@ class stat_detail
 			ReDim preserve stat_acct_one_type(memb_count)
 			ReDim preserve stat_acct_one_balence(memb_count)
 			ReDim preserve stat_acct_one_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_one_info(memb_count)
+			ReDim preserve stat_acct_one_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_one_verif(memb_count)
 			ReDim preserve stat_acct_two_exists(memb_count)
 			ReDim preserve stat_acct_two_type(memb_count)
 			ReDim preserve stat_acct_two_balence(memb_count)
 			ReDim preserve stat_acct_two_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_two_info(memb_count)
+			ReDim preserve stat_acct_two_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_two_verif(memb_count)
 			ReDim preserve stat_acct_three_exists(memb_count)
 			ReDim preserve stat_acct_three_type(memb_count)
 			ReDim preserve stat_acct_three_balence(memb_count)
 			ReDim preserve stat_acct_three_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_three_info(memb_count)
+			ReDim preserve stat_acct_three_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_three_verif(memb_count)
 			ReDim preserve stat_acct_four_exists(memb_count)
 			ReDim preserve stat_acct_four_type(memb_count)
 			ReDim preserve stat_acct_four_balence(memb_count)
 			ReDim preserve stat_acct_four_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_four_info(memb_count)
+			ReDim preserve stat_acct_four_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_four_verif(memb_count)
 			ReDim preserve stat_acct_five_exists(memb_count)
 			ReDim preserve stat_acct_five_type(memb_count)
 			ReDim preserve stat_acct_five_balence(memb_count)
 			ReDim preserve stat_acct_five_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_five_info(memb_count)
+			ReDim preserve stat_acct_five_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_five_verif(memb_count)
 			ReDim preserve stat_shel_exists(memb_count)
 			ReDim preserve stat_shel_subsidized_yn(memb_count)
 			ReDim preserve stat_shel_shared_yn(memb_count)
@@ -22243,6 +22288,7 @@ class stat_detail
 				stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22347,6 +22393,7 @@ class stat_detail
 				stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22450,6 +22497,7 @@ class stat_detail
 				stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22553,6 +22601,7 @@ class stat_detail
 				stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 		Next
@@ -22570,6 +22619,31 @@ class stat_detail
 				EMReadScreen stat_acct_one_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_one_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_one_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_one_type(each_memb) = "__" Then stat_acct_one_info(each_memb) = ""
+				If stat_acct_one_type(each_memb) = "SV" Then stat_acct_one_info(each_memb) = "Savings Account"
+				If stat_acct_one_type(each_memb) = "CK" Then stat_acct_one_info(each_memb) = "Checking Account"
+				If stat_acct_one_type(each_memb) = "CE" Then stat_acct_one_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_one_type(each_memb) = "MM" Then stat_acct_one_info(each_memb) = "Money Market"
+				If stat_acct_one_type(each_memb) = "DC" Then stat_acct_one_info(each_memb) = "Debit Card"
+				If stat_acct_one_type(each_memb) = "KO" Then stat_acct_one_info(each_memb) = "Keogh Account"
+				If stat_acct_one_type(each_memb) = "FT" Then stat_acct_one_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_one_type(each_memb) = "SL" Then stat_acct_one_info(each_memb) = "Government Retirement"
+				If stat_acct_one_type(each_memb) = "RA" Then stat_acct_one_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_one_type(each_memb) = "NP" Then stat_acct_one_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_one_type(each_memb) = "IR" Then stat_acct_one_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_one_type(each_memb) = "RH" Then stat_acct_one_info(each_memb) = "Roth IRA"
+				If stat_acct_one_type(each_memb) = "FR" Then stat_acct_one_info(each_memb) = "Governement Retirement"
+				If stat_acct_one_type(each_memb) = "CT" Then stat_acct_one_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_one_type(each_memb) = "RT" Then stat_acct_one_info(each_memb) = "Retirement Fund"
+				If stat_acct_one_type(each_memb) = "QT" Then stat_acct_one_info(each_memb) = "Qualified Tuition"
+				If stat_acct_one_type(each_memb) = "CA" Then stat_acct_one_info(each_memb) = "Coverdell Savings"
+				If stat_acct_one_type(each_memb) = "OE" Then stat_acct_one_info(each_memb) = "Other Educational"
+				If stat_acct_one_type(each_memb) = "OT" Then stat_acct_one_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_one_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_one_verif(each_memb), 1, 10, 64
+				If stat_acct_one_verif(each_memb) = "N" and stat_acct_one_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_one_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22583,6 +22657,31 @@ class stat_detail
 				EMReadScreen stat_acct_two_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_two_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_two_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_two_type(each_memb) = "__" Then stat_acct_two_info(each_memb) = ""
+				If stat_acct_two_type(each_memb) = "SV" Then stat_acct_two_info(each_memb) = "Savings Account"
+				If stat_acct_two_type(each_memb) = "CK" Then stat_acct_two_info(each_memb) = "Checking Account"
+				If stat_acct_two_type(each_memb) = "CE" Then stat_acct_two_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_two_type(each_memb) = "MM" Then stat_acct_two_info(each_memb) = "Money Market"
+				If stat_acct_two_type(each_memb) = "DC" Then stat_acct_two_info(each_memb) = "Debit Card"
+				If stat_acct_two_type(each_memb) = "KO" Then stat_acct_two_info(each_memb) = "Keogh Account"
+				If stat_acct_two_type(each_memb) = "FT" Then stat_acct_two_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_two_type(each_memb) = "SL" Then stat_acct_two_info(each_memb) = "Government Retirement"
+				If stat_acct_two_type(each_memb) = "RA" Then stat_acct_two_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_two_type(each_memb) = "NP" Then stat_acct_two_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_two_type(each_memb) = "IR" Then stat_acct_two_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_two_type(each_memb) = "RH" Then stat_acct_two_info(each_memb) = "Roth IRA"
+				If stat_acct_two_type(each_memb) = "FR" Then stat_acct_two_info(each_memb) = "Governement Retirement"
+				If stat_acct_two_type(each_memb) = "CT" Then stat_acct_two_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_two_type(each_memb) = "RT" Then stat_acct_two_info(each_memb) = "Retirement Fund"
+				If stat_acct_two_type(each_memb) = "QT" Then stat_acct_two_info(each_memb) = "Qualified Tuition"
+				If stat_acct_two_type(each_memb) = "CA" Then stat_acct_two_info(each_memb) = "Coverdell Savings"
+				If stat_acct_two_type(each_memb) = "OE" Then stat_acct_two_info(each_memb) = "Other Educational"
+				If stat_acct_two_type(each_memb) = "OT" Then stat_acct_two_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_two_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_two_verif(each_memb), 1, 10, 64
+				If stat_acct_two_verif(each_memb) = "N" and stat_acct_two_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_two_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22596,6 +22695,31 @@ class stat_detail
 				EMReadScreen stat_acct_three_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_three_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_three_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_three_type(each_memb) = "__" Then stat_acct_three_info(each_memb) = ""
+				If stat_acct_three_type(each_memb) = "SV" Then stat_acct_three_info(each_memb) = "Savings Account"
+				If stat_acct_three_type(each_memb) = "CK" Then stat_acct_three_info(each_memb) = "Checking Account"
+				If stat_acct_three_type(each_memb) = "CE" Then stat_acct_three_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_three_type(each_memb) = "MM" Then stat_acct_three_info(each_memb) = "Money Market"
+				If stat_acct_three_type(each_memb) = "DC" Then stat_acct_three_info(each_memb) = "Debit Card"
+				If stat_acct_three_type(each_memb) = "KO" Then stat_acct_three_info(each_memb) = "Keogh Account"
+				If stat_acct_three_type(each_memb) = "FT" Then stat_acct_three_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_three_type(each_memb) = "SL" Then stat_acct_three_info(each_memb) = "Government Retirement"
+				If stat_acct_three_type(each_memb) = "RA" Then stat_acct_three_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_three_type(each_memb) = "NP" Then stat_acct_three_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_three_type(each_memb) = "IR" Then stat_acct_three_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_three_type(each_memb) = "RH" Then stat_acct_three_info(each_memb) = "Roth IRA"
+				If stat_acct_three_type(each_memb) = "FR" Then stat_acct_three_info(each_memb) = "Governement Retirement"
+				If stat_acct_three_type(each_memb) = "CT" Then stat_acct_three_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_three_type(each_memb) = "RT" Then stat_acct_three_info(each_memb) = "Retirement Fund"
+				If stat_acct_three_type(each_memb) = "QT" Then stat_acct_three_info(each_memb) = "Qualified Tuition"
+				If stat_acct_three_type(each_memb) = "CA" Then stat_acct_three_info(each_memb) = "Coverdell Savings"
+				If stat_acct_three_type(each_memb) = "OE" Then stat_acct_three_info(each_memb) = "Other Educational"
+				If stat_acct_three_type(each_memb) = "OT" Then stat_acct_three_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_three_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_three_verif(each_memb), 1, 10, 64
+				If stat_acct_three_verif(each_memb) = "N" and stat_acct_three_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_three_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22609,6 +22733,31 @@ class stat_detail
 				EMReadScreen stat_acct_four_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_four_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_four_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_four_type(each_memb) = "__" Then stat_acct_four_info(each_memb) = ""
+				If stat_acct_four_type(each_memb) = "SV" Then stat_acct_four_info(each_memb) = "Savings Account"
+				If stat_acct_four_type(each_memb) = "CK" Then stat_acct_four_info(each_memb) = "Checking Account"
+				If stat_acct_four_type(each_memb) = "CE" Then stat_acct_four_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_four_type(each_memb) = "MM" Then stat_acct_four_info(each_memb) = "Money Market"
+				If stat_acct_four_type(each_memb) = "DC" Then stat_acct_four_info(each_memb) = "Debit Card"
+				If stat_acct_four_type(each_memb) = "KO" Then stat_acct_four_info(each_memb) = "Keogh Account"
+				If stat_acct_four_type(each_memb) = "FT" Then stat_acct_four_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_four_type(each_memb) = "SL" Then stat_acct_four_info(each_memb) = "Government Retirement"
+				If stat_acct_four_type(each_memb) = "RA" Then stat_acct_four_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_four_type(each_memb) = "NP" Then stat_acct_four_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_four_type(each_memb) = "IR" Then stat_acct_four_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_four_type(each_memb) = "RH" Then stat_acct_four_info(each_memb) = "Roth IRA"
+				If stat_acct_four_type(each_memb) = "FR" Then stat_acct_four_info(each_memb) = "Governement Retirement"
+				If stat_acct_four_type(each_memb) = "CT" Then stat_acct_four_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_four_type(each_memb) = "RT" Then stat_acct_four_info(each_memb) = "Retirement Fund"
+				If stat_acct_four_type(each_memb) = "QT" Then stat_acct_four_info(each_memb) = "Qualified Tuition"
+				If stat_acct_four_type(each_memb) = "CA" Then stat_acct_four_info(each_memb) = "Coverdell Savings"
+				If stat_acct_four_type(each_memb) = "OE" Then stat_acct_four_info(each_memb) = "Other Educational"
+				If stat_acct_four_type(each_memb) = "OT" Then stat_acct_four_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_four_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_four_verif(each_memb), 1, 10, 64
+				If stat_acct_four_verif(each_memb) = "N" and stat_acct_four_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_four_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22622,6 +22771,31 @@ class stat_detail
 				EMReadScreen stat_acct_five_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_five_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_five_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_five_type(each_memb) = "__" Then stat_acct_five_info(each_memb) = ""
+				If stat_acct_five_type(each_memb) = "SV" Then stat_acct_five_info(each_memb) = "Savings Account"
+				If stat_acct_five_type(each_memb) = "CK" Then stat_acct_five_info(each_memb) = "Checking Account"
+				If stat_acct_five_type(each_memb) = "CE" Then stat_acct_five_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_five_type(each_memb) = "MM" Then stat_acct_five_info(each_memb) = "Money Market"
+				If stat_acct_five_type(each_memb) = "DC" Then stat_acct_five_info(each_memb) = "Debit Card"
+				If stat_acct_five_type(each_memb) = "KO" Then stat_acct_five_info(each_memb) = "Keogh Account"
+				If stat_acct_five_type(each_memb) = "FT" Then stat_acct_five_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_five_type(each_memb) = "SL" Then stat_acct_five_info(each_memb) = "Government Retirement"
+				If stat_acct_five_type(each_memb) = "RA" Then stat_acct_five_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_five_type(each_memb) = "NP" Then stat_acct_five_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_five_type(each_memb) = "IR" Then stat_acct_five_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_five_type(each_memb) = "RH" Then stat_acct_five_info(each_memb) = "Roth IRA"
+				If stat_acct_five_type(each_memb) = "FR" Then stat_acct_five_info(each_memb) = "Governement Retirement"
+				If stat_acct_five_type(each_memb) = "CT" Then stat_acct_five_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_five_type(each_memb) = "RT" Then stat_acct_five_info(each_memb) = "Retirement Fund"
+				If stat_acct_five_type(each_memb) = "QT" Then stat_acct_five_info(each_memb) = "Qualified Tuition"
+				If stat_acct_five_type(each_memb) = "CA" Then stat_acct_five_info(each_memb) = "Coverdell Savings"
+				If stat_acct_five_type(each_memb) = "OE" Then stat_acct_five_info(each_memb) = "Other Educational"
+				If stat_acct_five_type(each_memb) = "OT" Then stat_acct_five_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_five_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_five_verif(each_memb), 1, 10, 64
+				If stat_acct_five_verif(each_memb) = "N" and stat_acct_five_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_five_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 		Next
 
@@ -24022,6 +24196,9 @@ class stat_detail
 		If stat_mont_form_recvd_date = "__/__/__" Then stat_mont_form_recvd_date = ""
 
 		Call back_to_SELF
+
+		panels_not_verif_string = trim(panels_not_verif_string)
+		If right(panels_not_verif_string, 1) = ";" Then panels_not_verif_string = left(panels_not_verif_string, len(panels_not_verif_string)-1)
 	end sub
 end class
 curr_month_plus_one = CM_plus_1_mo & "/" & CM_plus_1_yr
@@ -27940,6 +28117,19 @@ If enter_CNOTE_for_DENY = True Then
 			TEMP_VAR_deny_ga_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation
 			TEMP_VAR_deny_msa_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation
 
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_dwp_elig_explanation = "" Then TEMP_VAR_deny_dwp_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_mfip_elig_explanation = "" Then TEMP_VAR_deny_mfip_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Verification" Then
+				If TEMP_VAR_deny_ga_elig_explanation = "" Then TEMP_VAR_deny_ga_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_msa_elig_explanation = "" Then TEMP_VAR_deny_msa_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+
 			call define_deny_elig_dialog
 
 			dialog Dialog1
@@ -30521,7 +30711,6 @@ If enter_CNOTE_for_SNAP = True Then
 			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 		End If
 	End If
-
 End If
 
 If denials_found_on_pnd2 = True Then
