@@ -30707,7 +30707,7 @@ If enter_CNOTE_for_SNAP = True Then
 			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
 			email_recip = "kerry.walsh@hennepin.us; brooke.reilley@hennepin.us"
-			email_recip_CC = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+			email_recip_CC = "tanya.payne@hennepin.us"
 			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 		End If
 	End If
