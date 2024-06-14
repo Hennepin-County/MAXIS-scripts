@@ -24856,6 +24856,27 @@ For each footer_month in MONTHS_ARRAY
 			approval_found_for_this_month = True
 			ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) = "INELIGIBLE"
+			If numb_GA_versions <> " " Then
+				If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
+					If first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_GA_approval = ""
+				End If
+			End If
+			If numb_MSA_versions <> " " Then
+				If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
+					If first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MSA_approval = ""
+				End If
+			End If
+			If numb_MFIP_versions <> " " Then
+				If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
+					If first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MFIP_approval = ""
+				End If
+			End If
+			If numb_DWP_versions <> " " Then
+				If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True and DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then
+					If first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_DWP_approval = ""
+				End If
+			End If
+
 		ElseIf CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_version_found = True Then
 			If DateDiff("d", date, CASH_DENIAL_APPROVALS(cash_deny_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " CASH DENY approved today." & vbCr
