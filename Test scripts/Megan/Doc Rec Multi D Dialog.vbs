@@ -160,6 +160,7 @@ diet_btn			= 413
 
 'Define resource buttons
 iaa_CM121203_btn				= 2000	
+iaa_sp_pben_btn					= 2001
 iaa_te021214_btn				= 2002
 iaa_smi_btn 					= 2003
 diet_link_CM_special_diet		= 2004
@@ -176,107 +177,9 @@ mtaf_cm0510_btn					= 2014
 mtaf_mfip_orientation_info_btn	= 2015
 mtaf_cm15121206_btn				= 2016
 diet_link_CM_special_diet		= 2017
+msg_show_instructions_btn 		= 2018
 'TODO: define remaining buttons 
 
-'ADDR/HEST/SHEL START 
-Dim ALL_SHEL_PANELS_ARRAY()
-ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
-
-'DECLARATIONS ============================================================================================================='
-const shel_ref_number_const 		= 00
-const shel_exists_const 			= 01
-const memb_btn_const				= 02
-const hud_sub_yn_const 				= 03
-const shared_yn_const 				= 04
-const paid_to_const 				= 05
-const rent_retro_amt_const 			= 06
-const rent_retro_verif_const 		= 07
-const rent_prosp_amt_const 			= 08
-const rent_prosp_verif_const 		= 09
-const lot_rent_retro_amt_const 		= 10
-const lot_rent_retro_verif_const 	= 11
-const lot_rent_prosp_amt_const 		= 12
-const lot_rent_prosp_verif_const	= 13
-const mortgage_retro_amt_const 		= 14
-const mortgage_retro_verif_const 	= 15
-const mortgage_prosp_amt_const 		= 16
-const mortgage_prosp_verif_const 	= 17
-const insurance_retro_amt_const 	= 18
-const insurance_retro_verif_const 	= 19
-const insurance_prosp_amt_const 	= 20
-const insurance_prosp_verif_const 	= 21
-const tax_retro_amt_const 			= 22
-const tax_retro_verif_const 		= 23
-const tax_prosp_amt_const 			= 24
-const tax_prosp_verif_const 		= 25
-const room_retro_amt_const 			= 26
-const room_retro_verif_const 		= 27
-const room_prosp_amt_const 			= 28
-const room_prosp_verif_const 		= 29
-const garage_retro_amt_const 		= 30
-const garage_retro_verif_const 		= 31
-const garage_prosp_amt_const 		= 32
-const garage_prosp_verif_const 		= 33
-const subsidy_retro_amt_const 		= 34
-const subsidy_retro_verif_const 	= 35
-const subsidy_prosp_amt_const 		= 36
-const subsidy_prosp_verif_const 	= 37
-const attempted_update_const 		= 38
-const person_shel_checkbox 			= 39
-const person_shel_button			= 40
-const person_age_const 				= 41
-const original_panel_info_const		= 42
-const new_shel_pers_total_amt_const = 43
-const new_shel_pers_total_amt_type_const = 44
-const shel_entered_notes_const		= 45
-
-
-
-ADDR_page_btn					= 3018
-SHEL_page_btn					= 3019
-HEST_page_btn					= 3020
-
-ADDR_dlg_page 					= 3021
-SHEL_dlg_page 					= 3022
-HEST_dlg_page 					= 3023
-
-update_information_btn 	= 500
-save_information_btn	= 501
-clear_mail_addr_btn		= 502
-clear_phone_one_btn		= 503
-clear_phone_two_btn		= 504
-clear_phone_three_btn	= 505
-clear_all_btn			= 506
-view_total_shel_btn		= 507
-update_household_percent_button = 508
-housing_change_continue_btn = 509
-housing_change_overview_btn = 510
-housing_change_addr_update_btn = 511
-housing_change_shel_update_btn = 512
-housing_change_shel_details_btn = 513
-
-enter_shel_one_btn = 550
-enter_shel_two_btn = 551
-enter_shel_three_btn = 552
-
-update_addr = False
-update_shel = False
-update_hest = False
-caf_answer_droplist = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
-show_totals = True
-
-total_current_rent 		= 0
-total_current_taxes 	= 0
-total_current_lot_rent 	= 0
-total_current_room 		= 0
-total_current_mortgage 	= 0
-total_current_garage 	= 0
-total_current_insurance = 0
-total_current_subsidy 	= 0
-total_paid_to = ""
-total_paid_by_household = 100
-total_paid_by_others = 0
-'END ADDR/SHEL/HEST
 
 
 'Define Form Names
@@ -291,7 +194,7 @@ ltc_1503_form_name	= "LTC-1503"
 mof_form_name		= "Medical Opinion Form (MOF)"
 mtaf_form_name		= "MN Transition Application Form (MTAF)"
 psn_form_name		= "Professional Statement of Need (PSN)"
-sf_form_name		= "Proof of Shelter/Residence Expenses"
+sf_form_name		= "Residence and Shelter Expenses Release Form"
 diet_form_name		= "Special Diet Information Request"
 
 'FUNCTIONS DEFINED===========================================================================
@@ -433,9 +336,6 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					err_msg = ""
 					dialog Dialog1
 					Call cancel_confirmation
-					If signed_by_one <> "Select or Type" and signed_one_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature one"
-					If signed_by_two <> "Select or Type" and signed_two_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature two"
-					If signed_by_three <> "Select or Type" and signed_three_date = "" Then err_msg = err_msg & vbNewLine & "Date required for signature three"
 					If Err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 				Loop until err_msg = ""
 				Call check_for_password(are_we_passworded_out)
@@ -444,7 +344,6 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 		
 		highest_asset = asset_counter	'TODO: Why is this necessary?
 		If asset_update_panels_checkbox = checked Then
-			'end_msg = end_msg & vbNewLine & "Asset detail entered."
 			MAXIS_footer_month = CM_mo
 			MAXIS_footer_year = CM_yr
 
@@ -489,6 +388,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "ACCT")
 							EMReadScreen navigate_check, 4, 2, 44
+							EMWaitReady 0, 0
 						Loop until navigate_check = "ACCT"
 						For each member in HH_member_array
 							Call write_value_and_transmit(member, 20, 76)
@@ -543,8 +443,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 
-					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received	
-					
+					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp	'TODO: This seems unnecessary
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
 					'Dialog to fill the ACCT panel
@@ -611,7 +510,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
 							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
 							If IsNumeric(ASSETS_ARRAY(ast_balance, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
-							If IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
 							If IsNumeric(share_ratio_num) = FALSE Then
 								err_msg = err_msg & vbNewLine & "* The Share Ratio must be entered in numerals."
 							ElseIf share_ratio_num > 9 Then
@@ -661,6 +560,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "ACCT")
 							EMReadScreen navigate_check, 4, 2, 44
+							EMWaitReady 0, 0
 						Loop until navigate_check = "ACCT"
 						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
 						If update_panel_type = "Existing ACCT" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
@@ -811,6 +711,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "SECU")
 							EMReadScreen navigate_check, 4, 2, 45
+							EMWaitReady 0, 0
 						Loop until navigate_check = "SECU"
 						For each member in HH_member_array
 							Call write_value_and_transmit(member, 20, 76)
@@ -858,7 +759,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					If share_ratio_denom = "" Then share_ratio_denom = "1"
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
 					If (asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "") Then ASSETS_ARRAY(ast_verif, asset_counter) = "6 - Personal Statement"
-					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received
+					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
 					' MsgBox ASSETS_ARRAY(ast_type, asset_counter)
@@ -926,7 +827,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 							If ASSETS_ARRAY(ast_number, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_number, asset_counter)) > 12 Then err_msg = err_msg & vbNewLine & "* The account number is too long."
 							If ASSETS_ARRAY(ast_location, asset_counter) <> "" AND len(ASSETS_ARRAY(ast_location, asset_counter)) > 20 Then err_msg = err_msg & vbNewLine & "* The location name is too long."
 							If IsNumeric(ASSETS_ARRAY(ast_csv, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance should be entered as a number."
-							If IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
+							If ASSETS_ARRAY(ast_bal_date, asset_counter) <> "" AND IsDate(ASSETS_ARRAY(ast_bal_date, asset_counter)) = FALSE Then err_msg = err_msg & vbNewLine & "* The balance effective date should be entered as a date."
 							If left(ASSETS_ARRAY(ast_type, asset_counter), 2) = "LI" Then
 								If ASSETS_ARRAY(ast_face_value, asset_counter) = "" Then err_msg = err_msg & vbNewLine & "* A life insurance policy requires a face value."
 								If count_snap_checkbox = checked Then
@@ -982,6 +883,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "SECU")
 							EMReadScreen navigate_check, 4, 2, 45
+							EMWaitReady 0, 0
 						Loop until navigate_check = "SECU"
 						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
 						If update_panel_type = "Existing SECU" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
@@ -1147,6 +1049,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "CARS")
 							EMReadScreen navigate_check, 4, 2, 44
+							EMWaitReady 0, 0
 						Loop until navigate_check = "CARS"
 						For each member in HH_member_array
 							Call write_value_and_transmit(member, 20, 76)
@@ -1194,7 +1097,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 					If share_ratio_denom = "" Then share_ratio_denom = "1"
 					'If LTC_case = vbNo AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
 					If asset_dhs_6054_checkbox = checked AND ASSETS_ARRAY(ast_verif, asset_counter) = "" Then ASSETS_ARRAY(ast_verif, asset_counter) = "5 - Other Document"
-					ASSETS_ARRAY(ast_verif_date, asset_counter) = asset_date_received
+					'ASSETS_ARRAY(ast_verif_date, asset_counter) = doc_date_stamp
 
 					'-------------------------------------------------------------------------------------------------DIALOG
 					Dialog1 = "" 'Blanking out previous dialog detail
@@ -1319,6 +1222,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 						Do
 							Call navigate_to_MAXIS_screen("STAT", "CARS")
 							EMReadScreen navigate_check, 4, 2, 44
+							EMWaitReady 0, 0
 						Loop until navigate_check = "CARS"
 						EMWriteScreen ASSETS_ARRAY(ast_ref_nbr, asset_counter), 20, 76
 						If update_panel_type = "Existing CARS" Then EMWriteScreen ASSETS_ARRAY(ast_instance, asset_counter), 20, 79
@@ -1355,7 +1259,7 @@ function asset_dialog_DHS6054_and_update_asset_panels()
 		End If
 	End If
 end function
-Dim signed_by_one, signed_by_two, signed_by_three, signed_one_date, signed_two_date, signed_three_date, box_one_info, box_two_info, box_three_info
+Dim signed_by_one, signed_by_two, signed_by_three, signed_one_date, signed_two_date, signed_three_date
 
 function asset_dialog()
 	EditBox 300, 15, 45, 15, asset_date_received
@@ -1414,16 +1318,21 @@ function asset_dialog()
 	Text 395, 35, 45, 10, "    --Forms--"
 	EditBox 60, 215, 295, 15, actions_taken
 	CheckBox 15, 235, 345, 15, "Check here if DHS 6054 received. Assets for SNAP/Cash are self attested and are reported on this form.", asset_dhs_6054_checkbox
-	CheckBox 15, 250, 345, 15, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", asset_update_panels_checkbox
+	EditBox 130, 250, 45, 15, asset_DHS_6054_date
+	CheckBox 15, 270, 345, 15, "Check here to have the script update asset panels. (ACCT, SECU, CARS).", asset_update_panels_checkbox
 	Text 5, 5, 220, 10, asset_form_name
 	Text 15, 220, 45, 10, "Action Taken:"
+	Text 40, 255, 90, 10, "DHS 6054 Document Date:"
+	
+
 end function
-Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_update_panels_checkbox
+Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_DHS_6054_date, asset_update_panels_checkbox
 'ASSET CODE-END
 
 
 function atr_dialog()
 	Text 60, 20, 45, 10, MAXIS_case_number
+	EditBox 175, 15, 45, 15, atr_effective_date
 	EditBox 300, 15, 45, 15, atr_date_received		
 	DropListBox 50, 40, 100, 15, HH_Memb_DropDown, atr_member_dropdown
 	EditBox 205, 40, 45, 15, atr_start_date
@@ -1441,8 +1350,9 @@ function atr_dialog()
 	CheckBox 35, 215, 80, 10, "other (specify below)", atr_other_checkbox
 	EditBox 50, 225, 90, 15, atr_other
 	EditBox 50, 255, 230, 15, atr_comments
-	Text 5, 5, 220, 10, "ATR- AUTHORIZATION TO RELEASE"
+	Text 5, 5, 220, 10, atr_form_name
 	Text 5, 20, 50, 10, "Case Number:"
+	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 55, 10, "Document Date:"
 	Text 15, 45, 30, 10, "Member"
 	Text 170, 45, 35, 10, "Start Date"
@@ -1458,10 +1368,11 @@ function atr_dialog()
 	Text 10, 260, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_phone_number, atr_fax_number, atr_email, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
+Dim atr_effective_date, atr_date_received, atr_member_dropdown, atr_start_date, atr_end_date, atr_authorization_type, atr_contact_type, atr_name, atr_phone_number, atr_fax_number, atr_email, atr_eval_treat_checkbox, atr_coor_serv_checkbox, atr_elig_serv_checkbox, atr_court_checkbox, atr_other_checkbox, atr_other, atr_comments
 
 function arep_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number	
+	EditBox 300, 15, 45, 15, AREP_recvd_date
 	EditBox 45, 55, 185, 15, arep_name
 	EditBox 45, 75, 185, 15, arep_street
 	EditBox 45, 95, 85, 15, arep_city
@@ -1474,10 +1385,9 @@ function arep_dialog()
 	CheckBox 20, 160, 60, 10, "Forms to AREP", arep_forms_to_arep_checkbox
 	CheckBox 95, 160, 75, 10, "MMIS Mail to AREP", arep_mmis_mail_to_arep_checkbox
 	CheckBox 20, 175, 185, 10, "Check here to have the script update the AREP Panel", arep_update_AREP_panel_checkbox
-	EditBox 140, 200, 55, 15, AREP_recvd_date
-	EditBox 140, 220, 55, 15, arep_signature_date
-	CheckBox 20, 240, 75, 10, "ID on file for AREP?", AREP_ID_check
-	CheckBox 20, 255, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", arep_TIKL_check
+	EditBox 135, 195, 55, 15, arep_signature_date
+	CheckBox 15, 215, 75, 10, "ID on file for AREP?", AREP_ID_check
+	CheckBox 15, 230, 215, 10, "TIKL to get new HC form 12 months after date form was signed?", arep_TIKL_check
 	CheckBox 260, 55, 35, 10, "SNAP", arep_SNAP_AREP_checkbox
 	CheckBox 260, 65, 50, 10, "Health Care", arep_HC_AREP_checkbox
   	CheckBox 260, 75, 30, 10, "Cash", arep_CASH_AREP_checkbox
@@ -1489,6 +1399,7 @@ function arep_dialog()
 	CheckBox 255, 210, 75, 10, "Power of Attorney", arep_power_of_attorney_checkbox
 	Text 5, 5, 220, 10, arep_form_name
 	Text 5, 25, 50, 10, "Case Number:"
+	Text 245, 20, 55, 10, "Document Date:"
 	GroupBox 10, 45, 225, 145, "Panel Information"
 	Text 20, 60, 25, 10, "Name:"
 	Text 20, 80, 25, 10, "Street:"
@@ -1499,8 +1410,7 @@ function arep_dialog()
 	Text 100, 120, 15, 10, "Ext."
 	Text 20, 140, 25, 10, "Phone:"
 	Text 100, 140, 15, 10, "Ext."
-	Text 20, 205, 95, 10, "Date of AREP Form Received"
-	Text 20, 225, 115, 10, "Date form was signed (MM/DD/YY)"
+	Text 15, 200, 115, 10, "Date form was signed (MM/DD/YY)"
 	GroupBox 245, 100, 125, 155, "Specific FORM Received"
 	Text 270, 120, 50, 10, "(HC)"
 	Text 270, 140, 60, 10, "(Cash and SNAP)"
@@ -1515,6 +1425,7 @@ end function
 Dim  arep_name, arep_street, arep_city, arep_state, arep_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, arep_forms_to_arep_checkbox, arep_mmis_mail_to_arep_checkbox, arep_update_AREP_panel_checkbox, AREP_recvd_date, AREP_ID_check, arep_TIKL_check, arep_signature_date, arep_dhs_3437_checkbox, arep_HC_12729_checkbox, arep_D405_checkbox, arep_CAF_AREP_page_checkbox, arep_HCAPP_AREP_checkbox, arep_power_of_attorney_checkbox, arep_SNAP_AREP_checkbox, arep_HC_AREP_checkbox, arep_CASH_AREP_checkbox
 
 function change_dialog()
+	EditBox 175, 15, 45, 15, chng_effective_date
 	EditBox 310, 15, 45, 15, chng_date_received		
 	EditBox 50, 45, 320, 15, chng_address_notes
 	EditBox 50, 65, 320, 15, chng_household_notes
@@ -1527,11 +1438,12 @@ function change_dialog()
 	EditBox 65, 220, 305, 15, chng_other_notes
 	EditBox 75, 240, 295, 15, chng_verifs_requested
 	DropListBox 105, 265, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", chng_notable_change
-	DropListBox 270, 265, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", chng_changes_continue
 	CheckBox 10, 285, 140, 10, "Check here to navigate to DAIL/WRIT", chng_tikl_nav_check		'TODO: handling for tikl - nav to dail/writ
+	DropListBox 270, 280, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", chng_changes_continue
 	Text 5, 5, 220, 10, change_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
+	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	GroupBox 5, 35, 370, 150, "CHANGES REPORTED"
 	Text 15, 50, 30, 10, "Address:"
@@ -1546,16 +1458,15 @@ function change_dialog()
 	Text 15, 225, 45, 10, "Other Notes:"
 	Text 15, 245, 60, 10, "Verifs Requested:"
 	Text 10, 270, 95, 10, "Notable changes reported? "
-	Text 180, 270, 90, 10, "The changes client reports:"
+	Text 180, 285, 90, 10, "The changes client reports:"
 	Text 395, 35, 45, 10, "    --Forms--"
 
 end function
-Dim chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
+Dim chng_effective_date, chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
 
 
 function evf_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
-	EditBox 175, 20, 45, 15, evf_effective_date
 	EditBox 310, 20, 45, 15, evf_date_received		
 	ComboBox 95, 50, 210, 15, "Select one..."+chr(9)+"Signed by Client & Completed by Employer"+chr(9)+"Signed by Client"+chr(9)+"Completed by Employer", EVF_status_dropdown
 	EditBox 95, 70, 210, 15, evf_employer
@@ -1567,7 +1478,6 @@ function evf_dialog()
 	EditBox 95, 205, 210, 15, evf_actions_taken
 	Text 5, 5, 220, 10, evf_form_name
 	Text 5, 25, 50, 10, "Case Number:"
-	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
 	Text 50, 55, 40, 10, "EVF Status:"
 	Text 35, 75, 55, 10, "Employer name:"
@@ -1579,40 +1489,41 @@ function evf_dialog()
 	Text 40, 210, 50, 10, "Actions taken:"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim evf_effective_date, evf_date_received, EVF_status_dropdown, evf_employer, evf_client, evf_info, evf_info_date, evf_request_info, EVF_TIKL_checkbox, evf_actions_taken
+Dim evf_date_received, EVF_status_dropdown, evf_employer, evf_client, evf_info, evf_info_date, evf_request_info, EVF_TIKL_checkbox, evf_actions_taken
 
 function hospice_dialog()
+	EditBox 175, 20, 45, 15, hosp_effective_date
 	EditBox 310, 20, 45, 15, hosp_date_received		
 	DropListBox 100, 45, 165, 15, HH_Memb_DropDown, hosp_resident_name
 	EditBox 100, 65, 205, 15, hosp_name
 	EditBox 100, 85, 80, 15, hosp_npi_number
 	EditBox 100, 105, 50, 15, hosp_entry_date
-	EditBox 100, 125, 50, 15, hosp_exit_date
-	EditBox 100, 145, 50, 15, hosp_mmis_updated_date
-	EditBox 30, 180, 275, 15, hosp_reason_not_updated
-	EditBox 30, 210, 275, 15, hosp_other_notes
+	EditBox 205, 105, 50, 15, hosp_exit_date
+	EditBox 100, 125, 50, 15, hosp_mmis_updated_date
+	EditBox 30, 160, 275, 15, hosp_reason_not_updated
+	EditBox 30, 190, 275, 15, hosp_other_notes
 	ButtonGroup ButtonPressed
 		PushButton 5, 280, 50, 15, "TE 02.07.081", hosp_TE0207081_btn
 		PushButton 65, 280, 50, 15, "MA-Hospice", hosp_SP_hospice_btn
 	Text 5, 5, 220, 10, hosp_form_name
 	Text 5, 25, 50, 10, "Case Number:"
+	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
 	Text 50, 50, 45, 10, "Client Name:"
 	Text 35, 70, 60, 10, "Name of Hospice:"
 	Text 50, 90, 45, 10, "NPI Number:"
 	Text 55, 110, 40, 10, "Entry Date:"
-	Text 60, 130, 35, 10, "Exit Date:"
-	Text 30, 150, 70, 10, "MMIS Updated as of "
-	Text 30, 170, 165, 10, "If MMIS has not yet been updated, explain reason:"
-	Text 30, 200, 50, 10, "Other Notes:"
+	Text 170, 110, 35, 10, "Exit Date:"
+	Text 30, 130, 70, 10, "MMIS Updated as of "
+	Text 30, 150, 165, 10, "If MMIS has not yet been updated, explain reason:"
+	Text 30, 180, 50, 10, "Other Notes:"
 	Text 60, 25, 45, 10, MAXIS_case_number
 	Text 395, 35, 45, 10, "    --Forms--"		
 end function 
-Dim  hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
+Dim hosp_effective_date, hosp_date_received, hosp_resident_name, hosp_name, hosp_npi_number, hosp_entry_date, hosp_exit_date, hosp_mmis_updated_date, hosp_reason_not_updated, hosp_other_notes, hosp_TE0207081_btn, hosp_SP_hospice_btn
 
 function iaa_dialog()
 	Text 60, 20, 45, 10, MAXIS_case_number
-	EditBox 175, 15, 45, 15, iaa_effective_date
 	EditBox 310, 15, 45, 15, iaa_date_received		
 	DropListBox 55, 35, 140, 15, HH_Memb_DropDown, iaa_member_dropdown
 	CheckBox 25, 60, 110, 10, "Check here if IAA form received", iaa_form_received_checkbox
@@ -1635,7 +1546,7 @@ function iaa_dialog()
 		PushButton 5, 280, 50, 15, "CM12.12.03", iaa_CM121203_btn
 		PushButton 60, 280, 50, 15, "TE02.12.14", iaa_te021214_btn
 		PushButton 115, 280, 120, 15, "SMI- Verify Date Applied for PBEN", iaa_smi_btn
-	Text 5, 5, 220, 10, "INTERIM ASSISTANCE AUTHORIZATION"
+	Text 5, 5, 220, 10, iaa_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
@@ -1652,11 +1563,10 @@ function iaa_dialog()
 	Text 15, 250, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim iaa_effective_date, iaa_date_received, iaa_member_dropdown, iaa_form_received_checkbox, iaa_type_assistance, iaa_ssi_form_received_checkbox, iaa_ssi_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_update_pben_checkbox, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_iaa_date, iaa_comments
+Dim iaa_date_received, iaa_member_dropdown, iaa_form_received_checkbox, iaa_type_assistance, iaa_ssi_form_received_checkbox, iaa_ssi_type_assistance, iaa_benefits_1, iaa_benefits_2, iaa_benefits_3, iaa_benefits_4, iaa_update_pben_checkbox, iaa_benefit_type, iaa_referral_date, iaa_verification_dropdown, iaa_date_applied_pben, iaa_disposition_code_dropdown, iaa_iaa_date, iaa_comments
 
 function ltc_1503_dialog()
 	Text 60, 25, 45, 10, MAXIS_case_number
-	EditBox 175, 20, 45, 15, ltc_1503_effective_date
 	EditBox 310, 20, 45, 15, ltc_1503_date_received
 	EditBox 60, 50, 110, 15, ltc_1503_FACI_1503
 	DropListBox 230, 50, 70, 15, ""+chr(9)+"30 days or less"+chr(9)+"31 to 90 days"+chr(9)+"91 to 180 days"+chr(9)+"over 180 days", ltc_1503_length_of_stay
@@ -1683,7 +1593,7 @@ function ltc_1503_dialog()
 	EditBox 130, 260, 25, 15, ltc_1503_faci_footer_year
 	EditBox 245, 260, 75, 15, ltc_1503_mets_case_number
 	EditBox 30, 280, 330, 15, ltc_1503_notes
-	Text 5, 5, 220, 10, ltc_1503_form_name
+	Text 5, 5, 220, 10, "LTC 1503	"
 	Text 5, 25, 50, 10, "Case Number:"
 	Text 125, 25, 50, 10, "Effective Date:"
 	Text 245, 25, 60, 10, "Document Date:"
@@ -1695,7 +1605,7 @@ function ltc_1503_dialog()
 	Text 10, 95, 50, 10, "Hospital Name"
 	Text 155, 95, 55, 10, "Admission Date:"
 	Text 265, 95, 55, 10, "Discharge Date:"
-	GroupBox 5, 135, 365, 60, "Actions/Proofs"
+	GroupBox 0, 135, 370, 60, "Actions/Proofs"
 	Text 10, 160, 115, 10, "Other proofs needed (if applicable):"
 	GroupBox 0, 200, 370, 55, "Script actions"
 	Text 5, 265, 95, 10, "Facility Update Month/Year:"
@@ -1703,10 +1613,11 @@ function ltc_1503_dialog()
 	Text 5, 285, 25, 10, "Notes:"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim ltc_1503_effective_date, ltc_1503_date_received, ltc_1503_FACI_1503, ltc_1503_length_of_stay, ltc_1503_level_of_care, ltc_1503_admitted_from, ltc_1503_hospital_admitted_from, ltc_1503_admit_date, ltc_1503_discharge_date, ltc_1503_processed_1503_checkbox, ltc_1503_updated_RLVA_checkbox, ltc_1503_updated_FACI_checkbox, ltc_1503_need_3543_checkbox, ltc_1503_need_3531_checkbox, ltc_1503_need_asset_assessment_checkbox, ltc_1503_verifs_needed, ltc_1503_sent_3050_checkbox, ltc_1503_sent_verif_request_checkbox, ltc_1503_sent_request_to, ltc_1503_sent_5181_checkbox, ltc_1503_TIKL_checkbox, ltc_1503_HCMI_update_checkbox, ltc_1503_FACI_update_checkbox, ltc_1503_faci_footer_month, ltc_1503_faci_footer_year, ltc_1503_mets_case_number, ltc_1503_notes
+Dim ltc_1503_date_received, ltc_1503_FACI_1503, ltc_1503_length_of_stay, ltc_1503_level_of_care, ltc_1503_admitted_from, ltc_1503_hospital_admitted_from, ltc_1503_admit_date, ltc_1503_discharge_date, ltc_1503_processed_1503_checkbox, ltc_1503_updated_RLVA_checkbox, ltc_1503_updated_FACI_checkbox, ltc_1503_need_3543_checkbox, ltc_1503_need_3531_checkbox, ltc_1503_need_asset_assessment_checkbox, ltc_1503_verifs_needed, ltc_1503_sent_3050_checkbox, ltc_1503_sent_verif_request_checkbox, ltc_1503_sent_request_to, ltc_1503_sent_5181_checkbox, ltc_1503_TIKL_checkbox, ltc_1503_HCMI_update_checkbox, ltc_1503_FACI_update_checkbox, ltc_1503_faci_footer_month, ltc_1503_faci_footer_year, ltc_1503_mets_case_number, ltc_1503_notes
 
 function mof_dialog()
 		Text 60, 25, 45, 10, MAXIS_case_number
+		EditBox 175, 20, 45, 15, mof_effective_date
 		EditBox 310, 20, 45, 15, mof_date_received		
 		DropListBox 45, 50, 140, 15, HH_Memb_DropDown, mof_hh_memb
 		CheckBox 220, 50, 85, 10, "Client signed release?", mof_clt_release_checkbox
@@ -1722,6 +1633,7 @@ function mof_dialog()
 		EditBox 95, 215, 65, 15, mof_TTL_email_date
 		Text 5, 5, 220, 10, mof_form_name
 		Text 5, 25, 50, 10, "Case Number:"
+		Text 125, 25, 50, 10, "Effective Date:"
 		Text 245, 25, 60, 10, "Document Date:"
 		Text 15, 55, 30, 10, "Member:"
 		Text 15, 80, 60, 10, "Date of last exam: "
@@ -1734,7 +1646,7 @@ function mof_dialog()
 		Text 35, 220, 55, 10, "Date email sent:"
 		Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim mof_date_received, mof_hh_memb, mof_clt_release_checkbox, mof_last_exam_date, mof_time_condition_will_last, mof_doctor_date, mof_ability_to_work, mof_other_notes, mof_actions_taken, mof_SSA_application_indicated_checkbox, mof_TTL_to_update_checkbox, MOF_TTL_email_checkbox, mof_TTL_email_date
+Dim mof_effective_date, mof_date_received, mof_hh_memb, mof_clt_release_checkbox, mof_last_exam_date, mof_time_condition_will_last, mof_doctor_date, mof_ability_to_work, mof_other_notes, mof_actions_taken, mof_SSA_application_indicated_checkbox, mof_TTL_to_update_checkbox, MOF_TTL_email_checkbox, mof_TTL_email_date
 
 function mtaf_dialog()	
 	CheckBox 165, 5, 225, 10, "Check here if all other docs rec'vd are associated with this MTAF.", MTAF_note_only_checkbox
@@ -1802,6 +1714,7 @@ function psn_dialog()
 	EditBox 95, 120, 120, 15, psn_cert_prof
 	EditBox 250, 120, 125, 15, psn_facility	
 	CheckBox 5, 150, 185, 10, "Check here to have script update WREG/DISA panels", psn_udpate_wreg_disa_checkbox
+	CheckBox 210, 150, 165, 10, "Check here to set a TIKL to update form annually", psn_tikl_checkbox
 	DropListBox 65, 165, 30, 15, ""+CHR(9)+"Y"+chr(9)+"N", psn_wreg_fs_pwe
 	DropListBox 195, 165, 155, 15, ""+CHR(9)+"03-Unfit for Employment"+chr(9)+"04-Resp for Care of Incapacitated Person"+chr(9)+"05-Age 60 or Older"+chr(9)+"06-Under Age 16"+chr(9)+"07-Age 16-17, Living w/ Caregiver"+chr(9)+"08-Resp for Care of Child under 6"+chr(9)+"09-Empl 30 hrs/wk or Earnings of 30 hrs/wk"+chr(9)+"10-Matching Grant Participant"+chr(9)+"11-Receiving or Applied for UI"+chr(9)+"12-Enrolled in School, Training, or Higher Ed"+chr(9)+"13-Participating in CD Program"+chr(9)+"14-Receiving MFIP"+chr(9)+"20-Pending/Receiving DWP"+chr(9)+ "15-Age 16-17, NOT Living w/ Caregiver"+chr(9)+"16-50-59 Years Old"+chr(9)+"17-Receiving RCA or GA"+chr(9)+"21-Resp for Care of Child under 18"+chr(9)+"23-Pegnant", psn_wreg_work_wreg_status
 	DropListBox 65, 185, 115, 15, ""+CHR(9)+"01-Work Reg Exempt"+chr(9)+"02-Under Age 18"+chr(9)+"03-Age 50 or Over"+chr(9)+"04-Caregiver of Minor Child"+chr(9)+"05-Pregnant"+chr(9)+"06-Employed Avg of 20 hrs/wk"+chr(9)+"07-Work Experience Participant"+chr(9)+"08-ther E&T Services"+chr(9)+"09-Resides in a Waivered Area"+chr(9)+"10-ABAWD Counted Month"+chr(9)+"11-2nd-3rd Month Period of Elig"+chr(9)+"12-RCA or GA Recipient"+chr(9)+"13-ABAWD Banked Months", psn_wreg_abawd_status
@@ -1847,7 +1760,7 @@ function psn_dialog()
 
 	Text 395, 35, 45, 10, "    --Forms--"
 end function 
-Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
+Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_tikl_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()	
 	ComboBox 75, 45, 170, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
@@ -1871,6 +1784,7 @@ function sf_dialog()
 	EditBox 265, 180, 85, 15, sf_other_utility
 	EditBox 65, 205, 235, 15, sf_comments
 	CheckBox 30, 235, 300, 10, "Select to update ADDR, SHEL, or HEST panel", sf_update_addr_shel_hest_checkbox
+	CheckBox 30, 245, 130, 10, "Check here to navigate to set a TIKL", sf_tikl_nav_check
 	Text 5, 5, 220, 10, sf_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
@@ -1886,13 +1800,13 @@ function sf_dialog()
 	Text 215, 130, 30, 10, "Zipcode"
 	Text 30, 155, 275, 10, "Select which utilities the tenant is responsible to pay separate from the rent amount:"
 	Text 30, 210, 35, 10, "Comments"
-	GroupBox 10, 220, 350, 35, "Actions"
+	GroupBox 10, 220, 350, 40, "Actions"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim sf_form_name, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_street_address, sf_city, sf_state, sf_zip, sf_electrcity_checkbox, sf_ac_checkbox, sf_heat_checkbox, sf_gas_checkbox, sf_garbage_removal_checkbox, sf_water_sewer_checkbox, sf_garage_plugin_checkbox, sf_none_checkbox, sf_other_checkbox, sf_other_utility, sf_update_addr_shel_hest_checkbox, sf_comments
+Dim sf_form_name, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_street_address, sf_city, sf_state, sf_zip, sf_electrcity_checkbox, sf_ac_checkbox, sf_heat_checkbox, sf_gas_checkbox, sf_garbage_removal_checkbox, sf_water_sewer_checkbox, sf_garage_plugin_checkbox, sf_none_checkbox, sf_other_checkbox, sf_other_utility, sf_update_addr_shel_hest_checkbox, sf_tikl_nav_check, sf_comments
 function addr_panel()
 	If err_msg = "" Then 
-		If sf_update_addr_shel_hest_checkbox = checked Then 
+		If sf_update_addr_shel_hest_checkbox = checked Then
 			Do
 				err_msg = ""
 
@@ -1938,23 +1852,44 @@ function addr_panel()
 				If ButtonPressed = HEST_page_btn Then page_to_display = HEST_dlg_page
 			Loop until ButtonPressed = -1
 		
-			' If addr_update_attempted = True Then
-			addr_eff_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-			' Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+			'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
+			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
+
+			'Calculates the difference between the two dates (date of admission and footer month)
+			difference_between_dates = DateDiff("m", addr_eff_date, footer_month_as_date)
+
+			'If there's a difference between the two dates, then it backs out of the case and enters a new footer month and year, and transmits.
+			If difference_between_dates <> 0 THEN
+				back_to_SELF
+				CALL convert_date_into_MAXIS_footer_month(addr_eff_date, MAXIS_footer_month, MAXIS_footer_year)
+				EMWriteScreen MAXIS_footer_month, 20, 43
+				EMWriteScreen MAXIS_footer_year, 20, 46
+				Transmit
+			END IF
 			Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 			For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
-				' If ALL_SHEL_PANELS_ARRAY(attempted_update_const, shel_member) = True Then
-				Call access_SHEL_panel("WRITE", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member))
-				' End If
+				If ALL_SHEL_PANELS_ARRAY(attempted_update_const, shel_member) = True Then
+					Call access_SHEL_panel("WRITE", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member))
+				End If
 			Next
-			'If hest_update_attempted = True Then
-			Call access_HEST_panel("WRITE", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+
+			'here we save the the current info so that we can compare it to the original and know if it changed
+			hest_current_information = all_persons_paying&"|"&all_persons_paying&"|"&choice_date&"|"&actual_initial_exp&"|"&retro_heat_ac_yn&"|"&_
+			retro_heat_ac_units&"|"&retro_heat_ac_amt&"|"&retro_electric_yn&"|"&retro_electric_units&"|"&retro_electric_amt&"|"&retro_phone_yn&"|"&_
+			retro_phone_units&"|"&retro_phone_amt&"|"&prosp_heat_ac_yn&"|"&prosp_heat_ac_units&"|"&prosp_heat_ac_amt&"|"&prosp_electric_yn&"|"&_
+			prosp_electric_units&"|"&prosp_electric_amt&"|"&prosp_phone_yn&"|"&prosp_phone_units&"|"&prosp_phone_amt&"|"&total_utility_expense
+
+			hest_current_information = UCASE(hest_current_information)
+					
+			' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & hest_original_information & vbCr & vbCr & "CURRENT" & vbCr & hest_current_information
+			If hest_current_information <> hest_original_information Then
+				Call access_HEST_panel("WRITE", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+			End If
 		End If
 	End If
 end function
 
 function diet_dialog()
-	EditBox 175, 15, 45, 15, diet_effective_date
 	EditBox 310, 15, 45, 15, diet_date_received		
 	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 
 	DropListBox 55, 70, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
@@ -1985,13 +1920,13 @@ function diet_dialog()
 	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			
 	EditBox 270, 215, 55, 15, diet_length_diet
 	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown 
+	CheckBox 125, 235, 195, 10, "Check here to set TIKL for renewal", diet_tikl_checkbox
 	EditBox 50, 260, 290, 15, diet_comments
 	PushButton 5, 280, 80, 15, "CM23.12- Special Diets", diet_link_CM_special_diet
     PushButton 95, 280, 115, 15, "Processing Special Diet Referrals", diet_SP_referrals
 	Text 5, 5, 220, 10, diet_form_name
 	Text 5, 20, 50, 10, "Case Number:"
 	Text 60, 20, 45, 10, MAXIS_case_number
-	Text 125, 20, 50, 10, "Effective Date:"
 	Text 245, 20, 60, 10, "Document Date:"
 	Text 20, 40, 30, 10, "Member"
 	Text 185, 40, 50, 10, "MFIP or MSA?"
@@ -2014,23 +1949,14 @@ function diet_dialog()
 	Text 15, 265, 35, 10, "Comments"
 	Text 395, 35, 45, 10, "    --Forms--"
 end function
-Dim diet_effective_date, diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_5_dropdown, diet_6_dropdown, diet_7_dropdown, diet_8_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_relationship_5_dropdown, diet_relationship_6_dropdown, diet_relationship_7_dropdown, diet_relationship_8_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_verif_5_dropdown, diet_verif_6_dropdown, diet_verif_7_dropdown, diet_verif_8_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments	'Special Diet Variables
-
-function get_footer_month_from_date(footer_month_variable, footer_year_variable, date_variable)
-
-    footer_month_variable = DatePart("m", date_variable)
-    footer_month_variable = Right("00" & footer_month_variable, 2)
-
-    footer_year_variable = DatePart("yyyy", date_variable)
-    footer_year_variable = Right(footer_year_variable, 2)
-end function
+Dim diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_5_dropdown, diet_6_dropdown, diet_7_dropdown, diet_8_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_relationship_5_dropdown, diet_relationship_6_dropdown, diet_relationship_7_dropdown, diet_relationship_8_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_verif_5_dropdown, diet_verif_6_dropdown, diet_verif_7_dropdown, diet_verif_8_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments, diet_tikl_checkbox	'Special Diet Variables
 
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
 	If form_count < Ubound(form_type_array, 2) AND ButtonPressed = -1 Then	ButtonPressed = next_btn	'If the enter button is selected the script will handle this as if Next was selected
 	If form_count = Ubound(form_type_array, 2) AND ButtonPressed = -1 Then ButtonPressed = complete_btn	'If the enter button is selected the script will handle this as if Complete was selected
 	If ButtonPressed = next_btn AND err_msg = "" Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed = previous_btn AND err_msg = "" Then form_count = form_count - 1	'If previous is selected, it will iterate to the previous form in the array and display this dialog
-	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) AND err_msg = "" Then
+	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonePressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) AND err_msg = "" Then
 		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the correct dialog
 			If ButtonPressed = asset_btn and form_type_array(form_type_const, i) = asset_form_name Then form_count = i 
 			If ButtonPressed = atr_btn and form_type_array(form_type_const, i) = atr_form_name Then form_count = i 
@@ -2047,11 +1973,12 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 			If ButtonPressed = diet_btn and form_type_array(form_type_const, i) = diet_form_name Then form_count = i 
 		Next
 	End If 
-
+	
 	If ButtonPressed = hosp_TE0207081_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.07.081%20HOSPICE%20CASES.pdf?csf=1&web=1&e=WgdqsC"
 	If ButtonPressed = hosp_SP_hospice_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Hospice.aspx"
 	If ButtonPressed = iaa_CM121203_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00121203"
 	If ButtonPressed = iaa_te021214_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.12.14%20INTERIM%20ASSISTANCE%20REIMBURSEMENT%20INTERFACE.pdf?csf=1&web=1&e=tUXs96"
+	If ButtonPressed = iaa_sp_pben_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/STAT_PBEN.aspx"
 	If ButtonPressed = iaa_smi_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://smi.dhs.state.mn.us/login"
 	If ButtonPressed = mtaf_cm101801_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00101801"
 	If ButtonPressed = mtaf_cm0510_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_000510"
@@ -2067,17 +1994,19 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 end function 
 
 function main_error_handling()	'Error handling for main dialog of forms
-	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonePressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
 		For form_errors = 0 to Ubound(form_type_array, 2)
-			If form_type_array(form_type_const, form_errors) = asset_form_name Then 'Error handling for Asset Form 
+			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form
 				actions_taken = Trim(actions_taken)
-				If actions_taken <> "" Then actions_taken = actions_taken & ", "
-				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
-				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* Enter your actions taken."
+				actions_taken = actions_taken & ", "
+				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
+				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
+				If (asset_dhs_6054_checkbox = checked AND IsDate(asset_DHS_6054_date) = FALSE) Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter DHS6054 Document Date."
 				Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
 			End If
 
-			If form_type_array(form_type_const, form_errors) = atr_form_name Then 'Error handling for ATR Form 
+			If form_type_array(form_type_const, form_errors) = atr_form_name AND current_dialog = "atr" Then 'Error handling for ATR Form 
+				If IsDate(atr_effective_date) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				If IsDate(atr_date_received) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If atr_member_dropdown = "Select" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a member from the Member dropdown."
 				If IsDate(atr_start_date) = FALSE Then  atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Start Date."
@@ -2091,10 +2020,10 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If (atr_other <> "" and atr_other_checkbox = unchecked) Then atr_err_msg = atr_err_msg & vbNewLine & "* Other text field must be blank unless Other checkbox is checked"
 			End If
 
-			If form_type_array(form_type_const, form_errors) = arep_form_name then 'Error handling for AREP Form 
+			If form_type_array(form_type_const, form_errors) = arep_form_name AND current_dialog = "arep" then 'Error handling for AREP Form 
 				If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
 				If arep_update_AREP_panel_checkbox = checked Then
-					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the address of the AREP."
+					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
 					If len(arep_name) > 37 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP name is too long for MAXIS."
 					If len(arep_street) > 44 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP street is too long for MAXIS."
 					If len(arep_city) > 15 Then arep_err_msg = arep_err_msg & vbNewLine & "* The AREP City is too long for MAXIS."
@@ -2121,10 +2050,10 @@ function main_error_handling()	'Error handling for main dialog of forms
 				IF (arep_SNAP_AREP_checkbox <> checked AND arep_HC_AREP_checkbox <> checked AND arep_CASH_AREP_checkbox <> checked) THEN arep_err_msg = arep_err_msg & vbNewLine &"* Select a program"
 				IF isdate(arep_signature_date) = false THEN arep_err_msg = arep_err_msg & vbNewLine & "* Enter a valid date for the date the form was signed/valid from."
 				IF (arepTIKL_check = checked AND arep_signature_date = "") THEN arep_err_msg = arep_err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
-				'TODO: Look into TIKLs
 			End If
 
 			If form_type_array(form_type_const, form_errors) = change_form_name then 'Error handling for Change Form 
+				If IsDate(trim(chng_effective_date)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid Effective date."
 				If IsDate(trim(chng_date_received)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
 				If trim(chng_actions_taken) = "" AND trim(chng_other_notes) = "" AND trim(chng_verifs_requested) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All of the Actions fields are blank. At least one need info."  ' Validate the Actions fields to ensure that at least one field is filled in
@@ -2134,7 +2063,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = evf_form_name then 'Error handling for EVF Form 
-				IF IsDate(evf_effective_date) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a valid Effective Date."
 				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a vaid Document Date."
 				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* Select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
 				IF evf_employer = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the employers name."  'checks if the employer name has been entered
@@ -2144,16 +2072,10 @@ function main_error_handling()	'Error handling for main dialog of forms
 				IF evf_info = "yes" and evf_request_info = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the method used to request additional info."		'checks that there is a method of inquiry entered if additional info was requested
 				If evf_info = "no" and evf_request_info <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have information requested."
 				If evf_info = "no" and evf_info_date <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
-				'TODO: TIKL
-				' If EVF_TIKL_checkbox = 1 and info <> "yes" then evf_err_msg = evf_err_msg & vbCr & "* Additional informaiton was not requested, uncheck the TIKL checkbox."
-				' If ButtonPressed = 0 then evf_err_msg = "LOOP" & evf_err_msg
-				' If skip_evf = TRUE Then
-				' 	evf_form_received_checkbox = unchecked
-				' 	evf_err_msg = ""
-				' 	EVF_TIKL_checkbox = unchecked
-				' End If
+				If EVF_TIKL_checkbox = 1 and evf_info <> "yes" then evf_err_msg = evf_err_msg & vbCr & "* Additional information was not requested, uncheck the TIKL checkbox."
 			End If
-			If form_type_array(form_type_const, form_errors) = hosp_form_name then 'Error handling for Hospice Form 
+			If form_type_array(form_type_const, form_errors) = hosp_form_name AND current_dialog = "hosp" then 'Error handling for Hospice Form 
+				If IsDate(hosp_effective_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Effective Date." 
 				If IsDate(hosp_date_received) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
 				If hosp_resident_name = "Select" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Select the resident that is in hospice."
 				If trim(hosp_name) = "" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
@@ -2161,7 +2083,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 			If form_type_array(form_type_const, form_errors) = iaa_form_name then 'Error handling for IAA Form 
-				IF IsDate(iaa_effective_date) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Effective Date."
 				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Document date."
 				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
@@ -2171,19 +2092,17 @@ function main_error_handling()	'Error handling for main dialog of forms
 					If (iaa_benefit_type = "" or iaa_referral_date = "" or iaa_disposition_code_dropdown = "" or iaa_iaa_date = "") Then 	'Only requiring fields that are required in pben panel to save. 
 						iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN field requirements:"
 						If iaa_benefit_type = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select benefit type"
-						If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
 						If IsDate(iaa_referral_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid Referral Date"
 						'If iaa_verification_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Verifiction Type"
 						'If IsDate(iaa_date_applied_pben) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid date for Date Applied to PBEN"
+						If iaa_disposition_code_dropdown = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Select Disposition Code"
 						If IsDate(iaa_iaa_date) = FALSE Then iaa_err_msg = iaa_err_msg & vbNewLine & "  * Enter a valid IAA date"
 					End If
 				End If
-				If iaa_update_pben_checkbox = unchecked and (iaa_benefit_type <> "" or iaa_referral_date <> "" or iaa_disposition_code_dropdown <> "" or iaa_iaa_date <> "" or iaa_verification_dropdown <> "" or iaa_date_applied_pben <> "") Then iaa_err_msg = iaa_err_msg & vbNewLine & "* PBEN fields must be empty if not updating PBEN panel"
 				If iaa_update_pben_checkbox = unchecked AND iaa_comments = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must explain in comments why PBEN is not being created/updated. "
 			End If
 
 			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name then 'Error handling for LTC 1503 Form
-				If IsDate(ltc_1503_effective_date) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Effective Date."
 				If IsDate(ltc_1503_date_received) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Document date."
 				If ltc_1503_admit_date <> "" AND IsDate(ltc_1503_admit_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid admission date"
 				If ltc_1503_discharge_date <> "" AND IsDate(ltc_1503_discharge_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid discharge date"
@@ -2199,10 +2118,11 @@ function main_error_handling()	'Error handling for main dialog of forms
 			End If
 
 
-			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
-				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid Document date."
+			If form_type_array(form_type_const, form_errors) = mof_form_name AND current_dialog = "mof" then 'Error handling for MOF Form 
+				If IsDate(mof_effective_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid effective dated."
+				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date the document was received."
 				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
-				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
+				IF mof_actions_taken = "" THEN mof_err_msg = mof_err_msg & vbCr & "* You must enter your actions taken."		'checks that notes were entered
 				If MOF_TTL_email_checkbox = checked Then
 					If IsDate(mof_TTL_email_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date for the date an email about this MOF was sent to TTL."
 				End If
@@ -2218,14 +2138,14 @@ function main_error_handling()	'Error handling for main dialog of forms
 
 
 
-			If form_type_array(form_type_const, form_errors) = mtaf_form_name then 'Error handling for MTAF Form
-				If IsDate(MTAF_date) = False Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Enter the date the MTAF was received."
-				If MTAF_status_dropdown = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate the status of the MTAF."
-				If mtaf_sub_housing_droplist = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate if housing is subsidized or not."
+			If form_type_array(form_type_const, form_errors) = mtaf_form_name AND current_dialog = "mtaf" then 'Error handling for MTAF Form
+				If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
+				If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
+				If mtaf_sub_housing_droplist = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate if housing is subsidized or not."
 			End If
 
-			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
-				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* Enter a valid Document Date."
+			If form_type_array(form_type_const, form_errors) = psn_form_name AND current_dialog = "psn" then 'Error handling for PSN Form
+				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* You must enter a valid Document Date."
 				If psn_member_dropdown = "Select" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If psn_section_1_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 1 make selection from dropdown."
 				If psn_section_2_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 2 make selection from dropdown."
@@ -2246,14 +2166,10 @@ function main_error_handling()	'Error handling for main dialog of forms
 				End If
 			End If
 
-			If form_type_array(form_type_const, form_errors) = sf_form_name then 'Error handling for Shelter Form
-				If sf_other_checkbox = checked AND sf_other_utility = "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You checked 'other', therefore you must specify specific utility."
-				If sf_other_checkbox = unchecked AND sf_other_utility <> "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You specified 'other' utility,'other checkbox' must be checked if field is filled out."
-				Call addr_panel
+			If form_type_array(form_type_const, form_errors) = sf_form_name AND current_dialog = "sf" then 'Error handling for Shelter Form
 			End If
 
 			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form 
-				If IsDate(diet_effective_date) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Effective Date."
 				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
 	
@@ -2317,7 +2233,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				
 				'TODO: Havent' tested on MFIP case handling to limit to 2 diets. Consider hiding extra boxes on dialog
 				If (diet_mfip_msa_status = "MFIP-Active") OR (diet_mfip_msa_status = "MFIP-Pending") Then
-					MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
+					'MsgBox "diet_mfip_msa_status" & diet_mfip_msa_status
 						If diet_3_dropdown <>"" OR diet_4_dropdown <>"" OR diet_5_dropdown <>"" OR diet_6_dropdown <>"" OR diet_7_dropdown <>"" OR diet_8_dropdown <>"" Then diet_err_msg = diet_err_msg & vbNewLine & "* Cannot have more than 2 diets for MFIP cases"
 				End If
 
@@ -2338,79 +2254,81 @@ function main_error_handling()	'Error handling for main dialog of forms
 	End If
 
 	'Complete button triggers the error message to populate. Formatting error meessage to: Adds headers for each form if there are applicable errors
-	If asset_err_msg <> "" AND current_dialog = "asset" Then err_msg = err_msg & vbNewLine & "ASSET DIALOG" & asset_err_msg & vbNewLine
-	If atr_err_msg <> "" AND current_dialog = "atr" Then err_msg = err_msg & vbNewLine & "ATR DIALOG" & atr_err_msg & vbNewLine
-	If arep_err_msg <> "" AND current_dialog = "arep" Then err_msg = err_msg & vbNewLine & "AREP DIALOG" & arep_err_msg & vbNewLine
-	If chng_err_msg <> "" AND current_dialog = "chng" Then err_msg = err_msg & vbNewLine & "CHANGE DIALOG" & chng_err_msg & vbNewLine
-	If evf_err_msg <> "" AND current_dialog = "evf" Then err_msg = err_msg & vbNewLine & "EVF DIALOG" & evf_err_msg & vbNewLine
-	If hosp_err_msg <> "" AND current_dialog = "hosp" Then err_msg = err_msg & vbNewLine & "HOSPICE DIALOG" & hosp_err_msg & vbNewLine
-	If iaa_err_msg <> "" AND current_dialog = "iaa" Then err_msg = err_msg & vbNewLine & "IAA DIALOG" & iaa_err_msg & vbNewLine
-	If ltc_1503_err_msg <> "" AND current_dialog = "ltc 1503" Then err_msg = err_msg & vbNewLine & "LTC 1503 DIALOG" & ltc_1503_err_msg & vbNewLine
-	If mof_err_msg <> "" AND current_dialog = "mof" Then err_msg = err_msg & vbNewLine & "MOF DIALOG" & mof_err_msg & vbNewLine
-	If mtaf_err_msg <> "" AND current_dialog = "mtaf" Then err_msg = err_msg & vbNewLine & "MTAF DIALOG" & mtaf_err_msg & vbNewLine
-	If psn_err_msg <> "" AND current_dialog = "psn" Then err_msg = err_msg & vbNewLine & "PSN DIALOG" & psn_err_msg & vbNewLine
-	If sf_err_msg <> "" AND current_dialog = "sf" Then err_msg = err_msg & vbNewLine & "SF DIALOG" & sf_err_msg & vbNewLine
-	If diet_err_msg <> "" AND current_dialog = "diet" Then err_msg = err_msg & vbNewLine & "DIET DIALOG" & diet_err_msg & vbNewLine
+	If asset_err_msg <> "" Then err_msg = err_msg & vbNewLine & "ASSET DIALOG" & asset_err_msg & vbNewLine
+	If atr_err_msg <> "" Then err_msg = err_msg & vbNewLine & "ATR DIALOG" & atr_err_msg & vbNewLine
+	If arep_err_msg <> "" Then err_msg = err_msg & vbNewLine & "AREP DIALOG" & arep_err_msg & vbNewLine
+	If chng_err_msg <> "" Then err_msg = err_msg & vbNewLine & "CHANGE DIALOG" & chng_err_msg & vbNewLine
+	If evf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "EVF DIALOG" & evf_err_msg & vbNewLine
+	If hosp_err_msg <> "" Then err_msg = err_msg & vbNewLine & "HOSPICE DIALOG" & hosp_err_msg & vbNewLine
+	If iaa_err_msg <> "" Then err_msg = err_msg & vbNewLine & "IAA DIALOG" & iaa_err_msg & vbNewLine
+	If ltc_1503_err_msg <> "" Then err_msg = err_msg & vbNewLine & "LTC 1503 DIALOG" & ltc_1503_err_msg & vbNewLine
+	If mof_err_msg <> "" Then err_msg = err_msg & vbNewLine & "MOF DIALOG" & mof_err_msg & vbNewLine
+	If mtaf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "MTAF DIALOG" & mtaf_err_msg & vbNewLine
+	If psn_err_msg <> "" Then err_msg = err_msg & vbNewLine & "PSN DIALOG" & psn_err_msg & vbNewLine
+	If sf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "SF DIALOG" & sf_err_msg & vbNewLine
+	If diet_err_msg <> "" Then err_msg = err_msg & vbNewLine & "DIET DIALOG" & diet_err_msg & vbNewLine
 
-	'If complete button or enter while on last tab is selected and all forms are not complete, this will stop them from proceeding 
-	If ButtonPressed = complete_btn OR (form_count = Ubound(form_type_array, 2) AND ButtonPressed = -1) Then 
-		For item = 0 to Ubound(form_type_array, 2)
-			If item = form_type_array(the_last_const, item) AND asset_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Asset form not complete~~"
-			If item = form_type_array(the_last_const, item) AND atr_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~ATR form not complete~~"
-			If item = form_type_array(the_last_const, item) AND arep_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~AREP form not complete~~"
-			If item = form_type_array(the_last_const, item) AND chng_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Change form not complete~~"
-			If item = form_type_array(the_last_const, item) AND evf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~EVF form not complete~~"
-			If item = form_type_array(the_last_const, item) AND hosp_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Hospice form not complete~~"
-			If item = form_type_array(the_last_const, item) AND iaa_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~IAA form not complete~~"
-			If item = form_type_array(the_last_const, item) AND ltc_1503_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~LTC 1503 form not complete~~"
-			If item = form_type_array(the_last_const, item) AND mof_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~MOF form not complete~~"
-			If item = form_type_array(the_last_const, item) AND mtaf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~MTAF form not complete~~"
-			If item = form_type_array(the_last_const, item) AND psn_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~PSN form not complete~~"
-			If item = form_type_array(the_last_const, item) AND sf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Proof of Shelter/Residence form not complete~~"
-			If item = form_type_array(the_last_const, item) AND diet_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Diet form not complete~~"
-		Next 
-	End If
 	If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 end function
 
 'Check for case number & footer & background
 call MAXIS_case_number_finder(MAXIS_case_number)
 call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+
+
 'DIALOG COLLECTING CASE, FOOTER MO/YR===========================================================================
 Do
 	DO
 		err_msg = ""
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 181, 90, "Case number dialog"
-			EditBox 70, 5, 65, 15, MAXIS_case_number
-			EditBox 70, 25, 30, 15, MAXIS_footer_month
-			EditBox 105, 25, 30, 15, MAXIS_footer_year
+		BeginDialog Dialog1, 0, 0, 196, 105, "NOTES - Docs Received " & MAXIS_case_number
+			EditBox 70, 5, 50, 15, MAXIS_case_number
+			EditBox 70, 25, 20, 15, MAXIS_footer_month
+			EditBox 100, 25, 20, 15, MAXIS_footer_year
 			EditBox 70, 45, 100, 15, worker_signature
 			ButtonGroup ButtonPressed
-				OkButton 65, 70, 50, 15
-				CancelButton 120, 70, 50, 15
+				PushButton 140, 5, 50, 15, "Instructions", script_instructions_btn	
+				OkButton 85, 85, 50, 15
+				CancelButton 140, 85, 50, 15
 			Text 20, 10, 50, 10, "Case number: "
 			Text 20, 30, 45, 10, "Footer month:"
 			Text 5, 50, 60, 10, "Worker signature:"
+			Text 5, 70, 185, 10, "Script Purpose: Case note details of documents received"
 		EndDialog
 
 
 		dialog Dialog1	'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-		IF IsNumeric(MAXIS_footer_month) = FALSE OR IsNumeric(MAXIS_footer_year) = FALSE THEN err_msg = err_msg & vbNewLine &  "* You must type a valid footer month and year."
-        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-		If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbNewLine & err_msg
+		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+		'IF IsNumeric(MAXIS_footer_month) = FALSE OR IsNumeric(MAXIS_footer_year) = FALSE THEN err_msg = err_msg & vbNewLine &  "* You must type a valid footer month and year."
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		If ButtonPressed = script_instructions_btn Then
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20DOCUMENTS%20RECEIVED.docx?d=w1dce0cc33ca541f68855f406a63ab02b&csf=1&web=1&e=LXojaV"	'copy the instructions URL here
+			err_msg = "LOOP"
+		End If
+		IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Checking for PRIV cases.
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = TRUE then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
+Call back_to_SELF
+continue_in_inquiry = ""
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
+
+Call MAXIS_background_check
 Call Generate_Client_List(HH_Memb_DropDown, "Select")         'filling the dropdown with ALL of the household members
 CALL Generate_Client_List(client_dropdown, "Select One...")	
 CALL Generate_Client_List(client_dropdown_CB, "Select or Type")
-'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
-
 
 'DIALOGS COLLECTING FORM SELECTION===========================================================================
 Do							'Do Loop to cycle through dialog as many times as needed until all desired forms are added
@@ -2487,6 +2405,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 				Form_string = ""						'Reset string to nothing
 				add_to_array = ""						'reset to nothing
 				all_form_array = "*"					'Reset string to *		
+				 
 				'Future Iteration: Counting quantity of each form
 				' asset_checkbox = unchecked				'Resetting checkboxes to unchecked
 				' atr_checkbox = unchecked				'Resetting checkboxes to unchecked
@@ -2682,10 +2601,15 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 
 	'ASSET CODE-START
 	If form_type_array(form_type_const, maxis_panel_read) = asset_form_name Then 'MAXIS NAVIGATION FOR ASSET
-		Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
+		'Call HH_member_custom_dialog(HH_member_array)	'This will be for any functionality that needs the HH Member array
 		asset_counter = 0
 		skip_asset = FALSE
-		Call navigate_to_MAXIS_screen("STAT", "ACCT")
+		Do 
+			Call navigate_to_MAXIS_screen("STAT", "ACCT")
+			EMReadScreen nav_check, 4, 2, 44
+			EmWaitReady 0, 0
+		Loop until nav_check = "ACCT"
+
 		For each member in HH_member_array
 			Call write_value_and_transmit(member, 20, 76)
 			EMReadScreen acct_versions, 1, 2, 78
@@ -2775,7 +2699,12 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			End If
 		Next
 		
-		Call navigate_to_MAXIS_screen("STAT", "SECU")
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "SECU")
+			EMReadScreen nav_check, 4, 2, 45
+			EmWaitReady 0, 0
+		Loop until nav_check = "SECU"
+
 		For each member in HH_member_array
 			Call write_value_and_transmit(member, 20, 76)
 
@@ -2854,8 +2783,12 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 				Loop until reached_last_SECU_panel = "ENTER A VALID"
 			End If
 		Next
-
-		Call navigate_to_MAXIS_screen("STAT", "CARS")
+		
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "CARS")
+			EMReadScreen nav_check, 4, 2, 44
+			EmWaitReady 0, 0
+		Loop until nav_check = "CARS"
 		For each member in HH_member_array
 			Call write_value_and_transmit(member, 20, 76)
 
@@ -3089,7 +3022,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			IF next_note_date = "        " then Exit Do
 		Loop until datevalue(next_note_date) < one_year_ago 'looking ahead at the next case note kicking out the dates before app'
 
-		If hosp_exit_date <> "" Then     'if there is an exit date in the note found then we don't want to use the information from that note
+		If hospice_exit_date <> "" Then     'if there is an exit date in the note found then we don't want to use the information from that note
 			hosp_resident_name = ""          'since if they exited already - the HOSPICE will be different - resetting these variables to NOT fill
 			hosp_name = ""
 			hosp_npi_number = ""
@@ -3123,9 +3056,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		'MsgBox "dialog mfip/msa" & diet_mfip_msa_status
 	End IF 
 
-
 	If form_type_array(form_type_const, maxis_panel_read) = psn_form_name Then	'MAXIS NAVIGATION FOR PSN- reading necessary panels
-
 		'Read WREG Panel
 		Do
 			Call navigate_to_MAXIS_screen("STAT", "WREG")
@@ -3257,9 +3188,7 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			EMReadScreen existance_check, 1, 2, 73
 			stat_faci_exists = True		
 			If existance_check = "0" Then stat_faci_exists = False
-			'MsgBox "before if statement"
 			If stat_faci_exists = True Then
-				'MsgBox "stat_faci_exists = True"
 				Do
 					EMReadScreen FACI_current_panel, 1, 2, 73
 					EMReadScreen FACI_total_check, 1, 2, 78
@@ -3279,7 +3208,6 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 					(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
 						currently_in_FACI = True
 						'MsgBox "in_year_check_01" & in_year_check_01 & "out_year_check_01" & out_year_check_01
-						'MsgBox "currently_in_FACI = True"
 						If in_year_check_01 <> "____" and out_year_check_01 = "____" Then faci_row = 14
 						If in_year_check_02 <> "____" and out_year_check_02 = "____" Then faci_row = 15
 						If in_year_check_03 <> "____" and out_year_check_03 = "____" Then faci_row = 16
@@ -3288,11 +3216,9 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 						exit do
 					Elseif FACI_current_panel = FACI_total_check then
 						currently_in_FACI = False
-						'MsgBox "currently_in_FACI = False"
 						exit do
 					Else
 						transmit
-						'MsgBox "transmit"
 					End if
 				Loop until FACI_current_panel = FACI_total_check
 				'stat_faci_currently_in_facility = currently_in_FACI
@@ -3347,15 +3273,18 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			End If
 
 	End If
-'herehere
+
 	If form_type_array(form_type_const, maxis_panel_read) = sf_form_name Then	'MAXIS NAVIGATION FOR PSN- reading necessary panels
 		'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
-		CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+		Do 
+			CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+			EMReadScreen nav_check, 4, 2, 48
+			EMWaitReady 0, 0
+		Loop until nav_check = "MEMB"	
 
 		DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 			EMReadscreen ref_nbr, 3, 4, 33
 			EMReadScreen access_denied_check, 13, 24, 2
-			'MsgBox access_denied_check
 			If access_denied_check = "ACCESS DENIED" Then
 				PF10
 				EMWaitReady 0, 0
@@ -3377,7 +3306,11 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		btn_placeholder = 600
 		member_selection = ""
 		For each memb_ref_number in ref_numbers_array
-			Call navigate_to_MAXIS_screen("STAT", "SHEL")
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "SHEL")
+				EMReadScreen nav_check, 4, 2, 48
+				EmWaitReady 0, 0
+			Loop until nav_check = "SHEL"
 			EMWriteScreen memb_ref_number, 20, 76
 			transmit
 
@@ -3396,7 +3329,11 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 				ALL_SHEL_PANELS_ARRAY(original_panel_info_const, members_counter) = "||||||||||||||||||||||||||||||||||"
 			End If
 
-			Call navigate_to_MAXIS_screen("STAT", "MEMB")
+			Do
+				Call navigate_to_MAXIS_screen("STAT", "MEMB")
+				EMReadScreen nav_check, 4, 2, 48
+				EmWaitReady 0, 0
+			Loop until nav_check = "MEMB"
 			EMWriteScreen memb_ref_number, 20, 76
 			transmit
 			EMReadScreen memb_panel_age, 3, 8, 76
@@ -3410,33 +3347,31 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 		Next
 
 		Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
-		' Call reformat_phone_number(phone_two, "(111) 222-3333")
 		Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 		For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
 			If ALL_SHEL_PANELS_ARRAY(shel_exists_const, shel_member) = True Then
 				Call access_SHEL_panel("READ", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member))
-				' total_current_rent 		= total_current_rent + 		ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, 	shel_member)
-				' total_current_taxes 	= total_current_taxes + 	ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, 		shel_member)
-				' total_current_lot_rent 	= total_current_lot_rent + 	ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member)
-				' total_current_room 		= total_current_room + 		ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, 	shel_member)
-				' total_current_mortgage 	= total_current_mortgage + 	ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member)
-				' total_current_garage 	= total_current_garage + 	ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, 	shel_member)
-				' total_current_insurance = total_current_insurance + ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const,shel_member)
-				' total_current_subsidy 	= total_current_subsidy + 	ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, 	shel_member)
 			End If
 		Next
 		page_to_display = ADDR_dlg_page
 		Call read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, total_shelter_expense, total_shel_original_information)
+		
+	
+		'here we save the information we gathered to start with so that we can compare it and know if it changed
+		hest_original_information = all_persons_paying&"|"&all_persons_paying&"|"&choice_date&"|"&actual_initial_exp&"|"&retro_heat_ac_yn&"|"&_
+		retro_heat_ac_units&"|"&retro_heat_ac_amt&"|"&retro_electric_yn&"|"&retro_electric_units&"|"&retro_electric_amt&"|"&retro_phone_yn&"|"&_
+		retro_phone_units&"|"&retro_phone_amt&"|"&prosp_heat_ac_yn&"|"&prosp_heat_ac_units&"|"&prosp_heat_ac_amt&"|"&prosp_electric_yn&"|"&_
+		prosp_electric_units&"|"&prosp_electric_amt&"|"&prosp_phone_yn&"|"&prosp_phone_units&"|"&prosp_phone_amt&"|"&total_utility_expense
 
+		hest_original_information = UCASE(hest_original_information)
 		addr_update_attempted = False
 		shel_update_attempted = False
 		hest_update_attempted = False
-		' resi_line_one = ""
-		' resi_line_two = ""
-		' mail_line_one = ""
-		' mail_line_two = ""
+		resi_line_one = ""
+		resi_line_two = ""
+		mail_line_one = ""
+		mail_line_two = ""
 	End If
-
 Next
 
 
@@ -3477,14 +3412,29 @@ Do
 					Else
 						docs_rec = docs_rec & ", ASST"
 					End If
+					If InStr(end_msg, "Asset detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "Asset detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = atr_form_name Then 
 					Call atr_dialog
 					current_dialog = "atr"
+					If InStr(end_msg, "ATR detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "ATR detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = arep_form_name then 
 					Call arep_dialog
 					current_dialog = "arep"
+					If InStr(end_msg, "AREP detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "AREP detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = change_form_name Then 
 					Call change_dialog
@@ -3493,6 +3443,11 @@ Do
 						docs_rec = docs_rec
 					Else
 						docs_rec = docs_rec & ", CHNG"
+					End If
+					If InStr(end_msg, "Change detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "Change detail entered"
 					End If
 				End If
 				If form_type_array(form_type_const, form_count) = evf_form_name Then 
@@ -3503,6 +3458,11 @@ Do
 					Else
 						docs_rec = docs_rec & ", EVF"
 					End If
+					If InStr(end_msg, "EVF detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "EVF detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = hosp_form_name Then 
 					Call hospice_dialog
@@ -3511,6 +3471,11 @@ Do
 						docs_rec = docs_rec
 					Else
 						docs_rec = docs_rec & ", HOSP"
+					End If
+					If InStr(end_msg, "Hospice detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "Hospice detail entered"
 					End If
 				End If
 				If form_type_array(form_type_const, form_count) = iaa_form_name Then 
@@ -3521,10 +3486,20 @@ Do
 					Else
 						docs_rec = docs_rec & ", IAA(s)"
 					End If
+					If InStr(end_msg,"IAA(s) detail entered") Then 
+						end_msg = end_msg
+					Else
+						end_msg = end_msg & vbNewLine & "IAA(s) detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then 
 					Call ltc_1503_dialog
 					current_dialog = "ltc 1503"
+					If InStr(end_msg,"LTC-1503 detail entered") Then 
+						end_msg = end_msg
+					Else
+						end_msg = end_msg & vbNewLine & "LTC-1503 detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = mof_form_name Then 
 					Call mof_dialog
@@ -3533,6 +3508,11 @@ Do
 						docs_rec = docs_rec
 					Else
 						docs_rec = docs_rec & ", MOF"
+					End If
+					If InStr(end_msg, "MOF detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "MOF detail entered"
 					End If
 				End If
 				If form_type_array(form_type_const, form_count) = mtaf_form_name Then 
@@ -3543,6 +3523,11 @@ Do
 					Else
 						docs_rec = docs_rec & ", MTAF"
 					End If
+					If InStr(end_msg, "MTAF detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "MTAF detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = psn_form_name Then 
 					Call psn_dialog
@@ -3551,6 +3536,11 @@ Do
 						docs_rec = docs_rec
 					Else
 						docs_rec = docs_rec & ", PSN"
+					End If
+					If InStr(end_msg, "PSN detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "PSN detail entered"
 					End If
 				End If
 				If form_type_array(form_type_const, form_count) = sf_form_name Then 
@@ -3561,6 +3551,11 @@ Do
 					Else
 						docs_rec = docs_rec & ", SF"
 					End If
+					If InStr(end_msg, "Shelter detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "Shelter detail entered"
+					End If
 				End If
 				If form_type_array(form_type_const, form_count) = diet_form_name Then 
 					Call diet_dialog
@@ -3570,120 +3565,127 @@ Do
 					Else
 						docs_rec = docs_rec & ", DIET"
 					End If
+					If InStr(end_msg, "DIET detail entered") Then 
+						end_msg = end_msg
+					Else 
+						end_msg = end_msg & vbNewLine & "DIET detail entered"
+					End If
 				End If
 				
 				If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
 
-				btn_pos = 45		'variable to iterate down for each necessary button
-				''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
-				For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
-					If form_type_array(form_type_const, current_form) = asset_form_name then
-						form_type_array(btn_name_const, form_count) = "ASSET"
-						form_type_array(btn_number_const, form_count) = 400
-						PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
-						'PushButton 395, btn_pos, 45, 15, "ASSET-" & asset_count, asset_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-						' MsgBox "asset name" & form_type_array(form_type_const, current_form) 'TEST
-						' MsgBox "asset btn" & form_type_array(btn_name_const, form_count)	'TEST
-						' MsgBox "asset numb" & form_type_array(btn_number_const, form_count) 'TEST
-					End If
-					If form_type_array(form_type_const, current_form) = atr_form_name Then 
-						form_type_array(btn_name_const, form_count) = "ATR"
-						form_type_array(btn_number_const, form_count) = 401
-						PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
-						'PushButton 395, btn_pos, 45, 15, "ATR-" & atr_count, atr_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					' 	MsgBox "atr name" & form_type_array(form_type_const, current_form) 'TEST
-					' 	MsgBox "atr btn" & form_type_array(btn_name_const, form_count)	'TEST
-					' 	MsgBox "atr numb" & form_type_array(btn_number_const, form_count) 'TEST
-					End If
-					If form_type_array(form_type_const, current_form) = arep_form_name then 
-						form_type_array(btn_name_const, form_count) = "AREP"
-						form_type_array(btn_number_const, form_count) = 402
-						PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
-						'PushButton 395, btn_pos, 45, 15, "AREP-" & arep_count, arep_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = change_form_name  then 
-						form_type_array(btn_name_const, form_count) = "CHNG"
-						form_type_array(btn_number_const, form_count) = 403
-						PushButton 395, btn_pos, 45, 15, "CHNG", change_btn 
-						'PushButton 395, btn_pos, 45, 15, "CHNG-" & change_count, change_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = evf_form_name  then 
-						form_type_array(btn_name_const, form_count) = "EVF"
-						form_type_array(btn_number_const, form_count) = 404		
-						PushButton 395, btn_pos, 45, 15, "EVF", evf_btn 
-						'PushButton 395, btn_pos, 45, 15, "EVF-" & evf_count, evf_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = hosp_form_name  then 
-						form_type_array(btn_name_const, form_count) = "HOSP"
-						form_type_array(btn_number_const, form_count) = 405
-						PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn 
-						'PushButton 395, btn_pos, 45, 15, "HOSP-" & hosp_count, hospice_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = iaa_form_name  then 
-						form_type_array(btn_name_const, form_count) = "IAA"
-						form_type_array(btn_number_const, form_count) = 406
-						PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
-						'PushButton 395, btn_pos, 45, 15, "IAA-" & iaa_count, iaa_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = ltc_1503_form_name then 
-						form_type_array(btn_name_const, form_count) = ltc_1503_form_name
-						form_type_array(btn_number_const, form_count) = 408
-						PushButton 395, btn_pos, 45, 15, ltc_1503_form_name, ltc_1503_btn 
-						'PushButton 395, btn_pos, 45, 15, "LTC-1503-" & ltc_1503_count, ltc_1503_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = mof_form_name then 
-						form_type_array(btn_name_const, form_count) = "MOF"
-						form_type_array(btn_number_const, form_count) = 409
-						PushButton 395, btn_pos, 45, 15, "MOF", mof_btn 
-						'PushButton 395, btn_pos, 45, 15, "MOF-" & mof_count, mof_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = mtaf_form_name then 
-						form_type_array(btn_name_const, form_count) = "MTAF"
-						form_type_array(btn_number_const, form_count) = 410
-						PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
-						'PushButton 395, btn_pos, 45, 15, "MTAF-" & mtaf_count, mtaf_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = psn_form_name then 
-						form_type_array(btn_name_const, form_count) = "PSN"
-						form_type_array(btn_number_const, form_count) = 411
-						PushButton 395, btn_pos, 45, 15, "PSN", psn_btn 
-						'PushButton 395, btn_pos, 45, 15, "PSN-" & psn_count, psn_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = sf_form_name then 
-						form_type_array(btn_name_const, form_count) = "SF"
-						form_type_array(btn_number_const, form_count) = 412
-						PushButton 395, btn_pos, 45, 15, "SF", sf_btn
-						'PushButton 395, btn_pos, 45, 15, "SF-" & sf_count, sf_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					If form_type_array(form_type_const, current_form) = diet_form_name then 
-						form_type_array(btn_name_const, form_count) = "DIET"
-						form_type_array(btn_number_const, form_count) = 413
-						PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
-						'PushButton 395, btn_pos, 45, 15, "DIET-" & diet_count, diet_btn 'TEST - example of adding number to name of button
-						btn_pos = btn_pos + 15
-					End If
-					'MsgBox "Current form" & form_type_array(form_type_const, current_form)
-				Next
-				If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
-				If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
-				If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
-				'MsgBox "Ubound(form_type_array, 2)" & Ubound(form_type_array, 2) 
-								
-			EndDialog
+		btn_pos = 45		'variable to iterate down for each necessary button
+		''Future Iteration - handle to uniquely identify multiples of the same form by adding count to the button name
+		For current_form = 0 to Ubound(form_type_array, 2) 		'This iterates through the array and creates buttons for each form selected from top down. Also stores button name and number in the array based on form name selected. 
+			If form_type_array(form_type_const, current_form) = asset_form_name then
+				form_type_array(btn_name_const, form_count) = "ASSET"
+				form_type_array(btn_number_const, form_count) = 400
+				PushButton 395, btn_pos, 45, 15, "ASSET", asset_btn
+				'PushButton 395, btn_pos, 45, 15, "ASSET-" & asset_count, asset_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+				' MsgBox "asset name" & form_type_array(form_type_const, current_form) 'TEST
+				' MsgBox "asset btn" & form_type_array(btn_name_const, form_count)	'TEST
+				' MsgBox "asset numb" & form_type_array(btn_number_const, form_count) 'TEST
+			End If
+			If form_type_array(form_type_const, current_form) = atr_form_name Then 
+				form_type_array(btn_name_const, form_count) = "ATR"
+				form_type_array(btn_number_const, form_count) = 401
+				PushButton 395, btn_pos, 45, 15, "ATR", atr_btn
+				'PushButton 395, btn_pos, 45, 15, "ATR-" & atr_count, atr_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			' 	MsgBox "atr name" & form_type_array(form_type_const, current_form) 'TEST
+			' 	MsgBox "atr btn" & form_type_array(btn_name_const, form_count)	'TEST
+			' 	MsgBox "atr numb" & form_type_array(btn_number_const, form_count) 'TEST
+			End If
+			If form_type_array(form_type_const, current_form) = arep_form_name then 
+				form_type_array(btn_name_const, form_count) = "AREP"
+				form_type_array(btn_number_const, form_count) = 402
+				PushButton 395, btn_pos, 45, 15, "AREP", arep_btn
+				'PushButton 395, btn_pos, 45, 15, "AREP-" & arep_count, arep_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = change_form_name  then 
+				form_type_array(btn_name_const, form_count) = "CHNG"
+				form_type_array(btn_number_const, form_count) = 403
+				PushButton 395, btn_pos, 45, 15, "CHNG", change_btn 
+				'PushButton 395, btn_pos, 45, 15, "CHNG-" & change_count, change_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = evf_form_name  then 
+				form_type_array(btn_name_const, form_count) = "EVF"
+				form_type_array(btn_number_const, form_count) = 404		
+				PushButton 395, btn_pos, 45, 15, "EVF", evf_btn 
+				'PushButton 395, btn_pos, 45, 15, "EVF-" & evf_count, evf_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = hosp_form_name  then 
+				form_type_array(btn_name_const, form_count) = "HOSP"
+				form_type_array(btn_number_const, form_count) = 405
+				PushButton 395, btn_pos, 45, 15, "HOSP", hospice_btn 
+				'PushButton 395, btn_pos, 45, 15, "HOSP-" & hosp_count, hospice_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = iaa_form_name  then 
+				form_type_array(btn_name_const, form_count) = "IAA"
+				form_type_array(btn_number_const, form_count) = 406
+				PushButton 395, btn_pos, 45, 15, "IAA", iaa_btn
+				'PushButton 395, btn_pos, 45, 15, "IAA-" & iaa_count, iaa_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = ltc_1503_form_name then 
+				form_type_array(btn_name_const, form_count) = ltc_1503_form_name
+				form_type_array(btn_number_const, form_count) = 408
+				PushButton 395, btn_pos, 45, 15, ltc_1503_form_name, ltc_1503_btn 
+				'PushButton 395, btn_pos, 45, 15, "LTC-1503-" & ltc_1503_count, ltc_1503_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = mof_form_name then 
+				form_type_array(btn_name_const, form_count) = "MOF"
+				form_type_array(btn_number_const, form_count) = 409
+				PushButton 395, btn_pos, 45, 15, "MOF", mof_btn 
+				'PushButton 395, btn_pos, 45, 15, "MOF-" & mof_count, mof_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = mtaf_form_name then 
+				form_type_array(btn_name_const, form_count) = "MTAF"
+				form_type_array(btn_number_const, form_count) = 410
+				PushButton 395, btn_pos, 45, 15, "MTAF", mtaf_btn
+				'PushButton 395, btn_pos, 45, 15, "MTAF-" & mtaf_count, mtaf_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = psn_form_name then 
+				form_type_array(btn_name_const, form_count) = "PSN"
+				form_type_array(btn_number_const, form_count) = 411
+				PushButton 395, btn_pos, 45, 15, "PSN", psn_btn 
+				'PushButton 395, btn_pos, 45, 15, "PSN-" & psn_count, psn_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = sf_form_name then 
+				form_type_array(btn_name_const, form_count) = "SF"
+				form_type_array(btn_number_const, form_count) = 412
+				PushButton 395, btn_pos, 45, 15, "SF", sf_btn
+				'PushButton 395, btn_pos, 45, 15, "SF-" & sf_count, sf_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			If form_type_array(form_type_const, current_form) = diet_form_name then 
+				form_type_array(btn_name_const, form_count) = "DIET"
+				form_type_array(btn_number_const, form_count) = 413
+				PushButton 395, btn_pos, 45, 15, "DIET", diet_btn
+				'PushButton 395, btn_pos, 45, 15, "DIET-" & diet_count, diet_btn 'TEST - example of adding number to name of button
+				btn_pos = btn_pos + 15
+			End If
+			'MsgBox "Current form" & form_type_array(form_type_const, current_form)
+		Next
 
-	
+		If form_count > 0 Then PushButton 395, 255, 50, 15, "Previous", previous_btn ' Previous button to navigate from one form to the previous one.
+		If form_count < Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Next Form", next_btn	'Next button to navigate from one form to the next. 
+		If form_count = Ubound(form_type_array, 2) Then PushButton 395, 275, 50, 15, "Complete", complete_btn	'Complete button kicks off the casenoting of all completed forms. 
+		'MsgBox "Ubound(form_type_array, 2)" & Ubound(form_type_array, 2) 
+						
+	EndDialog
+
+	Do
+		Do
 			err_msg = ""
 			asset_err_msg = ""
 			atr_err_msg = ""
@@ -3702,13 +3704,14 @@ Do
 
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
-
+			
 			Call main_error_handling	'function for error handling of main dialog of forms 
 			Call dialog_movement	'function to move throughout the dialogs
+
+			
 		Loop until err_msg = ""
 	
 		'MsgBox "complete_btn" & complete_btn
-
 	Loop until ButtonPressed = complete_btn
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -3719,270 +3722,312 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call MAXIS_background_check
 For maxis_panel_write = 0 to Ubound(form_type_array, 2)	
 
+	If form_type_array(form_type_const, maxis_panel_write) = asset_form_name then 	' WRITE FOR ASSET
+		
+	End If
 	If form_type_array(form_type_const, maxis_panel_write) = arep_form_name then 	' WRITE FOR AREP
-		end_msg = end_msg & vbNewLine & "AREP Information entered."
 		'formatting programs into one variable to write in case note
 		IF arep_SNAP_AREP_checkbox = checked THEN AREP_programs = "SNAP"
 		IF arep_HC_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", HC"
 		IF arep_CASH_AREP_checkbox = checked THEN AREP_programs = AREP_programs & ", CASH"
 		If left(AREP_programs, 1) = "," Then AREP_programs = right(AREP_programs, len(AREP_programs)-2)
 
-		If arep_update_AREP_panel_checkbox = checked Then				'If update AREP checkbox is checked, then update panel 
-			Call MAXIS_background_check
-			If IsDate(arep_signature_date) = TRUE Then					'Determing footermonth 
-				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, arep_signature_date)
-			Else
-				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, AREP_recvd)
+		If arep_update_AREP_panel_checkbox = checked Then				'If update AREP checkbox is checked, then update panel 	
+			If IsDate(arep_signature_date) = TRUE Then 
+				Call convert_date_into_MAXIS_footer_month(arep_signature_date, MAXIS_footer_month, MAXIS_footer_year)
+			Else		 
+				Call convert_date_into_MAXIS_footer_month(AREP_recvd_date, MAXIS_footer_month, MAXIS_footer_year)
 			End If
-			Call back_to_SELF
-			Do
-				Call navigate_to_MAXIS_screen("STAT", "AREP")		'Navigate to AREP panel
-				EMReadScreen panel_check, 4, 2, 53
-				EMWaitReady 0, 0
-			Loop until panel_check = "AREP"
+				
+			Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
+			For each item in date_array
+				MAXIS_footer_month = datepart("m", item)
+				If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+				MAXIS_footer_year = right(datepart("yyyy", item), 2)
+				Call back_to_SELF
+				Call MAXIS_background_check
+				Do
+					Call navigate_to_MAXIS_screen("STAT", "AREP")		'Navigate to AREP panel
+					EMReadScreen panel_check, 4, 2, 53
+					EMWaitReady 0, 0
+				Loop until panel_check = "AREP"
 
-			EMReadScreen arep_version, 1, 2, 73
-			If arep_version = "1" Then PF9
-			If arep_version = "0" Then Call write_value_and_transmit("NN", 20, 79)
+				EMReadScreen arep_version, 1, 2, 73
+				If arep_version = "1" Then PF9
+				If arep_version = "0" Then Call write_value_and_transmit("NN", 20, 79)
 
-			'Writing to the panel
-			EMWriteScreen "                                     ", 4, 32
-			EMWriteScreen "                      ", 5, 32
-			EMWriteScreen "                      ", 6, 32
-			EMWriteScreen "               ", 7, 32
-			EMWriteScreen "  ", 7, 55
-			EMWriteScreen "     ", 7, 64
-			EMWriteScreen arep_name, 4, 32
-			arep_street = trim(arep_street)
-			If len(arep_street) > 22 Then
-				arep_street_one = ""
-				arep_street_two = ""
-				street_array = split(arep_street, " ")
-				For each word in street_array
-					If len(arep_street_one & word) > 22 Then
-						arep_street_two = arep_street_two & word & " "
+				'Writing to the panel
+				EMWriteScreen "                                     ", 4, 32
+				EMWriteScreen "                      ", 5, 32
+				EMWriteScreen "                      ", 6, 32
+				EMWriteScreen "               ", 7, 32
+				EMWriteScreen "  ", 7, 55
+				EMWriteScreen "     ", 7, 64
+				EMWriteScreen arep_name, 4, 32
+				arep_street = trim(arep_street)
+				If len(arep_street) > 22 Then
+					arep_street_one = ""
+					arep_street_two = ""
+					street_array = split(arep_street, " ")
+					For each word in street_array
+						If len(arep_street_one & word) > 22 Then
+							arep_street_two = arep_street_two & word & " "
+						Else
+							arep_street_one = arep_street_one & word & " "
+						End If
+					Next
+				Else
+					arep_street_one = arep_street
+				End If
+				EMWriteScreen arep_street_one, 5, 32
+				EMWriteScreen arep_street_two, 6, 32
+				EMWriteScreen arep_city, 7, 32
+				EMWriteScreen arep_state, 7, 55
+				EMWriteScreen arep_zip, 7, 64
+				EMWriteScreen "N", 5, 77
+
+				If arep_phone_one <> "" Then
+					write_phone_one = replace(arep_phone_one, "(", "")
+					write_phone_one = replace(write_phone_one, ")", "")
+					write_phone_one = replace(write_phone_one, "-", "")
+					write_phone_one = trim(write_phone_one)
+
+					EMWriteScreen left(write_phone_one, 3), 8, 34
+					EMwriteScreen right(left(write_phone_one, 6), 3), 8, 40
+					EMWriteScreen right(write_phone_one, 4), 8, 44
+					If arep_ext_one = "" Then
+						EMWriteScreen "   ", 8, 55
 					Else
-						arep_street_one = arep_street_one & word & " "
+						EMWriteScreen arep_ext_one, 8, 55
 					End If
-				Next
-			Else
-				arep_street_one = arep_street
-			End If
-			EMWriteScreen arep_street_one, 5, 32
-			EMWriteScreen arep_street_two, 6, 32
-			EMWriteScreen arep_city, 7, 32
-			EMWriteScreen arep_state, 7, 55
-			EMWriteScreen arep_zip, 7, 64
-			EMWriteScreen "N", 5, 77
-
-			If arep_phone_one <> "" Then
-				write_phone_one = replace(arep_phone_one, "(", "")
-				write_phone_one = replace(write_phone_one, ")", "")
-				write_phone_one = replace(write_phone_one, "-", "")
-				write_phone_one = trim(write_phone_one)
-
-				EMWriteScreen left(write_phone_one, 3), 8, 34
-				EMwriteScreen right(left(write_phone_one, 6), 3), 8, 40
-				EMWriteScreen right(write_phone_one, 4), 8, 44
-				If arep_ext_one = "" Then
-					EMWriteScreen "   ", 8, 55
-				Else
-					EMWriteScreen arep_ext_one, 8, 55
 				End If
-			End If
 
-			If arep_phone_two <> "" Then
-				write_phone_two = replace(arep_phone_two, "(", "")
-				write_phone_two = replace(write_phone_two, ")", "")
-				write_phone_two = replace(write_phone_two, "-", "")
-				write_phone_two = trim(write_phone_two)
+				If arep_phone_two <> "" Then
+					write_phone_two = replace(arep_phone_two, "(", "")
+					write_phone_two = replace(write_phone_two, ")", "")
+					write_phone_two = replace(write_phone_two, "-", "")
+					write_phone_two = trim(write_phone_two)
 
-				EMWriteScreen left(write_phone_two, 3), 9, 34
-				EMwriteScreen right(left(write_phone_two, 6), 3), 9, 40
-				EMWriteScreen right(write_phone_two, 4), 9, 44
-				If arep_ext_two = "" Then
-					EMWriteScreen "   ", 9, 55
-				Else
-					EMWriteScreen arep_ext_two, 9, 55
+					EMWriteScreen left(write_phone_two, 3), 9, 34
+					EMwriteScreen right(left(write_phone_two, 6), 3), 9, 40
+					EMWriteScreen right(write_phone_two, 4), 9, 44
+					If arep_ext_two = "" Then
+						EMWriteScreen "   ", 9, 55
+					Else
+						EMWriteScreen arep_ext_two, 9, 55
+					End If
 				End If
-			End If
 
-			If arep_forms_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 45
-			If arep_forms_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 45
-			If arep_mmis_mail_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 77
-			If arep_mmis_mail_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 77
-
-			transmit
+				If arep_forms_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 45
+				If arep_forms_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 45
+				If arep_mmis_mail_to_arep_checkbox = checked Then EMWriteScreen "Y", 10, 77
+				If arep_mmis_mail_to_arep_checkbox = unchecked Then EMWriteScreen "N", 10, 77
+				transmit
+			Next	
 		End If
     End If
 
 	If form_type_array(form_type_const, maxis_panel_write) = iaa_form_name Then	'MAXIS NAVIGATION FOR IAA read/write SCREEN
 		If iaa_update_pben_checkbox = checked Then 
 			pben_updated = FALSE
-			Do
-				Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
-				EMReadScreen nav_check, 4, 2, 49
-				EMWaitReady 0, 0
-			Loop until nav_check = "PBEN"
-			
 			iaa_referral_date_month = right("00" & DatePart("m", iaa_referral_date), 2)		'Setting up the parts of the date for MAXIS fields
 			iaa_referral_date_day = right("00" & DatePart("d", iaa_referral_date), 2)
 			iaa_referral_date_year = right(DatePart("yyyy", iaa_referral_date), 2)
 			
-			iaa_date_applied_pben_month = right("00" & DatePart("m", iaa_date_applied_pben), 2)		'Setting up the parts of the date for MaXIS fields	
-			iaa_date_applied_pben_day = right("00" & DatePart("d", iaa_date_applied_pben), 2)
-			iaa_date_applied_pben_year = right(DatePart("yyyy", iaa_date_applied_pben), 2)
+			If iaa_date_applied_pben <> "" Then 
+				iaa_date_applied_pben_month = right("00" & DatePart("m", iaa_date_applied_pben), 2)		'Setting up the parts of the date for MaXIS fields	
+				iaa_date_applied_pben_day = right("00" & DatePart("d", iaa_date_applied_pben), 2)
+				iaa_date_applied_pben_year = right(DatePart("yyyy", iaa_date_applied_pben), 2)
+			End If
 			
 			iaa_date_month = right("00" & DatePart("m", iaa_iaa_date), 2)		'Setting up the parts of the date for MAXIS fields	
 			iaa_date_day = right("00" & DatePart("d", iaa_iaa_date), 2)
 			iaa_date_year = right(DatePart("yyyy", iaa_iaa_date), 2)
 			pben_member_number = Left(iaa_member_dropdown, 2)
-			
-			Call write_value_and_transmit(pben_member_number, 20, 76)			'Go to the correct member 
-			
-			pben_row = 8
-			'pben_disp_code_string = "*"
 
-			Do 
-				EMReadScreen pben_exist, 2, pben_row, 24
-				If pben_exist = "__" Then 	
-					EMReadScreen numb_of_panels, 1, 2, 78
-					IF numb_of_panels = "0" Then 										'If PBEN panel does not exist, create a panel, write dialog entries into fields
-						Call write_value_and_transmit("NN", 20, 79)			
-					Else
-						PF9																'If PBEN panel exists but benefit type is empty, write dialog entries into fields
-					End IF
-					pben_updated = TRUE									
+			Call convert_date_into_MAXIS_footer_month(iaa_date_received, MAXIS_footer_month, MAXIS_footer_year)
+			Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
+			For each item in date_array
+				MAXIS_footer_month = datepart("m", item)
+				If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+				MAXIS_footer_year = right(datepart("yyyy", item), 2)
+				Call back_to_SELF
+				Call MAXIS_background_check
+				Do
+					Call Navigate_to_MAXIS_screen ("STAT", "PBEN")					'Go to PBEN 
+					EMReadScreen nav_check, 4, 2, 49
 					EMWaitReady 0, 0
-					EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24				'Filling out the panel
-					EMWriteScreen iaa_referral_date_month, pben_row, 40
-					EMWriteScreen iaa_referral_date_day, pben_row, 43
-					EMWriteScreen iaa_referral_date_year, pben_row, 46
-					EMWriteScreen iaa_date_applied_pben_month, pben_row, 51
-					EMWriteScreen iaa_date_applied_pben_day, pben_row, 54
-					EMWriteScreen iaa_date_applied_pben_year, pben_row, 57
-					EMWriteScreen Left(iaa_verification_dropdown, 1), pben_row, 62
-					EMWriteScreen iaa_date_month, pben_row, 66
-					EMWriteScreen iaa_date_day, pben_row, 69
-					EMWriteScreen iaa_date_year, pben_row, 72
-					EMWriteScreen Left(iaa_disposition_code_dropdown, 1), pben_row, 77
-					iaa_update_pben_checkbox = checked
-					Exit Do
-
-				ElseIf pben_exist = "02" Then 
-					If Left(iaa_benefit_type, 2) = "02" Then 								'If 02 benefit type already exists, must evaluate to see if it is AEPN status. If so, we cannot update the panel. 
-						EMReadScreen pben_benefit_type, 2, pben_row, 24
-						EMReadScreen pben_referral_date, 8, pben_row, 40
-						EMReadScreen pben_date_applied, 8, pben_row, 51
-						EMReadScreen pben_verification, 1, pben_row, 62
-						EMReadScreen pben_iaa_date, 8, pben_row, 66
-						EMReadScreen pben_disp_code, 1, pben_row, 77
-						pben_disp_code_string = pben_disp_code_string & pben_disp_code		
+				Loop until nav_check = "PBEN"
+								
+				Call write_value_and_transmit(pben_member_number, 20, 76)			'Go to the correct member 
 				
-						If Instr(pben_disp_code_string, "A") or Instr(pben_disp_code_string, "E") or Instr(pben_disp_code_string, "P") or Instr(pben_disp_code_string, "N") Then 
-							If Left(iaa_disposition_code_dropdown, 1) = "A" or Left(iaa_disposition_code_dropdown, 1) = "E" or Left(iaa_disposition_code_dropdown, 1) = "P" or Left(iaa_disposition_code_dropdown, 1) = "N" Then 
-								MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
-								iaa_update_pben_checkbox = unchecked
-								Exit Do 
+				pben_row = 8
+				'pben_disp_code_string = "*"
+
+				Do 
+					EMReadScreen pben_exist, 2, pben_row, 24
+					If pben_exist = "__" Then 	
+						EMReadScreen numb_of_panels, 1, 2, 78
+						IF numb_of_panels = "0" Then 										'If PBEN panel does not exist, create a panel, write dialog entries into fields
+							Call write_value_and_transmit("NN", 20, 79)			
+						Else
+							PF9																'If PBEN panel exists but benefit type is empty, write dialog entries into fields
+						End IF
+						pben_updated = TRUE									
+						EMWaitReady 0, 0
+						EMWriteScreen Left(iaa_benefit_type, 2), pben_row, 24				'Filling out the panel
+						EMWriteScreen iaa_referral_date_month, pben_row, 40
+						EMWriteScreen iaa_referral_date_day, pben_row, 43
+						EMWriteScreen iaa_referral_date_year, pben_row, 46
+						EMWriteScreen iaa_date_applied_pben_month, pben_row, 51
+						EMWriteScreen iaa_date_applied_pben_day, pben_row, 54
+						EMWriteScreen iaa_date_applied_pben_year, pben_row, 57
+						EMWriteScreen Left(iaa_verification_dropdown, 1), pben_row, 62
+						EMWriteScreen iaa_date_month, pben_row, 66
+						EMWriteScreen iaa_date_day, pben_row, 69
+						EMWriteScreen iaa_date_year, pben_row, 72
+						EMWriteScreen Left(iaa_disposition_code_dropdown, 1), pben_row, 77
+						iaa_update_pben_checkbox = checked
+						Exit Do
+
+					ElseIf pben_exist = "02" Then 
+						If Left(iaa_benefit_type, 2) = "02" Then 								'If 02 benefit type already exists, must evaluate to see if it is AEPN status. If so, we cannot update the panel. 
+							EMReadScreen pben_benefit_type, 2, pben_row, 24
+							EMReadScreen pben_referral_date, 8, pben_row, 40
+							EMReadScreen pben_date_applied, 8, pben_row, 51
+							EMReadScreen pben_verification, 1, pben_row, 62
+							EMReadScreen pben_iaa_date, 8, pben_row, 66
+							EMReadScreen pben_disp_code, 1, pben_row, 77
+							pben_disp_code_string = pben_disp_code_string & pben_disp_code		
+					
+							If Instr(pben_disp_code_string, "A") or Instr(pben_disp_code_string, "E") or Instr(pben_disp_code_string, "P") or Instr(pben_disp_code_string, "N") Then 
+								If Left(iaa_disposition_code_dropdown, 1) = "A" or Left(iaa_disposition_code_dropdown, 1) = "E" or Left(iaa_disposition_code_dropdown, 1) = "P" or Left(iaa_disposition_code_dropdown, 1) = "N" Then 
+									MsgBox "Cannot update pben panel because there is already an SSI entry with an active disposition code. Manually update PBEN after the script run."
+									iaa_update_pben_checkbox = unchecked
+									Exit Do 
+								Else 
+									pben_row = pben_row + 1
+								End If
 							Else 
 								pben_row = pben_row + 1
-							End If
+							End IF 
 						Else 
 							pben_row = pben_row + 1
-						End IF 
+						End If
 					Else 
 						pben_row = pben_row + 1
 					End If
-				Else 
-					pben_row = pben_row + 1
+				Loop Until pben_row = 14
+				If pben_row = 14 Then  				'If all lines on the panel are full then it cannot update PBEN
+					MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
+					iaa_update_pben_checkbox = unchecked
 				End If
-			Loop Until pben_row = 14
-			If pben_row = 14 Then  				'If all lines on the panel are full then it cannot update PBEN
-				MsgBox "PBEN panel is full. Script cannot updated PBEN automatically. Manually update it after script run."
-				iaa_update_pben_checkbox = unchecked
-			End If
+			Next
 		End If
 	End If 
 
-
 	If form_type_array(form_type_const, maxis_panel_write) = ltc_1503_form_name then 	' WRITE FOR LTC 1503
-		end_msg = end_msg & vbNewLine & "LTC 1503 Form information entered."
 		Original_footer_month = MAXIS_footer_month
 		Original_footer_year = MAXIS_footer_year
 		MAXIS_footer_month = ltc_1503_faci_footer_month
 		MAXIS_footer_year = ltc_1503_faci_footer_year
-		'LTC 1503 gets it's own case note
-		'navigating the script to the correct footer month
-		back_to_self
-		EMWriteScreen MAXIS_footer_month, 20, 43
-		EMWriteScreen MAXIS_footer_year, 20, 46
-		Do
-			Call navigate_to_MAXIS_screen("STAT", "FACI")
-			EMReadScreen nav_check, 4, 2, 44
-			EMWaitReady 0, 0
-		Loop until nav_check = "FACI"
+		If MAXIS_footer_month = "" AND MAXIS_footer_year = "" Then 
+			MAXIS_footer_month = Original_footer_month
+			MAXIS_footer_year = Original_footer_year
+		End If 
+		Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
 
-		'FACI
 		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
-			Do
-				call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
-				EMReadScreen nav_check, 4, 2, 44
-				EMWaitReady 0, 0
-			Loop until nav_check = "FACI"
-			EMReadScreen panel_max_check, 1, 2, 78
-			IF panel_max_check = "5" THEN			'If panel has reached 5 which is the max, it will not update
-				stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerun it with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
-				If stop_or_continue = vbCancel Then script_end_procedure("~PT User Pressed Cancel")
-				If stop_or_continue = vbOk Then ltc_1503_FACI_update_checkbox = unchecked
-			ELSE										'Else, create a new panel
-				EMWriteScreen "NN", 20, 79
-				transmit
-			END IF
-		End If
-		If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
-			updated_FACI_checkbox = checked
-			EMWriteScreen ltc_1503_FACI_1503, 6, 43
-			If ltc_1503_level_of_care = "NF" then EMWriteScreen "42", 7, 43
-			If ltc_1503_level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
-			If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "44", 7, 43
-			If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-			If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-			if ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
-			If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "44", 7, 43
-			If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
-			If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
-			If ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
-			EMWriteScreen "N", 8, 43
-			Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_admit_date, 0, 14, 47)
-			If ltc_1503_discharge_date <> "" then
-				Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_discharge_date, 0, 14, 71)
-				transmit
-				transmit
-			End if
+			For each item in date_array
+				MAXIS_footer_month = datepart("m", item)
+				If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+				MAXIS_footer_year = right(datepart("yyyy", item), 2)
+				back_to_self
+				Do
+					call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
+					EMReadScreen nav_check, 4, 2, 44
+					EMWaitReady 0, 0
+				Loop until nav_check = "FACI"
+				EMReadScreen panel_max_check, 1, 2, 78
+				IF panel_max_check = "5" THEN			'If panel has reached 5 which is the max, it will not update
+					stop_or_continue = MsgBox("This case has reached the maxzimum amount of FACI panels. Please review the case and delete an appropriate FACI panel." & vbNewLine & vbNewLine & "To continue the script run without updating FACI, press 'OK'." & vbNewLine & vbNewLine & "Otherwise, press 'CANCEL' to stop the script, and then rerun it with fewer than 5 FACI panels.", vbQuestion + vbOkCancel, "Continue without updating FACI?")
+					If stop_or_continue = vbCancel Then script_end_procedure("~PT User Pressed Cancel")
+					If stop_or_continue = vbOk Then ltc_1503_FACI_update_checkbox = unchecked
+				ELSE										'Else, create a new panel
+					ltc_1503_FACI_update_checkbox = checked
+				END IF
+			Next 
+
+			If ltc_1503_FACI_update_checkbox = checked then		'If update FACI checkbox checked udpate panel
+				ltc_1503_updated_FACI_checkbox = checked
+				For each item in date_array
+					MAXIS_footer_month = datepart("m", item)
+					If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+					MAXIS_footer_year = right(datepart("yyyy", item), 2)
+					back_to_self
+					Do
+						call navigate_to_MAXIS_screen("STAT", "FACI")	'Navigate to FACI
+						EMReadScreen nav_check, 4, 2, 44
+						EMWaitReady 0, 0
+					Loop until nav_check = "FACI"
+					EMWriteScreen "NN", 20, 79
+					transmit
+					EMWriteScreen ltc_1503_FACI_1503, 6, 43
+					If ltc_1503_level_of_care = "NF" then EMWriteScreen "42", 7, 43
+					If ltc_1503_level_of_care = "RTC" THEN EMWriteScreen "47", 7, 43
+					If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "44", 7, 43
+					If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+					If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+					if ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "SNF" then EMWriteScreen "41", 7, 43
+					If ltc_1503_length_of_stay = "30 days or less" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "44", 7, 43
+					If ltc_1503_length_of_stay = "31 to 90 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+					If ltc_1503_length_of_stay = "91 to 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+					If ltc_1503_length_of_stay = "over 180 days" and ltc_1503_level_of_care = "ICF-DD" then EMWriteScreen "41", 7, 43
+					EMWriteScreen "N", 8, 43
+					Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_admit_date, 0, 14, 47)
+					If ltc_1503_discharge_date <> "" then
+						Call create_MAXIS_friendly_date_with_YYYY(ltc_1503_discharge_date, 0, 14, 71)
+						transmit
+						transmit
+					End if
+				Next 
+			End If
 		End if
 
 		'HCMI
 		If ltc_1503_HCMI_update_checkbox = checked THEN
-			Do
-				Call navigate_to_MAXIS_screen("STAT", "HCMI")
-				EMReadScreen nav_check, 4, 2, 55
-				EMWaitReady 0, 0
-			Loop until nav_check = "HCMI"
-			EMReadScreen HCMI_panel_check, 1, 2, 78
-			IF HCMI_panel_check <> "0" Then
-				PF9
-			ELSE
-				EMWriteScreen "NN", 20, 79
+			For each item in date_array
+				MAXIS_footer_month = datepart("m", item)
+				If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+				MAXIS_footer_year = right(datepart("yyyy", item), 2)
+				back_to_self
+				Do
+					Call navigate_to_MAXIS_screen("STAT", "HCMI")
+					EMReadScreen nav_check, 4, 2, 55
+					EMWaitReady 0, 0
+				Loop until nav_check = "HCMI"
+				EMReadScreen HCMI_panel_check, 1, 2, 78
+				IF HCMI_panel_check <> "0" Then
+					PF9
+				ELSE
+					EMWriteScreen "NN", 20, 79
+					transmit
+				END IF
+				EMWriteScreen "DP", 10, 57
 				transmit
-			END IF
-			EMWriteScreen "DP", 10, 57
-			transmit
-			transmit
+			Next
 		END IF
+		MAXIS_footer_month = Original_footer_month
+		MAXIS_footer_year = Original_footer_year
 	End If
 
 	If form_type_array(form_type_const, maxis_panel_write) = mtaf_form_name then 	
-		Call navigate_to_MAXIS_screen("STAT", "PROG")
+		back_to_self
+		Do
+			Call navigate_to_MAXIS_screen("STAT", "PROG")
+			EMReadScreen nav_check, 4, 2, 50
+			EmWaitReady 0, 0
+		Loop until nav_check = "PROG"
 		EMReadScreen prog_cash_1_status, 4, 6, 74
 			If prog_cash_1_status = "PEND" Then
 				EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
@@ -3998,7 +4043,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 				If prog_cash_2_intvw_date = "__/__/__" Then prog_cash_2_intvw_date = ""
 				If prog_cash_2_intvw_date = "" Then update_prog = True
 			End If
-
 			If update_prog = True Then
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 251, 140, "Update Interview Date in STAT"
@@ -4015,196 +4059,228 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			End If
 	End If
 		
-
 	If form_type_array(form_type_const, maxis_panel_write) = psn_form_name then 	
 		If psn_udpate_wreg_disa_checkbox = checked Then 
+			Call convert_date_into_MAXIS_footer_month(psn_date_received, MAXIS_footer_month, MAXIS_footer_year)
+			Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
+			For each item in date_array
+				MAXIS_footer_month = datepart("m", item)
+				If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+				MAXIS_footer_year = right(datepart("yyyy", item), 2)
+				Call back_to_SELF
+				Call MAXIS_background_check
+				Do																'Function to write information to DISA
+					Call Navigate_to_MAXIS_screen ("STAT", "DISA")				'Goes to DISA for the correct person
+					EMReadScreen nav_check, 4, 2, 45
+				Loop until nav_check = "DISA"
+				EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
+				transmit
+				EMReadScreen exist_check, 1, 2, 73
+					If exist_check = "0" Then 
+						Call write_value_and_transmit ("NN", 20, 79)
+					Else	
+						PF9
+					End If
+					EmWaitReady 0, 0
 
-			Do																'Function to write information to DISA
-				Call Navigate_to_MAXIS_screen ("STAT", "DISA")				'Goes to DISA for the correct person
-				EMReadScreen nav_check, 4, 2, 45
-			Loop until nav_check = "DISA"
-			EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
-			transmit
-			EMReadScreen exist_check, 1, 2, 73
+					'Handling for fields left blank in the dialog			
+					If psn_disa_begin_date = "" Then 
+						disa_start_month = "__"
+						disa_start_day = "__"
+						disa_start_year = "____"
+					Else 
+						disa_start_month = right("00" & DatePart("m", psn_disa_begin_date), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
+						disa_start_day = right("00" & DatePart("d", psn_disa_begin_date), 2)
+						disa_start_year = DatePart("yyyy", psn_disa_begin_date)
+					End If
+					
+					If psn_disa_end_date = "" Then 
+						disa_end_month = "__"
+						disa_end_day = "__"
+						disa_end_year = "____"
+					Else 
+						disa_end_month = right("00" & DatePart("m", psn_disa_end_date), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
+						disa_end_day = right("00" & DatePart("d", psn_disa_end_date), 2)
+						disa_end_year = DatePart("yyyy", psn_disa_end_date)
+					End If
+
+					If psn_disa_cert_start = "" Then 
+						cert_start_month = "__"
+						cert_start_day = "__"
+						cert_start_year = "____"
+					Else 
+						cert_start_month = right("00" & DatePart("m", psn_disa_cert_start), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
+						cert_start_day = right("00" & DatePart("d", psn_disa_cert_start), 2)
+						cert_start_year = DatePart("yyyy", psn_disa_cert_start)
+					End If 
+
+					If psn_disa_cert_end = "" Then 
+						cert_end_month = "__"
+						cert_end_day = "__"
+						cert_end_year = "____"
+					Else 
+						cert_end_month = right("00" & DatePart("m", psn_disa_cert_end), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
+						cert_end_day = right("00" & DatePart("d", psn_disa_cert_end), 2)
+						cert_end_year = DatePart("yyyy", psn_disa_cert_end)
+					End If
+
+					'Writing the Disability Begin Date'
+					EMWriteScreen disa_start_month, 6, 47
+					EMWriteScreen disa_start_day, 6, 50
+					EMWriteScreen disa_start_year, 6, 53
+					
+					'Writing the Disability End Date'
+					EMWriteScreen disa_end_month, 6, 69
+					EMWriteScreen disa_end_day, 6, 72
+					EMWriteScreen disa_end_year, 6, 75
+					
+					'Writing the Certification Begin Date'
+					EMWriteScreen cert_start_month, 7, 47
+					EMWriteScreen cert_start_day, 7, 50
+					EMWriteScreen cert_start_year, 7, 53
+					
+					'Writing the Certification End Date'
+					EMWriteScreen cert_end_month, 7, 69
+					EMWriteScreen cert_end_day, 7, 72
+					EMWriteScreen cert_end_year, 7, 75
+
+					'Writing the disa status and verif code'
+					EMWriteScreen psn_disa_status, 11, 59
+					EMWriteScreen psn_disa_verif, 11, 69
+					transmit
+				Call back_to_SELF
+				Call MAXIS_background_check
+				Do																'Function to write information to DISA
+					Call Navigate_to_MAXIS_screen("STAT", "WREG")				'Goes to DISA for the correct person
+					EMReadScreen nav_check, 4, 2, 48
+					EMWaitReady 0, 0
+				Loop until nav_check = "WREG"
+				EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
+				transmit
+				EMReadScreen exist_check, 1, 2, 73
 				If exist_check = "0" Then 
 					Call write_value_and_transmit ("NN", 20, 79)
 				Else	
 					PF9
 				End If
-				EmWaitReady 0, 0
-
-				'Handling for fields left blank in the dialog			
-				If psn_disa_begin_date = "" Then 
-					disa_start_month = "__"
-					disa_start_day = "__"
-					disa_start_year = "____"
-				Else 
-					disa_start_month = right("00" & DatePart("m", psn_disa_begin_date), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
-					disa_start_day = right("00" & DatePart("d", psn_disa_begin_date), 2)
-					disa_start_year = DatePart("yyyy", psn_disa_begin_date)
-				End If
-				
-				If psn_disa_end_date = "" Then 
-					disa_end_month = "__"
-					disa_end_day = "__"
-					disa_end_year = "____"
-				Else 
-					disa_end_month = right("00" & DatePart("m", psn_disa_end_date), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
-					disa_end_day = right("00" & DatePart("d", psn_disa_end_date), 2)
-					disa_end_year = DatePart("yyyy", psn_disa_end_date)
-				End If
-
-				If psn_disa_cert_start = "" Then 
-					cert_start_month = "__"
-					cert_start_day = "__"
-					cert_start_year = "____"
-				Else 
-					cert_start_month = right("00" & DatePart("m", psn_disa_cert_start), 2)	'Isolates the start month, day, and year as these are seperate fields on DISA
-					cert_start_day = right("00" & DatePart("d", psn_disa_cert_start), 2)
-					cert_start_year = DatePart("yyyy", psn_disa_cert_start)
-				End If 
-
-				If psn_disa_cert_end = "" Then 
-					cert_end_month = "__"
-					cert_end_day = "__"
-					cert_end_year = "____"
-				Else 
-					cert_end_month = right("00" & DatePart("m", psn_disa_cert_end), 2)		'Isolates the end month, day, and year as these are seperate fields on DISA
-					cert_end_day = right("00" & DatePart("d", psn_disa_cert_end), 2)
-					cert_end_year = DatePart("yyyy", psn_disa_cert_end)
-				End If
-
-				'Writing the Disability Begin Date'
-				EMWriteScreen disa_start_month, 6, 47
-				EMWriteScreen disa_start_day, 6, 50
-				EMWriteScreen disa_start_year, 6, 53
-				
-				'Writing the Disability End Date'
-				EMWriteScreen disa_end_month, 6, 69
-				EMWriteScreen disa_end_day, 6, 72
-				EMWriteScreen disa_end_year, 6, 75
-				
-				'Writing the Certification Begin Date'
-				EMWriteScreen cert_start_month, 7, 47
-				EMWriteScreen cert_start_day, 7, 50
-				EMWriteScreen cert_start_year, 7, 53
-				
-				'Writing the Certification End Date'
-				EMWriteScreen cert_end_month, 7, 69
-				EMWriteScreen cert_end_day, 7, 72
-				EMWriteScreen cert_end_year, 7, 75
-
-				'Writing the disa status and verif code'
-				EMWriteScreen psn_disa_status, 11, 59
-				EMWriteScreen psn_disa_verif, 11, 69
-				transmit
-
-			Do																'Function to write information to DISA
-				Call Navigate_to_MAXIS_screen("STAT", "WREG")				'Goes to DISA for the correct person
-				EMReadScreen nav_check, 4, 2, 48
-			Loop until nav_check = "WREG"
-			EMWriteScreen Left(psn_member_dropdown, 2), 20, 76
-			transmit
-			EMReadScreen exist_check, 1, 2, 73
-			If exist_check = "0" Then 
-				Call write_value_and_transmit ("NN", 20, 79)
-			Else	
-				PF9
-			End If
-			EMWriteScreen Left(psn_wreg_fs_pwe, 1), 6, 68						
-			EMWriteScreen Left(psn_wreg_work_wreg_status, 2), 8, 50			
-			EMWriteScreen Left(psn_wreg_abawd_status, 2), 13, 50				
-			EMWriteScreen Left(psn_wreg_ga_elig_status, 2),  15, 50			
-			transmit	
+				EMWriteScreen Left(psn_wreg_fs_pwe, 1), 6, 68						
+				EMWriteScreen Left(psn_wreg_work_wreg_status, 2), 8, 50			
+				EMWriteScreen Left(psn_wreg_abawd_status, 2), 13, 50				
+				EMWriteScreen Left(psn_wreg_ga_elig_status, 2),  15, 50			
+				transmit	
+			Next
 		End If
 	End If
-
-
 
 	If form_type_array(form_type_const, maxis_panel_write) = diet_form_name Then	'Write for DIET form
 
 		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel
 			If diet_mfip_msa_status <> "Not Active/Pending" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
-				back_to_self
-				Do
-					Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 'TODO: Will this update the correct months? What about future months after doc received date?
-					EMWriteScreen MAXIS_footer_month, 20, 43
-					EMWriteScreen MAXIS_footer_year, 20, 46
-					Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
-					EMReadScreen nav_check, 4, 2, 48
-					EMWaitReady 0, 0
-				Loop until nav_check = "DIET"
-				diet_member_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
-				Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
-				
-				'DIET_row = 8 'Setting this variable for the next do...loop
-				
-				EMReadScreen DIET_total, 1, 2, 78
-				If DIET_total = 0 then 								'If panel count is 0, then create a panel
-					Call write_value_and_transmit("NN", 20, 79)		
-				Else												'If panel exists, edit mode, delete panel, create new panel
-					PF9
-					Call write_value_and_transmit("DEL", 20, 71)	'TODO: Can I just delete the panel before entering the new information? 
-					EMWaitReady 0, 0
-					Call write_value_and_transmit("NN", 20, 79)	
-				End If
-				If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
-					EMWriteScreen left(diet_1_dropdown, 2), 8, 40
-					EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
-					EMWriteScreen left(diet_2_dropdown, 2), 9, 40
-					EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51		
-				ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 	'If MSA then write in diets, hard coded
-					EMWriteScreen left(diet_1_dropdown, 2), 11, 40
-					EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
-					EMWriteScreen left(diet_2_dropdown, 2), 12, 40
-					EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
-					EMWriteScreen left(diet_3_dropdown, 2), 13, 40
-					EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
-					EMWriteScreen left(diet_4_dropdown, 2), 14, 40
-					EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
-					EMWriteScreen left(diet_5_dropdown, 2), 15, 40
-					EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
-					EMWriteScreen left(diet_6_dropdown, 2), 16, 40
-					EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
-					EMWriteScreen left(diet_7_dropdown, 2), 17, 40
-					EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
-					EMWriteScreen left(diet_8_dropdown, 2), 18, 40
-					EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
-				End If
-			End If
-		End If
-		If diet_status_dropdown = "Denied" Then			'Only if the diet is denied should we delete the pben panel
-			back_to_self
-			Do
-				Call get_footer_month_from_date(MAXIS_footer_month, MAXIS_footer_year, diet_date_received)		'Identifying Month/Year from date the diet form was received 
-				EMWriteScreen MAXIS_footer_month, 20, 43
-				EMWriteScreen MAXIS_footer_year, 20, 46
-				Call Navigate_to_MAXIS_screen ("STAT", "DIET")					'Go to DIET 
-				EMReadScreen nav_check, 4, 2, 48
-				EMWaitReady 0, 0
-			Loop until nav_check = "DIET"
-			diet_member_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
-			Call write_value_and_transmit(diet_member_number, 20, 76)			'Go to the correct member 
-			EMReadScreen DIET_total, 1, 2, 78
-			If DIET_total <> 0 then 								'If panel count is not 0, then delete a panel. (No action to take if the panel count is = 0)
-				PF9
-				Call write_value_and_transmit("DEL", 20, 71)	'Delete Diet Panel
+				Call convert_date_into_MAXIS_footer_month(diet_date_received, MAXIS_footer_month, MAXIS_footer_year)
+				Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
+				For each item in date_array
+					MAXIS_footer_month = datepart("m", item)
+					If len(MAXIS_footer_month) = 1 Then MAXIS_footer_month = "0" & MAXIS_footer_month 
+					MAXIS_footer_year = right(datepart("yyyy", item), 2)
+					updated_diet_months = updated_diet_months & MAXIS_footer_month & "/" & MAXIS_footer_year & "," 
+					Do
+						EMSendKey "<PF3>"
+						EMWaitReady 0, 0
+						EMReadScreen SELF_check, 4, 2, 50
+					Loop until SELF_check = "SELF"
+					MAXIS_background_check	
+					Do
+						Call navigate_to_MAXIS_screen("STAT", "DIET")
+						EMReadScreen nav_check, 4, 2, 48
+						EmWaitReady 0, 0
+					Loop until nav_check = "DIET"
+					diet_ref_number = Left(diet_member_number, 2)					'Grabbing member number from the member dropdown selection
+					Call write_value_and_transmit(diet_ref_number, 20, 76)			'Go to the correct member 
+					EMReadScreen DIET_total, 1, 2, 78
+					If DIET_total = 0 then 								'If panel count is 0, then create a panel
+						Call write_value_and_transmit("NN", 20, 79)		
+					Else												'If panel exists, edit mode, delete panel, create new panel
+						PF9
+						EMWaitReady 0, 0
+						Call write_value_and_transmit("DEL", 20, 71)	
+						EMWaitReady 0, 0
+						Call write_value_and_transmit("NN", 20, 79)	
+						EMWaitReady 0, 0
+					End If
+					If diet_mfip_msa_status = "MFIP-Active" or diet_mfip_msa_status = "MFIP-Pending" Then		'If MFIP then write in diet, hard coded
+						EMWriteScreen left(diet_1_dropdown, 2), 8, 40
+						EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
+						EMWriteScreen left(diet_2_dropdown, 2), 9, 40
+						EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51	
+						transmit 	
+					ElseIf diet_mfip_msa_status = "MSA-Active" or diet_mfip_msa_status = "MSA-Pending" Then 	'If MSA then write in diets, hard coded
+						EMWriteScreen left(diet_1_dropdown, 2), 11, 40
+						EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
+						EMWriteScreen left(diet_2_dropdown, 2), 12, 40
+						EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
+						EMWriteScreen left(diet_3_dropdown, 2), 13, 40
+						EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
+						EMWriteScreen left(diet_4_dropdown, 2), 14, 40
+						EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
+						EMWriteScreen left(diet_5_dropdown, 2), 15, 40
+						EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
+						EMWriteScreen left(diet_6_dropdown, 2), 16, 40
+						EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
+						EMWriteScreen left(diet_7_dropdown, 2), 17, 40
+						EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
+						EMWriteScreen left(diet_8_dropdown, 2), 18, 40
+						EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
+						transmit
+					End If
+				Next
+				If right(updated_diet_months, 1) = "," Then updated_diet_months = left(updated_diet_months, len(updated_diet_months)-1)
 			End If
 		End If
 	End if
 
-	If form_type_array(form_type_const, maxis_panel_write) = sf_form_name Then	'Write for SF form
-	
-	End If
 Next
+
+'TIKLS===========================================================================
+If AREP_TIKL_check = checked then 'AREP TIKLS
+	Call create_TIKL("Client's AREP release for HC is now 12 months old and no longer valid. Take appropriate action.", 365, arep_signature_date, False, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "AREP: TIKL has been sent for a year from now to request an updated form."
+End IF
+
+If EVF_TIKL_checkbox = checked Then 'EVF TIKL
+	'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+	Call create_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action.", 10, date, True, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "EVF: TIKL has been sent for 10 days from now for the additional information requested."
+End If
+
+If ltc_1503_TIKL_checkbox = checked Then 'LTC 1503 TIKL
+	If ltc_1503_length_of_stay = "30 days or less"   then ltc_1503_TIKL_multiplier = 30
+	If ltc_1503_length_of_stay = "31 to 90 days"     then ltc_1503_TIKL_multiplier = 90
+	If ltc_1503_length_of_stay = "91 to 180 days"    then ltc_1503_TIKL_multiplier = 180
+	Call create_TIKL("Have " & worker_signature & " call " & ltc_1503_FACI_1503 & " re: length of stay. " & ltc_1503_TIKL_multiplier & " days expired.", ltc_1503_TIKL_multiplier, ltc_1503_admit_date, False, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "LTC1503: TIKL has been sent for " & ltc_1503_TIKL_multiplier & " days from now for the additional information requested."
+End If
+
+If psn_tikl_checkbox = checked then 'PSN
+	Call create_TIKL("Resident's PSN is now 12 months old and no longer valid. Take appropriate action.", 365, psn_date_received, False, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "PSN: TIKL has been sent for a year from now to request an updated form."
+End If
+
+'SF
+If sf_tikl_nav_check = 1 then 
+	Call create_TIKL("CHANGE REPORTED", 365, date, False, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "Shelter: TIKL has been sent for a year from now to request an updated form."
+End If 
+
+'DIET 
+If diet_tikl_checkbox = 1 Then 
+	Call create_TIKL("Special Diet approaching renewal", 305, diet_date_received, False, TIKL_note_text) 
+	end_msg = end_msg & vbNewLine & "DIET: TIKL has been sent for 10 mo from now for renewal."
+End If
 
 
 'MsgBox "docs_rec" & docs_rec
 
 'CASE NOTE===========================================================================
-'TODO: Look into HOSPICE Needing it's own case note. See if the reading of past case notes needs the subject of the casenote to be specific or if it can be anywhere within the casenote?
-Call MAXIS_background_check
-
 'Handling to change the case note header depending on if MTAF is one of the documents processed 
 Call start_a_blank_case_note
 If Instr(docs_rec, "MTAF") Then		
@@ -4217,7 +4293,7 @@ Else
 	Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
 End If
 
-'For/Next creates one casenote for all documents received that should not be casenoted on their own. 
+'For/Next creates one casenote for all documents received. 
 For each_case_note = 0 to Ubound(form_type_array, 2)			
 
 	'MTAF Case Notes
@@ -4253,11 +4329,10 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** ASSET STATEMENT RECEIVED ***")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Date received", asset_date_received)
-		'herehere
           '  If LTC_case = vbNo Then
 			If asset_dhs_6054_checkbox = checked Then
                 Call write_variable_in_CASE_NOTE("* Signed Personal Statement about Assets for Cash Received (DHS 6054)")
-                'Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", asset_DHS_6054_date)
+                Call write_bullet_and_variable_in_CASE_NOTE("  - Received on", st_verif_date)
                 If signed_by_one <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_one & " on: " & signed_one_date)
                 If signed_by_two <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_two & " on: " & signed_two_date)
                 If signed_by_three <> "Select or Type" Then Call write_variable_in_CASE_NOTE("  - Signed by: " & signed_by_three & " on: " & signed_three_date)
@@ -4316,18 +4391,86 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
                 Next
             End If
 
-			If Right(actions_taken, 2) = ", " Then actions_taken = left(actions_taken, len(actions_taken)-2)
 			call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 		
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
+	' 'ATR Case Notes
+	'TODO: Should this be a person note?
+	If form_type_array(form_type_const, each_case_note) = atr_form_name Then 'TODO: Determine if we need to structure this differently in order to search for this release
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** ATR RECEIVED FOR " & atr_name & "Release End Date: " & atr_end_date & " ***")
+		CALL write_bullet_and_variable_in_case_note("Effective Date", atr_effective_date)
+		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
+		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
+		CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
+		CALL write_bullet_and_variable_in_case_note("End Date", atr_end_date)
+		CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
+		CALL write_bullet_and_variable_in_case_note("Contact Type", atr_contact_type)
+		CALL write_bullet_and_variable_in_case_note("  Contact Name", atr_name)
+		CALL write_bullet_and_variable_in_case_note("  Phone Number", atr_phone_number)
+		CALL write_bullet_and_variable_in_case_note("  Fax Number", atr_fax_number)
+		CALL write_bullet_and_variable_in_case_note("  Email", atr_email)
 
+		If atr_eval_treat_checkbox = checked Then
+			CALL write_variable_in_case_note("* Record requested will be used to continue evaluation or treatment")
+		End If
+		If atr_coor_serv_checkbox = checked Then
+			CALL write_variable_in_case_note("* Record requested will be used to coordinate services")
+		End If
+		If atr_elig_serv_checkbox = checked Then
+			CALL write_variable_in_case_note("* Record requested will be used to determine eligibility for assistance/service")
+		End If
+		If atr_court_checkbox = checked Then
+			CALL write_variable_in_case_note("* Record requested will be used for court proceedings")
+		End If
+		If atr_other_checkbox = checked Then
+			CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
+		End If
+		CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
+		Call write_variable_in_case_note("---")
+		'Call write_variable_in_case_note(worker_signature)
+	End If
+
+	'AREP Case Notes
+	If form_type_array(form_type_const, each_case_note) = arep_form_name then 
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** AREP Received ***")
+		call write_variable_in_CASE_NOTE("* Received: " & AREP_recvd_date & ". AREP: " & arep_name)
+		If arep_dhs_3437_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the DHS 3437 - MHCP AUTHORIZED REPRESENTATIVE REQUEST Form.")
+		If arep_HC_12729_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named on the HC 12729 - AUTHORIZED REPRESENTATIVE REQUEST Form.")
+		If arep_D405_checkbox = checked Then
+			Call write_variable_in_CASE_NOTE("  - AREP name on the SNAP AUTHORIZED REPRESENTATIVE CHOICE D405 Form.")
+			Call write_variable_in_CASE_NOTE("  - AREP also authorixed to get and use EBT Card.")
+		End If
+		If arep_CAF_AREP_page_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in the CAF.")
+		If arep_HCAPP_AREP_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP named in a Health Care Application.")
+		If arep_power_of_attorney_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - AREP has Power of Attorney Designation.")
+		If AREP_programs <> "" then call write_variable_in_CASE_NOTE("  - Programs Authorized for: " & AREP_programs)
+		If arep_signature_date <> "" Then call write_variable_in_CASE_NOTE("  - AREP valid start date: " & arep_signature_date)
+		Call write_variable_in_CASE_NOTE("  - Client and AREP signed AREP form.")
+		IF AREP_ID_check = checked THEN write_variable_in_CASE_NOTE("  - AREP ID on file.")
+		IF arep_TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
+		If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
+		Call write_variable_in_case_note("---")
+		
+		'Call write_variable_in_case_note(worker_signature)
+	'LTC Related I think
+	' call write_bullet_and_variable_in_case_note("ADDR", ADDR)
+	' call write_bullet_and_variable_in_case_note("FACI", FACI)
+	' call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
+	' call write_bullet_and_variable_in_case_note("DISA", DISA)
+
+
+	End If
 	'Change Reported Case Note
 	If form_type_array(form_type_const, each_case_note) = change_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** CHANGE REPORT FORM RECEIVED ***")
+		CALL write_bullet_and_variable_in_case_note("Change Effective Date", chng_effective_date)
 		CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
+		CALL write_bullet_and_variable_in_case_note("Effective Date", chng_effective_date)
 		CALL write_bullet_and_variable_in_case_note("Date Received", chng_date_received)
 		CALL write_bullet_and_variable_in_case_note("Address", chng_address_notes)
 		CALL write_bullet_and_variable_in_case_note("Household Members", chng_household_notes)
@@ -4348,35 +4491,17 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, each_case_note) = evf_form_name Then 
 		Call start_a_blank_case_note
 		Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
+
 		Call write_variable_in_CASE_NOTE("* EVF received " & evf_date_received & ": " & EVF_status_dropdown & "*")
-		Call write_variable_in_CASE_NOTE("  - EVF effective date " & evf_effective_date)
-		evf_ref_numb = left(evf_client, 2)
 		Call write_variable_in_CASE_NOTE("  - Employer Name: " & evf_employer)
-		Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & evf_ref_numb)
+		Call write_variable_in_CASE_NOTE("  - EVF for HH member: " & left(evf_client, 2))
 		'for additional information needed
 		IF evf_info = "yes" then
 			Call write_variable_in_CASE_NOTE("  - Additional Info requested: " & evf_info & "-on " & evf_info_date & " by " & evf_request_info)
-			'If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
+			If EVF_TIKL_checkbox = checked then call write_variable_in_CASE_NOTE("* TIKL'd for 10 day return.")
 		Else
 			Call write_variable_in_CASE_NOTE("  - No additional information is needed/requested.")
 		END IF
-		Call write_variable_in_CASE_NOTE("  - Actions: " & evf_actions_taken)
-		Call write_variable_in_case_note("---")
-		'Call write_variable_in_case_note(worker_signature)
-	End If
-
-	'Hospice Case Notes
-	If form_type_array(form_type_const, each_case_note) = hosp_form_name Then 
-		Call start_a_blank_case_note
-		Call write_variable_in_case_note("*** HOSPICE TRANSACTION FORM RECEIVED ***") 'DO NOT cchange name for Hospice.Must keep the same header otherwise reading of past case notes won't work/continue 
-		Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
-		Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
-		Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
-		Call write_bullet_and_variable_in_CASE_NOTE("Date of Entry", hosp_entry_date)
-		Call write_bullet_and_variable_in_CASE_NOTE("Exit Date", hosp_exit_date)
-		Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
-		Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
-		Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
 	End If
@@ -4387,26 +4512,62 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		If iaa_form_received_checkbox = checked and iaa_ssi_form_received_checkbox = checked Then CALL write_variable_in_case_note("*** IAA and IAA-SSI FORMS RECEIVED ***")
 		If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = checked Then CALL write_variable_in_case_note("*** IAA-SSI FORM RECEIVED ***")
 		If iaa_form_received_checkbox = checked and iaa_ssi_form_received_checkbox = unchecked Then CALL write_variable_in_case_note("*** IAA FORM RECEIVED ***")
-		CALL write_bullet_and_variable_in_case_note("Effective Date", iaa_effective_date)
 		CALL write_bullet_and_variable_in_case_note("Date Received", iaa_date_received)
-		CALL write_bullet_and_variable_in_case_note("Household Member", iaa_member_dropdown) 	'consider changing to member number
+		CALL write_bullet_and_variable_in_case_note("Household Member", left(iaa_member_dropdown,2)) 	
 		If iaa_form_received_checkbox = checked Then CALL write_bullet_and_variable_in_CASE_NOTE("IAA Assistance Type", iaa_type_assistance)
 		If iaa_ssi_form_received_checkbox = checked Then CALL write_bullet_and_variable_in_CASE_NOTE("IAA-SSI Interim Assistance", iaa_ssi_type_assistance)
 		CALL write_bullet_and_variable_in_case_note("Other benefits resident may be eligible for", "   " & iaa_benefits_1 & "   " & iaa_benefits_2 & "   " & iaa_benefits_3 & "   " & iaa_benefits_4)
-		If pben_updated = TRUE Then
-			CALL write_variable_in_case_note("* PBEN Panel updated")
-			CALL write_bullet_and_variable_in_CASE_NOTE("    Benefit type", iaa_benefit_type)
-			CALL write_bullet_and_variable_in_CASE_NOTE("    Verification", iaa_verification_dropdown)
-			CALL write_bullet_and_variable_in_CASE_NOTE("    Disposition Code", iaa_disposition_code_dropdown)
-			CALL write_bullet_and_variable_in_CASE_NOTE("    Date Applied PBEN", iaa_date_applied_pben)
-			CALL write_bullet_and_variable_in_CASE_NOTE("    Referral Date", iaa_referral_date)
-			CALL write_bullet_and_variable_in_CASE_NOTE("    IAA Date", iaa_iaa_date)
-		Else 
-			CALL write_variable_in_case_note("* PBEN Panel NOT updated")
-		End If
+		If iaa_update_pben_checkbox = checked Then CALL write_variable_in_case_note("* PBEN Panel updated")
+		If iaa_update_pben_checkbox = unchecked Then CALL write_variable_in_case_note("* PBEN Panel NOT updated")
+		CALL write_bullet_and_variable_in_CASE_NOTE("Benefit type", iaa_benefit_type)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Verification", iaa_verification_dropdown)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Disposition Code", iaa_disposition_code_dropdown)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Date Applied PBEN", iaa_date_applied_pben)
+		CALL write_bullet_and_variable_in_CASE_NOTE("Referral Date", iaa_referral_date)
+		CALL write_bullet_and_variable_in_CASE_NOTE("IAA Date", iaa_iaa_date)
 		CALL write_bullet_and_variable_in_case_note("Notes", iaa_comments)
 		Call write_variable_in_case_note("---")
 		'Call write_variable_in_case_note(worker_signature)
+	End If
+
+
+	'LTC 1503 Case Notes
+	If form_type_array(form_type_const, each_case_note) = ltc_1503_form_name Then 
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** LTC-1503 FORM RECEIVED ***")
+		If ltc_1503_processed_1503_checkbox = checked then
+			call write_variable_in_CASE_NOTE("***Processed 1503 from " & ltc_1503_FACI_1503 & "***")
+		Else
+			call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & ltc_1503_FACI_1503 & ", DID NOT PROCESS***")
+		End if
+		Call write_bullet_and_variable_in_case_note("Length of stay", ltc_1503_length_of_stay)
+		Call write_bullet_and_variable_in_case_note("Recommended level of care", ltc_1503_level_of_care)
+		Call write_bullet_and_variable_in_case_note("Admitted from", ltc_1503_admitted_from)
+		Call write_bullet_and_variable_in_case_note("Hospital admitted from", ltc_1503_hospital_admitted_from)
+		Call write_bullet_and_variable_in_case_note("Admit date", ltc_1503_admit_date)
+		Call write_bullet_and_variable_in_case_note("Discharge date", ltc_1503_discharge_date)
+		Call write_variable_in_CASE_NOTE("---")
+		If ltc_1503_updated_RLVA_checkbox = checked and ltc_1503_updated_FACI_checkbox = checked then
+			Call write_variable_in_CASE_NOTE("* Updated RLVA and FACI.")
+		Else
+			If ltc_1503_updated_RLVA_checkbox = checked then Call write_variable_in_case_note("* Updated RLVA.")
+			If ltc_1503_updated_FACI_checkbox = checked then Call write_variable_in_case_note("* Updated FACI.")
+		End if
+		If ltc_1503_need_3543_checkbox = checked then Call write_variable_in_case_note("* A 3543 is needed for the client.")
+		If ltc_1503_need_3531_checkbox = checked then call write_variable_in_CASE_NOTE("* A 3531 is needed for the client.")
+		If ltc_1503_need_asset_assessment_checkbox = checked then call write_variable_in_CASE_NOTE("* An asset assessment is needed before a MA-LTC determination can be made.")
+		If ltc_1503_sent_3050_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent 3050 back to LTCF.")
+		If ltc_1503_sent_5181_checkbox = checked then call write_variable_in_CASE_NOTE("* Sent DHS-5181 to Case Manager.")
+		Call write_bullet_and_variable_in_case_note("Verifs needed", ltc_1503_verifs_needed)
+		If ltc_1503_sent_verif_request_checkbox = checked then Call write_variable_in_case_note("* Sent verif request to " & ltc_1503_sent_request_to)
+		If processed_1503_checkbox = checked then Call write_variable_in_case_note("* Completed & Returned 1503 to LTCF.")
+		If ltc_1503_TIKL_checkbox = checked then Call write_variable_in_case_note("TIKL'd for " & ltc_1503_TIKL_multiplier & " days to check length of stay.")
+		Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", ltc_1503_mets_case_number)
+		Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
+		Call write_variable_in_case_note("---")
+		'Call write_variable_in_case_note(worker_signature)
+		MAXIS_footer_month = Original_footer_month
+		MAXIS_footer_year = Original_footer_year
 	End If
 
 	'MOF Case Notes
@@ -4431,11 +4592,12 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	
 
 	'PSN Case Notes
+	'TODO: Should this be a person note?
 	If form_type_array(form_type_const, each_case_note) = psn_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
 		CALL write_bullet_and_variable_in_case_note("Date Received", psn_date_received)
-		CALL write_bullet_and_variable_in_case_note("Member", psn_member_dropdown)
+		CALL write_bullet_and_variable_in_case_note("Member", left(psn_member_dropdown,2))
 		If (psn_section_1_dropdown <> "No- Section NOT completed" OR psn_section_2_dropdown <> "No- Section NOT completed" OR psn_section_3_dropdown <> "No- Section NOT completed" OR psn_section_4_dropdown <> "No- Section NOT completed" OR psn_section_5_dropdown <> "No- Section NOT completed") Then 
 			If (psn_section_1_dropdown <> "No- Section NOT completed" OR psn_section_2_dropdown <> "No- Section NOT completed") Then 
 				Call write_variable_in_case_note("* The PSN meets GA and GRH basis of eligibility for MB" & (left(psn_member_dropdown, 2)) & " due to their")
@@ -4463,7 +4625,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		'Call write_variable_in_case_note(worker_signature)
 	End If
 
-	'SF Case Notes
+	'SF Case Notes	'TODO - write SF case note
 	If form_type_array(form_type_const, each_case_note) = sf_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** SHELTER FORM RECEIVED ***")
@@ -4472,12 +4634,12 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	'Special Diet Case Notes
+	'TODO: Should this be a person note?
 	If form_type_array(form_type_const, each_case_note) = diet_form_name Then 
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
-		CALL write_bullet_and_variable_in_case_note("Date Effective", diet_effective_date)					
 		CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
-		CALL write_bullet_and_variable_in_case_note("Member", Left(diet_member_number, 2))							'required
+		CALL write_bullet_and_variable_in_case_note("Member", diet_ref_number)							'required
 		If diet_1_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
 		If diet_2_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
 		If diet_3_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
@@ -4494,9 +4656,11 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		If diet_status_dropdown = "Incomplete" then
 			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- form returned to client")
 		ElseIf  diet_status_dropdown = "Denied" Then
-			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- Deleted DIET panel. The doctor has not indicated an eligible diet need.")
+			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- The doctor has NOT indicated an eligible diet need.")
 		Else
 			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown)
+			CALL write_bullet_and_variable_in_CASE_NOTE("Updated DIET panel for months", updated_diet_months)
+
 		End If 
 		CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
 		CALL write_variable_in_case_note("---")
@@ -4506,14 +4670,15 @@ Next
 CALL write_variable_in_case_note(worker_signature)
 
 'For/Next creates individual case notes for the following documents. Casenoting these individually so we can search for them in the future.
+
 For unique_case_notes = 0 to Ubound(form_type_array, 2)			
 	' 'ATR Case Notes
 	If form_type_array(form_type_const, unique_case_notes) = atr_form_name Then 
 		PF3
 		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** ATR RECEIVED *** FOR " & atr_name & " - Release Ends: " & atr_end_date)
+		CALL write_variable_in_case_note("*** ATR RECEIVED *** FOR M" & left(atr_member_dropdown, 2) & " - " & atr_name & " - Release Ends: " & atr_end_date)
 		CALL write_bullet_and_variable_in_case_note("Date Received", atr_date_received)
-		CALL write_bullet_and_variable_in_case_note("Member", atr_member_dropdown)
+		CALL write_bullet_and_variable_in_case_note("Member", left(atr_member_dropdown, 2))
 		CALL write_bullet_and_variable_in_case_note("Start Date", atr_start_date)
 		CALL write_bullet_and_variable_in_case_note("End Date", atr_end_date)
 		CALL write_bullet_and_variable_in_case_note("Authorization Type", atr_authorization_type)
@@ -4556,14 +4721,24 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
 		Call write_variable_in_case_note("---")
 		Call write_variable_in_case_note(worker_signature)
-	'LTC Related I think
-	' call write_bullet_and_variable_in_case_note("ADDR", ADDR)
-	' call write_bullet_and_variable_in_case_note("FACI", FACI)
-	' call write_bullet_and_variable_in_case_note("SCHL/STIN/STEC", SCHL)
-	' call write_bullet_and_variable_in_case_note("DISA", DISA)
-
-
 	End If
+
+	'Hospice Case Notes
+	If form_type_array(form_type_const, unique_case_notes) = hosp_form_name Then 
+		Call start_a_blank_case_note
+		Call write_variable_in_case_note("*** HOSPICE TRANSACTION FORM RECEIVED ***") 'DO NOT cchange name for Hospice.Must keep the same header otherwise reading of past case notes won't work/continue 
+		Call write_bullet_and_variable_in_CASE_NOTE("Client", hosp_resident_name)
+		Call write_bullet_and_variable_in_CASE_NOTE("Hospice Name", hosp_name)
+		Call write_bullet_and_variable_in_CASE_NOTE("NPI Number", hosp_npi_number)
+		Call write_bullet_and_variable_in_CASE_NOTE("Date of Entry", hosp_entry_date)
+		Call write_bullet_and_variable_in_CASE_NOTE("Exit Date", hosp_exit_date)
+		Call write_bullet_and_variable_in_CASE_NOTE("MMIS updated as of", hosp_mmis_updated_date)
+		Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
+		Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
+		Call write_variable_in_case_note("---")
+		Call write_variable_in_case_note(worker_signature)
+	End If
+
 
 	'LTC 1503 Case Notes
 	If form_type_array(form_type_const, unique_case_notes) = ltc_1503_form_name Then 
@@ -4575,6 +4750,7 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		Else
 			call write_variable_in_CASE_NOTE("***Rec'd 1503 from " & ltc_1503_FACI_1503 & ", DID NOT PROCESS***")
 		End if
+		If ltc_1503_FACI_update_checkbox = checked Then Call write_variable_in_case_note("* Updated FACI for " & ltc_1503_faci_footer_month & "/" & ltc_1503_faci_footer_year)
 		Call write_bullet_and_variable_in_case_note("Length of stay", ltc_1503_length_of_stay)
 		Call write_bullet_and_variable_in_case_note("Recommended level of care", ltc_1503_level_of_care)
 		Call write_bullet_and_variable_in_case_note("Admitted from", ltc_1503_admitted_from)
@@ -4601,43 +4777,14 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
 		Call write_variable_in_case_note("---")
 		Call write_variable_in_case_note(worker_signature)
-		MAXIS_footer_month = Original_footer_month
-		MAXIS_footer_year = Original_footer_year
 	End If
 
 
 Next
 
-'change  
-	'If we checked to TIKL out, it goes to TIKL and sends a TIKL
-	' IF tikl_nav_check = 1 THEN
-	' 	CALL navigate_to_MAXIS_screen("DAIL", "WRIT")
-	' 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
-	' 	EMSetCursor 9, 3
-	' END IF
-
-'EVF 
-
-	' 	'Checks if additional info is yes and the TIKL is checked, sets a TIKL for the return of the info
-	' 	If EVF_TIKL_checkbox = checked Then
-	' 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-	' 		Call create_TIKL("Additional info requested after an EVF being rec'd should have returned by now. If not received, take appropriate action.", 10, date, True, TIKL_note_text)
-	' 		'Success message
-	' 		end_msg = end_msg & vbNewLine & "Additional detail added about EVF." & vbNewLine & "TIKL has been sent for 10 days from now for the additional information requested."
-	' 	Else
-	' 		end_msg = end_msg & vbNewLine & "Additional detail added about EVF."
-	' 	End If
-	' End If
-
-'LTC 1503 
-    ' If length_of_stay = "30 days or less"   then TIKL_multiplier = 30
-    ' If length_of_stay = "31 to 90 days"     then TIKL_multiplier = 90
-    ' If length_of_stay = "91 to 180 days"    then TIKL_multiplier = 180
-    ' 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    ' If TIKL_checkbox = checked then Call create_TIKL("Have " & worker_signature & " call " & FACI & " re: length of stay. " & TIKL_multiplier & " days expired.", TIKL_multiplier, admit_date, False, TIKL_note_text)
 
   
-script_end_procedure_with_error_report(end_msg)
+script_end_procedure_with_error_report("Success! " & vbcr & end_msg)
 
 
 
