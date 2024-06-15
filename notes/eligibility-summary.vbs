@@ -24886,22 +24886,38 @@ For each footer_month in MONTHS_ARRAY
 			SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) = "INELIGIBLE"
 			If numb_GA_versions <> " " Then
 				If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
-					If first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_GA_approval = ""
+					If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then
+						If first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_GA_approval = ""
+					ElseIf If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
 				End If
 			End If
 			If numb_MSA_versions <> " " Then
 				If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
-					If first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MSA_approval = ""
+					If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "INELIGIBLE" Then
+						If first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MSA_approval = ""
+					ElseIf MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
 				End If
 			End If
 			If numb_MFIP_versions <> " " Then
 				If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
-					If first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MFIP_approval = ""
+					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then
+						If first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MFIP_approval = ""
+					ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
 				End If
 			End If
 			If numb_DWP_versions <> " " Then
-				If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True and DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then
-					If first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_DWP_approval = ""
+				If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
+					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then
+						If first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_DWP_approval = ""
+					ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
 				End If
 			End If
 
