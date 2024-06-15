@@ -7802,7 +7802,7 @@ function deny_elig_case_note()
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all 4 DWP months.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Limit (Family Wage Level of $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level & ").")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income, 10) & "                                  |")
@@ -7868,7 +7868,7 @@ function deny_elig_case_note()
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for DWP (and all Cash Programs).")
+		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for MFIP (and all Cash Programs).")
 		Call write_variable_in_CASE_NOTE("       | CASH Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CASH, 10) & "                              |")
 		Call write_variable_in_CASE_NOTE("       | ACCT Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_ACCT, 10) & "                              |")
 		Call write_variable_in_CASE_NOTE("       | SECU Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SECU, 10) & "                              |")
@@ -7883,7 +7883,7 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case has failed to complete a required report process.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Limit  (Family Wage Level of $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level & ").")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned, 10) & "                                  |")
