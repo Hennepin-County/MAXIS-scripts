@@ -1813,7 +1813,8 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Text 20, y_pos, 425, 10, "This household was assessed for MFIP as the Family Cash Program."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then
@@ -1982,7 +1983,8 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "DWP" Then Text 20, y_pos, 425, 10, "This household was assessed for DWP as the Family Cash Program."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "DWP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then
@@ -7773,7 +7775,8 @@ function deny_elig_case_note()
 	Call write_variable_in_CASE_NOTE("RCA Denial Info  : Processed by Contracted Agency for Residents of Hennepin.")
 	'DWP
 	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
-	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
+	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
 		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 	End If
@@ -7791,7 +7794,10 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with Child Support Requirements.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household was assessed for MFIP as the Family Cash Program..")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with the Employment Services Requirements.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
 		Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
@@ -7862,7 +7868,8 @@ function deny_elig_case_note()
 
 	'MFIP
 	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
-	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
+	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
 		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 	End If
@@ -13265,6 +13272,7 @@ class deny_eligibility_detail
 	public deny_cash_mfip_details_exists
 	public deny_cash_msa_details_exists
 	public deny_cash_ga_details_exists
+	public deny_cash_mfip_or_dwp
 
 	public deny_dwp_elig_case_test_application_withdrawn
 	public deny_dwp_elig_case_test_assets
@@ -13613,9 +13621,15 @@ class deny_eligibility_detail
 			EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
 			EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
 			EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
+			deny_cash_mfip_or_dwp = ""
+			If deny_cash_dwp_reason_code = "01" and deny_cash_mfip_reason_code <> "01" Then deny_cash_mfip_or_dwp = "MFIP"
+			If deny_cash_dwp_reason_code <> "01" and deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_or_dwp = "DWP"
 
 			If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
-			If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_reason_info = "No Eligible Child"
+			If deny_cash_dwp_reason_code = "01" Then
+				deny_cash_dwp_reason_info = "No Eligible Child"
+				If deny_cash_mfip_or_dwp = "MFIP" Then deny_cash_dwp_reason_info = "Assessed for MFIP"
+			End If
 			If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
 			If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
 			If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
@@ -13654,7 +13668,10 @@ class deny_eligibility_detail
 			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_memo_info = "you have used all 60 TANF months available."
 
 			If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
-			If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
+			If deny_cash_mfip_reason_code = "01" Then
+				deny_cash_mfip_reason_info = "No Eligible Child"
+				If deny_cash_mfip_or_dwp = "DWP" Then deny_cash_mfip_reason_info = "Assessed for DWP"
+			End If
 			If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
 			If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
 			If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
