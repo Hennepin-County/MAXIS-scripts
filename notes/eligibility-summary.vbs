@@ -90,8 +90,8 @@ QCR_SNAP_Homeless_SHELTER_Expense_All = True
 
 function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
 '--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
-'~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
-'~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ footer_month: relevant footer month - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every October and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
 '~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
 '===== Keywords: SNAP, calculation, Income Test
@@ -210,7 +210,7 @@ function detail_action_that_led_to_approval(current_prog, process_completed, cha
 	ButtonGroup ButtonPressed
 		PushButton 230, 215, 115, 15, "Return to Approval Detail", return_btn
 	Text 10, 10, 180, 10, "You have completed an approval for " & current_prog & " today."
-	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a seperate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
+	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a separate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
 	Text 10, 60, 210, 20, "To create cohesiveness with previous CASE/NOTEs, you can indicate why you are processing the approval today."
 	Text 10, 90, 105, 10, "Reason Approval was needed:"
 	GroupBox 10, 110, 335, 85, "Information Changed"
@@ -384,7 +384,7 @@ function display_approval_packages_dialog()
 	  Text 35, 85, 70, 10, "Eligibility Result"
 	  Text 35, 95, 70, 10, "Budget Cycle"
 	  Text 35, 105, 70, 10, "Income"
-	  Text 35, 115, 95, 10, "Houshold Composition"
+	  Text 35, 115, 95, 10, "Household Composition"
 	  Text 35, 125, 95, 10, "Entitlement "
 	  Text 25, 140, 205, 20, "If these are the same from month to month, the script groups these approval months together as an 'Approval Package'."
 	  GroupBox 10, 165, 370, 10, ""
@@ -419,7 +419,7 @@ function display_snap_deductions_dialog()
 	  Text 25, 150, 245, 10, "All details of FMED should be reviewed in the CM."
 	  GroupBox 10, 175, 370, 40, "Dependent Care . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
 	  Text 25, 190, 180, 10, "Care of a dependent can be used a SNAP deduction."
-	  Text 25, 200, 180, 10, "Dependent Care Expeses are declaratory."
+	  Text 25, 200, 180, 10, "Dependent Care Expenses are declaratory."
 	  GroupBox 10, 225, 370, 30, " Child Support . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
 	  Text 25, 240, 245, 10, "Court Ordered Child Support Expense can be allowed as a deduction."
 	  ButtonGroup ButtonPressed
