@@ -24888,7 +24888,7 @@ For each footer_month in MONTHS_ARRAY
 				If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
 					If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then
 						If first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_GA_approval = ""
-					ElseIf If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
+					ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
 					End If
 				End If
