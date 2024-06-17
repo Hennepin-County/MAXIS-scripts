@@ -43,7 +43,6 @@ END IF
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
 call changelog_update("04/22/2024", "Initial version.", "Mark Riegel, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -91,7 +90,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 231, 135, "EBT Stolen Benefits - Action on Replacement Request"
   Text 70, 10, 85, 15, MAXIS_case_number
   DropListBox 20, 35, 165, 20, "Select one:"+chr(9)+"CASE/NOTE Information about Request"+chr(9)+"Send SPEC/MEMO regarding Request", action_step
-  DropListBox 20, 65, 185, 20, "Select one:"+chr(9)+"Request Denied - Hennepin County Determination"+chr(9)+"Benefits Replaced - DHS TSS BENE Unit Determination", spec_memo_type
+  DropListBox 20, 65, 200, 20, "Select one:"+chr(9)+"Request Denied - Hennepin County Determination"+chr(9)+"Benefits Replaced - DHS TSS BENE Unit Determination", spec_memo_type
   EditBox 85, 90, 120, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 110, 115, 45, 15
@@ -122,43 +121,43 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If action_step = "CASE/NOTE Information about Request" Then
 
   Dialog1 = "" 'Blanking out previous dialog detail
-  BeginDialog Dialog1, 0, 0, 376, 400, "EBT Stolen Benefits - Replacement Request Details"
+  BeginDialog Dialog1, 0, 0, 386, 400, "EBT Stolen Benefits - Replacement Request Details"
     EditBox 100, 25, 50, 15, MAXIS_case_number
     DropListBox 100, 40, 105, 15, "Select one:"+chr(9)+"Pending DHS-8557"+chr(9)+"Pending DHS-3335A"+chr(9)+"Request Approved"+chr(9)+"Request Denied", request_status
     EditBox 135, 70, 45, 15, date_client_reported
-    EditBox 135, 85, 225, 15, stolen_benefit_type
+    EditBox 135, 85, 240, 15, stolen_benefit_type
     EditBox 135, 100, 45, 15, date_client_discovered_stolen_benefit
     EditBox 135, 115, 45, 15, dollar_value_stolen_benefit
-    EditBox 135, 130, 225, 15, illegal_method_used
+    EditBox 135, 130, 240, 15, illegal_method_used
     EditBox 135, 170, 45, 15, date_dhs_8557_sent
     CheckBox 185, 170, 140, 15, "Check here to create TIKL for DHS-8557", dhs_8557_tikl_check
     EditBox 135, 185, 45, 15, date_dhs_8557_signed
     EditBox 135, 200, 45, 15, date_dhs_8557_returned
-    DropListBox 135, 215, 225, 15, "Select one:"+chr(9)+"Awaiting return of DHS-8557"+chr(9)+"DHS-8557 never returned"+chr(9)+"DHS-8557 returned - doesn't meet digital theft definition"+chr(9)+"DHS-8557 returned - fraud findings don't support digital theft definition"+chr(9)+"DHS-8557 returned - fraud findings do support digital theft definition", dhs_8557_action_taken
+    DropListBox 135, 215, 240, 15, "Select one:"+chr(9)+"Awaiting return of DHS-8557"+chr(9)+"DHS-8557 never returned"+chr(9)+"DHS-8557 returned - doesn't meet digital theft definition"+chr(9)+"DHS-8557 returned - fraud findings don't support digital theft definition"+chr(9)+"DHS-8557 returned - fraud findings do support digital theft definition", dhs_8557_action_taken
     EditBox 160, 250, 45, 15, date_dhs_3335A_sent_to_fraud_investigator
-    EditBox 160, 265, 200, 15, results_of_dhs_3335A
-    EditBox 160, 280, 200, 15, stolen_benefit_validation
-    DropListBox 10, 310, 95, 40, "Select one:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", previous_benefit_replacement
-    EditBox 10, 350, 350, 15, past_replacement_benefits_details
+    EditBox 160, 265, 215, 15, results_of_dhs_3335A
+    EditBox 160, 280, 215, 15, stolen_benefit_validation
+    DropListBox 10, 310, 50, 40, "Select one:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", previous_benefit_replacement
+    EditBox 10, 350, 365, 15, past_replacement_benefits_details
     EditBox 75, 380, 165, 15, worker_signature
     ButtonGroup ButtonPressed
-      OkButton 250, 380, 35, 15
-      CancelButton 290, 380, 35, 15
+      OkButton 305, 380, 35, 15
+      CancelButton 345, 380, 35, 15
     Text 10, 10, 360, 10, "Client reports that they believe their benefits have been digitally stolen (see CM0024.06.03.10 or TE02.11.127)"
     Text 10, 30, 50, 10, "Case number:"
     Text 10, 45, 75, 10, "Decision on Request:"
-    GroupBox 5, 60, 360, 90, "EBT Stolen Benefit Details"
+    GroupBox 5, 60, 375, 90, "EBT Stolen Benefit Details"
     Text 10, 75, 115, 10, "Date client reported stolen benefit:"
     Text 10, 90, 75, 10, "Type of benefit stolen:"
     Text 10, 105, 125, 10, "Date client discovered stolen benefit:"
     Text 10, 120, 100, 10, "Dollar value of stolen benefit:"
     Text 10, 135, 125, 10, "Illegal method used to steal benefits:"
-    GroupBox 5, 155, 360, 80, "Replacement of Stolen EBT Benefits (DHS-8557)"
+    GroupBox 5, 155, 375, 80, "Replacement of Stolen EBT Benefits (DHS-8557)"
     Text 10, 170, 115, 10, "Date DHS-8557 mailed to the client:"
     Text 10, 185, 120, 10, "Date DHS-8557 signed by the client:"
     Text 10, 200, 115, 10, "Date client returned DHS-8557:"
     Text 10, 215, 115, 10, "Action Taken on DHS-8557:"
-    GroupBox 5, 240, 360, 130, "Fraud Prevention Investigation (FPI) Referral (DHS-3335A)"
+    GroupBox 5, 240, 375, 130, "Fraud Prevention Investigation (FPI) Referral (DHS-3335A)"
     Text 10, 255, 145, 10, "Date DHS-3335A sent to Fraud Investigator:"
     Text 10, 270, 90, 10, "Results of the DHS-3335A:"
     Text 10, 285, 140, 10, "How stolen benefit replacement validated:"
@@ -206,6 +205,7 @@ If action_step = "CASE/NOTE Information about Request" Then
   start_a_blank_case_note
 
   If request_status = "Pending DHS-8557" or request_status = "Pending DHS-3335A" Then
+    'Worker is awaiting additional information from forms, will CASE/NOTE and then end
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
@@ -228,6 +228,7 @@ If action_step = "CASE/NOTE Information about Request" Then
     script_end_procedure_with_error_report("The case note has been created. Please run this script again when a decision is made on the request.")
 
   ElseIf request_status = "Request Approved" Then
+    'Worker has approved the request, will CASE/NOTE and then end
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
@@ -250,6 +251,7 @@ If action_step = "CASE/NOTE Information about Request" Then
     script_end_procedure_with_error_report("The case note has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
 
   ElseIf request_status = "Request Denied" Then
+    'Worker has denied the request, will CASE/NOTE details, and then generate a SPEC/MEMO
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
@@ -269,8 +271,7 @@ If action_step = "CASE/NOTE Information about Request" Then
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
     
-    'Add dialog to allow for edits to CASE/NOTE before going to SPEC/MEMO
-
+    'Dialog to allow for edits to CASE/NOTE before going to SPEC/MEMO
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 246, 75, "EBT Stolen Benefits - Save CASE/NOTE"
       ButtonGroup ButtonPressed
@@ -286,36 +287,37 @@ If action_step = "CASE/NOTE Information about Request" Then
       CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-    'Add handling to save CASE/NOTE (if needed) and then get to SPEC/MEMO
+    'Handling to save CASE/NOTE (if needed) and then navigate to SPEC/MEMO
     EMReadScreen case_note_panel_check, 8, 1, 72
     If case_note_panel_check = "FMCAMAM2" Then
       'CASE/NOTE still in edit mode, need to PF3 to save
       PF3
     End If
     
+    'Navigate to SPEC/MEMO to provide details of denial
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 286, 245, "EBT Stolen Benefits - Denial Reasons"
-    CheckBox 5, 25, 10, 15, "", denial_two_replacements
-    CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
-    CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
-    CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
-    EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
-    CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
-    CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
-    EditBox 5, 200, 275, 15, denial_additional_reasons
-    ButtonGroup ButtonPressed
-      OkButton 175, 225, 50, 15
-      CancelButton 230, 225, 50, 15
-    Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
-    Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-    Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
-    Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
-    Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county/Tribal Nation or DHS staff (list the information not provided below)"
-    Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
-    Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
-    Text 5, 190, 205, 10, "Provide additional reason(s) for denial besides options above:"
+      CheckBox 5, 25, 10, 15, "", denial_two_replacements
+      CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
+      CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
+      CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
+      EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
+      CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
+      CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
+      EditBox 5, 200, 275, 15, denial_additional_reasons
+      ButtonGroup ButtonPressed
+        OkButton 175, 225, 50, 15
+        CancelButton 230, 225, 50, 15
+      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
+      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
+      Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
+      Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
+      Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
+      Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
+      Text 5, 190, 205, 10, "Provide additional reason(s) for denial besides options above:"
     EndDialog
 
     DO
@@ -337,7 +339,7 @@ If action_step = "CASE/NOTE Information about Request" Then
     If denial_two_replacements = 1 then Call write_variable_in_SPEC_MEMO("> You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30")
     If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits")
     If denial_dhs_8557_not_returned = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form")
-    If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county/Tribal Nation or DHS staff:")
+    If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county or DHS staff:")
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_SPEC_MEMO("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
@@ -349,29 +351,30 @@ End If
 
 If action_step = "Send SPEC/MEMO regarding Request" Then
   If spec_memo_type = "Request Denied - Hennepin County Determination" Then
+    'Handling for sending a SPEC/MEMO after denying request
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 286, 245, "EBT Stolen Benefits - Denial Reasons"
-    CheckBox 5, 25, 10, 15, "", denial_two_replacements
-    CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
-    CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
-    CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
-    EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
-    CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
-    CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
-    EditBox 5, 200, 275, 15, denial_additional_reasons
-    ButtonGroup ButtonPressed
-      OkButton 175, 225, 50, 15
-      CancelButton 230, 225, 50, 15
-    Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
-    Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-    Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
-    Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
-    Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county/Tribal Nation or DHS staff (list the information not provided below)"
-    Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
-    Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
-    Text 5, 190, 205, 10, "Provide additional reason(s) for denial besides options above:"
+      CheckBox 5, 25, 10, 15, "", denial_two_replacements
+      CheckBox 5, 50, 10, 15, "", denial_not_reported_30_days
+      CheckBox 5, 75, 10, 15, "", denial_dhs_8557_not_returned
+      CheckBox 5, 100, 10, 15, "", denial_additional_info_not_provided
+      EditBox 20, 120, 260, 15, denial_specific_additional_info_not_provided
+      CheckBox 5, 140, 10, 15, "", denial_not_stolen_determination
+      CheckBox 5, 165, 10, 15, "", denial_stolen_outside_time_period
+      EditBox 5, 200, 275, 15, denial_additional_reasons
+      ButtonGroup ButtonPressed
+        OkButton 175, 225, 50, 15
+        CancelButton 230, 225, 50, 15
+      Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
+      Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
+      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
+      Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
+      Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
+      Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
+      Text 20, 165, 265, 20, "The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period"
+      Text 5, 190, 205, 10, "Provide additional reason(s) for denial besides options above:"
     EndDialog
 
     DO
@@ -392,7 +395,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If denial_two_replacements = 1 then Call write_variable_in_SPEC_MEMO("> You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30")
     If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits")
     If denial_dhs_8557_not_returned = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form")
-    If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county/Tribal Nation or DHS staff:")
+    If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county or DHS staff:")
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_SPEC_MEMO("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
@@ -401,6 +404,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     script_end_procedure_with_error_report("The SPEC/MEMO has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
 
   ElseIf spec_memo_type = "Benefits Replaced - DHS TSS BENE Unit Determination" Then
+    'Handling for sending a SPEC/MEMO after TSS BENE Unit has approved request
     Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 
     Dialog1 = ""
@@ -412,12 +416,12 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
       ButtonGroup ButtonPressed
         OkButton 170, 145, 50, 15
         CancelButton 225, 145, 50, 15
-      Text 5, 5, 285, 20, "For requests that have been approved and replaced by the BENE Team, a SPEC:MEMO must be sent to the client. Enter information about the replacement request: "
+      Text 5, 10, 265, 20, "For requests approved and replaced by the TSS BENE Team, a SPEC:MEMO must be sent to the client. Enter information about the replacement request: "
       Text 5, 40, 190, 10, "Dollar amount of stolen benefits returned to EBT account:"
       Text 5, 60, 215, 10, "If applicable, enter dollar amount of stolen benefits NOT replaced:"
       Text 5, 80, 265, 10, "If the full amount of the stolen benefit cannot be replaced, provide explanation:"
       Text 5, 110, 265, 10, "Enter additional information to include in SPEC:MEMO:"
-    EndDialog
+    EndDialog  
 
     DO
       Do
@@ -436,11 +440,11 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
 
     CALL start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 
-    Call write_variable_in_SPEC_MEMO("Your request for the replacement of stolen EBT benefits has been approved.")
-    Call write_variable_in_SPEC_MEMO("The amount of stolen benefits that have been returned to your EBT account is: $" & stolen_benefits_replaced_amount)
-    If stolen_benefits_not_replaced_amount <> "" Then Call write_variable_in_SPEC_MEMO("The full amount of stolen benefit cannot be replaced because " & stolen_benefit_not_replaced_explanation & "." & "The amount not replaced is $" & stolen_benefits_not_replaced_amount & ".")
-    Call write_variable_in_SPEC_MEMO("If you have not reported your compromised EBT card stolen and had a replacement card issued, this was done for you prior to benefit replacement.")
-    Call write_variable_in_SPEC_MEMO("If you do not agree with this decision, see the reverse side of this notice for your appeal rights. Contact your county/Tribal Nation worker to request an appeal.")
+    Call write_variable_in_SPEC_MEMO("> Your request for the replacement of stolen EBT benefits has been approved.")
+    Call write_variable_in_SPEC_MEMO("> The amount of stolen benefits that have been returned to your EBT account is: $" & stolen_benefits_replaced_amount)
+    If stolen_benefits_not_replaced_amount <> "" Then Call write_variable_in_SPEC_MEMO("> The full amount of stolen benefit cannot be replaced because: " & stolen_benefit_not_replaced_explanation & "." & " The amount not replaced is $" & stolen_benefits_not_replaced_amount & ".")
+    Call write_variable_in_SPEC_MEMO("> If you have not reported your compromised EBT card stolen and had a replacement card issued, this was done for you prior to benefit replacement.")
+    Call write_variable_in_SPEC_MEMO("> If you do not agree with this decision, see the reverse side of this notice for your appeal rights. Contact your county worker to request an appeal.")
 
     script_end_procedure_with_error_report("The SPEC/MEMO has been created.")
   End If
