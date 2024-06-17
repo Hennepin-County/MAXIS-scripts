@@ -63,7 +63,7 @@ Dialog1 = "" 'blanking out dialog name
 '    Some Dialog Elements:  Initial Dialog Header: 			BeginDialog Dialog1, 0, 0, 191, 105, "CATEGORY - NAME Case Number Dialog"  				-- Use CATEGORY - NAME somewhere in the header
 '							Script Instructions Button:		PushButton 135, 5, 50, 15, "Instructions", script_instructions_btn						-- Have a button to open the instructions
 '							Script Purpose/Overview: 		Text 10, 70, 120, 30, "Here is a quick summary of the purpose of the script."			-- Give the worker a little guidance
-'							Include edit boxes for necessary detials like Case Number, Footer Month, Footer Year, and Worker Signature
+'							Include edit boxes for necessary details like Case Number, Footer Month, Footer Year, and Worker Signature
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
     Do
@@ -75,7 +75,7 @@ DO
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
         'The rest of the mandatory handling here
         IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
-		If ButtonPressed = msg_show_instructions_btn Then
+		If ButtonPressed = script_instructions_btn Then
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/CATEGORY/CATEGORY%20-%20NAME.docx"	'copy the instructions URL here
 			err_msg = "LOOP"
 		End If
