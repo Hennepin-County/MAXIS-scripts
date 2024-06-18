@@ -965,10 +965,26 @@ function define_mfip_elig_dialog()
 			app_x_pos = 10
 			For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
 				If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					Text app_x_pos, app_y_pos, 200, 10, MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount
-					Text app_x_pos, app_y_pos+10, 200, 10, "            Cash: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " Food: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant
-					app_y_pos = app_y_pos + 20
-					If app_y_pos = 190 Then
+					Text app_x_pos, app_y_pos, 200, 10, MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount & " - (Ca: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " F: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant & ")"
+					' Text app_x_pos, app_y_pos+10, 200, 10, "            (Ca: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " F: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant & ")"
+					app_y_pos = app_y_pos + 10
+
+					If MFIP_ELIG_APPROVALS(approval).mfip_mony_check_found = True Then
+						for each_trans = 0 to UBound(MFIP_ELIG_APPROVALS(approval).mfip_check_program)
+							Text app_x_pos+5, app_y_pos, 275, 10, MFIP_ELIG_APPROVALS(approval).mfip_check_issue_date(each_trans) & " CHCK - $ " & MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans) & " paid to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+							app_y_pos = app_y_pos + 10
+						next
+					End If
+					If MFIP_ELIG_APPROVALS(approval).mfip_vnda_found = True Then
+						' MsgBox "IN IT!"
+						for each_auth = 0 To UBound(MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_number)
+							' MsgBox "MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth) - " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth)
+							Text app_x_pos+5, app_y_pos, 275, 10, "Vendor Auth - $ " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth) & " to be paid to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth)
+							app_y_pos = app_y_pos + 10
+						next
+					End If
+
+					If app_y_pos >= 190 Then
 						app_y_pos = 150
 						app_x_pos = app_x_pos + 220
 					End If
@@ -5095,7 +5111,36 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
 	End If
 
-
+	vendor_header = "----------------------------- Vendor Payments -------------------------------"
+	For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+		If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			If MFIP_ELIG_APPROVALS(approval).mfip_mony_check_found = True Then
+				for each_trans = 0 to UBound(MFIP_ELIG_APPROVALS(approval).mfip_check_program)
+					If vendor_header <> "" Then
+						Call write_variable_in_CASE_NOTE(vendor_header)
+						vendor_header = ""
+					End If
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|    Shelter Benefit: $ "
+					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Check of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & " issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Vendor to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
+					' MFIP_ELIG_APPROVALS(approval).mfip_check_issue_date(each_trans) & " CHCK - $ " & MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans) & " paid to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+				next
+			End If
+			If MFIP_ELIG_APPROVALS(approval).mfip_vnda_found = True Then
+				for each_auth = 0 To UBound(MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_number)
+					If vendor_header <> "" Then
+						Call write_variable_in_CASE_NOTE(vendor_header)
+						vendor_header = ""
+					End If
+					' Call write_variable_in_CASE_NOTE(beginning_text & "| "
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|                     $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Check Issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Auth of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth), ".00", "") & " approved to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth), ".00", "") & "     ", 4) & " Vendor to  " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
+					' "Vendor Auth - $ " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth) & " to be paid to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth)
+				next
+			End If
+		End If
+	Next
 
 	If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
@@ -10164,6 +10209,82 @@ class mfip_eligibility_detail
 	public mfip_counted_memb_allocation_exists
 	public mfip_deemer_allocation_exists
 	'TODO - add significant change functionality
+	public mfip_mony_check_found
+	public mfip_check_issue_date()
+	public mfip_check_program()
+	public mfip_check_status_code()
+	public mfip_check_status_info()
+	public mfip_check_warrant_number()
+	public mfip_check_transaction_amount()
+	public mfip_check_type_code()
+	public mfip_check_type_info()
+	public mfip_check_transaction_number()
+	public mfip_check_from_date()
+	public mfip_check_to_date()
+	public mfip_check_payment_reason()
+	public mfip_check_payment_to_name()
+	public mfip_check_payment_to_address()
+	public mfip_check_mail_method()
+	public mfip_check_payment_method()
+	public mfip_check_vendor_number()
+	public mfip_check_fiche_number()
+	public mfip_check_payment_amount()
+	public mfip_check_entitement_amount()
+	public mfip_check_recoupment_amount()
+	public mfip_check_replacement_amount()
+	public mfip_check_cacnel_amount()
+	public mfip_check_food_portion_amount()
+	public mfip_check_reconciliation_date()
+	public mfip_check_cancel_reason()
+	public mfip_check_replacement_reason()
+	public mfip_check_picup_status()
+	public mfip_check_pickup_date()
+	public mfip_check_servicing_county()
+	public mfip_check_responsibility_county()
+	public mfip_check_adjusting_transaction()
+	public mfip_check_original_transaction()
+	public mfip_check_vendor_name()
+	public mfip_check_vendor_c_o()
+	public mfip_check_vendor_street_one()
+	public mfip_check_vendor_street_two()
+	public mfip_check_vendor_city()
+	public mfip_check_vendor_state()
+	public mfip_check_vendor_zip()
+	public mfip_check_vendor_grh_yn()
+	public mfip_check_vendor_non_profit_yn()
+	public mfip_check_vendor_phone()
+	public mfip_check_vendor_county()
+	public mfip_check_vendor_status_code()
+	public mfip_check_vendor_status_info()
+	public mfip_check_vendor_incorporated_yn()
+	public mfip_check_vendor_federal_tax_id()
+	public mfip_check_vendor_ssn()
+	public mfip_check_vendor_2nd_address_type_code()
+	public mfip_check_vendor_2nd_address_type_info()
+	public mfip_check_vendor_2nd_address_eff_date()
+	public mfip_check_vendor_2nd_name()
+	public mfip_check_vendor_2nd_c_o()
+	public mfip_check_vendor_2nd_street_one()
+	public mfip_check_vendor_2nd_street_two()
+	public mfip_check_vendor_2nd_city()
+	public mfip_check_vendor_2nd_state()
+	public mfip_check_vendor_2nd_zip()
+	public mfip_check_vendor_direct_deposit_yn()
+	public mfip_check_vendor_merge_vendor_number()
+	public mfip_check_vendor_acct_number_required_yn()
+	public mfip_check_vendor_blocked_county_numbers_list()
+
+	public mfip_vnda_found
+	public mfip_vnda_vendor_number()
+	public mfip_vnda_vendor_name()
+	public mfip_vnda_reference_number()
+	public mfip_vnda_send_to_code()
+	public mfip_vnda_send_to_info()
+	public mfip_vnda_expense_type_code()
+	public mfip_vnda_expense_type_info()
+	public mfip_vnda_cash_payment_amount()
+	public mfip_vnda_hg_payment_amount()
+	public mfip_vnda_total_payment_amount()
 
 	public mfip_elig_ref_numbs()
 	public mfip_elig_membs_full_name()
@@ -10516,6 +10637,70 @@ class mfip_eligibility_detail
 		End If
 
 		If approved_today = True Then
+			ReDim mfip_check_issue_date(0)
+			ReDim mfip_check_program(0)
+			ReDim mfip_check_status_code(0)
+			ReDim mfip_check_status_info(0)
+			ReDim mfip_check_warrant_number(0)
+			ReDim mfip_check_transaction_amount(0)
+			ReDim mfip_check_type_code(0)
+			ReDim mfip_check_type_info(0)
+			ReDim mfip_check_transaction_number(0)
+			ReDim mfip_check_from_date(0)
+			ReDim mfip_check_to_date(0)
+			ReDim mfip_check_payment_reason(0)
+			ReDim mfip_check_payment_to_name(0)
+			ReDim mfip_check_payment_to_address(0)
+			ReDim mfip_check_mail_method(0)
+			ReDim mfip_check_payment_method(0)
+			ReDim mfip_check_vendor_number(0)
+			ReDim mfip_check_fiche_number(0)
+			ReDim mfip_check_payment_amount(0)
+			ReDim mfip_check_entitement_amount(0)
+			ReDim mfip_check_recoupment_amount(0)
+			ReDim mfip_check_replacement_amount(0)
+			ReDim mfip_check_cacnel_amount(0)
+			ReDim mfip_check_food_portion_amount(0)
+			ReDim mfip_check_reconciliation_date(0)
+			ReDim mfip_check_cancel_reason(0)
+			ReDim mfip_check_replacement_reason(0)
+			ReDim mfip_check_picup_status(0)
+			ReDim mfip_check_pickup_date(0)
+			ReDim mfip_check_servicing_county(0)
+			ReDim mfip_check_responsibility_county(0)
+			ReDim mfip_check_adjusting_transaction(0)
+			ReDim mfip_check_original_transaction(0)
+			ReDim mfip_check_vendor_name(0)
+			ReDim mfip_check_vendor_c_o(0)
+			ReDim mfip_check_vendor_street_one(0)
+			ReDim mfip_check_vendor_street_two(0)
+			ReDim mfip_check_vendor_city(0)
+			ReDim mfip_check_vendor_state(0)
+			ReDim mfip_check_vendor_zip(0)
+			ReDim mfip_check_vendor_grh_yn(0)
+			ReDim mfip_check_vendor_non_profit_yn(0)
+			ReDim mfip_check_vendor_phone(0)
+			ReDim mfip_check_vendor_county(0)
+			ReDim mfip_check_vendor_status_code(0)
+			ReDim mfip_check_vendor_status_info(0)
+			ReDim mfip_check_vendor_incorporated_yn(0)
+			ReDim mfip_check_vendor_federal_tax_id(0)
+			ReDim mfip_check_vendor_ssn(0)
+			ReDim mfip_check_vendor_2nd_address_type_code(0)
+			ReDim mfip_check_vendor_2nd_address_type_info(0)
+			ReDim mfip_check_vendor_2nd_address_eff_date(0)
+			ReDim mfip_check_vendor_2nd_name(0)
+			ReDim mfip_check_vendor_2nd_c_o(0)
+			ReDim mfip_check_vendor_2nd_street_one(0)
+			ReDim mfip_check_vendor_2nd_street_two(0)
+			ReDim mfip_check_vendor_2nd_city(0)
+			ReDim mfip_check_vendor_2nd_state(0)
+			ReDim mfip_check_vendor_2nd_zip(0)
+			ReDim mfip_check_vendor_direct_deposit_yn(0)
+			ReDim mfip_check_vendor_merge_vendor_number(0)
+			ReDim mfip_check_vendor_acct_number_required_yn(0)
+			ReDim mfip_check_vendor_blocked_county_numbers_list(0)
+
 			ReDim mfip_elig_ref_numbs(0)
 			ReDim mfip_elig_membs_full_name(0)
 			ReDim mfip_elig_membs_last_name_complete(0)
@@ -11846,6 +12031,383 @@ class mfip_eligibility_detail
 			chck_prog = trim(chck_prog)
 		Loop
 		PF3
+
+
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+		start_of_info = first_footer_month & "/1/" & first_footer_year
+		start_of_info = DateAdd("m", -1, start_of_info)
+		Call convert_date_into_MAXIS_footer_month(start_of_info, start_search_month, start_search_year)
+		EMWriteScreen start_search_month, 6, 38
+		EMWriteScreen start_search_year, 6, 41
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+		' MsgBox "What are the months?!"
+		EMWriteScreen "X", 17, 50
+		transmit
+
+		inqd_row = 6
+		tx_count = 0
+		EMReadScreen chck_prog, 7, inqd_row, 16
+		chck_prog = trim(chck_prog)
+
+		Do while chck_prog <> ""
+
+
+			EMReadScreen check_from_date, 8, inqd_row, 62
+			EMReadScreen check_to_date, 8, inqd_row, 73
+
+			check_from_date = DateAdd("d", 0, check_from_date)
+			check_to_date = DateAdd("d", 0, check_to_date)
+
+			check_benefit_month = DatePart("m", check_from_date)
+			check_benefit_month = right("00"&check_benefit_month, 2)
+			check_benefit_year = DatePart("yyyy", check_from_date)
+			check_benefit_year = right(check_benefit_year, 2)
+
+			Call write_value_and_transmit("I", inqd_row, 4)
+			EMReadScreen payment_reason, 14, 7, 17
+			PF3
+			' elig_footer_month
+			' elig_footer_year
+			' MsgBox "check_benefit_month - " & check_benefit_month & vbCr & "elig_footer_year - " & elig_footer_year & vbCr & "payment_reason - " & payment_reason
+
+			If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
+				' If dwp_mony_check_found = False Then
+
+				' End If
+				' MsgBox "tx_count - " & tx_count
+				ReDim preserve mfip_check_issue_date(tx_count)
+				ReDim preserve mfip_check_program(tx_count)
+				ReDim preserve mfip_check_status_code(tx_count)
+				ReDim preserve mfip_check_status_info(tx_count)
+				ReDim preserve mfip_check_warrant_number(tx_count)
+				ReDim preserve mfip_check_transaction_amount(tx_count)
+				ReDim preserve mfip_check_type_code(tx_count)
+				ReDim preserve mfip_check_type_info(tx_count)
+				ReDim preserve mfip_check_transaction_number(tx_count)
+				ReDim preserve mfip_check_from_date(tx_count)
+				ReDim preserve mfip_check_to_date(tx_count)
+				ReDim preserve mfip_check_payment_reason(tx_count)
+				ReDim preserve mfip_check_payment_to_name(tx_count)
+				ReDim preserve mfip_check_payment_to_address(tx_count)
+				ReDim preserve mfip_check_mail_method(tx_count)
+				ReDim preserve mfip_check_payment_method(tx_count)
+				ReDim preserve mfip_check_vendor_number(tx_count)
+				ReDim preserve mfip_check_fiche_number(tx_count)
+				ReDim preserve mfip_check_payment_amount(tx_count)
+				ReDim preserve mfip_check_entitement_amount(tx_count)
+				ReDim preserve mfip_check_recoupment_amount(tx_count)
+				ReDim preserve mfip_check_replacement_amount(tx_count)
+				ReDim preserve mfip_check_cacnel_amount(tx_count)
+				ReDim preserve mfip_check_food_portion_amount(tx_count)
+				ReDim preserve mfip_check_reconciliation_date(tx_count)
+				ReDim preserve mfip_check_cancel_reason(tx_count)
+				ReDim preserve mfip_check_replacement_reason(tx_count)
+				ReDim preserve mfip_check_picup_status(tx_count)
+				ReDim preserve mfip_check_pickup_date(tx_count)
+				ReDim preserve mfip_check_servicing_county(tx_count)
+				ReDim preserve mfip_check_responsibility_county(tx_count)
+				ReDim preserve mfip_check_adjusting_transaction(tx_count)
+				ReDim preserve mfip_check_original_transaction(tx_count)
+				ReDim preserve mfip_check_vendor_name(tx_count)
+				ReDim preserve mfip_check_vendor_c_o(tx_count)
+				ReDim preserve mfip_check_vendor_street_one(tx_count)
+				ReDim preserve mfip_check_vendor_street_two(tx_count)
+				ReDim preserve mfip_check_vendor_city(tx_count)
+				ReDim preserve mfip_check_vendor_state(tx_count)
+				ReDim preserve mfip_check_vendor_zip(tx_count)
+				ReDim preserve mfip_check_vendor_grh_yn(tx_count)
+				ReDim preserve mfip_check_vendor_non_profit_yn(tx_count)
+				ReDim preserve mfip_check_vendor_phone(tx_count)
+				ReDim preserve mfip_check_vendor_county(tx_count)
+				ReDim preserve mfip_check_vendor_status_code(tx_count)
+				ReDim preserve mfip_check_vendor_status_info(tx_count)
+				ReDim preserve mfip_check_vendor_incorporated_yn(tx_count)
+				ReDim preserve mfip_check_vendor_federal_tax_id(tx_count)
+				ReDim preserve mfip_check_vendor_ssn(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_type_code(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_type_info(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_eff_date(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_name(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_c_o(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_street_one(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_street_two(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_city(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_state(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_zip(tx_count)
+				ReDim preserve mfip_check_vendor_direct_deposit_yn(tx_count)
+				ReDim preserve mfip_check_vendor_merge_vendor_number(tx_count)
+				ReDim preserve mfip_check_vendor_acct_number_required_yn(tx_count)
+				ReDim preserve mfip_check_vendor_blocked_county_numbers_list(tx_count)
+
+				mfip_mony_check_found = True
+
+				mfip_check_program(tx_count) = chck_prog
+				EMReadScreen mfip_check_issue_date(tx_count), 8, inqd_row, 7
+				mfip_check_issue_date(tx_count) = trim(mfip_check_issue_date(tx_count))
+				If IsDate(mfip_check_issue_date(tx_count)) = True Then
+					If DateDiff("d", date, mfip_check_issue_date(tx_count)) = 0 Then approved_today = True
+				End if
+				EMReadScreen mfip_check_status_code(tx_count), 1, inqd_row, 26
+				If mfip_check_status_code(tx_count) = "C" Then mfip_check_status_info(tx_count) = "Cancel/Return"
+				If mfip_check_status_code(tx_count) = "D" Then mfip_check_status_info(tx_count) = "Denied"
+				If mfip_check_status_code(tx_count) = "I" Then mfip_check_status_info(tx_count) = "Issued"
+				If mfip_check_status_code(tx_count) = "P" Then mfip_check_status_info(tx_count) = "Pending"
+				If mfip_check_status_code(tx_count) = "R" Then mfip_check_status_info(tx_count) = "Cashed"
+				If mfip_check_status_code(tx_count) = "S" Then mfip_check_status_info(tx_count) = "Partial Cancel"
+				If mfip_check_status_code(tx_count) = "T" Then mfip_check_status_info(tx_count) = "Stopped/Cashed"
+				If mfip_check_status_code(tx_count) = "X" Then mfip_check_status_info(tx_count) = "Stopped"
+				If mfip_check_status_code(tx_count) = "B" Then mfip_check_status_info(tx_count) = "Cashed and Replaced"
+				EMReadScreen mfip_check_warrant_number(tx_count), 8, inqd_row, 28
+				EMReadScreen mfip_check_transaction_amount(tx_count), 9, inqd_row, 37
+				mfip_check_transaction_amount(tx_count) = trim(mfip_check_transaction_amount(tx_count))
+				EMReadScreen mfip_check_type_code(tx_count), 1, inqd_row, 48
+				If mfip_check_type_code(tx_count) = "1" Then mfip_check_type_info(tx_count) = "Ongoing Issuance"
+				If mfip_check_type_code(tx_count) = "2" Then mfip_check_type_info(tx_count) = "Same Day Local Issuance"
+				If mfip_check_type_code(tx_count) = "3" Then mfip_check_type_info(tx_count) = "Replacement Issuance"
+				If mfip_check_type_code(tx_count) = "4" Then mfip_check_type_info(tx_count) = "Same Day Issuance"
+				If mfip_check_type_code(tx_count) = "5" Then mfip_check_type_info(tx_count) = "Nightly Issuance"
+				If mfip_check_type_code(tx_count) = "6" Then mfip_check_type_info(tx_count) = "Manual Issuance"
+				If mfip_check_type_code(tx_count) = "7" Then mfip_check_type_info(tx_count) = "EBT Rapid Electronic Issuance"
+				If mfip_check_type_code(tx_count) = "8" Then mfip_check_type_info(tx_count) = "EBT Rapid Electronic Replacement"
+				EMReadScreen mfip_check_transaction_number(tx_count), 9, inqd_row, 51
+				EMReadScreen mfip_check_from_date(tx_count), 8, inqd_row, 62
+				EMReadScreen mfip_check_to_date(tx_count), 8, inqd_row, 73
+
+				Call write_value_and_transmit("I", inqd_row, 4)
+
+				EMReadScreen mfip_check_payment_reason(tx_count), 	30, 7, 17
+				EMReadScreen mfip_check_payment_to_name(tx_count), 	30, 8, 17
+				EMReadScreen addr_one, 								30, 9, 17
+				EMReadScreen addr_two, 								30, 10, 17
+				mfip_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
+				EMReadScreen mfip_check_mail_method(tx_count), 			15, 4, 63
+				EMReadScreen mfip_check_payment_method(tx_count), 		15, 5, 63
+				EMReadScreen mfip_check_vendor_number(tx_count), 		15, 6, 63
+				' MsgBox "vendor Number  " & mfip_check_vendor_number(tx_count)
+				EMReadScreen mfip_check_fiche_number(tx_count), 		15, 7, 63
+				EMReadScreen mfip_check_payment_amount(tx_count), 		10, 13, 16
+				EMReadScreen mfip_check_entitement_amount(tx_count), 	10, 14, 16
+				EMReadScreen mfip_check_recoupment_amount(tx_count), 	10, 15, 16
+				EMReadScreen mfip_check_replacement_amount(tx_count), 	10, 16, 16
+				EMReadScreen mfip_check_cacnel_amount(tx_count), 		10, 17, 16
+				EMReadScreen mfip_check_food_portion_amount(tx_count), 	10, 18, 16
+				EMReadScreen mfip_check_reconciliation_date(tx_count), 	8, 6, 43
+				EMReadScreen mfip_check_cancel_reason(tx_count), 		30, 17, 41
+				EMReadScreen mfip_check_replacement_reason(tx_count), 	30, 18, 46
+				EMReadScreen mfip_check_picup_status(tx_count), 		10, 10, 70
+				EMReadScreen mfip_check_pickup_date(tx_count), 			8, 11, 70
+				EMReadScreen mfip_check_servicing_county(tx_count), 	2, 13, 70
+				EMReadScreen mfip_check_responsibility_county(tx_count), 2, 14, 70
+				EMReadScreen mfip_check_adjusting_transaction(tx_count), 10, 15, 70
+				EMReadScreen mfip_check_original_transaction(tx_count), 10, 16, 70
+
+				mfip_check_payment_reason(tx_count) = trim(mfip_check_payment_reason(tx_count))
+				mfip_check_payment_to_name(tx_count) = trim(mfip_check_payment_to_name(tx_count))
+				mfip_check_payment_to_address(tx_count) = trim(mfip_check_payment_to_address(tx_count))
+				mfip_check_mail_method(tx_count) = trim(mfip_check_mail_method(tx_count))
+				mfip_check_payment_method(tx_count) = trim(mfip_check_payment_method(tx_count))
+				mfip_check_vendor_number(tx_count) = trim(mfip_check_vendor_number(tx_count))
+				mfip_check_fiche_number(tx_count) = trim(mfip_check_fiche_number(tx_count))
+				mfip_check_payment_amount(tx_count) = trim(mfip_check_payment_amount(tx_count))
+				mfip_check_entitement_amount(tx_count) = trim(mfip_check_entitement_amount(tx_count))
+				mfip_check_recoupment_amount(tx_count) = trim(mfip_check_recoupment_amount(tx_count))
+				mfip_check_replacement_amount(tx_count) = trim(mfip_check_replacement_amount(tx_count))
+				mfip_check_cacnel_amount(tx_count) = trim(mfip_check_cacnel_amount(tx_count))
+				mfip_check_food_portion_amount(tx_count) = trim(mfip_check_food_portion_amount(tx_count))
+				mfip_check_reconciliation_date(tx_count) = trim(mfip_check_reconciliation_date(tx_count))
+				mfip_check_cancel_reason(tx_count) = trim(mfip_check_cancel_reason(tx_count))
+				mfip_check_replacement_reason(tx_count) = trim(mfip_check_replacement_reason(tx_count))
+				mfip_check_picup_status(tx_count) = trim(mfip_check_picup_status(tx_count))
+				mfip_check_pickup_date(tx_count) = trim(mfip_check_pickup_date(tx_count))
+				mfip_check_servicing_county(tx_count) = trim(mfip_check_servicing_county(tx_count))
+				mfip_check_responsibility_county(tx_count) = trim(mfip_check_responsibility_county(tx_count))
+				mfip_check_adjusting_transaction(tx_count) = trim(mfip_check_adjusting_transaction(tx_count))
+				mfip_check_original_transaction(tx_count) = trim(mfip_check_original_transaction(tx_count))
+
+				PF3
+				tx_count = tx_count + 1
+			End If
+
+			inqd_row = inqd_row + 1
+			EMReadScreen chck_prog, 7, inqd_row, 16
+			chck_prog = trim(chck_prog)
+		Loop
+		PF3
+		Call back_to_SELF
+
+		If mfip_mony_check_found = True Then
+
+			' MsgBox "UBOUND: " & UBound(mfip_check_program)
+			for each_trans = 0 to UBound(mfip_check_program)
+
+				Call navigate_to_MAXIS_screen("MONY", "VNDS")
+
+				Call write_value_and_transmit(mfip_check_vendor_number(each_trans), 4, 59)
+				EMReadScreen mfip_check_vendor_name(each_trans), 					30, 3, 15
+				' MsgBox "VENDOR NAME - " &  mfip_check_vendor_name(each_trans)
+				EMReadScreen mfip_check_vendor_c_o(each_trans), 					30, 4, 15
+				EMReadScreen mfip_check_vendor_street_one(each_trans), 				22, 5, 15
+				EMReadScreen mfip_check_vendor_street_two(each_trans), 				22, 6, 15
+				EMReadScreen mfip_check_vendor_city(each_trans), 					15, 7, 15
+				EMReadScreen mfip_check_vendor_state(each_trans), 					2, 7, 36
+				EMReadScreen mfip_check_vendor_zip(each_trans), 					10, 7, 46
+				EMReadScreen mfip_check_vendor_grh_yn(each_trans), 					1, 4, 57
+				EMReadScreen mfip_check_vendor_non_profit_yn(each_trans), 			1, 4, 78
+				EMReadScreen mfip_check_vendor_phone(each_trans), 					16, 6, 54
+				mfip_check_vendor_phone(each_trans) = "(" & replace(replace(mfip_check_vendor_phone(each_trans), " )  ", ")"), "  ", "-")
+				EMReadScreen mfip_check_vendor_county(each_trans), 					2, 7, 61
+				EMReadScreen mfip_check_vendor_status_code(each_trans), 			1, 16, 15
+				If mfip_check_vendor_status_code(each_trans) = "A" Then mfip_check_vendor_status_info(each_trans) = "Active"
+				If mfip_check_vendor_status_code(each_trans) = "D" Then mfip_check_vendor_status_info(each_trans) = "Delete"
+				If mfip_check_vendor_status_code(each_trans) = "M" Then mfip_check_vendor_status_info(each_trans) = "Merged"
+				If mfip_check_vendor_status_code(each_trans) = "P" Then mfip_check_vendor_status_info(each_trans) = "Pending"
+				If mfip_check_vendor_status_code(each_trans) = "T" Then mfip_check_vendor_status_info(each_trans) = "Terminated"
+				EMReadScreen mfip_check_vendor_incorporated_yn(each_trans), 		1, 9, 22
+				EMReadScreen mfip_check_vendor_federal_tax_id(each_trans), 			9, 9, 41
+				EMReadScreen mfip_check_vendor_ssn(each_trans), 					11, 9, 61
+				If mfip_check_vendor_ssn(each_trans) = "___ __ ____" Then mfip_check_vendor_ssn(each_trans) = ""
+				mfip_check_vendor_ssn(each_trans) = replace(mfip_check_vendor_ssn(each_trans), " ", "-")
+				EMReadScreen mfip_check_vendor_2nd_address_type_code(each_trans), 	1, 10, 22
+				If mfip_check_vendor_2nd_address_type_code(each_trans) = "1" Then mfip_check_vendor_2nd_address_type_info(each_trans) = "Mailing Address"
+				If mfip_check_vendor_2nd_address_type_code(each_trans) = "2" Then mfip_check_vendor_2nd_address_type_info(each_trans) = "Court Order"
+				EMReadScreen mfip_check_vendor_2nd_address_eff_date(each_trans), 	8, 11, 15
+				If mfip_check_vendor_2nd_address_eff_date(each_trans) = "__ __ __" Then mfip_check_vendor_2nd_address_eff_date(each_trans) = ""
+				mfip_check_vendor_2nd_address_eff_date(each_trans) = replace(mfip_check_vendor_2nd_address_eff_date(each_trans), " ", "/")
+				EMReadScreen mfip_check_vendor_2nd_name(each_trans), 				30, 11, 15
+				EMReadScreen mfip_check_vendor_2nd_c_o(each_trans), 				30, 12, 15
+				EMReadScreen mfip_check_vendor_2nd_street_one(each_trans), 			22, 13, 15
+				EMReadScreen mfip_check_vendor_2nd_street_two(each_trans), 			22, 14, 15
+				EMReadScreen mfip_check_vendor_2nd_city(each_trans), 				15, 15, 15
+				EMReadScreen mfip_check_vendor_2nd_state(each_trans), 				2, 15, 35
+				EMReadScreen mfip_check_vendor_2nd_zip(each_trans), 				10, 15, 44
+				EMReadScreen mfip_check_vendor_direct_deposit_yn(each_trans), 		1, 12, 76
+				EMReadScreen mfip_check_vendor_merge_vendor_number(each_trans), 	8, 16, 38
+				EMReadScreen mfip_check_vendor_acct_number_required_yn(each_trans), 1, 17, 74
+				EMReadScreen mfip_check_vendor_blocked_county_numbers_list(each_trans), 29, 18, 23
+
+				mfip_check_vendor_name(each_trans) = replace(mfip_check_vendor_name(each_trans), "_", "")
+				mfip_check_vendor_c_o(each_trans) = replace(mfip_check_vendor_c_o(each_trans), "_", "")
+				mfip_check_vendor_street_one(each_trans) = replace(mfip_check_vendor_street_one(each_trans), "_", "")
+				mfip_check_vendor_street_two(each_trans) = replace(mfip_check_vendor_street_two(each_trans), "_", "")
+				mfip_check_vendor_city(each_trans) = replace(mfip_check_vendor_city(each_trans), "_", "")
+				mfip_check_vendor_zip(each_trans) = trim(mfip_check_vendor_zip(each_trans))
+				mfip_check_vendor_zip(each_trans) = replace(mfip_check_vendor_zip(each_trans), " ", "-")
+
+				mfip_check_vendor_federal_tax_id(each_trans) = replace(mfip_check_vendor_federal_tax_id(each_trans), "_", "")
+
+				mfip_check_vendor_2nd_name(each_trans) = replace(mfip_check_vendor_2nd_name(each_trans), "_", "")
+				mfip_check_vendor_2nd_c_o(each_trans) = replace(mfip_check_vendor_2nd_c_o(each_trans), "_", "")
+				mfip_check_vendor_2nd_street_one(each_trans) = replace(mfip_check_vendor_2nd_street_one(each_trans), "_", "")
+				mfip_check_vendor_2nd_street_two(each_trans) = replace(mfip_check_vendor_2nd_street_two(each_trans), "_", "")
+				mfip_check_vendor_2nd_city(each_trans) = replace(mfip_check_vendor_2nd_city(each_trans), "_", "")
+				mfip_check_vendor_2nd_zip(each_trans) = replace(mfip_check_vendor_2nd_zip(each_trans), "_", "")
+				mfip_check_vendor_2nd_zip(each_trans) = trim(mfip_check_vendor_2nd_zip(each_trans))
+				mfip_check_vendor_2nd_zip(each_trans) = replace(mfip_check_vendor_2nd_zip(each_trans), " ", "-")
+
+				mfip_check_vendor_merge_vendor_number(each_trans) = replace(mfip_check_vendor_merge_vendor_number(each_trans), "_", "")
+				mfip_check_vendor_acct_number_required_yn(each_trans) = replace(mfip_check_vendor_acct_number_required_yn(each_trans), "_", "")
+
+				mfip_check_vendor_blocked_county_numbers_list(each_trans) = replace(mfip_check_vendor_blocked_county_numbers_list(each_trans), "_", "")
+				mfip_check_vendor_blocked_county_numbers_list(each_trans) = trim((mfip_check_vendor_blocked_county_numbers_list(each_trans)))
+
+				PF3
+			Next
+		End If
+
+
+		' ReDim mfip_vnda_found
+		ReDim mfip_vnda_vendor_number(0)
+		ReDim mfip_vnda_vendor_name(0)
+		ReDim mfip_vnda_reference_number(0)
+		ReDim mfip_vnda_send_to_code(0)
+		ReDim mfip_vnda_send_to_info(0)
+		ReDim mfip_vnda_expense_type_code(0)
+		ReDim mfip_vnda_expense_type_info(0)
+		ReDim mfip_vnda_cash_payment_amount(0)
+		ReDim mfip_vnda_hg_payment_amount(0)
+		ReDim mfip_vnda_total_payment_amount(0)
+
+
+		Call Back_to_SELF
+		Call navigate_to_MAXIS_screen("MONY", "VNDA")
+
+		EMWriteScreen elig_footer_month, 4, 55
+		EMWriteScreen elig_footer_year, 4, 58
+		Call write_value_and_transmit("X", 12, 16)
+		EMReadScreen panel_location, 4, 4, 14
+		If panel_location <> "Case" Then 			'this is on the initial search panel, if it says 'Case' it means we are still at the first screen
+			auth_count = 0
+			vnda_row = 6
+			'2225596
+			Do
+				EMReadScreen vndr_nbr, 7, vnda_row, 3
+				EMReadScreen vndr_send, 1, vnda_row, 57
+				' MsgBox "Footer month - " & elig_footer_month & "/" & elig_footer_year & vbCr & "vndr_nbr - " & vndr_nbr & vbCr & "vndr_send - " & vndr_send
+				If vndr_nbr <> "_______" and vndr_send = "V" Then
+					' If dwp_vnda_found = False Then
+
+					' End If
+					mfip_vnda_found = True
+					' MsgBox "Vendor found"
+
+					ReDim preserve mfip_vnda_vendor_number(auth_count)
+					ReDim preserve mfip_vnda_vendor_name(auth_count)
+					ReDim preserve mfip_vnda_reference_number(auth_count)
+					ReDim preserve mfip_vnda_send_to_code(auth_count)
+					ReDim preserve mfip_vnda_send_to_info(auth_count)
+					ReDim preserve mfip_vnda_expense_type_code(auth_count)
+					ReDim preserve mfip_vnda_expense_type_info(auth_count)
+					ReDim preserve mfip_vnda_cash_payment_amount(auth_count)
+					ReDim preserve mfip_vnda_hg_payment_amount(auth_count)
+					ReDim preserve mfip_vnda_total_payment_amount(auth_count)
+
+					EMReadScreen mfip_vnda_vendor_number(auth_count), 7, vnda_row, 3
+					EMReadScreen mfip_vnda_vendor_name(auth_count), 28, vnda_row, 11
+					EMReadScreen mfip_vnda_reference_number(auth_count), 16, vnda_row, 40
+					EMReadScreen mfip_vnda_send_to_code(auth_count), 1, vnda_row, 57
+					EMReadScreen mfip_vnda_expense_type_code(auth_count), 2, vnda_row, 59
+					EMReadScreen mfip_vnda_cash_payment_amount(auth_count), 8, vnda_row, 63
+					EMReadScreen mfip_vnda_hg_payment_amount(auth_count), 8, vnda_row, 72
+
+					mfip_vnda_vendor_number(auth_count) = replace(mfip_vnda_vendor_number(auth_count), "_", "")
+					mfip_vnda_vendor_name(auth_count) = replace(mfip_vnda_vendor_name(auth_count), "_", "")
+					mfip_vnda_reference_number(auth_count) = replace(mfip_vnda_reference_number(auth_count), "_", "")
+
+					If mfip_vnda_send_to_code(auth_count) = "V" Then mfip_vnda_send_to_info(auth_count) = "Vendor"
+					If mfip_vnda_send_to_code(auth_count) = "C" Then mfip_vnda_send_to_info(auth_count) = "Client"
+
+					If mfip_vnda_expense_type_code(auth_count) = "01" Then mfip_vnda_expense_type_info(auth_count) = "Rent"
+					If mfip_vnda_expense_type_code(auth_count) = "02" Then mfip_vnda_expense_type_info(auth_count) = "Mortgage"
+					If mfip_vnda_expense_type_code(auth_count) = "03" Then mfip_vnda_expense_type_info(auth_count) = "Electric"
+					If mfip_vnda_expense_type_code(auth_count) = "04" Then mfip_vnda_expense_type_info(auth_count) = "Heat"
+					If mfip_vnda_expense_type_code(auth_count) = "05" Then mfip_vnda_expense_type_info(auth_count) = "Phone"
+					If mfip_vnda_expense_type_code(auth_count) = "06" Then mfip_vnda_expense_type_info(auth_count) = "Water"
+					If mfip_vnda_expense_type_code(auth_count) = "07" Then mfip_vnda_expense_type_info(auth_count) = "Food"
+					If mfip_vnda_expense_type_code(auth_count) = "08" Then mfip_vnda_expense_type_info(auth_count) = "Personal Needs"
+					If mfip_vnda_expense_type_code(auth_count) = "09" Then mfip_vnda_expense_type_info(auth_count) = "Household Needs"
+					If mfip_vnda_expense_type_code(auth_count) = "10" Then mfip_vnda_expense_type_info(auth_count) = "Furniture"
+					If mfip_vnda_expense_type_code(auth_count) = "11" Then mfip_vnda_expense_type_info(auth_count) = "Appliances"
+					If mfip_vnda_expense_type_code(auth_count) = "12" Then mfip_vnda_expense_type_info(auth_count) = "Clothes"
+					If mfip_vnda_expense_type_code(auth_count) = "13" Then mfip_vnda_expense_type_info(auth_count) = "Other"
+					If mfip_vnda_expense_type_code(auth_count) = "15" Then mfip_vnda_expense_type_info(auth_count) = "MSA Eligible Spouse"
+					If mfip_vnda_expense_type_code(auth_count) = "54" Then mfip_vnda_expense_type_info(auth_count) = "Rent with Landlord Notice"
+
+					mfip_vnda_cash_payment_amount(auth_count) = trim(replace(mfip_vnda_cash_payment_amount(auth_count), "_", ""))
+					mfip_vnda_hg_payment_amount(auth_count) = trim(replace(mfip_vnda_hg_payment_amount(auth_count), "_", ""))
+
+					If mfip_vnda_cash_payment_amount(auth_count) = "" Then mfip_vnda_cash_payment_amount(auth_count) = 0
+					If mfip_vnda_hg_payment_amount(auth_count) = "" Then mfip_vnda_hg_payment_amount(auth_count) = 0
+					mfip_vnda_cash_payment_amount(auth_count) = mfip_vnda_cash_payment_amount(auth_count)*1
+					mfip_vnda_hg_payment_amount(auth_count) = mfip_vnda_hg_payment_amount(auth_count)*1
+					mfip_vnda_total_payment_amount(auth_count) = mfip_vnda_cash_payment_amount(auth_count) + mfip_vnda_hg_payment_amount(auth_count)
+					auth_count = auth_count + 1
+				End If
+				vnda_row = vnda_row + 1
+				' MsgBox "vnda_row - " & vnda_row & vbCr & vndr_nbr & " - vndr_nbr" & vbCr & "_______"
+			Loop until vndr_nbr = "_______"
+			PF3
+		End If
 	end sub
 end class
 
