@@ -2,7 +2,7 @@
 name_of_script = "NOTES - EBT BENEFITS STOLEN.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 150                	'manual run time in seconds
+STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -225,6 +225,9 @@ If action_step = "CASE/NOTE Information about Request" Then
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
 
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 120
+
     script_end_procedure_with_error_report("The case note has been created. Please run this script again when a decision is made on the request.")
 
   ElseIf request_status = "Request Approved" Then
@@ -248,6 +251,9 @@ If action_step = "CASE/NOTE Information about Request" Then
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
 
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 240
+
     script_end_procedure_with_error_report("The case note has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
 
   ElseIf request_status = "Request Denied" Then
@@ -270,6 +276,9 @@ If action_step = "CASE/NOTE Information about Request" Then
     If previous_benefit_replacement = "Yes" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
+
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 240
     
     'Dialog to allow for edits to CASE/NOTE before going to SPEC/MEMO
     Dialog1 = ""
@@ -345,6 +354,9 @@ If action_step = "CASE/NOTE Information about Request" Then
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
     If trim(denial_additional_reasons) <> "" then Call write_variable_in_SPEC_MEMO("> " & denial_additional_reasons)
 
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 150
+
     script_end_procedure_with_error_report("The SPEC/MEMO has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
   End If
 End If
@@ -401,6 +413,9 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
     If trim(denial_additional_reasons) <> "" then Call write_variable_in_SPEC_MEMO("> " & denial_additional_reasons)
 
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 150
+
     script_end_procedure_with_error_report("The SPEC/MEMO has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
 
   ElseIf spec_memo_type = "Benefits Replaced - DHS TSS BENE Unit Determination" Then
@@ -431,7 +446,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
         
         If trim(stolen_benefits_replaced_amount) = "" Then err_msg = err_msg & vbCr & "* You must enter the dollar amount of stolen benefits returned to EBT account."
         If IsNumeric(trim(stolen_benefits_replaced_amount)) = False Then err_msg = err_msg & vbCr & "* You must enter the dollar amount of stolen benefits returned to EBT account in a number format."
-        If IsNumeric(trim(stolen_benefits_not_replaced_amount)) = False Then err_msg = err_msg & vbCr & "* You must enter the dollar amount of stolen benefits not replaced in a number format."
+        If IsNumeric(trim(stolen_benefits_not_replaced_amount)) = False and trim(stolen_benefits_not_replaced_amount) <> "" Then err_msg = err_msg & vbCr & "* You must enter the dollar amount of stolen benefits not replaced in a number format."
         If trim(stolen_benefits_not_replaced_amount) <> "" and trim(stolen_benefit_not_replaced_explanation) = "" Then err_msg = err_msg & vbCr & "* You must provide an explanation for why the full amount of stolen benefits was not replaced."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
       Loop until err_msg = ""
@@ -446,6 +461,9 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     Call write_variable_in_SPEC_MEMO("> If you have not reported your compromised EBT card stolen and had a replacement card issued, this was done for you prior to benefit replacement.")
     Call write_variable_in_SPEC_MEMO("> If you do not agree with this decision, see the reverse side of this notice for your appeal rights. Contact your county worker to request an appeal.")
 
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 90
+
     script_end_procedure_with_error_report("The SPEC/MEMO has been created.")
   End If
 End If
@@ -456,41 +474,41 @@ End If
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------06/13/2024
 '--Tab orders reviewed & confirmed----------------------------------------------06/13/2024
-'--Mandatory fields all present & reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
+'--Mandatory fields all present & reviewed--------------------------------------06/17/2024
+'--All variables in dialog match mandatory fields-------------------------------06/17/2024
 '--Review dialog names for content and content fit in dialog--------------------06/13/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used 
+'--All variables are CASE:NOTEing (if required)---------------------------------06/17/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/17/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/17/2024
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used06/17/2024 
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/17/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/17/2024
+'--PRIV Case handling reviewed -------------------------------------------------06/17/2024
+'--Out-of-County handling reviewed----------------------------------------------06/17/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/17/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------06/17/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------06/18/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------06/18/2024
+'--Denomination reviewed -------------------------------------------------------06/18/2024
+'--Script name reviewed---------------------------------------------------------06/18/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/18/2024
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/17/2024
+'--comment Code-----------------------------------------------------------------06/17/2024
+'--Update Changelog for release/update------------------------------------------06/17/2024
+'--Remove testing message boxes-------------------------------------------------06/17/2024
+'--Remove testing code/unnecessary code-----------------------------------------06/17/2024
+'--Review/update SharePoint instructions----------------------------------------06/17/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/17/2024
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------
 '--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Update project team/issue contact (if applicable)----------------------------06/17/2024
