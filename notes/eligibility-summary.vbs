@@ -579,7 +579,7 @@ function define_dwp_elig_dialog()
 					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-					PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
+					' PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If show_pact = True Then
@@ -26991,7 +26991,6 @@ Do
 	if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", date, next_note_date) < 0
 
-MsgBox "approval_note_found_for_MFIP - " & approval_note_found_for_MFIP & vbCr & "approval_note_found - " & approval_note_found
 If approval_note_found = True Then
 	dlg_len = 45
 	If approval_note_found_for_DWP = True Then dlg_len = dlg_len + 20
