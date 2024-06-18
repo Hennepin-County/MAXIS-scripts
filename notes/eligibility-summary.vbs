@@ -579,6 +579,7 @@ function define_dwp_elig_dialog()
 					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+					PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If show_pact = True Then
@@ -4517,7 +4518,7 @@ function dwp_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for DWP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", DWP_ELIG_APPROVALS(elig_ind).dwp_approved_date)
-	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5081,7 +5082,7 @@ function mfip_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for MFIP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
-	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5576,7 +5577,7 @@ function msa_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_approved_date)
-	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -6052,7 +6053,7 @@ function ga_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_approved_date)
-	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_GA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
@@ -6593,7 +6594,7 @@ function grh_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for GRH - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GRH_ELIG_APPROVALS(elig_ind).grh_elig_approved_date)
-	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
@@ -7064,7 +7065,7 @@ function hc_elig_case_note()
 		Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
-	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_HC = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	If HC_UNIQUE_APPROVALS(l_budg, unique_app) = True Then
 		Call write_bullet_and_variable_in_CASE_NOTE("Date 1503 Sent", date_of_1503)
 	End If
@@ -7810,7 +7811,7 @@ function deny_elig_case_note()
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", CASH_DENIAL_APPROVALS(elig_ind).elig_version_date)
 
-	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_DENY = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
 		Call write_variable_in_CASE_NOTE("* Request for CASH Program has been WITHDRAWN.")
 	End If
@@ -8204,7 +8205,7 @@ function snap_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
@@ -26853,6 +26854,7 @@ app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
 explain_why_we_are_processing_btn = 130
+verif_tips_and_tricks_btn = 140
 
 const months_in_approval			= 0
 const limit_benefit_months			= 1
@@ -26942,7 +26944,7 @@ Do
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
-		If InStr(note_title, "MFIP - ") <> 0 Then approval_note_found_for_MFIP = True
+		If InStr(note_title, " - MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MFIP Special") <> 0 Then approval_note_found_for_MFSD = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
 		If InStr(note_title, " GA") <> 0 Then approval_note_found_for_GA = True
@@ -26989,6 +26991,7 @@ Do
 	if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", date, next_note_date) < 0
 
+MsgBox "approval_note_found_for_MFIP - " & approval_note_found_for_MFIP & vbCr & "approval_note_found - " & approval_note_found
 If approval_note_found = True Then
 	dlg_len = 45
 	If approval_note_found_for_DWP = True Then dlg_len = dlg_len + 20
@@ -27008,52 +27011,52 @@ If approval_note_found = True Then
 	  y_pos = 25
 	  If approval_note_found_for_DWP = True Then
 		  Text 15, y_pos+5, 330, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_DWP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFIP = True Then
 		  Text 15, y_pos+5, 330, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MFIP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFSD = True Then
 		  Text 15, y_pos+5, 350, 10, "MF Special Diet Check CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFSD
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MFSD
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MSA = True Then
 		  Text 15, y_pos+5, 330, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MSA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GA = True Then
 		  Text 15, y_pos+5, 330, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_GA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_DENY = True Then
 		  Text 15, y_pos+5, 330, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_DENY
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GRH = True Then
 		  Text 15, y_pos+5, 330, 10, "HS/GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_GRH
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_SNAP = True Then
 		  Text 15, y_pos+5, 330, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_SNAP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_HC = True Then
 		  Text 15, y_pos+5, 330, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_HC
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_EMER = True Then
 		  Text 15, y_pos+5, 330, 10, "EMER Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_EMER
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_EMER
 		  y_pos = y_pos + 20
 	  End If
 	  ButtonGroup ButtonPressed
@@ -27085,65 +27088,65 @@ If approval_note_found = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
-	If add_new_note_for_DWP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_DWP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_DWP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_DWP = False
 		end_msg_info = end_msg_info & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
+	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
 
-	If add_new_note_for_MFIP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MFIP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MFIP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_MFIP = False
 		end_msg_info = end_msg_info & "MFIP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP." & vbCr
+	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP." & vbCr
 
-	If add_new_note_for_MFSD = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MFSD = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MFSD = "No - Approval completed by another worker." Then
 		end_msg_info = end_msg_info & "MFIP Special Diet had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 		special_diet_check_exists = False
 	End If
-	If add_new_note_for_MFSD = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP Special Diet, it was requested to enter a new note about eligibility for MFIP." & vbCr
+	If add_new_note_for_MFSD = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP Special Diet, it was requested to enter a new note about eligibility for MFIP." & vbCr
 
-	If add_new_note_for_MSA = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MSA = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MSA = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_MSA = False
 		end_msg_info = end_msg_info & "MSA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA." & vbCr
+	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA." & vbCr
 
-	If add_new_note_for_GA = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_GA = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_GA = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_GA = False
 		end_msg_info = end_msg_info & "GA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA." & vbCr
+	If add_new_note_for_GA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA." & vbCr
 
-	If add_new_note_for_DENY = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_DENY = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_DENY = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_DENY = False
 		end_msg_info = end_msg_info & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY." & vbCr
+	If add_new_note_for_DENY = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY." & vbCr
 
-	If add_new_note_for_GRH = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_GRH = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_GRH = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_GRH = False
 		end_msg_info = end_msg_info & "GRH had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH." & vbCr
+	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH." & vbCr
 
-	If add_new_note_for_SNAP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_SNAP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_SNAP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_SNAP = False
 		end_msg_info = end_msg_info & "SNAP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP." & vbCr
+	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP." & vbCr
 
-	If add_new_note_for_HC = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_HC = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_HC = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_HC = False
 		end_msg_info = end_msg_info & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC." & vbCr
+	If add_new_note_for_HC = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC." & vbCr
 
-	If add_new_note_for_EMER = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_EMER = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_EMER = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_EMER = False
 		end_msg_info = end_msg_info & "EMER had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_EMER = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER." & vbCr
+	If add_new_note_for_EMER = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER." & vbCr
 End If
 
 Call back_to_SELF
