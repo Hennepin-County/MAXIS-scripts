@@ -1631,6 +1631,21 @@ script_array(script_num).policy_references		= array("CM Determining_Gross_Income
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "EBT Stolen Benefits"													'Script name
+' script_array(script_num).description		    = "Documents benefits replacement request for stolen benefits."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ", "SNAP", "MFAP", "MFIP", "DWP")
+script_array(script_num).dlg_keys               = array("Cn", "Tk", "Sm")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #06/18/2024#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("TE Replacing_Stolen_EBT_Food_Client_Notification 02.11.126", "TE Replacing_Stolen_EBT_Food_Client_Reports 02.11.127", "TE Replacing_Stolen_EBT_Food_Case-Note 02.11.128")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "EDRS DISQ Match Found"
 ' script_array(script_num).description 			= "Template for noting the action steps when a SNAP recipient has an eDRS DISQ per TE02.08.127."

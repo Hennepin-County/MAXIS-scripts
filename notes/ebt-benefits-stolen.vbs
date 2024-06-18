@@ -508,7 +508,7 @@ End If
 '--Remove testing code/unnecessary code-----------------------------------------06/17/2024
 '--Review/update SharePoint instructions----------------------------------------06/17/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/17/2024
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/18/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------06/18/2024
+'--Complete misc. documentation (if applicable)---------------------------------06/18/2024
 '--Update project team/issue contact (if applicable)----------------------------06/17/2024
