@@ -156,6 +156,7 @@ mtaf_btn			= 410
 psn_btn				= 411
 sf_btn				= 412
 diet_btn			= 413
+other_btn			= 414
 
 
 'Define resource buttons
@@ -293,6 +294,7 @@ mtaf_form_name		= "MN Transition Application Form (MTAF)"
 psn_form_name		= "Professional Statement of Need (PSN)"
 sf_form_name		= "Proof of Shelter/Residence Expenses"
 diet_form_name		= "Special Diet Information Request"
+other_form_name		= "**Other form/form not listed**"
 
 'FUNCTIONS DEFINED===========================================================================
 
@@ -1422,7 +1424,6 @@ end function
 Dim asset_date_received, actions_taken, asset_dhs_6054_checkbox, asset_update_panels_checkbox
 'ASSET CODE-END
 
-
 function atr_dialog()
 	EditBox 395, 0, 45, 15, atr_date_received		
 	DropListBox 50, 40, 100, 15, HH_Memb_DropDown, atr_member_dropdown
@@ -1545,7 +1546,6 @@ function change_dialog()
 
 end function
 Dim chng_effective_date, chng_date_received, chng_address_notes, chng_household_notes, chng_asset_notes, chng_vehicles_notes, chng_income_notes, chng_shelter_notes, chng_other_change_notes, chng_actions_taken, chng_other_notes, chng_verifs_requested, chng_changes_continue, chng_notable_change 'Change Reported variables
-
 
 function evf_dialog()
 	EditBox 395, 0, 45, 15, evf_date_received		
@@ -2003,12 +2003,26 @@ function diet_dialog()
 end function
 Dim diet_date_received, diet_member_number, diet_mfip_msa_status, diet_1_dropdown, diet_2_dropdown, diet_3_dropdown, diet_4_dropdown, diet_5_dropdown, diet_6_dropdown, diet_7_dropdown, diet_8_dropdown, diet_relationship_1_dropdown, diet_relationship_2_dropdown, diet_relationship_3_dropdown, diet_relationship_4_dropdown, diet_relationship_5_dropdown, diet_relationship_6_dropdown, diet_relationship_7_dropdown, diet_relationship_8_dropdown, diet_verif_1_dropdown, diet_verif_2_dropdown, diet_verif_3_dropdown, diet_verif_4_dropdown, diet_verif_5_dropdown, diet_verif_6_dropdown, diet_verif_7_dropdown, diet_verif_8_dropdown, diet_date_last_exam, diet_treatment_plan_dropdown, diet_status_dropdown, diet_length_diet, diet_comments, diet_tikl_checkbox	'Special Diet Variables
 
+function other_dialog()
+	EditBox 395, 0, 45, 15, other_date_received	
+	EditBox 75, 25, 260, 15, other_list_form_names
+	EditBox 75, 50, 260, 15, other_doc_notes
+	EditBox 75, 75, 260, 15, other_verif_received
+	EditBox 75, 100, 260, 15, other_action_taken
+	Text 340, 5, 55, 10, "Document Date:"
+	Text 25, 30, 50, 10, "Form Name(s)"
+	Text 20, 80, 55, 10, "Verifs Received"
+	Text 25, 105, 50, 10, "Actions Taken"
+	Text 15, 55, 55, 10, "Document Notes"
+	Text 5, 5, 220, 10, other_form_name
+end function
+Dim other_date_received, other_list_form_names, other_doc_notes, other_verif_received, other_action_taken, other_notes
 function dialog_movement() 	'Dialog movement handling for buttons displayed on the individual form dialogs. 
 	If form_count < Ubound(form_type_array, 2) AND ButtonPressed = -1 Then	ButtonPressed = next_btn	'If the enter button is selected the script will handle this as if Next was selected
 	If form_count = Ubound(form_type_array, 2) AND ButtonPressed = -1 Then ButtonPressed = complete_btn	'If the enter button is selected the script will handle this as if Complete was selected
 	If ButtonPressed = next_btn AND err_msg = "" Then form_count = form_count + 1	'If next is selected, it will iterate to the next form in the array and display this dialog
 	If ButtonPressed = previous_btn AND err_msg = "" Then form_count = form_count - 1	'If previous is selected, it will iterate to the previous form in the array and display this dialog
-	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) AND err_msg = "" Then
+	If (ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn OR ButtonPressed = other_btn) AND err_msg = "" Then
 		For i = 0 to Ubound(form_type_array, 2) 	'For/Next used to iterate through the array to display the correct dialog
 			If ButtonPressed = asset_btn and form_type_array(form_type_const, i) = asset_form_name Then form_count = i 
 			If ButtonPressed = atr_btn and form_type_array(form_type_const, i) = atr_form_name Then form_count = i 
@@ -2023,6 +2037,7 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 			If ButtonPressed = psn_btn and form_type_array(form_type_const, i) = psn_form_name Then form_count = i 
 			If ButtonPressed = sf_btn and form_type_array(form_type_const, i) = sf_form_name Then form_count = i 
 			If ButtonPressed = diet_btn and form_type_array(form_type_const, i) = diet_form_name Then form_count = i 
+			If ButtonPressed = other_btn and form_type_array(form_type_const, i) = other_form_name Then form_count = i 
 		Next
 	End If 
 	
@@ -2045,7 +2060,7 @@ function dialog_movement() 	'Dialog movement handling for buttons displayed on t
 end function 
 
 function main_error_handling()	'Error handling for main dialog of forms
-	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
+	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn OR ButtonPressed = other_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
 		For form_errors = 0 to Ubound(form_type_array, 2)
 			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form
 				actions_taken = Trim(actions_taken)
@@ -2102,7 +2117,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				IF (arepTIKL_check = checked AND arep_signature_date = "") THEN arep_err_msg = arep_err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
 			End If
 
-			If form_type_array(form_type_const, form_errors) = change_form_name then 'Error handling for Change Form 
+			If form_type_array(form_type_const, form_errors) = change_form_name AND current_dialog = "chng" then 'Error handling for Change Form 
 				If IsDate(trim(chng_effective_date)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid Effective date."
 				If IsDate(trim(chng_date_received)) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
@@ -2112,7 +2127,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 			
 			End If
 
-			If form_type_array(form_type_const, form_errors) = evf_form_name then 'Error handling for EVF Form 
+			If form_type_array(form_type_const, form_errors) = evf_form_name AND current_dialog = "evf" then 'Error handling for EVF Form 
 				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a vaid Document Date."
 				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* Select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
 				IF evf_employer = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the employers name."  'checks if the employer name has been entered
@@ -2124,6 +2139,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If evf_info = "no" and evf_info_date <> "" then evf_err_msg = evf_err_msg & vbCr & "* You cannot mark additional info as 'no' and have a date requested."
 				If EVF_TIKL_checkbox = 1 and evf_info <> "yes" then evf_err_msg = evf_err_msg & vbCr & "* Additional information was not requested, uncheck the TIKL checkbox."
 			End If
+
 			If form_type_array(form_type_const, form_errors) = hosp_form_name AND current_dialog = "hosp" then 'Error handling for Hospice Form 
 				If IsDate(hosp_date_received) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
 				If hosp_resident_name = "Select" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Select the resident that is in hospice."
@@ -2131,7 +2147,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If IsDate(hosp_entry_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
 			End If
 
-			If form_type_array(form_type_const, form_errors) = iaa_form_name then 'Error handling for IAA Form 
+			If form_type_array(form_type_const, form_errors) = iaa_form_name AND current_dialog = "iaa" then 'Error handling for IAA Form 
 				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Document date."
 				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
@@ -2152,7 +2168,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If iaa_update_pben_checkbox = unchecked AND iaa_comments = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must explain in comments why PBEN is not being created/updated. "
 			End If
 
-			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name then 'Error handling for LTC 1503 Form
+			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name AND current_dialog = "ltc 1503" then 'Error handling for LTC 1503 Form
 				If IsDate(ltc_1503_date_received) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Document date."
 				If ltc_1503_admit_date <> "" AND IsDate(ltc_1503_admit_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid admission date"
 				If ltc_1503_discharge_date <> "" AND IsDate(ltc_1503_discharge_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid discharge date"
@@ -2166,7 +2182,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 				End If
 				If ltc_1503_sent_verif_request_checkbox = checked AND ltc_1503_sent_request_to = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Select/Enter verif sent to"
 			End If
-
 
 			If form_type_array(form_type_const, form_errors) = mof_form_name AND current_dialog = "mof" then 'Error handling for MOF Form 
 				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid Document date."
@@ -2184,8 +2199,6 @@ function main_error_handling()	'Error handling for main dialog of forms
 				mof_other_notes = trim(mof_other_notes)
 
 			End If
-
-
 
 			If form_type_array(form_type_const, form_errors) = mtaf_form_name AND current_dialog = "mtaf" then 'Error handling for MTAF Form
 				If IsDate(MTAF_date) = False Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Enter the date the MTAF was received."
@@ -2222,7 +2235,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 				Call addr_panel
 			End If
 
-			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form 
+			If form_type_array(form_type_const, form_errors) = diet_form_name AND current_dialog = "diet" then 'Error handling for Diet Form 
 				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
 	
@@ -2299,11 +2312,15 @@ function main_error_handling()	'Error handling for main dialog of forms
 				If diet_length_diet = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter length of prescribed diet"
 				If diet_status_dropdown = "" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select Diet Status"
 				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason for ineligibility & benefit end date in Comments"
-				
+			End If
+
+			If form_type_array(form_type_const, form_errors) = other_form_name AND current_dialog = "other" then 'Error handling for Diet Form 
+				IF IsDate(other_date_received) = FALSE THEN other_err_msg = other_err_msg & vbCr & "* Enter a valid Document Date."
+				If Trim(other_list_form_names) = ""  THEN other_err_msg = other_err_msg & vbCr & "* Specify name of form(s)"
+				If Trim(other_doc_notes) = "" THEN other_err_msg = other_err_msg & vbCr &  "* Specify details for each form"
+				If Trim(other_action_taken) = "" THEN other_err_msg = other_err_msg & vbCr &  "* Specify actions taken"
 			End If
 		Next
-		
-		
 	End If
 
 	'Complete button triggers the error message to populate. Formatting error meessage to: Adds headers for each form if there are applicable errors
@@ -2320,6 +2337,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 	If psn_err_msg <> "" AND current_dialog = "psn" Then err_msg = err_msg & vbNewLine & "PSN DIALOG" & psn_err_msg & vbNewLine
 	If sf_err_msg <> "" AND current_dialog = "sf" Then err_msg = err_msg & vbNewLine & "SF DIALOG" & sf_err_msg & vbNewLine
 	If diet_err_msg <> "" AND current_dialog = "diet" Then err_msg = err_msg & vbNewLine & "DIET DIALOG" & diet_err_msg & vbNewLine
+	If other_err_msg <> "" AND current_dialog = "other" Then err_msg = err_msg & vbNewLine & "OTHER FORM DIALOG" & other_err_msg & vbNewLine
 
 	'If complete button or enter while on last tab is selected and all forms are not complete, this will stop them from proceeding 
 	If ButtonPressed = complete_btn OR (form_count = Ubound(form_type_array, 2) AND ButtonPressed = -1) Then 
@@ -2337,6 +2355,7 @@ function main_error_handling()	'Error handling for main dialog of forms
 			If item = form_type_array(the_last_const, item) AND psn_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~PSN form not complete~~"
 			If item = form_type_array(the_last_const, item) AND sf_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Proof of Shelter/Residence form not complete~~"
 			If item = form_type_array(the_last_const, item) AND diet_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Diet form not complete~~"
+			If item = form_type_array(the_last_const, item) AND other_err_msg <> "" Then err_msg = err_msg & vbNewLine & "~~Other form not complete~~"
 		Next 
 	End If
 
@@ -2409,7 +2428,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 			err_msg = ""
 			Dialog1 = "" 			'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 296, 235, "Select Documents Received"
-				DropListBox 30, 30, 180, 15, ""+chr(9)+asset_form_name+chr(9)+atr_form_name+chr(9)+arep_form_name+chr(9)+change_form_name+chr(9)+evf_form_name+chr(9)+hosp_form_name+chr(9)+iaa_form_name+chr(9)+ltc_1503_form_name+chr(9)+mof_form_name+chr(9)+mtaf_form_name+chr(9)+psn_form_name+chr(9)+sf_form_name+chr(9)+diet_form_name, Form_type
+				DropListBox 30, 30, 180, 15, ""+chr(9)+asset_form_name+chr(9)+atr_form_name+chr(9)+arep_form_name+chr(9)+change_form_name+chr(9)+evf_form_name+chr(9)+hosp_form_name+chr(9)+iaa_form_name+chr(9)+ltc_1503_form_name+chr(9)+mof_form_name+chr(9)+mtaf_form_name+chr(9)+psn_form_name+chr(9)+sf_form_name+chr(9)+diet_form_name+chr(9)+other_form_name, Form_type
 				ButtonGroup ButtonPressed
 				PushButton 225, 30, 35, 10, "Add", add_button
 				PushButton 225, 60, 35, 10, "All Forms", all_forms
@@ -2576,6 +2595,7 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					CheckBox 15, 120, 160, 10, psn_form_name, psn_checkbox
 					CheckBox 15, 130, 160, 10, sf_form_name, shelter_checkbox
 					CheckBox 15, 140, 170, 10, diet_form_name, diet_checkbox
+					CheckBox 15, 150, 170, 10, other_form_name, other_checkbox
 					ButtonGroup ButtonPressed
 					OkButton 95, 180, 45, 15
 					CancelButton 150, 180, 40, 15
@@ -2655,10 +2675,15 @@ Do							'Do Loop to cycle through dialog as many times as needed until all desi
 					form_type_array(form_type_const, form_count) = diet_form_name
 					form_count= form_count + 1 
 				End If
+				If other_checkbox = checked Then 
+					ReDim Preserve form_type_array(the_last_const, form_count)		'ReDim Preserve to keep all selections without writing over one another.
+					form_type_array(form_type_const, form_count) = other_form_name
+					form_count= form_count + 1 
+				End If
 			
 				'MsgBox "all form array string" & all_form_array 
 					
-				If asset_checkbox = unchecked and arep_checkbox = unchecked and atr_checkbox = unchecked and change_checkbox = unchecked and evf_checkbox = unchecked and hospice_checkbox = unchecked and iaa_checkbox = unchecked and ltc_1503_checkbox = unchecked and mof_checkbox = unchecked and mtaf_checkbox = unchecked and psn_checkbox = unchecked and shelter_checkbox = unchecked and diet_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "-Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
+				If asset_checkbox = unchecked and arep_checkbox = unchecked and atr_checkbox = unchecked and change_checkbox = unchecked and evf_checkbox = unchecked and hospice_checkbox = unchecked and iaa_checkbox = unchecked and ltc_1503_checkbox = unchecked and mof_checkbox = unchecked and mtaf_checkbox = unchecked and psn_checkbox = unchecked and shelter_checkbox = unchecked and diet_checkbox = unchecked and other_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "-Select forms to process or select cancel to exit script"		'If review selections is selected and all checkboxes are blank, user will receive error
 				If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg							'list of errors to resolve
 			Loop until err_msg = ""	
 			Call check_for_password(are_we_passworded_out)
@@ -3479,169 +3504,187 @@ Do
 				If form_type_array(form_type_const, form_count) = asset_form_name then 
 					Call asset_dialog
 					current_dialog = "asset"
-					If InStr(docs_rec,"ASST") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", ASST"
-					End If
-					If InStr(end_msg, "Asset detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "Asset detail entered"
-					End If
+					' If InStr(docs_rec,"ASST") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", ASST"
+					' End If
+					' If InStr(end_msg, "Asset detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "Asset detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = atr_form_name Then 
 					Call atr_dialog
 					current_dialog = "atr"
-					If InStr(end_msg, "ATR detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "ATR detail entered"
-					End If
+					' If InStr(end_msg, "ATR detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "ATR detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = arep_form_name then 
 					Call arep_dialog
 					current_dialog = "arep"
-					If InStr(end_msg, "AREP detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "AREP detail entered"
-					End If
+					' If InStr(end_msg, "AREP detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "AREP detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = change_form_name Then 
 					Call change_dialog
 					current_dialog = "chng"
-					If InStr(docs_rec,"CHNG") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", CHNG"
-					End If
-					If InStr(end_msg, "Change detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "Change detail entered"
-					End If
+					' If InStr(docs_rec,"CHNG") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", CHNG"
+					' End If
+					' If InStr(end_msg, "Change detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "Change detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = evf_form_name Then 
 					Call evf_dialog
 					current_dialog = "evf"
-					If InStr(docs_rec,"EVF") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", EVF"
-					End If
-					If InStr(end_msg, "EVF detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "EVF detail entered"
-					End If
+					' If InStr(docs_rec,"EVF") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", EVF"
+					' End If
+					' If InStr(end_msg, "EVF detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "EVF detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = hosp_form_name Then 
 					Call hospice_dialog
 					current_dialog = "hosp"
-					If InStr(docs_rec,"HOSP") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", HOSP"
-					End If
-					If InStr(end_msg, "Hospice detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "Hospice detail entered"
-					End If
+					' If InStr(docs_rec,"HOSP") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", HOSP"
+					' End If
+					' If InStr(end_msg, "Hospice detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "Hospice detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = iaa_form_name Then 
 					Call iaa_dialog
 					current_dialog = "iaa"
-					If InStr(docs_rec,"IAA(s)") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", IAA(s)"
-					End If
-					If InStr(end_msg,"IAA(s) detail entered") Then 
-						end_msg = end_msg
-					Else
-						end_msg = end_msg & vbNewLine & "IAA(s) detail entered"
-					End If
+					' If InStr(docs_rec,"IAA(s)") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", IAA(s)"
+					' End If
+					' If InStr(end_msg,"IAA(s) detail entered") Then 
+					' 	end_msg = end_msg
+					' Else
+					' 	end_msg = end_msg & vbNewLine & "IAA(s) detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = ltc_1503_form_name Then 
 					Call ltc_1503_dialog
 					current_dialog = "ltc 1503"
-					If InStr(end_msg,"LTC-1503 detail entered") Then 
-						end_msg = end_msg
-					Else
-						end_msg = end_msg & vbNewLine & "LTC-1503 detail entered"
-					End If
+					' If InStr(end_msg,"LTC-1503 detail entered") Then 
+					' 	end_msg = end_msg
+					' Else
+					' 	end_msg = end_msg & vbNewLine & "LTC-1503 detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = mof_form_name Then 
 					Call mof_dialog
 					current_dialog = "mof"
-					If InStr(docs_rec,"MOF") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", MOF"
-					End If
-					If InStr(end_msg, "MOF detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "MOF detail entered"
-					End If
+					' If InStr(docs_rec,"MOF") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", MOF"
+					' End If
+					' If InStr(end_msg, "MOF detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "MOF detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = mtaf_form_name Then 
 					Call mtaf_dialog
 					current_dialog = "mtaf"
-					If InStr(docs_rec,"MTAF") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", MTAF"
-					End If
-					If InStr(end_msg, "MTAF detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "MTAF detail entered"
-					End If
+					' If InStr(docs_rec,"MTAF") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", MTAF"
+					' End If
+					' If InStr(end_msg, "MTAF detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "MTAF detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = psn_form_name Then 
 					Call psn_dialog
 					current_dialog = "psn"
-					If InStr(docs_rec,"PSN") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", PSN"
-					End If
-					If InStr(end_msg, "PSN detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "PSN detail entered"
-					End If
+					' If InStr(docs_rec,"PSN") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", PSN"
+					' End If
+					' If InStr(end_msg, "PSN detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "PSN detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = sf_form_name Then 
 					Call sf_dialog
 					current_dialog = "sf"
-					If InStr(docs_rec,"SF") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", SF"
-					End If
-					If InStr(end_msg, "Shelter detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "Shelter detail entered"
-					End If
+					' If InStr(docs_rec,"SF") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", SF"
+					' End If
+					' If InStr(end_msg, "Shelter detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "Shelter detail entered"
+					' End If
 				End If
 				If form_type_array(form_type_const, form_count) = diet_form_name Then 
 					Call diet_dialog
 					current_dialog = "diet"
-					If InStr(docs_rec,"DIET") Then
-						docs_rec = docs_rec
-					Else
-						docs_rec = docs_rec & ", DIET"
-					End If
-					If InStr(end_msg, "DIET detail entered") Then 
-						end_msg = end_msg
-					Else 
-						end_msg = end_msg & vbNewLine & "DIET detail entered"
-					End If
+					' If InStr(docs_rec,"DIET") Then
+					' 	docs_rec = docs_rec
+					' Else
+					' 	docs_rec = docs_rec & ", DIET"
+					' End If
+					' If InStr(end_msg, "DIET detail entered") Then 
+					' 	end_msg = end_msg
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "DIET detail entered"
+					' End If
+				End If
+				If form_type_array(form_type_const, form_count) = other_form_name Then 
+					Call other_dialog
+					current_dialog = "other"
+					' If InStr(docs_rec,"Other Forms: ") Then
+					' 	docs_rec = docs_rec
+					' 	msgbox docs_rec
+					' Else
+					' 	docs_rec = docs_rec  & ", Other Forms: " & other_list_form_names
+					' 	msgbox docs_rec
+					' End If
+					' If InStr(end_msg, "Other Forms: " & other_list_form_names) Then 
+					' 	end_msg = end_msg
+					' 	msgbox end_msg 
+					' Else 
+					' 	end_msg = end_msg & vbNewLine & "Other Forms: " & other_list_form_names & "detail entered"
+					' 	msgbox end_msg 
+					' End If
 				End If
 				
 				If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
@@ -3746,6 +3789,13 @@ Do
 				'PushButton 395, btn_pos, 45, 15, "DIET-" & diet_count, diet_btn 'TEST - example of adding number to name of button
 				btn_pos = btn_pos + 15
 			End If
+			If form_type_array(form_type_const, current_form) = other_form_name then 
+				form_type_array(btn_name_const, form_count) = "OTHR"
+				form_type_array(btn_number_const, form_count) = 414
+				PushButton 395, btn_pos, 45, 15, "OTHR", other_btn
+				btn_pos = btn_pos + 15
+			End If
+
 			'MsgBox "Current form" & form_type_array(form_type_const, current_form)
 		Next
 		Text 395, 35, 45, 10, "    --Forms--"
@@ -3771,6 +3821,7 @@ Do
 			psn_err_msg = ""
 			sf_err_msg = ""
 			diet_err_msg = ""
+			other_err_msg = "" 
 
 			dialog Dialog1 					'Calling a dialog without a assigned variable will call the most recently defined dialog
 			cancel_confirmation
@@ -3786,6 +3837,27 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 'MsgBox "Date Effective: " & chng_effective_date + vbCr + "Date Received" & chng_date_received + vbCr + "Address" & chng_address_notes + vbCr + "Household Members" & chng_household_notes + vbCr + "Assets" & chng_asset_notes + vbCr + "Vehicles" & chng_vehicles_notes + vbCr + "Income" & chng_income_notes + vbCr + "Shelter" & chng_shelter_notes + vbCr + "Other" & chng_other_change_notes + vbCr + "Action Taken" & chng_actions_taken + vbCr + "Other Notes" & chng_other_notes + vbCr + "Verifs Requested" & chng_verifs_requested + vbCr + "The changes client reports" & chng_changes_continue		'TEST
+
+
+'DIALOG OUTSTANDING VERIFICATIONS===========================================================================
+Do
+	DO
+		err_msg = ""
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 321, 50, "Outstanding Verifications"
+			EditBox 120, 5, 195, 15, outstanding_verifs
+			ButtonGroup ButtonPressed
+				OkButton 210, 30, 50, 15
+				CancelButton 265, 30, 50, 15
+			Text 5, 10, 115, 10, "Specify outstanding verifications:"
+		EndDialog
+
+
+		dialog Dialog1	'Calling a dialog without a assigned variable will call the most recently defined dialog
+		cancel_confirmation
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
 'WRITE IN MAXIS===========================================================================
@@ -4306,7 +4378,6 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 			End If
 		End If
 	End if
-
 Next
 
 'TIKLS===========================================================================
@@ -4346,6 +4417,163 @@ If diet_tikl_checkbox = 1 Then
 	end_msg = end_msg & vbNewLine & "DIET: TIKL has been sent for 10 mo from now for renewal."
 End If
 
+'DEFINING DOCS_REC AND END_MSG===========================================================================
+For list_of_docs_received = 0 to Ubound(form_type_array, 2) 
+	If form_type_array(form_type_const, list_of_docs_received) = asset_form_name then 
+		If InStr(docs_rec,"ASST") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", ASST"
+		End If
+		If InStr(end_msg, "Asset detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "Asset detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = atr_form_name Then 
+		If InStr(end_msg, "ATR detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "ATR detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, form_count) = arep_form_name then 
+		If InStr(end_msg, "AREP detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "AREP detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = change_form_name Then 
+		If InStr(docs_rec,"CHNG") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", CHNG"
+		End If
+		If InStr(end_msg, "Change detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "Change detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = evf_form_name Then 
+		If InStr(docs_rec,"EVF") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", EVF"
+		End If
+		If InStr(end_msg, "EVF detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "EVF detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = hosp_form_name Then 
+		If InStr(docs_rec,"HOSP") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", HOSP"
+		End If
+		If InStr(end_msg, "Hospice detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "Hospice detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = iaa_form_name Then 
+		If InStr(docs_rec,"IAA(s)") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", IAA(s)"
+		End If
+		If InStr(end_msg,"IAA(s) detail entered") Then 
+			end_msg = end_msg
+		Else
+			end_msg = end_msg & vbNewLine & "IAA(s) detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = ltc_1503_form_name Then 
+		If InStr(end_msg,"LTC-1503 detail entered") Then 
+			end_msg = end_msg
+		Else
+			end_msg = end_msg & vbNewLine & "LTC-1503 detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = mof_form_name Then 
+		If InStr(docs_rec,"MOF") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", MOF"
+		End If
+		If InStr(end_msg, "MOF detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "MOF detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = mtaf_form_name Then 
+		If InStr(docs_rec,"MTAF") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", MTAF"
+		End If
+		If InStr(end_msg, "MTAF detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "MTAF detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = psn_form_name Then 
+		If InStr(docs_rec,"PSN") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", PSN"
+		End If
+		If InStr(end_msg, "PSN detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "PSN detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = sf_form_name Then 
+		If InStr(docs_rec,"SF") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", SF"
+		End If
+		If InStr(end_msg, "Shelter detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "Shelter detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = diet_form_name Then 
+		If InStr(docs_rec,"DIET") Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec & ", DIET"
+		End If
+		If InStr(end_msg, "DIET detail entered") Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "DIET detail entered"
+		End If
+	End If
+	If form_type_array(form_type_const, list_of_docs_received) = other_form_name Then 
+		If InStr(docs_rec, other_list_form_names) Then
+			docs_rec = docs_rec
+		Else
+			docs_rec = docs_rec  & ", " & other_list_form_names
+		End If
+		If InStr(end_msg, "Other Forms: " & other_list_form_names) Then 
+			end_msg = end_msg
+		Else 
+			end_msg = end_msg & vbNewLine & "Other Forms: " & other_list_form_names & " detail entered"
+		End If
+	End If
+Next 
+If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
 
 'MsgBox "docs_rec" & docs_rec
 
@@ -4654,6 +4882,16 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_variable_in_case_note("---")
 		'CALL write_variable_in_case_note(worker_signature)
 	End If
+
+	If form_type_array(form_type_const, each_case_note) = other_form_name Then 
+		Call start_a_blank_case_note
+		CALL write_variable_in_case_note("*** Other forms received: " & other_list_form_names)	
+		CALL write_bullet_and_variable_in_case_note("Date Received", other_date_received)
+		CALL write_bullet_and_variable_in_case_note("Document Notes", other_doc_notes)
+		CALL write_bullet_and_variable_in_case_note("Verifications Received", other_verif_received)
+		CALL write_bullet_and_variable_in_case_note("Action Taken", other_action_taken)
+		CALL write_variable_in_case_note("---")
+	End If 
 Next
 CALL write_variable_in_case_note(worker_signature)
 
@@ -4766,7 +5004,14 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		Call write_variable_in_case_note(worker_signature)
 	End If
 Next
-  
+
+If outstanding_verifs <> "" Then 
+	PF3
+	Call start_a_blank_case_note
+	CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+	CALL write_variable_in_case_note(worker_signature)
+End If
+
 script_end_procedure_with_error_report("Success! " & vbcr & end_msg)
 
 
