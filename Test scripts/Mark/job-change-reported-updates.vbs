@@ -57,9 +57,7 @@ get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-
-
-testing_status = True		'Testing Status: Update status to true to display all testing msgbox or false to hide all testing msgbox
+testing_status = false	'Testing Status: Update status to true to display all testing msgbox or false to hide all testing msgbox
 
 'Initial dialog to gather case details
 Dialog1 = ""
@@ -152,9 +150,9 @@ For i = 1 to ubound(client_name_array) 	'looping through all the reference numbe
 			jobs_panel_number = "0" & jobs_panel_number 
 
 			If jobs_panel_number = "05" then hh_memb_5_jobs_panels = hh_memb_5_jobs_panels & client_name_array(i) & "*"
-			msgbox "hh_memb_5_jobs_panels " & hh_memb_5_jobs_panels
+			If testing_status = True Then msgbox "hh_memb_5_jobs_panels " & hh_memb_5_jobs_panels
 
-			hh_memb_and_current_jobs = hh_memb_and_current_jobs & client_name_array(i) &  "-" & employer_name & "-" & jobs_panel_number & "*"
+			hh_memb_and_current_jobs = hh_memb_and_current_jobs & client_name_array(i) &  " (" & employer_name & " - " & "JOBS " & jobs_panel_number & ")*"
 
 			transmit
 			EMReadScreen last_job, 7, 24, 2
@@ -168,23 +166,24 @@ hh_memb_and_current_jobs = replace(hh_memb_and_current_jobs, "*", chr(9))
 hh_memb_and_current_jobs = left(hh_memb_and_current_jobs, len(hh_memb_and_current_jobs) - 1)
 If testing_status = True Then msgbox hh_memb_and_current_jobs
 
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_case_number
-  DropListBox 125, 5, 255, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
-  DropListBox 245, 20, 135, 15, HH_Memb_DropDown, hh_memb_with_new_job
-  DropListBox 75, 45, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
-  ComboBox 290, 45, 90, 15, list_of_all_hh_members, person_who_reported_job
-  ComboBox 105, 65, 110, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  EditBox 290, 65, 55, 15, reported_date
-  CheckBox 15, 90, 305, 10, "Check here if the employee gave verbal authorization to check the Work Number", work_number_verbal_checkbox
+  DropListBox 140, 10, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
+  DropListBox 220, 30, 140, 15, HH_Memb_DropDown, hh_memb_with_new_job
+  DropListBox 70, 50, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
+  ComboBox 285, 50, 90, 15, list_of_all_hh_members, person_who_reported_job
+  ComboBox 100, 70, 110, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
+  EditBox 285, 70, 55, 15, reported_date
+  CheckBox 10, 90, 275, 10, "Check here if the employee gave verbal authorization to check the Work Number", work_number_verbal_checkbox
   ButtonGroup ButtonPressed
-    OkButton 270, 105, 50, 15
-    CancelButton 330, 105, 50, 15
-  Text 235, 70, 55, 10, "Date reported:"
-  Text 85, 25, 155, 10, "If no corresponding JOBS panel exists, select Member for new JOBS panel:"
-  Text 15, 10, 110, 10, "Member(s)-Job(s) listed on case: "
-  Text 15, 50, 60, 10, "Job Change Type:"
-  Text 235, 50, 55, 10, "Who reported?"
-  Text 15, 70, 90, 10, "How was the job reported?"
+    OkButton 265, 105, 50, 15
+    CancelButton 325, 105, 50, 15
+  Text 230, 70, 55, 10, "Date reported:"
+  Text 10, 30, 210, 10, "If no matching JOBS panel, select Member for new JOBS panel:"
+  Text 10, 10, 130, 10, "Member(s) with JOBS Panel(s) on case:"
+  Text 10, 50, 60, 10, "Job Change Type:"
+  Text 230, 50, 55, 10, "Who reported?"
+  Text 10, 70, 90, 10, "How was the job reported?"
 EndDialog
 
 Do
@@ -203,6 +202,8 @@ Do
 	Loop until err_msg = "" 
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+MsgBox "hh_member_current_jobs " & hh_member_current_jobs
 
 
 call generate_client_list(list_of_members, "Type or Select")
@@ -310,7 +311,7 @@ For i = 1 to Ubound(client_name_array)                        'Now we are going 
     EMWriteScreen left(client_name_array(i), 2), 20, 76
     transmit
 
-	msgbox "Should be at left(client_name_array(i), 2) " & left(client_name_array(i), 2)
+	If testing_status = True Then msgbox "Should be at left(client_name_array(i), 2) " & left(client_name_array(i), 2)
 
     EMReadScreen pwe_code, 1, 6, 68                         'Read PWE code
     If pwe_code = "Y" Then                                  'If it is 'Y' - save the reference number to identify the PWE
@@ -318,9 +319,6 @@ For i = 1 to Ubound(client_name_array)                        'Now we are going 
         Exit For
     End If
 Next
-
-msgbox "did it work?"
-
 
 'Here are some presets for the main dialog
 If job_change_type = "New Job Reported" Then                'If the panel already exists and it has an income start date, we can default to that date
@@ -359,13 +357,21 @@ If developer_mode = TRUE Then script_update_stat = "No - Update of JOBS not need
 Call generate_client_list(list_of_employees, "Select One ...")
 Call generate_client_list(list_of_members, "Select One ...")
 
-'This didalog has a different middle part based on the type of report that is happening
+'Determine the HH memb
+  If hh_member_current_jobs <> "No JOBS Panel Exists" then
+    hh_memb_with_job_change = mid(hh_member_current_jobs, 1, (instr(hh_member_current_jobs, "(") - 2))
+  Else
+    hh_memb_with_job_change = hh_memb_with_new_job
+  End If 
+
+
+'This dialog has a different middle part based on the type of report that is happening
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 520, 335, "Job Change Details Dialog"
   GroupBox 5, 5, 250, 220, "Job Information"
   Text 10, 20, 85, 10, "Employee (HH Member)*:"
   Text 10, 40, 60, 10, "Work Number ID:"
-  If job_ref_number <> "" Then Text 475, 65, 50, 10, "JOBS " & job_ref_number & " "  & job_instance
+'   If job_ref_number <> "" Then Text 475, 65, 50, 10, "JOBS " & job_ref_number & " "  & job_instance
   Text 10, 60, 45, 10, "Income Type:"
   Text 10, 80, 85, 10, "Subsidized Income Type:"
   Text 10, 100, 40, 10, "Employer*:"
@@ -374,7 +380,8 @@ BeginDialog Dialog1, 0, 0, 520, 335, "Job Change Details Dialog"
   Text 10, 160, 60, 10, "Income start date:"
   Text 10, 180, 60, 10, "Income End Date:"
   Text 10, 200, 75, 10, "Contract through date:"
-  DropListBox 95, 15, 140, 45, list_of_employees, job_employee
+  Text 95, 20, 140, 10, hh_memb_with_job_change
+'   DropListBox 95, 15, 140, 45, list_of_employees, job_employee
   EditBox 95, 35, 50, 15, work_numb_id
   DropListBox 95, 55, 140, 15, "W - Wages"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", job_income_type
   DropListBox 95, 75, 140, 15, "01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-the-Job-Training"+chr(9)+"04 - AmeriCorps", job_subsidized_income_type
@@ -572,5 +579,738 @@ Do                      'Showing the main dialog
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+job_income_start = DateAdd("d", 0, job_income_start)
+
+Select Case job_change_type                                         'here we are finding the MAXIS Footer Month and Year based on when the change was made
+    Case "New Job Reported"
+		If DateDiff("m", new_job_income_start, case_appl_date) > 0 Then			'new job start is before case application
+			CALL convert_date_into_MAXIS_footer_month(case_appl_date, MAXIS_footer_month, MAXIS_footer_year)			'so we set the initial month to the case appl date
+		Else
+        	CALL convert_date_into_MAXIS_footer_month(new_job_income_start, MAXIS_footer_month, MAXIS_footer_year)		'otherwise the initial month is the job start month'
+		End If
+    Case "Income/Hours Change for Current Job"
+        CALL convert_date_into_MAXIS_footer_month(first_pay_date_of_change, MAXIS_footer_month, MAXIS_footer_year)
+    Case "Job Ended"
+        CALL convert_date_into_MAXIS_footer_month(job_end_income_end_date, MAXIS_footer_month, MAXIS_footer_year)
+End Select
+
+If conversation_with_person = "Type or Select" Then conversation_with_person = ""
+
+'VOLUNTARY QUIT functionality needs TESTING when this policy goes back into effect
+review_vol_quit = FALSE                     'this is a a defaulted variable to indicate if we need to review more detail about possible voluntary quit
+If job_change_type = "Income/Hours Change for Current Job" Then                 'Job change does not have a vol quit option but can still meet vol quit/reduction
+    If IsNumeric(job_change_old_hours_per_week) = TRUE Then                     'we will default to asking more if the hours decrease sufficiently
+        job_change_old_hours_per_week = job_change_old_hours_per_week * 1
+        job_change_new_hours_per_week = job_change_new_hours_per_week * 1
+
+        If job_change_old_hours_per_week > 30 and job_change_new_hourly_wage <30 Then
+            review_vol_quit = TRUE
+            Vol_quit_type = "Hours Reduction"
+        End If
+    End If
+End If
+If vol_quit_yn = "Yes" Then         'job end has vol quit field that if indicated yes will force additional information
+    review_vol_quit = TRUE
+    Vol_quit_type = "Quit Job"
+End If
+review_vol_quit = FALSE         'This is going to false now because there is no voluntary quit right now - COVID WAIVER
+code_disq = FALSE               'defaulting this variable before the additional vol quit detail
+'This functionality provides additional information gathering about Volundary Quit and the ability to take action/create seperate notes
+If review_vol_quit = TRUE Then
+    If mfip_case = TRUE Then mfip_vol_quit_checkbox = checked           'Autochecking the program boxes based upon which programs were found to be active
+    If dwp_case = TRUE Then dwp_vol_quit_checkbox = checked
+    If snap_case = TRUE Then snap_vol_quit_checkbox = checked
+    'TODO - If SNAP then we need to go to DISQ to determine if we can tell which sanction it is.
+    Do
+        Do
+            err_msg = ""
+
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 236, 210, "Voluntary Quit Detail"
+              DropListBox 120, 25, 105, 45, "Select One..."+chr(9)+"Quit Job"+chr(9)+"Hours Reduction", vol_quit_type
+              DropListBox 170, 45, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
+              DropListBox 170, 65, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
+              EditBox 15, 100, 210, 15, vol_quit_reason
+              CheckBox 35, 150, 30, 10, "MFIP", mfip_vol_quit_checkbox
+              CheckBox 75, 150, 30, 10, "DWP", dwp_vol_quit_checkbox
+              CheckBox 120, 150, 30, 10, "SNAP", snap_vol_quit_checkbox
+              DropListBox 130, 170, 95, 45, "Zelect One..."+chr(9)+"First Sanction      - 1st"+chr(9)+"Second Sanction - 2nd"+chr(9)+"Third Sanction     - 3rd"+chr(9)+"More than Three", snap_vol_quit_occurance
+              ButtonGroup ButtonPressed
+                OkButton 130, 190, 50, 15
+                CancelButton 185, 190, 50, 15
+              Text 10, 10, 255, 10, "This case appears to have or potentially have a voluntary quit situation."
+              Text 15, 30, 105, 10, "What kind of action was taken? "
+              Text 15, 50, 150, 10, "Was this voluntary on the part of the Client?"
+              Text 15, 70, 120, 10, "If  voluntary, is there  good cause?"
+              Text 15, 90, 135, 10, "Explain the cuase as provided by client:"
+              Text 90, 120, 135, 10, "Explain if client meets good cause or not."
+              GroupBox 15, 135, 140, 30, "Program Impacted by Voluntary Quit"
+              Text 15, 175, 110, 10, "If SNAP, what occurance is this?"
+            EndDialog
+
+            dialog Dialog1
+            cancel_confirmation
+
+            vol_quit_reason = trim(vol_quit_reason)
+            If vol_quit_yn = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if the job was voluntarily quit/hours reduced."
+            If vol_quit_yn = "Yes" Then
+                If vol_quit_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the job was voluntarily ended or voluntarily reduced hours."
+                If len(vol_quit_reason) < 20 Then err_msg = err_msg & vbNewLine & "* Enter full detail of information about the reason the job was ended. IF the client has not provided a reason, list that here and indicate how we are going to determine possible good cause."
+                If snap_vol_quit_checkbox = checked AND snap_vol_quit_occurance = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this voluntary quit impacts the SNAP program, indicate which occurance of this type of sanction this client is on."
+            End If
+            If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+    If vol_quit_yn = "Yes" AND good_cause_yn = "No" Then code_disq = TRUE       'This is the variable that will cause the DISQ updating later
+End If
+
+If developer_mode = FALSE Then                      'If we are in developer mode then we are going to skip the update parts
+    Do
+        EMWriteScreen "SUMM", 20, 71                'Getting into STAT
+        transmit
+
+        EMReadScreen MAXIS_footer_month, 2, 20, 55          'Setting the right month and year
+        EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+        If second_loop = TRUE Then                          'If we are past the first loop, we know the job member and instance so we can naviage directly there
+            EMWriteScreen "JOBS", 20, 71                    'go to JOBS
+            EMWriteScreen ref_nbr, 20, 76                   'go to the right member
+            EMWriteScreen job_instance, 20, 79
+            transmit
+
+            EMReadScreen panel_exists, 14, 24, 13
+            If panel_exists = "DOES NOT EXIST" Then
+                EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
+                ref_nbr = left(job_employee, 2)
+                EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
+                EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
+                transmit
+
+                EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
+                job_instance = "0" & this_instance
+            Else
+                EMReadScreen this_panel_job, 30, 7, 42          'reading the name of job
+
+                If this_panel_job <> original_full_jobs_name Then       'if the panel name isn't what we read earlier then we have a problem
+                MsgBox "They don't match!" & vbNewLine & "THIS PANEL-" & this_panel_job & "-" & vbNewLine & "ORIGINAL-" & original_full_jobs_name & "-"
+                Else
+                PF9         'If they match - put it in edit mode
+                End If
+            End If
+
+
+        ElseIf script_update_stat = "Yes - Update an existing JOBS Panel" Then          'if we are in the first loop then the action is going to change based on the the update detail
+            ' MsgBox "Update - " & script_update_stat & " - 1"
+            If job_instance = "" Then                                           'If we don't know the instance yet - the script will facilitate finding the existing panel
+                ref_nbr = left(job_employee, 2)                                 'Finding the reference number and going to the right member
+                EMWriteScreen ref_nbr, 20, 76
+                transmit
+
+                EMReadScreen total_jobs, 1, 2, 78                               'Reading the number of jobs that are on this case for this member
+                If total_jobs = "0" Then                                        'If there are none and the worker indicated to update an existing panel, thes cript will end.
+                    Call script_end_procedure("Update and Note NOT Completed. There are no jobs for Memb " & job_employee & " listed in MAXIS and you have selected to have the script Update and existing JOBS panel.")
+                Else    'If they have found panels for this member
+                    job_selected = FALSE                                        'setting variable for job as unkown
+                    Do      'This is to loop through all the JOBS panels
+                        EMReadScreen employer, 30, 7, 42                        'Reading the employer name
+                        employer = replace(employer, "_", "")                   'Trimming/formatting the name
+                        employer_check = MsgBox("Is this the job reported? Employer name: " & employer, vbYesNo + vbQuestion, "Select Income Panel")        'Now we ask the worker if this is the employer
+                        If employer_check = vbYes Then                          'If the worker says 'Yes' to the message box then we found the job and we will set the information
+                            job_selected = TRUE                                 'letting the script know we have the job'\
+                            Exit Do                                             'stop looking at more jobs
+                        End If
+                        transmit                                                'If we didn't find the job then it is going to transmit to the next job for this member
+                        EMReadScreen last_job, 7, 24, 2                         'checking to see if we found the last job for the member
+                    Loop until last_job = "ENTER A"
+                    'If we leave the loop and we haven't found the job the script will end because we didn't find a job
+                    If job_selected = FALSE Then Call script_end_procedure("Update and Note NOT completed. You did not select any of the JOBS for Memb " & job_employee & " but indicated the script should update a JOBS panel.")
+                End If
+                EMReadScreen this_instance, 1, 2, 73            'reading the instance of the job we found because we need it on the next loop
+                job_instance = "0" & this_instance
+            Else
+                EMWriteScreen "JOBS", 20, 71                    'If we know the instance we can just navigate to the JOBS panel
+                ref_nbr = left(job_employee, 2)
+                EMWriteScreen ref_nbr, 20, 76                   'go to the right member
+                EMWriteScreen job_instance, 20, 79
+
+                transmit
+            End If
+            PF9                                                 'Put the JOBS in edit mode
+
+        ElseIf script_update_stat = "Yes - Create a new JOBS Panel" Then        'If this is a new panel - the script will now create it
+            ' MsgBox "Update - " & script_update_stat & " - 2"
+            EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
+            ref_nbr = left(job_employee, 2)
+            EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
+            EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
+            transmit
+
+            EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
+            job_instance = "0" & this_instance
+        End If          'Now we are done with the code for if we are in the first loop of updating
+        new_hours_per_check = 0
+        old_hours_per_check = 0
+        'If the script indicates that we need to update at all here is the part where we actually put the information in the panel
+        'The panel should already be in EDIT MODE
+        If script_update_stat = "Yes - Update an existing JOBS Panel" OR script_update_stat = "Yes - Create a new JOBS Panel" Then
+            ' MsgBox "Update - " & script_update_stat & " - 3"
+            EMWriteScreen left(job_income_type, 1), 5, 34                                                               'income type
+            If job_subsidized_income_type <> "" Then EMWriteScreen left(job_subsidized_income_type, 2), 5, 74           'subsidized type
+            If job_verification <> " " Then EMWriteScreen left(job_verification, 1), 6, 34                              'job verification
+            EMWriteScreen "                              ", 7, 42                                                       'blank out the employer name
+            EMWriteScreen job_employer_name, 7, 42                                                                      'enter the employer name
+            If IsDate(job_income_start) = TRUE Then Call create_mainframe_friendly_date(job_income_start, 9, 35, "YY")      'income start date
+            If IsDate(job_income_end) = TRUE Then Call create_mainframe_friendly_date(job_income_end, 9, 49, "YY")          'income end date
+            If IsDate(contract_through_date) = TRUE then call create_mainframe_friendly_date(contract_through_date, 9, 73, "YY")
+            EMWriteScreen left(job_pay_frequency, 1), 18, 35                                                            'pay frequency
+            ' If original_full_jobs_name = "" Then EMReadScreen original_full_jobs_name, 30, 7, 42             'read the employer name as it originally exists on the panel
+
+            If job_change_type = "Income/Hours Change for Current Job" Then         'If we are changing a job, we need to find the check amount that is already there s we can put it back in
+                EMReadScreen job_amount_one, 8, 12, 67
+                EMReadScreen job_amount_two, 8, 13, 67
+                EMReadScreen job_amount_three, 8, 14, 67
+                EMReadScreen job_amount_four, 8, 15, 67
+                EMReadScreen job_amount_five, 8, 16, 67
+                EMReadScreen job_hours, 3, 18, 72
+                If job_hours = "___" Then job_hours = 0
+
+                numb_of_checks = 0
+                check_amount = ""
+                total_hours = ""
+                If job_amount_one <> "________" then
+                    numb_of_checks = 1
+                    check_amount = trim(job_amount_one)
+                End If
+                If job_amount_two <> "________" then
+                    numb_of_checks = 2
+                    check_amount = trim(job_amount_two)
+                End If
+                If job_amount_three <> "________" then
+                    numb_of_checks = 3
+                    check_amount = trim(job_amount_three)
+                End If
+                If job_amount_four <> "________" then
+                    numb_of_checks = 4
+                    check_amount = trim(job_amount_four)
+                End If
+                If job_amount_five <> "________" then
+                    numb_of_checks = 5
+                    check_amount = trim(job_amount_five)
+                End If
+                job_hours = trim(job_hours)
+                job_hours = job_hours * 1
+                total_hours = job_hours
+                If numb_of_checks <> 0 Then old_hours_per_check = job_hours / numb_of_checks
+            End If
+            If job_change_type = "Job Ended" Then           'If job ended we need to know what pay amounts were known.
+                EMReadScreen known_pay_amount, 8, 12, 67
+                known_pay_amount = trim(known_pay_amount)
+            End If
+            'Now that we have read the information we need from the panel as it already exists, we will blank out all the dates and check amounts.
+            jobs_row = 12
+            Do
+                EMWriteScreen "  ", jobs_row, 25            'retro side
+                EMWriteScreen "  ", jobs_row, 28
+                EMWriteScreen "  ", jobs_row, 31
+                EMWriteScreen "        ", jobs_row, 38
+
+                EMWriteScreen "  ", jobs_row, 54            'prospective side
+                EMWriteScreen "  ", jobs_row, 57
+                EMWriteScreen "  ", jobs_row, 60
+                EMWriteScreen "        ", jobs_row, 67
+
+                jobs_row = jobs_row + 1
+            Loop until jobs_row = 17
+            EMWriteScreen "  ", 18, 43                      'blanking out hours
+            EMWriteScreen "  ", 18, 72
+
+            Select Case job_change_type                 'What we enter and how we enter is baed upon what change type is reported.
+                'This doesn't actually do the updates but sets up all the variables so we can use the same update code
+                Case "New Job Reported"
+                    If trim(new_job_hourly_wage) <> "" Then
+                        EMWriteScreen "      ", 6, 75
+                        EMWriteScreen new_job_hourly_wage, 6, 75            'setting the hourly wage
+                    End If
+
+					the_last_pay_date = new_job_income_start                    'these are used for the loops through paychecks - we start when the income actually starts
+					the_first_pay_date = new_job_income_start
+					If DateDiff("m", new_job_income_start, case_appl_date) > 0 Then			'new job start is before case application
+						Do														'we have to find the first check date in the initial month (application month)
+							If job_pay_frequency = "1 - Monthly" Then
+		                        the_last_pay_date = DateAdd("m", 1, the_last_pay_date)
+								the_first_pay_date = DateAdd("m", 1, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "2 - Semi-Monthly" Then
+		                        the_last_pay_date = DateAdd("d", 15, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 15, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "3 - Biweekly" Then
+		                        the_last_pay_date = DateAdd("d", 14, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 14, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "4 - Weekly" Then
+		                        the_last_pay_date = DateAdd("d", 7, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 7, the_first_pay_date)
+		                    End If
+						Loop until DateDiff("m", the_first_pay_date, case_appl_date) <= 0
+					End If
+                    end_of_pay = "99/99/99"                                     'If we have a new job, we can't code the end of income
+                    pay_amt = "0"                                               'We do not enter an amount for new jobs since it isn't verified
+                Case "Income/Hours Change for Current Job"
+                    If trim(job_change_new_hourly_wage) <> "" Then
+                        EMWriteScreen "      ", 6, 75
+                        EMWriteScreen job_change_new_hourly_wage, 6, 75       'setting the hourly wage
+                    End If
+
+                    date_jump_back = first_pay_date_of_change
+                    change_month = DatePart("m", first_pay_date_of_change)
+                    change_year = DatePart("yyyy", first_pay_date_of_change)
+                    the_last_pay_date = first_pay_date_of_change                'used for loops - we start with when the income actually changes
+
+                    end_of_pay = "99/99/99"                                     'For job change we do not have an end of income
+                    job_change_new_hourly_wage = job_change_new_hourly_wage * 1         'making hourly wage and hours per week actual numbers instead of strings
+                    job_change_new_hours_per_week = job_change_new_hours_per_week * 1
+
+                    Do
+                        If prev_date <> "" Then date_jump_back = prev_date
+                        If job_pay_frequency = "1 - Monthly" Then                   'Setting multiplier based on the pay frequency and wage to determine the pay amount to enter
+                            pay_amt = job_change_new_hourly_wage * job_change_new_hours_per_week * 4.3
+                            prev_date = DateAdd("m", -1, date_jump_back)
+                            If DatePart("m", prev_date) = change_month AND DatePart("yyyy", prev_date) = change_year Then
+                                If DateDiff("d", prev_date, job_income_start) =< 0 Then the_last_pay_date = prev_date
+                            End If
+                        ElseIf job_pay_frequency = "2 - Semi-Monthly" Then
+                            pay_amt = job_change_new_hourly_wage * job_change_new_hours_per_week * 2.15
+                            prev_date = DateAdd("d", -14, date_jump_back)
+                            If DatePart("m", prev_date) = change_month AND DatePart("yyyy", prev_date) = change_year Then
+                                If DateDiff("d", prev_date, job_income_start) =< 0 Then the_last_pay_date = prev_date
+                            End If
+                        ElseIf job_pay_frequency = "3 - Biweekly" Then
+                            pay_amt = job_change_new_hourly_wage * job_change_new_hours_per_week * 2
+                            prev_date = DateAdd("d", -14, date_jump_back)
+                            If DatePart("m", prev_date) = change_month AND DatePart("yyyy", prev_date) = change_year Then
+                                If DateDiff("d", prev_date, job_income_start) =< 0 Then the_last_pay_date = prev_date
+                            End If
+                        ElseIf job_pay_frequency = "4 - Weekly" Then
+                            pay_amt = job_change_new_hourly_wage * job_change_new_hours_per_week
+                            prev_date = DateAdd("d", -7, date_jump_back)
+                            If DatePart("m", prev_date) = change_month AND DatePart("yyyy", prev_date) = change_year Then
+                                ' MsgBox "Prev date: " & prev_date & vbNewLine  & "Diff - " & DateDiff("d", prev_date, job_income_start)
+                                If DateDiff("d", prev_date, job_income_start) =< 0 Then the_last_pay_date = prev_date
+                            End If
+                        End If
+                    Loop until DatePart("m", prev_date) <> change_month
+
+                    the_first_pay_date = the_last_pay_date                      'used for loops - we start with when the income actually changes
+                    prosp_hours = 0                                             'setting the pospecive hours to be a number'
+                Case "Job Ended"
+                    end_of_pay = "99/99/99"                                     'defaulting the end of pay to being blank
+                    If IsDate(job_end_income_end_date) = TRUE Then end_of_pay = job_end_income_end_date         'If the end of of income is listed as a date, it will be saved here
+                    the_last_pay_date = job_end_income_end_date                 'Sving these for the loops, we start with the last day of pay
+                    the_first_pay_date = job_end_income_end_date
+                    prosp_hours = 0                                             'setting the prospective hourse to be a number
+                    pay_amt = known_pay_amount                                  'setting the pay amount to the amount we found earlier when reading the panel
+            End Select
+
+            If end_of_pay = "99/99/99" Then     'Based on the end date, we will set the row to start with
+                jobs_row = 12       'If we have no end date we start at the top of the list of pay dates
+            Else
+                jobs_row = 16       'If we do have an end date, we start at the bottom
+                Call create_mainframe_friendly_date(job_end_income_end_date, 9, 49, "YY")       'If we know the end date, this will enter the income end date in the forect spot on the panel.
+            End If
+            prosp_hours = 0                 'setting the pospecive hours to be a number - this has to reset at the beginning of every month
+
+            'If we are in the first month to update
+            If Initial_footer_month = MAXIS_footer_month AND Initial_footer_year = MAXIS_footer_year Then
+                Call create_mainframe_friendly_date(the_first_pay_date, jobs_row, 54, "YY")     'Entering the first pay date
+                If end_of_pay = "99/99/99" Then             'If the job is not ended
+                    If job_change_type = "Income/Hours Change for Current Job" Then                     'Entering the pay amount -we write the pay amount determined by job change type
+                        If DateDiff("d", the_first_pay_date, first_pay_date_of_change) > 0 Then
+                            EMWriteScreen check_amount, jobs_row, 67
+                            prosp_hours = prosp_hours + old_hours_per_check
+                        Else
+                            EMWriteScreen pay_amt, jobs_row, 67
+                            prosp_hours = prosp_hours + new_hours_per_check
+                        End If
+                    Else
+                        EMWriteScreen pay_amt, jobs_row, 67
+                        prosp_hours = prosp_hours + new_hours_per_check
+                    End If
+                    jobs_row = jobs_row + 1                     'going to the next row down
+                Else                                        'If the job IS ended
+                    EMWriteScreen last_pay_amount, jobs_row, 67 'Enter the last gross pay
+                    prosp_hours = last_pay_amount/job_hourly_wage
+                    jobs_row = jobs_row - 1                     'go to the next row above
+                End If
+            End If
+            next_month_mo = ""      'blanking out the next footer month
+            next_month_yr = ""
+            the_month_here = DateValue(MAXIS_footer_month & "/01/" & MAXIS_footer_year)     'making an actual date using the footer month
+            the_next_month = DateAdd("m", 1, the_month_here)                                'getting a date in the next month
+            Call convert_date_into_MAXIS_footer_month(the_next_month, next_month_mo, next_month_yr)     'getting a footer month and year from the next month found
+
+            ' MsgBox "The next month - " & next_month_mo & "/" & next_month_yr & vbCr & vbCr & "MAXIS month - " & MAXIS_footer_month & "/" & MAXIS_footer_year
+            'Here we are going to loop through the pay dates to enter any additional ones for the current month
+            Do
+                the_pay_date = ""               'clearing the pay date variables
+                the_pay_date_two = ""
+                If end_of_pay = "99/99/99" Then                                 'If the job has not ended the paycheck dates go forward to find the next check from the starting check
+                    If job_pay_frequency = "1 - Monthly" Then
+                        the_pay_date = DateAdd("m", 1, the_last_pay_date)
+                        new_hours_per_check = job_change_new_hours_per_week * 4.3
+                    ElseIf job_pay_frequency = "2 - Semi-Monthly" Then
+                        the_pay_date = DateAdd("d", 15, the_last_pay_date)
+                        the_pay_date_two = DateAdd("m", 1, the_last_pay_date)
+                        new_hours_per_check = job_change_new_hours_per_week * 2.15
+                    ElseIf job_pay_frequency = "3 - Biweekly" Then
+                        the_pay_date = DateAdd("d", 14, the_last_pay_date)
+                        new_hours_per_check = job_change_new_hours_per_week * 2
+                    ElseIf job_pay_frequency = "4 - Weekly" Then
+                        the_pay_date = DateAdd("d", 7, the_last_pay_date)
+                        new_hours_per_check = job_change_new_hours_per_week
+                    End If
+                Else                                                            'If the job HAS ended the paycheck dates go backward to find the next check from the starting check
+                    If job_pay_frequency = "1 - Monthly" Then
+                        the_pay_date = DateAdd("m", -1, the_last_pay_date)
+                    ElseIf job_pay_frequency = "2 - Semi-Monthly" Then
+                        the_pay_date = DateAdd("d", -15, the_last_pay_date)
+                        the_pay_date_two = DateAdd("m", -1, the_last_pay_date)
+                    ElseIf job_pay_frequency = "3 - Biweekly" Then
+                        the_pay_date = DateAdd("d", -14, the_last_pay_date)
+                    ElseIf job_pay_frequency = "4 - Weekly" Then
+                        the_pay_date = DateAdd("d", -7, the_last_pay_date)
+                    End If
+                End If
+                ' MsgBox "Old hours per check: " & old_hours_per_check & vbNewLine & "New hours per check: " & new_hours_per_check
+
+                Call convert_date_into_MAXIS_footer_month(the_pay_date, pay_date_mo, pay_date_yr)       'Getting the footer month and year from the pay date
+                If IsDate(the_pay_date_two) = TRUE Then Call convert_date_into_MAXIS_footer_month(the_pay_date_two, pay_date_two_mo, pay_date_two_yr)
+                ' MsgBox "The pay date - " & the_pay_date & vbCr & vbCr & "Pay month - " & pay_date_mo & "/" & pay_date_yr & vbCr & "MAXIS month - " & MAXIS_footer_month & "/" & MAXIS_footer_year & vbCr & vbCr & "JOBS Row - " & jobs_row
+                If pay_date_mo = MAXIS_footer_month AND pay_date_yr = MAXIS_footer_year Then            'If the pay date is in the current month, we are going to writ it into JOBS
+                    Call create_mainframe_friendly_date(the_pay_date, jobs_row, 54, "YY")               'Entering the date
+                    If job_change_type = "Income/Hours Change for Current Job" Then                     'Entering the pay amount -
+                        If DateDiff("d", the_pay_date, first_pay_date_of_change) > 0 Then
+                            EMWriteScreen check_amount, jobs_row, 67
+                            prosp_hours = prosp_hours + old_hours_per_check
+                        Else
+                            EMWriteScreen pay_amt, jobs_row, 67
+                            prosp_hours = prosp_hours + new_hours_per_check
+                        End If
+                    Else
+                        EMWriteScreen pay_amt, jobs_row, 67
+                        prosp_hours = prosp_hours + new_hours_per_check
+                    End If
+                    If end_of_pay = "99/99/99" Then                 'going to the next row
+                        jobs_row = jobs_row + 1                         'go down one for job is not ended
+                    Else
+                        jobs_row = jobs_row - 1                         'go up one for job IS ended
+                        pay_amt = pay_amt * 1                           'This determines how many hours to put on the panel if job has ended - We need to calculate for each pay amount
+                        job_hourly_wage = job_hourly_wage * 1
+                        hours_of_pay = pay_amt/job_hourly_wage
+                        prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here
+                    End If
+                End If
+                If pay_date_two_mo = MAXIS_footer_month AND pay_date_two_yr = MAXIS_footer_year Then        'Same functionality for a second pay date - this is used for semi monthly pay frequesny
+                    Call create_mainframe_friendly_date(the_pay_date_two, jobs_row, 54, "YY")
+                    If job_change_type = "Income/Hours Change for Current Job" Then                     'Entering the pay amount -
+                        If DateDiff("d", the_pay_date, first_pay_date_of_change) > 0 Then
+                            EMWriteScreen check_amount, jobs_row, 67
+                        Else
+                            EMWriteScreen pay_amt, jobs_row, 67
+                        End If
+                    Else
+                        EMWriteScreen pay_amt, jobs_row, 67
+                    End If
+                    If end_of_pay = "99/99/99" Then
+                        jobs_row = jobs_row + 1
+                    Else
+                        jobs_row = jobs_row - 1
+                        pay_amt = pay_amt * 1
+                        job_hourly_wage = job_hourly_wage * 1
+                        hours_of_pay = pay_amt/job_hourly_wage
+                        prosp_hours = prosp_hours + hours_of_pay
+                    End If
+                End If
+                the_last_pay_date = the_pay_date        'setting the variable that stores the previous pay date for the next loop
+                If the_pay_date_two <> "" Then the_last_pay_date = the_pay_date_two
+
+                If job_change_type = "Job Ended" Then       'Since end job dates move backwards, we would get stuck in a loop if we don't exit out once we move from teh maxis month
+                    If pay_date_mo <> MAXIS_footer_month Then Exit Do
+                End If
+            Loop until pay_date_mo = next_month_mo AND pay_date_yr = next_month_yr OR pay_date_two_mo = next_month_mo AND pay_date_two_yr = next_month_yr       'This is getting out of the update loop using footer month
+
+            If end_of_pay = "99/99/99" Then             'counting how many checks have been enterter for this month
+                checks_entered = jobs_row - 12
+            Else
+                checks_entered = abs(jobs_row - 16)
+            End If
+			If IsNumeric(prosp_hours) = TRUE Then prosp_hours = round(prosp_hours)
+            If job_change_type = "New Job Reported" Then prosp_hours = "000"        'If new job then set the hours to 0
+            If job_change_type = "Job Ended" AND prosp_hours = 0 Then prosp_hours = ""
+            EMWriteScreen "   ", 18, 72             'blanking out hours and entering the new ones
+            EMWriteScreen prosp_hours, 18, 72
+
+            'Now we update the PIC
+            If snap_case = TRUE Then
+                EMWriteScreen "X", 19, 38           'Open the SNAP PIC'
+                transmit
+
+                Call create_mainframe_friendly_date(date, 5, 34, "YY")      'Entering the date of calculateion - TODAY
+                EMWriteScreen left(job_pay_frequency, 1), 5, 64            'Entering the job frequency code
+
+                Select Case job_change_type                                 'We only update the PIC for new job and job change - job end takes care of itself.
+                    Case "New Job Reported"
+                        EMWriteScreen "      ", 8, 64
+                        EMWriteScreen "        ", 9, 66
+                        If trim(new_job_hourly_wage) <> "" Then
+                            EMWriteScreen "0", 8, 64                        '0 for hours per week'
+                            EMWriteScreen new_job_hourly_wage, 9, 66        'entering the hourly wage
+                        End If
+
+                    Case "Income/Hours Change for Current Job"
+                        EMWriteScreen "      ", 8, 64
+                        EMWriteScreen "        ", 9, 66
+                        EMWriteScreen job_change_new_hours_per_week, 8, 64      'entering the OLD hours per week on the PIC
+                        EMWriteScreen job_change_new_hourly_wage, 9, 66         'entering the OLD hourly wage on the PIC
+                End Select
+                transmit
+                PF3
+            End If
+        End If
+        transmit        'saving the panel information
+        ' MsgBox "JOBS saved"
+
+        If original_full_jobs_name = "" Then EMReadScreen original_full_jobs_name, 30, 7, 42             'read the employer name as it originally exists on the panel
+
+        If script_update_stat = "Yes - Update an existing JOBS Panel" OR script_update_stat = "Yes - Create a new JOBS Panel" Then      'If we are updating
+            If job_change_type = "Job Ended" Then                                                                                       'and we are coding a job end change type
+                Call navigate_to_MAXIS_screen("STAT", "STWK")                   'We also have to code end of employmnt on STWK
+                EMWriteScreen ref_nbr, 20, 76                                   'navigate to STWK for the right person
+                transmit
+
+                EMReadScreen version_of_stwk, 1, 2, 73                          'Seeing if there is already a STWK panel in existence
+                If version_of_stwk = "1" Then                                   'If one exists, put in edit mode
+                    PF9
+                End If
+                If version_of_stwk = "0" Then                                   'If one does not exist, create a new panel
+                    EMWriteScreen "NN", 20, 79
+                    transmit
+                End If
+
+                EMWriteScreen "                              ", 6, 46           'blanking out employer name and entering a new one
+                EMWriteScreen job_employer_name, 6, 46
+
+                Call create_mainframe_friendly_date(date_work_ended, 7, 46, "YY")               'Entering work end date
+                Call create_mainframe_friendly_date(job_end_income_end_date, 8, 46, "YY")       'Entering income end date
+
+                EMWriteScreen stwk_verif, 7, 63                 'Entering the verification of STWK
+                If refused_empl_yn = "?" Then refused_empl_yn = ""
+                If good_cause_yn = "?" Then good_cause_yn = ""
+                EMWriteScreen refused_empl_yn, 8, 78            'Coding if refused employment
+                If IsDate(refused_empl_date) = TRUE Then Call create_mainframe_friendly_date(refused_empl_date, 10, 72, "YY")       'Entering the date refused employment
+                EMWriteScreen vol_quit_yn, 10, 46               'Entering the voluntary Quit yes/no
+                If adult_cash_case = TRUE or family_cash_case = TRUE Then EMWriteScreen good_cause_yn, 12, 52       'Coding good cause by programs
+                If grh_case = TRUE Then EMWriteScreen good_cause_yn, 12, 60
+                If snap_case = TRUE Then EMWriteScreen good_cause_yn, 12, 67
+
+                If pwe_ref = ref_nbr Then           'Entering if the member is PWE based on WREG
+                    EMWriteScreen "Y", 14, 46
+                Else
+                    EMWriteScreen "N", 14, 46
+                End If
+                transmit                'Saving the panel
+                EMReadScreen error_prone_warning, 20, 6, 43
+                If error_prone_warning = "Error Prone Warnings" Then transmit
+
+                If refused_empl_yn = "" Then refused_empl_yn = "?"
+                If good_cause_yn = "" Then good_cause_yn = "?"
+            End If
+
+            If code_disq = TRUE Then        'This will code a DISQ panel in the case of Voluntary Quit
+                Call navigate_to_MAXIS_screen("STAT", "DISQ")
+                EMWriteScreen ref_nbr, 20, 76
+                transmit
+
+                'TODO - add functionality to update DISQ once vol quit is a thing again.'
+            End If
+        End If
+
+        transmit                            'Now we send the case through background and go to STAT/WRAP
+        EmWriteScreen "BGTX", 20, 71
+        transmit
+
+        EMReadScreen wrap_check, 4, 2, 46
+        If wrap_check <> "WRAP" Then
+
+        End If
+        EMWriteScreen "Y", 16, 54           'This goes into the next footer month without leaving STAT
+        If MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr Then EMWriteScreen "N", 16, 54        'If we are already in CM+1 then we enter N because we can't update the next month
+        transmit
+        ' MsgBox "Pause here - should be in the next month."
+
+        second_loop = TRUE                  'setting this veriable to knkow we aren't in the first go round any more
+    Loop until MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr
+Else            'If we are in developer mode, we will go here to allow for some display and output options.
+    Do
+        Do
+            err_msg = ""
+
+            'This dialog allows workers to send an email with detail gathered to up to five recipients.
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 316, 175, "Send Job Change Information as Email"
+              CheckBox 15, 40, 245, 10, "Check here to have the script send the job change information via email", send_email_checkbox
+              EditBox 25, 75, 115, 15, email_address_one
+              EditBox 25, 95, 115, 15, email_address_two
+              EditBox 25, 115, 115, 15, email_address_three
+              EditBox 25, 135, 115, 15, email_address_four
+              EditBox 25, 155, 115, 15, email_address_five
+              ButtonGroup ButtonPressed
+                OkButton 205, 155, 50, 15
+                CancelButton 260, 155, 50, 15
+              Text 10, 10, 305, 20, "Since this script was run in Inquiry, if this information should be provided to another worker within Hennepin County the scrapt can send an email to up to five individuals or teams."
+              Text 25, 60, 150, 10, "Email Addresses to send the information to:"
+              Text 145, 80, 50, 10, "@hennepin.us"
+              Text 145, 100, 50, 10, "@hennepin.us"
+              Text 145, 120, 50, 10, "@hennepin.us"
+              Text 145, 140, 50, 10, "@hennepin.us"
+              Text 145, 160, 50, 10, "@hennepin.us"
+            EndDialog
+
+            dialog Dialog1
+            cancel_confirmation
+
+            email_address_one = trim(email_address_one)
+            email_address_two = trim(email_address_two)
+            email_address_three = trim(email_address_three)
+            email_address_four = trim(email_address_four)
+            email_address_five = trim(email_address_five)
+
+            If send_email_checkbox = checked Then
+                If email_address_one = "" AND email_address_two = "" AND email_address_three = "" AND email_address_four = "" AND email_address_five = "" Then err_msg = err_msg & vbNewLine & "* You have selected to have the script email the Job Change information but haven't provided email addresses to send the information to."
+            Else
+                If email_address_one <> "" OR email_address_two <> "" OR email_address_three <> "" OR email_address_four <> "" OR email_address_five = "" Then err_msg = err_msg & vbNewLine & "* You have entered at least one email address but have not indicated you want the script to send an email."
+            End If
+            If InStr(email_address_one, " ") <> 0 Then err_msg = err_msg & vbNewLine & "* The FIRST Email Address has a space in it. This is not a valid email address. Please review the first email address entered."
+            If InStr(email_address_two, " ") <> 0 Then err_msg = err_msg & vbNewLine & "* The SECOND Email Address has a space in it. This is not a valid email address. Please review the second email address entered."
+            If InStr(email_address_three, " ") <> 0 Then err_msg = err_msg & vbNewLine & "* The THIRD Email Address has a space in it. This is not a valid email address. Please review the third email address entered."
+            If InStr(email_address_four, " ") <> 0 Then err_msg = err_msg & vbNewLine & "* The FOURTH Email Address has a space in it. This is not a valid email address. Please review the fourth email address entered."
+            If InStr(email_address_five, " ") <> 0 Then err_msg = err_msg & vbNewLine & "* The FIFTH Email Address has a space in it. This is not a valid email address. Please review the fifth email address entered."
+            If InStr(email_address_one, "@") <> 0 Then err_msg = err_msg & vbNewLine & "* The FIRST Email Address appears to have the email domain (the '@somewhere.com' part) listed in it. The scriot will fill in '@hennepin.us' for each email address. Other domains are not allowed at this time as we do not have functionality built in to safely email outside of the county."
+            If InStr(email_address_two, "@") <> 0 Then err_msg = err_msg & vbNewLine & "* The SECOND Email Address appears to have the email domain (the '@somewhere.com' part) listed in it. The scriot will fill in '@hennepin.us' for each email address. Other domains are not allowed at this time as we do not have functionality built in to safely email outside of the county."
+            If InStr(email_address_three, "@") <> 0 Then err_msg = err_msg & vbNewLine & "* The THIRD Email Address appears to have the email domain (the '@somewhere.com' part) listed in it. The scriot will fill in '@hennepin.us' for each email address. Other domains are not allowed at this time as we do not have functionality built in to safely email outside of the county."
+            If InStr(email_address_four, "@") <> 0 Then err_msg = err_msg & vbNewLine & "* The FOURTH Email Address appears to have the email domain (the '@somewhere.com' part) listed in it. The scriot will fill in '@hennepin.us' for each email address. Other domains are not allowed at this time as we do not have functionality built in to safely email outside of the county."
+            If InStr(email_address_five, "@") <> 0 Then err_msg = err_msg & vbNewLine & "* The FIFTH Email Address appears to have the email domain (the '@somewhere.com' part) listed in it. The scriot will fill in '@hennepin.us' for each email address. Other domains are not allowed at this time as we do not have functionality built in to safely email outside of the county."
+
+
+            email_address_two = trim(email_address_two)
+            email_address_three = trim(email_address_three)
+            email_address_four = trim(email_address_four)
+            email_address_five = trim(email_address_five)
+
+            If err_msg <> "" Then MsgBox "Please resolve to continue: " & vbNewLine & err_msg
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+    If refused_empl_yn = "?" Then refused_empl_yn = "N/A"
+    If good_cause_yn = "?" Then good_cause_yn = "N/A"
+    'The email checkbox will start this option to send emails
+    If send_email_checkbox = checked Then
+        email_address_one = trim(email_address_one)         'formatting the email address information that was entered
+        email_address_two = trim(email_address_two)
+        email_address_three = trim(email_address_three)
+        email_address_four = trim(email_address_four)
+        email_address_five = trim(email_address_five)
+
+        'Now the email addresses will add the email suffix to each email address that is not blank
+        'Then if not blank, it will be added to a string of all of the email addresses
+        If email_address_one <> "" Then
+            email_address_one = email_address_one & "@hennepin.us"
+            all_email_recipients = email_address_one
+        End If
+        If email_address_two <> "" Then
+            email_address_two = email_address_two & "@hennepin.us"
+            all_email_recipients = all_email_recipients & "; " & email_address_two
+        End If
+        If email_address_three <> "" Then
+            email_address_three = email_address_three & "@hennepin.us"
+            all_email_recipients = all_email_recipients & "; " & email_address_three
+        End If
+        If email_address_four <> "" Then
+            email_address_four = email_address_four & "@hennepin.us"
+            all_email_recipients = all_email_recipients & "; " & email_address_four
+        End If
+        If email_address_five <> "" Then
+            email_address_five = email_address_five & "@hennepin.us"
+            all_email_recipients = all_email_recipients & "; " & email_address_five
+        End If
+
+        If right(all_email_recipients, 2) = "; " Then all_email_recipients = left(all_email_recipients, len(all_email_recipients) - 2)      'removing the extra seperators so the email doesn't error out
+
+        'Setting up the information to send in the email.
+        'This closely follows the CASE:NOTE at the end of the scrip
+        email_body = "Job change information reported. Update to MAXIS not made." & vbCR
+        email_body = email_body & "Case Number: " & MAXIS_case_number & " - Job chaange type: " & job_change_type & vbCr
+        email_body = email_body & "Change reported on " & date
+        email_body = email_body & "Script was run when MAXIS was in INQUIRY and information could not be added to MAXIS." & vbCr & vbCr
+
+        email_body = email_body & "=== Details of the Reported Change ===" & vbCr
+        email_body = email_body & "Job Name: " & job_employer_name & " - Income Type: " & job_income_type & " - Employee: Memb " & job_employee & vbCr
+        If job_income_end <> "" Then email_body = email_body & "Income Start Date: " & job_income_start & " - End Date: " & job_income_end & vbCr
+        If job_income_end = "" Then email_body = email_body & "Income Start Date: " & job_income_start & vbCr
+        email_body = email_body & vbCr
+
+        Select Case job_change_type
+            Case "New Job Reported"
+                email_body = email_body & "*** New Job Reported ***" & vbCr
+                email_body = email_body & "Work Start Date: " & date_work_started & vbCr
+                email_body = email_body & "Income Start Date: " & new_job_income_start & " - Initial Gross Pay: $" & initial_check_gross_amount & vbCr
+                email_body = email_body & "Anticipated Income: Hours per Week: " & new_job_hours_per_week & " - Hourly Wage: " & new_job_hourly_wage & vbCr
+            Case "Income/Hours Change for Current Job"
+                email_body = email_body & "*** Income/Hours Change for Current Job ***" & vbCr
+                email_body = email_body & "Change happened on " & job_change_date & " change will cause " & income_change_type & vbCr
+                email_body = email_body & "Date of pay first impacted: " & first_pay_date_of_change & vbCr
+                email_body = email_body & "Change: " & job_change_details & vbCr
+                email_body = email_body & "Previous Income: Hours per Week: " & job_change_old_hours_per_week & " - Hourly Wage: " & job_change_old_hourly_wage & vbCr
+                email_body = email_body & "New Income: Hours per Week: " & job_change_new_hours_per_week & " - Hourly Wage: " & job_change_new_hourly_wage & vbCr
+            Case "Job Ended"
+                email_body = email_body & "*** Job Ended ***" & vbCr
+                email_body = email_body & "Income End Date: " & job_end_income_end_date & " - Final pay amount: "& last_pay_amount & vbCr
+                email_body = email_body & "Work stoped on: " & date_work_ended & vbCr
+                email_body = email_body & "* Quit details:" & vbCr
+                email_body = email_body & " - Employee refused employment: " & refused_empl_yn & vbCr
+                email_body = email_body & " - Was this a voluntary quit? " & vol_quit_yn & vbCr
+                If trim(stwk_reason) <> "" Then email_body = email_body & " - Reason for STWK: " & stwk_reason & vbCr
+                email_body = email_body & " - Meets good cause? " & good_cause_yn & vbCr
+        End Select
+        email_body = email_body & vbCr
+        email_body = email_body & "Impact on WREG/ABAWD: " & wreg_abawd_notes & vbCr
+        If conversation_with_person <> "" Then
+            email_body = email_body & "Information about job gathered in conversation with " & conversation_with_person & vbCr
+            email_body = email_body & "  - Details of conversation: " & conversation_detail & vbCr
+        End If
+        email_body = email_body & "=== Reporting Information ===" & vbCr
+        email_body = email_body & "Reported via " & job_report_type & " by " & person_who_reported_job & " on " & reported_date & vbCr
+        If work_number_verbal_checkbox = checked Then email_body = email_body & "*** Verbal authorization to check the Work Number received." & vbCr
+        email_body = email_body & vbCr
+        email_body = email_body & "=== Verification ===" & vbCr
+        If work_number_checkbox = checked Then email_body = email_body & "Sent Work Number request for income verification." & vbCr
+        If verif_form_date <> "" Then
+            email_body = email_body & "* Verification request sent on " & verif_form_date & vbCr
+            email_body = email_body & "* Time frame of income verification requested: " & verif_time_frame & vbCr
+            If requested_CEI_OHI_docs_checkbox = checked Then email_body = email_body & "* Requested Health Insurance information available from employer." & vbCr
+        End If
+        email_body = email_body & vbCr
+        If notes <> "" Then email_body = email_body & "NOTES: " & ntoes & vbCr
+        If worker_signature <> "UUDDLRLRBA" Then
+            email_body = email_body & vbCr
+            email_body = email_body & worker_signature & vbCr
+        End If
+        Call create_outlook_email("", all_email_recipients, "", "", "Job Change Reported for MX Case", 1, False, "", "", False, "", email_body, False, "", True)
+
+    End If
+End If
 
 msgbox "script will now show values"
