@@ -129,7 +129,6 @@ client_name_array = split(list_of_hh_membs_with_jobs, chr(9))
 call generate_client_list(list_of_all_hh_members, "Select or Type")
 Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 
-
 hh_memb_and_current_jobs =  "*"
 hh_memb_5_jobs_panels = "*"
 
@@ -203,9 +202,6 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-MsgBox "hh_member_current_jobs " & hh_member_current_jobs
-
-
 call generate_client_list(list_of_members, "Type or Select")
 client_name_array = split(list_of_members, chr(9))
 
@@ -216,6 +212,7 @@ If hh_member_current_jobs <> "No JOBS Panel Exists" Then
 	call write_value_and_transmit(right(hh_member_current_jobs, 2), 20, 79)
 
 	EMReadScreen job_update_date, 8, 21, 55                 'Date listed from MAXIS that list when the panel was last updated.
+    MsgBox job_update_date
 	EMReadScreen job_instance, 1, 2, 73                     'Reading the instance indicator so we can go back to this panel when we need to.
 
 	EMReadScreen job_ref_number, 2, 4, 33                   'Reference number listed on the panel
@@ -358,11 +355,11 @@ Call generate_client_list(list_of_employees, "Select One ...")
 Call generate_client_list(list_of_members, "Select One ...")
 
 'Determine the HH memb
-  If hh_member_current_jobs <> "No JOBS Panel Exists" then
+If hh_member_current_jobs <> "No JOBS Panel Exists" then
     hh_memb_with_job_change = mid(hh_member_current_jobs, 1, (instr(hh_member_current_jobs, "(") - 2))
-  Else
+Else
     hh_memb_with_job_change = hh_memb_with_new_job
-  End If 
+End If 
 
 
 'This dialog has a different middle part based on the type of report that is happening
@@ -514,7 +511,7 @@ Do                      'Showing the main dialog
         If IsDate(reported_date)  = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date for when this job was reported."
         err_msg = err_msg & vbNewLine
 
-        If job_employee = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select the household member who is the employee."
+        If hh_memb_with_job_change = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select the household member who is the employee."
         If trim(job_employer_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the employer."
         If len(trim(job_employer_name)) > 30 Then err_msg = err_msg & vbNewLine & "* The employer name is more than 30 characters and MAXIS only allows for 30 characters on the employer line. Change the employer name to fit MAIXS."
         If job_verification = "" Then err_msg = err_msg & vbNewLine & "* Enter the verification of the JOBS panel."
@@ -668,6 +665,15 @@ If review_vol_quit = TRUE Then
     If vol_quit_yn = "Yes" AND good_cause_yn = "No" Then code_disq = TRUE       'This is the variable that will cause the DISQ updating later
 End If
 
+Call back_to_SELF               'making sure we are in the right place
+Call MAXIS_background_check
+' MsgBox "Start month - " & MAXIS_footer_month & vbNewLine & "Start year - " & MAXIS_footer_year
+employee_name_only = right(hh_memb_with_job_change, len(hh_memb_with_job_change) - 5)
+
+Initial_footer_month = MAXIS_footer_month           'We are going to loop through months, so we need to set the initial footer month so we remember it later
+Initial_footer_year = MAXIS_footer_year
+second_loop = FALSE         'Knowing where we are
+
 If developer_mode = FALSE Then                      'If we are in developer mode then we are going to skip the update parts
     Do
         EMWriteScreen "SUMM", 20, 71                'Getting into STAT
@@ -675,6 +681,8 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
         EMReadScreen MAXIS_footer_month, 2, 20, 55          'Setting the right month and year
         EMReadScreen MAXIS_footer_year, 2, 20, 58
+
+        MsgBox "are we on stat summ?"
 
         If second_loop = TRUE Then                          'If we are past the first loop, we know the job member and instance so we can naviage directly there
             EMWriteScreen "JOBS", 20, 71                    'go to JOBS
@@ -685,7 +693,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             EMReadScreen panel_exists, 14, 24, 13
             If panel_exists = "DOES NOT EXIST" Then
                 EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
-                ref_nbr = left(job_employee, 2)
+                ref_nbr = left(hh_memb_with_job_change, 2)
                 EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
                 EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
                 transmit
@@ -704,54 +712,47 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
 
         ElseIf script_update_stat = "Yes - Update an existing JOBS Panel" Then          'if we are in the first loop then the action is going to change based on the the update detail
-            ' MsgBox "Update - " & script_update_stat & " - 1"
-            If job_instance = "" Then                                           'If we don't know the instance yet - the script will facilitate finding the existing panel
-                ref_nbr = left(job_employee, 2)                                 'Finding the reference number and going to the right member
-                EMWriteScreen ref_nbr, 20, 76
-                transmit
 
-                EMReadScreen total_jobs, 1, 2, 78                               'Reading the number of jobs that are on this case for this member
-                If total_jobs = "0" Then                                        'If there are none and the worker indicated to update an existing panel, thes cript will end.
-                    Call script_end_procedure("Update and Note NOT Completed. There are no jobs for Memb " & job_employee & " listed in MAXIS and you have selected to have the script Update and existing JOBS panel.")
-                Else    'If they have found panels for this member
-                    job_selected = FALSE                                        'setting variable for job as unkown
-                    Do      'This is to loop through all the JOBS panels
-                        EMReadScreen employer, 30, 7, 42                        'Reading the employer name
-                        employer = replace(employer, "_", "")                   'Trimming/formatting the name
-                        employer_check = MsgBox("Is this the job reported? Employer name: " & employer, vbYesNo + vbQuestion, "Select Income Panel")        'Now we ask the worker if this is the employer
-                        If employer_check = vbYes Then                          'If the worker says 'Yes' to the message box then we found the job and we will set the information
-                            job_selected = TRUE                                 'letting the script know we have the job'\
-                            Exit Do                                             'stop looking at more jobs
-                        End If
-                        transmit                                                'If we didn't find the job then it is going to transmit to the next job for this member
-                        EMReadScreen last_job, 7, 24, 2                         'checking to see if we found the last job for the member
-                    Loop until last_job = "ENTER A"
-                    'If we leave the loop and we haven't found the job the script will end because we didn't find a job
-                    If job_selected = FALSE Then Call script_end_procedure("Update and Note NOT completed. You did not select any of the JOBS for Memb " & job_employee & " but indicated the script should update a JOBS panel.")
-                End If
-                EMReadScreen this_instance, 1, 2, 73            'reading the instance of the job we found because we need it on the next loop
-                job_instance = "0" & this_instance
-            Else
-                EMWriteScreen "JOBS", 20, 71                    'If we know the instance we can just navigate to the JOBS panel
-                ref_nbr = left(job_employee, 2)
-                EMWriteScreen ref_nbr, 20, 76                   'go to the right member
-                EMWriteScreen job_instance, 20, 79
+            MsgBox "Navigate to STAT JOBS"
+            'Navigate to STAT/JOBS
+            Call navigate_to_MAXIS_screen("STAT", "JOBS")
+        
+            'Navigate to the corresponding JOBS panel for select household member
+            msgbox "hh_memb_with_job_change " & hh_memb_with_job_change
+            EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76
+            EMWriteScreen Left(Right(hh_memb_with_job_change, 3), 2), 20, 79
+            transmit
 
-                transmit
-            End If
-            PF9                                                 'Put the JOBS in edit mode
+            EmReadScreen jobs_panel_error_check, 35, 24, 2
+            jobs_panel_error_check = trim(jobs_panel_error_check)
 
-        ElseIf script_update_stat = "Yes - Create a new JOBS Panel" Then        'If this is a new panel - the script will now create it
-            ' MsgBox "Update - " & script_update_stat & " - 2"
-            EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
-            ref_nbr = left(job_employee, 2)
-            EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
+            'To do - add handling to match the employer name and details?
+            
+            'Ensure that script found the correct job
+            If instr(jobs_panel_error_check, "DOES NOT EXIST") Then Call script_end_procedure("Update not completed as selectd JOBS panel does not exist. Please run the script again and select the option to create a new JOBS panel.")
+
+            'Put the JOBS panel into edit mode
+            PF9
+
+        ElseIf script_update_stat = "Yes - Create a new JOBS Panel" Then
+
+            MsgBox "Navigate to STAT JOBS"
+
+            'Navigate to STAT/JOBS
+            Call navigate_to_MAXIS_screen("STAT", "JOBS")
+
+            EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76               'go to the right member
+            msgbox "hh_memb_with_job_change " & hh_memb_with_job_change
+            'Check if there are 5 JOBS panels for HH member already
+            EmReadScreen five_jobs_check, 1, 2, 78
+            If five_jobs_check = "5" Then Call script_end_procedure("Script is unable to add another JOBS panel for household member " & Left(hh_member_current_jobs, 2) & " as there are 5 JOBS panels already. Please delete a JOBS panel for the Household Member and then restart the script.")
             EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
             transmit
 
-            EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
-            job_instance = "0" & this_instance
         End If          'Now we are done with the code for if we are in the first loop of updating
+
+        MsgBox "are we at stat jobs?"
+
         new_hours_per_check = 0
         old_hours_per_check = 0
         'If the script indicates that we need to update at all here is the part where we actually put the information in the panel
@@ -946,6 +947,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             End If
             next_month_mo = ""      'blanking out the next footer month
             next_month_yr = ""
+            MsgBox "It is about to error - where are we?"
             the_month_here = DateValue(MAXIS_footer_month & "/01/" & MAXIS_footer_year)     'making an actual date using the footer month
             the_next_month = DateAdd("m", 1, the_month_here)                                'getting a date in the next month
             Call convert_date_into_MAXIS_footer_month(the_next_month, next_month_mo, next_month_yr)     'getting a footer month and year from the next month found
@@ -1257,7 +1259,7 @@ Else            'If we are in developer mode, we will go here to allow for some 
         email_body = email_body & "Script was run when MAXIS was in INQUIRY and information could not be added to MAXIS." & vbCr & vbCr
 
         email_body = email_body & "=== Details of the Reported Change ===" & vbCr
-        email_body = email_body & "Job Name: " & job_employer_name & " - Income Type: " & job_income_type & " - Employee: Memb " & job_employee & vbCr
+        email_body = email_body & "Job Name: " & job_employer_name & " - Income Type: " & job_income_type & " - Employee: Memb " & hh_memb_with_job_change & vbCr
         If job_income_end <> "" Then email_body = email_body & "Income Start Date: " & job_income_start & " - End Date: " & job_income_end & vbCr
         If job_income_end = "" Then email_body = email_body & "Income Start Date: " & job_income_start & vbCr
         email_body = email_body & vbCr
@@ -1313,4 +1315,291 @@ Else            'If we are in developer mode, we will go here to allow for some 
     End If
 End If
 
-msgbox "script will now show values"
+If refused_empl_yn = "?" Then refused_empl_yn = "N/A"
+If good_cause_yn = "?" Then good_cause_yn = "N/A"
+
+If job_change_type = "New Job Reported" Then verif_type_requested = "new job"                                       'setting a variale for entry into heaters/notes/TIKL
+If job_change_type = "Income/Hours Change for Current Job" Then verif_type_requested = "change in current job"
+If job_change_type = "Job Ended" Then verif_type_requested = "job ended"
+'This sets a TIKL if requested and NOT in developer mode
+If TIKL_checkbox = checked and developer_mode = FALSE Then Call create_TIKL("Verification of " & verif_type_requested & " due.", 10, verif_form_date, True, TIKL_note_text)
+
+If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
+    'Send a SPEC/MEMO to help support the verification needed from the client.
+    'THIS DOES NOT REPLACE THE VERIFICATION REQUEST FORM
+    Call back_to_SELF
+    Call MAXIS_background_check
+    CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
+
+    CALL write_variable_in_SPEC_MEMO("---Verification Needed of Job Change for " & employee_name_only & "---")
+    CALL write_variable_in_SPEC_MEMO("")
+    CALL write_variable_in_SPEC_MEMO("You reported that " & employee_name_only & " has had a change in employment detail. Type - " & job_change_type)
+    CALL write_variable_in_SPEC_MEMO("Job that changed: " & job_employer_name & ".")
+    CALL write_variable_in_SPEC_MEMO("Verification needed for the time period: " & verif_time_frame & ". This means we need all income or work hours verification during this time.")
+	CALL write_variable_in_SPEC_MEMO("")
+    Select Case job_change_type
+        Case "New Job Reported"
+            CALL write_variable_in_SPEC_MEMO("Since a new job has started, we need verification of any pay you have received so far. If this income covers a 30 day span from the first pay to the most recent, and provides income that reflects the amount you anticipate being paid, this verification should be sufficient. Otherwise, provide verification of the anticipated rate of pay and hours scheduled per week.")
+        Case "Income/Hours Change for Current Job"
+            CALL write_variable_in_SPEC_MEMO("Since this is a change in job income and/or hours we need proof of this change in income. Provide all income verification from the first pay impacted by this change. If this income covers a 30 day span, this verification should be sufficient. Otherwise, provide verification of the anticipated rate of pay and hours scheduled per week.")
+        Case "Job Ended"
+            CALL write_variable_in_SPEC_MEMO("To verify the end of employment, you must provide verification of the end of work, including the last day of work, and the date and amount of your last pay.")
+            CALL write_variable_in_SPEC_MEMO("We also need to know the nature of the end of employment. If you left the job voluntarily (quit) we need to know the reason for you leaving.")
+    End Select
+    CALL write_variable_in_SPEC_MEMO("")
+    CALL write_variable_in_SPEC_MEMO("If you have questions about verifications needed, or if your job change requires explanation, please call as much of the clarification can be provided verbally and is our best means to correctly budget your income.")
+	CALL digital_experience
+    PF4
+    Call back_to_SELF
+End If
+
+'If we are indeveloper mode, the script will show the updates in a Dialog
+'This will allow the information to be output to a Word Document if desired
+If developer_mode = TRUE Then
+    y_pos = 15
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 550, 400, "Message Display of CASE NOTE"
+      Text 10, y_pos, 530, 10, "Change in Income Reported: " & UCase(verif_type_requested) & " - Reported on: " & reported_date
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "=== Details of the Reported Change ==="
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "* Job Name: " & job_employer_name & " - Income Type: " & job_income_type
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "* Employee: Memb " & hh_memb_with_job_change
+      y_pos = y_pos + 10
+      If job_income_end <> "" Then Text 10, y_pos, 530, 10, "* Income Start Date: " & job_income_start & " - End Date: " & job_income_end
+      If job_income_end = "" Then Text 10, y_pos, 530, 10, "* Income Start Date: " & job_income_start
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "* Verification: " & job_verification
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "* Type of Change: " & job_change_type
+      y_pos = y_pos + 10
+      Select Case job_change_type
+          Case "New Job Reported"
+              Text 10, y_pos, 530, 10, "Work Start Date: " & date_work_started
+              y_pos = y_pos + 10
+              If initial_check_gross_amount <> "" Then Text 10, y_pos, 530, 10, "Income Start Date: " & new_job_income_start & " - Initial Gross Pay: $" & initial_check_gross_amount
+              If initial_check_gross_amount = "" Then Text 10, y_pos, 530, 10, "Income Start Date: " & new_job_income_start
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Anticipated Income: Hours per Week: " & new_job_hours_per_week & " - Hourly Wage: $" & new_job_hourly_wage & "/hour"
+          Case "Income/Hours Change for Current Job"
+              Text 10, y_pos, 530, 10, "Change happened on " & job_change_date & " change will cause " & income_change_type
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Date of pay first impacted: " & first_pay_date_of_change
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Change: " & job_change_details
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Previous Income: Hours per Week: " & job_change_old_hours_per_week & " - Hourly Wage: $" & job_change_old_hourly_wage & "/hour"
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "New Income: Hours per Week: " & job_change_new_hours_per_week & " - Hourly Wage: $" & job_change_new_hourly_wage & "/hour"
+          Case "Job Ended"
+              Text 10, y_pos, 530, 10, "Income End Date: " & job_end_income_end_date & " - Final pay amount: "& last_pay_amount
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Work stoped on: " & date_work_ended
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "Quit details:"
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, " - Employee refused employment: " & refused_empl_yn
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, " - Was this a voluntary quit? " & vol_quit_yn
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, " - Reason for STWK: " & stwk_reason
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, "    - Meets good cause? " & good_cause_yn
+      End Select
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "* Impact on WREG/ABAWD: " & wreg_abawd_notes
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "Information about job gathered in conversation with " & conversation_with_person
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "  - Details of conversation: " & conversation_detail
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "=== Reporting Information ==="
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "* Reported via " & job_report_type & " by " & person_who_reported_job & " on " & reported_date
+      If work_number_verbal_checkbox = checked Then
+        y_pos = y_pos + 10
+        Text 10, y_pos, 530, 10, "*** Verbal authorization to check the Work Number received."
+      End If
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "=== Verification ==="
+      y_pos = y_pos + 10
+      If work_number_checkbox = checked Then Text 10, y_pos, 530, 10, "* Sent Work Number request for income verification."
+      If verif_form_date <> "" Then
+          y_pos = y_pos + 10
+          Text 10, y_pos, 530, 10, "* Verification request sent on " & verif_form_date
+          y_pos = y_pos + 10
+          Text 10, y_pos, 530, 10, "* Time frame of income verification requested: " & verif_time_frame
+          y_pos = y_pos + 10
+          If requested_CEI_OHI_docs_checkbox = checked Then Text 10, y_pos, 530, 10, "* Requested Health Insurance information available from employer."
+      End If
+      y_pos = y_pos + 15
+      Text 10, y_pos, 530, 10, "---"
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, "NOTES" & notes
+      y_pos = y_pos + 10
+      Text 10, y_pos, 530, 10, TIKL_note_text
+      y_pos = y_pos + 10
+      If worker_signature <> "UUDDLRLRBA" Then
+          Text 10, y_pos, 530, 10, "---"
+          y_pos = y_pos + 10
+          Text 10, y_pos, 530, 10, worker_signature
+      End If
+      ButtonGroup ButtonPressed
+        OkButton 495, 380, 50, 15
+      CheckBox 10, 385, 290, 10, "Check here to have the script add the information listed here into a word document.", export_note_to_word
+    EndDialog
+
+    Do
+
+        dialog Dialog1      'showing the dialog
+
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = FALSE
+
+    If export_note_to_word = checked Then                   'If the checkbox to export to a Word Document - this is wehre it creates the word document.
+        Set objWord = CreateObject("Word.Application")
+        Const wdDialogFilePrint = 88
+        Const end_of_doc = 6
+        objWord.Caption = "Outside Resource Information"
+        objWord.Visible = True
+
+        Set objDoc = objWord.Documents.Add()
+        Set objSelection = objWord.Selection
+
+        objSelection.PageSetup.LeftMargin = 50
+        objSelection.PageSetup.RightMargin = 50
+        objSelection.PageSetup.TopMargin = 30
+        objSelection.PageSetup.BottomMargin = 25
+
+        todays_date = date & ""
+        objSelection.Font.Name = "Arial"
+        objSelection.Font.Size = "14"
+        objSelection.Font.Bold = TRUE
+        objSelection.TypeText "Change in Income Reported: " & UCase(verif_type_requested) & " - Reported on: " & reported_date
+        objSelection.TypeParagraph()
+        objSelection.ParagraphFormat.SpaceAfter = 0
+
+        objSelection.Font.Size = "12"
+        objSelection.Font.Bold = FALSE
+
+        objSelection.TypeText "=== Details of the Reported Change ===" & vbCr
+        objSelection.TypeText "* Job Name: " & job_employer_name & " - Income Type: " & job_income_type & vbCr
+        objSelection.TypeText "* Employee: Memb " & hh_memb_with_job_change & vbCr
+        If job_income_end <> "" Then objSelection.TypeText "* Income Start Date: " & job_income_start & " - End Date: " & job_income_end & vbCr
+        If job_income_end = "" Then objSelection.TypeText "* Income Start Date: " & job_income_start & vbCr
+        objSelection.TypeText "* Verification: " & job_verification & vbCr
+        objSelection.TypeText "* Type of Change: " & job_change_type & vbCr
+        Select Case job_change_type
+            Case "New Job Reported"
+                objSelection.TypeText "Work Start Date: " & date_work_started & vbCr
+                If initial_check_gross_amount <> "" Then objSelection.TypeText "Income Start Date: " & new_job_income_start & " - Initial Gross Pay: $" & initial_check_gross_amount & vbCr
+                If initial_check_gross_amount = "" Then objSelection.TypeText "Income Start Date: " & new_job_income_start & vbCr
+                objSelection.TypeText "Anticipated Income: Hours per Week: " & new_job_hours_per_week & " - Hourly Wage: $" & new_job_hourly_wage & "/hour" & vbCr
+            Case "Income/Hours Change for Current Job"
+                objSelection.TypeText "Change happened on " & job_change_date & " change will cause " & income_change_type & vbCr
+                objSelection.TypeText "Date of pay first impacted: " & first_pay_date_of_change & vbCr
+                objSelection.TypeText "Change: " & job_change_details & vbCr
+                objSelection.TypeText "Previous Income: Hours per Week: " & job_change_old_hours_per_week & " - Hourly Wage: $" & job_change_old_hourly_wage & "/hour" & vbCr
+                objSelection.TypeText "New Income: Hours per Week: " & job_change_new_hours_per_week & " - Hourly Wage: $" & job_change_new_hourly_wage & "/hour" & vbCr
+            Case "Job Ended"
+                objSelection.TypeText "Income End Date: " & job_end_income_end_date & " - Final pay amount: "& last_pay_amount & vbCr
+                objSelection.TypeText "Work stoped on: " & date_work_ended & vbCr
+                objSelection.TypeText "* Quit details:" & vbCr
+                objSelection.TypeText " - Employee refused employment: " & refused_empl_yn & vbCr
+                objSelection.TypeText " - Was this a voluntary quit? " & vol_quit_yn & vbCr
+                If trim(stwk_reason) <> "" Then objSelection.TypeText " - Reason for STWK: " & stwk_reason & vbCr
+                objSelection.TypeText " - Meets good cause? " & good_cause_yn & vbCr
+        End Select
+        objSelection.TypeText "* Impact on WREG/ABAWD: " & wreg_abawd_notes & vbCr
+        If conversation_with_person <> "" Then
+            objSelection.TypeText "Information about job gathered in conversation with " & conversation_with_person & vbCr
+            objSelection.TypeText "  - Details of conversation: " & conversation_detail & vbCr
+        End If
+        objSelection.TypeText "=== Reporting Information ===" & vbCr
+        objSelection.TypeText "* Reported via " & job_report_type & " by " & person_who_reported_job & " on " & reported_date & vbCr
+        If work_number_verbal_checkbox = checked Then
+            objSelection.TypeText "*** Verbal authorization to check the Work Number received." & vbCr
+        End If
+        objSelection.TypeText "=== Verification ===" & vbCr
+        If work_number_checkbox = checked Then objSelection.TypeText "* Sent Work Number request for income verification." & vbCr
+        If verif_form_date <> "" Then
+            objSelection.TypeText "* Verification request sent on " & verif_form_date & vbCr
+            objSelection.TypeText "* Time frame of income verification requested: " & verif_time_frame & vbCr
+            If requested_CEI_OHI_docs_checkbox = checked Then objSelection.TypeText "* Requested Health Insurance information available from employer." & vbCr
+        End If
+        objSelection.TypeText "---" & vbCr
+        objSelection.TypeText "NOTES: " & notes & vbCr
+        objSelection.TypeText TIKL_note_text & vbCr
+        If worker_signature <> "UUDDLRLRBA" Then
+            objSelection.TypeText "---" & vbCr
+            objSelection.TypeText worker_signature & vbCr
+        End If
+    End If
+Else        'If we are NOT in developer mode the script will create a CASE:NOTE now
+
+    Call start_a_blank_CASE_NOTE
+
+    Call write_variable_in_CASE_NOTE("Change in Income Reported: " & UCase(verif_type_requested) & " - Reported on: " & reported_date)
+    Call write_variable_in_CASE_NOTE("=== Details of the Reported Change ===")
+    Call write_variable_in_CASE_NOTE("* Job Name: " & job_employer_name & " - Income Type: " & job_income_type)
+    Call write_variable_in_CASE_NOTE("* Employee: Memb " & hh_memb_with_job_change)
+    If job_income_end <> "" Then Call write_variable_in_CASE_NOTE("* Income Start Date: " & job_income_start & " - End Date: " & job_income_end)
+    If job_income_end = "" Then Call write_variable_in_CASE_NOTE("* Income Start Date: " & job_income_start)
+    Call write_variable_in_CASE_NOTE("* Verification: " & job_verification)
+    Call write_variable_in_CASE_NOTE("* Type of Change: " & job_change_type)
+    Select Case job_change_type
+        Case "New Job Reported"
+            Call write_variable_with_indent_in_CASE_NOTE("Work Start Date: " & date_work_started)
+            If initial_check_gross_amount <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Income Start Date: " & new_job_income_start & " - Initial Gross Pay: $" & initial_check_gross_amount)
+            If initial_check_gross_amount = "" Then Call write_variable_with_indent_in_CASE_NOTE("Income Start Date: " & new_job_income_start)
+            Call write_variable_with_indent_in_CASE_NOTE("Anticipated Income: Hours per Week: " & new_job_hours_per_week & " - Hourly Wage: $" & new_job_hourly_wage & "/hour")
+        Case "Income/Hours Change for Current Job"
+            Call write_variable_with_indent_in_CASE_NOTE("Change happened on " & job_change_date & " change will cause " & income_change_type)
+            Call write_variable_with_indent_in_CASE_NOTE("Date of pay first impacted: " & first_pay_date_of_change)
+            Call write_variable_with_indent_in_CASE_NOTE("Change: " & job_change_details)
+            Call write_variable_with_indent_in_CASE_NOTE("Previous Income: Hours per Week: " & job_change_old_hours_per_week & " - Hourly Wage: $" & job_change_old_hourly_wage & "/hour")
+            Call write_variable_with_indent_in_CASE_NOTE("New Income: Hours per Week: " & job_change_new_hours_per_week & " - Hourly Wage: $" & job_change_new_hourly_wage & "/hour")
+        Case "Job Ended"
+            Call write_variable_with_indent_in_CASE_NOTE("Income End Date: " & job_end_income_end_date & " - Final pay amount: $"& last_pay_amount)
+            Call write_variable_with_indent_in_CASE_NOTE("Work stoped on: " & date_work_ended)
+            Call write_variable_in_CASE_NOTE("* Quit details:")
+            Call write_variable_with_indent_in_CASE_NOTE("Employee refused employment: " & refused_empl_yn)
+            Call write_variable_with_indent_in_CASE_NOTE("Was this a voluntary quit? " & vol_quit_yn)
+            If trim(stwk_reason) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Reason for STWK: " & stwk_reason)
+            Call write_variable_with_indent_in_CASE_NOTE("Meets good cause? " & good_cause_yn)
+    End Select
+    Call write_variable_in_CASE_NOTE("* Impact on WREG/ABAWD: " & wreg_abawd_notes)
+    If conversation_with_person <> "" Then
+        Call write_variable_in_CASE_NOTE("Information about job gathered in conversation with " & conversation_with_person)
+        Call write_variable_in_CASE_NOTE("  - Details of conversation: " & conversation_detail)
+    End If
+    Call write_variable_in_CASE_NOTE("=== Reporting Information ===")
+    Call write_variable_in_CASE_NOTE("* Reported via " & job_report_type & " by " & person_who_reported_job & " on " & reported_date)
+    If work_number_verbal_checkbox = checked Then Call write_variable_in_CASE_NOTE("*** Verbal authorization to check the Work Number received.")
+    If verif_form_date <> "" Then
+        Call write_variable_in_CASE_NOTE("=== Verification ===")
+        If work_number_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Sent Work Number request for income verification.")
+        Call write_variable_in_CASE_NOTE("* Verification request sent on " & verif_form_date)
+        Call write_variable_in_CASE_NOTE("* Time frame of income verification requested: " & verif_time_frame)
+        If requested_CEI_OHI_docs_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Requested Health Insurance information available from employer.")
+        Call write_variable_in_CASE_NOTE("---")
+    End If
+    Call write_bullet_and_variable_in_CASE_NOTE("NOTES", notes)
+    Call write_variable_in_CASE_NOTE(TIKL_note_text)
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+End If
+
+'Creation of detail in the end message
+end_msg = "Success! Job change information received. Change reported: " & job_change_type & vbNewLine & vbNewLine
+If developer_mode = TRUE Then
+    If send_email_checkbox = checked Then end_msg = end_msg & "Email sent with job change information. " & vbNewLine
+    If export_note_to_word = checked Then end_mdg = end_msg & "Word document created with job detail information. " & vbNewLine
+    end_msg = end_msg & vbNewLine
+End If
+If script_update_stat = "Yes - Update an existing JOBS Panel" Then  end_msg = end_msg & "Existing panels updated with job change information. " & vbNewLine
+If script_update_stat = "Yes - Create a new JOBS Panel" Then end_msg = end_msg & "New panel created and updated with job change information. " & vbNewLine
+If TIKL_checkbox = checked and developer_mode = FALSE Then end_msg = end_msg & "TIKL set for return of verification." & vbNewLine
+
+call script_end_procedure_with_error_report(end_msg)
