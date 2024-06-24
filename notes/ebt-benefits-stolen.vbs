@@ -172,26 +172,46 @@ If action_step = "CASE/NOTE Information about Request" Then
       err_msg = ""
       DIALOG dialog1
       Cancel_confirmation
+
+      'Error handling for case number and decision
       Call validate_MAXIS_case_number(err_msg, "*")
       If request_status = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option for 'Decision on Request'."
+      If request_status = "Pending DHS-8557" and dhs_8557_action_taken <> "Awaiting return of DHS-8557" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557 and therefore must select the 'Awaiting return of DHS-8557' option for the Action Taken on DHS-8557 dropdown."
       
       'Error handling for EBT Stolen Benefit Details groupbox
-      If IsDate(trim(date_client_reported)) <> True or len(trim(date_client_reported)) > 10 or len(trim(date_client_reported)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the client reported stolen benefit in the format MM/DD/YYYY."
-      If trim(stolen_benefit_type) = "" Then err_msg = err_msg & vbCr & "* You must enter the type of benefit stolen."
-      If IsDate(trim(date_client_discovered_stolen_benefit)) <> True or len(trim(date_client_discovered_stolen_benefit)) > 10 or len(trim(date_client_discovered_stolen_benefit)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the client discovered the stolen benefit in the format MM/DD/YYYY."
-      If trim(dollar_value_stolen_benefit) = "" Then err_msg = err_msg & vbCr & "* You must enter the dollar value of the stolen benefit."
-      If trim(illegal_method_used) = "" Then err_msg = err_msg & vbCr & "* You must enter the illegal method used to steal benefits."
+      If IsDate(trim(date_client_reported)) <> True or len(trim(date_client_reported)) > 10 or len(trim(date_client_reported)) < 6 Then err_msg = err_msg & vbCr & "* You must enter a date in the MM/DD/YYYY format in the 'Date client reported stolen benefit' field."
+      If trim(stolen_benefit_type) = "" Then err_msg = err_msg & vbCr & "* You must fill out the 'Type of benefit stolen' field."
+      If IsDate(trim(date_client_discovered_stolen_benefit)) <> True or len(trim(date_client_discovered_stolen_benefit)) > 10 or len(trim(date_client_discovered_stolen_benefit)) < 6 Then err_msg = err_msg & vbCr & "* You must enter a date in the MM/DD/YYYY format in the 'Date client discovered stolen benefit' field."
+      If trim(dollar_value_stolen_benefit) = "" Then err_msg = err_msg & vbCr & "* You must fill out the 'Dollar value of the stolen benefit' field."
+      If trim(illegal_method_used) = "" Then err_msg = err_msg & vbCr & "* You must fill out the 'Illegal method used to steal benefits' field."
       
       'Validation for DHS-8557 details groupbox
-      If trim(date_dhs_8557_sent) <> "" and IsDate(date_dhs_8557_sent) <> True or len(trim(date_dhs_8557_sent)) > 10 or len(trim(date_dhs_8557_sent)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-8557 was mailed to the client in the format MM/DD/YYYY."
-      If trim(date_dhs_8557_signed) <> "" and IsDate(date_dhs_8557_signed) <> True or len(trim(date_dhs_8557_signed)) > 10 or len(trim(date_dhs_8557_signed)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the client signed the DHS-8557 in the format MM/DD/YYYY."
-      If trim(date_dhs_8557_returned) <> "" and IsDate(date_dhs_8557_returned) <> True or len(trim(date_dhs_8557_returned)) > 10 or len(trim(date_dhs_8557_returned)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the client returned the DHS-8557 in the format MM/DD/YYYY."
-      If dhs_8557_action_taken = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option for the 'Action Taken on DHS-8557'."
+      If dhs_8557_action_taken = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option for the 'Action Taken on DHS-8557' dropdown."
+      If request_status = "Request Denied" and dhs_8557_action_taken = "Awaiting return of DHS-8557" Then err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'Awaiting return of DHS-8557' option for the Action Taken on DHS-8557 dropdown."
+      If request_status = "Request Denied" and dhs_8557_action_taken = "DHS-8557 returned - fraud findings do support digital theft definition" Then err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
+      If request_status = "Request Approved" and dhs_8557_action_taken <> "DHS-8557 returned - fraud findings do support digital theft definition" Then err_msg = err_msg & vbCr & "* You indicated that you are approving the request and therefore need to select the option 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
+      If dhs_8557_action_taken = "Awaiting return of DHS-8557" Then
+        If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
+        If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
+      ElseIf dhs_8557_action_taken = "DHS-8557 never returned" Then
+        If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
+        If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
+      ElseIf Instr(dhs_8557_action_taken, "DHS-8557 returned -") Then
+        If trim(date_dhs_8557_signed) = "" or (IsDate(date_dhs_8557_signed) <> True or len(trim(date_dhs_8557_signed)) > 10 or len(trim(date_dhs_8557_signed)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field cannot be blank and must be in the format MM/DD/YYYY."
+        If trim(date_dhs_8557_returned) = "" or (IsDate(date_dhs_8557_returned) <> True or len(trim(date_dhs_8557_returned)) > 10 or len(trim(date_dhs_8557_returned)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field cannot be blank and must be in the format MM/DD/YYYY."
+      End If
       
       'Validation for FPI details groupbox
-      If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" and IsDate(date_dhs_3335A_sent_to_fraud_investigator) <> True or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) > 10 or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) < 6 Then err_msg = err_msg & vbCr & "* You must enter the date the DHS-3335A was sent to the Fraud Investigator in the format MM/DD/YYYY."
-      If (trim(results_of_dhs_3335A) <> "" and trim(stolen_benefit_validation) = "") OR (trim(results_of_dhs_3335A) = "" and trim(stolen_benefit_validation) <> "") Then err_msg = err_msg & vbCr & "* You must fill out both of the 'Results of the DHS-3335A' and 'How stolen benefit replcement validated' fields." 
-      If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "") and previous_benefit_replacement = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option regarding whether the client has received a previous benefits replacement between 10/1/22 through present." 
+      If request_status = "Pending DHS-3335A" Then 
+        If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "" or trim(past_replacement_benefits_details) <> "") Then err_msg = err_msg & vbCr & "* You indicated that the DHS-3335A is pending so the following fields must be blank: 'Results of the DHS-3335A', 'How stolen benefit replacement validated', and 'If yes, how many other replacements due to stolen EBT benefits has this client received? (Indicate # and and benefit type replaced)'."
+      End If 
+      If request_status = "Request Approved" Then
+        If trim(date_dhs_3335A_sent_to_fraud_investigator) = "" or trim(results_of_dhs_3335A) = "" or trim(stolen_benefit_validation) = "" or previous_benefit_replacement = "Select one:" then err_msg = err_msg & vbCr & "* You indicated that the benefits replacement request has been approved. Therefore all fields in the 'Fraud Prevention Investigation (FPI) Referral (DHS-3335A) groupbox must be filled out."
+      End If
+
+      If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" and (IsDate(date_dhs_3335A_sent_to_fraud_investigator) <> True or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) > 10 or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) < 6) Then err_msg = err_msg & vbCr & "* You must enter a date in the format MM/DD/YYYY in the 'Date the DHS-3335A sent to Fraud Investigator' field."
+      If (trim(results_of_dhs_3335A) <> "" and trim(stolen_benefit_validation) = "") OR (trim(results_of_dhs_3335A) = "" and trim(stolen_benefit_validation) <> "") Then err_msg = err_msg & vbCr & "* You must fill out both of the 'Results of the DHS-3335A' and 'How stolen benefit replacement validated' fields or leave both blank if not applicable." 
+      If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "") and previous_benefit_replacement = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the 'Has client requested and received previous benefits replacement between 10/1/22 through present?' dropdown." 
       If previous_benefit_replacement = "Yes" and trim(past_replacement_benefits_details) = "" Then err_msg = err_msg & vbCr & "* You must provide details about the number of previous stolen EBT benefits replacements." 
       If previous_benefit_replacement <> "Yes" and trim(past_replacement_benefits_details) <> "" Then err_msg = err_msg & vbCr & "* The previous benefits details field should only be filled out if the client received a previous replacement of benefits." 
 
