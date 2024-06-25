@@ -186,32 +186,47 @@ If action_step = "CASE/NOTE Information about Request" Then
       If trim(illegal_method_used) = "" Then err_msg = err_msg & vbCr & "* You must fill out the 'Illegal method used to steal benefits' field."
       
       'Validation for DHS-8557 details groupbox
-      If dhs_8557_action_taken = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option for the 'Action Taken on DHS-8557' dropdown."
-      If request_status = "Request Denied" and dhs_8557_action_taken = "Awaiting return of DHS-8557" Then err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'Awaiting return of DHS-8557' option for the Action Taken on DHS-8557 dropdown."
-      If request_status = "Request Denied" and dhs_8557_action_taken = "DHS-8557 returned - fraud findings do support digital theft definition" Then err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
-      If request_status = "Request Approved" and dhs_8557_action_taken <> "DHS-8557 returned - fraud findings do support digital theft definition" Then err_msg = err_msg & vbCr & "* You indicated that you are approving the request and therefore need to select the option 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
-      If dhs_8557_action_taken = "Awaiting return of DHS-8557" Then
-        If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
-        If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
-      ElseIf dhs_8557_action_taken = "DHS-8557 never returned" Then
-        If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
-        If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
-      ElseIf Instr(dhs_8557_action_taken, "DHS-8557 returned -") Then
+      If dhs_8557_action_taken = "Select one:" Then 
+        err_msg = err_msg & vbCr & "* You must select an option for the 'Action Taken on DHS-8557' dropdown."
+      ElseIf request_status = "Request Denied" Then
+        If dhs_8557_action_taken = "Awaiting return of DHS-8557" Then 
+          err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'Awaiting return of DHS-8557' option for the 'Action Taken on DHS-8557' dropdown."
+        ElseIf dhs_8557_action_taken = "DHS-8557 returned - fraud findings do support digital theft definition" Then 
+          err_msg = err_msg & vbCr & "* You indicated that you are denying the request and therefore need to select an option other than 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
+        ElseIf dhs_8557_action_taken = "DHS-8557 never returned" Then
+          If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
+          If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that the client never returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
+        ElseIf Instr(dhs_8557_action_taken, "DHS-8557 returned -") Then
+          If trim(date_dhs_8557_signed) = "" or (IsDate(date_dhs_8557_signed) <> True or len(trim(date_dhs_8557_signed)) > 10 or len(trim(date_dhs_8557_signed)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field cannot be blank and must be in the format MM/DD/YYYY."
+          If trim(date_dhs_8557_returned) = "" or (IsDate(date_dhs_8557_returned) <> True or len(trim(date_dhs_8557_returned)) > 10 or len(trim(date_dhs_8557_returned)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field cannot be blank and must be in the format MM/DD/YYYY."
+        End If
+      ElseIf request_status = "Request Approved" Then
+        If dhs_8557_action_taken <> "DHS-8557 returned - fraud findings do support digital theft definition" Then err_msg = err_msg & vbCr & "* You indicated that you are approving the request and therefore need to select the option 'DHS-8557 returned - fraud findings do support digital theft definition' option for the 'Action Taken on DHS-8557' dropdown."
         If trim(date_dhs_8557_signed) = "" or (IsDate(date_dhs_8557_signed) <> True or len(trim(date_dhs_8557_signed)) > 10 or len(trim(date_dhs_8557_signed)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field cannot be blank and must be in the format MM/DD/YYYY."
         If trim(date_dhs_8557_returned) = "" or (IsDate(date_dhs_8557_returned) <> True or len(trim(date_dhs_8557_returned)) > 10 or len(trim(date_dhs_8557_returned)) < 6) Then err_msg = err_msg & vbCr & "* You indicated that the client returned the DHS-8557. Therefore the 'Date client returned DHS-8557' field cannot be blank and must be in the format MM/DD/YYYY."
-      End If
-      
-      'Validation for FPI details groupbox
-      If request_status = "Pending DHS-3335A" Then 
-        If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "" or trim(past_replacement_benefits_details) <> "") Then err_msg = err_msg & vbCr & "* You indicated that the DHS-3335A is pending so the following fields must be blank: 'Results of the DHS-3335A', 'How stolen benefit replacement validated', and 'If yes, how many other replacements due to stolen EBT benefits has this client received? (Indicate # and and benefit type replaced)'."
-      End If 
-      If request_status = "Request Approved" Then
-        If trim(date_dhs_3335A_sent_to_fraud_investigator) = "" or trim(results_of_dhs_3335A) = "" or trim(stolen_benefit_validation) = "" or previous_benefit_replacement = "Select one:" then err_msg = err_msg & vbCr & "* You indicated that the benefits replacement request has been approved. Therefore all fields in the 'Fraud Prevention Investigation (FPI) Referral (DHS-3335A) groupbox must be filled out."
+      ElseIf request_status = "Pending DHS-8557" Then
+        If dhs_8557_action_taken = "Awaiting return of DHS-8557" Then
+          If trim(date_dhs_8557_signed) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date DHS-8557 signed by the client' field should be blank."
+          If trim(date_dhs_8557_returned) <> "" Then err_msg = err_msg & vbCr & "* You indicated that you are awaiting the return of the DHS-8557. Therefore the 'Date client returned DHS-8557' field should be blank."
+        ElseIf dhs_8557_action_taken <> "Awaiting return of DHS-8557" Then
+          err_msg = err_msg & vbCr & "* You indicated that the decision on the benefits replacement request is pending the DHS-8557. Therefore need to select the 'Awaiting return of DHS-8557' option for the 'Action Taken on DHS-8557' dropdown."
+        End If
       End If
 
+      'Validation for FPI details groupbox
       If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" and (IsDate(date_dhs_3335A_sent_to_fraud_investigator) <> True or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) > 10 or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) < 6) Then err_msg = err_msg & vbCr & "* You must enter a date in the format MM/DD/YYYY in the 'Date the DHS-3335A sent to Fraud Investigator' field."
-      If (trim(results_of_dhs_3335A) <> "" and trim(stolen_benefit_validation) = "") OR (trim(results_of_dhs_3335A) = "" and trim(stolen_benefit_validation) <> "") Then err_msg = err_msg & vbCr & "* You must fill out both of the 'Results of the DHS-3335A' and 'How stolen benefit replacement validated' fields or leave both blank if not applicable." 
-      If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "") and previous_benefit_replacement = "Select one:" Then err_msg = err_msg & vbCr & "* You must select an option from the 'Has client requested and received previous benefits replacement between 10/1/22 through present?' dropdown." 
+
+      If request_status = "Pending DHS-3335A" Then 
+        If (trim(results_of_dhs_3335A) <> "" or trim(stolen_benefit_validation) <> "" ) Then err_msg = err_msg & vbCr & "* You indicated that the DHS-3335A is pending so the following fields should be blank: 'Results of the DHS-3335A' and 'How stolen benefit replacement validated'."
+      ElseIf request_status = "Request Approved" Then
+        If trim(date_dhs_3335A_sent_to_fraud_investigator) = "" or trim(results_of_dhs_3335A) = "" or trim(stolen_benefit_validation) = "" or previous_benefit_replacement = "Select one:" then err_msg = err_msg & vbCr & "* You indicated that the benefits replacement request has been approved. Therefore all fields in the 'Fraud Prevention Investigation (FPI) Referral (DHS-3335A) groupbox must be filled out."
+        If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" and (IsDate(date_dhs_3335A_sent_to_fraud_investigator) <> True or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) > 10 or len(trim(date_dhs_3335A_sent_to_fraud_investigator)) < 6) Then err_msg = err_msg & vbCr & "* You must enter a date in the format MM/DD/YYYY in the 'Date the DHS-3335A sent to Fraud Investigator' field."
+      ElseIf request_status = "Request Denied" Then
+        If dhs_8557_action_taken = "DHS-8557 returned - fraud findings don't support digital theft definition" Then
+          If trim(date_dhs_3335A_sent_to_fraud_investigator) = "" or trim(results_of_dhs_3335A) = "" or trim(stolen_benefit_validation) = "" or previous_benefit_replacement = "Select one:" then err_msg = err_msg & vbCr & "* You indicated that the benefits replacement request was denied as the fraud findings did not support the digital theft definition. Therefore all fields in the 'Fraud Prevention Investigation (FPI) Referral (DHS-3335A) groupbox must be filled out with details about the fraud findings."
+        End If
+      End If
+
       If previous_benefit_replacement = "Yes" and trim(past_replacement_benefits_details) = "" Then err_msg = err_msg & vbCr & "* You must provide details about the number of previous stolen EBT benefits replacements." 
       If previous_benefit_replacement <> "Yes" and trim(past_replacement_benefits_details) <> "" Then err_msg = err_msg & vbCr & "* The previous benefits details field should only be filled out if the client received a previous replacement of benefits." 
 
@@ -228,20 +243,21 @@ If action_step = "CASE/NOTE Information about Request" Then
     'Worker is awaiting additional information from forms, will CASE/NOTE and then end
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
-    CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
+    CALL write_bullet_and_variable_in_Case_Note("Date client reported stolen benefit to county", date_client_reported)
     CALL write_bullet_and_variable_in_Case_Note("Type of benefit stolen", stolen_benefit_type)
-    CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client discovered stolen benefit", date_client_discovered_stolen_benefit)
-    CALL write_bullet_and_variable_in_Case_Note("Dollar value of the stolen benefit", dollar_value_stolen_benefit)
+    CALL write_bullet_and_variable_in_Case_Note("Dollar value of stolen benefit", dollar_value_stolen_benefit)
     CALL write_bullet_and_variable_in_Case_Note("Type of illegal method used to steal benefits", illegal_method_used)
     CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 mailed to client", date_dhs_8557_sent)
     If dhs_8557_tikl_check = CHECKED Then CALL write_variable_in_Case_Note("* TIKL created for return of DHS-8557 form.")
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
-    CALL write_bullet_and_variable_in_Case_Note("Result of the DHS-3335A", results_of_dhs_3335A)
-    CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
-    CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
-    If previous_benefit_replacement = "Yes" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
+    If trim(date_dhs_8557_signed) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
+    If trim(date_dhs_8557_returned) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 returned", date_dhs_8557_returned)
+    CALL write_bullet_and_variable_in_Case_Note("Action Taken on DHS-3335A", dhs_8557_action_taken)
+    If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
+    If trim(results_of_dhs_3335A) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Result of DHS-3335A", results_of_dhs_3335A)
+    If trim(stolen_benefit_validation) <> "" Then CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
+    If previous_benefit_replacement <> "Select one:" Then CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
+    If trim(previous_benefit_replacement) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
 
@@ -254,20 +270,21 @@ If action_step = "CASE/NOTE Information about Request" Then
     'Worker has approved the request, will CASE/NOTE and then end
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
-    CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
+    CALL write_bullet_and_variable_in_Case_Note("Date client reported stolen benefit to county", date_client_reported)
     CALL write_bullet_and_variable_in_Case_Note("Type of benefit stolen", stolen_benefit_type)
-    CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client discovered stolen benefit", date_client_discovered_stolen_benefit)
-    CALL write_bullet_and_variable_in_Case_Note("Dollar value of the stolen benefit", dollar_value_stolen_benefit)
+    CALL write_bullet_and_variable_in_Case_Note("Dollar value of stolen benefit", dollar_value_stolen_benefit)
     CALL write_bullet_and_variable_in_Case_Note("Type of illegal method used to steal benefits", illegal_method_used)
     CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 mailed to client", date_dhs_8557_sent)
     If dhs_8557_tikl_check = CHECKED Then CALL write_variable_in_Case_Note("* TIKL created for return of DHS-8557 form.")
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
-    CALL write_bullet_and_variable_in_Case_Note("Result of the DHS-3335A", results_of_dhs_3335A)
-    CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
-    CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
-    If previous_benefit_replacement = "Yes" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
+    If trim(date_dhs_8557_signed) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
+    If trim(date_dhs_8557_returned) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 returned", date_dhs_8557_returned)
+    CALL write_bullet_and_variable_in_Case_Note("Action Taken on DHS-3335A", dhs_8557_action_taken)
+    If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
+    If trim(results_of_dhs_3335A) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Result of DHS-3335A", results_of_dhs_3335A)
+    If trim(stolen_benefit_validation) <> "" Then CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
+    If previous_benefit_replacement <> "Select one:" Then CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
+    If trim(previous_benefit_replacement) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
 
@@ -280,20 +297,22 @@ If action_step = "CASE/NOTE Information about Request" Then
     'Worker has denied the request, will CASE/NOTE details, and then generate a SPEC/MEMO
     CALL write_variable_in_Case_Note("--EBT Stolen Benefits - " & request_status & "--")
     CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
-    CALL write_bullet_and_variable_in_Case_Note("Date client reported the stolen benefit to the county", date_client_reported)
+    CALL write_bullet_and_variable_in_Case_Note("Date client reported stolen benefit to county", date_client_reported)
     CALL write_bullet_and_variable_in_Case_Note("Type of benefit stolen", stolen_benefit_type)
-    CALL write_bullet_and_variable_in_Case_Note("Decision on Request", request_status)
     CALL write_bullet_and_variable_in_Case_Note("Date client discovered stolen benefit", date_client_discovered_stolen_benefit)
-    CALL write_bullet_and_variable_in_Case_Note("Dollar value of the stolen benefit", dollar_value_stolen_benefit)
+    CALL write_bullet_and_variable_in_Case_Note("Dollar value of stolen benefit", dollar_value_stolen_benefit)
     CALL write_bullet_and_variable_in_Case_Note("Type of illegal method used to steal benefits", illegal_method_used)
     CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 mailed to client", date_dhs_8557_sent)
     If dhs_8557_tikl_check = CHECKED Then CALL write_variable_in_Case_Note("* TIKL created for return of DHS-8557 form.")
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
-    CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
-    CALL write_bullet_and_variable_in_Case_Note("Result of the DHS-3335A", results_of_dhs_3335A)
-    CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
-    CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
-    If previous_benefit_replacement = "Yes" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
+    If trim(date_dhs_8557_signed) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 signed by client", date_dhs_8557_signed)
+    If trim(date_dhs_8557_returned) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-8557 returned", date_dhs_8557_returned)
+    CALL write_bullet_and_variable_in_Case_Note("Action Taken on DHS-3335A", dhs_8557_action_taken)
+    If trim(date_dhs_3335A_sent_to_fraud_investigator) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Date DHS-3335A sent to Fraud Investigator", date_dhs_3335A_sent_to_fraud_investigator)
+    If trim(results_of_dhs_3335A) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Result of DHS-3335A", results_of_dhs_3335A)
+    If trim(stolen_benefit_validation) <> "" Then CALL write_bullet_and_variable_in_Case_Note("How stolen benefit replacement validated", stolen_benefit_validation)
+    If previous_benefit_replacement <> "Select one:" Then CALL write_bullet_and_variable_in_Case_Note("Requested & received prev. benefits replacement (10/1/22 to present)", previous_benefit_replacement)
+    If trim(previous_benefit_replacement) <> "" Then CALL write_bullet_and_variable_in_Case_Note("Details of previous benefits replacements", past_replacement_benefits_details)
+    CALL write_variable_in_Case_Note("SPEC/MEMO sent to client notifying them of denial of benefits replacement request.")
     CALL write_variable_in_Case_Note("----")
     CALL write_variable_in_Case_Note(worker_signature)
 
@@ -341,7 +360,7 @@ If action_step = "CASE/NOTE Information about Request" Then
         CancelButton 230, 225, 50, 15
       Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
+      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
       Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
       Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
@@ -355,7 +374,8 @@ If action_step = "CASE/NOTE Information about Request" Then
         Dialog Dialog1
         cancel_confirmation
         If denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0 Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
-        If denial_additional_info_not_provided = 1 and trim(denial_specific_additional_info_not_provided) = "" Then err_msg = err_msg & vbCr & "* You must explain the specific information requested to validate the claim that was not provided."
+        If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
+        If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
       Loop until err_msg = ""
       CALL check_for_password(are_we_passworded_out)
@@ -364,9 +384,8 @@ If action_step = "CASE/NOTE Information about Request" Then
     CALL start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
 
     Call write_variable_in_SPEC_MEMO("Your request for the replacement of stolen EBT benefits has been denied because:")
-
     If denial_two_replacements = 1 then Call write_variable_in_SPEC_MEMO("> You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30")
-    If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits")
+    If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits")
     If denial_dhs_8557_not_returned = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form")
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county or DHS staff:")
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
@@ -401,7 +420,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
         CancelButton 230, 225, 50, 15
       Text 5, 10, 230, 10, "Select the reason(s) for the denial of the benefits replacement request:"
       Text 20, 25, 265, 20, "You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30"
-      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits"
+      Text 20, 50, 265, 20, "You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits"
       Text 20, 75, 265, 20, "You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form"
       Text 20, 100, 265, 20, "You did not provide additional information to validate the claim as requested by the county or DHS staff (list the information not provided below)"
       Text 20, 140, 265, 20, "Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods"
@@ -415,7 +434,8 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
         Dialog Dialog1
         cancel_confirmation
         If denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0 Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
-        If denial_additional_info_not_provided = 1 and trim(denial_specific_additional_info_not_provided) = "" Then err_msg = err_msg & vbCr & "* You must explain the specific information requested to validate the claim that was not provided."
+        If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
+        If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
       Loop until err_msg = ""
       CALL check_for_password(are_we_passworded_out)
@@ -425,18 +445,40 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
 
     Call write_variable_in_SPEC_MEMO("Your request for the replacement of stolen EBT benefits has been denied because:")
     If denial_two_replacements = 1 then Call write_variable_in_SPEC_MEMO("> You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30")
-    If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county or Tribal Nation worker within 30 business days of discovering the stolen benefits")
+    If denial_not_reported_30_days = 1 then Call write_variable_in_SPEC_MEMO("> You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits")
     If denial_dhs_8557_not_returned = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form")
     If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("> You did not provide additional information to validate the claim as requested by the county or DHS staff:")
-    If denial_additional_info_not_provided = 1 then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
+    If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_SPEC_MEMO("  > " & denial_specific_additional_info_not_provided)
     If denial_not_stolen_determination = 1 then Call write_variable_in_SPEC_MEMO("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
     If denial_stolen_outside_time_period = 1 then Call write_variable_in_SPEC_MEMO("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
     If trim(denial_additional_reasons) <> "" then Call write_variable_in_SPEC_MEMO("> " & denial_additional_reasons)
 
-    'Manual time calculation
-    STATS_manualtime = STATS_manualtime + 150
+    'Save the SPEC/MEMO
+    PF4
 
-    script_end_procedure_with_error_report("The SPEC/MEMO has been created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
+    'CASE/NOTE that SPEC/MEMO sent
+    start_a_blank_case_note
+
+    'Worker is awaiting additional information from forms, will CASE/NOTE and then end
+    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - Denial SPEC/MEMO Sent--")
+    CALL write_variable_in_Case_Note("SPEC/MEMO sent to client informing them of denial of benefits replacement request. Information provided in SPEC/MEMO provided below:")
+    CALL write_variable_in_Case_Note("----")
+    Call write_variable_in_Case_Note("Your request for the replacement of stolen EBT benefits has been denied because:")
+    If denial_two_replacements = 1 then Call write_variable_in_Case_Note("> You received two replacements of stolen electronic benefits in the Federal Fiscal Year (FFY). The FFY runs from October 1 through September 30")
+    If denial_not_reported_30_days = 1 then Call write_variable_in_Case_Note("> You did not report your stolen benefits to your county worker within 30 business days of discovering the stolen benefits")
+    If denial_dhs_8557_not_returned = 1 then Call write_variable_in_Case_Note("> You did not provide the signed Replacement of Stolen EBT Benefits (DHS-8557) form")
+    If denial_additional_info_not_provided = 1 then Call write_variable_in_Case_Note("> You did not provide additional information to validate the claim as requested by the county or DHS staff:")
+    If trim(denial_specific_additional_info_not_provided) <> "" then Call write_variable_in_Case_Note("  > " & denial_specific_additional_info_not_provided)
+    If denial_not_stolen_determination = 1 then Call write_variable_in_Case_Note("> Hennepin County has determined that the EBT benefits were not stolen because of card skimming, cloning, or similar illegal methods")
+    If denial_stolen_outside_time_period = 1 then Call write_variable_in_Case_Note("> The stolen EBT benefits replacement were stolen outside of the 10/01/2022 - 09/30/2024 time period")
+    If trim(denial_additional_reasons) <> "" then Call write_variable_in_Case_Note(denial_additional_reasons)
+    CALL write_variable_in_Case_Note("----")
+    CALL write_variable_in_Case_Note(worker_signature)    
+
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 270
+
+    script_end_procedure_with_error_report("The SPEC/MEMO has been created. A CASE/NOTE regarding the SPEC/MEMO was also created. You must complete the SIR webform 'Replacement of Stolen EBT Benefits Request Form' reporting the required information to DHS.")
 
   ElseIf spec_memo_type = "Benefits Replaced - DHS TSS BENE Unit Determination" Then
     'Handling for sending a SPEC/MEMO after TSS BENE Unit has approved request
@@ -481,10 +523,28 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
     Call write_variable_in_SPEC_MEMO("> If you have not reported your compromised EBT card stolen and had a replacement card issued, this was done for you prior to benefit replacement.")
     Call write_variable_in_SPEC_MEMO("> If you do not agree with this decision, see the reverse side of this notice for your appeal rights. Contact your county worker to request an appeal.")
 
-    'Manual time calculation
-    STATS_manualtime = STATS_manualtime + 90
+    'Save the SPEC/MEMO
+    PF4
 
-    script_end_procedure_with_error_report("The SPEC/MEMO has been created.")
+    'CASE/NOTE that SPEC/MEMO sent
+    start_a_blank_case_note
+
+    'Worker is awaiting additional information from forms, will CASE/NOTE and then end
+    CALL write_variable_in_Case_Note("--EBT Stolen Benefits - SPEC/MEMO Sent--")
+    CALL write_variable_in_Case_Note("SPEC/MEMO sent to client informing them of approval of benefits replacement request. Information provided in SPEC/MEMO provided below:")
+    CALL write_variable_in_Case_Note("----")
+    Call write_variable_in_Case_Note("Your request for the replacement of stolen EBT benefits has been approved.")
+    Call write_variable_in_Case_Note("> The amount of stolen benefits that have been returned to your EBT account is: $" & stolen_benefits_replaced_amount)
+    If stolen_benefits_not_replaced_amount <> "" Then Call write_variable_in_Case_Note("> The full amount of stolen benefit cannot be replaced because: " & stolen_benefit_not_replaced_explanation & "." & " The amount not replaced is $" & stolen_benefits_not_replaced_amount & ".")
+    Call write_variable_in_Case_Note("> If you have not reported your compromised EBT card stolen and had a replacement card issued, this was done for you prior to benefit replacement.")
+    Call write_variable_in_Case_Note("> If you do not agree with this decision, see the reverse side of this notice for your appeal rights. Contact your county worker to request an appeal.")
+    CALL write_variable_in_Case_Note("----")
+    CALL write_variable_in_Case_Note(worker_signature)    
+    
+    'Manual time calculation
+    STATS_manualtime = STATS_manualtime + 210
+
+    script_end_procedure_with_error_report("The SPEC/MEMO has been created. A CASE/NOTE regarding the SPEC/MEMO was also created.")
   End If
 End If
 
