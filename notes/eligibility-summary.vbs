@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/26/2024", "Additional supports added:##~## - Include Vendor Information on MFIP issuances.##~## - Updated the phrasing to identify instances where the script is run on a case twice in a day to be clearer.##~##", "Casey Love, Hennpin County")
 call changelog_update("05/31/2024", "Additional supports added:##~## - CASE/NOTE of MFIP Special Diet MONY/CHCK Issuances.##~## - Update to Thrifty Food Plan and Calculation Display.##~## - Update to the phrasing of beudgets that are not accurate.##~## ##~##Eligibility Summary is now preppared to be the only script to support the CASE/NOTE of approvals.", "Casey Love, Hennpin County")
 call changelog_update("05/08/2024", "New support to display Expedited approvals more accurately, ensuring we are only documenting information for months that will be issued.##~####~##Additional information to have clearer information about ineligible results due to non-cooperation and cases where there is not a limit to shelter expense.", "Casey Love, Hennpin County")
 call changelog_update("03/15/2024", "Additional support added to check for 'U' code on REVW and MONT.", "Megan Geissler, Hennepin County")
