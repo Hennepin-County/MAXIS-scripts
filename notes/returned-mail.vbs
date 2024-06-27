@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2024", "Updated POLI/TEMP links to navigate to SharePoint instead of POLI/TEMP in MAXIS.", "Mark Riegel, Hennepin County")
 call changelog_update("05/17/2024", "Updated to reflect unclear information for active, SNAP-only 6-month reporting cases where mail is returned without a forwarding address.", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/03/2022", "Remove ability to select both residential and mailing address. Created an option for received in error and address HC only handling.", "MiKayla Handley, Hennepin County") '#927 '
@@ -121,13 +122,8 @@ DO
 		End If
 		IF ADDR_actions = "Select:" THEN err_msg = err_msg & vbCr & "Please choose an action for the returned mail."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
-		IF ButtonPressed = CASH_POLI_TEMP_button THEN 
-			Call back_to_self
-			CALL view_poli_temp("02", "08", "011", "") 'TE02.08.011' RETURNED MAIL PROCESSING - CASH
-		ElseIf ButtonPressed = SNAP_POLI_TEMP_button THEN 
-			Call back_to_self
-			CALL view_poli_temp("02", "08", "012", "") 'TE02.08.012' RETURNED MAIL PROCESSING - SNAP
-		End If
+		IF ButtonPressed = CASH_POLI_TEMP_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.011%20RETURNED%20MAIL%20PROCESSING%20-%20CASH.pdf?csf=1&web=1&e=hBQIUx"
+		If ButtonPressed = SNAP_POLI_TEMP_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%2002.08.012%20RETURNED%20MAIL%20PROCESSING%20-%20SNAP.pdf?csf=1&web=1&e=QANcp0"
 		IF ButtonPressed = one_source_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/cs/login/login.htm"
 		IF ButtonPressed = one_source_button or ButtonPressed = SNAP_POLI_TEMP_button or ButtonPressed = CASH_POLI_TEMP_button THEN
 			err_msg = "LOOP"
