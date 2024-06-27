@@ -435,6 +435,7 @@ JOBS_type_list = JOBS_type_list+chr(9)+"C - Contract Income"
 JOBS_type_list = JOBS_type_list+chr(9)+"T - Training Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"P - Service Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"R - Rehab Program"
+JOBS_type_list = JOBS_type_list+chr(9)+"N - Census Income"
 
 function remove_dash_from_droplist(list_to_alter)
 	list_to_alter = replace(list_to_alter, " - ", " ")
@@ -2614,6 +2615,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 		EMWriteScreen "X", 7, 26
 		EMSendKey "<enter>"
 		EMWaitReady 0, 0
@@ -2677,6 +2679,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 
 		'Reading and converting BUSI Self employment method into human-readable
 		EMReadScreen BUSI_method, 2, 16, 53
