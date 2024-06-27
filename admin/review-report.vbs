@@ -54,49 +54,8 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-function write_hc_standard_policy_note(revw_status_hc)
-	If ObjExcel.Cells(excel_row, hc_std_policy_rtrn_col) = "" or Ucase(ObjExcel.Cells(excel_row, hc_std_policy_rtrn_col)) = "FALSE" Then
-		revw_status_hc = trim(revw_status_hc)
-		If revw_status_hc <> "" Then
-			hc_revw_completed = False
-			If revw_status_hc = "A" Then
-				Call navigate_to_MAXIS_screen("CASE", "NOTE")
-				EMReadScreen current_county, 2, 21, 16
-				If current_county = "27" Then
-					hc_revw_completed = True
-					Call start_a_blank_case_note
-
-					Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-					Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
-					Call write_variable_in_CASE_NOTE("Review completed for " & REPT_month & "/" & REPT_year & ")")
-					Call write_variable_in_CASE_NOTE("**************************************************************************")
-					Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-					Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-					Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-					Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-					Call write_variable_in_CASE_NOTE("**************************************************************************")
-					Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
-					Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & REPT_month & "/01/" & Next_REPT_year & ".")
-					Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
-					Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
-					Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-					Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-					Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE(worker_signature)
-					PF3
-				End If
-			End If
-
-			ObjExcel.Cells(excel_row, hc_std_policy_rtrn_col) = hc_revw_completed
-		End If
-	End If
-end function
-
 function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
 	If add_case_note = True Then 'only run the details here if we are running the 'end of month processing'
-		Call write_hc_standard_policy_note(revw_status_hc)
 
 		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then
 			If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
@@ -830,7 +789,7 @@ do_we_create_u_code_worklists = False
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 130, "Review Report"
   EditBox 70, 5, 110, 15, worker_number
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+"Check for NOMIs"+chr(9)+"HC Standard Policy NOTE", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+"Check for NOMIs", renewal_option
   CheckBox 10, 55, 115, 10, "Select to create U code worklist", create_u_code_worklist_checkbox
   CheckBox 10, 65, 70, 10, "Select all agency.", all_workers_check
   CheckBox 10, 75, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
@@ -878,26 +837,6 @@ If renewal_option = "End of Processing Month" Then
 	last_day_checkbox = checked
 	REPT_month = CM_mo
 	REPT_year  = CM_yr
-	call back_to_self
-	EMReadScreen mx_region, 10, 22, 48
-
-	If mx_region = "INQUIRY DB" Then
-		continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
-		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
-	End If
-End If
-
-'This is specialized functionality to create a CASE/NOTE for any case with HC to indicate the renewal is completed and the case can be processed using standard policy.
-'this function is a PART of end of month processing and does NOT have to be run seperately on the same day as end of month processing.
-'This exists seperately becase we need to add these notes to cases that are processed AFTER end of month
-'THIS WILL BE REMOVED AFTER THE PHE UNWINDING IS COMPLETED
-adding_hc_standard_policy_note = False
-If renewal_option = "HC Standard Policy NOTE" Then
-	renewal_option = "Collect Statistics"
-	adding_hc_standard_policy_note = True
-	REPT_month = CM_mo		'defaulting to CM but this can be changed.
-	REPT_year  = CM_yr
-
 	call back_to_self
 	EMReadScreen mx_region, 10, 22, 48
 
@@ -1387,10 +1326,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 		MAXIS_footer_year = REPT_year
 	End If
-	Next_REPT_year = REPT_year				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
-	Next_REPT_year = Next_REPT_year*1
-	Next_REPT_year = Next_REPT_year + 1
-	Next_REPT_year = Next_REPT_year & ""
 
 	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
 	date_day = DatePart("d", date)
@@ -1458,18 +1393,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 			closure_progs_col = col_to_use + 7
 			ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
-
-			hc_std_policy_rtrn_col = col_to_use + 8
-			ObjExcel.Cells(1, hc_std_policy_rtrn_col).Value = "HC Cont Cov End"
-		End If
-		If adding_hc_standard_policy_note = True Then 		'If we are running to add standard policy HC note - we need to identify the column that tracks this
-			For each_col = 1 to col_to_use
-				If ObjExcel.Cells(1, each_col).Value = "HC Cont Cov End" Then hc_std_policy_rtrn_col = each_col
-			Next
-			If hc_std_policy_rtrn_col = "" Then
-				hc_std_policy_rtrn_col = col_to_use + 6
-				ObjExcel.Cells(1, hc_std_policy_rtrn_col).Value = "HC Cont Cov End"
-			End If
 		End If
 	Else
 		For each_col = 1 to col_to_use
@@ -1481,7 +1404,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 			If ObjExcel.Cells(1, each_col).Value = "Intvw Date (" & date_header & ")" Then intvw_date_excel_col = each_col
 			If ObjExcel.Cells(1, each_col).Value = "Close Note" Then closure_note_col = each_col
 			If ObjExcel.Cells(1, each_col).Value = "Progs Closed" Then closure_progs_col = each_col
-			If ObjExcel.Cells(1, each_col).Value = "HC Cont Cov End" Then hc_std_policy_rtrn_col = each_col
 		Next
 	End If
 
@@ -1572,7 +1494,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 					review_array(saved_to_excel_const, revs_item) = TRUE
 
 					Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
-					If adding_hc_standard_policy_note = True Then Call write_hc_standard_policy_note(review_array(HC_revw_status_const, revs_item))
 
 					Exit For						'if we found a match, we should stop looking
 				End If
@@ -1608,7 +1529,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 				If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
 
 				Call add_autoclose_case_note(cash_review_status, snap_review_status, hc_review_status, recvd_date, interview_date)
-				If adding_hc_standard_policy_note = True Then Call write_hc_standard_policy_note(hc_review_status)
 
 			End If
 
@@ -1668,7 +1588,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 			Call back_to_SELF		'Back out in case we need to look into another case.
 
 			Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
-			If adding_hc_standard_policy_note = True Then Call write_hc_standard_policy_note(review_array(HC_revw_status_const, revs_item))
 
 			excel_row = excel_row + 1		'going to the next excel
 		End If
@@ -1722,18 +1641,6 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
 		objExcel.Cells(entry_row, 8).Value    	= "=COUNTIF(Table1[Next HC ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&")"
 		hc_cases_row = entry_row
-		entry_row = entry_row + 1
-
-		objExcel.Cells(entry_row, 7).Value      = "HC Cases returned to Standard Policy"             'All cases from the spreadsheet
-		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
-		objExcel.Cells(entry_row, 8).Value    	= "=COUNTIFS(Table1[Next HC ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&",Table1[HC Cont Cov End],"&chr(34)&"TRUE"&chr(34)&")"
-		hc_cases_retur_to_standard_policy_row = entry_row
-		entry_row = entry_row + 1
-
-		objExcel.Cells(entry_row, 7).Value      = "Percent HC Cases returned to Standard Policy"             'All cases from the spreadsheet
-		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
-		objExcel.Cells(entry_row, 8).Value    	= "=H" & hc_cases_retur_to_standard_policy_row &"/H" & hc_cases_row
-		ObjExcel.Cells(entry_row, 8).NumberFormat = "0.00%"
 		entry_row = entry_row + 1
 
 		ObjExcel.columns(7).AutoFit()
