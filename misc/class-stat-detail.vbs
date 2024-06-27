@@ -4419,7 +4419,7 @@ class stat_detail
 				If stat_unea_one_type_code(each_memb) = "44" Then stat_unea_one_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_one_type_code(each_memb) = "45" Then stat_unea_one_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_one_type_code(each_memb) = "46" Then stat_unea_one_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Tribal Income"
 				If stat_unea_one_type_code(each_memb) = "48" Then stat_unea_one_type_info(each_memb) = "Trust income"
 				If stat_unea_one_type_code(each_memb) = "49" Then stat_unea_one_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_one_verif_code(each_memb), 1, 5, 65
@@ -4522,7 +4522,7 @@ class stat_detail
 				If stat_unea_two_type_code(each_memb) = "44" Then stat_unea_two_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_two_type_code(each_memb) = "45" Then stat_unea_two_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_two_type_code(each_memb) = "46" Then stat_unea_two_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Tribal Income"
 				If stat_unea_two_type_code(each_memb) = "48" Then stat_unea_two_type_info(each_memb) = "Trust income"
 				If stat_unea_two_type_code(each_memb) = "49" Then stat_unea_two_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_two_verif_code(each_memb), 1, 5, 65
@@ -4625,7 +4625,7 @@ class stat_detail
 				If stat_unea_three_type_code(each_memb) = "44" Then stat_unea_three_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_three_type_code(each_memb) = "45" Then stat_unea_three_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_three_type_code(each_memb) = "46" Then stat_unea_three_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Tribal Income"
 				If stat_unea_three_type_code(each_memb) = "48" Then stat_unea_three_type_info(each_memb) = "Trust income"
 				If stat_unea_three_type_code(each_memb) = "49" Then stat_unea_three_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_three_verif_code(each_memb), 1, 5, 65
@@ -4729,7 +4729,7 @@ class stat_detail
 				If stat_unea_four_type_code(each_memb) = "44" Then stat_unea_four_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_four_type_code(each_memb) = "45" Then stat_unea_four_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_four_type_code(each_memb) = "46" Then stat_unea_four_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Tribal Income"
 				If stat_unea_four_type_code(each_memb) = "48" Then stat_unea_four_type_info(each_memb) = "Trust income"
 				If stat_unea_four_type_code(each_memb) = "49" Then stat_unea_four_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_four_verif_code(each_memb), 1, 5, 65
@@ -4832,7 +4832,7 @@ class stat_detail
 				If stat_unea_five_type_code(each_memb) = "44" Then stat_unea_five_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_five_type_code(each_memb) = "45" Then stat_unea_five_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_five_type_code(each_memb) = "46" Then stat_unea_five_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Tribal Income"
 				If stat_unea_five_type_code(each_memb) = "48" Then stat_unea_five_type_info(each_memb) = "Trust income"
 				If stat_unea_five_type_code(each_memb) = "49" Then stat_unea_five_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_five_verif_code(each_memb), 1, 5, 65

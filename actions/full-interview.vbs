@@ -2139,7 +2139,7 @@ class client_income
 		If income_type = "44" Then income_type = "44 - MSA - Excess Income for SSI"
 		If income_type = "45" Then income_type = "45 - County 88 Child Support"
 		If income_type = "46" Then income_type = "46 - County 88 Gaming"
-		If income_type = "47" Then income_type = "47 - Counted Tribal Income"
+		If income_type = "47" Then income_type = "47 - Tribal Income"
 		If income_type = "48" Then income_type = "48 - Trust Income"
 		If income_type = "49" Then income_type = "49 - Non-Recurring > $60/qtr"
 
