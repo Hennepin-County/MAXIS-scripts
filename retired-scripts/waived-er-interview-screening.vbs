@@ -1315,6 +1315,7 @@ For case_memb = 0 to UBound(ALL_CLIENTS_ARRAY, 2)
 	        If type_of_income = "07" Then INCOME_ARRAY(busi_type_const, income_counter) = "In Home Daycare"
 	        If type_of_income = "08" Then INCOME_ARRAY(busi_type_const, income_counter) = "Rental Income"
 	        If type_of_income = "09" Then INCOME_ARRAY(busi_type_const, income_counter) = "Other"
+	        If type_of_income = "10" Then INCOME_ARRAY(busi_type_const, income_counter) = "Lived Experience"
 			If SE_method = "01" Then INCOME_ARRAY(se_method_const, income_counter) = "50% Gross Inc"
 	        If SE_method = "02" Then INCOME_ARRAY(se_method_const, income_counter) = "Tax Forms"
 			INCOME_ARRAY(cash_net_prosp_amount, income_counter) = trim(INCOME_ARRAY(cash_net_prosp_amount, income_counter))

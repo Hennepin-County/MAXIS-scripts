@@ -22396,6 +22396,7 @@ class stat_detail
 				If stat_busi_one_type(each_memb) = "07" Then stat_busi_one_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_one_type(each_memb) = "08" Then stat_busi_one_type_info(each_memb) = "Rental Income"
 				If stat_busi_one_type(each_memb) = "09" Then stat_busi_one_type_info(each_memb) = "Other"
+				If stat_busi_one_type(each_memb) = "10" Then stat_busi_one_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_one_inc_start_date(each_memb) = replace(stat_busi_one_inc_start_date(each_memb), " ", "/")
 				stat_busi_one_inc_end_date(each_memb) = replace(stat_busi_one_inc_end_date(each_memb), " ", "/")
@@ -22494,6 +22495,7 @@ class stat_detail
 				If stat_busi_two_type(each_memb) = "07" Then stat_busi_two_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_two_type(each_memb) = "08" Then stat_busi_two_type_info(each_memb) = "Rental Income"
 				If stat_busi_two_type(each_memb) = "09" Then stat_busi_two_type_info(each_memb) = "Other"
+				If stat_busi_two_type(each_memb) = "10" Then stat_busi_two_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_two_inc_start_date(each_memb) = replace(stat_busi_two_inc_start_date(each_memb), " ", "/")
 				stat_busi_two_inc_end_date(each_memb) = replace(stat_busi_two_inc_end_date(each_memb), " ", "/")
@@ -22595,6 +22597,7 @@ class stat_detail
 				If stat_busi_three_type(each_memb) = "07" Then stat_busi_three_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_three_type(each_memb) = "08" Then stat_busi_three_type_info(each_memb) = "Rental Income"
 				If stat_busi_three_type(each_memb) = "09" Then stat_busi_three_type_info(each_memb) = "Other"
+				If stat_busi_three_type(each_memb) = "10" Then stat_busi_three_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_three_inc_start_date(each_memb) = replace(stat_busi_three_inc_start_date(each_memb), " ", "/")
 				stat_busi_three_inc_end_date(each_memb) = replace(stat_busi_three_inc_end_date(each_memb), " ", "/")
