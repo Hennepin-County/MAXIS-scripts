@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/27/2024", "Added update handling for residents who meet military service ABAWD/TLR exemptions.", "Ilse Ferris, Hennepin County")
 Call changelog_update("12/29/2023", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -173,7 +174,6 @@ If panel_exists = "1" then
     LOOP until (counted_date_month = TLR_fixed_clock_mo AND counted_date_year = TLR_fixed_clock_yr)
 
     'cleaning up these variables for dialog display
-    'msgbox "~" & trim(right(abawd_counted_months_string, 2)) & "~"
     If trim(right(abawd_counted_months_string, 1)) = "|" THEN abawd_counted_months_string = left(abawd_counted_months_string, len(abawd_counted_months_strings) - 1)
     If trim(right(second_set_string, 1)) = "|" THEN second_set_string = left(second_set_string, len(second_set_string) - 1)
     PF3	' to exit tracking record 	   
@@ -198,7 +198,7 @@ Do
         Dialog1 = "" 'Blanking out previous dialog detail
         BeginDialog Dialog1, 0, 0, 326, 375, "SNAP Work Rules & Time Limited Exemptions"
           GroupBox 5, 5, 315, 55, "TLR Information for " & member_info
-          Text 15, 20, 210, 10, "Counted TLR Months: " & abawd_info
+          Text 15, 20, 210, 20, "Counted TLR Months: " & abawd_info
           Text 15, 40, 230, 10, "Counted 2nd Set: " & second_set_info
           Text 5, 65, 315, 10, "=============================================================================="
           Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 1 of 2)"
@@ -241,7 +241,7 @@ Do
         Dialog1 = "" 'Blanking out previous dialog detail
         BeginDialog Dialog1, 0, 0, 326, 320, "Subject to Work Rules, Exempt from Time Limits"
           GroupBox 5, 5, 315, 55, "TLR Information for " & member_info
-          Text 15, 20, 210, 10, "Counted TLR Months: " & abawd_info
+          Text 15, 20, 210, 20, "Counted TLR Months: " & abawd_info
           Text 15, 40, 230, 10, "Counted 2nd Set: " & second_set_info
           Text 5, 65, 315, 10, "=============================================================================="
           Text 25, 80, 275, 10, "Select ALL applicable exemptions for this member below (Exemptions Dialog 2 of 2)"
@@ -450,7 +450,7 @@ If (exempt_elig = False and abawd_counted_months => 3) then
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 326, 180, "Second Set TLR Months"
       GroupBox 5, 5, 315, 55, "TLR Information for " & member_info
-      Text 15, 20, 210, 10, "Counted TLR Months: " & abawd_info
+      Text 15, 20, 210, 20, "Counted TLR Months: " & abawd_info
       Text 15, 40, 230, 10, "Counted 2nd Set: " & second_set_info
       Text 5, 65, 315, 10, "=============================================================================="
       Text 60, 80, 190, 10, "Select ALL applicable situations for this member below"
@@ -563,6 +563,7 @@ If exempt_reasons > 0 then
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 End if 
 
+military_exempt = False
 If update_wreg_checkbox = 1 then 
 	'filter the list here for best_wreg_code
 	If trim(verified_wreg) = "" then 
@@ -610,6 +611,10 @@ If update_wreg_checkbox = 1 then
         End if 
     End if 
 
+    If instr(exempt_text, "Served in the US Military.") then
+        If best_wreg_code = "30" then military_exempt = True 
+    End if 
+
     Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
     
     For item = 0 to ubound(footer_month_array)
@@ -619,6 +624,25 @@ If update_wreg_checkbox = 1 then
 	    footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
         Call MAXIS_background_check
+
+        'If the resident meets the military exemption status, the STAT/MEMI will be updated IF the field is there. Field was added for footer month/year of 07/2024. 
+        If military_exempt = True then 
+            Call navigate_to_MAXIS_screen("STAT", "MEMI")
+            Call write_value_and_transmit(member_number, 20, 76)
+            EMReadScreen military_field, 23, 12, 54
+            If military_field = "Military Service (Y/N):" then 
+                PF9
+                Call write_value_and_transmit("Y", 12, 78)
+                EMReadScreen date_error_msg, 22, 24, 2
+                If date_error_msg = "ACTUAL DATE IS MISSING" then 
+                    Call create_mainframe_friendly_date(date, 6, 35, 0)
+                    transmit
+                    EMReadScreen warning_msg, 7, 24, 2
+                    If warning_msg = "WARNING" then transmit
+                End If 
+            End If     
+        End If 
+
         Call navigate_to_MAXIS_screen("STAT", "WREG")
         Call write_value_and_transmit(member_number, 20, 76)
         EMReadScreen panel_exists, 1, 2, 78
@@ -719,7 +743,7 @@ script_end_procedure_with_error_report("Success! This member has been assessed f
 '--Remove testing code/unnecessary code------------------------------------------12/29/2023
 '--Review/update SharePoint instructions-----------------------------------------12/29/2023
 '--Other SharePoint sites review (HSR Manual, etc.)------------------------------12/29/2023
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Will add at release
-'--COMPLETE LIST OF SCRIPTS update policy references-----------------------------Will add at release
+'--COMPLETE LIST OF SCRIPTS reviewed---------------------------------------------12/29/2023
+'--COMPLETE LIST OF SCRIPTS update policy references-----------------------------12/29/2023
 '--Complete misc. documentation (if applicable)----------------------------------12/29/2023
 '--Update project team/issue contact (if applicable)-----------------------------12/29/2023
