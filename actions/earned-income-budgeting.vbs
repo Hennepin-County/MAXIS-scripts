@@ -1053,6 +1053,7 @@ If vars_filled = False Then
 					If type_of_job = "T" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "T - Training Program"
 					If type_of_job = "P" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "P - Service Program"
 					If type_of_job = "R" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "R - Rehab Program"
+					If type_of_job = "N" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "N - Census Income"
 
 					'formatting the information from the panel and adding it to the EARNED_INCOME_PANELS_ARRAY
 					EARNED_INCOME_PANELS_ARRAY(income_verif, the_panel) = trim(job_verif)
@@ -1318,7 +1319,7 @@ If vars_filled = False Then
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 431, 115, "New JOBS Panel"
 					EditBox 75, 10, 20, 15, enter_JOBS_clt_ref_nbr
-					DropListBox 155, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", enter_JOBS_inc_type_code
+					DropListBox 155, 10, 60, 45, "W - Wages (Incl Tips)"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program"+chr(9)+"N - Census Income", enter_JOBS_inc_type_code
 					DropListBox 330, 10, 95, 45, ""+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-The-Job Training"+chr(9)+"04 - AmeriCorps(VISTA/State/National/NCCC)", enter_JOBS_subsdzd_inc_type
 					DropListBox 155, 30, 90, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - Unknown", enter_JOBS_verif_code
 					EditBox 330, 30, 50, 15, enter_JOBS_hrly_wage
@@ -1549,6 +1550,7 @@ If vars_filled = False Then
 							If type_of_job = "T" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "T - Training Program"
 							If type_of_job = "P" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "P - Service Program"
 							If type_of_job = "R" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "R - Rehab Program"
+							If type_of_job = "N" Then EARNED_INCOME_PANELS_ARRAY(income_type, the_panel) = "N - Census Income"
 
 							EARNED_INCOME_PANELS_ARRAY(income_verif, the_panel) = trim(job_verif)
 							EARNED_INCOME_PANELS_ARRAY(employer, the_panel) = replace(employer_name, "_", "")
@@ -1741,7 +1743,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 										Text 200, 15, 40, 10, "Start Date:"
 										EditBox 235, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY (income_start_dt, ei_panel)
 										Text 295, 15, 50, 10, "Income Type:"
-										DropListBox 345, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
+										DropListBox 345, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program"+chr(9)+"N - Census Income", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
 										GroupBox 455, 5, 145, 25, "Apply Income to Programs:"
 										CheckBox 465, 15, 30, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
 										CheckBox 500, 15, 30, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
