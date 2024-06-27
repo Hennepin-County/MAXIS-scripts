@@ -44,18 +44,20 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2024", "Added SNAP Banked Months field.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/19/2021", "Removed SNAP Banked Months information as it is no longer valid.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/17/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & case number
 EMConnect ""
 call maxis_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-member_number = "01"
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
@@ -70,14 +72,14 @@ BeginDialog Dialog1, 0, 0, 141, 95, "Enter the case number & footer month/year"
   Text 20, 10, 55, 10, "Case Number: "
   Text 35, 50, 40, 10, "Member #:"
 EndDialog
+
 Do
 	Do
 	    err_msg = ""
   		Dialog Dialog1
-  		cancel_confirmation
-  		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  		If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) > 2 or len(MAXIS_footer_month) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer month."
-  		If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) > 2 or len(MAXIS_footer_year) < 2 then err_msg = err_msg & vbNewLine & "* Enter a valid footer year."
+  		cancel_without_confirmation
+        Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(initial_month, initial_year, err_msg, "*")
 		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit member number."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -104,21 +106,23 @@ EMReadScreen ATR_line_four, 52, 10, 12
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 356, 125, "ABAWD Tracking Record for MEMB  & member_number"
-  EditBox 65, 20, 280, 15, ABAWD_months
-  EditBox 65, 40, 280, 15, second_months
-  EditBox 65, 65, 280, 15, deleted_months
-  EditBox 65, 85, 280, 15, other_notes
-  EditBox 65, 105, 175, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 356, 155, "ABAWD Tracking Record for MEMB " & member_number " on #" & MAXIS_case_number
+  EditBox 85, 20, 250, 15, ABAWD_months
+  EditBox 85, 40, 250, 15, banked_months
+  EditBox 85, 60, 250, 15, Second_months
+  EditBox 85, 95, 250, 15, deleted_months
+  EditBox 85, 115, 250, 15, other_notes
+  EditBox 85, 135, 145, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 245, 105, 50, 15
-    CancelButton 295, 105, 50, 15
-  Text 25, 45, 40, 10, "Second set:"
-  Text 10, 25, 55, 10, "ABAWD months:"
-  Text 20, 90, 45, 10, "Other Notes:"
-  GroupBox 5, 5, 345, 55, "Please detail information about this resident's ABAWD Tracking Record below:"
-  Text 5, 110, 60, 10, "Worker Signature:"
-  Text 10, 70, 55, 10, "Deleted months:"
+    OkButton 235, 135, 50, 15
+    CancelButton 285, 135, 50, 15
+  Text 10, 25, 75, 10, "ABAWD/TLR months:"
+  Text 40, 120, 45, 10, "Other Notes:"
+  GroupBox 5, 5, 345, 80, "Please detail information about this resident's ABAWD Tracking Record below:"
+  Text 25, 140, 60, 10, "Worker Signature:"
+  Text 30, 100, 55, 10, "Deleted months:"
+  Text 30, 45, 55, 10, "Banked Months:"
+  Text 45, 65, 40, 10, "Second set:"
 EndDialog
 
 'the dialog
@@ -127,8 +131,6 @@ Do
 		err_msg = ""
   		Dialog Dialog1
   		cancel_confirmation
-        Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
@@ -145,8 +147,9 @@ call write_variable_in_CASE_NOTE(ATR_line_one)
 call write_variable_in_CASE_NOTE(ATR_line_two)
 call write_variable_in_CASE_NOTE(ATR_line_three)
 call write_variable_in_CASE_NOTE(ATR_line_four)
-call write_bullet_and_variable_in_CASE_NOTE("ABAWD months", ABAWD_months)
-call write_bullet_and_variable_in_CASE_NOTE("2nd set ABAWD months", Second_months)
+call write_bullet_and_variable_in_CASE_NOTE("ABAWD/TLR months", ABAWD_months)
+call write_bullet_and_variable_in_CASE_NOTE("Banked months", banked_months)
+call write_bullet_and_variable_in_CASE_NOTE("2nd set ABAWD/TLR months", Second_months)
 call write_bullet_and_variable_in_CASE_NOTE("Deleted months", deleted_months)
 call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 call write_variable_in_CASE_NOTE("---")
