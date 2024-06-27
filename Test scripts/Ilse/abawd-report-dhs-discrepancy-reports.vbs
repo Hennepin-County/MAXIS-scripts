@@ -649,6 +649,17 @@ Function BULK_ABAWD_FSET_exemption_finder()
 				End if
             End If
 
+            
+		    '----------------------------------------------------------------------------------------------------30/09 - Military Servive
+            '>>>>>>>>>>MEMI
+		    'Person-based determination
+            CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+			Call write_value_and_transmit(member_number, 20, 76)
+            EMReadScreen military_service_code, 1, 12, 78
+            If military_service_code = "Y" then 
+                verified_wreg = verified_wreg & "30" & "|" 
+            End if 
+
             '>>>>>>>>>>ADDR
 		    'Case based determination
 			homeless_exemption = False
@@ -744,6 +755,11 @@ Function BULK_ABAWD_FSET_exemption_finder()
 	    If best_wreg_code = "21" then best_abawd_code = "04"
 	    If best_wreg_code = "17" then best_abawd_code = "12"
 	    If best_wreg_code = "23" then best_abawd_code = "05"
+
+        'This is for military Service folks only since that is the only thing we can read for in MAXIS to determine the verified_wreg code. Otherwise anyone who is TLR the verified_wreg is "".
+        If verified_wreg = "30" then 
+            best_abawd_code = "09"
+        End if
     
 		'Adding in handling for the next SNAP renewal - these don't need to be assigned if renewal is next month. Just them getting updated is enough. 
 		Call navigate_to_MAXIS_screen("STAT", "REVW")
