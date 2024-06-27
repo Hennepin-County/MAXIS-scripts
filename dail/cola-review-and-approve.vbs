@@ -235,7 +235,7 @@ For each HH_member in HH_member_array						'for each person that was selected
 			If inc_type = "28" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Illegal Income"
 			If inc_type = "29" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other Countable Income"
 			If inc_type = "30" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Infrequent, <30, Not Counted"
-			If inc_type = "31" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other SNAP Only"
+			If inc_type = "31" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Other FS Only"
 			If inc_type = "08" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Direct Child Support"
 			If inc_type = "35" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Direct Spousal Support"
 			If inc_type = "36" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Disbursed Child Support"
