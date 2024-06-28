@@ -874,6 +874,49 @@ function define_mfip_elig_dialog()
 		If MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		mfip_prorate_date = ""
+		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+			If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = False
+				If MFIP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+					display_benefit = True
+				ElseIf InStr(MFIP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					'PRORATED REASON FUNCTIONALITY
+					If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
+						mfip_prorate_date = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		Next
+
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 85, 10, "MFIP FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+		If mfip_prorate_date <> "" Then
+			Text 15, y_pos+5, 115, 10, "MFIP Prorated (" & mfip_prorate_date & "). Reason:"
+			EditBox 130, y_pos, 410, 15, MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -4630,7 +4673,7 @@ function dwp_elig_case_note()
 				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion <> "0.00" Then Call  write_variable_in_CASE_NOTE(beginning_text & "|     Personal Needs: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion, ".00", "") & "     ", 4))
 				' Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 4) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
 				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
-				Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", DWP_UNIQUE_APPROVALS(proration_reason, unique_app))
+				If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", DWP_UNIQUE_APPROVALS(proration_reason, unique_app))
 
 			End If
 		Next
@@ -5167,6 +5210,7 @@ function mfip_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
 	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MFIP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5189,6 +5233,7 @@ function mfip_elig_case_note()
 				End If
 				Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
 				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 				' End If
 			End If
 		Next
@@ -8324,7 +8369,7 @@ function snap_elig_case_note()
 						End If
 
 						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-						Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 						divider_needed = True
 					End If
 				End If
@@ -27591,6 +27636,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 	last_housing_grant = ""
 	last_amount_already_issued = ""
 	last_food_portion_deduct = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -27623,6 +27669,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
 				last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 				last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
+				last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -27641,6 +27688,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_housing_grant <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant Then match_last_benefit_amounts = False
 				If last_amount_already_issued <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued Then match_last_benefit_amounts = False
 				If last_food_portion_deduct <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction Then match_last_benefit_amounts = False
+				If last_info_source <> MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
@@ -27669,6 +27717,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
 					last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 					last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
+					last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -27795,6 +27844,8 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			err_msg = ""
 			move_from_dialog = False
 
+			MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected))
+			MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -27817,6 +27868,13 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				End If
 				If trim(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 
+			End If
+			If MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_source_of_info = "FIAT" Then
+					If MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for MFIP in " & MFIP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & MFIP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
 			End If
 
 			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True and MFIP_ELIG_APPROVALS(elig_ind).mfip_counted_memb_allocation_exists = True or MFIP_ELIG_APPROVALS(elig_ind).mfip_deemer_allocation_exists = True Then
