@@ -2594,6 +2594,23 @@ function define_grh_elig_dialog()
 		If GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 85, 10, "GRH FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -6787,6 +6804,7 @@ function grh_elig_case_note()
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GRH_ELIG_APPROVALS(elig_ind).grh_elig_approved_date)
 	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", GRH_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("=============================== PAYMENT DETAILS =============================")
@@ -29211,6 +29229,7 @@ If enter_CNOTE_for_GRH = True Then
 	last_pre_post_pay_two = ""
 	last_client_obligation_two = ""
 	last_reporting_status = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -29246,6 +29265,7 @@ If enter_CNOTE_for_GRH = True Then
 				last_pre_post_pay_two = GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info
 				last_client_obligation_two = GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two
 				last_reporting_status = GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status
+				last_info_source = GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info
 				' last_ = GA_ELIG_APPROVALS(approval).
 				' last_ = GA_ELIG_APPROVALS(approval).
 
@@ -29269,6 +29289,7 @@ If enter_CNOTE_for_GRH = True Then
 				If last_pre_post_pay_two <> GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info Then match_last_benefit_amounts = False
 				If last_client_obligation_two <> GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two Then match_last_benefit_amounts = False
 				If last_reporting_status <> GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status Then match_last_benefit_amounts = False
+				If last_info_source <> GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
@@ -29300,6 +29321,7 @@ If enter_CNOTE_for_GRH = True Then
 					last_pre_post_pay_two = GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info
 					last_client_obligation_two = GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two
 					last_reporting_status = GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status
+					last_info_source = GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -29431,7 +29453,7 @@ If enter_CNOTE_for_GRH = True Then
 			move_from_dialog = False
 
 
-
+			GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected))
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -29453,6 +29475,13 @@ If enter_CNOTE_for_GRH = True Then
 				End If
 				If trim(GRH_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(GRH_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 				GRH_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
+			End If
+			If GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then
+					If GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for GRH in " & GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
 			End If
 
 			If err_msg <> "" and ButtonPressed < 1000 Then
