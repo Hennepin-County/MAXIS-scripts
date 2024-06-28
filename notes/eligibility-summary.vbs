@@ -486,6 +486,52 @@ function define_dwp_elig_dialog()
 		If DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		dwp_prorate_date = ""
+		dwp_fiated = False
+		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
+			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = False
+				If DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+					display_benefit = True
+				ElseIf InStr(DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					'PRORATED REASON FUNCTIONALITY
+					If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then
+						dwp_prorate_date = DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+					If DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info = "FIAT" Then
+						dwp_fiated = True
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		Next
+		If dwp_fiated = True Then
+			Text 15, y_pos+5, 85, 10, "DWP FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+		If dwp_prorate_date <> "" Then
+			Text 15, y_pos+5, 115, 10, "DWP Prorated (" & dwp_prorate_date & "). Reason:"
+			EditBox 130, y_pos, 410, 15, DWP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+		End If
+
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -4050,7 +4096,8 @@ function define_snap_elig_dialog()
 	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
-	  detail_grp_len = 0
+	  detail_grp_len = 10
+	  grp_y_pos = 350
 	  y_pos = 360
 	  snap_prorate_date = ""
 	  snap_fiated = False
@@ -4067,10 +4114,12 @@ function define_snap_elig_dialog()
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date <> "" Then
 				    snap_prorate_date = SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date
 					y_pos = y_pos-20
+					grp_y_pos = grp_y_pos-20
 				End If
 				If SNAP_ELIG_APPROVALS(approval).snap_info_source = "FIAT" Then
 					snap_fiated = True
 					y_pos = y_pos-20
+					grp_y_pos = grp_y_pos-20
 				End If
 			End If
 		End If
@@ -4079,17 +4128,17 @@ function define_snap_elig_dialog()
 		Text 15, y_pos+5, 85, 10, "SNAP FIATed - Reason:"
 		EditBox 100, y_pos, 440, 15, SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
 		y_pos = y_pos + 20
-		detail_grp_len = detail_grp_len + 25
+		detail_grp_len = detail_grp_len + 20
 	  End If
 	  If snap_prorate_date <> "" Then
 		Text 15, y_pos+5, 115, 10, "SNAP Prorated (" & snap_prorate_date & "). Reason:"
 		EditBox 130, y_pos, 410, 15, SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected)
 		y_pos = y_pos + 20
-		detail_grp_len = detail_grp_len + 25
+		detail_grp_len = detail_grp_len + 20
 	  End If
 
-	  If detail_grp_len <> 0 Then
-		GroupBox 10, y_pos+10, 550, detail_grp_len, "Approval Explanations"
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
  	  End If
 
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
@@ -4557,6 +4606,7 @@ function dwp_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", DWP_ELIG_APPROVALS(elig_ind).dwp_approved_date)
 	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", DWP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -4585,6 +4635,7 @@ function dwp_elig_case_note()
 				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion <> "0.00" Then Call  write_variable_in_CASE_NOTE(beginning_text & "|     Personal Needs: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion, ".00", "") & "     ", 4))
 				' Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 4) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
 				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", DWP_UNIQUE_APPROVALS(proration_reason, unique_app))
 
 			End If
 		Next
@@ -8278,7 +8329,7 @@ function snap_elig_case_note()
 						End If
 
 						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
+						Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 						divider_needed = True
 					End If
 				End If
@@ -27212,6 +27263,7 @@ If enter_CNOTE_for_DWP = True Then
 	last_eligible_child_test = ""
 	last_coop_test = ""
 	last_verif_test = ""
+	last_info_source = ""
 
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
@@ -27249,6 +27301,7 @@ If enter_CNOTE_for_DWP = True Then
 				last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
 				last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
 				last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+				last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -27274,6 +27327,7 @@ If enter_CNOTE_for_DWP = True Then
 				If last_eligible_child_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child Then match_last_benefit_amounts = False
 				If last_coop_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop Then match_last_benefit_amounts = False
 				If last_verif_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif Then match_last_benefit_amounts = False
+				If last_info_source <> DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
@@ -27312,6 +27366,7 @@ If enter_CNOTE_for_DWP = True Then
 					last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
 					last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
 					last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+					last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -27428,6 +27483,13 @@ If enter_CNOTE_for_DWP = True Then
 					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
+					End If
+				End If
+			End If
+			If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
+					If DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for DWP in " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & DWP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
 					End If
 				End If
 			End If
