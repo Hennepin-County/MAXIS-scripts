@@ -491,7 +491,6 @@ function define_dwp_elig_dialog()
 		grp_y_pos = 350
 		y_pos = 360
 		dwp_prorate_date = ""
-		dwp_fiated = False
 		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
 			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 				display_benefit = False
@@ -507,15 +506,13 @@ function define_dwp_elig_dialog()
 						y_pos = y_pos-20
 						grp_y_pos = grp_y_pos-20
 					End If
-					If DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info = "FIAT" Then
-						dwp_fiated = True
-						y_pos = y_pos-20
-						grp_y_pos = grp_y_pos-20
-					End If
 				End If
 			End If
 		Next
-		If dwp_fiated = True Then
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
 			Text 15, y_pos+5, 85, 10, "DWP FIATed - Reason:"
 			EditBox 100, y_pos, 440, 15, DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
 			y_pos = y_pos + 20
@@ -4100,7 +4097,6 @@ function define_snap_elig_dialog()
 	  grp_y_pos = 350
 	  y_pos = 360
 	  snap_prorate_date = ""
-	  snap_fiated = False
 	  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
 		If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 			display_benefit = False
@@ -4116,15 +4112,14 @@ function define_snap_elig_dialog()
 					y_pos = y_pos-20
 					grp_y_pos = grp_y_pos-20
 				End If
-				If SNAP_ELIG_APPROVALS(approval).snap_info_source = "FIAT" Then
-					snap_fiated = True
-					y_pos = y_pos-20
-					grp_y_pos = grp_y_pos-20
-				End If
 			End If
 		End If
 	  Next
-	  If snap_fiated = True Then
+
+	  If SNAP_ELIG_APPROVALS(elig_ind).snap_info_source = "FIAT" Then
+		y_pos = y_pos-20
+		grp_y_pos = grp_y_pos-20
+
 		Text 15, y_pos+5, 85, 10, "SNAP FIATed - Reason:"
 		EditBox 100, y_pos, 440, 15, SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
 		y_pos = y_pos + 20
