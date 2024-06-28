@@ -629,11 +629,6 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 			Next
-			'PRORATED REASON FUNCTIONALITY
-			' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date <> "" Then
-			' 	Text 10, app_y_pos+15, 115, 10, "DWP Prorated (" & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date & "). Reason:"
-			' 	EditBox 130, app_y_pos+10, 410, 15, dwp_prorate_reason
-			' End If
 		End If
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
@@ -4055,6 +4050,48 @@ function define_snap_elig_dialog()
 	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+	  detail_grp_len = 0
+	  y_pos = 360
+	  snap_prorate_date = ""
+	  snap_fiated = False
+	  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+		If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			display_benefit = False
+			If SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+				display_benefit = True
+			ElseIf InStr(SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = True
+			End If
+			If display_benefit = True Then
+				'PRORATED REASON FUNCTIONALITY
+				If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date <> "" Then
+				    snap_prorate_date = SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date
+					y_pos = y_pos-20
+				End If
+				If SNAP_ELIG_APPROVALS(approval).snap_info_source = "FIAT" Then
+					snap_fiated = True
+					y_pos = y_pos-20
+				End If
+			End If
+		End If
+	  Next
+	  If snap_fiated = True Then
+		Text 15, y_pos+5, 85, 10, "SNAP FIATed - Reason:"
+		EditBox 100, y_pos, 440, 15, SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 25
+	  End If
+	  If snap_prorate_date <> "" Then
+		Text 15, y_pos+5, 115, 10, "SNAP Prorated (" & snap_prorate_date & "). Reason:"
+		EditBox 130, y_pos, 410, 15, SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 25
+	  End If
+
+	  If detail_grp_len <> 0 Then
+		GroupBox 10, y_pos+10, 550, detail_grp_len, "Approval Explanations"
+ 	  End If
+
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -8207,7 +8244,7 @@ function snap_elig_case_note()
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
 	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", SNAP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -8241,6 +8278,7 @@ function snap_elig_case_note()
 						End If
 
 						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 						divider_needed = True
 					End If
 				End If
@@ -26893,7 +26931,9 @@ const process_for_note 				= 34
 const changes_for_note				= 35
 const designated_provider_info		= 36
 const l_budg						= 37
-const approval_confirmed			= 38
+const proration_reason				= 38
+const fiat_reason					= 39
+const approval_confirmed			= 40
 date_of_1503 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -30086,6 +30126,8 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 	last_shelter_expense = ""
 	last_hest_expense = ""
 	last_snap_entitlement = ""
+	last_expedited_status = ""
+	last_info_source = ""
 	expedited_package_approved = False
 	start_capturing_approvals = False
 	unique_app_count = 0
@@ -30127,6 +30169,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 				last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 				last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
+				last_info_source = SNAP_ELIG_APPROVALS(approval).snap_info_source
 
 				If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
 
@@ -30141,6 +30184,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				If last_eligibility <> SNAP_ELIG_APPROVALS(approval).snap_elig_result Then match_last_benefit_amounts = False
 				If last_snap_entitlement <> SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot Then match_last_benefit_amounts = False
 				If last_expedited_status <> SNAP_ELIG_APPROVALS(approval).snap_expedited Then match_last_benefit_amounts = False
+				If last_info_source <> SNAP_ELIG_APPROVALS(approval).snap_info_source Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
@@ -30164,6 +30208,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 					last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 					last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
+					last_info_source = SNAP_ELIG_APPROVALS(approval).snap_info_source
 
 					If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
 
@@ -30306,6 +30351,8 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			err_msg = ""
 			move_from_dialog = False
 
+			SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected))
+			SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If right(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), 1) = "." Then SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected) = left(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected))- 1)
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" and SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
@@ -30327,6 +30374,13 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					If trim(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 				End if
 			End if
+			If SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_info_source = "FIAT" Then
+					If SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for SNAP in " & SNAP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & SNAP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+			End If
 
 			If err_msg <> "" and ButtonPressed < 1100 Then
 				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
