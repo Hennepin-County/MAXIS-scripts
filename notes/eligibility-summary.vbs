@@ -1562,6 +1562,46 @@ function define_ga_elig_dialog()
 	  If GA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		  Text 10, 350, 550, 10, "NOTES: " & GA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+
+	  detail_grp_len = 10
+	  grp_y_pos = 350
+	  y_pos = 360
+	  ga_prorate_date = ""
+	  For approval = 0 to UBound(GA_ELIG_APPROVALS)
+		If InStr(GA_UNIQUE_APPROVALS(months_in_approval, approval_selected), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			display_benefit = False
+			If GA_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+				display_benefit = True
+			ElseIf InStr(GA_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = True
+			End If
+			If display_benefit = True Then
+				'PRORATED REASON FUNCTIONALITY
+	  			If ga_prorate_date = "" Then
+					If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from <> "" Then
+						ga_prorate_date = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					ElseIf GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to <> "" Then
+						ga_prorate_date = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		End If
+	  Next
+
+	  If ga_prorate_date <> "" Then
+		Text 15, y_pos+5, 115, 10, "GA Prorated (" & ga_prorate_date & "). Reason:"
+		EditBox 130, y_pos, 410, 15, GA_UNIQUE_APPROVALS(proration_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+ 	  End If
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -6238,7 +6278,7 @@ function ga_elig_case_note()
 
 				ga_reg_benefit_line = ""
 				ga_pers_nds_benefit_line = ""
-				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" Then
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard <> "0.00" Then
 					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from
 					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal
@@ -6253,7 +6293,7 @@ function ga_elig_case_note()
 					End If
 
 				End If
-				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_standard <> "0.00" Then
 					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from
 					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal
@@ -6321,6 +6361,7 @@ function ga_elig_case_note()
 				If issued__to_resident_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & issued__to_resident_info)
 				If amt_issued_info <> "" or recoup_info <> "" or issued__to_resident_info <> "" Then add_divider = true
 				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year = last_month Then add_divider = false
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from <> "" or GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", GA_UNIQUE_APPROVALS(proration_reason, unique_app))
 
 				If add_divider = true Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 			End If
@@ -28659,6 +28700,7 @@ If enter_CNOTE_for_GA = True Then
 			err_msg = ""
 			move_from_dialog = False
 
+			GA_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(GA_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If (GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" OR GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info = "No Proof Given") and GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
