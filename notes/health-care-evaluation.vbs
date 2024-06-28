@@ -4563,6 +4563,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If INCOME_ARRAY(inc_type_code, income_count) = "07" Then INCOME_ARRAY(inc_type_info, income_count) = "In Home Daycare"
 						If INCOME_ARRAY(inc_type_code, income_count) = "08" Then INCOME_ARRAY(inc_type_info, income_count) = "Rental Income"
 						If INCOME_ARRAY(inc_type_code, income_count) = "09" Then INCOME_ARRAY(inc_type_info, income_count) = "Other Self Employment"
+						If INCOME_ARRAY(inc_type_code, income_count) = "10" Then INCOME_ARRAY(inc_type_info, income_count) = "Lived Experience"
 
 						If INCOME_ARRAY(inc_start, income_count) = "__ __ __" Then INCOME_ARRAY(inc_start, income_count) = ""
 						INCOME_ARRAY(inc_start, income_count) = replace(INCOME_ARRAY(inc_start, income_count), " ", "/")

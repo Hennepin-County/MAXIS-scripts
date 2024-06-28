@@ -1997,6 +1997,7 @@ If maxis_updated_yn = "Yes" Then
 			If panel_busi_type = "07" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "In Home Daycare"
 			If panel_busi_type = "08" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Rental Income"
 			If panel_busi_type = "09" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Other"
+			If panel_busi_type = "10" Then BUSI_ARRAY(busi_info_const, busi_incrementor) = "Lived Experience"
 			BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor) = trim(panel_monthly_wage)
 
 			If IsNumeric(BUSI_ARRAY(busi_monthly_earnings_const, busi_incrementor)) = True Then

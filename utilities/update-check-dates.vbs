@@ -267,7 +267,7 @@ For view_panel = 0 to UBound(PANELS_ARRAY, 2)
         If panel_income = "44" Then PANELS_ARRAY(panel_name_const, view_panel) = "44 - MSA - Excess Inc for SSI"
         If panel_income = "45" Then PANELS_ARRAY(panel_name_const, view_panel) = "45 - County 88 Child Support"
         If panel_income = "46" Then PANELS_ARRAY(panel_name_const, view_panel) = "46 - County 88 Gaming"
-        If panel_income = "47" Then PANELS_ARRAY(panel_name_const, view_panel) = "47 - Counted Tribal Income"
+        If panel_income = "47" Then PANELS_ARRAY(panel_name_const, view_panel) = "47 - Tribal Income"
         If panel_income = "48" Then PANELS_ARRAY(panel_name_const, view_panel) = "48 - Trust Income"
         If panel_income = "49" Then PANELS_ARRAY(panel_name_const, view_panel) = "49 - Non-Recurring Income > $60 per quarter"
 
