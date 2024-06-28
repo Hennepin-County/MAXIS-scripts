@@ -1226,6 +1226,26 @@ function define_msa_elig_dialog()
 	  If MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		Text 10, 350, 550, 10, "NOTES: " & MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+
+	  detail_grp_len = 10
+	  grp_y_pos = 350
+	  y_pos = 360
+	  'MSA has no proration handling
+
+	  If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_source_of_info = "FIAT" Then
+		y_pos = y_pos-20
+		grp_y_pos = grp_y_pos-20
+
+		Text 15, y_pos+5, 85, 10, "MSA FIATed - Reason:"
+		EditBox 100, y_pos, 440, 15, MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+ 	  End If
+
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -5707,6 +5727,7 @@ function msa_elig_case_note()
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_approved_date)
 	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MSA_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -28128,6 +28149,7 @@ If enter_CNOTE_for_MSA = True Then
 	last_msa_grant = ""
 	last_basic_assistance_standard = ""
 	last_special_needs = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -28156,6 +28178,7 @@ If enter_CNOTE_for_MSA = True Then
 				last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
 				last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
 				last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+				last_info_source = MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -28173,6 +28196,7 @@ If enter_CNOTE_for_MSA = True Then
 				If last_msa_grant <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant Then match_last_benefit_amounts = False
 				If last_basic_assistance_standard <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard Then match_last_benefit_amounts = False
 				If last_special_needs <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs Then match_last_benefit_amounts = False
+				If last_info_source <> MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
@@ -28200,6 +28224,7 @@ If enter_CNOTE_for_MSA = True Then
 					last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
 					last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
 					last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+					last_info_source = MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -28308,6 +28333,7 @@ If enter_CNOTE_for_MSA = True Then
 
 			err_msg = ""
 
+			MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected))
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -28317,6 +28343,13 @@ If enter_CNOTE_for_MSA = True Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
+					End If
+				End If
+			End If
+			If MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_source_of_info = "FIAT" Then
+					If MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for MSA in " & MSA_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & MSA_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
 					End If
 				End If
 			End If
