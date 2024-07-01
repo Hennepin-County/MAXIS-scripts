@@ -4166,6 +4166,7 @@ function define_emer_elig_dialog()
 				y_pos = y_pos + 15
 				Text 230, y_pos, 95, 10, "Date Verif Request Sent:"
 				EditBox 325, y_pos-5, 75, 15, emer_verif_request_date
+				PushButton 405, y_pos-5, 15, 15, "!", verif_tips_and_tricks_btn
 				y_pos = y_pos + 10
 				Text 15, y_pos, 250, 10, "List all verifications that were required and not received:"
 				y_pos = y_pos + 10
@@ -30303,6 +30304,10 @@ If enter_CNOTE_for_EMER = True Then
 
 			End If
 
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/EMER has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if EA/EGA should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
+
 			If ButtonPressed = nav_stat_elig_btn Then
 				ft_mo = left(EMER_ELIG_APPROVAL.elig_footer_month, 2)
 				ft_yr = right(EMER_ELIG_APPROVAL.elig_footer_year, 2)
@@ -30316,7 +30321,7 @@ If enter_CNOTE_for_EMER = True Then
 			End If
 
 
-			If confirm_emer_budget_selection = "Indicate if the Budget is Accurate" Then
+			If confirm_emer_budget_selection = "Indicate if the Budget is Accurate"and ButtonPressed < 1100 Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review the approval details and indicate if they are correct before the scrript can continue."
 			End If
 			' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
