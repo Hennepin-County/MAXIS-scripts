@@ -2,7 +2,7 @@
 name_of_script = "NOTES - ELIGIBILITY SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180          'manual run time in seconds
+STATS_manualtime = 15          	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -27527,6 +27527,7 @@ If enter_CNOTE_for_DWP = True Then
 
 	all_dwp_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(DWP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -27838,6 +27839,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 	all_mfip_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(MFIP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28330,6 +28332,7 @@ If enter_CNOTE_for_MSA = True Then
 
 	all_msa_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(MSA_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28655,6 +28658,7 @@ If enter_CNOTE_for_GA = True Then
 
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(GA_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28938,6 +28942,7 @@ If enter_CNOTE_for_DENY = True Then
 
 	all_deny_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(DENY_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -29374,6 +29379,7 @@ If enter_CNOTE_for_GRH = True Then
 
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(GRH_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -29822,6 +29828,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	If cancel_out_of_hc = False Then
 		all_hc_approvals_confirmed = False
 		approval_selected = 0
+		STATS_manualtime = STATS_manualtime + (UBound(HC_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 		Do
 			Do
@@ -30166,6 +30173,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		Else
 			progs_temp_array = Array(memo_hc_progs)
 		End If
+		STATS_manualtime = STATS_manualtime + 120			'2 minutes to create a SPEC/MEMO and copy information into it if the notice failed from the E Parte approval
 
 		'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-16013
 		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
@@ -30278,6 +30286,7 @@ If enter_CNOTE_for_EMER = True Then
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
 		EMER_ELIG_APPROVAL.emer_elig_summ_payment = EMER_ELIG_APPROVAL.emer_elig_summ_need_other
 	End If
+	STATS_manualtime = STATS_manualtime + 180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -30493,6 +30502,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 
 	all_snap_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(SNAP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -30769,6 +30779,7 @@ If enter_CNOTE_for_DWP = True Then
 		End If
 		due_date = ""
 		If IsDate(DWP_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, DWP_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'TODO - add DWP WCOMS?
 
@@ -30885,6 +30896,7 @@ If enter_CNOTE_for_MFIP = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call mfip_elig_case_note
 
@@ -30909,6 +30921,7 @@ If special_diet_check_exists = True Then
 			for each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then memb_select = each_memb
 			next
+			STATS_manualtime = STATS_manualtime + 90			'1.5 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 			Call mfip_special_diet_case_note
 
@@ -30963,6 +30976,7 @@ if enter_CNOTE_for_MSA = True Then
 		End If
 		due_date = ""
 		If IsDate(MSA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, MSA_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'Here we entere the CASENOTE
 		Call msa_elig_case_note
@@ -31016,6 +31030,7 @@ if enter_CNOTE_for_GA = True Then
 		End If
 		due_date = ""
 		If IsDate(GA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, GA_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'Here we entere the CASENOTE
 		Call ga_elig_case_note
@@ -31125,6 +31140,7 @@ If enter_CNOTE_for_DENY = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call deny_elig_case_note
 
@@ -31237,6 +31253,7 @@ If enter_CNOTE_for_GRH = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call grh_elig_case_note
 
@@ -31273,6 +31290,7 @@ If complete_ex_parte_as_closed = True Then
 End If
 
 If ex_parte_approval = True Then
+	STATS_manualtime = STATS_manualtime + 180			'3 minutes for Ex parte Note and data update
 
 	If developer_mode = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
@@ -31312,41 +31330,6 @@ If ex_parte_approval = True Then
 		MsgBox "Ex Parte note Gone?"
 	End If
 	PF3
-
-	Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
-	Next_REPT_year = Next_REPT_year*1
-	Next_REPT_year = Next_REPT_year + 1
-	Next_REPT_year = Next_REPT_year & ""
-
-	Call start_a_blank_CASE_NOTE
-
-	Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-	Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
-	Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-	Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
-	Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
-	Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
-	Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-	Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
-	If developer_mode = True Then
-		MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
-		PF10
-		MsgBox "Standard Policy Note Gone?"
-	End If
-
-	PF3
-
-
 End If
 
 If enter_CNOTE_for_HC = True Then
@@ -31405,6 +31388,7 @@ If enter_CNOTE_for_HC = True Then
 		End If
 		due_date = ""
 		If IsDate(HC_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, HC_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call hc_elig_case_note
 
@@ -31420,6 +31404,7 @@ End If
 If enter_CNOTE_for_EMER = True Then
 	due_date = ""
 	If IsDate(emer_verif_request_date) = True Then due_date = DateAdd("d", 10, emer_verif_request_date)
+	STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 	Call emer_elig_case_note
 
