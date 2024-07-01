@@ -3371,7 +3371,7 @@ function write_asset_details_in_NOTE()
 				acct_string = ""
 				' acct_string = acct_string &
 				If STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb)
-				acct_string = acct_string & ", alance: " & STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)
 				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_two_as_of_date(each_memb)
 				acct_string = acct_string & "; "
 				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_two_verif_info(each_memb) & ";"
@@ -3420,9 +3420,9 @@ function write_asset_details_in_NOTE()
 				If STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb)
 				secu_string = secu_string & "; "
 				If STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) & "; "
-				secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb) & "; "
 
-				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_one_type_detail(each_memb), acct_string)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_one_type_detail(each_memb), secu_string)
 			End If
 			If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
 				secu_string = ""
@@ -3432,9 +3432,9 @@ function write_asset_details_in_NOTE()
 				If STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb)
 				secu_string = secu_string & "; "
 				If STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) & "; "
-				secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb) & "; "
 
-				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_two_type_detail(each_memb), acct_string)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_two_type_detail(each_memb), secu_string)
 			End If
 			If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
 				secu_string = ""
@@ -3444,11 +3444,10 @@ function write_asset_details_in_NOTE()
 				If STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb)
 				secu_string = secu_string & "; "
 				If STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) & "; "
-				secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb) & "; "
 
-				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_three_type_detail(each_memb), acct_string)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_three_type_detail(each_memb), secu_string)
 			End If
-
 			Call write_header_and_detail_in_CASE_NOTE("Liquid Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_asset_notes(each_memb)))
 		End If
 	Next
@@ -3464,7 +3463,7 @@ function write_asset_details_in_NOTE()
 			If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
 				cars_string = ""
 				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_one_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_model(each_memb)
-				cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb)
 				cars_string = cars_string & "; "
 				cars_string = cars_string & "Value: "
@@ -3473,13 +3472,12 @@ function write_asset_details_in_NOTE()
 				If STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb)
 				cars_string = cars_string & "; "
 				cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_one_own_verif_info(each_memb) & "; "
-
 				Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
 			End If
 			If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
 				cars_string = ""
 				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_two_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_model(each_memb)
-				cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb)
 				cars_string = cars_string & "; "
 				cars_string = cars_string & "Value: "
@@ -3494,7 +3492,7 @@ function write_asset_details_in_NOTE()
 			If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
 				cars_string = ""
 				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_three_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_model(each_memb)
-				cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb)
 				cars_string = cars_string & "; "
 				cars_string = cars_string & "Value: "
@@ -3564,9 +3562,102 @@ function write_asset_details_in_NOTE()
 
 				Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
 			End If
-
 		End If
 	Next
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Totaling Assets 
+		total_cash 			= 0
+		total_accounts 		= 0
+		total_secu 			= 0
+		total_cars 			= 0
+		car_1_total 		= 0 
+		car_2_total 		= 0 
+		car_3_total 		= 0 
+		total_sum 			= 0 
+		maxVal				= 0
+		car_count			= 0 
+		rest_total 			= 0
+		rest_owed_total 	= 0
+		total_real_estate 	= 0
+		total_assets 		= 0
+		
+
+		total_cash = cInt(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
+		total_accounts = cInt(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)) 
+		total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+		
+		If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
+		If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
+		If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
+
+		If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = 0
+		If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = 0
+		If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = 0
+
+		If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Used as Home" Then
+				car_1_total = cInt(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
+				car_count = car_count + 1
+			End If
+		End If 
+
+		If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Used as Home" Then
+				car_2_total = cInt(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
+				car_count = car_count + 1
+			End If
+		End If 
+
+		If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Used as Home" Then
+				car_3_total = cInt(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
+				car_count = car_count + 1
+			End If
+		End If 
+
+		total_sum = car_1_total + car_2_total + car_3_total
+		
+		'Removing highest value vehicle if more than 1 vehicle 
+		car_value = Array(car_1_total, car_2_total, car_3_total)
+		If car_count > 1 Then 
+			For value = 0 to Ubound(car_value)
+				If car_value(value) >maxVal THen 
+					maxVal = car_value(value)
+					msgbox maxVal & "HI" 
+				End If
+			Next
+			total_cars = total_sum - maxVal	
+		Else 
+			total_cars = 0
+		End If 
+	
+		IF STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = 0		
+		IF STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = 0
+		IF STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = 0
+
+		IF STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = 0
+		IF STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = 0
+		IF STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = 0
+
+		If STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) <> "Home Residence" Then 
+			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
+			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
+		End If
+		If STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) <> "Home Residence" Then
+			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
+			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
+		End If
+		If STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) <> "Home Residence" Then
+			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
+			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
+		End If
+
+		total_real_estate = rest_total - rest_owed_total
+		total_assets = total_cash + total_accounts + total_cars + total_secu + total_real_estate
+		'msgbox "Total Cash: " & total_cash & vbcr & "Total acct: " & total_accounts & vbcr & "Total secu: " & total_secu & vbcr & "Total Cars: " & total_cars & vbcr & "First rest: " & rest_total & vbcr & "First owed: " & rest_owed_total & vbcr & "First equity: " & total_real_estate & vbcr & vbcr & "Second rest: " & rest_total & vbcr & "Second owed: " & rest_owed_total & vbcr & "Second equity: " & total_real_estate & vbcr & vbcr &  "Third owed: " & rest_total & vbcr & "Third owed: " & rest_owed_total & vbcr & "Third equity: " & total_real_estate & vbcr & vbcr & "Total Assets" & total_assets
+		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - ASSET TOTAL:$ " & total_assets)
+	Next
+
 	Call write_bullet_and_variable_in_CASE_NOTE("Real Estate Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes))
 	Call write_bullet_and_variable_in_CASE_NOTE("RETRO Asset Notes", retro_asset_detail)
 	If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No vehicles or real estate for this Case.")
