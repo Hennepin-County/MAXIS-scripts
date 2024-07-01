@@ -623,7 +623,7 @@ function define_dwp_elig_dialog()
 					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-					' PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
+					PushButton 370, y_pos-5, 15, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If show_pact = True Then
@@ -27642,6 +27642,9 @@ If enter_CNOTE_for_DWP = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("DWP", DWP_UNIQUE_APPROVALS(process_for_note, approval_selected), DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/DWP has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if DWP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
