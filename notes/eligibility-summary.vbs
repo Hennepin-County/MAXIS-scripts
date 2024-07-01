@@ -1685,6 +1685,7 @@ function define_ga_elig_dialog()
 			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
 			Editbox 180, 115, 50, 15, GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+			PushButton 370, 115, 15, 15, "!", verif_tips_and_tricks_btn
 			Text 15, 130, 175, 10, "Detail the Verifications NOT Received and Needed:"
 			EditBox 15, 140, 430, 15, GA_UNIQUE_APPROVALS(verif_request_details, approval_selected)
 			y_pos = 160
@@ -28765,6 +28766,9 @@ If enter_CNOTE_for_GA = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GA", GA_UNIQUE_APPROVALS(process_for_note, approval_selected), GA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/GA has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if GA should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
