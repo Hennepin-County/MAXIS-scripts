@@ -2,7 +2,7 @@
 name_of_script = "NOTES - ELIGIBILITY SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 15          	'manual run time in seconds
+STATS_manualtime = 60          	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/01/2024", "Initial development for NOTES - Eligibility Summary is complete and the script is no longer in testing. Future enhancements can be completed as needs are identified.##~## ##~##NOTES - Eiligibility Summary now allows for additional information to be entered for approvals that are prorated or FIATed. The Notes about FIAT are mandatory but the ones about proration are optional.##~## ##~## * * * NOTES - Eligiblity Summary is now the only script to CASE/NOTE approvals. * * * ##~##", "Casey Love, Hennpin County")
 call changelog_update("06/26/2024", "Additional supports added:##~## - Include Vendor Information on MFIP issuances.##~## - Updated the phrasing to identify instances where the script is run on a case twice in a day to be clearer.##~##", "Casey Love, Hennpin County")
 call changelog_update("05/31/2024", "Additional supports added:##~## - CASE/NOTE of MFIP Special Diet MONY/CHCK Issuances.##~## - Update to Thrifty Food Plan and Calculation Display.##~## - Update to the phrasing of beudgets that are not accurate.##~## ##~##Eligibility Summary is now preppared to be the only script to support the CASE/NOTE of approvals.", "Casey Love, Hennpin County")
 call changelog_update("05/08/2024", "New support to display Expedited approvals more accurately, ensuring we are only documenting information for months that will be issued.##~####~##Additional information to have clearer information about ineligible results due to non-cooperation and cases where there is not a limit to shelter expense.", "Casey Love, Hennpin County")
@@ -436,6 +437,7 @@ function display_snap_shelter_expenses()
 end function
 
 function define_dwp_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 140, "DWP Approvals"
@@ -774,6 +776,7 @@ function define_dwp_elig_dialog()
 end function
 
 function define_mf_special_diet_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Special DIET"
 		ButtonGroup ButtonPressed
 			Text 10, 370, 165, 10, "Confirm you have reviewed the check approval:"
@@ -809,6 +812,7 @@ function define_mf_special_diet_dialog()
 end function
 
 function define_mfip_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 165, "MFIP Approvals"
@@ -1154,6 +1158,7 @@ end function
 
 
 function define_msa_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MSA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "MSA Approvals"
 	  If MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
@@ -1451,6 +1456,7 @@ function define_msa_elig_dialog()
 end function
 
 function define_ga_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "GA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "GA Approvals"
 	  If GA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
@@ -1758,6 +1764,7 @@ function define_ga_elig_dialog()
 end function
 
 function define_deny_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "CASH Denial Approval Packages"
 	  ButtonGroup ButtonPressed
 		If DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
@@ -2416,6 +2423,7 @@ function define_deny_elig_dialog()
 end function
 
 function define_grh_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "HS/GRH Approval Packages"
 	  ButtonGroup ButtonPressed
 
@@ -2921,7 +2929,7 @@ function define_grh_elig_dialog()
 end function
 
 function define_hc_elig_dialog()
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "HC Approval Packages"
 
 	  ButtonGroup ButtonPressed
@@ -3836,6 +3844,7 @@ function define_snap_elig_dialog()
 		If each_app = approval_selected Then display_detail = month_display
 	next
 
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
 	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
 	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
@@ -4223,6 +4232,7 @@ function rept_pnd2_dialog()
 	y_pos = 25
 	cash_listed = 0
 
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 341, Dlg_len, "Program Denials Via REPT/PND2"
 	  Text 15, 10, 320, 10, "This case has been updated to have denials processed through the REPT/PND2 overnight batch."
 	  If pnd2_cash_status = "I" or pnd2_cash_status = "R" then
@@ -24204,6 +24214,7 @@ Do
 	Do
 		err_msg = ""
 
+		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 366, 135, "Eligibility Summary Case Number Dialog"
 		  EditBox 100, 10, 60, 15, MAXIS_case_number
 		  EditBox 125, 30, 15, 15, first_footer_month
@@ -24217,9 +24228,9 @@ Do
 		  Text 10, 35, 110, 10, "Initial Month of Today's Approval"
 		  Text 130, 45, 35, 10, "MM    YY"
 		  Text 10, 55, 80, 10, "Sign your case note(s):"
-		  Text 10, 90, 160, 10, "This script does not have an open 'Notes' field."
+		  Text 10, 90, 160, 10, "This script does not use open 'Notes' field."
 		  Text 10, 105, 235, 20, "If there were other actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
-		  Text 175, 5, 140, 20, "This script will detail information about all APP actions for a this case taken today."
+		  Text 175, 5, 160, 20, "NOTES - Eligibility Summaryp will detail information about all APP actions for a this case taken today."
 		  Text 180, 25, 185, 10, "- Script will handle for approvals, denials, and closures."
 		  Text 180, 35, 155, 10, "- Script will handle for any program in MAXIS."
 		  Text 180, 45, 180, 10, "- To be handled by the script ELIG resulsts must be:"
@@ -24252,6 +24263,16 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
+Call check_for_MAXIS(False)
+
+'PRIV Handling
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
+
+'Out of County Handling
+'There are a few reasons to allow a script to run on an out of county case - so review if this is needed.
+EMReadScreen pw_county_code, 2, 21, 16
+If pw_county_code <> "27" Then script_end_procedure("This case is not in Hennepin County and cannot be updated. The script will now end.")
 
 'CHECKING FOR 'U' code on REVW and MONT. Prompts user to correct month by month.
 Call date_array_generator(first_footer_month, first_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
@@ -26625,6 +26646,7 @@ If enter_CNOTE_for_DWP = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If dwp_approval_is_incorrect = True Then
@@ -27093,6 +27115,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If mfip_approval_is_incorrect = True Then
@@ -27113,13 +27136,18 @@ If special_diet_check_exists = True Then
 			call define_mf_special_diet_dialog
 
 			Do
-				dialog Dialog1
-				cancel_confirmation
+				Do
+					dialog Dialog1
+					cancel_confirmation
 
-				err_msg = ""
-				If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
-				If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-			Loop until err_msg = ""
+					err_msg = ""
+					If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
+					If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+				Loop until err_msg = ""
+				Call check_for_password(are_we_passworded_out)
+			Loop until are_we_passworded_out = False
+			Call check_for_MAXIS(True)
+			Call back_to_SELF
 
 			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Yes - check is Accurate" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = True
 			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "No - do not CASE/NOTE this information" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = False
@@ -27417,6 +27445,7 @@ If enter_CNOTE_for_MSA = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 	Call back_to_SELF
+	Call check_for_MAXIS(True)
 
 	If msa_approval_is_incorrect = True Then
 		enter_CNOTE_for_MSA = False
@@ -27738,6 +27767,7 @@ If enter_CNOTE_for_GA = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 	Call back_to_SELF
+	Call check_for_MAXIS(True)
 
 	If ga_approval_is_incorrect = True Then
 		enter_CNOTE_for_GA = False
@@ -28050,6 +28080,7 @@ If enter_CNOTE_for_DENY = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 
 	If deny_approval_is_incorrect = True Then
 		enter_CNOTE_for_DENY = False
@@ -28142,6 +28173,7 @@ If enter_CNOTE_for_DENY = True Then
 			DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) = trim(deny_wcom_info_three)
 		Next
 	End If
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 End if
 
@@ -28479,13 +28511,13 @@ If enter_CNOTE_for_GRH = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If grh_approval_is_incorrect = True Then
 		enter_CNOTE_for_GRH = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GRH Approvals from " & first_GRH_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 If enter_CNOTE_for_HC = True Then		'HC DIALOG
@@ -28691,7 +28723,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			If cancel_out_of_hc = True Then Exit For
 		Next
 		If cancel_out_of_hc = True Then Exit For
-
 	next
 
 	If cancel_out_of_hc = False Then
@@ -28860,6 +28891,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			Loop until move_from_dialog = True
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = False
+		Call check_for_MAXIS(True)
 		Call back_to_SELF
 
 		If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
@@ -29190,6 +29222,7 @@ If enter_CNOTE_for_EMER = True Then
 		Loop until confirm_emer_budget_selection <> "Indicate if the Budget is Accurate" and err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	EMER_ELIG_APPROVAL.bus_ticket_detail = TEMP_bus_ticket_info
@@ -29538,13 +29571,13 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If snap_approval_is_incorrect = True Then
 		enter_CNOTE_for_SNAP = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for SNAP Approvals from " & first_SNAP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 'NOW WE START ENTERING CASE/NOTE
@@ -30873,44 +30906,50 @@ end_msg_info = end_msg_info & "Eligibility Approvals review and documentation sc
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/01/2024
+'--Tab orders reviewed & confirmed----------------------------------------------07/01/2024					I think this is pretty solid but it can get a little weird - and there are 30 dialogs so there might be some missed
+'--Mandatory fields all present & Reviewed--------------------------------------07/01/2024
+'--All variables in dialog match mandatory fields-------------------------------07/01/2024
+'Review dialog names for content and content fit in dialog----------------------07/01/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------07/01/2024
+'--Create a button to reference instructions------------------------------------07/01/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/01/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/01/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------07/01/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/01/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/01/2024
+'--PRIV Case handling reviewed -------------------------------------------------07/01/2024
+'--Out-of-County handling reviewed----------------------------------------------07/01/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/01/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/01/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------07/01/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------07/01/2024
+'--Denomination reviewed -------------------------------------------------------07/01/2024
+'--Script name reviewed---------------------------------------------------------07/01/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/01/2024					Any tasks that are not completed will have their own issues created for follow up
+'--comment Code-----------------------------------------------------------------07/01/2024
+'--Update Changelog for release/update------------------------------------------07/01/2024
+'--Remove testing message boxes-------------------------------------------------07/01/2024
+'--Remove testing code/unnecessary code-----------------------------------------07/01/2024
+'--Review/update SharePoint instructions----------------------------------------07/01/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/01/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/01/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/01/2024
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
