@@ -1675,7 +1675,7 @@ script_array(script_num).policy_references		= array("CM Determining_Gross_Income
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
-script_array(script_num).script_name		    = "EBT Stolen Benefits"													'Script name
+script_array(script_num).script_name		    = "EBT Benefits Stolen"													'Script name
 ' script_array(script_num).description		    = "Documents benefits replacement request for stolen benefits."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
