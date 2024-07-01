@@ -263,7 +263,7 @@ For item = 0 to Ubound(avs_members_array, 2)
                         avs_members_array(applicant_type_const, item) = "Applying"
                     End if
                     exit do
-                Elseif applicant_type = "N" then
+                Elseif applicant_type = "N" OR applicant_type  = "_" then
                     avs_members_array(hc_applicant_const, item) = False
                     If avs_members_array(marital_status_const, item) = "M" then
                         avs_members_array(applicant_type_const, item) = "Spouse"
