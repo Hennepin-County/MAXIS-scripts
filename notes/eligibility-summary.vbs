@@ -4340,6 +4340,7 @@ function define_snap_elig_dialog()
 				Editbox 130, 130, 310, 15, SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
 				Text 130, 145, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
 			End if
+			PushButton 370, 110, 15, 15, "!", verif_tips_and_tricks_btn
 		Else
 			y_pos = 110
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then
@@ -27059,12 +27060,12 @@ shel_exp_detail_btn		= 1030
 unique_approval_explain_btn	= 1040
 nav_stat_elig_btn		= 1050
 reload_btn				= 1060
+verif_tips_and_tricks_btn = 2000
 
 app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
 explain_why_we_are_processing_btn = 130
-verif_tips_and_tricks_btn = 140
 
 const months_in_approval			= 0
 const limit_benefit_months			= 1
@@ -30622,6 +30623,9 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			If ButtonPressed = shel_exp_detail_btn then Call display_snap_shelter_expenses
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("SNAP", SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected), SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/FS has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if SNAP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			' If ButtonPressed = app_confirmed_btn
 
