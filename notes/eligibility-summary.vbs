@@ -2872,6 +2872,7 @@ function define_grh_elig_dialog()
 					Text 15, y_pos+5, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos, 50, 15, GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos+5, 150, 10, "(due date is 10 days from this request date)"
+					PushButton 370, y_pos, 15, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif_PACT = "FAILED" Then
@@ -29519,6 +29520,9 @@ If enter_CNOTE_for_GRH = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GRH", GRH_UNIQUE_APPROVALS(process_for_note, approval_selected), GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/GRH has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if GRH/HS should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
