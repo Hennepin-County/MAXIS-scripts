@@ -4292,11 +4292,10 @@ If ex_parte_function = "Prep 2" Then
 	ObjExcel.Quit
 
 	email_header = "Ex Parte Members with a Date of Death is SVES"
-	email_body = "Hello Laura, " & vbCr & vbCr & "Here is the list of persons from cases on the " & ep_revw_mo & "-" & ep_revw_yr & " Ex Parte list that have a date of death listed in the TPQY response." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
+	email_body = "Hello, " & vbCr & vbCr & "Here is the list of persons from cases on the " & ep_revw_mo & "-" & ep_revw_yr & " Ex Parte list that have a date of death listed in the TPQY response." & vbCr & vbCr & "Thank you!" & vbCr & "Economic Supports Technology, Operations and Experience Team" & vbCr & "Automation and Integration Team"
 	email_attachment_array = Array(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
-	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "laura.larson@hennepin.us", email_recip_CC, email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
-
-
+	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "ben.teskey@hennepin.us", "ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us", email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
+	
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
 
@@ -5362,25 +5361,26 @@ If ex_parte_function = "Phase 2" Then
 			'opening the connections and data table
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-
+			
 			'Need to make sure we get to SUMM
-			Do
-				Call navigate_to_MAXIS_screen("STAT", "SUMM")
+			Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
+				If is_this_priv = True Then exit do
 				EMReadScreen summ_check, 4, 2, 46
 			Loop until summ_check = "SUMM"
+			If is_this_priv = false Then
+				'Calls the function to update the budget panel
+				Call update_stat_budg
 
-			'Calls the function to update the budget panel
-			Call update_stat_budg
-
-			'Send the case through background
-			Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
-			EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
-			If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
-			EMWaitReady 0, 0												'give a pause here
-			EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
-			If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
-			'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
-			Call back_to_SELF												'Need to get to SELF
+				'Send the case through background
+				Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
+				EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
+				If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
+				EMWaitReady 0, 0												'give a pause here
+				EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
+				If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
+				'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
+				Call back_to_SELF												'Need to get to SELF
+			End If
 
 			'here is the update statement. setting the Phase2 BULK run completion date for the case running
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
