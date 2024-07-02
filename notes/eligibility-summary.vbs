@@ -24230,7 +24230,7 @@ Do
 		  Text 10, 55, 80, 10, "Sign your case note(s):"
 		  Text 10, 90, 160, 10, "This script does not use open 'Notes' field."
 		  Text 10, 105, 235, 20, "If there were other actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
-		  Text 175, 5, 160, 20, "NOTES - Eligibility Summaryp will detail information about all APP actions for a this case taken today."
+		  Text 175, 5, 160, 20, "NOTES - Eligibility Summary will detail information about all APP actions for this case taken today."
 		  Text 180, 25, 185, 10, "- Script will handle for approvals, denials, and closures."
 		  Text 180, 35, 155, 10, "- Script will handle for any program in MAXIS."
 		  Text 180, 45, 180, 10, "- To be handled by the script ELIG resulsts must be:"
