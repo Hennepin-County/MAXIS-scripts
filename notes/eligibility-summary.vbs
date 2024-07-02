@@ -6815,10 +6815,6 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("            Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
-				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
-					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
-				End If
 
 			ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with an EW Waiver Obligation ---------------------------")
@@ -6829,6 +6825,10 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("------- MA Approved with a Spenddown ---------------------------------------")
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind))
+				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
+					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
+				End If
 			End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 				Call write_variable_in_CASE_NOTE("MEMB " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) & " has been approved for Emergency Medical Assistance - EMA")
@@ -18476,8 +18476,8 @@ class hc_eligibility_detail
 													mobl_col = 19
 													Do
 														EMReadScreen mobl_mo, 2, 7, mobl_col
-														EMReadScreen mobl_yr, 2, 7, mobl_col
-														If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+														EMReadScreen mobl_yr, 2, 7, mobl_col+3
+														If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year Then
 															LTC_spenddown_exists(hc_prog_count) = True
 															If spenddown_to_read <> "_" Then
 																EMReadScreen hc_prog_elig_ltc_spdn_amount(hc_prog_count), 9, 8, mobl_col-2
