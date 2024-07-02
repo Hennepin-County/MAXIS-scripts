@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2024", "Three scripts:##~## - NOTES - APPROVED PROGRAMS##~## - NOTES - CLOSED PROGRAMS##~## - NOTES - DENIED PROGRAMS##~## have been retired and are no longer available.##~## ##~##All approvals are now handled by NOTES - Eligibility Summary. This script has a direct button on the power pad for easy access.##~##", "Casey Love, Hennepin County")
 call changelog_update("06/03/2024", "The script, NOTES - APPLICATION CHECK, has been retired.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/02/2024", "A new script is available: SNAP Waived Interview supports screening a SNAP application for the application interview waiver and documenting any information needed. Process information is available on sharepoint under temporary program changes for SNAP.", "Dave Courtright, Hennepin County")
 call changelog_update("11/20/2023", "The LTC button has been removed from the menu. LTC: 5181, Asset Assessment, Hospice Form Received and Transfer Penalty are now found under the standard alpha menus with other note scripts.", "Megan Geissler, Hennepin County")
@@ -182,7 +183,7 @@ Function declare_main_menu_dialog(script_category)
 		Else
 			Text 			220,                    23, 					40, 		15, 			" R - Z "
 		End If
-		
+
 
 		'SCRIPT LIST HANDLING--------------------------------------------
 

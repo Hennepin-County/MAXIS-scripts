@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("06/05/2024", "Updated error handling so that voicemail contact type can be selected when indicating that a phone interview was attempted but not completed.", "Mark Riegel, Hennepin County")
 Call changelog_update("01/30/2024", "The Client Contact script has been updated to support gathering additional information about SNAP applications if additional information is needed. ##~## ##~##This update supports processing cases during the SNAP Waived Interview. This will connect NOTES - SNAP Waived Interview script functionality with Client Contact and will pull up specific functionality that will list the application questions with follow up informatation required. This will allow for better SNAP processing and make following up on pending SNAP applications easier.##~##", "Casey Love, Hennepin County")
 Call changelog_update("01/05/2024", "Added initial dialog which contains the MAXIS Case Number and Worker Signature. Removed this information from the main dialog, and moved the 'Display Benefits' button into the space where the 'Case Number' field used to be.", "Ilse Ferris, Hennepin County")
 Call changelog_update("11/20/2023", "Added checkbox to indicate a phone interview was attempted but not completed, which will add a specific CASE/NOTE with this information. Added handling to prevent use of script for interviews.", "Mark Riegel, Hennepin County")
@@ -380,7 +381,7 @@ Do
         If trim(contact_type) = "Phone call" then
             If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number."
         End if
-        If trim(contact_type) <> "Phone call" AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted phone interview should only be checked for the phone call contact type."
+        If (trim(contact_type) <> "Phone call" and trim(contact_type) <> "Voicemail") AND phone_interview_attempt_checkbox = checked Then err_msg = err_msg & vbcr & "* The checkbox for an attempted phone interview should only be checked for the phone call or voicemail contact type."
         If phone_interview_attempt_checkbox <> checked Then
             If inStr(ucase(trim(regarding)), "INTERVIEW") or inStr(ucase(trim(regarding)), "INTVW") or inStr(ucase(trim(regarding)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Re:' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."
             If inStr(ucase(trim(contact_reason)), "INTERVIEW") or inStr(ucase(trim(contact_reason)), "INTVW") or inStr(ucase(trim(contact_reason)), "INTRVW") Then err_msg = err_msg & vbcr & "* The 'Reason for contact' field mentioned an interview. If an interview was completed, the NOTES - Interview script should be used during the interview or a manual CASE/NOTE should be entered."

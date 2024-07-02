@@ -150,4 +150,4 @@ IF TIKL_checkbox = CHECKED THEN CALL write_variable_in_case_note(TIKL_date_text)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure_with_error_report(DAIL_type & vbcr &  first_line & vbcr & " DAIL has been case noted")
+script_end_procedure_with_error_report(DAIL_type & vbcr & full_message & vbcr & " DAIL has been case noted")

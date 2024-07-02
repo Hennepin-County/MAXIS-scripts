@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/26/2024", "Additional supports added:##~## - Include Vendor Information on MFIP issuances.##~## - Updated the phrasing to identify instances where the script is run on a case twice in a day to be clearer.##~##", "Casey Love, Hennpin County")
 call changelog_update("05/31/2024", "Additional supports added:##~## - CASE/NOTE of MFIP Special Diet MONY/CHCK Issuances.##~## - Update to Thrifty Food Plan and Calculation Display.##~## - Update to the phrasing of beudgets that are not accurate.##~## ##~##Eligibility Summary is now preppared to be the only script to support the CASE/NOTE of approvals.", "Casey Love, Hennpin County")
 call changelog_update("05/08/2024", "New support to display Expedited approvals more accurately, ensuring we are only documenting information for months that will be issued.##~####~##Additional information to have clearer information about ineligible results due to non-cooperation and cases where there is not a limit to shelter expense.", "Casey Love, Hennpin County")
 call changelog_update("03/15/2024", "Additional support added to check for 'U' code on REVW and MONT.", "Megan Geissler, Hennepin County")
@@ -90,8 +91,8 @@ QCR_SNAP_Homeless_SHELTER_Expense_All = True
 
 function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
 '--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
-'~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
-'~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ footer_month: relevant footer month - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every October and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
 '~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
 '===== Keywords: SNAP, calculation, Income Test
@@ -210,7 +211,7 @@ function detail_action_that_led_to_approval(current_prog, process_completed, cha
 	ButtonGroup ButtonPressed
 		PushButton 230, 215, 115, 15, "Return to Approval Detail", return_btn
 	Text 10, 10, 180, 10, "You have completed an approval for " & current_prog & " today."
-	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a seperate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
+	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a separate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
 	Text 10, 60, 210, 20, "To create cohesiveness with previous CASE/NOTEs, you can indicate why you are processing the approval today."
 	Text 10, 90, 105, 10, "Reason Approval was needed:"
 	GroupBox 10, 110, 335, 85, "Information Changed"
@@ -384,7 +385,7 @@ function display_approval_packages_dialog()
 	  Text 35, 85, 70, 10, "Eligibility Result"
 	  Text 35, 95, 70, 10, "Budget Cycle"
 	  Text 35, 105, 70, 10, "Income"
-	  Text 35, 115, 95, 10, "Houshold Composition"
+	  Text 35, 115, 95, 10, "Household Composition"
 	  Text 35, 125, 95, 10, "Entitlement "
 	  Text 25, 140, 205, 20, "If these are the same from month to month, the script groups these approval months together as an 'Approval Package'."
 	  GroupBox 10, 165, 370, 10, ""
@@ -419,7 +420,7 @@ function display_snap_deductions_dialog()
 	  Text 25, 150, 245, 10, "All details of FMED should be reviewed in the CM."
 	  GroupBox 10, 175, 370, 40, "Dependent Care . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
 	  Text 25, 190, 180, 10, "Care of a dependent can be used a SNAP deduction."
-	  Text 25, 200, 180, 10, "Dependent Care Expeses are declaratory."
+	  Text 25, 200, 180, 10, "Dependent Care Expenses are declaratory."
 	  GroupBox 10, 225, 370, 30, " Child Support . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
 	  Text 25, 240, 245, 10, "Court Ordered Child Support Expense can be allowed as a deduction."
 	  ButtonGroup ButtonPressed
@@ -579,6 +580,7 @@ function define_dwp_elig_dialog()
 					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+					' PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If show_pact = True Then
@@ -965,10 +967,26 @@ function define_mfip_elig_dialog()
 			app_x_pos = 10
 			For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
 				If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					Text app_x_pos, app_y_pos, 200, 10, MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount
-					Text app_x_pos, app_y_pos+10, 200, 10, "            Cash: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " Food: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant
-					app_y_pos = app_y_pos + 20
-					If app_y_pos = 190 Then
+					Text app_x_pos, app_y_pos, 200, 10, MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount & " - (Ca: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " F: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant & ")"
+					' Text app_x_pos, app_y_pos+10, 200, 10, "            (Ca: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " F: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant & ")"
+					app_y_pos = app_y_pos + 10
+
+					If MFIP_ELIG_APPROVALS(approval).mfip_mony_check_found = True Then
+						for each_trans = 0 to UBound(MFIP_ELIG_APPROVALS(approval).mfip_check_program)
+							Text app_x_pos+5, app_y_pos, 275, 10, MFIP_ELIG_APPROVALS(approval).mfip_check_issue_date(each_trans) & " CHCK - $ " & MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans) & " paid to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+							app_y_pos = app_y_pos + 10
+						next
+					End If
+					If MFIP_ELIG_APPROVALS(approval).mfip_vnda_found = True Then
+						' MsgBox "IN IT!"
+						for each_auth = 0 To UBound(MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_number)
+							' MsgBox "MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth) - " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth)
+							Text app_x_pos+5, app_y_pos, 275, 10, "Vendor Auth - $ " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth) & " to be paid to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth)
+							app_y_pos = app_y_pos + 10
+						next
+					End If
+
+					If app_y_pos >= 190 Then
 						app_y_pos = 150
 						app_x_pos = app_x_pos + 220
 					End If
@@ -1813,7 +1831,8 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Text 20, y_pos, 425, 10, "This household was assessed for MFIP as the Family Cash Program."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then
@@ -1982,7 +2001,8 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then
-				Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "DWP" Then Text 20, y_pos, 425, 10, "This household was assessed for DWP as the Family Cash Program."
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "DWP" Then Text 20, y_pos, 425, 10, "This household does not have a child that meets the requirements for family cash benefits."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then
@@ -3798,7 +3818,7 @@ function define_emer_elig_dialog()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "EMER Approval"
 		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
-			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE"
+			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE for $ " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
 			y_pos = 40
 			If EMER_ELIG_APPROVAL.mony_check_found = True Then
 				Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
@@ -4499,7 +4519,7 @@ function dwp_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for DWP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", DWP_ELIG_APPROVALS(elig_ind).dwp_approved_date)
-	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5063,7 +5083,7 @@ function mfip_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for MFIP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
-	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5093,7 +5113,36 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
 	End If
 
-
+	vendor_header = "----------------------------- Vendor Payments -------------------------------"
+	For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+		If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			If MFIP_ELIG_APPROVALS(approval).mfip_mony_check_found = True Then
+				for each_trans = 0 to UBound(MFIP_ELIG_APPROVALS(approval).mfip_check_program)
+					If vendor_header <> "" Then
+						Call write_variable_in_CASE_NOTE(vendor_header)
+						vendor_header = ""
+					End If
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|    Shelter Benefit: $ "
+					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Check of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & " issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Vendor to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
+					' MFIP_ELIG_APPROVALS(approval).mfip_check_issue_date(each_trans) & " CHCK - $ " & MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans) & " paid to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+				next
+			End If
+			If MFIP_ELIG_APPROVALS(approval).mfip_vnda_found = True Then
+				for each_auth = 0 To UBound(MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_number)
+					If vendor_header <> "" Then
+						Call write_variable_in_CASE_NOTE(vendor_header)
+						vendor_header = ""
+					End If
+					' Call write_variable_in_CASE_NOTE(beginning_text & "| "
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|                     $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Check Issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
+					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Auth of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth), ".00", "") & " approved to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
+					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth), ".00", "") & "     ", 4) & " Vendor to  " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
+					' "Vendor Auth - $ " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth) & " to be paid to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth)
+				next
+			End If
+		End If
+	Next
 
 	If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
@@ -5529,7 +5578,7 @@ function msa_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_approved_date)
-	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -6005,7 +6054,7 @@ function ga_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_approved_date)
-	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_GA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
@@ -6546,7 +6595,7 @@ function grh_elig_case_note()
 	end_msg_info = end_msg_info & "NOTE entered for GRH - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GRH_ELIG_APPROVALS(elig_ind).grh_elig_approved_date)
-	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
@@ -7017,7 +7066,7 @@ function hc_elig_case_note()
 		Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
-	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_HC = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	If HC_UNIQUE_APPROVALS(l_budg, unique_app) = True Then
 		Call write_bullet_and_variable_in_CASE_NOTE("Date 1503 Sent", date_of_1503)
 	End If
@@ -7755,18 +7804,26 @@ function deny_elig_case_note()
 
 	Call start_a_blank_case_note
 
-	Call write_variable_in_CASE_NOTE("APPROVAL - CASH INELIGIBLE - Denied eff " & first_month)
+	If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+		Call write_variable_in_CASE_NOTE("APPROVAL - CASH WITHDRAWN - Denied eff " & first_month)
+	Else
+		Call write_variable_in_CASE_NOTE("APPROVAL - CASH INELIGIBLE - Denied eff " & first_month)
+	End If
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", CASH_DENIAL_APPROVALS(elig_ind).elig_version_date)
 
-	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_DENY = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+		Call write_variable_in_CASE_NOTE("* Request for CASH Program has been WITHDRAWN.")
+	End If
 	Call write_variable_in_CASE_NOTE("* Case has no eligibility for any CASH Program.")
 
 	Call write_variable_in_CASE_NOTE("============================= CASH PROGRAMS DETAIL ==========================")
 	Call write_variable_in_CASE_NOTE("RCA Denial Info  : Processed by Contracted Agency for Residents of Hennepin.")
 	'DWP
 	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
-	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
+	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
 		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 	End If
@@ -7784,7 +7841,10 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with Child Support Requirements.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died (" & STAT_INFORMATION(month_ind).stat_memb_date_of_death(0) & ").")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp = "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household was assessed for MFIP as the Family Cash Program..")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_or_dwp <> "MFIP" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with the Employment Services Requirements.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
 		Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
@@ -7795,7 +7855,7 @@ function deny_elig_case_note()
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all 4 DWP months.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Limit (Family Wage Level of $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level & ").")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income, 10) & "                                  |")
@@ -7855,13 +7915,14 @@ function deny_elig_case_note()
 
 	'MFIP
 	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
-	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
+	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
 		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for DWP (and all Cash Programs).")
+		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for MFIP (and all Cash Programs).")
 		Call write_variable_in_CASE_NOTE("       | CASH Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CASH, 10) & "                              |")
 		Call write_variable_in_CASE_NOTE("       | ACCT Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_ACCT, 10) & "                              |")
 		Call write_variable_in_CASE_NOTE("       | SECU Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SECU, 10) & "                              |")
@@ -7876,7 +7937,7 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not complied with all requirements for Family Cash Assistance.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case has failed to complete a required report process.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Limit  (Family Wage Level of $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level & ").")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned, 10) & "                                  |")
@@ -8090,16 +8151,29 @@ function deny_elig_case_note()
 	If DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("======================= WCOM of DENIAL INFORMATION ADDED ====================")
 		Call write_variable_in_CASE_NOTE("* WCOM added to Denial Notice to detail Denial Information.")
-		Call write_variable_in_CASE_NOTE("Information added:")
-		CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
-		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
-			CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
-			CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
+		If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+
+		Else
+			Call write_variable_in_CASE_NOTE("Information added:")
+			CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
+			' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+				CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
+				CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
+			Else
+				CALL write_variable_in_CASE_NOTE("DWP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
+				CALL write_variable_in_CASE_NOTE("MFIP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
+			End If
+			' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
+				CALL write_variable_in_CASE_NOTE("GA/MSA: Adult cash programs.")
+				CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
+			Else
+				CALL write_variable_in_CASE_NOTE("GA: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info)
+				CALL write_variable_in_CASE_NOTE("MSA: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
+			End if
 		End If
-		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
-			CALL write_variable_in_CASE_NOTE("GA/MSA: Adult cash programs.")
-			CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
-		End if
+
 		If DENY_UNIQUE_APPROVALS(wcom_details_one, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_two, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) <> "" Then
 			CALL write_variable_in_CASE_NOTE("Reasons for Cash Denial:")
 		End If
@@ -8132,7 +8206,7 @@ function snap_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
@@ -10137,6 +10211,82 @@ class mfip_eligibility_detail
 	public mfip_counted_memb_allocation_exists
 	public mfip_deemer_allocation_exists
 	'TODO - add significant change functionality
+	public mfip_mony_check_found
+	public mfip_check_issue_date()
+	public mfip_check_program()
+	public mfip_check_status_code()
+	public mfip_check_status_info()
+	public mfip_check_warrant_number()
+	public mfip_check_transaction_amount()
+	public mfip_check_type_code()
+	public mfip_check_type_info()
+	public mfip_check_transaction_number()
+	public mfip_check_from_date()
+	public mfip_check_to_date()
+	public mfip_check_payment_reason()
+	public mfip_check_payment_to_name()
+	public mfip_check_payment_to_address()
+	public mfip_check_mail_method()
+	public mfip_check_payment_method()
+	public mfip_check_vendor_number()
+	public mfip_check_fiche_number()
+	public mfip_check_payment_amount()
+	public mfip_check_entitement_amount()
+	public mfip_check_recoupment_amount()
+	public mfip_check_replacement_amount()
+	public mfip_check_cacnel_amount()
+	public mfip_check_food_portion_amount()
+	public mfip_check_reconciliation_date()
+	public mfip_check_cancel_reason()
+	public mfip_check_replacement_reason()
+	public mfip_check_picup_status()
+	public mfip_check_pickup_date()
+	public mfip_check_servicing_county()
+	public mfip_check_responsibility_county()
+	public mfip_check_adjusting_transaction()
+	public mfip_check_original_transaction()
+	public mfip_check_vendor_name()
+	public mfip_check_vendor_c_o()
+	public mfip_check_vendor_street_one()
+	public mfip_check_vendor_street_two()
+	public mfip_check_vendor_city()
+	public mfip_check_vendor_state()
+	public mfip_check_vendor_zip()
+	public mfip_check_vendor_grh_yn()
+	public mfip_check_vendor_non_profit_yn()
+	public mfip_check_vendor_phone()
+	public mfip_check_vendor_county()
+	public mfip_check_vendor_status_code()
+	public mfip_check_vendor_status_info()
+	public mfip_check_vendor_incorporated_yn()
+	public mfip_check_vendor_federal_tax_id()
+	public mfip_check_vendor_ssn()
+	public mfip_check_vendor_2nd_address_type_code()
+	public mfip_check_vendor_2nd_address_type_info()
+	public mfip_check_vendor_2nd_address_eff_date()
+	public mfip_check_vendor_2nd_name()
+	public mfip_check_vendor_2nd_c_o()
+	public mfip_check_vendor_2nd_street_one()
+	public mfip_check_vendor_2nd_street_two()
+	public mfip_check_vendor_2nd_city()
+	public mfip_check_vendor_2nd_state()
+	public mfip_check_vendor_2nd_zip()
+	public mfip_check_vendor_direct_deposit_yn()
+	public mfip_check_vendor_merge_vendor_number()
+	public mfip_check_vendor_acct_number_required_yn()
+	public mfip_check_vendor_blocked_county_numbers_list()
+
+	public mfip_vnda_found
+	public mfip_vnda_vendor_number()
+	public mfip_vnda_vendor_name()
+	public mfip_vnda_reference_number()
+	public mfip_vnda_send_to_code()
+	public mfip_vnda_send_to_info()
+	public mfip_vnda_expense_type_code()
+	public mfip_vnda_expense_type_info()
+	public mfip_vnda_cash_payment_amount()
+	public mfip_vnda_hg_payment_amount()
+	public mfip_vnda_total_payment_amount()
 
 	public mfip_elig_ref_numbs()
 	public mfip_elig_membs_full_name()
@@ -10489,6 +10639,70 @@ class mfip_eligibility_detail
 		End If
 
 		If approved_today = True Then
+			ReDim mfip_check_issue_date(0)
+			ReDim mfip_check_program(0)
+			ReDim mfip_check_status_code(0)
+			ReDim mfip_check_status_info(0)
+			ReDim mfip_check_warrant_number(0)
+			ReDim mfip_check_transaction_amount(0)
+			ReDim mfip_check_type_code(0)
+			ReDim mfip_check_type_info(0)
+			ReDim mfip_check_transaction_number(0)
+			ReDim mfip_check_from_date(0)
+			ReDim mfip_check_to_date(0)
+			ReDim mfip_check_payment_reason(0)
+			ReDim mfip_check_payment_to_name(0)
+			ReDim mfip_check_payment_to_address(0)
+			ReDim mfip_check_mail_method(0)
+			ReDim mfip_check_payment_method(0)
+			ReDim mfip_check_vendor_number(0)
+			ReDim mfip_check_fiche_number(0)
+			ReDim mfip_check_payment_amount(0)
+			ReDim mfip_check_entitement_amount(0)
+			ReDim mfip_check_recoupment_amount(0)
+			ReDim mfip_check_replacement_amount(0)
+			ReDim mfip_check_cacnel_amount(0)
+			ReDim mfip_check_food_portion_amount(0)
+			ReDim mfip_check_reconciliation_date(0)
+			ReDim mfip_check_cancel_reason(0)
+			ReDim mfip_check_replacement_reason(0)
+			ReDim mfip_check_picup_status(0)
+			ReDim mfip_check_pickup_date(0)
+			ReDim mfip_check_servicing_county(0)
+			ReDim mfip_check_responsibility_county(0)
+			ReDim mfip_check_adjusting_transaction(0)
+			ReDim mfip_check_original_transaction(0)
+			ReDim mfip_check_vendor_name(0)
+			ReDim mfip_check_vendor_c_o(0)
+			ReDim mfip_check_vendor_street_one(0)
+			ReDim mfip_check_vendor_street_two(0)
+			ReDim mfip_check_vendor_city(0)
+			ReDim mfip_check_vendor_state(0)
+			ReDim mfip_check_vendor_zip(0)
+			ReDim mfip_check_vendor_grh_yn(0)
+			ReDim mfip_check_vendor_non_profit_yn(0)
+			ReDim mfip_check_vendor_phone(0)
+			ReDim mfip_check_vendor_county(0)
+			ReDim mfip_check_vendor_status_code(0)
+			ReDim mfip_check_vendor_status_info(0)
+			ReDim mfip_check_vendor_incorporated_yn(0)
+			ReDim mfip_check_vendor_federal_tax_id(0)
+			ReDim mfip_check_vendor_ssn(0)
+			ReDim mfip_check_vendor_2nd_address_type_code(0)
+			ReDim mfip_check_vendor_2nd_address_type_info(0)
+			ReDim mfip_check_vendor_2nd_address_eff_date(0)
+			ReDim mfip_check_vendor_2nd_name(0)
+			ReDim mfip_check_vendor_2nd_c_o(0)
+			ReDim mfip_check_vendor_2nd_street_one(0)
+			ReDim mfip_check_vendor_2nd_street_two(0)
+			ReDim mfip_check_vendor_2nd_city(0)
+			ReDim mfip_check_vendor_2nd_state(0)
+			ReDim mfip_check_vendor_2nd_zip(0)
+			ReDim mfip_check_vendor_direct_deposit_yn(0)
+			ReDim mfip_check_vendor_merge_vendor_number(0)
+			ReDim mfip_check_vendor_acct_number_required_yn(0)
+			ReDim mfip_check_vendor_blocked_county_numbers_list(0)
+
 			ReDim mfip_elig_ref_numbs(0)
 			ReDim mfip_elig_membs_full_name(0)
 			ReDim mfip_elig_membs_last_name_complete(0)
@@ -11819,6 +12033,383 @@ class mfip_eligibility_detail
 			chck_prog = trim(chck_prog)
 		Loop
 		PF3
+
+
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+		start_of_info = first_footer_month & "/1/" & first_footer_year
+		start_of_info = DateAdd("m", -1, start_of_info)
+		Call convert_date_into_MAXIS_footer_month(start_of_info, start_search_month, start_search_year)
+		EMWriteScreen start_search_month, 6, 38
+		EMWriteScreen start_search_year, 6, 41
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+		' MsgBox "What are the months?!"
+		EMWriteScreen "X", 17, 50
+		transmit
+
+		inqd_row = 6
+		tx_count = 0
+		EMReadScreen chck_prog, 7, inqd_row, 16
+		chck_prog = trim(chck_prog)
+
+		Do while chck_prog <> ""
+
+
+			EMReadScreen check_from_date, 8, inqd_row, 62
+			EMReadScreen check_to_date, 8, inqd_row, 73
+
+			check_from_date = DateAdd("d", 0, check_from_date)
+			check_to_date = DateAdd("d", 0, check_to_date)
+
+			check_benefit_month = DatePart("m", check_from_date)
+			check_benefit_month = right("00"&check_benefit_month, 2)
+			check_benefit_year = DatePart("yyyy", check_from_date)
+			check_benefit_year = right(check_benefit_year, 2)
+
+			Call write_value_and_transmit("I", inqd_row, 4)
+			EMReadScreen payment_reason, 14, 7, 17
+			PF3
+			' elig_footer_month
+			' elig_footer_year
+			' MsgBox "check_benefit_month - " & check_benefit_month & vbCr & "elig_footer_year - " & elig_footer_year & vbCr & "payment_reason - " & payment_reason
+
+			If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
+				' If dwp_mony_check_found = False Then
+
+				' End If
+				' MsgBox "tx_count - " & tx_count
+				ReDim preserve mfip_check_issue_date(tx_count)
+				ReDim preserve mfip_check_program(tx_count)
+				ReDim preserve mfip_check_status_code(tx_count)
+				ReDim preserve mfip_check_status_info(tx_count)
+				ReDim preserve mfip_check_warrant_number(tx_count)
+				ReDim preserve mfip_check_transaction_amount(tx_count)
+				ReDim preserve mfip_check_type_code(tx_count)
+				ReDim preserve mfip_check_type_info(tx_count)
+				ReDim preserve mfip_check_transaction_number(tx_count)
+				ReDim preserve mfip_check_from_date(tx_count)
+				ReDim preserve mfip_check_to_date(tx_count)
+				ReDim preserve mfip_check_payment_reason(tx_count)
+				ReDim preserve mfip_check_payment_to_name(tx_count)
+				ReDim preserve mfip_check_payment_to_address(tx_count)
+				ReDim preserve mfip_check_mail_method(tx_count)
+				ReDim preserve mfip_check_payment_method(tx_count)
+				ReDim preserve mfip_check_vendor_number(tx_count)
+				ReDim preserve mfip_check_fiche_number(tx_count)
+				ReDim preserve mfip_check_payment_amount(tx_count)
+				ReDim preserve mfip_check_entitement_amount(tx_count)
+				ReDim preserve mfip_check_recoupment_amount(tx_count)
+				ReDim preserve mfip_check_replacement_amount(tx_count)
+				ReDim preserve mfip_check_cacnel_amount(tx_count)
+				ReDim preserve mfip_check_food_portion_amount(tx_count)
+				ReDim preserve mfip_check_reconciliation_date(tx_count)
+				ReDim preserve mfip_check_cancel_reason(tx_count)
+				ReDim preserve mfip_check_replacement_reason(tx_count)
+				ReDim preserve mfip_check_picup_status(tx_count)
+				ReDim preserve mfip_check_pickup_date(tx_count)
+				ReDim preserve mfip_check_servicing_county(tx_count)
+				ReDim preserve mfip_check_responsibility_county(tx_count)
+				ReDim preserve mfip_check_adjusting_transaction(tx_count)
+				ReDim preserve mfip_check_original_transaction(tx_count)
+				ReDim preserve mfip_check_vendor_name(tx_count)
+				ReDim preserve mfip_check_vendor_c_o(tx_count)
+				ReDim preserve mfip_check_vendor_street_one(tx_count)
+				ReDim preserve mfip_check_vendor_street_two(tx_count)
+				ReDim preserve mfip_check_vendor_city(tx_count)
+				ReDim preserve mfip_check_vendor_state(tx_count)
+				ReDim preserve mfip_check_vendor_zip(tx_count)
+				ReDim preserve mfip_check_vendor_grh_yn(tx_count)
+				ReDim preserve mfip_check_vendor_non_profit_yn(tx_count)
+				ReDim preserve mfip_check_vendor_phone(tx_count)
+				ReDim preserve mfip_check_vendor_county(tx_count)
+				ReDim preserve mfip_check_vendor_status_code(tx_count)
+				ReDim preserve mfip_check_vendor_status_info(tx_count)
+				ReDim preserve mfip_check_vendor_incorporated_yn(tx_count)
+				ReDim preserve mfip_check_vendor_federal_tax_id(tx_count)
+				ReDim preserve mfip_check_vendor_ssn(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_type_code(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_type_info(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_address_eff_date(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_name(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_c_o(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_street_one(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_street_two(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_city(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_state(tx_count)
+				ReDim preserve mfip_check_vendor_2nd_zip(tx_count)
+				ReDim preserve mfip_check_vendor_direct_deposit_yn(tx_count)
+				ReDim preserve mfip_check_vendor_merge_vendor_number(tx_count)
+				ReDim preserve mfip_check_vendor_acct_number_required_yn(tx_count)
+				ReDim preserve mfip_check_vendor_blocked_county_numbers_list(tx_count)
+
+				mfip_mony_check_found = True
+
+				mfip_check_program(tx_count) = chck_prog
+				EMReadScreen mfip_check_issue_date(tx_count), 8, inqd_row, 7
+				mfip_check_issue_date(tx_count) = trim(mfip_check_issue_date(tx_count))
+				If IsDate(mfip_check_issue_date(tx_count)) = True Then
+					If DateDiff("d", date, mfip_check_issue_date(tx_count)) = 0 Then approved_today = True
+				End if
+				EMReadScreen mfip_check_status_code(tx_count), 1, inqd_row, 26
+				If mfip_check_status_code(tx_count) = "C" Then mfip_check_status_info(tx_count) = "Cancel/Return"
+				If mfip_check_status_code(tx_count) = "D" Then mfip_check_status_info(tx_count) = "Denied"
+				If mfip_check_status_code(tx_count) = "I" Then mfip_check_status_info(tx_count) = "Issued"
+				If mfip_check_status_code(tx_count) = "P" Then mfip_check_status_info(tx_count) = "Pending"
+				If mfip_check_status_code(tx_count) = "R" Then mfip_check_status_info(tx_count) = "Cashed"
+				If mfip_check_status_code(tx_count) = "S" Then mfip_check_status_info(tx_count) = "Partial Cancel"
+				If mfip_check_status_code(tx_count) = "T" Then mfip_check_status_info(tx_count) = "Stopped/Cashed"
+				If mfip_check_status_code(tx_count) = "X" Then mfip_check_status_info(tx_count) = "Stopped"
+				If mfip_check_status_code(tx_count) = "B" Then mfip_check_status_info(tx_count) = "Cashed and Replaced"
+				EMReadScreen mfip_check_warrant_number(tx_count), 8, inqd_row, 28
+				EMReadScreen mfip_check_transaction_amount(tx_count), 9, inqd_row, 37
+				mfip_check_transaction_amount(tx_count) = trim(mfip_check_transaction_amount(tx_count))
+				EMReadScreen mfip_check_type_code(tx_count), 1, inqd_row, 48
+				If mfip_check_type_code(tx_count) = "1" Then mfip_check_type_info(tx_count) = "Ongoing Issuance"
+				If mfip_check_type_code(tx_count) = "2" Then mfip_check_type_info(tx_count) = "Same Day Local Issuance"
+				If mfip_check_type_code(tx_count) = "3" Then mfip_check_type_info(tx_count) = "Replacement Issuance"
+				If mfip_check_type_code(tx_count) = "4" Then mfip_check_type_info(tx_count) = "Same Day Issuance"
+				If mfip_check_type_code(tx_count) = "5" Then mfip_check_type_info(tx_count) = "Nightly Issuance"
+				If mfip_check_type_code(tx_count) = "6" Then mfip_check_type_info(tx_count) = "Manual Issuance"
+				If mfip_check_type_code(tx_count) = "7" Then mfip_check_type_info(tx_count) = "EBT Rapid Electronic Issuance"
+				If mfip_check_type_code(tx_count) = "8" Then mfip_check_type_info(tx_count) = "EBT Rapid Electronic Replacement"
+				EMReadScreen mfip_check_transaction_number(tx_count), 9, inqd_row, 51
+				EMReadScreen mfip_check_from_date(tx_count), 8, inqd_row, 62
+				EMReadScreen mfip_check_to_date(tx_count), 8, inqd_row, 73
+
+				Call write_value_and_transmit("I", inqd_row, 4)
+
+				EMReadScreen mfip_check_payment_reason(tx_count), 	30, 7, 17
+				EMReadScreen mfip_check_payment_to_name(tx_count), 	30, 8, 17
+				EMReadScreen addr_one, 								30, 9, 17
+				EMReadScreen addr_two, 								30, 10, 17
+				mfip_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
+				EMReadScreen mfip_check_mail_method(tx_count), 			15, 4, 63
+				EMReadScreen mfip_check_payment_method(tx_count), 		15, 5, 63
+				EMReadScreen mfip_check_vendor_number(tx_count), 		15, 6, 63
+				' MsgBox "vendor Number  " & mfip_check_vendor_number(tx_count)
+				EMReadScreen mfip_check_fiche_number(tx_count), 		15, 7, 63
+				EMReadScreen mfip_check_payment_amount(tx_count), 		10, 13, 16
+				EMReadScreen mfip_check_entitement_amount(tx_count), 	10, 14, 16
+				EMReadScreen mfip_check_recoupment_amount(tx_count), 	10, 15, 16
+				EMReadScreen mfip_check_replacement_amount(tx_count), 	10, 16, 16
+				EMReadScreen mfip_check_cacnel_amount(tx_count), 		10, 17, 16
+				EMReadScreen mfip_check_food_portion_amount(tx_count), 	10, 18, 16
+				EMReadScreen mfip_check_reconciliation_date(tx_count), 	8, 6, 43
+				EMReadScreen mfip_check_cancel_reason(tx_count), 		30, 17, 41
+				EMReadScreen mfip_check_replacement_reason(tx_count), 	30, 18, 46
+				EMReadScreen mfip_check_picup_status(tx_count), 		10, 10, 70
+				EMReadScreen mfip_check_pickup_date(tx_count), 			8, 11, 70
+				EMReadScreen mfip_check_servicing_county(tx_count), 	2, 13, 70
+				EMReadScreen mfip_check_responsibility_county(tx_count), 2, 14, 70
+				EMReadScreen mfip_check_adjusting_transaction(tx_count), 10, 15, 70
+				EMReadScreen mfip_check_original_transaction(tx_count), 10, 16, 70
+
+				mfip_check_payment_reason(tx_count) = trim(mfip_check_payment_reason(tx_count))
+				mfip_check_payment_to_name(tx_count) = trim(mfip_check_payment_to_name(tx_count))
+				mfip_check_payment_to_address(tx_count) = trim(mfip_check_payment_to_address(tx_count))
+				mfip_check_mail_method(tx_count) = trim(mfip_check_mail_method(tx_count))
+				mfip_check_payment_method(tx_count) = trim(mfip_check_payment_method(tx_count))
+				mfip_check_vendor_number(tx_count) = trim(mfip_check_vendor_number(tx_count))
+				mfip_check_fiche_number(tx_count) = trim(mfip_check_fiche_number(tx_count))
+				mfip_check_payment_amount(tx_count) = trim(mfip_check_payment_amount(tx_count))
+				mfip_check_entitement_amount(tx_count) = trim(mfip_check_entitement_amount(tx_count))
+				mfip_check_recoupment_amount(tx_count) = trim(mfip_check_recoupment_amount(tx_count))
+				mfip_check_replacement_amount(tx_count) = trim(mfip_check_replacement_amount(tx_count))
+				mfip_check_cacnel_amount(tx_count) = trim(mfip_check_cacnel_amount(tx_count))
+				mfip_check_food_portion_amount(tx_count) = trim(mfip_check_food_portion_amount(tx_count))
+				mfip_check_reconciliation_date(tx_count) = trim(mfip_check_reconciliation_date(tx_count))
+				mfip_check_cancel_reason(tx_count) = trim(mfip_check_cancel_reason(tx_count))
+				mfip_check_replacement_reason(tx_count) = trim(mfip_check_replacement_reason(tx_count))
+				mfip_check_picup_status(tx_count) = trim(mfip_check_picup_status(tx_count))
+				mfip_check_pickup_date(tx_count) = trim(mfip_check_pickup_date(tx_count))
+				mfip_check_servicing_county(tx_count) = trim(mfip_check_servicing_county(tx_count))
+				mfip_check_responsibility_county(tx_count) = trim(mfip_check_responsibility_county(tx_count))
+				mfip_check_adjusting_transaction(tx_count) = trim(mfip_check_adjusting_transaction(tx_count))
+				mfip_check_original_transaction(tx_count) = trim(mfip_check_original_transaction(tx_count))
+
+				PF3
+				tx_count = tx_count + 1
+			End If
+
+			inqd_row = inqd_row + 1
+			EMReadScreen chck_prog, 7, inqd_row, 16
+			chck_prog = trim(chck_prog)
+		Loop
+		PF3
+		Call back_to_SELF
+
+		If mfip_mony_check_found = True Then
+
+			' MsgBox "UBOUND: " & UBound(mfip_check_program)
+			for each_trans = 0 to UBound(mfip_check_program)
+
+				Call navigate_to_MAXIS_screen("MONY", "VNDS")
+
+				Call write_value_and_transmit(mfip_check_vendor_number(each_trans), 4, 59)
+				EMReadScreen mfip_check_vendor_name(each_trans), 					30, 3, 15
+				' MsgBox "VENDOR NAME - " &  mfip_check_vendor_name(each_trans)
+				EMReadScreen mfip_check_vendor_c_o(each_trans), 					30, 4, 15
+				EMReadScreen mfip_check_vendor_street_one(each_trans), 				22, 5, 15
+				EMReadScreen mfip_check_vendor_street_two(each_trans), 				22, 6, 15
+				EMReadScreen mfip_check_vendor_city(each_trans), 					15, 7, 15
+				EMReadScreen mfip_check_vendor_state(each_trans), 					2, 7, 36
+				EMReadScreen mfip_check_vendor_zip(each_trans), 					10, 7, 46
+				EMReadScreen mfip_check_vendor_grh_yn(each_trans), 					1, 4, 57
+				EMReadScreen mfip_check_vendor_non_profit_yn(each_trans), 			1, 4, 78
+				EMReadScreen mfip_check_vendor_phone(each_trans), 					16, 6, 54
+				mfip_check_vendor_phone(each_trans) = "(" & replace(replace(mfip_check_vendor_phone(each_trans), " )  ", ")"), "  ", "-")
+				EMReadScreen mfip_check_vendor_county(each_trans), 					2, 7, 61
+				EMReadScreen mfip_check_vendor_status_code(each_trans), 			1, 16, 15
+				If mfip_check_vendor_status_code(each_trans) = "A" Then mfip_check_vendor_status_info(each_trans) = "Active"
+				If mfip_check_vendor_status_code(each_trans) = "D" Then mfip_check_vendor_status_info(each_trans) = "Delete"
+				If mfip_check_vendor_status_code(each_trans) = "M" Then mfip_check_vendor_status_info(each_trans) = "Merged"
+				If mfip_check_vendor_status_code(each_trans) = "P" Then mfip_check_vendor_status_info(each_trans) = "Pending"
+				If mfip_check_vendor_status_code(each_trans) = "T" Then mfip_check_vendor_status_info(each_trans) = "Terminated"
+				EMReadScreen mfip_check_vendor_incorporated_yn(each_trans), 		1, 9, 22
+				EMReadScreen mfip_check_vendor_federal_tax_id(each_trans), 			9, 9, 41
+				EMReadScreen mfip_check_vendor_ssn(each_trans), 					11, 9, 61
+				If mfip_check_vendor_ssn(each_trans) = "___ __ ____" Then mfip_check_vendor_ssn(each_trans) = ""
+				mfip_check_vendor_ssn(each_trans) = replace(mfip_check_vendor_ssn(each_trans), " ", "-")
+				EMReadScreen mfip_check_vendor_2nd_address_type_code(each_trans), 	1, 10, 22
+				If mfip_check_vendor_2nd_address_type_code(each_trans) = "1" Then mfip_check_vendor_2nd_address_type_info(each_trans) = "Mailing Address"
+				If mfip_check_vendor_2nd_address_type_code(each_trans) = "2" Then mfip_check_vendor_2nd_address_type_info(each_trans) = "Court Order"
+				EMReadScreen mfip_check_vendor_2nd_address_eff_date(each_trans), 	8, 11, 15
+				If mfip_check_vendor_2nd_address_eff_date(each_trans) = "__ __ __" Then mfip_check_vendor_2nd_address_eff_date(each_trans) = ""
+				mfip_check_vendor_2nd_address_eff_date(each_trans) = replace(mfip_check_vendor_2nd_address_eff_date(each_trans), " ", "/")
+				EMReadScreen mfip_check_vendor_2nd_name(each_trans), 				30, 11, 15
+				EMReadScreen mfip_check_vendor_2nd_c_o(each_trans), 				30, 12, 15
+				EMReadScreen mfip_check_vendor_2nd_street_one(each_trans), 			22, 13, 15
+				EMReadScreen mfip_check_vendor_2nd_street_two(each_trans), 			22, 14, 15
+				EMReadScreen mfip_check_vendor_2nd_city(each_trans), 				15, 15, 15
+				EMReadScreen mfip_check_vendor_2nd_state(each_trans), 				2, 15, 35
+				EMReadScreen mfip_check_vendor_2nd_zip(each_trans), 				10, 15, 44
+				EMReadScreen mfip_check_vendor_direct_deposit_yn(each_trans), 		1, 12, 76
+				EMReadScreen mfip_check_vendor_merge_vendor_number(each_trans), 	8, 16, 38
+				EMReadScreen mfip_check_vendor_acct_number_required_yn(each_trans), 1, 17, 74
+				EMReadScreen mfip_check_vendor_blocked_county_numbers_list(each_trans), 29, 18, 23
+
+				mfip_check_vendor_name(each_trans) = replace(mfip_check_vendor_name(each_trans), "_", "")
+				mfip_check_vendor_c_o(each_trans) = replace(mfip_check_vendor_c_o(each_trans), "_", "")
+				mfip_check_vendor_street_one(each_trans) = replace(mfip_check_vendor_street_one(each_trans), "_", "")
+				mfip_check_vendor_street_two(each_trans) = replace(mfip_check_vendor_street_two(each_trans), "_", "")
+				mfip_check_vendor_city(each_trans) = replace(mfip_check_vendor_city(each_trans), "_", "")
+				mfip_check_vendor_zip(each_trans) = trim(mfip_check_vendor_zip(each_trans))
+				mfip_check_vendor_zip(each_trans) = replace(mfip_check_vendor_zip(each_trans), " ", "-")
+
+				mfip_check_vendor_federal_tax_id(each_trans) = replace(mfip_check_vendor_federal_tax_id(each_trans), "_", "")
+
+				mfip_check_vendor_2nd_name(each_trans) = replace(mfip_check_vendor_2nd_name(each_trans), "_", "")
+				mfip_check_vendor_2nd_c_o(each_trans) = replace(mfip_check_vendor_2nd_c_o(each_trans), "_", "")
+				mfip_check_vendor_2nd_street_one(each_trans) = replace(mfip_check_vendor_2nd_street_one(each_trans), "_", "")
+				mfip_check_vendor_2nd_street_two(each_trans) = replace(mfip_check_vendor_2nd_street_two(each_trans), "_", "")
+				mfip_check_vendor_2nd_city(each_trans) = replace(mfip_check_vendor_2nd_city(each_trans), "_", "")
+				mfip_check_vendor_2nd_zip(each_trans) = replace(mfip_check_vendor_2nd_zip(each_trans), "_", "")
+				mfip_check_vendor_2nd_zip(each_trans) = trim(mfip_check_vendor_2nd_zip(each_trans))
+				mfip_check_vendor_2nd_zip(each_trans) = replace(mfip_check_vendor_2nd_zip(each_trans), " ", "-")
+
+				mfip_check_vendor_merge_vendor_number(each_trans) = replace(mfip_check_vendor_merge_vendor_number(each_trans), "_", "")
+				mfip_check_vendor_acct_number_required_yn(each_trans) = replace(mfip_check_vendor_acct_number_required_yn(each_trans), "_", "")
+
+				mfip_check_vendor_blocked_county_numbers_list(each_trans) = replace(mfip_check_vendor_blocked_county_numbers_list(each_trans), "_", "")
+				mfip_check_vendor_blocked_county_numbers_list(each_trans) = trim((mfip_check_vendor_blocked_county_numbers_list(each_trans)))
+
+				PF3
+			Next
+		End If
+
+
+		' ReDim mfip_vnda_found
+		ReDim mfip_vnda_vendor_number(0)
+		ReDim mfip_vnda_vendor_name(0)
+		ReDim mfip_vnda_reference_number(0)
+		ReDim mfip_vnda_send_to_code(0)
+		ReDim mfip_vnda_send_to_info(0)
+		ReDim mfip_vnda_expense_type_code(0)
+		ReDim mfip_vnda_expense_type_info(0)
+		ReDim mfip_vnda_cash_payment_amount(0)
+		ReDim mfip_vnda_hg_payment_amount(0)
+		ReDim mfip_vnda_total_payment_amount(0)
+
+
+		Call Back_to_SELF
+		Call navigate_to_MAXIS_screen("MONY", "VNDA")
+
+		EMWriteScreen elig_footer_month, 4, 55
+		EMWriteScreen elig_footer_year, 4, 58
+		Call write_value_and_transmit("X", 12, 16)
+		EMReadScreen panel_location, 4, 4, 14
+		If panel_location <> "Case" Then 			'this is on the initial search panel, if it says 'Case' it means we are still at the first screen
+			auth_count = 0
+			vnda_row = 6
+			'2225596
+			Do
+				EMReadScreen vndr_nbr, 7, vnda_row, 3
+				EMReadScreen vndr_send, 1, vnda_row, 57
+				' MsgBox "Footer month - " & elig_footer_month & "/" & elig_footer_year & vbCr & "vndr_nbr - " & vndr_nbr & vbCr & "vndr_send - " & vndr_send
+				If vndr_nbr <> "_______" and vndr_send = "V" Then
+					' If dwp_vnda_found = False Then
+
+					' End If
+					mfip_vnda_found = True
+					' MsgBox "Vendor found"
+
+					ReDim preserve mfip_vnda_vendor_number(auth_count)
+					ReDim preserve mfip_vnda_vendor_name(auth_count)
+					ReDim preserve mfip_vnda_reference_number(auth_count)
+					ReDim preserve mfip_vnda_send_to_code(auth_count)
+					ReDim preserve mfip_vnda_send_to_info(auth_count)
+					ReDim preserve mfip_vnda_expense_type_code(auth_count)
+					ReDim preserve mfip_vnda_expense_type_info(auth_count)
+					ReDim preserve mfip_vnda_cash_payment_amount(auth_count)
+					ReDim preserve mfip_vnda_hg_payment_amount(auth_count)
+					ReDim preserve mfip_vnda_total_payment_amount(auth_count)
+
+					EMReadScreen mfip_vnda_vendor_number(auth_count), 7, vnda_row, 3
+					EMReadScreen mfip_vnda_vendor_name(auth_count), 28, vnda_row, 11
+					EMReadScreen mfip_vnda_reference_number(auth_count), 16, vnda_row, 40
+					EMReadScreen mfip_vnda_send_to_code(auth_count), 1, vnda_row, 57
+					EMReadScreen mfip_vnda_expense_type_code(auth_count), 2, vnda_row, 59
+					EMReadScreen mfip_vnda_cash_payment_amount(auth_count), 8, vnda_row, 63
+					EMReadScreen mfip_vnda_hg_payment_amount(auth_count), 8, vnda_row, 72
+
+					mfip_vnda_vendor_number(auth_count) = replace(mfip_vnda_vendor_number(auth_count), "_", "")
+					mfip_vnda_vendor_name(auth_count) = replace(mfip_vnda_vendor_name(auth_count), "_", "")
+					mfip_vnda_reference_number(auth_count) = replace(mfip_vnda_reference_number(auth_count), "_", "")
+
+					If mfip_vnda_send_to_code(auth_count) = "V" Then mfip_vnda_send_to_info(auth_count) = "Vendor"
+					If mfip_vnda_send_to_code(auth_count) = "C" Then mfip_vnda_send_to_info(auth_count) = "Client"
+
+					If mfip_vnda_expense_type_code(auth_count) = "01" Then mfip_vnda_expense_type_info(auth_count) = "Rent"
+					If mfip_vnda_expense_type_code(auth_count) = "02" Then mfip_vnda_expense_type_info(auth_count) = "Mortgage"
+					If mfip_vnda_expense_type_code(auth_count) = "03" Then mfip_vnda_expense_type_info(auth_count) = "Electric"
+					If mfip_vnda_expense_type_code(auth_count) = "04" Then mfip_vnda_expense_type_info(auth_count) = "Heat"
+					If mfip_vnda_expense_type_code(auth_count) = "05" Then mfip_vnda_expense_type_info(auth_count) = "Phone"
+					If mfip_vnda_expense_type_code(auth_count) = "06" Then mfip_vnda_expense_type_info(auth_count) = "Water"
+					If mfip_vnda_expense_type_code(auth_count) = "07" Then mfip_vnda_expense_type_info(auth_count) = "Food"
+					If mfip_vnda_expense_type_code(auth_count) = "08" Then mfip_vnda_expense_type_info(auth_count) = "Personal Needs"
+					If mfip_vnda_expense_type_code(auth_count) = "09" Then mfip_vnda_expense_type_info(auth_count) = "Household Needs"
+					If mfip_vnda_expense_type_code(auth_count) = "10" Then mfip_vnda_expense_type_info(auth_count) = "Furniture"
+					If mfip_vnda_expense_type_code(auth_count) = "11" Then mfip_vnda_expense_type_info(auth_count) = "Appliances"
+					If mfip_vnda_expense_type_code(auth_count) = "12" Then mfip_vnda_expense_type_info(auth_count) = "Clothes"
+					If mfip_vnda_expense_type_code(auth_count) = "13" Then mfip_vnda_expense_type_info(auth_count) = "Other"
+					If mfip_vnda_expense_type_code(auth_count) = "15" Then mfip_vnda_expense_type_info(auth_count) = "MSA Eligible Spouse"
+					If mfip_vnda_expense_type_code(auth_count) = "54" Then mfip_vnda_expense_type_info(auth_count) = "Rent with Landlord Notice"
+
+					mfip_vnda_cash_payment_amount(auth_count) = trim(replace(mfip_vnda_cash_payment_amount(auth_count), "_", ""))
+					mfip_vnda_hg_payment_amount(auth_count) = trim(replace(mfip_vnda_hg_payment_amount(auth_count), "_", ""))
+
+					If mfip_vnda_cash_payment_amount(auth_count) = "" Then mfip_vnda_cash_payment_amount(auth_count) = 0
+					If mfip_vnda_hg_payment_amount(auth_count) = "" Then mfip_vnda_hg_payment_amount(auth_count) = 0
+					mfip_vnda_cash_payment_amount(auth_count) = mfip_vnda_cash_payment_amount(auth_count)*1
+					mfip_vnda_hg_payment_amount(auth_count) = mfip_vnda_hg_payment_amount(auth_count)*1
+					mfip_vnda_total_payment_amount(auth_count) = mfip_vnda_cash_payment_amount(auth_count) + mfip_vnda_hg_payment_amount(auth_count)
+					auth_count = auth_count + 1
+				End If
+				vnda_row = vnda_row + 1
+				' MsgBox "vnda_row - " & vnda_row & vbCr & vndr_nbr & " - vndr_nbr" & vbCr & "_______"
+			Loop until vndr_nbr = "_______"
+			PF3
+		End If
 	end sub
 end class
 
@@ -13245,6 +13836,7 @@ class deny_eligibility_detail
 	public deny_cash_mfip_details_exists
 	public deny_cash_msa_details_exists
 	public deny_cash_ga_details_exists
+	public deny_cash_mfip_or_dwp
 
 	public deny_dwp_elig_case_test_application_withdrawn
 	public deny_dwp_elig_case_test_assets
@@ -13593,9 +14185,15 @@ class deny_eligibility_detail
 			EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
 			EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
 			EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
+			deny_cash_mfip_or_dwp = ""
+			If deny_cash_dwp_reason_code = "01" and deny_cash_mfip_reason_code <> "01" Then deny_cash_mfip_or_dwp = "MFIP"
+			If deny_cash_dwp_reason_code <> "01" and deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_or_dwp = "DWP"
 
 			If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
-			If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_reason_info = "No Eligible Child"
+			If deny_cash_dwp_reason_code = "01" Then
+				deny_cash_dwp_reason_info = "No Eligible Child"
+				If deny_cash_mfip_or_dwp = "MFIP" Then deny_cash_dwp_reason_info = "Assessed for MFIP"
+			End If
 			If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
 			If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
 			If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
@@ -13634,7 +14232,10 @@ class deny_eligibility_detail
 			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_memo_info = "you have used all 60 TANF months available."
 
 			If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
-			If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
+			If deny_cash_mfip_reason_code = "01" Then
+				deny_cash_mfip_reason_info = "No Eligible Child"
+				If deny_cash_mfip_or_dwp = "DWP" Then deny_cash_mfip_reason_info = "Assessed for DWP"
+			End If
 			If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
 			If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
 			If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
@@ -18923,6 +19524,7 @@ class stat_detail
 	public footer_month
 	public footer_year
 	public children_on_case
+	public panels_not_verif_string
 
 	public stat_addr_homeless_yn
 	public stat_addr_residence_county
@@ -19452,22 +20054,37 @@ class stat_detail
 	public stat_acct_one_type()
 	public stat_acct_one_balence()
 	public stat_acct_one_count_snap_yn()
+	public stat_acct_one_info()
+	public stat_acct_one_count_cash_yn()
+	public stat_acct_one_verif()
 	public stat_acct_two_exists()
 	public stat_acct_two_type()
 	public stat_acct_two_balence()
 	public stat_acct_two_count_snap_yn()
+	public stat_acct_two_info()
+	public stat_acct_two_count_cash_yn()
+	public stat_acct_two_verif()
 	public stat_acct_three_exists()
 	public stat_acct_three_type()
 	public stat_acct_three_balence()
 	public stat_acct_three_count_snap_yn()
+	public stat_acct_three_info()
+	public stat_acct_three_count_cash_yn()
+	public stat_acct_three_verif()
 	public stat_acct_four_exists()
 	public stat_acct_four_type()
 	public stat_acct_four_balence()
 	public stat_acct_four_count_snap_yn()
+	public stat_acct_four_info()
+	public stat_acct_four_count_cash_yn()
+	public stat_acct_four_verif()
 	public stat_acct_five_exists()
 	public stat_acct_five_type()
 	public stat_acct_five_balence()
 	public stat_acct_five_count_snap_yn()
+	public stat_acct_five_info()
+	public stat_acct_five_count_cash_yn()
+	public stat_acct_five_verif()
 	public stat_shel_exists()
 	public stat_shel_subsidized_yn()
 	public stat_shel_shared_yn()
@@ -19685,6 +20302,8 @@ class stat_detail
 		EMReadScreen stat_addr_homeless_yn, 1, 10, 43
 		EMReadScreen stat_addr_residence_county, 2, 9, 66
 		EMReadScreen stat_addr_living_situation, 2, 11, 43
+		EMReadScreen addr_verif, 2, 9, 74
+		If addr_verif = "NO" Then panels_not_verif_string = panels_not_verif_string & "Residence not verified.; "
 
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
@@ -20247,22 +20866,37 @@ class stat_detail
 		ReDim stat_acct_one_type(0)
 		ReDim stat_acct_one_balence(0)
 		ReDim stat_acct_one_count_snap_yn(0)
+		ReDim stat_acct_one_info(0)
+		ReDim stat_acct_one_count_cash_yn(0)
+		ReDim stat_acct_one_verif(0)
 		ReDim stat_acct_two_exists(0)
 		ReDim stat_acct_two_type(0)
 		ReDim stat_acct_two_balence(0)
 		ReDim stat_acct_two_count_snap_yn(0)
+		ReDim stat_acct_two_info(0)
+		ReDim stat_acct_two_count_cash_yn(0)
+		ReDim stat_acct_two_verif(0)
 		ReDim stat_acct_three_exists(0)
 		ReDim stat_acct_three_type(0)
 		ReDim stat_acct_three_balence(0)
 		ReDim stat_acct_three_count_snap_yn(0)
+		ReDim stat_acct_three_info(0)
+		ReDim stat_acct_three_count_cash_yn(0)
+		ReDim stat_acct_three_verif(0)
 		ReDim stat_acct_four_exists(0)
 		ReDim stat_acct_four_type(0)
 		ReDim stat_acct_four_balence(0)
 		ReDim stat_acct_four_count_snap_yn(0)
+		ReDim stat_acct_four_info(0)
+		ReDim stat_acct_four_count_cash_yn(0)
+		ReDim stat_acct_four_verif(0)
 		ReDim stat_acct_five_exists(0)
 		ReDim stat_acct_five_type(0)
 		ReDim stat_acct_five_balence(0)
 		ReDim stat_acct_five_count_snap_yn(0)
+		ReDim stat_acct_five_info(0)
+		ReDim stat_acct_five_count_cash_yn(0)
+		ReDim stat_acct_five_verif(0)
 		ReDim stat_shel_exists(0)
 		ReDim stat_shel_subsidized_yn(0)
 		ReDim stat_shel_shared_yn(0)
@@ -20909,22 +21543,37 @@ class stat_detail
 			ReDim preserve stat_acct_one_type(memb_count)
 			ReDim preserve stat_acct_one_balence(memb_count)
 			ReDim preserve stat_acct_one_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_one_info(memb_count)
+			ReDim preserve stat_acct_one_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_one_verif(memb_count)
 			ReDim preserve stat_acct_two_exists(memb_count)
 			ReDim preserve stat_acct_two_type(memb_count)
 			ReDim preserve stat_acct_two_balence(memb_count)
 			ReDim preserve stat_acct_two_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_two_info(memb_count)
+			ReDim preserve stat_acct_two_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_two_verif(memb_count)
 			ReDim preserve stat_acct_three_exists(memb_count)
 			ReDim preserve stat_acct_three_type(memb_count)
 			ReDim preserve stat_acct_three_balence(memb_count)
 			ReDim preserve stat_acct_three_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_three_info(memb_count)
+			ReDim preserve stat_acct_three_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_three_verif(memb_count)
 			ReDim preserve stat_acct_four_exists(memb_count)
 			ReDim preserve stat_acct_four_type(memb_count)
 			ReDim preserve stat_acct_four_balence(memb_count)
 			ReDim preserve stat_acct_four_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_four_info(memb_count)
+			ReDim preserve stat_acct_four_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_four_verif(memb_count)
 			ReDim preserve stat_acct_five_exists(memb_count)
 			ReDim preserve stat_acct_five_type(memb_count)
 			ReDim preserve stat_acct_five_balence(memb_count)
 			ReDim preserve stat_acct_five_count_snap_yn(memb_count)
+			ReDim preserve stat_acct_five_info(memb_count)
+			ReDim preserve stat_acct_five_count_cash_yn(memb_count)
+			ReDim preserve stat_acct_five_verif(memb_count)
 			ReDim preserve stat_shel_exists(memb_count)
 			ReDim preserve stat_shel_subsidized_yn(memb_count)
 			ReDim preserve stat_shel_shared_yn(memb_count)
@@ -21152,6 +21801,9 @@ class stat_detail
 			EMReadScreen stat_memb_age(memb_count), 3, 8, 76
 			EMReadScreen stat_memb_id_verif_code(memb_count), 2, 9, 68
 			EMReadScreen stat_memb_rel_to_applct_code(memb_count), 2, 10, 42
+			EMReadScreen ssn_prov, 1, 7, 68
+			If stat_memb_id_verif_code(memb_count) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Identidy of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+			If ssn_prov = "N" Then panels_not_verif_string = panels_not_verif_string & "Social Sec Number of Memb " & stat_memb_ref_numb(memb_count) & " not provided.; "
 
 			stat_memb_age(memb_count) = trim(stat_memb_age(memb_count))
 			If stat_memb_age(memb_count) = "" Then stat_memb_age(memb_count) = 0
@@ -21213,6 +21865,8 @@ class stat_detail
 			If stat_memi_citizenship_verif_code(each_memb) = "PV" Then stat_memi_citizenship_verif_info(each_memb) = "Passport/Visa"
 			If stat_memi_citizenship_verif_code(each_memb) = "OT" Then stat_memi_citizenship_verif_info(each_memb) = "Other Document"
 			If stat_memi_citizenship_verif_code(each_memb) = "NO" Then stat_memi_citizenship_verif_info(each_memb) = "No Verif Provided"
+			' If stat_memi_citizenship_verif_code(each_memb) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Proof of Citizenship of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+
 		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "HCMI")
@@ -21233,7 +21887,9 @@ class stat_detail
 			EMReadScreen version_exists, 1, 2, 78
 			If version_exists = "1" Then
 				EMReadScreen end_date, 8, 12, 53
+				EMReadScreen preg_verf, 1, 6, 75
 				If end_date = "__ __ __" Then children_on_case = True
+				If preg_verf = "N" Then panels_not_verif_string = panels_not_verif_string & "Pregnancy of Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 		Next
 
@@ -21332,6 +21988,7 @@ class stat_detail
 				stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb))
 				If stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				If stat_jobs_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_one_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21425,6 +22082,7 @@ class stat_detail
 
 				stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_two_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21518,6 +22176,7 @@ class stat_detail
 
 				stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_three_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21611,6 +22270,7 @@ class stat_detail
 
 				stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_four_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21704,6 +22364,7 @@ class stat_detail
 
 				stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_five_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 		Next
@@ -21735,6 +22396,7 @@ class stat_detail
 				If stat_busi_one_type(each_memb) = "07" Then stat_busi_one_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_one_type(each_memb) = "08" Then stat_busi_one_type_info(each_memb) = "Rental Income"
 				If stat_busi_one_type(each_memb) = "09" Then stat_busi_one_type_info(each_memb) = "Other"
+				If stat_busi_one_type(each_memb) = "10" Then stat_busi_one_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_one_inc_start_date(each_memb) = replace(stat_busi_one_inc_start_date(each_memb), " ", "/")
 				stat_busi_one_inc_end_date(each_memb) = replace(stat_busi_one_inc_end_date(each_memb), " ", "/")
@@ -21804,6 +22466,8 @@ class stat_detail
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "4" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "6" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then stat_busi_one_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -21831,6 +22495,7 @@ class stat_detail
 				If stat_busi_two_type(each_memb) = "07" Then stat_busi_two_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_two_type(each_memb) = "08" Then stat_busi_two_type_info(each_memb) = "Rental Income"
 				If stat_busi_two_type(each_memb) = "09" Then stat_busi_two_type_info(each_memb) = "Other"
+				If stat_busi_two_type(each_memb) = "10" Then stat_busi_two_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_two_inc_start_date(each_memb) = replace(stat_busi_two_inc_start_date(each_memb), " ", "/")
 				stat_busi_two_inc_end_date(each_memb) = replace(stat_busi_two_inc_end_date(each_memb), " ", "/")
@@ -21901,6 +22566,10 @@ class stat_detail
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "4" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "6" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then stat_busi_two_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				End If
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -21928,6 +22597,7 @@ class stat_detail
 				If stat_busi_three_type(each_memb) = "07" Then stat_busi_three_type_info(each_memb) = "In Home Daycare"
 				If stat_busi_three_type(each_memb) = "08" Then stat_busi_three_type_info(each_memb) = "Rental Income"
 				If stat_busi_three_type(each_memb) = "09" Then stat_busi_three_type_info(each_memb) = "Other"
+				If stat_busi_three_type(each_memb) = "10" Then stat_busi_three_type_info(each_memb) = "Lived Experience"
 
 				stat_busi_three_inc_start_date(each_memb) = replace(stat_busi_three_inc_start_date(each_memb), " ", "/")
 				stat_busi_three_inc_end_date(each_memb) = replace(stat_busi_three_inc_end_date(each_memb), " ", "/")
@@ -21998,6 +22668,10 @@ class stat_detail
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "4" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "6" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then stat_busi_three_snap_expense_verif_info(each_memb) = "No Verif Provided"
+
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				End If
 			End If
 
 		Next
@@ -22050,7 +22724,7 @@ class stat_detail
 				If stat_unea_one_type_code(each_memb) = "44" Then stat_unea_one_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_one_type_code(each_memb) = "45" Then stat_unea_one_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_one_type_code(each_memb) = "46" Then stat_unea_one_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_one_type_code(each_memb) = "47" Then stat_unea_one_type_info(each_memb) = "Tribal Income"
 				If stat_unea_one_type_code(each_memb) = "48" Then stat_unea_one_type_info(each_memb) = "Trust income"
 				If stat_unea_one_type_code(each_memb) = "49" Then stat_unea_one_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_one_verif_code(each_memb), 1, 5, 65
@@ -22105,6 +22779,7 @@ class stat_detail
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22153,7 +22828,7 @@ class stat_detail
 				If stat_unea_two_type_code(each_memb) = "44" Then stat_unea_two_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_two_type_code(each_memb) = "45" Then stat_unea_two_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_two_type_code(each_memb) = "46" Then stat_unea_two_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_two_type_code(each_memb) = "47" Then stat_unea_two_type_info(each_memb) = "Tribal Income"
 				If stat_unea_two_type_code(each_memb) = "48" Then stat_unea_two_type_info(each_memb) = "Trust income"
 				If stat_unea_two_type_code(each_memb) = "49" Then stat_unea_two_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_two_verif_code(each_memb), 1, 5, 65
@@ -22208,6 +22883,7 @@ class stat_detail
 				stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22256,7 +22932,7 @@ class stat_detail
 				If stat_unea_three_type_code(each_memb) = "44" Then stat_unea_three_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_three_type_code(each_memb) = "45" Then stat_unea_three_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_three_type_code(each_memb) = "46" Then stat_unea_three_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_three_type_code(each_memb) = "47" Then stat_unea_three_type_info(each_memb) = "Tribal Income"
 				If stat_unea_three_type_code(each_memb) = "48" Then stat_unea_three_type_info(each_memb) = "Trust income"
 				If stat_unea_three_type_code(each_memb) = "49" Then stat_unea_three_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_three_verif_code(each_memb), 1, 5, 65
@@ -22312,6 +22988,7 @@ class stat_detail
 				stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22360,7 +23037,7 @@ class stat_detail
 				If stat_unea_four_type_code(each_memb) = "44" Then stat_unea_four_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_four_type_code(each_memb) = "45" Then stat_unea_four_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_four_type_code(each_memb) = "46" Then stat_unea_four_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_four_type_code(each_memb) = "47" Then stat_unea_four_type_info(each_memb) = "Tribal Income"
 				If stat_unea_four_type_code(each_memb) = "48" Then stat_unea_four_type_info(each_memb) = "Trust income"
 				If stat_unea_four_type_code(each_memb) = "49" Then stat_unea_four_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_four_verif_code(each_memb), 1, 5, 65
@@ -22415,6 +23092,7 @@ class stat_detail
 				stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22463,7 +23141,7 @@ class stat_detail
 				If stat_unea_five_type_code(each_memb) = "44" Then stat_unea_five_type_info(each_memb) = "MSA - Excess Income for SSI"
 				If stat_unea_five_type_code(each_memb) = "45" Then stat_unea_five_type_info(each_memb) = "County 88 Child Support"
 				If stat_unea_five_type_code(each_memb) = "46" Then stat_unea_five_type_info(each_memb) = "County 88 Gaming"
-				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Counted Tribal Income"
+				If stat_unea_five_type_code(each_memb) = "47" Then stat_unea_five_type_info(each_memb) = "Tribal Income"
 				If stat_unea_five_type_code(each_memb) = "48" Then stat_unea_five_type_info(each_memb) = "Trust income"
 				If stat_unea_five_type_code(each_memb) = "49" Then stat_unea_five_type_info(each_memb) = "Non-Recurring Income > $60 per Quarter"
 				EMReadScreen stat_unea_five_verif_code(each_memb), 1, 5, 65
@@ -22518,6 +23196,7 @@ class stat_detail
 				stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
+				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
 			End If
 
 		Next
@@ -22535,6 +23214,31 @@ class stat_detail
 				EMReadScreen stat_acct_one_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_one_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_one_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_one_type(each_memb) = "__" Then stat_acct_one_info(each_memb) = ""
+				If stat_acct_one_type(each_memb) = "SV" Then stat_acct_one_info(each_memb) = "Savings Account"
+				If stat_acct_one_type(each_memb) = "CK" Then stat_acct_one_info(each_memb) = "Checking Account"
+				If stat_acct_one_type(each_memb) = "CE" Then stat_acct_one_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_one_type(each_memb) = "MM" Then stat_acct_one_info(each_memb) = "Money Market"
+				If stat_acct_one_type(each_memb) = "DC" Then stat_acct_one_info(each_memb) = "Debit Card"
+				If stat_acct_one_type(each_memb) = "KO" Then stat_acct_one_info(each_memb) = "Keogh Account"
+				If stat_acct_one_type(each_memb) = "FT" Then stat_acct_one_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_one_type(each_memb) = "SL" Then stat_acct_one_info(each_memb) = "Government Retirement"
+				If stat_acct_one_type(each_memb) = "RA" Then stat_acct_one_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_one_type(each_memb) = "NP" Then stat_acct_one_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_one_type(each_memb) = "IR" Then stat_acct_one_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_one_type(each_memb) = "RH" Then stat_acct_one_info(each_memb) = "Roth IRA"
+				If stat_acct_one_type(each_memb) = "FR" Then stat_acct_one_info(each_memb) = "Governement Retirement"
+				If stat_acct_one_type(each_memb) = "CT" Then stat_acct_one_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_one_type(each_memb) = "RT" Then stat_acct_one_info(each_memb) = "Retirement Fund"
+				If stat_acct_one_type(each_memb) = "QT" Then stat_acct_one_info(each_memb) = "Qualified Tuition"
+				If stat_acct_one_type(each_memb) = "CA" Then stat_acct_one_info(each_memb) = "Coverdell Savings"
+				If stat_acct_one_type(each_memb) = "OE" Then stat_acct_one_info(each_memb) = "Other Educational"
+				If stat_acct_one_type(each_memb) = "OT" Then stat_acct_one_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_one_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_one_verif(each_memb), 1, 10, 64
+				If stat_acct_one_verif(each_memb) = "N" and stat_acct_one_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_one_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22548,6 +23252,31 @@ class stat_detail
 				EMReadScreen stat_acct_two_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_two_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_two_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_two_type(each_memb) = "__" Then stat_acct_two_info(each_memb) = ""
+				If stat_acct_two_type(each_memb) = "SV" Then stat_acct_two_info(each_memb) = "Savings Account"
+				If stat_acct_two_type(each_memb) = "CK" Then stat_acct_two_info(each_memb) = "Checking Account"
+				If stat_acct_two_type(each_memb) = "CE" Then stat_acct_two_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_two_type(each_memb) = "MM" Then stat_acct_two_info(each_memb) = "Money Market"
+				If stat_acct_two_type(each_memb) = "DC" Then stat_acct_two_info(each_memb) = "Debit Card"
+				If stat_acct_two_type(each_memb) = "KO" Then stat_acct_two_info(each_memb) = "Keogh Account"
+				If stat_acct_two_type(each_memb) = "FT" Then stat_acct_two_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_two_type(each_memb) = "SL" Then stat_acct_two_info(each_memb) = "Government Retirement"
+				If stat_acct_two_type(each_memb) = "RA" Then stat_acct_two_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_two_type(each_memb) = "NP" Then stat_acct_two_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_two_type(each_memb) = "IR" Then stat_acct_two_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_two_type(each_memb) = "RH" Then stat_acct_two_info(each_memb) = "Roth IRA"
+				If stat_acct_two_type(each_memb) = "FR" Then stat_acct_two_info(each_memb) = "Governement Retirement"
+				If stat_acct_two_type(each_memb) = "CT" Then stat_acct_two_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_two_type(each_memb) = "RT" Then stat_acct_two_info(each_memb) = "Retirement Fund"
+				If stat_acct_two_type(each_memb) = "QT" Then stat_acct_two_info(each_memb) = "Qualified Tuition"
+				If stat_acct_two_type(each_memb) = "CA" Then stat_acct_two_info(each_memb) = "Coverdell Savings"
+				If stat_acct_two_type(each_memb) = "OE" Then stat_acct_two_info(each_memb) = "Other Educational"
+				If stat_acct_two_type(each_memb) = "OT" Then stat_acct_two_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_two_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_two_verif(each_memb), 1, 10, 64
+				If stat_acct_two_verif(each_memb) = "N" and stat_acct_two_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_two_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22561,6 +23290,31 @@ class stat_detail
 				EMReadScreen stat_acct_three_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_three_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_three_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_three_type(each_memb) = "__" Then stat_acct_three_info(each_memb) = ""
+				If stat_acct_three_type(each_memb) = "SV" Then stat_acct_three_info(each_memb) = "Savings Account"
+				If stat_acct_three_type(each_memb) = "CK" Then stat_acct_three_info(each_memb) = "Checking Account"
+				If stat_acct_three_type(each_memb) = "CE" Then stat_acct_three_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_three_type(each_memb) = "MM" Then stat_acct_three_info(each_memb) = "Money Market"
+				If stat_acct_three_type(each_memb) = "DC" Then stat_acct_three_info(each_memb) = "Debit Card"
+				If stat_acct_three_type(each_memb) = "KO" Then stat_acct_three_info(each_memb) = "Keogh Account"
+				If stat_acct_three_type(each_memb) = "FT" Then stat_acct_three_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_three_type(each_memb) = "SL" Then stat_acct_three_info(each_memb) = "Government Retirement"
+				If stat_acct_three_type(each_memb) = "RA" Then stat_acct_three_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_three_type(each_memb) = "NP" Then stat_acct_three_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_three_type(each_memb) = "IR" Then stat_acct_three_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_three_type(each_memb) = "RH" Then stat_acct_three_info(each_memb) = "Roth IRA"
+				If stat_acct_three_type(each_memb) = "FR" Then stat_acct_three_info(each_memb) = "Governement Retirement"
+				If stat_acct_three_type(each_memb) = "CT" Then stat_acct_three_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_three_type(each_memb) = "RT" Then stat_acct_three_info(each_memb) = "Retirement Fund"
+				If stat_acct_three_type(each_memb) = "QT" Then stat_acct_three_info(each_memb) = "Qualified Tuition"
+				If stat_acct_three_type(each_memb) = "CA" Then stat_acct_three_info(each_memb) = "Coverdell Savings"
+				If stat_acct_three_type(each_memb) = "OE" Then stat_acct_three_info(each_memb) = "Other Educational"
+				If stat_acct_three_type(each_memb) = "OT" Then stat_acct_three_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_three_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_three_verif(each_memb), 1, 10, 64
+				If stat_acct_three_verif(each_memb) = "N" and stat_acct_three_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_three_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22574,6 +23328,31 @@ class stat_detail
 				EMReadScreen stat_acct_four_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_four_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_four_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_four_type(each_memb) = "__" Then stat_acct_four_info(each_memb) = ""
+				If stat_acct_four_type(each_memb) = "SV" Then stat_acct_four_info(each_memb) = "Savings Account"
+				If stat_acct_four_type(each_memb) = "CK" Then stat_acct_four_info(each_memb) = "Checking Account"
+				If stat_acct_four_type(each_memb) = "CE" Then stat_acct_four_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_four_type(each_memb) = "MM" Then stat_acct_four_info(each_memb) = "Money Market"
+				If stat_acct_four_type(each_memb) = "DC" Then stat_acct_four_info(each_memb) = "Debit Card"
+				If stat_acct_four_type(each_memb) = "KO" Then stat_acct_four_info(each_memb) = "Keogh Account"
+				If stat_acct_four_type(each_memb) = "FT" Then stat_acct_four_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_four_type(each_memb) = "SL" Then stat_acct_four_info(each_memb) = "Government Retirement"
+				If stat_acct_four_type(each_memb) = "RA" Then stat_acct_four_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_four_type(each_memb) = "NP" Then stat_acct_four_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_four_type(each_memb) = "IR" Then stat_acct_four_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_four_type(each_memb) = "RH" Then stat_acct_four_info(each_memb) = "Roth IRA"
+				If stat_acct_four_type(each_memb) = "FR" Then stat_acct_four_info(each_memb) = "Governement Retirement"
+				If stat_acct_four_type(each_memb) = "CT" Then stat_acct_four_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_four_type(each_memb) = "RT" Then stat_acct_four_info(each_memb) = "Retirement Fund"
+				If stat_acct_four_type(each_memb) = "QT" Then stat_acct_four_info(each_memb) = "Qualified Tuition"
+				If stat_acct_four_type(each_memb) = "CA" Then stat_acct_four_info(each_memb) = "Coverdell Savings"
+				If stat_acct_four_type(each_memb) = "OE" Then stat_acct_four_info(each_memb) = "Other Educational"
+				If stat_acct_four_type(each_memb) = "OT" Then stat_acct_four_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_four_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_four_verif(each_memb), 1, 10, 64
+				If stat_acct_four_verif(each_memb) = "N" and stat_acct_four_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_four_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22587,6 +23366,31 @@ class stat_detail
 				EMReadScreen stat_acct_five_type(each_memb), 2, 6, 44
 				EMReadScreen stat_acct_five_balence(each_memb), 8, 10, 46
 				EMReadScreen stat_acct_five_count_snap_yn(each_memb), 1, 14, 57
+
+				If stat_acct_five_type(each_memb) = "__" Then stat_acct_five_info(each_memb) = ""
+				If stat_acct_five_type(each_memb) = "SV" Then stat_acct_five_info(each_memb) = "Savings Account"
+				If stat_acct_five_type(each_memb) = "CK" Then stat_acct_five_info(each_memb) = "Checking Account"
+				If stat_acct_five_type(each_memb) = "CE" Then stat_acct_five_info(each_memb) = "Certificate Of Deposit"
+				If stat_acct_five_type(each_memb) = "MM" Then stat_acct_five_info(each_memb) = "Money Market"
+				If stat_acct_five_type(each_memb) = "DC" Then stat_acct_five_info(each_memb) = "Debit Card"
+				If stat_acct_five_type(each_memb) = "KO" Then stat_acct_five_info(each_memb) = "Keogh Account"
+				If stat_acct_five_type(each_memb) = "FT" Then stat_acct_five_info(each_memb) = "Federal Thrift Savings Plan"
+				If stat_acct_five_type(each_memb) = "SL" Then stat_acct_five_info(each_memb) = "Government Retirement"
+				If stat_acct_five_type(each_memb) = "RA" Then stat_acct_five_info(each_memb) = "Employee Retirement Annuities"
+				If stat_acct_five_type(each_memb) = "NP" Then stat_acct_five_info(each_memb) = "Non-Profit Employer Retirement Plans"
+				If stat_acct_five_type(each_memb) = "IR" Then stat_acct_five_info(each_memb) = "Individual Retirement Acct"
+				If stat_acct_five_type(each_memb) = "RH" Then stat_acct_five_info(each_memb) = "Roth IRA"
+				If stat_acct_five_type(each_memb) = "FR" Then stat_acct_five_info(each_memb) = "Governement Retirement"
+				If stat_acct_five_type(each_memb) = "CT" Then stat_acct_five_info(each_memb) = "Corporate Retirement Trust"
+				If stat_acct_five_type(each_memb) = "RT" Then stat_acct_five_info(each_memb) = "Retirement Fund"
+				If stat_acct_five_type(each_memb) = "QT" Then stat_acct_five_info(each_memb) = "Qualified Tuition"
+				If stat_acct_five_type(each_memb) = "CA" Then stat_acct_five_info(each_memb) = "Coverdell Savings"
+				If stat_acct_five_type(each_memb) = "OE" Then stat_acct_five_info(each_memb) = "Other Educational"
+				If stat_acct_five_type(each_memb) = "OT" Then stat_acct_five_info(each_memb) = "Other Account"
+
+				EMReadScreen stat_acct_five_count_cash_yn(each_memb), 1, 14, 50
+				EMReadScreen stat_acct_five_verif(each_memb), 1, 10, 64
+				If stat_acct_five_verif(each_memb) = "N" and stat_acct_five_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_five_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
 			End If
 		Next
 
@@ -23987,6 +24791,9 @@ class stat_detail
 		If stat_mont_form_recvd_date = "__/__/__" Then stat_mont_form_recvd_date = ""
 
 		Call back_to_SELF
+
+		panels_not_verif_string = trim(panels_not_verif_string)
+		If right(panels_not_verif_string, 1) = ";" Then panels_not_verif_string = left(panels_not_verif_string, len(panels_not_verif_string)-1)
 	end sub
 end class
 curr_month_plus_one = CM_plus_1_mo & "/" & CM_plus_1_yr
@@ -24644,6 +25451,43 @@ For each footer_month in MONTHS_ARRAY
 			approval_found_for_this_month = True
 			ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(DENY_app_const, month_count) = "INELIGIBLE"
+			If numb_GA_versions <> " " Then
+				If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
+					If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then
+						If first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_GA_approval = ""
+					ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
+				End If
+			End If
+			If numb_MSA_versions <> " " Then
+				If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
+					If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "INELIGIBLE" Then
+						If first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MSA_approval = ""
+					ElseIf MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
+				End If
+			End If
+			If numb_MFIP_versions <> " " Then
+				If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
+					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then
+						If first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_MFIP_approval = ""
+					ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
+				End If
+			End If
+			If numb_DWP_versions <> " " Then
+				If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
+					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then
+						If first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year Then first_DWP_approval = ""
+					ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "ELIGIBLE" Then
+						If first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year then first_DENY_approval = ""
+					End If
+				End If
+			End If
+
 		ElseIf CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_version_found = True Then
 			If DateDiff("d", date, CASH_DENIAL_APPROVALS(cash_deny_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " CASH DENY approved today." & vbCr
@@ -24762,7 +25606,8 @@ For each footer_month in MONTHS_ARRAY
 
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		If first_HC_approval = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-
+			number_of_rows = 0
+			On Error Resume Next
 			SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
 
 			objSQL=	"SELECT Count (*) FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and [HCEligReviewDate] = '" & sql_review_date & "' and [SelectExParte] = '1'"
@@ -24783,7 +25628,7 @@ For each footer_month in MONTHS_ARRAY
 			Set objRecordSet=nothing
 			Set objConnection=nothing
 
-
+			On Error Goto 0
 			If number_of_rows = 1 Then
 				for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 					If  HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_eligibility_result(hc_elig) = "ELIGIBLE" Then
@@ -26013,6 +26858,7 @@ app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
 explain_why_we_are_processing_btn = 130
+verif_tips_and_tricks_btn = 140
 
 const months_in_approval			= 0
 const limit_benefit_months			= 1
@@ -26102,7 +26948,7 @@ Do
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
-		If InStr(note_title, "MFIP - ") <> 0 Then approval_note_found_for_MFIP = True
+		If InStr(note_title, " - MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MFIP Special") <> 0 Then approval_note_found_for_MFSD = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
 		If InStr(note_title, " GA") <> 0 Then approval_note_found_for_GA = True
@@ -26168,52 +27014,52 @@ If approval_note_found = True Then
 	  y_pos = 25
 	  If approval_note_found_for_DWP = True Then
 		  Text 15, y_pos+5, 330, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_DWP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFIP = True Then
 		  Text 15, y_pos+5, 330, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MFIP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFSD = True Then
 		  Text 15, y_pos+5, 350, 10, "MF Special Diet Check CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFSD
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MFSD
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MSA = True Then
 		  Text 15, y_pos+5, 330, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_MSA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GA = True Then
 		  Text 15, y_pos+5, 330, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_GA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_DENY = True Then
 		  Text 15, y_pos+5, 330, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_DENY
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GRH = True Then
 		  Text 15, y_pos+5, 330, 10, "HS/GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_GRH
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_SNAP = True Then
 		  Text 15, y_pos+5, 330, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_SNAP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_HC = True Then
 		  Text 15, y_pos+5, 330, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_HC
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_EMER = True Then
 		  Text 15, y_pos+5, 330, 10, "EMER Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_EMER
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Enter a new NOTE of approval. Eligibilty reapproved."+chr(9)+"No - Do not CASE/NOTE - No change to Eligibility."+chr(9)+"No - Approval completed by another worker.", add_new_note_for_EMER
 		  y_pos = y_pos + 20
 	  End If
 	  ButtonGroup ButtonPressed
@@ -26245,65 +27091,65 @@ If approval_note_found = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
-	If add_new_note_for_DWP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_DWP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_DWP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_DWP = False
 		end_msg_info = end_msg_info & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
+	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP." & vbCr
 
-	If add_new_note_for_MFIP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MFIP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MFIP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_MFIP = False
 		end_msg_info = end_msg_info & "MFIP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP." & vbCr
+	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP." & vbCr
 
-	If add_new_note_for_MFSD = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MFSD = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MFSD = "No - Approval completed by another worker." Then
 		end_msg_info = end_msg_info & "MFIP Special Diet had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 		special_diet_check_exists = False
 	End If
-	If add_new_note_for_MFSD = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP Special Diet, it was requested to enter a new note about eligibility for MFIP." & vbCr
+	If add_new_note_for_MFSD = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MFIP Special Diet, it was requested to enter a new note about eligibility for MFIP." & vbCr
 
-	If add_new_note_for_MSA = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_MSA = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_MSA = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_MSA = False
 		end_msg_info = end_msg_info & "MSA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA." & vbCr
+	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA." & vbCr
 
-	If add_new_note_for_GA = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_GA = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_GA = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_GA = False
 		end_msg_info = end_msg_info & "GA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA." & vbCr
+	If add_new_note_for_GA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA." & vbCr
 
-	If add_new_note_for_DENY = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_DENY = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_DENY = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_DENY = False
 		end_msg_info = end_msg_info & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY." & vbCr
+	If add_new_note_for_DENY = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY." & vbCr
 
-	If add_new_note_for_GRH = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_GRH = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_GRH = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_GRH = False
 		end_msg_info = end_msg_info & "GRH had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH." & vbCr
+	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH." & vbCr
 
-	If add_new_note_for_SNAP = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_SNAP = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_SNAP = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_SNAP = False
 		end_msg_info = end_msg_info & "SNAP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP." & vbCr
+	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP." & vbCr
 
-	If add_new_note_for_HC = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_HC = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_HC = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_HC = False
 		end_msg_info = end_msg_info & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC." & vbCr
+	If add_new_note_for_HC = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC." & vbCr
 
-	If add_new_note_for_EMER = "No - Eligibility is the same - No NOTE Needed" Then
+	If add_new_note_for_EMER = "No - Do not CASE/NOTE - No change to Eligibility." or add_new_note_for_EMER = "No - Approval completed by another worker." Then
 		enter_CNOTE_for_EMER = False
 		end_msg_info = end_msg_info & "EMER had a CASE/NOTE entered prior to this script run. No additional NOTE was requested." & vbCr
 	End If
-	If add_new_note_for_EMER = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER." & vbCr
+	If add_new_note_for_EMER = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then end_msg_info = end_msg_info & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER." & vbCr
 End If
 
 Call back_to_SELF
@@ -27904,6 +28750,19 @@ If enter_CNOTE_for_DENY = True Then
 			TEMP_VAR_deny_ga_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation
 			TEMP_VAR_deny_msa_elig_explanation = CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation
 
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_dwp_elig_explanation = "" Then TEMP_VAR_deny_dwp_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_mfip_elig_explanation = "" Then TEMP_VAR_deny_mfip_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Verification" Then
+				If TEMP_VAR_deny_ga_elig_explanation = "" Then TEMP_VAR_deny_ga_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
+				If TEMP_VAR_deny_msa_elig_explanation = "" Then TEMP_VAR_deny_msa_elig_explanation = STAT_INFORMATION(month_ind).panels_not_verif_string
+			End If
+
 			call define_deny_elig_dialog
 
 			dialog Dialog1
@@ -27939,12 +28798,14 @@ If enter_CNOTE_for_DENY = True Then
 			End if
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = True Then
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation = "" Then err_msg = err_msg & vbCr & "* The GA Denial Reason required additional detail. Add information about the GA Denial."
+				CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult"
 			End if
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation = "" Then err_msg = err_msg & vbCr & "* The MSA Denial Reason required additional detail. Add information about the MSA Denial."
+				CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult"
 			End if
 
-			If err_msg <> "" and ButtonPressed < 1100 Then
+			If err_msg <> "" and ButtonPressed < 1100 and ButtonPressed <> reload_btn Then
 				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 				If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
 			End If
@@ -28022,6 +28883,12 @@ If enter_CNOTE_for_DENY = True Then
 			For approval = 0 to UBound(CASH_DENIAL_APPROVALS)
 				If CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year = DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) Then elig_ind = approval
 			Next
+			For each_month = 0 to UBound(STAT_INFORMATION)
+				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+			Next
+			If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+				If deny_wcom_info_one = "" Then deny_wcom_info_one = "The application for cash has been withdrawn, which means you requested to not be assessed for cash assistance."
+			End If
 
 			Do
 				Do
@@ -28036,15 +28903,23 @@ If enter_CNOTE_for_DENY = True Then
 					    OkButton 415, 160, 75, 15
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) <> "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " - " & DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) & " ELIG/DENY Approval"
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) = "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " ELIG/DENY Approval"
-			    	  If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
-						  Text 15, 25, 130, 10, "Case is Adult. Script will add detail:"
-						  Text 20, 40, 230, 10, "MFIP/DWP are Family Cash Programs."
-						  Text 20, 50, 230, 10, "They require an eligible child/pregnant person to be eligible."
-					  End If
-					  If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
-						  Text 15, 25, 130, 10, "Case is Family. Script will add detail:"
-						  Text 20, 40, 230, 10, "GA/MSA are Adult Cash programs."
-						  Text 20, 50, 230, 10, "Available only for households without children."
+			    	  ' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+					  If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+						Text 15, 25, 200, 10, "Cash request has been withdrawn. Script will add detial"
+						Text 20, 40, 230, 10, "All cash programs have been denied because you have withdrawn the request."
+						Text 20, 50, 230, 10, "You can reapply at any time if your situation changes or want to be reassessed."
+					  Else
+						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+							Text 15, 25, 130, 10, "Case is Adult. Script will add detail:"
+							Text 20, 40, 230, 10, "MFIP/DWP are Family Cash Programs."
+							Text 20, 50, 230, 10, "They require an eligible child/pregnant person to be eligible."
+						End If
+						' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
+							Text 15, 25, 130, 10, "Case is Family. Script will add detail:"
+							Text 20, 40, 230, 10, "GA/MSA are Adult Cash programs."
+							Text 20, 50, 230, 10, "Available only for households without children."
+						End If
 					  End If
 					  Text 10, 70, 185, 10, "Detail the information about the denial for the WCOM:"
 					  Text 10, 100, 185, 10, "Second Reason for denial for the WCOM:"
@@ -28054,6 +28929,25 @@ If enter_CNOTE_for_DENY = True Then
 
 					dialog Dialog1
 					cancel_confirmation
+
+					duplicate_info_deleted = False
+					deny_wcom_info_one = trim(deny_wcom_info_one)
+					deny_wcom_info_two = trim(deny_wcom_info_two)
+					deny_wcom_info_three = trim(deny_wcom_info_three)
+					If deny_wcom_info_three = deny_wcom_info_two Then
+						If deny_wcom_info_three <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_three = ""
+					End If
+					If deny_wcom_info_one = deny_wcom_info_two Then
+						If deny_wcom_info_two <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_two = ""
+					End If
+					If deny_wcom_info_one = deny_wcom_info_three Then
+						If deny_wcom_info_three <> "" Then duplicate_info_deleted = True
+						deny_wcom_info_three = ""
+					End If
+					If duplicate_info_deleted = True then err_msg = err_msg & vbCr & "* The information entered in each line should not be duplicated as it creates a repeditive notice and CASE/NOTE."
+
 					If trim(deny_wcom_info_one) = "" and trim(deny_wcom_info_two) = "" and trim(deny_wcom_info_three) = "" Then
 						err_msg = err_msg & vbCr & "* WCOMs are required for all Cash DENY Approvals. Enter information into the dialog to explain cleearly to the resident why the Cash Request has been denied."
 					ElseIf len(deny_wcom_info_one) < 30 and len(deny_wcom_info_two) < 30 and len(deny_wcom_info_three) < 30 and (len(deny_wcom_info_one)+len(deny_wcom_info_two)+len(deny_wcom_info_three)) < 30 Then
@@ -29070,6 +29964,44 @@ If enter_CNOTE_for_EMER = True Then
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
 	If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then emer_test_verif_detail = verifs_in_case_note
 
+	'Identifies if the approval amount in ELIG/EMER is different from the total of MONY/CHCKs issued.
+	'We are prioritizing the amount in MONY/CHCK as that is the amount that will actually issue on the behalf of the resident.
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" and EMER_ELIG_APPROVAL.bus_ticket_approval = False Then
+		total_payment = 0
+		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+			If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
+				chk_amt = EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)*1
+				total_payment = total_payment + chk_amt
+			End If
+		Next
+		elig_pymt = EMER_ELIG_APPROVAL.emer_elig_summ_payment *1
+		If elig_pymt <> total_payment Then
+			email_subject = "EMER Case with where EMER and CHCK do not match - Case: " & MAXIS_case_number
+			email_body = "The ELIG/EMER amount in the approval does not match the checks issued for Emergency."
+			email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+			email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+			email_body = email_body & vbCr & "EMER Amount: " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
+			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+				If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
+					email_body = email_body & vbCr & "Check: $ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck)
+				End If
+			Next
+			email_body = email_body & vbCr & "EMER Eligible"
+			email_body = email_body & vbCr & ""
+			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+
+			email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+			email_recip_CC = ""
+			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+
+			EMER_ELIG_APPROVAL.emer_elig_summ_payment = total_payment
+
+		End If
+	End If
+	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
+		EMER_ELIG_APPROVAL.emer_elig_summ_payment = EMER_ELIG_APPROVAL.emer_elig_summ_need_other
+	End If
+
 	Do
 		Do
 			call define_emer_elig_dialog
@@ -29851,15 +30783,22 @@ If enter_CNOTE_for_DENY = True Then
 						If trim(wcom_line) = "" Then
 							DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
 							CALL write_variable_in_SPEC_MEMO("Explanation of CASH DENIALS:")
-							CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
-							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
-								CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
-								CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
+					  		If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
+								CALL write_variable_in_SPEC_MEMO("All cash programs have been denied because you have withdrawn the request.")
+								CALL write_variable_in_SPEC_MEMO("    You can reapply at any time if your situation changes or want to be reassessed.")
+							Else
+								CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
+								' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
+									CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
+									CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
+								End If
+								' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
+									CALL write_variable_in_SPEC_MEMO("GA/MSA: These are Adult Cash programs.")
+									CALL write_variable_in_SPEC_MEMO("    Available only for households without children.")
+								End if
 							End If
-							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
-								CALL write_variable_in_SPEC_MEMO("GA/MSA: These are Adult Cash programs.")
-								CALL write_variable_in_SPEC_MEMO("    Available only for households without children.")
-							End if
 
 							If DENY_UNIQUE_APPROVALS(wcom_details_one, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_two, unique_app) <> "" or DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) <> "" Then
 								CALL write_variable_in_SPEC_MEMO("Reasons for Cash Denial:")
@@ -30418,11 +31357,10 @@ If enter_CNOTE_for_SNAP = True Then
 			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
 			email_recip = "kerry.walsh@hennepin.us; brooke.reilley@hennepin.us"
-			email_recip_CC = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+			email_recip_CC = "tanya.payne@hennepin.us"
 			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 		End If
 	End If
-
 End If
 
 If denials_found_on_pnd2 = True Then

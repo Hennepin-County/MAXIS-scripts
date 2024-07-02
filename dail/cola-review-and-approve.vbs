@@ -246,7 +246,7 @@ For each HH_member in HH_member_array						'for each person that was selected
 			If inc_type = "44" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "MSA - Excess Income for SSI"
 			If inc_type = "45" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "County 88 Child Support"
 			If inc_type = "46" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "County 88 Gaming"
-			If inc_type = "47" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Counted Tribal Income"
+			If inc_type = "47" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Tribal Income"
 			If inc_type = "48" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Trust income"
 			If inc_type = "49" Then UNEA_FROM_DAIL_RUN(dail_unea_type_info_const, unea_count) = "Non-Recurring Income > $60 per Quarter"
 

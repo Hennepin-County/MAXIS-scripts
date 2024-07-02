@@ -879,6 +879,7 @@ For the_member = 1 to how_many_new_members
                     If busi_pnl_type = "07" Then busi_pnl_type = "In-Home Daycare"
                     If busi_pnl_type = "08" Then busi_pnl_type = "Rental Income"
                     If busi_pnl_type = "09" Then busi_pnl_type = ""
+                    If busi_pnl_type = "10" Then busi_pnl_type = "Lived Experience"
                     busi_pnl_hrs = busi_pnl_hrs/4.3
                     busi_pnl_hrs = int(busi_pnl_hrs)
                     busi_pnl_hrs = busi_pnl_hrs & ""

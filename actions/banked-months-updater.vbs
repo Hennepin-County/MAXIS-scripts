@@ -3,7 +3,7 @@ name_of_script = "ACTIONS - BANKED MONTHS UPDATER.vbs"
 start_time = timer
 STATS_counter = 1                   'sets the stats counter at one
 STATS_manualtime = 60                'manual run time in seconds
-STATS_denomination = "I"       		'I for Item
+STATS_denomination = "I"       		'I for item
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -391,10 +391,10 @@ If case_note = False then script_end_procedure_with_error_report("There are no u
 
 Call check_for_MAXIS(False)
 
-For item = 0 to ubound(footer_month_array)
-	MAXIS_footer_month = datepart("m", footer_month_array(item)) 'Need to assign footer month / year each time through
+For items = 0 to ubound(footer_month_array)
+	MAXIS_footer_month = datepart("m", footer_month_array(items)) 'Need to assign footer month / year each time through
 	If len(MAXIS_footer_month) = 1 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(item)), 2)
+	MAXIS_footer_year = right(datepart("YYYY", footer_month_array(items)), 2)
 	footer_string = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 	For i = 0 to Ubound(banked_months_array, 2)

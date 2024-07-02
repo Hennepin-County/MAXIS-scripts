@@ -435,6 +435,7 @@ JOBS_type_list = JOBS_type_list+chr(9)+"C - Contract Income"
 JOBS_type_list = JOBS_type_list+chr(9)+"T - Training Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"P - Service Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"R - Rehab Program"
+JOBS_type_list = JOBS_type_list+chr(9)+"N - Census Income"
 
 function remove_dash_from_droplist(list_to_alter)
 	list_to_alter = replace(list_to_alter, " - ", " ")
@@ -1489,7 +1490,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If living_sit_line = "09" Then living_situation = "09 - Declined"
         If living_sit_line = "10" Then living_situation = "10 - Unknown"
         addr_living_sit = living_situation
-		
+
         EMReadScreen addr_eff_date, 8, 4, 43									'reading the dates on the panel
         EMReadScreen addr_future_date, 8, 4, 66
 
@@ -1640,7 +1641,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 							  addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
 							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&_
 							  text_yn_one&"|"&text_yn_two&"|"&text_yn_three&"|"&addr_email&"|"&addr_verif
-		
+
 		current_information = UCase(current_information)
 		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
 		If current_information <> original_information Then						'If the information in the beginning and the information inthe end do not match - we need to update
@@ -1714,11 +1715,11 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
-			
+
 			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
 			move_to_line_two = FALSE
-			If resi_line_one = "" AND resi_line_two = "" Then 
-				If len(resi_street_full) > 22 Then 
+			If resi_line_one = "" AND resi_line_two = "" Then
+				If len(resi_street_full) > 22 Then
 					resi_words = split(resi_street_full, " ")
 					write_resi_line_one = ""
 					write_resi_line_two = ""
@@ -1742,7 +1743,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 			Else
 				resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
-				If len(resi_line_one) or len(resi_line_two) > 22 Then 
+				If len(resi_line_one) or len(resi_line_two) > 22 Then
 					resi_words = split(resi_street_full, " ")
 					write_resi_line_one = ""
 					write_resi_line_two = ""
@@ -1779,7 +1780,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
 			mail_move_to_line_two = FALSE
-			If mail_line_one = "" AND mail_line_two = "" Then 
+			If mail_line_one = "" AND mail_line_two = "" Then
 				If len(mail_street_full) > 22 Then
 					mail_words = split(mail_street_full, " ")
 					write_mail_line_one = ""
@@ -1801,9 +1802,9 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				Else
 					write_mail_line_one = mail_street_full
 				End If
-			Else 
+			Else
 				mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
-				If len(mail_line_one) or len(mail_line_two) > 22 Then 
+				If len(mail_line_one) or len(mail_line_two) > 22 Then
 					mail_words = split(mail_street_full, " ")
 					write_mail_line_one = ""
 					write_mail_line_two = ""
@@ -2614,6 +2615,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 		EMWriteScreen "X", 7, 26
 		EMSendKey "<enter>"
 		EMWaitReady 0, 0
@@ -2677,6 +2679,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 
 		'Reading and converting BUSI Self employment method into human-readable
 		EMReadScreen BUSI_method, 2, 16, 53
@@ -4813,6 +4816,10 @@ function changelog_display()
 						script_in_local_changelog = true
 						if local_changelog_item_array(2) <> last_item_added_to_changelog(1) then
 							display_changelog = true
+							If local_changelog_item_array(2) = "* * * THIS SCRIPT IS BEING RETIRED ON 06/01/2024 * * *##~####~##NOTES - Eligibility Summary will be used to document any Approval starting 6/1/24, you will no longer be able to select for Approved Programs to continue with the old functionality.##~## ##~##If you have any concerns about Eligibility Summary, please report them right away so we can review.##~## ##~##                                       \    " Then
+								local_changelog_item_array(2) = "* * * THIS SCRIPT IS BEING RETIRED ON 06/01/2024 * * *##~####~##NOTES - Eligibility Summary will be used to document any Approval starting 6/1/24, you will no longer be able to select for Approved Programs to continue with the old functionality.##~## ##~##If you have any concerns about Eligibility Summary, please report them right away so we can review.##~## ##~##                                       \     |       / ##~##                            \      \    \    |     /    /       / ##~##                       \      \      \   \   |    /   /       /      / ##~##                   \     \      \  \   \  \  |   /  /  /   /      /      / ##~##                     \     \   \  \  \  @@@   /   /      /     / ##~##                 \     \     \   \ @@@@@@  /   /      /   / ##~##                \  \     \      @@@@@@@@    /      /   / ##~##              \   \  \      @@@@@@@@@@  /   /   /  / ##~##                 \  \  \  @@@@@@@@@@@  /  /  / ##~##    ~~ ~ ~ ~ ~ @@@@@@@@@@@@ ~ ~ ~ ~ ~~ ##~##                 /  /  / @@@@@@@@@@@ \  \  \ ##~##------------------------------------------------------------------------ ##~##(Sundown) "
+								' local_changelog_item_array(2) = replace(local_changelog_item_array(2), " | ", "")
+							End If
 							local_changelog_text_of_change = trim(local_changelog_item_array(2))
 							line_in_local_changelog_array_to_delete = i
 						Else
@@ -4849,7 +4856,12 @@ function changelog_display()
 				For each changelog_entry in changelog
 					date_of_change = left(changelog_entry, instr(changelog_entry, " | ") - 1)
 					scriptwriter_of_change = trim(right(changelog_entry, len(changelog_entry) - instrrev(changelog_entry, "|") ))
-					text_of_change = replace(replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change, ""), " | ", "")
+					If InStr(changelog_entry, " ##~##                 /  /  / @@@@@@@@@@@ \  \  \ ##~##------------------------------------------------------------------------ ##~##(Sundown)") <> 0 Then
+						scriptwriter_of_change = "| Casey Love, Hennepin County"
+						text_of_change = replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change & " |", "")
+					Else
+						text_of_change = replace(replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change, ""), " | ", "")
+					End If
 
 					'If the text_of_change is the same as that stored in the local changelog, that means the user is up-to-date to this point, and the script should exit without displaying any more updates. Otherwise, add it to the contents.
 					if trim(text_of_change) = trim(local_changelog_text_of_change) then
@@ -8541,43 +8553,80 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 '~~~~~ version_result: outputs the ELIG/INELIG information for the approved version
 '~~~~~ approval_found: BOOLEAN - If an appoved version was found
 '===== Keywords: MAXIS, find, ELIG
+	EMReadScreen msa_elig_check, 3, 2, 30							'capturing information about the approval to handle for weird MSA functionality
+	EMReadScreen curr_footer_month, 2, 20, 56
+	EMReadScreen curr_footer_year, 2, 20, 59
+	skip_99_window = False											'allows for the function to skip entering the 99 code because sometimes it doesn't work.
 	Call write_value_and_transmit("99", cmd_row, cmd_col)			'opening the pop-up with all versions listed.
-	approval_found = True											'default the approval to being found
+	If msa_elig_check = "MSA" Then									'we only need to check this issue for MSA at this time
+		EMReadScreen msa_elig_double_check, 3, 2, 30				'if we are still in MSA with the code 99 - it will still display MSA at the top
+		If msa_elig_double_check <> "MSA" Then						'if MSA is not displayed - MAXIS kicked us out of the elig information
+			skip_99_window = True
+			Call navigate_to_MAXIS_screen("ELIG", "MSA ")			'go to MSA
+			EMWriteScreen curr_footer_month, 20, 56					'get to the right footer month
+			EMWriteScreen curr_footer_year, 20, 59
+			EMWriteScreen "MSA", 20, 71
+			transmit
+			Do
+				EMReadScreen approval_status, 8, 3, 3				'read the approval status and version
+				EMReadScreen elig_version, 2, 2, 11
+				If approval_status = "APPROVED" Then				'If approved, we can leave the loop and grab the informaiton from ELIG/MSA screen
+					EMReadScreen elig_date, 8, 3, 14
+					version_date = elig_date
+					version_number = elig_version
+					version_result = approval_status
+					approval_found = True
+					Exit Do
+				ElseIf elig_version = "01" Then						'If not approved and we are at version 1 - there is no approval
+					approval_found = False
+					Exit Do
+				Else												'otherwise try to get to a new approval.
+					elig_version = elig_version*1
+					prev_version = elig_version-1
+					prev_version = right("00"&prev_version, 2)
+					Call write_value_and_transmit(prev_version, 20, 79)
+				End If
+			Loop
+		End If
+	End If
+	If skip_99_window = False Then
+		approval_found = True											'default the approval to being found
 
-	row = 7															'this is  the first row of the pop-up'
-	Do
-		EMReadScreen elig_version, 2, row, 22						'reading the information about the version
-		EMReadScreen elig_date, 8, row, 26
-		EMReadScreen elig_result, 10, row, 37
-		EMReadScreen approval_status, 10, row, 50
+		row = 7															'this is  the first row of the pop-up'
+		Do
+			EMReadScreen elig_version, 2, row, 22						'reading the information about the version
+			EMReadScreen elig_date, 8, row, 26
+			EMReadScreen elig_result, 10, row, 37
+			EMReadScreen approval_status, 10, row, 50
 
-		elig_version = trim(elig_version)
-		elig_result = trim(elig_result)
-		approval_status = trim(approval_status)
+			elig_version = trim(elig_version)
+			elig_result = trim(elig_result)
+			approval_status = trim(approval_status)
 
-		If approval_status = "APPROVED" Then Exit Do				'If it was 'APPROVED' this is the most recent version that is appoved and we have all the information
+			If approval_status = "APPROVED" Then Exit Do				'If it was 'APPROVED' this is the most recent version that is appoved and we have all the information
 
-		row = row + 1												'go to the next row'
-	Loop until approval_status = ""									'once we hit a blank, there are no more vversions
+			row = row + 1												'go to the next row'
+		Loop until approval_status = ""									'once we hit a blank, there are no more vversions
 
-	Call clear_line_of_text(18, 54)									''erasing the version entry as it defaults when the pop-up opens
-	If approval_status = "" Then									'if no APPROVAL was found, then we leave without navigating and changing the found to false
-		approval_found = false
-		PF3
-	Else
-		Call write_value_and_transmit(elig_version, 18, 54)			'if an approval was found, we navigate to it and save the information to the output variables.
-		version_number = "0" & elig_version
-		version_date = elig_date
-		version_result = elig_result
-
-		row = 1
-		col = 1
-		EMSearch "Auto-Closed", row, col
-		If row <> 0 Then
+		Call clear_line_of_text(18, 54)									''erasing the version entry as it defaults when the pop-up opens
+		If approval_status = "" Then									'if no APPROVAL was found, then we leave without navigating and changing the found to false
 			approval_found = false
-			version_date = ""
-			version_result = ""
 			PF3
+		Else
+			Call write_value_and_transmit(elig_version, 18, 54)			'if an approval was found, we navigate to it and save the information to the output variables.
+			version_number = "0" & elig_version
+			version_date = elig_date
+			version_result = elig_result
+
+			row = 1
+			col = 1
+			EMSearch "Auto-Closed", row, col
+			If row <> 0 Then
+				approval_found = false
+				version_date = ""
+				version_result = ""
+				PF3
+			End If
 		End If
 	End If
 end function
@@ -9521,91 +9570,6 @@ function get_state_name_from_state_code(state_code, state_name, include_state_co
     If state_code = "VI" Then state_name = "Virgin Islands"
 
     If include_state_code = TRUE Then state_name = state_code & " " & state_name	'This adds the code to the state name if seelected
-end function
-
-function get_this_script_started(script_index, end_script, month_to_use)
-'--- WORK IN PROGRESS - This function has the primary functionality needed at the begining of an individual script run.
-'~~~~~ script_index: this should just be 'script_index' and indicates the number of the script in the COMPLETE LIST OF SCRIPTS.
-'~~~~~ end_script: If NOT in MAXIS (passworded out) should the script end.
-'~~~~~ month_to_use: default value of the footer month and year - Options: 'MAXIS MONTH', 'CM', 'CM PLUS 1', 'CM PLUS 2', 'CM MINUS 1', 'CM MINUS 2'
-'~~~~~
-'===== Keywords: MAXIS, dialog,
-	EMConnect ""
-	Call check_for_MAXIS(end_script)
-	Call MAXIS_case_number_finder(MAXIS_case_number)
-
-	month_to_use = UCase(month_to_use)
-	If month_to_use = "MAXIS MONTH" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	If month_to_use = "CM" Then
-		MAXIS_footer_month = CM_mo
-		MAXIS_footer_year = CM_yr
-	End If
-	If month_to_use = "CM PLUS 1" Then
-		MAXIS_footer_month = CM_plus_1_mo
-		MAXIS_footer_year = CM_plus_1_yr
-	End If
-	If month_to_use = "CM PLUS 2" Then
-		MAXIS_footer_month = CM_plus_2_mo
-		MAXIS_footer_year = CM_plus_2_yr
-	End If
-	If month_to_use = "CM MINUS 1" Then
-		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
-		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-	End If
-	If month_to_use = "CM MINUS 2" Then
-		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-	End If
-
-	' MsgBox "The script running is:" & vbCR & "Category - " & script_array(script_index).category & vbCr & "Name - " & script_array(script_index).script_name
-
-	'Showing the case number dialog
-	Do
-		DO
-			err_msg = ""
-
-			'Initial dialog to gather case number and footer month.
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 236, 195, "Case number dialog"
-			  EditBox 70, 105, 65, 15, MAXIS_case_number
-			  EditBox 70, 125, 20, 15, MAXIS_footer_month
-			  EditBox 95, 125, 20, 15, MAXIS_footer_year
-			  EditBox 70, 145, 160, 15, Worker_signature
-			  ButtonGroup ButtonPressed
-				OkButton 125, 175, 50, 15
-				CancelButton 180, 175, 50, 15
-				PushButton 165, 85, 60, 10, "INSTRUCTIONS", instructions_btn
-				PushButton 115, 160, 115, 10, "SAVE MY WORKER SIGNATURE", save_worker_sig
-			  GroupBox 10, 5, 220, 95, "Currently Running "
-			  Text 20, 20, 210, 10, "Script: " & script_array(script_index).script_name
-			  Text 30, 30, 195, 10, "from the " & script_array(script_index).category & " category"
-			  Text 20, 45, 50, 10, "Description:"
-			  Text 25, 55, 200, 25, script_array(script_index).description
-			  Text 20, 110, 45, 10, "Case number:"
-			  Text 20, 130, 45, 10, "Footer Month:"
-			  Text 10, 150, 60, 10, "Worker Signature"
-			  Text 125, 130, 25, 10, "mm/yy"
-			EndDialog
-
-			Dialog Dialog1
-			cancel_without_confirmation
-
-			If ButtonPressed = instructions_btn Then
-				err_msg = "LOOP"
-				call open_URL_in_browser(script_array(script_index).SharePoint_instructions_URL)
-			ElseIf ButtonPressed = save_worker_sig Then
-				err_msg = "LOOP"
-			Else
-				' MsgBox MAXIS_case_number
-		        Call validate_MAXIS_case_number(err_msg, "*")
-		        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-			End If
-		LOOP UNTIL err_msg = ""
-		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-	LOOP UNTIL are_we_passworded_out = false
-
 end function
 
 Function get_to_RKEY()

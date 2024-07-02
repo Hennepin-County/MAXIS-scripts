@@ -223,6 +223,53 @@ ReDim UC_INCOME_ARRAY(va_last_const, 0)
 EMConnect ""		'Connects to BlueZone
 
 
+'===================== STAGE TESTING FOR USAGE LOG
+'Getting user name
+Set objNet = CreateObject("WScript.NetWork")
+user_ID = objNet.UserName
+
+' MsgBox "user_ID - " & user_ID
+If user_ID = "CALO001" Then
+	MsgBox "Selected"
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	SQL_table = "SELECT * from usage_log WHERE SDATE > '2024-01-01'"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	count = 0
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		MsgBox "TABLE INFORMATION: " & vbCr & vbCr &_
+		"USERNAME - " & objRecordSet("USERNAME") & vbCr &_
+		"SDATE - " & objRecordSet("SDATE") & vbCr &_
+		"STIME - " & objRecordSet("STIME") & vbCr &_
+		"SCRIPT_NAME - " & objRecordSet("SCRIPT_NAME") & vbCr &_
+		"SRUNTIME - " & objRecordSet("SRUNTIME") & vbCr &_
+		"CLOSING_MSGBOX - " & objRecordSet("CLOSING_MSGBOX") & vbCr &_
+		"STATS_COUNTER - " & objRecordSet("STATS_COUNTER") & vbCr &_
+		"STATS_MANUALTIME - " & objRecordSet("STATS_MANUALTIME") & vbCr &_
+		"STATS_DENOMINATION - " & objRecordSet("STATS_DENOMINATION") & vbCr &_
+		"WORKER_COUNTY_CODE - " & objRecordSet("WORKER_COUNTY_CODE") & vbCr &_
+		"SCRIPT_SUCCESS - " & objRecordSet("SCRIPT_SUCCESS") & vbCr &_
+		"CASE_NUMBER - " & objRecordSet("CASE_NUMBER") & vbCr & vbCr &_
+		"Count - " & count
+		count = count + 1
+
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+End If
+
 'THIS WAS FOR TESTING THE StaffHeirarchy Table
 ' const hsr_name_const 	= 0
 ' const hsr_mx_id_const 	= 1
@@ -328,7 +375,7 @@ review_date = DateAdd("d", 0, review_date)
 ' 	count = count + 1
 ' Loop
 
-MAXIS_case_number = "124312"
+' MAXIS_case_number = "124312"
 'Initial Dialog - Case number
 Dialog1 = ""                                        'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 190, 85, "Application Received"
@@ -353,6 +400,52 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
+
+'============== DBO USEAGE LOG TEST ==================================
+
+stop_time = timer				'TODO - delete when the new data recording function is in place
+script_run_end_time = time		'TODO - delete when the new data recording function is in place
+script_run_end_date = date		'TODO - delete when the new data recording function is in place
+script_run_time = stop_time - start_time
+trial_name_of_script = "TEST - Database Access Test.vbs"
+closing_message = "Test complete"
+
+
+'Setting constants
+Const adOpenStatic = 3
+Const adLockOptimistic = 3
+
+'Defaulting script success to successful
+SCRIPT_success = -1
+
+'Creating objects for Access
+Set objConnection = CreateObject("ADODB.Connection")
+Set objRecordSet = CreateObject("ADODB.Recordset")
+
+'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+closing_message = replace(closing_message, "'", "")
+
+'Opening DB
+stats_database_path = "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+
+objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & trial_name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+
+'Closing the connection
+objConnection.Close
+
+Call find_user_name(assigned_worker)
+
+email_subject = "Database Access Test Completed for " & assigned_worker
+email_body = "The test was successful."
+
+Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+
+Call script_end_procedure("Test Complete.")
+
+
+'======== EX PARTE FUNCTIONALITY ======================================================
 
 MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
 MsgBox "review_date - " & review_date & vbCr & "MAXIS_case_number - " & MAXIS_case_number

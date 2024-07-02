@@ -236,6 +236,7 @@ function access_BUSI_panel(access_type, busi_member, busi_type, income_start_dat
         If type_of_income = "07" Then busi_type = "07 - In Home Daycare"
         If type_of_income = "08" Then busi_type = "08 - Rental Income"
         If type_of_income = "09" Then busi_type = "09 - Other"
+        If type_of_income = "10" Then busi_type = "10 - Lived Experience"
 
         income_start_date = replace(income_start_date, " ", "/")
         income_end_date = replace(income_end_date, " ", "/")
