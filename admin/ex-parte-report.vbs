@@ -3513,7 +3513,7 @@ If ex_parte_function = "Prep 2" Then
 					MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_intl_entl_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_susp_term_date, each_memb), " ", "/1/")
 					MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
-
+					If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 					EMReadScreen present_pay_month, 2, 8, 5
 					EMReadScreen present_pay_year, 2, 8, 8
 					cola_row = 9
@@ -4296,7 +4296,6 @@ If ex_parte_function = "Prep 2" Then
 	email_attachment_array = Array(ex_parte_folder & "\MEMBS with TPQY Date of Death - " & ep_revw_mo & "-" & ep_revw_yr & ".xlsx")
 	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "ben.teskey@hennepin.us", "ann.noeker@hennepin.us; Jackie.Poidinger@hennepin.us", email_recip_bcc, email_header, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, True, email_attachment_array, True)
 
-
 	'We are going to set the display message for the end of the script run
 	end_msg = "BULK Prep 2 Run has been completed for " & review_date & "."
 
@@ -4651,7 +4650,7 @@ If ex_parte_function = "Phase 1" Then
 							MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb) = replace(MEMBER_INFO_ARRAY(tpqy_rsdi_disa_date, each_memb), " ", "/")
 
 							If MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_claim_numb, each_memb) = MEMBER_INFO_ARRAY(tpqy_dual_entl_nbr, each_memb)
-
+							If MEMBER_INFO_ARRAY(tpqy_rsdi_status_code, each_memb) = "SD" AND MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = "" Then MEMBER_INFO_ARRAY(tpqy_rsdi_gross_amt, each_memb) = 0
 							EMReadScreen present_pay_month, 2, 8, 5
 							EMReadScreen present_pay_year, 2, 8, 8
 							cola_row = 9
@@ -5362,25 +5361,27 @@ If ex_parte_function = "Phase 2" Then
 			'opening the connections and data table
 			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-
+			
 			'Need to make sure we get to SUMM
-			Do
-				Call navigate_to_MAXIS_screen("STAT", "SUMM")
+			Do 
+				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
+				If is_this_priv = True Then exit do
 				EMReadScreen summ_check, 4, 2, 46
 			Loop until summ_check = "SUMM"
+			If is_this_priv = false Then
+				'Calls the function to update the budget panel
+				Call update_stat_budg
 
-			'Calls the function to update the budget panel
-			Call update_stat_budg
-
-			'Send the case through background
-			Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
-			EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
-			If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
-			EMWaitReady 0, 0												'give a pause here
-			EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
-			If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
-			'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
-			Call back_to_SELF												'Need to get to SELF
+				'Send the case through background
+				Call write_value_and_transmit("BGTX", 20, 71)					'Enter the command to force the case through background
+				EMReadScreen wrap_check, 4, 2, 46								'Making sure we are at STAT/WRAP
+				If wrap_check = "WRAP" Then transmit							'If we are at WRAP, transmit through
+				EMWaitReady 0, 0												'give a pause here
+				EMReadScreen database_busy, 23, 4, 44							'Sometimes, when we send a case through background a database record error raises
+				If database_busy = "A MAXIS database record" Then transmit  	'we need to transmit past it
+				'TODO - there may be a NAT error being raised here, but I don't know what that might be from or if we need to resolve it - there does not seem to be any impact to running the script
+				Call back_to_SELF												'Need to get to SELF
+			End If
 
 			'here is the update statement. setting the Phase2 BULK run completion date for the case running
 			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2Complete = '" & date & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and HCEligReviewDate = '" & review_date & "'"
