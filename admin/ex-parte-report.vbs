@@ -5363,7 +5363,8 @@ If ex_parte_function = "Phase 2" Then
 			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 			
 			'Need to make sure we get to SUMM
-			Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
+			Do 
+				Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
 				If is_this_priv = True Then exit do
 				EMReadScreen summ_check, 4, 2, 46
 			Loop until summ_check = "SUMM"
