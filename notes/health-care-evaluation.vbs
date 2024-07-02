@@ -1155,6 +1155,12 @@ function define_main_dialog()
 				y_pos = y_pos + 20
 			End If
 
+			For each asset_item in asset_total_array	'Writing Asset total in dialog
+				Text 20, y_pos, 390, 10, asset_item
+				y_pos = y_pos + 10					
+			Next
+			y_pos = y_pos + 25
+
 			grp_len = y_pos
 			grp_len = grp_len - 80
 			GroupBox 10, 80, 465, grp_len, "Assets"
@@ -1317,7 +1323,12 @@ function define_main_dialog()
 			EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes)
 			y_pos = y_pos + 25
 
-
+			For each asset_item in asset_total_array	'Writing Asset total in dialog
+				Text 20, y_pos, 390, 10, asset_item
+				y_pos = y_pos + 10					
+			Next
+			y_pos = y_pos + 25
+			
 			' grp_len = 10
 
 			' If cars_exists <> rest_exists Then grp_len = grp_len + 75
@@ -3566,97 +3577,8 @@ function write_asset_details_in_NOTE()
 		End If
 	Next
 
-	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Totaling Assets 
-		total_cash 			= 0
-		total_accounts 		= 0
-		total_secu 			= 0
-		total_cars 			= 0
-		car_1_total 		= 0 
-		car_2_total 		= 0 
-		car_3_total 		= 0 
-		total_sum 			= 0 
-		maxVal				= 0
-		car_count			= 0 
-		rest_total 			= 0
-		rest_owed_total 	= 0
-		total_real_estate 	= 0
-		total_assets 		= 0
-		
-
-		total_cash = cInt(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
-		total_accounts = cInt(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)) 
-		total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
-		
-		If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
-		If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
-		If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
-
-		If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = 0
-		If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = 0
-		If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = 0
-
-		If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
-			If STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Used as Home" Then
-				car_1_total = cInt(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
-				car_count = car_count + 1
-			End If
-		End If 
-
-		If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
-			If STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Used as Home" Then
-				car_2_total = cInt(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
-				car_count = car_count + 1
-			End If
-		End If 
-
-		If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
-			If STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Used as Home" Then
-				car_3_total = cInt(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
-				car_count = car_count + 1
-			End If
-		End If 
-
-		total_sum = car_1_total + car_2_total + car_3_total
-		
-		'Removing highest value vehicle if more than 1 vehicle 
-		car_value = Array(car_1_total, car_2_total, car_3_total)
-		If car_count > 1 Then 
-			For value = 0 to Ubound(car_value)
-				If car_value(value) >maxVal THen 
-					maxVal = car_value(value)
-					msgbox maxVal & "HI" 
-				End If
-			Next
-			total_cars = total_sum - maxVal	
-		Else 
-			total_cars = 0
-		End If 
-	
-		IF STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = 0		
-		IF STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = 0
-		IF STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = 0
-
-		IF STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = 0
-		IF STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = 0
-		IF STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = 0
-
-		If STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) <> "Home Residence" Then 
-			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
-			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
-		End If
-		If STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) <> "Home Residence" Then
-			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
-			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
-		End If
-		If STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) <> "Home Residence" Then
-			rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
-			rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
-		End If
-
-		total_real_estate = rest_total - rest_owed_total
-		total_assets = total_cash + total_accounts + total_cars + total_secu + total_real_estate
-		'msgbox "Total Cash: " & total_cash & vbcr & "Total acct: " & total_accounts & vbcr & "Total secu: " & total_secu & vbcr & "Total Cars: " & total_cars & vbcr & "First rest: " & rest_total & vbcr & "First owed: " & rest_owed_total & vbcr & "First equity: " & total_real_estate & vbcr & vbcr & "Second rest: " & rest_total & vbcr & "Second owed: " & rest_owed_total & vbcr & "Second equity: " & total_real_estate & vbcr & vbcr &  "Third owed: " & rest_total & vbcr & "Third owed: " & rest_owed_total & vbcr & "Third equity: " & total_real_estate & vbcr & vbcr & "Total Assets" & total_assets
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - ASSET TOTAL:$ " & total_assets)
+	For each asset_case_note in asset_total_array	' 'Writing Asset total in casenote for each member
+		Call write_variable_in_CASE_NOTE(asset_case_note)
 	Next
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Real Estate Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes))
@@ -6604,6 +6526,106 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	End If
 Next
 If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed)-2)		'formatting the verifs_needed
+
+'Defining Asset total for dialog and casenote
+Dim asset_total_array()
+ReDim asset_total_array(0)
+asset_count = 0 
+
+For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Totaling Assets 
+	total_cash 			= 0
+	total_accounts 		= 0
+	total_secu 			= 0
+	total_cars 			= 0
+	car_1_total 		= 0 
+	car_2_total 		= 0 
+	car_3_total 		= 0 
+	total_sum 			= 0 
+	maxVal				= 0
+	car_count			= 0 
+	rest_total 			= 0
+	rest_owed_total 	= 0
+	total_real_estate 	= 0
+	total_assets 		= 0
+
+	total_cash = cInt(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
+	total_accounts = cInt(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)) 
+	total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+	
+	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Used as Home" Then
+			car_1_total = cInt(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If 
+
+	If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Used as Home" Then
+			car_2_total = cInt(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If 
+
+	If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Used as Home" Then
+			car_3_total = cInt(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If 
+
+	total_sum = car_1_total + car_2_total + car_3_total
+	
+	'Removing highest value vehicle if more than 1 vehicle 
+	car_value = Array(car_1_total, car_2_total, car_3_total)
+	If car_count > 1 Then 
+		For value = 0 to Ubound(car_value)
+			If car_value(value) >maxVal THen 
+				maxVal = car_value(value)
+			End If
+		Next
+		total_cars = total_sum - maxVal	
+	Else 
+		total_cars = 0
+	End If 
+
+	IF STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = 0		
+	IF STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = 0
+
+	IF STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) <> "Home Residence" Then 
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) <> "Home Residence" Then
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) <> "Home Residence" Then
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
+	End If
+
+	total_real_estate = rest_total - rest_owed_total
+	total_assets = total_cash + total_accounts + total_cars + total_secu + total_real_estate
+	'msgbox "Total Cash: " & total_cash & vbcr & "Total acct: " & total_accounts & vbcr & "Total secu: " & total_secu & vbcr & "Total Cars: " & total_cars & vbcr & "First rest: " & rest_total & vbcr & "First owed: " & rest_owed_total & vbcr & "First equity: " & total_real_estate & vbcr & vbcr & "Second rest: " & rest_total & vbcr & "Second owed: " & rest_owed_total & vbcr & "Second equity: " & total_real_estate & vbcr & vbcr &  "Third owed: " & rest_total & vbcr & "Third owed: " & rest_owed_total & vbcr & "Third equity: " & total_real_estate & vbcr & vbcr & "Total Assets" & total_assets
+
+	string_total_asset_by_member = "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - TOTAL ASSETS: $ " & total_assets
+	ReDim Preserve asset_total_array(asset_count)
+	asset_total_array(asset_count) = string_total_asset_by_member
+	asset_count = asset_count + 1
+Next
 
 'This array is to hold notes entered in the dialog BUT because we can't use class parameters to fill information in a dialog, we need to connect them to an array (or a variable)
 'This is a bit of a workaround
