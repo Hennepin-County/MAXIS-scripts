@@ -28415,7 +28415,7 @@ If enter_CNOTE_for_GRH = True Then
 				If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
-					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
@@ -28826,6 +28826,22 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 				err_msg = ""
 				move_from_dialog = False
+
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" and HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+					If Isdate(HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
+						err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible Health Care approval."
+					Else
+						If DateDiff("d", HC_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+							err_msg = err_msg & vbNewLine & "* The verification request date: " &  HC_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+							HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
+						End If
+					End If
+				End If
+
+				If err_msg <> "" and ButtonPressed < 1100 Then
+					MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+					If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
+				End If
 
 				If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 				If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
