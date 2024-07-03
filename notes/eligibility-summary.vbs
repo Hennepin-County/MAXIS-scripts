@@ -2,7 +2,7 @@
 name_of_script = "NOTES - ELIGIBILITY SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180          'manual run time in seconds
+STATS_manualtime = 60          	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/01/2024", "Initial development for NOTES - Eligibility Summary is complete and the script is no longer in testing. Future enhancements can be completed as needs are identified.##~## ##~##NOTES - Eiligibility Summary now allows for additional information to be entered for approvals that are prorated or FIATed. The Notes about FIAT are mandatory but the ones about proration are optional.##~## ##~## * * * NOTES - Eligiblity Summary is now the only script to CASE/NOTE approvals. * * * ##~##", "Casey Love, Hennpin County")
 call changelog_update("06/26/2024", "Additional supports added:##~## - Include Vendor Information on MFIP issuances.##~## - Updated the phrasing to identify instances where the script is run on a case twice in a day to be clearer.##~##", "Casey Love, Hennpin County")
 call changelog_update("05/31/2024", "Additional supports added:##~## - CASE/NOTE of MFIP Special Diet MONY/CHCK Issuances.##~## - Update to Thrifty Food Plan and Calculation Display.##~## - Update to the phrasing of beudgets that are not accurate.##~## ##~##Eligibility Summary is now preppared to be the only script to support the CASE/NOTE of approvals.", "Casey Love, Hennpin County")
 call changelog_update("05/08/2024", "New support to display Expedited approvals more accurately, ensuring we are only documenting information for months that will be issued.##~####~##Additional information to have clearer information about ineligible results due to non-cooperation and cases where there is not a limit to shelter expense.", "Casey Love, Hennpin County")
@@ -146,48 +147,6 @@ function enter_verif_missing_header(verif_header)
 		verif_header = True
 	End If
 end function
-
-' function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
-' 	Call write_value_and_transmit("99", cmd_row, cmd_col)
-' 	approval_found = True
-
-' 	row = 7
-' 	Do
-' 		EMReadScreen elig_version, 2, row, 22
-' 		EMReadScreen elig_date, 8, row, 26
-' 		EMReadScreen elig_result, 10, row, 37
-' 		EMReadScreen approval_status, 10, row, 50
-
-' 		elig_version = trim(elig_version)
-' 		elig_result = trim(elig_result)
-' 		approval_status = trim(approval_status)
-
-' 		If approval_status = "APPROVED" Then Exit Do
-
-' 		row = row + 1
-' 	Loop until approval_status = ""
-
-' 	Call clear_line_of_text(18, 54)
-' 	If approval_status = "" Then
-' 		approval_found = false
-' 		PF3
-' 	Else
-' 		Call write_value_and_transmit(elig_version, 18, 54)
-' 		version_number = "0" & elig_version
-' 		version_date = elig_date
-' 		version_result = elig_result
-
-' 		row = 1
-' 		col = 1
-' 		EMSearch "Auto-Closed", row, col
-' 		If row <> 0 Then
-' 			approval_found = false
-' 			version_date = ""
-' 			version_result = ""
-' 			PF3
-' 		End If
-' 	End If
-' end function
 
 function detail_action_that_led_to_approval(current_prog, process_completed, changes_string)
 	process_completed = ""
@@ -468,9 +427,7 @@ function display_snap_shelter_expenses()
 	    PushButton 290, 120, 85, 15, "CM 0018.15.09", cm_18_15_09_btn
 	EndDialog
 
-
 	Do
-
 		dialog Dialog1
 
 		If ButtonPressed = cm_18_15_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001815"
@@ -480,12 +437,56 @@ function display_snap_shelter_expenses()
 end function
 
 function define_dwp_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 140, "DWP Approvals"
 		If DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		dwp_prorate_date = ""
+		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
+			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = False
+				If DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+					display_benefit = True
+				ElseIf InStr(DWP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					'PRORATED REASON FUNCTIONALITY
+					If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then
+						dwp_prorate_date = DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		Next
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 85, 10, "DWP FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+		If dwp_prorate_date <> "" Then
+			Text 15, y_pos+5, 115, 10, "DWP Prorated (" & dwp_prorate_date & "). Reason:"
+			EditBox 130, y_pos, 410, 15, DWP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+		End If
+
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -493,7 +494,6 @@ function define_dwp_elig_dialog()
 			GroupBox 5, 10, 450, 45, "DWP Closed "
 			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
 			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " there are no more months of DWP available."
-
 		Else
 			If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
@@ -564,23 +564,13 @@ function define_dwp_elig_dialog()
 				Text 125, y_pos, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
 				y_pos = y_pos + 15
 
-				' "Fail to File:               " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
-				' "Minor Lvg Arrang.:   " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
-
-				' Text 125, 85, 110, 10, "Monthly Income:      " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
-
-				' "Post 60 DISQ:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
-				' "Sanction Limit:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
-
-				' Text 345, 75, 100, 10, "Fail QC Coop:       " & DWP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
-
 				GroupBox 5, y_pos, 450, 40, "Ineligible Details"
 				y_pos = y_pos + 15
 				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
 					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-					' PushButton 390, y_pos-5, 110, 15, "!", verif_tips_and_tricks_btn
+					PushButton 370, y_pos-5, 15, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If show_pact = True Then
@@ -597,7 +587,6 @@ function define_dwp_elig_dialog()
 				end_of_y_pos = y_pos + 5
 			End If
 		End If
-
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 			GroupBox 5, 155, 540, 65, "DWP Benefits Issued for the Approval Package"
@@ -629,11 +618,6 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 			Next
-			'PRORATED REASON FUNCTIONALITY
-			' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date <> "" Then
-			' 	Text 10, app_y_pos+15, 115, 10, "DWP Prorated (" & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date & "). Reason:"
-			' 	EditBox 130, app_y_pos+10, 410, 15, dwp_prorate_reason
-			' End If
 		End If
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
@@ -786,15 +770,13 @@ function define_dwp_elig_dialog()
 						y_pos_2 = y_pos_2 + 10
 					End If
 				End If
-
 			Next
 		End If
-
 	EndDialog
-
 end function
 
 function define_mf_special_diet_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Special DIET"
 		ButtonGroup ButtonPressed
 			Text 10, 370, 165, 10, "Confirm you have reviewed the check approval:"
@@ -830,11 +812,55 @@ function define_mf_special_diet_dialog()
 end function
 
 function define_mfip_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 165, "MFIP Approvals"
 		If MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		mfip_prorate_date = ""
+		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+			If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = False
+				If MFIP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+					display_benefit = True
+				ElseIf InStr(MFIP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					display_benefit = True
+				End If
+				If display_benefit = True Then
+					'PRORATED REASON FUNCTIONALITY
+					If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
+						mfip_prorate_date = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		Next
+
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 85, 10, "MFIP FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+		If mfip_prorate_date <> "" Then
+			Text 15, y_pos+5, 115, 10, "MFIP Prorated (" & mfip_prorate_date & "). Reason:"
+			EditBox 130, y_pos, 410, 15, MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
@@ -912,6 +938,7 @@ function define_mfip_elig_dialog()
 				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
 				Editbox 180, 115, 50, 15, MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 				Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+				PushButton 370, 115, 15, 15, "!", verif_tips_and_tricks_btn
 
 				If show_pact = True Then
 					Text 15, 140, 120, 10, "List PACT reason(s) for ineligibility: "
@@ -993,11 +1020,6 @@ function define_mfip_elig_dialog()
 				End If
 			Next
 			y_pos = y_pos + 70
-			'PRORATED REASON FUNCTIONALITY
-			' If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_prorate_date <> "" Then
-			' 	Text 10, app_y_pos+15, 115, 10, "MFIP Prorated (" & DWP_ELIG_APPMFIP_ELIG_APPROVALSROVALS(elig_ind).mfip_case_budg_prorate_date & "). Reason:"
-			' 	EditBox 130, app_y_pos+10, 410, 15, mfip_prorate_reason
-			' End If
 		Else
 			y_pos = y_pos + 15
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
@@ -1012,8 +1034,6 @@ function define_mfip_elig_dialog()
 		Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income
 		y_pos = y_pos + 15
 		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
@@ -1132,29 +1152,44 @@ function define_mfip_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-
 		Next
-
 	EndDialog
 end function
 
 
 function define_msa_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MSA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "MSA Approvals"
 	  If MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		Text 10, 350, 550, 10, "NOTES: " & MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+
+	  detail_grp_len = 10
+	  grp_y_pos = 350
+	  y_pos = 360
+	  'MSA has no proration handling
+
+	  If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_source_of_info = "FIAT" Then
+		y_pos = y_pos-20
+		grp_y_pos = grp_y_pos-20
+
+		Text 15, y_pos+5, 85, 10, "MSA FIATed - Reason:"
+		EditBox 100, y_pos, 440, 15, MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+ 	  End If
+
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-	  	' MsgBox MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
 	  	  Select Case MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
-
 			  Case "SSI TYPE"
-			  ''305450
-
 				  GroupBox 5, 10, 445, 120, "Approval Detail - SSI Type MSA"
 				  ' Text 15, 20, 150, 10, "GA Individual Benefit Calculation"
 				  Text 15, 20, 150, 10, "SSI Standard (FBR) . . . . . .  $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr
@@ -1165,11 +1200,9 @@ function define_msa_elig_dialog()
 				  Text 15, 65, 150, 10, "Net Income . . . . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income & "  ( - )"
 				  Text 15, 75, 150, 10, "MSA Grant . . . . . . . . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant
 
-
 				  y_pos = 20
 
 			  Case "Non-SSI TYPE"
-			  ''305184
 			  	  GroupBox 5, 10, 445, 120, "Approval Detail - Non-SSI Type MSA"
 
 				  Text 15, 20, 150, 10, "Unearned income . . . . . . . . .  $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income
@@ -1179,11 +1212,9 @@ function define_msa_elig_dialog()
 				  Text 15, 60, 150, 10, "Net Earned Income . . . . . .  . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income & "  ( + )"
 				  Text 15, 70, 150, 10, "Net Income . . . . . . . . . . . .  . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income
 
-
 				  Text 205, 20, 150, 10, "Need Standard . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_need_standard
 				  Text 205, 30, 150, 10, "Net Income . . . . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income & "  ( - )"
 				  Text 205, 40, 150, 10, "MSA Grant . . . . . . . . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant
-
 
 				  y_pos = 55
 		  End Select
@@ -1218,25 +1249,6 @@ function define_msa_elig_dialog()
 
 		  Text 55, 90, 80, 10, " Result:  " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result
 		  Text 15, 105, 160, 20, "Months in Approval:  " & replace(MSA_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
-		  '
-		  ' Text 15, 55, 150, 10, "Household Unit Size - " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_memb_hh_count
-		  ' Text 15, 65, 100, 10, "Countable Assets: " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_countable_assets
-		  ' Text 15, 75, 100, 10, "Maximum Assets: " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_maximum_assets
-		  '
-		  ' GroupBox 300, 10, 150, 120, "Countable Income Calculation"
-		  ' Text 305, 25, 145, 10, "Gross Wages/Salary . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_wages
-		  ' Text 305, 35, 145, 10, "Self Employment . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp
-		  ' Text 305, 45, 145, 10, "Total Earned Income . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
-		  ' Text 305, 55, 145, 10, "Standard EI Disregard . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_standard_EI_disregard & "  ( - )"
-		  ' Text 305, 65, 145, 10, "EI Disregard (" & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_percent & "%) . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_amount & "  ( - )"
-		  ' Text 305, 75, 145, 10, "Net Earned Income . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
-		  ' Text 305, 85, 145, 10, "Unearned Income . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_unearned_income
-		  ' Text 305, 95, 145, 10, "Counted School Income . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_counted_school_income
-		  ' Text 305, 105, 145, 10, "Deemed Income . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deemed_income
-		  ' Text 305, 115, 145, 10, "Total Counteable Income . . .$ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_countable_income
-
-
-
 	  Else
 		GroupBox 5, 10, 450, 90, "Approval Detail"
 		Text 15, 20, 80, 10, " Result:   " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result
@@ -1254,12 +1266,12 @@ function define_msa_elig_dialog()
 		Text 175, 75, 150, 10, "Retro Net Income:             " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income
 		Text 175, 85, 150, 10, "Verification:                        " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif
 
-
 		GroupBox 5, 105, 450, 60, "Ineligible Details"
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then
 			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
 			Editbox 180, 115, 50, 15, MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+			PushButton 370, 115, 15, 15, "!", verif_tips_and_tricks_btn
 		Else
 			Text 15, 125, 300, 20, "This case is ineligible because it hasn't met the requirements for GA Eligibility. The case tests above show what requirements have not been met."
 		End if
@@ -1293,15 +1305,6 @@ function define_msa_elig_dialog()
 		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
-			' GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
-			' y_pos = 105
-			' for each_memb = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs)
-			' 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) = "A" Then
-			' 		Text 15, y_pos, 250, 10, "MEMB " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " - " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_elig_basis_info(each_memb)
-			' 		y_pos =y_pos + 10
-			' 	End If
-			' Next
-
 			GroupBox 5, 135, 445, 65, "MSA Benefits Issued for the Approval Package"
 			app_y_pos = 150
 			app_x_pos = 10
@@ -1324,7 +1327,6 @@ function define_msa_elig_dialog()
 		GroupBox 5, 205, 540, income_box_len, "Income"
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "Non-SSI TYPE" Then
-
 			Text 10, 215, 155, 10, "Total NET EARNED Income:   $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income
 			Text 300, 215, 155, 10, "Total NET UNEARNED Income:   $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_unearned_income
 		Else
@@ -1449,18 +1451,57 @@ function define_msa_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-
 		Next
-
 	EndDialog
 end function
 
 function define_ga_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "GA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "GA Approvals"
 	  If GA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		  Text 10, 350, 550, 10, "NOTES: " & GA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+
+	  detail_grp_len = 10
+	  grp_y_pos = 350
+	  y_pos = 360
+	  ga_prorate_date = ""
+	  For approval = 0 to UBound(GA_ELIG_APPROVALS)
+		If InStr(GA_UNIQUE_APPROVALS(months_in_approval, approval_selected), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			display_benefit = False
+			If GA_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+				display_benefit = True
+			ElseIf InStr(GA_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = True
+			End If
+			If display_benefit = True Then
+				'PRORATED REASON FUNCTIONALITY
+	  			If ga_prorate_date = "" Then
+					If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from <> "" Then
+						ga_prorate_date = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					ElseIf GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to <> "" Then
+						ga_prorate_date = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to
+						y_pos = y_pos-20
+						grp_y_pos = grp_y_pos-20
+					End If
+				End If
+			End If
+		End If
+	  Next
+
+	  If ga_prorate_date <> "" Then
+		Text 15, y_pos+5, 115, 10, "GA Prorated (" & ga_prorate_date & "). Reason:"
+		EditBox 130, y_pos, 410, 15, GA_UNIQUE_APPROVALS(proration_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+ 	  End If
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -1490,17 +1531,6 @@ function define_ga_elig_dialog()
 		  Text 15, 65, 100, 10, "Countable Assets: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_countable_assets
 		  Text 15, 75, 100, 10, "Maximum Assets: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_maximum_assets
 
-		  ' GroupBox 5, 75, 140,  55, "Cash Amount Calculation"
-		  ' Text 15, 85, 125, 10, "Cash Portion . . . . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion
-		  ' Text 15, 95, 125, 10, "Subsidy Reduction . . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses & "  ( - )"
-		  ' Text 15, 105, 125, 10, "Sanction . . . . . . . . . . . . $ " ''& GA_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot & "  ( - )"
-		  ' Text 15, 115, 125, 10, "Cash Issuance . . . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_cash_after_sanc_portion
-		  '
-		  ' GroupBox 150, 75, 140,  55, "Food Amount Calculation"
-		  ' Text 160, 85, 125, 10, "Food Portion . . . . . . . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_food_portion
-		  ' Text 160, 95, 125, 10, "Food Portion Deduction . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_food_portion_deduction & "  ( - )"
-		  ' Text 160, 105, 125, 10, "Food Issuance . . . . . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).mfip_case_budg_fed_food_benefit
-
 		  GroupBox 300, 10, 150, 120, "Countable Income Calculation"
 		  Text 305, 25, 145, 10, "Gross Wages/Salary . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_wages
 		  Text 305, 35, 145, 10, "Self Employment . . . . . . . . . .$ " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp
@@ -1512,9 +1542,6 @@ function define_ga_elig_dialog()
 		  Text 305, 95, 145, 10, "Counted School Income . . . $ " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_counted_school_income
 		  Text 305, 105, 145, 10, "Deemed Income . . . . . . . . . $ " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deemed_income
 		  Text 305, 115, 145, 10, "Total Counteable Income . . .$ " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_countable_income
-
-
-
 	  Else
 		GroupBox 5, 10, 450, 90, "Approval Detail"
 		Text 15, 20, 80, 10, " Result:   " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result
@@ -1534,14 +1561,12 @@ function define_ga_elig_dialog()
 		Text 175, 75, 150, 10, "Verification:                        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif
 		Text 175, 85, 150, 10, "Lump Sum Payment:          " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_lump_sum_payment
 
-
-		' y_pos = 120
-		' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" Then
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" OR GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info = "No Proof Given" Then
 			GroupBox 5, 105, 450, 85, "Ineligible Details"
 			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
 			Editbox 180, 115, 50, 15, GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+			PushButton 370, 115, 15, 15, "!", verif_tips_and_tricks_btn
 			Text 15, 130, 175, 10, "Detail the Verifications NOT Received and Needed:"
 			EditBox 15, 140, 430, 15, GA_UNIQUE_APPROVALS(verif_request_details, approval_selected)
 			y_pos = 160
@@ -1604,16 +1629,6 @@ function define_ga_elig_dialog()
 					End If
 				End If
 			Next
-			'PRORATED REASON FUNCTIONALITY
-			' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from <> "" Then
-			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
-			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
-			' End If
-			' ElseIf GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from <> "" Then
-			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
-			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
-			' End If
-
 		Else
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
@@ -1744,13 +1759,12 @@ function define_ga_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-
 		Next
-
 	EndDialog
 end function
 
 function define_deny_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "CASH Denial Approval Packages"
 	  ButtonGroup ButtonPressed
 		If DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
@@ -1870,14 +1884,10 @@ function define_deny_elig_dialog()
 
 				Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
 				y_pos = y_pos + 10
-				' Text 30, y_pos, 425, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
-				' y_pos = y_pos + 10
 				Text 30, y_pos, 425, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income
 				y_pos = y_pos + 10
 				Text 30, y_pos, 425, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income & "                          Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
 				y_pos = y_pos + 10
-				' Text 30, y_pos, 425, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
-				' y_pos = y_pos + 10
 				Text 30, y_pos, 425, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level
 				y_pos = y_pos + 10
 			End If
@@ -1923,12 +1933,6 @@ function define_deny_elig_dialog()
 				Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
 				y_pos = y_pos + 10
 			End If
-			' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_new_spouse_income = "FAILED" Then
-			' 	Text 20, y_pos, 425, 10, ""
-			' 	y_pos = y_pos + 10
-			' End If
-
-			' Text 20, y_pos, 125, 10, "MORE DETAIL"
 			If TEMP_VAR_cash_family_or_adult = "Adult" Then y_pos = y_pos + 10
 		End If
 		If TEMP_VAR_cash_family_or_adult = "Family" Then
@@ -2019,14 +2023,10 @@ function define_deny_elig_dialog()
 
 				Text 30, y_pos, 400, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
 				y_pos = y_pos + 10
-				' Text 30, y_pos, 400, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
-				' y_pos = y_pos + 10
 				Text 30, y_pos, 400, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned
 				y_pos = y_pos + 10
 				Text 30, y_pos, 400, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deemed & "                          Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
 				y_pos = y_pos + 10
-				' Text 30, y_pos, 400, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
-				' y_pos = y_pos + 10
 				Text 30, y_pos, 400, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level
 				y_pos = y_pos + 10
 			End If
@@ -2086,13 +2086,6 @@ function define_deny_elig_dialog()
 				Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
 				y_pos = y_pos + 10
 			End If
-			' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_275_new_spouse_income = "FAILED" Then
-			' 	Text 20, y_pos, 425, 10, ""
-			' 	y_pos = y_pos + 10
-			' End If
-
-			' Text 20, y_pos, 125, 10, "MORE DETAIL"
-			' y_pos = y_pos + 10
 			If TEMP_VAR_cash_family_or_adult = "Adult" Then y_pos = y_pos + 10
 		End If
 		If TEMP_VAR_cash_family_or_adult = "Family" Then
@@ -2103,7 +2096,6 @@ function define_deny_elig_dialog()
 		End If
 
 		DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
-		' MsgBox CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = True
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = False Then msa_grp_len = 25
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = True Then
@@ -2170,12 +2162,6 @@ function define_deny_elig_dialog()
 				Text 20, y_pos, 425, 10, "The household has exceeded the Net Income Limit."
 				y_pos = y_pos + 10
 			End If
-			' If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
-			' 	Text 25, y_pos, 125, 10, "Explain Verifications not Received:"
-			' 	y_pos = y_pos + 10
-			' 	EditBox 25, y_pos, 420, 15, TEMP_VAR_deny_msa_elig_explanation
-			' 	y_pos = y_pos + 15
-			' End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
 				Text 20, y_pos, 425, 10, "The household has not provided required verifications."
 				y_pos = y_pos + 10
@@ -2203,9 +2189,7 @@ function define_deny_elig_dialog()
 				Text 25, y_pos, 420, 10, "MSA Net Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income
 				y_pos = y_pos + 10
 			End If
-			' Text 20, y_pos, 125, 10, "MORE DETAIL"
 
-			' y_pos = y_pos + 10
 			If TEMP_VAR_cash_family_or_adult = "Family" Then y_pos = y_pos + 10
 		End If
 		If TEMP_VAR_cash_family_or_adult = "Adult" Then
@@ -2251,7 +2235,6 @@ function define_deny_elig_dialog()
 
 
 		If DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True Then
-			' y_pos = y_pos + 5
 			Text 10, y_pos, 300, 10, "The denial was due to verifications not recieved. Detail the verification request."
 			y_pos = y_pos + 15
 
@@ -2268,8 +2251,6 @@ function define_deny_elig_dialog()
 		Text 15, y_pos, 50, 10, "Verifs Detail:"
 		Editbox 65, y_pos-5, 475, 15, DENY_UNIQUE_APPROVALS(verif_request_details, approval_selected)
 		y_pos = y_pos + 15
-		' GroupBox 10, 200, 30, ga_grp_len, "GA"
-		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
 		If STAT_INFORMATION(month_ind).stat_prog_cash_I_status = "DENY" Then
 			Text 460, 10, 75, 10, "   Application Date: "
 			Text 460, 20, 75, 10, "      " & STAT_INFORMATION(month_ind).stat_prog_cash_I_appl_date
@@ -2314,7 +2295,6 @@ function define_deny_elig_dialog()
 		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
 		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
-		' y_pos = y_pos + 5
 		GroupBox 5, y_pos, 540, income_box_len, "Income"
 		y_pos = y_pos + 15
 
@@ -2323,8 +2303,6 @@ function define_deny_elig_dialog()
 
 		y_pos = y_pos + 10
 		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
@@ -2440,18 +2418,35 @@ function define_deny_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-
 		Next
 	EndDialog
 end function
 
 function define_grh_elig_dialog()
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "HS/GRH Approval Packages"
 	  ButtonGroup ButtonPressed
 
 		GroupBox 460, 10, 85, 105, "HS/GRH Approvals"
 		If GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 			Text 10, 350, 550, 10, "NOTES: " & GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+
+		detail_grp_len = 10
+		grp_y_pos = 350
+		y_pos = 360
+		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then
+			y_pos = y_pos-20
+			grp_y_pos = grp_y_pos-20
+
+			Text 15, y_pos+5, 85, 10, "GRH FIATed - Reason:"
+			EditBox 100, y_pos, 440, 15, GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+			y_pos = y_pos + 20
+			detail_grp_len = detail_grp_len + 20
+		End If
+
+		If detail_grp_len <> 10 Then
+			GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
 		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
@@ -2546,19 +2541,6 @@ function define_grh_elig_dialog()
 				Text 230, ded_y_pos, 185, 10, "Inc Unavail 1st Month .  .  .  .  .  .- $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month
 				ded_y_pos = ded_y_pos + 10
 
-				' If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Blind" Then
-				' 	Text 20, 175, 185, 10, "grh_elig_budg_student_EI_disregard: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_student_EI_disregard
-				' 	Text 20, 185, 185, 10, "grh_elig_budg_impairment_work_expense: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_impairment_work_expense
-				' ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Disabled" Then
-				' 	Text 20, 175, 185, 10, "grh_elig_budg_student_EI_disregard: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_student_EI_disregard
-				' 	Text 20, 185, 185, 10, "grh_elig_budg_impairment_work_expense: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_impairment_work_expense
-				' ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Aged" Then
-				' 	Text 20, 175, 185, 10, "grh_elig_budg_EW_spousal_allocation: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_EW_spousal_allocation
-				' ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Adult" Then
-				' 	Text 230, 40, 185, 10, "grh_elig_budg_earned_income_subtotal: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_earned_income_subtotal
-				' End If
-
-			' ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "None" Then
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Residential Treatment" Then
 				y_pos = y_pos - 10
 				Text 20, y_pos, 400, 10, "-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
@@ -2571,7 +2553,6 @@ function define_grh_elig_dialog()
 				Text 230, y_pos+45, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
 				Text 230, y_pos+55, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
 			End if
-			' Income_detail_start = 215
 			y_pos = y_pos + budget_grp_bx_len - 30
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Residential Treatment" Then y_pos = y_pos + 10
 		Else
@@ -2605,18 +2586,6 @@ function define_grh_elig_dialog()
 				inelig_det_grp_y_pos = y_pos + 50
 				y_pos = y_pos + 60
 			End If
-			' Text 235, 45, 110, 10, "Post 60 DISQ:     " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
-			' Text 235, 65, 110, 10, "Sanction Limit:     " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
-			' Text 235, 75, 110, 10, "Strike:                  " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_strike
-			' Text 235, 85, 110, 10, "TANF Time Limit: " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_TANF_time_limit
-			'
-			' Text 345, 45, 100, 10, "Asset Transfer:     " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_transfer_asset
-			' Text 345, 65, 100, 10, "New Spouse Income: " & GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income
-			' Text 345, 75, 100, 10, "Fail QC Coop:       " & GRH_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
-
-
-			' If GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" or (GRH_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" and STAT_INFORMATION(month_ind).stat_pact_exists = True) Then
-			' y_pos = 115
 
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file = "FAILED" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_assets = "FAILED" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" Then
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file = "FAILED" Then
@@ -2711,10 +2680,10 @@ function define_grh_elig_dialog()
 					Text 15, y_pos+5, 165, 10, "What is the date the verification request was sent? "
 					Editbox 180, y_pos, 50, 15, GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos+5, 150, 10, "(due date is 10 days from this request date)"
+					PushButton 370, y_pos, 15, 15, "!", verif_tips_and_tricks_btn
 					y_pos = y_pos + 20
 
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif_PACT = "FAILED" Then
-					' If show_pact = True Then
 						Text 15, y_pos, 120, 10, "List PACT reason(s) for ineligibility: "
 						Editbox 130, y_pos-5, 310, 15, GRH_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
 						y_pos = y_pos + 10
@@ -2759,12 +2728,10 @@ function define_grh_elig_dialog()
 		If GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 80, 50, 10, "View ELIG", nav_stat_elig_btn
 		If GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 395, budget_grp_bx_len-5, 50, 10, "View ELIG", nav_stat_elig_btn
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" AND (GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one <> "" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two <> "") Then
-			' y_pos = y_pos+5
 			GroupBox 5, y_pos, 540, 90, "HS/GRH Vendor Payments"
 			y_pos = y_pos+10
 
 			GroupBox 10, y_pos, 260, 75, "VENDOR ONE:   " & GRH_ELIG_APPROVALS(elig_ind).grh_vendor_one_name
-			' Text 15, 160, 150, 10, "    Vendor Name: " & GRH_ELIG_APPROVALS(elig_ind).grh_vendor_one_name
 			Text 15, y_pos+10, 150, 10, " Vendor Number: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_vendor_number_one
 			Text 15, y_pos+20, 150, 10, "        Total Days: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one
 			Text 15, y_pos+30, 150, 10, "          Rate Limit: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_vnd2_rate_limit_one
@@ -2780,7 +2747,6 @@ function define_grh_elig_dialog()
 
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two <> "" Then
 				GroupBox 280, y_pos, 260, 75, "VENDOR TWO:   " & GRH_ELIG_APPROVALS(elig_ind).grh_vendor_two_name
-				' Text 275, 160, 150, 10, "    Vendor Name: " & GRH_ELIG_APPROVALS(elig_ind).grh_vendor_two_name
 				Text 285, y_pos+10, 150, 10, " Vendor Number: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_vendor_number_two
 				Text 285, y_pos+20, 150, 10, "        Total Days: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two
 				Text 285, y_pos+30, 150, 10, "          Rate Limit: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_vnd2_rate_limit_two
@@ -2805,8 +2771,6 @@ function define_grh_elig_dialog()
 			y_pos = y_pos+20
 		End if
 
-
-
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
 		apprvs_y_pos = 25
@@ -2818,7 +2782,6 @@ function define_grh_elig_dialog()
 			Else
 				month_display = GRH_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & GRH_UNIQUE_APPROVALS(last_mo_const, each_app)
 			End if
-			' If each_app = approval_selected Then display_detail = month_display
 			If each_app = approval_selected Then
 				Text 470, apprvs_y_pos+2, 70, 13, month_display
 			Else
@@ -2829,8 +2792,6 @@ function define_grh_elig_dialog()
 		PushButton 465, 80, 75, 15, "About Approval Pkgs", unique_approval_explain_btn
 		PushButton 465, 100, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
-		' y_pos = Income_detail_start
-
 		GroupBox 5, y_pos, 540, income_box_len, "Income"
 		y_pos = y_pos + 15
 
@@ -2839,15 +2800,12 @@ function define_grh_elig_dialog()
 
 		y_pos = y_pos + 10
 		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_grh(each_memb) = True Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
-					' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
 					y_pos = y_pos - 10
 				End If
 				y_pos = y_pos + 20
@@ -2857,7 +2815,6 @@ function define_grh_elig_dialog()
 				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
-					' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
 					y_pos = y_pos - 10
 				End If
 				y_pos = y_pos + 20
@@ -2867,7 +2824,6 @@ function define_grh_elig_dialog()
 				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
-					' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
 					y_pos = y_pos - 10
 				End If
 				y_pos = y_pos + 20
@@ -2877,7 +2833,6 @@ function define_grh_elig_dialog()
 				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
-					' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
 					y_pos = y_pos - 10
 				End If
 				y_pos = y_pos + 20
@@ -2887,7 +2842,6 @@ function define_grh_elig_dialog()
 				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 				Else
-					' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
 					y_pos = y_pos - 10
 				End If
 				y_pos = y_pos + 20
@@ -2971,16 +2925,11 @@ function define_grh_elig_dialog()
 			Text 305, y_pos_2, 235, 10, "No UNEARNED Income counted for Housing Support (GRH)."
 			y_pos_2 = y_pos_2 + 10
 		End if
-
-
-
-
 	EndDialog
-
 end function
 
 function define_hc_elig_dialog()
-
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "HC Approval Packages"
 
 	  ButtonGroup ButtonPressed
@@ -3182,8 +3131,6 @@ function define_hc_elig_dialog()
 					Text 20, y_pos+add_to_y_pos, 175, 10, "Detail the Verifications NOT Received and Needed:"
 					EditBox 20, y_pos+add_to_y_pos+10, 420, 15, HC_UNIQUE_APPROVALS(verif_request_details, approval_selected)
 					add_to_y_pos = add_to_y_pos + 25
-
-
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_withdrawn(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Request for Health Care has been withdrawn or requested closed. -WITHDRAWAL"
@@ -3246,10 +3193,6 @@ function define_hc_elig_dialog()
 						Text 315, y_pos+75, 135, 10, "Total Net Income .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_net_income(memb_ind)
 						Text 315, y_pos+85, 135, 10, "Income Standard .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
 
-						' HC_ELIG_APPROVALS(elig_ind).HERE(memb_ind)
-						' HC_ELIG_APPROVALS(elig_ind).HERE(memb_ind)
-						' HC_ELIG_APPROVALS(elig_ind).HERE(memb_ind)
-						' HC_ELIG_APPROVALS(elig_ind).HERE(memb_ind)
 						y_pos = y_pos + 110
 					ElseIf HC_ELIG_APPROVALS(elig_ind).hc_budget_type(memb_ind) = "BBUD" Then
 						Text 20, y_pos+10, 135, 10, "Unearned Inc .  .  .  .  .$ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_gross_unearned(memb_ind)
@@ -3510,128 +3453,7 @@ function define_hc_elig_dialog()
 			Text 60, y_pos+35, 250, 10, "  -  No New Program Eligibility"
 			Text 20, y_pos+45, 40, 10, HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_assistance_unit(memb_ind)
 			Text 60, y_pos+45, 250, 10, "  -  Assistance Unit Member"
-
 		End if
-		' If scnd_elig_ind <> "" Then
-		' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "MA" or HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "EMA" Then
-		' 		GroupBox 10, y_pos, 440, 95, "MEMB " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_ref_numbs(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_full_name(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(scnd_memb_ind) & " for " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind)
-		' 		If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
-		' 		If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
-		' 	    Text 25, y_pos+25, 95, 10, "Elig Type: " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_elig_type(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_basis(memb_ind)
-		' 	    Text 25, y_pos+35, 95, 10, "Standard: " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_elig_standard(scnd_memb_ind) & " - 100% FPG"
-		' 	    Text 30, y_pos+45, 55, 10, "Method: B"
-		' 		If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_waiver(scnd_memb_ind) <> "_" Then
-		' 			GroupBox 15, y_pos+60, 140, 30, "Waiver Approved"
-		' 			Text 25, y_pos+75, 120, 10, "Type: " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_waiver(scnd_memb_ind) & " - INFORMATION"
-		' 		End If
-		' 		If HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-		' 		    Text 155, y_pos+10, 120, 10, "Unearned Inc .  .  .  .  .$ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_gross_unearned(scnd_memb_ind)
-		' 		    Text 155, y_pos+20, 120, 10, "Deemed UNEA .  . (+) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_deemed_unearned(scnd_memb_ind) ''& "(+)"
-		' 		    Text 155, y_pos+30, 120, 10, "Excld UNEA  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_excluded_unearned(scnd_memb_ind) ''& "(-)"
-		' 		    Text 155, y_pos+40, 120, 10, "UNEA Deduct  .  .  .(-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_unearned_deduction(scnd_memb_ind) ''& "(-)"
-		' 		    Text 155, y_pos+55, 120, 10, "Net Unearned Inc  .  .  .  . $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_net_unearned_income(scnd_memb_ind)
-		' 		    Text 305, y_pos+10, 125, 10, "Earned Inc .  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_gross_earned(scnd_memb_ind)
-		' 		    Text 305, y_pos+20, 120, 10, "Deemed Earned .  .  . (+) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_deemed_earned(scnd_memb_ind)'' & "(+)"
-		' 		    Text 305, y_pos+30, 120, 10, "Excld Earned .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_excluded_earned(scnd_memb_ind) ''& "(-)"
-		' 		    Text 305, y_pos+40, 120, 10, "Earned Deduct  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_earned_deduction(scnd_memb_ind) ''& "(-)"
-		' 		    Text 305, y_pos+55, 130, 10, "Net Earned Inc  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_net_earned_income(scnd_memb_ind)
-		' 		    Text 315, y_pos+70, 120, 10, "Total Net Income .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_total_net_income(scnd_memb_ind)
-		' 		    Text 315, y_pos+80, 120, 10, "Income Standard .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_income_standard(scnd_memb_ind)
-		' 		End If
-		' 		y_pos = y_pos + 100
-		'
-		' 		If trim(HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_spenddown(scnd_memb_ind)) <> "0.00" Then
-		' 			GroupBox 10, y_pos, 440, 30, "Spenddown Exists"
-		' 			Text 20, y_pos+15, 150, 10, "Spenddown Type: " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_mobl_type(scnd_memb_ind)
-		' 			Text 185, y_pos+15, 150, 10, "Spenddown Amount $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_spenddown(scnd_memb_ind)
-		' 			y_pos = y_pos + 35
-		' 		End If
-		' 	End If
-		'
-		' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "QMB" or HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "SLMB" or HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind) = "QI1" Then
-		' 		GroupBox 10, y_pos, 440, 95, "MEMB " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_ref_numbs(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_elig_full_name(scnd_memb_ind) & " - " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_eligibility_result(scnd_memb_ind) & " for " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_major_program(scnd_memb_ind)
-		' 		If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
-		' 		If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
-		' 	    Text 25, y_pos+25, 95, 10, "Elig Type:DQ - Disability"
-		' 	    Text 25, y_pos+35, 95, 10, "Standard: Q - 100% FPG"
-		' 	    Text 155, y_pos+10, 120, 10, "Unearned Inc .  .  .  .  .$ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_gross_unearned(scnd_memb_ind)
-		' 	    Text 155, y_pos+20, 120, 10, "Deemed UNEA .  . (+) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_deemed_unearned(scnd_memb_ind)
-		' 	    Text 155, y_pos+30, 120, 10, "Excld UNEA  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_excluded_unearned(scnd_memb_ind)
-		' 	    Text 155, y_pos+40, 120, 10, "UNEA Deduct  .  .  . (-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_unearned_deduction(scnd_memb_ind)
-		' 		Text 155, y_pos+50, 120, 10, "Stndrd Disregard  .  . (-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_standard_disregard(scnd_memb_ind)
-		' 	    Text 155, y_pos+65, 120, 10, "Net Unearned Inc  .  .  .  . $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_net_unearned_income(scnd_memb_ind)
-		' 	    Text 305, y_pos+10, 125, 10, "Earned Inc .  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_gross_earned(scnd_memb_ind)
-		' 	    Text 305, y_pos+20, 120, 10, "Deemed Earned .  .  . (+) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_deemed_earned(scnd_memb_ind)
-		' 	    Text 305, y_pos+30, 120, 10, "Excld Earned .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_excluded_earned(scnd_memb_ind)
-		' 	    Text 305, y_pos+40, 120, 10, "Earned Deduct  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_earned_deduction(scnd_memb_ind)
-		' 	    Text 305, y_pos+55, 130, 10, "Net Earned Inc  .  .  .  .  .  .  .$ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_net_earned_income(scnd_memb_ind)
-		' 	    Text 315, y_pos+70, 120, 10, "Total Net Income .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_total_net_income(scnd_memb_ind)
-		' 	    Text 315, y_pos+80, 120, 10, "Income Standard .  .  .  .  $ " & HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_budg_income_standard(scnd_memb_ind)
-		' 		'TODO - add excess income information if ineligible'
-		' 		y_pos = y_pos + 100
-		' 		' GroupBox 10, 245, 440, 30, "Spenddown Exists"
-		' 	End If
-		'
-		' End If
-
-
-		' BeginDialog Dialog1, 0, 0, 555, 385, "HC Approval Packages"
-		'   ButtonGroup ButtonPressed
-		'     PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
-		'   GroupBox 460, 10, 85, 105, "HC Approvals"
-		'   Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		'   DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - do not CASE/NOTE this information", GRH_UNIQUE_APPROVALS(confirm_budget_selection
-		'   GroupBox 10, 10, 440, 95, "MEMB 01 - NAME GOES HERE - ELIGIBLE for MA"
-		'   Text 25, 35, 95, 10, "Elig Type: DX - Detail"
-		'   Text 25, 45, 95, 10, "Standard: E - 100% FPG"
-		'   Text 30, 55, 55, 10, "Method: B"
-		'   GroupBox 15, 20, 140, 50, "Eligiblity for 05/22 - 11/22"
-		'   Text 165, 20, 120, 10, "Unearned Inc .  .  .  . $ 1423.10"
-		'   Text 165, 30, 120, 10, "Deemed UNEA .  .  .  $ 0.00 (+)"
-		'   Text 165, 40, 120, 10, "Excld UNEA  .  .  .  .   $ 0.00 (-)"
-		'   Text 165, 50, 120, 10, "UNEA Deduct  .  .  .  . $ 0.00 (-)"
-		'   Text 165, 65, 120, 10, "Net Unearned Inc  .  .  .  . $ 0.00"
-		'   Text 315, 20, 125, 10, "Earned Inc .  .  .  .  .  .  . $ 1423.10"
-		'   Text 315, 30, 120, 10, "Deemed Earned .  .  .  .  $ 0.00 (+)"
-		'   Text 315, 40, 120, 10, "Excld Earned .  .  .  .  .  .$ 0.00 (-)"
-		'   Text 315, 50, 120, 10, "Earned Deduct  .  .  .  .  .$ 0.00 (-)"
-		'   Text 315, 65, 130, 10, "Net Earned Inc  .  .  .  .  .  .  $ 0.00"
-		'   Text 325, 80, 120, 10, "Total Net Income .  .  .  .  $ 1019.00"
-		'   Text 325, 90, 120, 10, "Income Standard .  .  .  .  $ 1133.00"
-		'   GroupBox 15, 70, 140, 30, "Waiver Approved"
-		'   Text 25, 85, 120, 10, "Type: F - INFORMATION"
-		'   GroupBox 10, 110, 440, 30, "Spenddown Exists"
-		'   Text 20, 125, 150, 10, "Spenddown Type: XXXXXXX"
-		'   Text 185, 125, 150, 10, "Spenddown Amount $ XXXXXXX"
-		'   GroupBox 10, 145, 440, 95, "MEMB 01 - NAME GOES HERE - ELIGIBLE for QMB"
-		'   Text 25, 170, 95, 10, "Elig Type:DQ - Disability"
-		'   Text 25, 180, 95, 10, "Standard: Q - 100% FPG"
-		'   GroupBox 15, 155, 140, 40, "Eligiblity for 05/22 - 11/22"
-		'   Text 165, 155, 120, 10, "Unearned Inc .  .  .  . $ 1423.10"
-		'   Text 165, 165, 120, 10, "Deemed UNEA .  .  .  $ 0.00 (+)"
-		'   Text 165, 175, 120, 10, "Excld UNEA  .  .  .  .   $ 0.00 (-)"
-		'   Text 165, 185, 120, 10, "UNEA Deduct  .  .  .  . $ 0.00 (-)"
-		'   Text 165, 210, 120, 10, "Net Unearned Inc  .  .  .  . $ 0.00"
-		'   Text 315, 155, 125, 10, "Earned Inc .  .  .  .  .  .  . $ 1423.10"
-		'   Text 315, 165, 120, 10, "Deemed Earned .  .  .  .  $ 0.00 (+)"
-		'   Text 315, 175, 120, 10, "Excld Earned .  .  .  .  .  .$ 0.00 (-)"
-		'   Text 315, 185, 120, 10, "Earned Deduct  .  .  .  .  .$ 0.00 (-)"
-		'   Text 315, 200, 130, 10, "Net Earned Inc  .  .  .  .  .  .  $ 0.00"
-		'   Text 325, 215, 120, 10, "Total Net Income .  .  .  .  $ 1019.00"
-		'   Text 325, 225, 120, 10, "Income Standard .  .  .  .  $ 1133.00"
-		'   Text 165, 195, 120, 10, "Stndrd Disregard  .  . $ 0.00 (-)"
-		' EndDialog
-
-		' If GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then
-		' 	month_display = GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected)
-		' ElseIF GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-		' 	month_display = GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - Ongoing"
-		' Else
-		' 	month_display = GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)
-		' End if
-		' Text 15, 25, 430, 10, "*-*-*-* Resident: MEMB " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name & " is " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result & " for Housing Support (GRH) for " & month_display & " *-*-*-*"
-
-
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
@@ -3656,10 +3478,6 @@ function define_hc_elig_dialog()
 		PushButton 460, 85, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
 		PushButton 460, 100, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
-		' y_pos = Income_detail_start
-		' y_pos = 175
-
-
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) <> "HC DENIAL" Then
 			GroupBox 5, y_pos, 540, income_box_len, "Income"
 			y_pos = y_pos + 15
@@ -3669,8 +3487,6 @@ function define_hc_elig_dialog()
 
 			y_pos = y_pos + 10
 			y_pos_2 = y_pos
-			' y_pos = 230
-			' y_pos_2 = 230
 			HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind)
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				For each inc_count_memb in HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts(memb_ind)
@@ -3680,7 +3496,6 @@ function define_hc_elig_dialog()
 							If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 							Else
-								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_grh_pic_pay_freq(each_memb)
 								y_pos = y_pos - 10
 							End If
 							y_pos = y_pos + 20
@@ -3690,7 +3505,6 @@ function define_hc_elig_dialog()
 							If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 							Else
-								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_grh_pic_pay_freq(each_memb)
 								y_pos = y_pos - 10
 							End If
 							y_pos = y_pos + 20
@@ -3700,7 +3514,6 @@ function define_hc_elig_dialog()
 							If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 							Else
-								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_grh_pic_pay_freq(each_memb)
 								y_pos = y_pos - 10
 							End If
 							y_pos = y_pos + 20
@@ -3710,7 +3523,6 @@ function define_hc_elig_dialog()
 							If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 							Else
-								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_grh_pic_pay_freq(each_memb)
 								y_pos = y_pos - 10
 							End If
 							y_pos = y_pos + 20
@@ -3720,7 +3532,6 @@ function define_hc_elig_dialog()
 							If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 								Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 							Else
-								' Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_grh_pic_pay_freq(each_memb)
 								y_pos = y_pos - 10
 							End If
 							y_pos = y_pos + 20
@@ -3879,7 +3690,6 @@ function define_emer_elig_dialog()
 			Text 480, 250, 50, 10, "Electric: $ " & electric_amt
 			Text 480, 260, 50, 10, "  Phone: $ " & phone_amt
 
-			' If EMER_ELIG_APPROVAL.emer_program = "EGA" Then
 			GroupBox 5, 280, 425, 50, "Income Limit"
 			Text 15, 295, 300, 10, "Income Limit Details:"
 			Text 20, 310, 95, 10, "Income Application Month:   $"
@@ -3888,13 +3698,11 @@ function define_emer_elig_dialog()
 			EditBox 175, 305, 75, 15, emer_past_30_days_income
 			Text 300, 300, 100, 10, "Applicaiton Date: " & EMER_ELIG_APPROVAL.emer_appl_date
 			Text 300, 310, 100, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit
-			' End If
 		End if
 		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then
 			GroupBox 5, 10, 425, 110, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - INELIGIBLE"
 
 			Text 15, 30, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
-			' Text 15, 30, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
 			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 40, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
 			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 15, 40, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
 
@@ -3952,9 +3760,6 @@ function define_emer_elig_dialog()
 			If EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective = "FAILED" Then			'REVIEWED'
 				GroupBox 10, y_pos, 525, 50, "Ineligibility due to failing COST EFFECTIVE"
 				y_pos = y_pos + 15
-				' Text 15, y_pos, 200, 10, "NOTES:"
-				' y_pos = y_pos + 10
-				' EditBox 15, y_pos, 425, 15, emer_test__detail
 				Text 20, y_pos, 105, 10, "Ongoing Monthly NET Income:   $"
 				EditBox 130, y_pos-5, 75, 15, emer_ongoing_mothly_income
 				Text 230, y_pos, 95, 10, "Ongoing Shelter Expense:   $"
@@ -4004,6 +3809,7 @@ function define_emer_elig_dialog()
 				y_pos = y_pos + 15
 				Text 230, y_pos, 95, 10, "Date Verif Request Sent:"
 				EditBox 325, y_pos-5, 75, 15, emer_verif_request_date
+				PushButton 405, y_pos-5, 15, 15, "!", verif_tips_and_tricks_btn
 				y_pos = y_pos + 10
 				Text 15, y_pos, 250, 10, "List all verifications that were required and not received:"
 				y_pos = y_pos + 10
@@ -4012,9 +3818,6 @@ function define_emer_elig_dialog()
 			End If
 			If EMER_ELIG_APPROVAL.emer_elig_case_test_200_percent_fpg = "FAILED" Then			'REVIEWED'
 				GroupBox 10, y_pos, 525, 35, "Ineligibility due to failing EXCEEDING 200% FPG"
-				' y_pos = y_pos + 15
-				' Text 15, y_pos, 200, 10, "NOTES:"
-				' EditBox 15, y_pos, 425, 15, emer_test__detail
 				y_pos = y_pos + 20
 
 				If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Text 20, y_pos, 145, 10, "NET Income in the application month:   $"
@@ -4029,17 +3832,8 @@ function define_emer_elig_dialog()
 		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", confirm_emer_budget_selection
 
 		ButtonGroup ButtonPressed
-			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
-			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 			PushButton 375, 20, 50, 10, "View ELIG", nav_stat_elig_btn
 			PushButton 440, 365, 110, 15, "Approval Confirmed", app_confirmed_btn
-			' If snap_approval_is_incorrect = True Then
-			' 	PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
-			' ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) or snap_approval_is_incorrect = True Then
-			' End If
-
-		' Text 15, 80, 150, 10
-		' Text 15, 80, 150, 10
 	EndDialog
 end function
 
@@ -4050,11 +3844,55 @@ function define_snap_elig_dialog()
 		If each_app = approval_selected Then display_detail = month_display
 	next
 
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
 	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
 	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
 		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
 	  End If
+	  detail_grp_len = 10
+	  grp_y_pos = 350
+	  y_pos = 360
+	  snap_prorate_date = ""
+	  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+		If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			display_benefit = False
+			If SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected) = "" Then
+				display_benefit = True
+			ElseIf InStr(SNAP_UNIQUE_APPROVALS(limit_benefit_months, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				display_benefit = True
+			End If
+			If display_benefit = True Then
+				'PRORATED REASON FUNCTIONALITY
+				If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date <> "" Then
+				    snap_prorate_date = SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date
+					y_pos = y_pos-20
+					grp_y_pos = grp_y_pos-20
+				End If
+			End If
+		End If
+	  Next
+
+	  If SNAP_ELIG_APPROVALS(elig_ind).snap_info_source = "FIAT" Then
+		y_pos = y_pos-20
+		grp_y_pos = grp_y_pos-20
+
+		Text 15, y_pos+5, 85, 10, "SNAP FIATed - Reason:"
+		EditBox 100, y_pos, 440, 15, SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+	  If snap_prorate_date <> "" Then
+		Text 15, y_pos+5, 115, 10, "SNAP Prorated (" & snap_prorate_date & "). Reason:"
+		EditBox 130, y_pos, 410, 15, SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected)
+		y_pos = y_pos + 20
+		detail_grp_len = detail_grp_len + 20
+	  End If
+
+	  If detail_grp_len <> 10 Then
+		GroupBox 10, grp_y_pos, 540, detail_grp_len, "Approval Explanations"
+ 	  End If
+
 	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - do not CASE/NOTE this information", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -4139,6 +3977,7 @@ function define_snap_elig_dialog()
 				Editbox 130, 130, 310, 15, SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
 				Text 130, 145, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
 			End if
+			PushButton 370, 110, 15, 15, "!", verif_tips_and_tricks_btn
 		Else
 			y_pos = 110
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then
@@ -4245,7 +4084,6 @@ function define_snap_elig_dialog()
 	  Text 35, 180, 245, 20, "Eligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list
 	  Text 30, 200, 245, 20, "Ineligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).inelig_membs_list
 
-	  ' GroupBox 300, 90, 150, 80, "Allowable Shelter Cost Calculation"
 	  GroupBox 300, 180, 240, 50, "Expenses"
 	  Text 315, 205, 200, 10, "Utilities Expense:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total & "  -  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_list
 	  Text 310, 215, 125, 10, "Housing Expense:  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total
@@ -4257,7 +4095,6 @@ function define_snap_elig_dialog()
 	  y_pos_2 = 260
 	  For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_snap(each_memb) = True Then
-			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 			Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
   		    If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -4267,7 +4104,6 @@ function define_snap_elig_dialog()
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_snap(each_memb) = True Then
-			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
 			Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 			If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -4396,6 +4232,7 @@ function rept_pnd2_dialog()
 	y_pos = 25
 	cash_listed = 0
 
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 341, Dlg_len, "Program Denials Via REPT/PND2"
 	  Text 15, 10, 320, 10, "This case has been updated to have denials processed through the REPT/PND2 overnight batch."
 	  If pnd2_cash_status = "I" or pnd2_cash_status = "R" then
@@ -4520,6 +4357,7 @@ function dwp_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", DWP_ELIG_APPROVALS(elig_ind).dwp_approved_date)
 	If add_new_note_for_DWP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", DWP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -4548,11 +4386,11 @@ function dwp_elig_case_note()
 				' If DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion <> "0.00" Then Call  write_variable_in_CASE_NOTE(beginning_text & "|     Personal Needs: $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion, ".00", "") & "     ", 4))
 				' Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion, ".00", "") & "     ", 4) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 4) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
 				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				If DWP_ELIG_APPROVALS(approval).dwp_elig_prorated_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", DWP_UNIQUE_APPROVALS(proration_reason, unique_app))
 
 			End If
 		Next
 		vendor_header = ""
-		' vendor_header = "-----------------------------------------------------------------------------"
 		vendor_header = "----------------------------- Vendor Payments -------------------------------"
 		For approval = 0 to UBound(DWP_ELIG_APPROVALS)
 			If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
@@ -4562,10 +4400,7 @@ function dwp_elig_case_note()
 							Call write_variable_in_CASE_NOTE(vendor_header)
 							vendor_header = ""
 						End If
-						' Call write_variable_in_CASE_NOTE(beginning_text & "|    Shelter Benefit: $ "
 						Call write_variable_in_CASE_NOTE(DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Check of $ " & replace(DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans), ".00", "") & " issued to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans))
-						' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Vendor to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans))
-						' DWP_ELIG_APPROVALS(approval).dwp_check_issue_date(each_trans) & " CHCK - $ " & DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans) & " paid to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans)
 					next
 				End If
 				If DWP_ELIG_APPROVALS(approval).dwp_vnda_found = True Then
@@ -4574,11 +4409,7 @@ function dwp_elig_case_note()
 							Call write_variable_in_CASE_NOTE(vendor_header)
 							vendor_header = ""
 						End If
-						' Call write_variable_in_CASE_NOTE(beginning_text & "| "
-						' Call write_variable_in_CASE_NOTE(beginning_text & "|                     $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Check Issued to " & DWP_ELIG_APPROVALS(approval).dwp_check_vendor_name(each_trans) & " for " & DWP_ELIG_APPROVALS(approval).dwp_check_payment_reason(each_trans)
 						Call write_variable_in_CASE_NOTE(DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Auth of $ " & replace(DWP_ELIG_APPROVALS(approval).dwp_vnda_payment_amount(each_auth), ".00", "") & " approved to " & DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_name(each_auth) & " for " & DWP_ELIG_APPROVALS(approval).dwp_vnda_expense_type_info(each_auth))
-						' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(DWP_ELIG_APPROVALS(approval).dwp_vnda_payment_amount(each_auth), ".00", "") & "     ", 4) & " Vendor to  " & DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_name(each_auth) & " for " & DWP_ELIG_APPROVALS(approval).dwp_vnda_expense_type_info(each_auth))
-						' "Vendor Auth - $ " & DWP_ELIG_APPROVALS(approval).dwp_vnda_payment_amount(each_auth) & " to be paid to " & DWP_ELIG_APPROVALS(approval).dwp_vnda_vendor_name(each_auth) & " for " & DWP_ELIG_APPROVALS(approval).dwp_vnda_expense_type_info(each_auth)
 					next
 				End If
 			End If
@@ -5084,17 +4915,12 @@ function mfip_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
 	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MFIP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
-			' MsgBox MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app) & vbCr & MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & vbCr & InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year)
 			If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date = "" and MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment = "" Then
-				' MsgBox MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal & vbCr &  MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount & vbCr & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant & vbCr & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant
-				' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount and MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant Then
-				' 	Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " | Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
-				' Else
 				beginning_text = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " "
 				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
 					Call write_variable_in_CASE_NOTE(beginning_text & "| Prorated from " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date)
@@ -5106,7 +4932,7 @@ function mfip_elig_case_note()
 				End If
 				Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
 				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
-				' End If
+				If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 			End If
 		Next
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_cash = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP CASH PORTION")
@@ -5122,10 +4948,7 @@ function mfip_elig_case_note()
 						Call write_variable_in_CASE_NOTE(vendor_header)
 						vendor_header = ""
 					End If
-					' Call write_variable_in_CASE_NOTE(beginning_text & "|    Shelter Benefit: $ "
 					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Check of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & " issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
-					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Vendor to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans))
-					' MFIP_ELIG_APPROVALS(approval).mfip_check_issue_date(each_trans) & " CHCK - $ " & MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans) & " paid to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
 				next
 			End If
 			If MFIP_ELIG_APPROVALS(approval).mfip_vnda_found = True Then
@@ -5134,11 +4957,7 @@ function mfip_elig_case_note()
 						Call write_variable_in_CASE_NOTE(vendor_header)
 						vendor_header = ""
 					End If
-					' Call write_variable_in_CASE_NOTE(beginning_text & "| "
-					' Call write_variable_in_CASE_NOTE(beginning_text & "|                     $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_check_transaction_amount(each_trans), ".00", "") & "     ", 4) & " Check Issued to " & MFIP_ELIG_APPROVALS(approval).mfip_check_vendor_name(each_trans) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_check_payment_reason(each_trans)
 					Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Vendor Auth of $ " & replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_total_payment_amount(each_auth), ".00", "") & " approved to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
-					' Call write_variable_in_CASE_NOTE(beginning_text & "|  $ " & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth), ".00", "") & "     ", 4) & " Vendor to  " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth))
-					' "Vendor Auth - $ " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_payment_amount(each_auth) & " to be paid to " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_vendor_name(each_auth) & " for " & MFIP_ELIG_APPROVALS(approval).mfip_vnda_expense_type_info(each_auth)
 				next
 			End If
 		End If
@@ -5522,9 +5341,6 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not cooperated with SNAP QC. (FAIL to COOP SNAP QC)")
 	End If
-	' Text 345, 85, 100, 10, "Work Registration: " & MFIP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test
-
-
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 	Call write_variable_in_CASE_NOTE("MFIP Status:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_current_prog_status)
@@ -5574,11 +5390,10 @@ function msa_elig_case_note()
 
 	end_msg_info = end_msg_info & "NOTE entered for MSA - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_approved_date)
 	If add_new_note_for_MSA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MSA_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -5608,17 +5423,12 @@ function msa_elig_case_note()
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MSA INELIGIBLE because Prosp Net Inc exceeds INCOME Limit.")
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MSA INELIGIBLE because Retro Net Inc exceeds INCOME Limit.")
 
-		' If MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
-		' If MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
-
 		Call write_variable_in_CASE_NOTE(left("MSA Unit Size: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligible_houshold_members & "                              ", 44)  & "|---- MSA Benefit Calculation ---")
 		Call write_variable_in_CASE_NOTE("Income:                                     |")
-
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "SSI TYPE" Then
 			unearned_info = "| SSI Standard (FBR): $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8)
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				' If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = "SSI" Then
 				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True Then
 					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
 					If InStr(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
@@ -5629,7 +5439,6 @@ function msa_elig_case_note()
 					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 					unearned_info = "|"
 				End If
-				' If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = "SSI" Then
 				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True Then
 					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
 					If InStr(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
@@ -5640,7 +5449,6 @@ function msa_elig_case_note()
 					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 					unearned_info = "|"
 				End If
-				' If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = "SSI" Then
 				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True Then
 					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
 					If InStr(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
@@ -5651,7 +5459,6 @@ function msa_elig_case_note()
 					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 					unearned_info = "|"
 				End If
-				' If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = "SSI" Then
 				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True Then
 					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
 					If InStr(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
@@ -5662,7 +5469,6 @@ function msa_elig_case_note()
 					Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
 					unearned_info = "|"
 				End If
-				' If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = "SSI" Then
 				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True Then
 					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
 					If InStr(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
@@ -5674,7 +5480,6 @@ function msa_elig_case_note()
 					unearned_info = "|"
 				End If
 			Next
-			' If unearned_info = "| Gross Unearned Inc: $" & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 			If unearned_info = "|         SSI Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        |         SSI Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8))
 			Call write_variable_in_CASE_NOTE("                                            |(-)  Stndrd Disrgrd: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_standard_disregard, 8))
 
@@ -5735,7 +5540,6 @@ function msa_elig_case_note()
 					unearned_info = "|"
 				End If
 			Next
-			' If unearned_info = "| Gross Unearned Inc: $" & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 			If unearned_info = "|       Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        |       Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income, 8))
 
 			Call write_variable_in_CASE_NOTE("                                            |      Deemed Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_deemed_income, 8))
@@ -5845,15 +5649,12 @@ function msa_elig_case_note()
 					BUSI_found = True
 				End If
 			Next
-			' If BUSI_info = "| Self Employmnt Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Self Employment Income "& spaces_30, 44) & BUSI_info)
 			If BUSI_found = False Then Call write_variable_in_CASE_NOTE(left("  NO Self Employment Income "& spaces_30, 44) & "|")
 
 			Call write_variable_in_CASE_NOTE("                                            |         Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
 
 		End If
 
-
-		' Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 		Call write_variable_in_CASE_NOTE("                               |---- Need Standard Calulation ---|")
 
 		Call write_variable_in_CASE_NOTE("                               |   Basic Needs Stndrd: $ " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_basic_needs_assistance_standard&"        ", 8) & "|")
@@ -5869,21 +5670,15 @@ function msa_elig_case_note()
 				first_spec_need = False
 			End If
 		Next
-		' If first_spec_need = True Then Call write_variable_in_CASE_NOTE("                               | No Special Needs                |")
 		If first_spec_need = True Then Call write_variable_in_CASE_NOTE("                               |                No Special Needs |")
 		If first_spec_need = False Then Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 
-		' Call write_variable_in_CASE_NOTE("                               |     Total Deductions: $ " & left(replace(MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deductions, ".00", "")&"        ", 8) & "|")
-		' Call write_variable_in_CASE_NOTE("                               |     Total Deductions: $ " & left(replace(MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deductions, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |          Total Needs: $ " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_household_total_needs&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 
-		' Call write_variable_in_CASE_NOTE("                                            |        Total Needs: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_household_total_needs, 8))
 		Call write_variable_in_CASE_NOTE("                                            |      Need Standard: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_need_standard, 8))
 		Call write_variable_in_CASE_NOTE("                                            | (-)     Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
 		Call write_variable_in_CASE_NOTE("                                            |          MSA Grant: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant, 8))
-		' Call write_variable_in_CASE_NOTE("                                            |         Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
-
 	End If
 
 	If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
@@ -5983,7 +5778,6 @@ function msa_elig_case_note()
 
 	End If
 
-
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		first_inelig_memb = True
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_elig_status(each_memb) = "INELIGIBLE" Then
@@ -6026,11 +5820,8 @@ function msa_elig_case_note()
 	Next
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-	' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(GA_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & GA_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
-	' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(GA_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & GA_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
 	Call write_variable_in_CASE_NOTE("MSA Status:       " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_curr_prog_status)
 	Call write_variable_in_CASE_NOTE("Shared Household: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_shared_houshold)
-	' If MSA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info <> "" Then Call write_variable_in_CASE_NOTE("Reason:           " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info)
 	Call write_variable_in_CASE_NOTE("Budget Cycle:     " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_budget_cycle)
 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_reporting_status)
@@ -6041,7 +5832,6 @@ function msa_elig_case_note()
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
-	' MsgBox "PAUSE HERE"
 end function
 
 function ga_elig_case_note()
@@ -6050,12 +5840,9 @@ function ga_elig_case_note()
 
 	end_msg_info = end_msg_info & "NOTE entered for GA - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_approved_date)
 	If add_new_note_for_GA = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_payment_subtotal = "0.00" Then Call write_variable_in_CASE_NOTE("* The GA payment is from the Personal Needs Standard.")
@@ -6065,21 +5852,6 @@ function ga_elig_case_note()
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(GA_ELIG_APPROVALS)
 			If InStr(GA_UNIQUE_APPROVALS(months_in_approval, unique_app), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				' If GA_ELIG_APPROVALS(approval).ga_elig_faci_file_unit_type_code = " " Then
-				' 	payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard
-				' 	payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal
-				' 	prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-				' 	prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-				' 	prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal
-				' Else
-				' 	payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_standard
-				' 	payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal
-				' 	prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-				' 	prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-				' 	prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal
-				' End If
-
-				' begining_info = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_combined_payment_subtotal, 8) & " |"
 				amt_issued_info = ""
 				recoup_info = ""
 				issued__to_resident_info = "| Issued to Resident: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_summ_amount_to_be_paid, 8) & "         " & GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
@@ -6089,11 +5861,10 @@ function ga_elig_case_note()
 
 				ga_reg_benefit_line = ""
 				ga_pers_nds_benefit_line = ""
-				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" Then
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard <> "0.00" Then
 					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from
 					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal
-					' subtotal_line_end = right("        " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal, 8)
 					ga_reg_benefit_line = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & "  GA Benefit : $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal, 8) & " "
 					If prorate_begin <> "" OR prorate_end <> "" Then
 						ga_reg_benefit_line = ga_reg_benefit_line & "|           Prorated: $ " & right("        " & prorate_amt, 8) & " " & prorate_begin & " - " & prorate_end
@@ -6104,11 +5875,10 @@ function ga_elig_case_note()
 					End If
 
 				End If
-				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_standard <> "0.00" Then
 					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from
 					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal
-					' subtotal_line_end = right("        " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal, 8)
 					ga_pers_nds_benefit_line = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & "  Persnl Need: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal, 8) & " "
 					If prorate_begin <> "" OR prorate_end <> "" Then
 						ga_pers_nds_benefit_line = ga_pers_nds_benefit_line & "|           Prorated: $ " & right("        " & prorate_amt, 8) & " " & prorate_begin & " - " & prorate_end
@@ -6172,13 +5942,12 @@ function ga_elig_case_note()
 				If issued__to_resident_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & issued__to_resident_info)
 				If amt_issued_info <> "" or recoup_info <> "" or issued__to_resident_info <> "" Then add_divider = true
 				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year = last_month Then add_divider = false
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from <> "" or GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", GA_UNIQUE_APPROVALS(proration_reason, unique_app))
 
 				If add_divider = true Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 			End If
 		Next
 	End If
-
-	' "======================================XX======================================"
 
 	If GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
@@ -6186,16 +5955,9 @@ function ga_elig_case_note()
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("GA INELIGIBLE because Prosp Inc exceeds INCOME Limit.")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("GA INELIGIBLE because Retro Inc exceeds INCOME Limit.")
 
-		' If GA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then GA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
-		' If GA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then GA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
-
 		Call write_variable_in_CASE_NOTE(left("GA Unit Size: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_memb_hh_count & "                              ", 44)  & "|---- GA Benefit Calculation ----")
 
 		Call write_variable_in_CASE_NOTE("Income:                                     |")
-		' "   Gross Earned Inc: $" & right("        "&GA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-
-
-		' beginning_txt = " Income:    "
 		beginning_txt = "  "
 		JOBS_info = "|    Gross Wages Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_wages, 8)
 		BUSI_info = "| Self Employmnt Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp, 8)
@@ -6312,7 +6074,6 @@ function ga_elig_case_note()
 		Call write_variable_in_CASE_NOTE("                                            |   Gross Earned Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income, 8))
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income <> "0.00" Then
-			' Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 			Call write_variable_in_CASE_NOTE("                               |---- Earned Income Deductions ---|")
 			Call write_variable_in_CASE_NOTE("                               |   Standard EI Disrgd: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_standard_EI_disregard, ".00", "")&"        ", 8) & "|")
 			Call write_variable_in_CASE_NOTE("                               |     EI Disregard " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_percent & "%: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_amount, ".00", "")&"        ", 8) & "|")
@@ -6375,14 +6136,11 @@ function ga_elig_case_note()
 				unearned_info = "|"
 			End If
 		Next
-		' If unearned_info = "| Gross Unearned Inc: $" & right("        "&GA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 		If unearned_info = "|   Net Unearned Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_unearned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        |   Net Unearned Inc: $ " & right("        "&GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_unearned_income, 8))
 
 		Call write_variable_in_CASE_NOTE("                                            |     Net School Inc: $ " & right("        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_counted_school_income, 8))
 		Call write_variable_in_CASE_NOTE("                                            |   Total Deemed Inc: $ " & right("        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deemed_income, 8))
 		Call write_variable_in_CASE_NOTE("                                            |Total Countable Inc: $ " & right("        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_countable_income, 8))
-
-		' Call write_variable_in_CASE_NOTE("                                            |Total Countable Inc: $         " )
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_faci_file_unit_type_code = " " Then
 			Call write_variable_in_CASE_NOTE("                                            |------- GA Indv Benefit -------" )
@@ -6397,20 +6155,12 @@ function ga_elig_case_note()
 			Call write_variable_in_CASE_NOTE("                                            |   Payment Subtotal: $ " & right("        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_payment_subtotal, 8))
 		End If
 
-		' MsgBox "CHECK"
-
 		Call write_variable_in_CASE_NOTE("                               |------------- Assets ------------|")
-		' Call write_variable_in_CASE_NOTE("                               |              Assets             |")
 		Call write_variable_in_CASE_NOTE("                               |         Total Assets: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_assets, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |         GA Exclusion: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_ga_exclusion, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |     Countable Assets: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_countable_assets, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |       Maximum Assets: $ " & left(replace(GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_maximum_assets, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-
-
-
-
-		' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
 	End If
 
 	If GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
@@ -6453,15 +6203,12 @@ function ga_elig_case_note()
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_eligible_member = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible person on this case. (ELIGIBLE MEMBER)")
-		' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - ")
-		' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - ")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limit. (ASSET)")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_eligible_other_prgm = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case appears potentially Eligible for another program. (ELIG OTHER PRGM)")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
 			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GA_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
-			' If trim(GA_UNIQUE_APPROVALS(verif_request_details, unique_app)) <> "" Then Call write_variable_in_CASE_NOTE("   Missing Verifications: " & GA_UNIQUE_APPROVALS(verif_request_details, unique_app))
 			Call write_long_variable_with_indent("   Missing Verifications: ", GA_UNIQUE_APPROVALS(verif_request_details, unique_app))
 			first_job_not_verified = True
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -6541,11 +6288,8 @@ function ga_elig_case_note()
 			Next
 		End if
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_lump_sum_payment = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not complied with Lump Sum Requirements. (LUMP SUM PAYMMENT)")
-		' If trim(GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app)) <> "" Then Call write_variable_in_CASE_NOTE("   Inelig Reason: " & GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
 		Call write_long_variable_with_indent("   Inelig Reason: ", GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
 	End If
-
-	'312524'
 
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		first_inelig_memb = True
@@ -6571,8 +6315,6 @@ function ga_elig_case_note()
 	Next
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-	' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(GA_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & GA_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
-	' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(GA_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & GA_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
 	Call write_variable_in_CASE_NOTE("GA Status:        " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_curr_prog_status)
 	Call write_variable_in_CASE_NOTE("Action:           " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_action_info)
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info <> "" Then Call write_variable_in_CASE_NOTE("Reason:           " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info)
@@ -6597,16 +6339,14 @@ function grh_elig_case_note()
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GRH_ELIG_APPROVALS(elig_ind).grh_elig_approved_date)
 	If add_new_note_for_GRH = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", GRH_UNIQUE_APPROVALS(fiat_reason, unique_app))
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("=============================== PAYMENT DETAILS =============================")
 		vendor_details_found = False
 		For vndr_approval = 0 to UBound(GRH_ELIG_APPROVALS)
-			' MsgBox "GRH_UNIQUE_APPROVALS(months_in_approval, unique_app) - " & GRH_UNIQUE_APPROVALS(months_in_approval, unique_app) & vbCr&_
-			' 		"GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & / & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year - " & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year
 
 			If InStr(GRH_UNIQUE_APPROVALS(months_in_approval, unique_app), GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year) <> 0 Then
-				' MsgBox ("GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one - " & GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one)
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one <> "" Then
 					month_and_name = GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_one, 8)
@@ -6615,7 +6355,7 @@ function grh_elig_case_note()
 					len_needed_of_grh_info = 77 - len(month_and_name)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
 					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
-					' Call write_variable_in_CASE_NOTE(GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(vndr_approval).elig_footer_year & " - " & left(GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_one_name & spaces_23, 23) & ". . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_one, 8))
+
 					whole_month = False
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "28" or GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "29")Then whole_month = true
 					If GRH_ELIG_APPROVALS(vndr_approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
@@ -6643,7 +6383,6 @@ function grh_elig_case_note()
 				End if
 
 				If GRH_ELIG_APPROVALS(vndr_approval).grh_elig_budg_total_days_one_two <> "" Then
-					' Call write_variable_in_CASE_NOTE("        " & left(GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name & spaces_23, 23) & ". . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_two, 8))
 					month_and_name = "        " & GRH_ELIG_APPROVALS(vndr_approval).grh_vendor_two_name
 					grh_cost_info = ". . . . . . . . . . . . . . . . . . . . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(vndr_approval).grh_elig_payment_grh_state_amount_two, 8)
 					If len(month_and_name) > 43 Then month_and_name = left(month_and_name, 43)
@@ -6832,8 +6571,6 @@ function grh_elig_case_note()
 				Next
 				If EARNED_info = "|      Earned Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_earned_income, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Earned Income "& spaces_45, 44) & EARNED_info)
 
-
-
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then
 				SSI_info =  "| SSI Standard (FBR): $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr, 8)
 				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -6900,14 +6637,11 @@ function grh_elig_case_note()
 
 			Call write_variable_in_CASE_NOTE("Deductions ---------------------------------| - Total Deductions: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions, 8))
 
-
-
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then
 
 				Call write_variable_in_CASE_NOTE("  PASS Disregard            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_PASS_disregard, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
-				' Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month   $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "        |")
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "MFIP" Then
 
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
@@ -6926,7 +6660,6 @@ function grh_elig_case_note()
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
 			End if
 			Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "      |     Counted Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income, 8))
-			' Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "      | - Total Deductions: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions, 8))
 		End If
 
 	End If
@@ -6936,7 +6669,6 @@ function grh_elig_case_note()
 
 		Call write_variable_in_CASE_NOTE("* Housing Support (GRH) is INELIGIBLE because not all CASE TESTS were passed.")
 
-		' Call write_variable_in_CASE_NOTE(" - This case has already received GRH. (DUPL ASSISTANCE)")
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for HS/GRH was been withdrawn by the resident.")
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_pben_coop = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The resident has failed to apply for other benefits/sign IAAs.")
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_elig_thru_other_program = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Payment to a facility has already been made.")
@@ -6960,10 +6692,6 @@ function grh_elig_case_note()
 				If STAT_INFORMATION(month_ind).stat_disa_cash_verif_code(each_memb) = "N" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
 					Call write_variable_in_CASE_NOTE("   Professional Statement of Need (PSN) required for Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - not received.")
 				End If
-				' If STAT_INFORMATION(month_ind).stat_disa_exists(each_memb) = False and GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
-				' 	Call write_variable_in_CASE_NOTE("   Professional Statement of Need (PSN) required for Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - not received.")
-				' End If
-				'QUESTION outstanding to K VS'
 			Next
 		End If
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_income = "FAILED" Then
@@ -7036,7 +6764,6 @@ function grh_elig_case_note()
 		Call write_long_variable_with_indent("   Inelig Reason: ", GRH_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
 	End If
 
-
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 	Call write_variable_in_CASE_NOTE("HS/GRH Status:    " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_current_progream_status)
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
@@ -7048,7 +6775,6 @@ function grh_elig_case_note()
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-
 end function
 
 function hc_elig_case_note()
@@ -7089,10 +6815,6 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_type_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("            Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_method_info(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
-				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
-					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
-					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
-				End If
 
 			ElseIf HC_ELIG_APPROVALS(elig_ind).EW_spenddown_exists(memb_ind) = True and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) <> "DP" and HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ew_spdn_obligation(hc_prog_count) <> "0.00" Then
 				Call write_variable_in_CASE_NOTE("------- MA Approved with an EW Waiver Obligation ---------------------------")
@@ -7103,6 +6825,10 @@ function hc_elig_case_note()
 				Call write_variable_in_CASE_NOTE("------- MA Approved with a Spenddown ---------------------------------------")
 				Call write_variable_in_CASE_NOTE("    Spenddown Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_mobl_type(memb_ind))
 				Call write_variable_in_CASE_NOTE("  Spenddown Amount: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spenddown(memb_ind))
+				If trim(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_counted_bills(memb_ind)) <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(" (-) Counted Bills: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_ltc_spdn_amount(memb_ind))
+					Call write_variable_in_CASE_NOTE(" Spenddown Balance: $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_monthly_spdn_balance(memb_ind))
+				End If
 			End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
 				Call write_variable_in_CASE_NOTE("MEMB " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) & " has been approved for Emergency Medical Assistance - EMA")
@@ -7146,7 +6872,6 @@ function hc_elig_case_note()
 
 		End If
 	End If
-
 
 	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
@@ -7193,9 +6918,6 @@ function hc_elig_case_note()
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_correctional_faci(memb_ind) = "FAILED" Then
 				Call write_variable_in_CASE_NOTE(" - MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is in a correctional facility. (CORRECTIONAL FACILTY)")
 			End If
-			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_death(memb_ind) = "FAILED" Then
-			' 	Call write_variable_in_CASE_NOTE(" - MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " had died. (DEATH)")
-			' End If
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_elig_other_prog(memb_ind) = "FAILED" Then
 				Call write_variable_in_CASE_NOTE(" - MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is eligible for another program. (ELIGIBILITY FOR OTHER PROGRAM)")
 			End If
@@ -7299,10 +7021,8 @@ function hc_elig_case_note()
 
 	End If
 
-
 	If HC_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("=================================== BUDGET ==================================")
-
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_budget_type(memb_ind) <> "" Then
 			Call write_variable_in_CASE_NOTE("Income COUNTED from MEMBS: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_members_whose_income_counts_list(memb_ind))
@@ -7493,7 +7213,6 @@ function hc_elig_case_note()
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|    Income Standard: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_income_standard(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|  Percentage of FPG:   " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_percent_of_fpg(memb_ind), 6) & " %")
 
-					' Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
 					Call write_variable_in_CASE_NOTE("                           -------------- PREMIUM CALCULATION ---------------")
 					Call write_variable_in_CASE_NOTE("                           |" & "       Income For Prem Calc: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_counted_income_for_prem_calc(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE("                           |" & "  X      Premium Percentage:   " & right("          " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_premium_percent(memb_ind), 9) & " %")
@@ -7509,8 +7228,6 @@ function hc_elig_case_note()
 					Call write_variable_in_CASE_NOTE("                           |" & "         Medi Part B Reimbursement:    " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_medi_part_b_reimb_yn(memb_ind))
 
 				ElseIf HC_ELIG_APPROVALS(elig_ind).hc_budget_type(memb_ind) = "LBUD" Then
-
-					' Text 175, y_pos+55, 130, 10, "Net Earned Inc  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_subtotal_countable_income(memb_ind)
 
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(+) VA Aid & Attend: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_va_aid_attendincome(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|  Tot Countable Inc: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_countable_income(memb_ind), 8))
@@ -7533,14 +7250,12 @@ function hc_elig_case_note()
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|      LTC Spenddown: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_LTC_spenddown(memb_ind), 8))
 				ElseIf HC_ELIG_APPROVALS(elig_ind).hc_budget_type(memb_ind) = "SBUD" Then
 
-					' Text 175, y_pos+55, 130, 10, "Net Earned Inc  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_subtotal_countable_income(memb_ind)
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|(+) VA Aid & Attend: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_va_aid_attendincome(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|  Tot Countable Inc: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_countable_income(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|----------DEDUCTIONS-----------")
 
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|         LTC Exclsn: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_LTC_exclusions(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|   Medicare Premium: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_medicare_premium(memb_ind), 8))
-					' Text 175, y_pos+30, 125, 10, "Pers/Cloth Needs  .  .  .$ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_person_clothing_needs(memb_ind)
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|   Home Maint Allow: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_maint_needs_allowance(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "|Guard/Rep Payee Fee: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_guardian_rep_payee_fee(memb_ind), 8))
 					Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & "| Spousal Allocation: $ " & right("        " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spousal_allocation(memb_ind), 8))
@@ -7630,15 +7345,8 @@ function hc_elig_case_note()
 					End If
 				End If
 			Next
-
-			' "Member has HC Eligibility tied to other program eligibility."
 		End If
 	End If
-
-
-
-	' Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
-
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 	Call write_variable_in_CASE_NOTE("HC Status:     " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_curr_prog_status(memb_ind))
@@ -7678,7 +7386,6 @@ function emer_elig_case_note()
 			Next
 		End If
 		If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
-			' Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
 			Call write_variable_in_CASE_NOTE("=========================== EMER AMOUNT ISSUED ==============================")
 			Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_elig_summ_need_other&"        ", 8) & " approved for " & EMER_ELIG_APPROVAL.elig_version_date & " for Bus Ticket(s).")
 			Call write_variable_in_CASE_NOTE("           Bus Ticket Detail: " & EMER_ELIG_APPROVAL.bus_ticket_detail)
@@ -7731,11 +7438,9 @@ function emer_elig_case_note()
 	End If
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then
 
-
 		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
 
 		Call write_variable_in_CASE_NOTE("* " & EMER_ELIG_APPROVAL.emer_program & " is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
-
 
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_citizenship = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not met Citizenship Requirements.")
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_MFIP = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not complied with application for MFIP.")
@@ -7798,7 +7503,6 @@ function emer_elig_case_note()
 end function
 
 function deny_elig_case_note()
-
 	CASE_NOTE_entered = True
 	end_msg_info = end_msg_info & "NOTE entered for CASH DENY - INELIGIBLE eff " & CASH_DENIAL_APPROVALS(elig_ind).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(elig_ind).elig_footer_year & vbCr
 
@@ -7820,11 +7524,10 @@ function deny_elig_case_note()
 
 	Call write_variable_in_CASE_NOTE("============================= CASH PROGRAMS DETAIL ==========================")
 	Call write_variable_in_CASE_NOTE("RCA Denial Info  : Processed by Contracted Agency for Residents of Hennepin.")
+
 	'DWP
 	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
-		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn")
@@ -7888,36 +7591,12 @@ function deny_elig_case_note()
 		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
 
 		Call write_long_variable_with_indent("       Verifications: ", verifs_missing)
-		' If len(verifs_missing) < 56 Then
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
-		' Else
-		' 	verifs_array = split(verifs_missing, " ")
-		' 	row_1_verifs = ""
-		' 	row_2_verifs = "                      "
-		' 	row_3_verifs = "                      "
-		' 	for each word in verifs_array
-		' 		If len(row_1_verifs) + len(word) + 1 < 56 Then
-		' 			row_1_verifs = row_1_verifs & " " & word
-		' 		ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
-		' 			row_1_verifs = left(row_1_verifs & spaces_55, 55)
-		' 			row_2_verifs = row_2_verifs & " " & word
-		' 		ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
-		' 			row_2_verifs = left(row_2_verifs & spaces_78, 55)
-		' 			row_3_verifs = row_3_verifs & " " & word
-		' 		End If
-		' 	next
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
-		' 	If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
-		' 	If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
-		' End if
 	End If
 
 
 	'MFIP
 	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
-		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn.")
@@ -7974,34 +7653,11 @@ function deny_elig_case_note()
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMI = "FAILED" Then verifs_missing = verifs_missing & ", State Residence"
 		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
 		Call write_long_variable_with_indent("       Verifications: ", verifs_missing)
-		' If len(verifs_missing) < 56 Then
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
-		' Else
-		' 	verifs_array = split(verifs_missing, " ")
-		' 	row_1_verifs = ""
-		' 	row_2_verifs = "                      "
-		' 	row_3_verifs = "                      "
-		' 	for each word in verifs_array
-		' 		If len(row_1_verifs) + len(word) + 1 < 56 Then
-		' 			row_1_verifs = row_1_verifs & " " & word
-		' 		ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
-		' 			row_1_verifs = left(row_1_verifs & spaces_55, 55)
-		' 			row_2_verifs = row_2_verifs & " " & word
-		' 		ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
-		' 			row_2_verifs = left(row_2_verifs & spaces_78, 55)
-		' 			row_3_verifs = row_3_verifs & " " & word
-		' 		End If
-		' 	next
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
-		' 	If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
-		' 	If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
-		' End if
 	End If
 
 	'MSA
 	Call write_variable_in_CASE_NOTE("MSA Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" and CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation <> "" Then
-		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The applicant is not MSA Eligibile")
@@ -8018,10 +7674,6 @@ function deny_elig_case_note()
 		Call write_variable_in_CASE_NOTE("       | MSA Net Income:    $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income, 10) & " |")
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" OR CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
-	' 	' Text 25, y_pos, 125, 10, "Explain Verifications not Received:"
-	' 	Call write_variable_in_CASE_NOTE("       Verifications missing: " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
-	' End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
 		verifs_missing = ""
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
@@ -8038,38 +7690,11 @@ function deny_elig_case_note()
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_unea = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
 		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
 		Call write_long_variable_with_indent("       Verifications: ", verifs_missing)
-		' If len(verifs_missing) < 56 Then
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
-		' Else
-		' 	verifs_array = split(verifs_missing, " ")
-		' 	row_1_verifs = ""
-		' 	row_2_verifs = "                     "
-		' 	row_3_verifs = "                     "
-		' 	for each word in verifs_array
-		' 		' MsgBox word
-		' 		If len(row_1_verifs) + len(word) + 1 < 56 Then
-		' 			row_1_verifs = row_1_verifs & " " & word
-		' 		ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
-		' 			row_1_verifs = left(row_1_verifs & spaces_55, 55)
-		' 			row_2_verifs = row_2_verifs & " " & word
-		' 		ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
-		' 			row_2_verifs = left(row_2_verifs & spaces_78, 55)
-		' 			row_3_verifs = row_3_verifs & " " & word
-		' 		End If
-		' 	next
-		' 	Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
-		' 	If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
-		' 	If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
-		' End if
 	End If
 
 	'GA
 	Call write_variable_in_CASE_NOTE("GA Denial Info   : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
-	' 	Call write_variable_in_CASE_NOTE("     * Details: " & CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
-	' End If
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" and CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
-		' Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
 		Call write_long_variable_with_indent("    DENY Reason  : ", CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
 	End If
 
@@ -8156,7 +7781,6 @@ function deny_elig_case_note()
 		Else
 			Call write_variable_in_CASE_NOTE("Information added:")
 			CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
-			' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 				CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
 				CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
@@ -8164,7 +7788,6 @@ function deny_elig_case_note()
 				CALL write_variable_in_CASE_NOTE("DWP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
 				CALL write_variable_in_CASE_NOTE("MFIP: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
 			End If
-			' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 				CALL write_variable_in_CASE_NOTE("GA/MSA: Adult cash programs.")
 				CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
@@ -8192,7 +7815,6 @@ function deny_elig_case_note()
 	If DENY_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(process_for_note, unique_app))
 	If DENY_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(changes_for_note, unique_app))
 
-	' Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
 
@@ -8202,13 +7824,10 @@ function snap_elig_case_note()
 
 	end_msg_info = end_msg_info & "NOTE entered for SNAP - " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
 	If add_new_note_for_SNAP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-
-	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
+	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", SNAP_UNIQUE_APPROVALS(fiat_reason, unique_app))
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
@@ -8241,14 +7860,13 @@ function snap_elig_case_note()
 						End If
 
 						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then Call write_bullet_and_variable_in_CASE_NOTE("Reason for Proration", SNAP_UNIQUE_APPROVALS(proration_reason, unique_app))
 						divider_needed = True
 					End If
 				End If
 			End If
 		Next
 	End If
-
-	' "======================================XX======================================"
 
 	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
@@ -8264,10 +7882,7 @@ function snap_elig_case_note()
 
 		Call write_variable_in_CASE_NOTE(left("SNAP Unit Size: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap & "            ", 44) & "|--- SNAP Benefit Calculation ---")
 		Call write_variable_in_CASE_NOTE("Income:                                     |")
-		' "   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
 
-
-		' beginning_txt = " Income:    "
 		beginning_txt = "            "
 		beginning_txt = "  "
 		earned_info = "|   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
@@ -8385,9 +8000,7 @@ function snap_elig_case_note()
 			End If
 		Next
 		If earned_info = "|   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
-			' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
 			Call write_variable_in_CASE_NOTE("  NO Earned Income                          |   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-											 ' "  NO Unearned Income                        |"
 		End If
 		unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -8452,7 +8065,6 @@ function snap_elig_case_note()
 			Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 			unearned_info = "|"
 		End If
-		' If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 		If unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        | Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 
 		Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
@@ -8464,13 +8076,6 @@ function snap_elig_case_note()
 		deduction_detail_one = ""
 		deduction_detail_two = ""
 		deduction_detail_three = ""
-
-		' Standard $177
-		' Earned Inc $126
-		' Medical Exp $0
-		' Depndt Care $175.00
-		' 1234567890123456789
-		' Child Suprt $0
 
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> "" Then
 			If deduction_detail_one = "" Then
@@ -8488,7 +8093,6 @@ function snap_elig_case_note()
 			End if
 		End If
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> "" Then
-			' MsgBox SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
 			If deduction_detail_one = "" Then
 				deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
 			ElseIf len(deduction_detail_one) < 21 Then
@@ -8548,17 +8152,13 @@ function snap_elig_case_note()
 				deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
 			End if
 		End If
-		' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
-		' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
-		' 		"deduction_detail_three - " & deduction_detail_three
+
 		Call write_variable_in_CASE_NOTE("Deductions: " & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
 		If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
 		If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
-		' MsgBox "CHECK"
+
 		Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
 		Call write_variable_in_CASE_NOTE("Expenses:   Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
-		' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
-
 
 		Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel <> "" Then
@@ -8578,17 +8178,13 @@ function snap_elig_case_note()
 			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 			Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
 		ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
-			' "Max Net Adjusted Inc......... $  3,493.00"
-			' Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
 			Call write_variable_in_CASE_NOTE("                                         ** Max Net Adjusted Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc, 8))
-
 		End If
 		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then
 			Call write_variable_in_CASE_NOTE("SNAP Budgeted Gross Income of  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc & " exceeds 130% FPG of $ " & FormatNumber(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app), 2, -1, 0, -1))
 
 			If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE(" - WCOM added to Notice for to clarify reporting responsibilities.")
 		End If
-		' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
 	End If
 
 	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
@@ -8718,7 +8314,6 @@ function snap_elig_case_note()
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The annual recertification process was not completed. (RECERTIFICATION)")
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The assets have exceeded the max. (RESOURCE)")
-		' TODO - add more asset test information'
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - This case has failed transfer resources/income. (TRANSFER RESOURCE INC)")
@@ -8851,7 +8446,6 @@ function snap_elig_case_note()
 		' TODO - add more detail for work Reg'
 	End If
 
-	'312524'
 	first_memb = ""
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" and UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb) > 0 Then first_memb = 1
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test <> "FAILED" Then first_memb = 0
@@ -8922,8 +8516,6 @@ function snap_elig_case_note()
 	End if
 
 	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-	' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
-	' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
 	Call write_variable_in_CASE_NOTE("SNAP Status:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status)
 	Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
@@ -9702,7 +9294,6 @@ class dwp_eligibility_detail
 					ReDim Preserve dwp_elig_membs_budg_deemed_child_support(deem_count)
 					ReDim Preserve dwp_elig_membs_budg_deemed_counted_income(deem_count)
 
-
 					'TODO - read member specific unearned income
 					EMReadScreen dwp_elig_membs_budg_deemed_self_emp(deem_count), 				9, 8, 56
 					EMReadScreen dwp_elig_membs_budg_deemed_wages(deem_count), 					9, 9, 56
@@ -9746,11 +9337,9 @@ class dwp_eligibility_detail
 
 			transmit
 
-
 			transmit 		'going to the next panel - DWB2
 
 			EMReadScreen dwp_elig_prorated_date, 8, 6, 18
-			' MsgBox "~" & dwp_elig_prorated_date & "~"
 			dwp_elig_prorated_date = trim(dwp_elig_prorated_date)
 			If dwp_elig_prorated_date = "__ __ __" then dwp_elig_prorated_date = ""
 			dwp_elig_prorated_date = replace(dwp_elig_prorated_date, " ", "/")
@@ -9843,7 +9432,7 @@ class dwp_eligibility_detail
 			EMWriteScreen start_search_year, 6, 41
 			EMWriteScreen CM_plus_1_mo, 6, 53
 			EMWriteScreen CM_plus_1_yr, 6, 56
-			' MsgBox "What are the months?!"
+
 			EMWriteScreen "X", 17, 50
 			transmit
 
@@ -9853,8 +9442,6 @@ class dwp_eligibility_detail
 			chck_prog = trim(chck_prog)
 
 			Do while chck_prog <> ""
-
-
 				EMReadScreen check_from_date, 8, inqd_row, 62
 				EMReadScreen check_to_date, 8, inqd_row, 73
 
@@ -9869,15 +9456,8 @@ class dwp_eligibility_detail
 				Call write_value_and_transmit("I", inqd_row, 4)
 				EMReadScreen payment_reason, 14, 7, 17
 				PF3
-				' elig_footer_month
-				' elig_footer_year
-				' MsgBox "check_benefit_month - " & check_benefit_month & vbCr & "elig_footer_year - " & elig_footer_year & vbCr & "payment_reason - " & payment_reason
 
 				If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
-					' If dwp_mony_check_found = False Then
-
-					' End If
-					' MsgBox "tx_count - " & tx_count
 					ReDim preserve dwp_check_issue_date(tx_count)
 					ReDim preserve dwp_check_program(tx_count)
 					ReDim preserve dwp_check_status_code(tx_count)
@@ -9986,7 +9566,6 @@ class dwp_eligibility_detail
 					EMReadScreen dwp_check_mail_method(tx_count), 			15, 4, 63
 					EMReadScreen dwp_check_payment_method(tx_count), 		15, 5, 63
 					EMReadScreen dwp_check_vendor_number(tx_count), 		15, 6, 63
-					' MsgBox "vendor Number  " & dwp_check_vendor_number(tx_count)
 					EMReadScreen dwp_check_fiche_number(tx_count), 		15, 7, 63
 					EMReadScreen dwp_check_payment_amount(tx_count), 		10, 13, 16
 					EMReadScreen dwp_check_entitement_amount(tx_count), 	10, 14, 16
@@ -10040,15 +9619,11 @@ class dwp_eligibility_detail
 		Call back_to_SELF
 
 		If dwp_mony_check_found = True Then
-
-			' MsgBox "UBOUND: " & UBound(dwp_check_program)
 			for each_trans = 0 to UBound(dwp_check_program)
-
 				Call navigate_to_MAXIS_screen("MONY", "VNDS")
 
 				Call write_value_and_transmit(dwp_check_vendor_number(each_trans), 4, 59)
 				EMReadScreen dwp_check_vendor_name(each_trans), 					30, 3, 15
-				' MsgBox "VENDOR NAME - " &  dwp_check_vendor_name(each_trans)
 				EMReadScreen dwp_check_vendor_c_o(each_trans), 					30, 4, 15
 				EMReadScreen dwp_check_vendor_street_one(each_trans), 				22, 5, 15
 				EMReadScreen dwp_check_vendor_street_two(each_trans), 				22, 6, 15
@@ -10127,15 +9702,10 @@ class dwp_eligibility_detail
 		If panel_location <> "Case" Then 			'this is on the initial search panel, if it says 'Case' it means we are still at the first screen
 			auth_count = 0
 			vnda_row = 6
-			'2225596
 			Do
 				EMReadScreen vndr_nbr, 8, vnda_row, 3
 				EMReadScreen vndr_send, 1, vnda_row, 62
-				' MsgBox "Footer month - " & elig_footer_month & "/" & elig_footer_year & vbCr & "vndr_nbr - " & vndr_nbr & vbCr & "vndr_send - " & vndr_send
 				If vndr_nbr <> "________" and vndr_send = "V" Then
-					' If dwp_vnda_found = False Then
-
-					' End If
 					dwp_vnda_found = True
 
 					ReDim preserve dwp_vnda_vendor_number(auth_count)
@@ -10811,7 +10381,6 @@ class mfip_eligibility_detail
 				Call write_value_and_transmit("MFPR", 20, 71)						'now we get to the panel that most ELIG/MFIP starts with
 			End If
 
-
 			row = 7
 			elig_memb_count = 0
 			Do
@@ -10937,7 +10506,6 @@ class mfip_eligibility_detail
 					End If
 				Next
 				mfip_elig_membs_full_name(elig_memb_count) = trim(mfip_elig_membs_full_name(elig_memb_count))
-				' MsgBox "full_name_information - " & full_name_information & vbCr & "mfip_elig_membs_full_name(elig_memb_count) - " & mfip_elig_membs_full_name(elig_memb_count)
 				EMReadScreen mfip_elig_membs_request_yn(elig_memb_count), 1, row, 32
 				EMReadScreen mfip_elig_membs_code(elig_memb_count), 1, row, 36
 				EMReadScreen mfip_elig_membs_counted(elig_memb_count), 11, row, 41
@@ -11011,11 +10579,9 @@ class mfip_eligibility_detail
 					transmit
 				End If
 
-
 				row = row + 1
 				elig_memb_count = elig_memb_count + 1
 				EMReadScreen next_ref_numb, 2, row, 6
-				' MsgBox "row: " & row
                 If row = 18 then
                     PF8
                     row = 7
@@ -11023,7 +10589,6 @@ class mfip_eligibility_detail
 			Loop until next_ref_numb = "  "
 
 			transmit			'MFCR
-			' MsgBox "In MFCR"
 
 			EMReadScreen mfip_case_test_appl_withdraw, 		6, 6, 7
 			EMReadScreen mfip_case_test_asset, 				6, 7, 7
@@ -11075,7 +10640,6 @@ class mfip_eligibility_detail
 			mfip_fs_case_test_opt_out_housing_grant = trim(mfip_fs_case_test_opt_out_housing_grant)
 
 			Call write_value_and_transmit("X", 7, 5)						'ASSETS
-			' MsgBox "In Asset Pop-UP"
 			EMReadScreen mfip_counted_asset_CASH, 	10, 6, 47
 			EMReadScreen mfip_counted_asset_ACCT, 	10, 7, 47
 			EMReadScreen mfip_counted_asset_SECU, 	10, 8, 47
@@ -11093,7 +10657,6 @@ class mfip_eligibility_detail
 			mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
 			transmit
-			' MsgBox "Back to MFCR - 1"
 
 			Call write_value_and_transmit("X", 7, 5)						'FAIL TO FILE
 			EMReadScreen mfip_case_test_fail_file_hrf, 6, 9, 47
@@ -11142,11 +10705,9 @@ class mfip_eligibility_detail
 				mfip_verif_MEMI = UCase(mfip_verif_MEMI)
 
 				transmit
-				' MsgBox "Back to MFCR - 1"
 			End if
 
 			Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
-			' MsgBox "In Initial Income Pop_up"
 			EMReadScreen mfip_initial_income_earned, 			10, 8, 51
 			EMReadScreen mfip_initial_income_deoendant_care, 	10, 9, 51
 			EMReadScreen mfip_initial_income_unearned, 			10, 10, 51
@@ -11165,12 +10726,10 @@ class mfip_eligibility_detail
 
 			'TODO - Read each person's information in the pop-ups
 			Call write_value_and_transmit("X", 8, 20)		'Member Initial Earned Income
-			' MsgBox "Member Initial Earned Income"
 			EMReadScreen back_to_menu, 14, 6, 29
 			Do while back_to_menu <> "Initial Income"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
-				' MsgBox "pop_up_name - " & pop_up_name
 				pop_up_name_array = split(pop_up_name, ",")
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 					If mfip_elig_membs_last_name_complete(case_memb) = False Then
@@ -11184,7 +10743,6 @@ class mfip_eligibility_detail
 						pop_up_name = pop_up_last_name & ", " & pop_up_first_name
 					End If
 					If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-						' MsgBox  "MATCH" & vbCr & "pop_up_name - " & pop_up_name & vbCr & "mfip_elig_membs_full_name(case_memb) - " & mfip_elig_membs_full_name(case_memb)
 						EMReadScreen mfip_elig_membs_initial_BUSI_inc_total(case_memb), 		10, 11, 54
 						EMReadScreen mfip_elig_membs_initial_JOBS_inc_total(case_memb), 		10, 12, 54
 						EMReadScreen mfip_elig_membs_initial_earned_inc_total(case_memb), 		10, 13, 54
@@ -11206,27 +10764,18 @@ class mfip_eligibility_detail
 						mfip_elig_membs_initial_allocation(case_memb) = trim(mfip_elig_membs_initial_allocation(case_memb))
 						mfip_elig_membs_initial_child_support(case_memb) = trim(mfip_elig_membs_initial_child_support(case_memb))
 						mfip_elig_membs_initial_counted_earned_inc_total(case_memb) = trim(mfip_elig_membs_initial_counted_earned_inc_total(case_memb))
-
-						' If mfip_elig_membs_initial_BUSI_inc_total(case_memb) <> "0.00" Then 			'this will likely not be used - opening these pop ups do not provide details on different jobs
-						' 	Call write_value_and_transmit("X", 11, 20)
-						' End If
-						' If mfip_elig_membs_initial_JOBS_inc_total(case_memb) <> "0.00" Then
-						' 	Call write_value_and_transmit("X", 12, 20)
-						' End If
 					End If
 				Next
 				transmit
 
 				EMReadScreen back_to_menu, 14, 6, 29
 			Loop
-			' MsgBox "Back to the Initial Income Pop-Up"
 
 			If mfip_initial_income_deoendant_care <> "0.00" Then 			''Depended Care Initial Income calculation pop-up
 				Call write_value_and_transmit("X", 9, 20)
 			End If
 
 			Call write_value_and_transmit("X", 10, 20)		'Member Initial Unearned Income
-			' MsgBox "Member Initial Unearned Income"
 			Do
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
@@ -11247,7 +10796,6 @@ class mfip_eligibility_detail
 
 				EMReadScreen back_to_menu, 14, 6, 29
 			Loop until back_to_menu = "Initial Income"
-			' MsgBox "Back to the Initial Income Pop-Up"
 
 			If mfip_initial_income_deemed <> "0.00" Then 			'Deemed Initial Income calculation pop-up
 				Call write_value_and_transmit("X", 11, 20)
@@ -11291,7 +10839,6 @@ class mfip_eligibility_detail
 
 			Call write_value_and_transmit("X", 12, 20)				'CSES Exclusion Initiall Income calculation pop-up
 			EMWaitReady 0, 0
-			' MsgBox "CSES Exclusion Pop-Up"
 			EMReadScreen mfip_initial_income_cses_income, 10, 9, 52
 			EMReadScreen mfip_initial_income_cses_child_count, 2, 11, 37
 
@@ -11299,7 +10846,6 @@ class mfip_eligibility_detail
 			mfip_initial_income_cses_child_count = trim(mfip_initial_income_cses_child_count)
 
 			Call write_value_and_transmit("X", 9, 20)				'open cses initial income pop-up'
-			' MsgBox "CSES initial Income"
 
 			EMReadScreen mfip_initial_income_net_cses_income, 10, 19, 44
 			mfip_initial_income_net_cses_income = trim(mfip_initial_income_net_cses_income)
@@ -11322,11 +10868,8 @@ class mfip_eligibility_detail
 			Loop until next_ref_numb = "  "
 
 			PF3			'back to CSES Exclusion caclulaiton
-			' MsgBox "back to CSES Exclusion calculation"
 			PF3			'back to initial income calculation
-			' MsgBox "Back to Initial Income Pop-Up"
 			PF3			'back to main mf elig panel'
-			' MsgBox "Back to MFCR - 2"
 
 			Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
 			EMReadScreen mfip_12_month_start_date, 				8, 6, 46
@@ -11379,11 +10922,8 @@ class mfip_eligibility_detail
 			End If
 
 			PF3
-			' MsgBox "Back to MFCR - 3"
-
 
 			transmit			'MFBF
-			' MsgBox "In MFBF"
 			mfbf_row = 7
 			Do
 				EMReadScreen ref_numb, 2, mfbf_row, 3
@@ -11422,7 +10962,6 @@ class mfip_eligibility_detail
 			mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
 			transmit			'MFB1
-			' MsgBox "In MFB1"
 			EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
 			EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 6, 32
 			EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 7, 32
@@ -11475,7 +11014,6 @@ class mfip_eligibility_detail
 			Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
 			EMReadScreen still_in_menu, 12, 5, 32
 
-			' MsgBox "EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			Do while still_in_menu = "Maxis Person"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
@@ -11525,13 +11063,10 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen still_in_menu, 12, 5, 32
-				' MsgBox "LEVAING???  EARNED INCOME POP-UP - still_in_menu: " & still_in_menu
-
 			Loop
 
 			Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
 			EMReadScreen still_in_menu, 15, 6, 34
-			' MsgBox "UNEARNED INCOME POP-UP - still_in_menu: " & still_in_menu
 			If still_in_menu = "Unearned Income" Then
 				' EMReadScreen pop_up_name, 25, 8, 34
 				' pop_up_name = trim(pop_up_name)
@@ -11599,12 +11134,7 @@ class mfip_eligibility_detail
 				dm_col = 1
 				EMSearch "Maxis Person Deemer Income Budget", dm_row, dm_col
 			End If
-			' EMReadScreen still_in_menu, 20, 2, 34
-			' MsgBox"still_in_menu - " & still_in_menu
-			' MsgBox "DEEMED INCOME POP-UP - dm_row: " & dm_row
 			Do while dm_row <> 0
-			' Do while still_in_menu = "Deemer Income Budget"
-				' MsgBox"still_in_menu - " & still_in_menu & " - in loop - DEEMER INCOME"
 				pers_row = 1
 				pers_col = 1
 				EMSearch "Mbrsp Code", pers_row, pers_col
@@ -11670,13 +11200,9 @@ class mfip_eligibility_detail
 					dm_col = 1
 					EMSearch "MAXIS Person Deemer Income Budget", dm_row, dm_col
 				End If
-				' EMReadScreen still_in_menu, 20, 4, 34
-				' MsgBox "LEAVING ??   DEEMED INCOME POP-UP - dm_row: " & dm_row
 			Loop
-			' MsgBox "We should be at main"
 
 			Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
-			' MsgBox "In CSES Excl"
 			EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
 			EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
 			EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
@@ -11685,10 +11211,8 @@ class mfip_eligibility_detail
 			mfip_budg_cses_excln_child_count = trim(mfip_budg_cses_excln_child_count)
 			mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
 			transmit
-			' MsgBox "Left the CSES Excl - back to main"
 
 			Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
-			' MsgBox "IN memb SPECIFIC Tribal income"
 			EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
 			EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
 			EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
@@ -11697,14 +11221,12 @@ class mfip_eligibility_detail
 			mfip_budg_total_tribal_income_fs_portion_deduction = trim(mfip_budg_total_tribal_income_fs_portion_deduction)
 
 			Call write_value_and_transmit("X", 6, 12)		' member specific Tribal Child Support Income
-			' MsgBox "IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			EMReadScreen back_to_menu, 21, 4, 31
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 25, 8, 34
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 					If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
-
 						EMReadScreen mfip_elig_membs_county_88_cses_income(case_memb), 10, 11, 54
 
 						mfip_elig_membs_county_88_cses_income(case_memb) = trim(mfip_elig_membs_county_88_cses_income(case_memb))
@@ -11712,12 +11234,10 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
-				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal child support income - back_to_menu: " & back_to_menu
 			Loop
 
 			Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
 			EMReadScreen back_to_menu, 21, 4, 31
-			' MsgBox "IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 30, 7, 37
 				pop_up_name = trim(pop_up_name)
@@ -11741,13 +11261,10 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
-				' MsgBox "LEAVING ???   IN memb SPECIFIC Tribal gaming income - back_to_menu: " & back_to_menu
 			Loop
 			transmit                  ''back to MFB1
-			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
-			' MsgBox "Memb specific SUBSIDY"
 			EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
 			EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
 			EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
@@ -11756,7 +11273,6 @@ class mfip_eligibility_detail
 			mfip_budg_total_subsidy_tribal_cash_portion_deduction = trim(mfip_budg_total_subsidy_tribal_cash_portion_deduction)
 
 			Call write_value_and_transmit("X", 8, 13)		' member specific subsidy Income
-			' MsgBox "Memb specific SUBSIDY"
 
 			EMReadScreen mfip_elig_budg_total_countable_housing_subsidy, 10, 19, 48
 			EMReadScreen mfip_elig_budg_housing_subsidy_exempt, 1, 21, 47
@@ -11781,10 +11297,8 @@ class mfip_eligibility_detail
 				EMReadScreen next_memb_ref_numb, 2, row, 6
 			Loop until next_memb_ref_numb = "  "
 			transmit 					'back to pop-up
-			' MsgBox "Back to SUBSIDY POP UP"
 
 			transmit                 	'back to MFB1
-			' MsgBox "BACK to MFB1"
 
 			Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
 			EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
@@ -11815,7 +11329,6 @@ class mfip_eligibility_detail
 			transmit
 
 			transmit			'MFB2
-			' MsgBox "In MFB2"
 			EMReadScreen mfip_case_budg_prorate_date, 8, 5, 19
 
 			EMReadScreen mfip_case_budg_fed_food_benefit, 			10, 7, 32
@@ -11906,7 +11419,6 @@ class mfip_eligibility_detail
 			transmit
 			' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 			transmit			'MFSM
-			' MsgBox "In MFSM"
 			EMReadScreen mfip_approved_date, 8, 3, 14
 			EMReadScreen mfip_process_date, 8, 2, 73
 			EMReadScreen mfip_prev_approval, 4, 3, 73
@@ -11961,13 +11473,11 @@ class mfip_eligibility_detail
 			mfip_case_summary_cash_portion = trim(mfip_case_summary_cash_portion)
 			mfip_case_summary_food_portion = trim(mfip_case_summary_food_portion)
 			mfip_case_summary_housing_grant = trim(mfip_case_summary_housing_grant)
-			' Msgbox mfip_case_summary_net_grant_amount
 
 			If mfip_case_asst_unit_caregivers = "0" Then mfip_child_only = True
 		End If
 
 		Call Back_to_SELF
-
 
 		Call navigate_to_MAXIS_screen("MONY", "INQX")
 		EMWriteScreen initial_search_month, 6, 38
@@ -11975,7 +11485,6 @@ class mfip_eligibility_detail
 		EMWriteScreen CM_plus_1_mo, 6, 53
 		EMWriteScreen CM_plus_1_yr, 6, 56
 		transmit
-		' MsgBox "Looking at MONY/INQX"
 
 		inqd_row = 6
 		tx_count = 0
@@ -12043,7 +11552,6 @@ class mfip_eligibility_detail
 		EMWriteScreen start_search_year, 6, 41
 		EMWriteScreen CM_plus_1_mo, 6, 53
 		EMWriteScreen CM_plus_1_yr, 6, 56
-		' MsgBox "What are the months?!"
 		EMWriteScreen "X", 17, 50
 		transmit
 
@@ -12053,8 +11561,6 @@ class mfip_eligibility_detail
 		chck_prog = trim(chck_prog)
 
 		Do while chck_prog <> ""
-
-
 			EMReadScreen check_from_date, 8, inqd_row, 62
 			EMReadScreen check_to_date, 8, inqd_row, 73
 
@@ -12069,15 +11575,8 @@ class mfip_eligibility_detail
 			Call write_value_and_transmit("I", inqd_row, 4)
 			EMReadScreen payment_reason, 14, 7, 17
 			PF3
-			' elig_footer_month
-			' elig_footer_year
-			' MsgBox "check_benefit_month - " & check_benefit_month & vbCr & "elig_footer_year - " & elig_footer_year & vbCr & "payment_reason - " & payment_reason
 
 			If check_benefit_month = elig_footer_month AND check_benefit_year = elig_footer_year AND payment_reason <> "Regular Grants" Then
-				' If dwp_mony_check_found = False Then
-
-				' End If
-				' MsgBox "tx_count - " & tx_count
 				ReDim preserve mfip_check_issue_date(tx_count)
 				ReDim preserve mfip_check_program(tx_count)
 				ReDim preserve mfip_check_status_code(tx_count)
@@ -12186,7 +11685,6 @@ class mfip_eligibility_detail
 				EMReadScreen mfip_check_mail_method(tx_count), 			15, 4, 63
 				EMReadScreen mfip_check_payment_method(tx_count), 		15, 5, 63
 				EMReadScreen mfip_check_vendor_number(tx_count), 		15, 6, 63
-				' MsgBox "vendor Number  " & mfip_check_vendor_number(tx_count)
 				EMReadScreen mfip_check_fiche_number(tx_count), 		15, 7, 63
 				EMReadScreen mfip_check_payment_amount(tx_count), 		10, 13, 16
 				EMReadScreen mfip_check_entitement_amount(tx_count), 	10, 14, 16
@@ -12239,15 +11737,11 @@ class mfip_eligibility_detail
 		Call back_to_SELF
 
 		If mfip_mony_check_found = True Then
-
-			' MsgBox "UBOUND: " & UBound(mfip_check_program)
 			for each_trans = 0 to UBound(mfip_check_program)
-
 				Call navigate_to_MAXIS_screen("MONY", "VNDS")
 
 				Call write_value_and_transmit(mfip_check_vendor_number(each_trans), 4, 59)
 				EMReadScreen mfip_check_vendor_name(each_trans), 					30, 3, 15
-				' MsgBox "VENDOR NAME - " &  mfip_check_vendor_name(each_trans)
 				EMReadScreen mfip_check_vendor_c_o(each_trans), 					30, 4, 15
 				EMReadScreen mfip_check_vendor_street_one(each_trans), 				22, 5, 15
 				EMReadScreen mfip_check_vendor_street_two(each_trans), 				22, 6, 15
@@ -12317,8 +11811,6 @@ class mfip_eligibility_detail
 			Next
 		End If
 
-
-		' ReDim mfip_vnda_found
 		ReDim mfip_vnda_vendor_number(0)
 		ReDim mfip_vnda_vendor_name(0)
 		ReDim mfip_vnda_reference_number(0)
@@ -12330,7 +11822,6 @@ class mfip_eligibility_detail
 		ReDim mfip_vnda_hg_payment_amount(0)
 		ReDim mfip_vnda_total_payment_amount(0)
 
-
 		Call Back_to_SELF
 		Call navigate_to_MAXIS_screen("MONY", "VNDA")
 
@@ -12341,17 +11832,11 @@ class mfip_eligibility_detail
 		If panel_location <> "Case" Then 			'this is on the initial search panel, if it says 'Case' it means we are still at the first screen
 			auth_count = 0
 			vnda_row = 6
-			'2225596
 			Do
 				EMReadScreen vndr_nbr, 7, vnda_row, 3
 				EMReadScreen vndr_send, 1, vnda_row, 57
-				' MsgBox "Footer month - " & elig_footer_month & "/" & elig_footer_year & vbCr & "vndr_nbr - " & vndr_nbr & vbCr & "vndr_send - " & vndr_send
 				If vndr_nbr <> "_______" and vndr_send = "V" Then
-					' If dwp_vnda_found = False Then
-
-					' End If
 					mfip_vnda_found = True
-					' MsgBox "Vendor found"
 
 					ReDim preserve mfip_vnda_vendor_number(auth_count)
 					ReDim preserve mfip_vnda_vendor_name(auth_count)
@@ -12406,7 +11891,6 @@ class mfip_eligibility_detail
 					auth_count = auth_count + 1
 				End If
 				vnda_row = vnda_row + 1
-				' MsgBox "vnda_row - " & vnda_row & vbCr & vndr_nbr & " - vndr_nbr" & vbCr & "_______"
 			Loop until vndr_nbr = "_______"
 			PF3
 		End If
@@ -12571,7 +12055,6 @@ class msa_eligibility_detail
 			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			' If DateDiff("d", #8/9/2022#, elig_version_date) = 0 Then approved_today = True
 			If allow_late_note = True Then
 				one_week_ago = DateAdd("d", -7, date)
 				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
@@ -13277,7 +12760,6 @@ class ga_eligibility_detail
 			EMReadScreen approval_date, 8, 3, 15		'this is the actual approval date - not the process date'
 			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			' If DateDiff("d", #7/25/2022#, elig_version_date) = 0 Then approved_today = True
 			If allow_late_note = True Then
 				one_week_ago = DateAdd("d", -7, date)
 				If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
@@ -13299,7 +12781,6 @@ class ga_eligibility_detail
 
 			If ga_elig_faci_file_unit_type_code = "5" Then ga_elig_faci_file_unit_type_info = "Personal Needs"
 
-			' MsgBox ga_elig_faci_file_unit_type_code
 			ReDim ga_elig_ref_numbs(0)
 			ReDim ga_elig_membs_full_name(0)
 			ReDim ga_elig_membs_relationship_code(0)
@@ -13450,7 +12931,6 @@ class ga_eligibility_detail
 				EMReadScreen ga_elig_membs_elig_begin_date(elig_memb_count), 8, ga_row, 66
 
 				Call write_value_and_transmit("X", ga_row, 6)
-				' MsgBox "Open person row"
 
 				EMReadScreen ga_elig_membs_test_absence(elig_memb_count), 			6, 11, 12
 				EMReadScreen ga_elig_membs_test_dupl_assistance(elig_memb_count), 	6, 12, 12
@@ -13482,7 +12962,6 @@ class ga_eligibility_detail
 				ga_elig_membs_test_ssn_coop(elig_memb_count) = trim(ga_elig_membs_test_ssn_coop(elig_memb_count))
 
 				transmit
-				' MsgBox "Back to GAPR"
 
 				ga_row = ga_row + 1
 				elig_memb_count = elig_memb_count + 1
@@ -13490,7 +12969,6 @@ class ga_eligibility_detail
 			Loop until next_ref_numb = "  "
 
 			transmit 		'going to the next panel - GACR
-			' MsgBox "On to GACR"
 
 			EMReadScreen ga_elig_case_test_appl_withdrawn, 		6, 8, 10
 			EMReadScreen ga_elig_case_test_dupl_assistance, 	6, 9, 10
@@ -13523,7 +13001,6 @@ class ga_eligibility_detail
 			' Call write_value_and_transmit("X", 13, 4)		'This is the Prosp Net Income Pop-Up - this appears to match the information on GAb1 - so we are not reading it'
 
 			transmit 		'going to the next panel - GAB1
-			' MsgBox "Back to GAB1"
 
 			EMReadScreen ga_elig_case_budg_gross_wages, 					10, 6, 29
 			EMReadScreen ga_elig_case_budg_gross_self_emp, 					10, 7, 29
@@ -13563,7 +13040,6 @@ class ga_eligibility_detail
 			If ga_elig_case_budg_total_deemed_income = "" Then ga_elig_case_budg_total_deemed_income = "0.00"
 
 			transmit 		'going to the next panel - GAB2
-			' MsgBox "Back to GAB2"
 
 			EMReadScreen ga_elig_case_budg_payment_standard, 	10, 6, 34
 			' EMReadScreen ga_elig_case_budg_total_countable_income, 10, 7, 34
@@ -13622,15 +13098,12 @@ class ga_eligibility_detail
 			ga_combined_payment_standard = FormatNumber(ga_combined_payment_standard, 2, -1, 0, -1)
 			ga_combined_payment_subtotal = FormatNumber(ga_combined_payment_subtotal, 2, -1, 0, -1)
 
-			' MsgBox "ga_elig_case_budg_pers_needs_payment_standard - " & ga_elig_case_budg_pers_needs_payment_standard & vbCr & "ga_elig_case_budg_total_ga_grant_amount - " & ga_elig_case_budg_total_ga_grant_amount
-
 			If ga_elig_case_budg_prorated_from <> "" Then ga_elig_case_budg_prorated_from = replace(ga_elig_case_budg_prorated_from, " ", "/")
 			If ga_elig_case_budg_prorated_to <> "" Then ga_elig_case_budg_prorated_to = replace(ga_elig_case_budg_prorated_to, " ", "/")
 			If ga_elig_case_budg_pers_needs_prorated_from <> "" Then ga_elig_case_budg_pers_needs_prorated_from = replace(ga_elig_case_budg_pers_needs_prorated_from, " ", "/")
 			If ga_elig_case_budg_pers_needs_prorated_to <> "" Then ga_elig_case_budg_pers_needs_prorated_to = replace(ga_elig_case_budg_pers_needs_prorated_to, " ", "/")
 
 			transmit 		'going to the next panel - GASM
-			' MsgBox "Back to GASM"
 
 			EMReadScreen ga_elig_summ_approved_date, 8, 3, 15
 			EMReadScreen ga_elig_summ_process_date, 8, 2, 73
@@ -13678,7 +13151,6 @@ class ga_eligibility_detail
 			If ga_elig_summ_vendor_reason_code = "10" Then ga_elig_summ_vendor_reason_info = "Chemical Dependency"
 			If ga_elig_summ_vendor_reason_code = "11" Then ga_elig_summ_vendor_reason_info = "No Residence"
 			If ga_elig_summ_vendor_reason_code = "20" Then ga_elig_summ_vendor_reason_info = "Grant Diversion"
-
 
 			ga_elig_summ_total_assets = trim(ga_elig_summ_total_assets)
 			ga_elig_summ_client_faci_obligation = trim(ga_elig_summ_client_faci_obligation)
@@ -13752,7 +13224,6 @@ class ga_eligibility_detail
 end class
 
 class deny_eligibility_detail
-
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -14375,7 +13846,6 @@ class deny_eligibility_detail
 			If deny_cash_dwp_selection_line = "_" Then
 				Call write_value_and_transmit("X", 8, 20)
 				deny_cash_dwp_details_exists = True
-				' MsgBox "DWP Pop-Up"
 
 				transmit
 
@@ -14524,7 +13994,6 @@ class deny_eligibility_detail
 			If deny_cash_mfip_selection_line = "_" Then
 				Call write_value_and_transmit("X", 9, 20)
 				deny_cash_mfip_details_exists = True
-				' MsgBox "MFIP Pop-Up"
 
 				transmit			'MFCR
 
@@ -14636,11 +14105,9 @@ class deny_eligibility_detail
 					deny_mfip_verif_MEMI = UCase(deny_mfip_verif_MEMI)
 
 					transmit
-					' MsgBox "Back to MFCR - 1"
 				End if
 
 				Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
-				' MsgBox "In Initial Income Pop_up"
 				EMReadScreen deny_mfip_initial_income_earned, 			10, 8, 51
 				EMReadScreen deny_mfip_initial_income_deoendant_care, 	10, 9, 51
 				EMReadScreen deny_mfip_initial_income_unearned, 			10, 10, 51
@@ -14665,7 +14132,6 @@ class deny_eligibility_detail
 			If deny_cash_msa_selection_line = "_" Then
 				Call write_value_and_transmit("X", 12, 20)
 				deny_cash_msa_details_exists = True
-				' MsgBox "MSA Pop-Up"
 				transmit
 
 				EMReadScreen deny_msa_elig_case_test_applicant_eligible, 	6, 6, 7
@@ -15115,13 +14581,11 @@ class grh_eligibility_detail
 
 				EMReadScreen panel_check_GRPB, 34, 3, 23
 				EMReadScreen panel_check_GRFB, 4, 3, 47
-				' MsgBox "panel_check_GRPB - " & panel_check_GRPB & vbCr & "panel_check_GRFB - " & panel_check_GRFB
 				If panel_check_GRFB = "GRFB" Then
 					skip_budget = True
 					Exit Do
 				End If
 			Loop until InStr(panel_check_GRPB, "GRPB") <> 0
-			' MsgBox "skip_budget - " & skip_budget
 
 			grh_elig_budg_exists = False
 			If skip_budget = False Then
@@ -15231,7 +14695,6 @@ class grh_eligibility_detail
 					EMReadScreen grh_elig_budg_inc_unavail_1st_month, 			8, 15, 70
 
 					grh_elig_budg_RSDI_income = replace(grh_elig_budg_RSDI_income, "_", "")
-					' MsgBox "grh_elig_budg_RSDI_income - " & grh_elig_budg_RSDI_income
 					grh_elig_budg_other_unearned_income = replace(grh_elig_budg_other_unearned_income, "_", "")
 					grh_elig_budg_earned_income = replace(grh_elig_budg_earned_income, "_", "")
 					grh_elig_budg_total_income = trim(grh_elig_budg_total_income)
@@ -15802,7 +15265,6 @@ class grh_eligibility_detail
 
 				PF3
 			End If
-
 
 			If grh_elig_budg_vendor_number_two <> "" Then
 				Call write_value_and_transmit(grh_elig_budg_vendor_number_two, 4, 59)
@@ -16461,7 +15923,6 @@ class emer_eligibility_detail
 		for each_trans = 0 to UBound(emer_check_program)
 			Call navigate_to_MAXIS_screen("MONY", "VNDS")
 
-
 			Call write_value_and_transmit(emer_check_vendor_number(each_trans), 4, 59)
 			EMReadScreen emer_check_vendor_name(each_trans), 					30, 3, 15
 			EMReadScreen emer_check_vendor_c_o(each_trans), 					30, 4, 15
@@ -16539,22 +16000,18 @@ class emer_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		manual_hh_count = 0
 		If approved_version_found = False Then approved_today = False
-		' MsgBox "approved_version_found - " & approved_version_found & vbCr & "elig_version_date - " & elig_version_date
 		If approved_version_found = True Then
 
 			If IsDate(elig_version_date) = True Then
 				EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
 				approval_date = DateAdd("d", 0, approval_date)
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
-				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
 				If allow_late_note = True Then
 					one_week_ago = DateAdd("d", -7, date)
 					If DateDiff("d", one_week_ago, elig_version_date) >= 0 Then approved_today = True
 				End If
 				If developer_mode = True Then approved_today = True			'TESTING OPTION'
 			End if
-			' MsgBox "elig_version_date - " & elig_version_date & vbCr & "approved_today - " & approved_today
 
 			if approved_today = True Then
 				EMReadScreen emer_program, 2, 4, 45
@@ -16617,7 +16074,6 @@ class emer_eligibility_detail
 					memb_count = memb_count + 1
 					emer_row = emer_row + 1
 					EMReadScreen next_ref_numb, 2, emer_row,rn_col
-					' MsgBox "next_ref_numb - " & next_ref_numb & vbCr & "emer_row - " & emer_row
 				Loop until next_ref_numb = "  "
 
 				transmit
@@ -16819,13 +16275,10 @@ class emer_eligibility_detail
 
 		Call back_to_SELF
 	end sub
-
-
 end class
 
 
 class snap_eligibility_detail
-
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -17574,14 +17027,10 @@ class snap_eligibility_detail
 				EMReadScreen snap_exp_criteria_migrant_destitute, 1, 15, 5
 				EMReadScreen snap_exp_criteria_resource_100_income_150, 1, 16, 5
 				EMReadScreen snap_exp_criteria_resource_income_less_shelter, 1, 19, 5
-				' MsgBox "snap_exp_criteria_migrant_destitute - " & snap_exp_criteria_migrant_destitute
 
 				EMReadScreen snap_exp_verif_status_postponed, 1, 15, 52
 				EMReadScreen snap_exp_verif_status_out_of_state, 1, 17, 52
 				EMReadScreen snap_exp_verif_status_all_provided, 1, 19, 52
-				' MsgBox "snap_exp_verif_status_postponed - " & snap_exp_verif_status_postponed & vbCr &_
-				' "snap_exp_verif_status_out_of_state - " & snap_exp_verif_status_out_of_state & vbCr &_
-				' "snap_exp_verif_status_all_provided - " & snap_exp_verif_status_all_provided & vbCr & "1"
 				transmit
 
 				If exp_status_issuance_on_or_before_15th = "X" Then snap_exp_package_includes_month_one = True
@@ -17604,11 +17053,6 @@ class snap_eligibility_detail
 				If snap_exp_verif_status_out_of_state = " " Then snap_exp_verif_status_out_of_state = False
 				If snap_exp_verif_status_all_provided = "X" Then snap_exp_verif_status_all_provided = True
 				If snap_exp_verif_status_all_provided = " " Then snap_exp_verif_status_all_provided = False
-				' MsgBox "snap_exp_verif_status_postponed - " & snap_exp_verif_status_postponed & vbCr &_
-				' "snap_exp_verif_status_out_of_state - " & snap_exp_verif_status_out_of_state & vbCr &_
-				' "snap_exp_verif_status_all_provided - " & snap_exp_verif_status_all_provided & vbCr & "2"
-
-
 			End If
 
 			EMReadScreen snap_elig_worker_message_one, 80, 17, 1
@@ -18281,7 +17725,6 @@ class hc_eligibility_detail
 							hc_prog_elig_appd(hc_prog_count) = False
 						Else
 							EMReadScreen current_version, 2, hc_row, 58
-							' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
 							If current_version = "01" Then
 								hc_prog_elig_appd(hc_prog_count) = False
 							Else
@@ -18325,7 +17768,6 @@ class hc_eligibility_detail
 					End if
 
 					If the_row = 0 Then
-						' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
 						EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
 						hc_prog_elig_process_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_process_date(hc_prog_count))
 
@@ -18378,20 +17820,12 @@ class hc_eligibility_detail
 								EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
 								EMReadScreen hc_ref_numb, 2, 6, 12
 								hc_prog_elig_members_whose_income_counts(hc_prog_count) = Array(hc_ref_numb)
-
-								' MsgBox  "ASSISTANCE UNIT TEST - " &  hc_prog_elig_test_assistance_unit(hc_prog_count)
 							End If
-							' MsgBox "CREATED TODAY"
-
 							If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" or hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
 
-								' MsgBox "At Budget"
 								transmit
-								' MsgBox "At Summary"
 								EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
-								' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "1"
 								If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then 'hc_prog_elig_app_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_app_date(hc_prog_count))
-								' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
 									If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
 										approved_today = True
 										hc_prog_elig_approved_today(hc_prog_count) = True
@@ -18408,16 +17842,14 @@ class hc_eligibility_detail
 										hc_prog_elig_approved_today(hc_prog_count) = True			'TESTING OPTION'
 									End If
 								End If
-								' MsgBox "hc_prog_elig_approved_today(hc_prog_count) - " & hc_prog_elig_approved_today(hc_prog_count)
+
 								PF3
-								' MsgBox "At Budget"
-								' MsgBox "hc_prog_elig_major_program(hc_prog_count) - " & hc_prog_elig_major_program(hc_prog_count)
+
 								If hc_prog_elig_approved_today(hc_prog_count) = True Then
 									hc_col = 17
 									Do
 										EMReadScreen budg_mo, 2, 6, hc_col + 2
 										EMReadScreen budg_yr, 2, 6, hc_col + 5
-										' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
 										If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
 											EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 12, hc_col
 											EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 12, hc_col + 5
@@ -18443,7 +17875,6 @@ class hc_eligibility_detail
 											If hc_prog_elig_waiver(hc_prog_count) = "Y" Then hc_prog_elig_waiver_detail(hc_prog_count) = "CSG Converstion"
 
 											Call write_value_and_transmit("X", 7, hc_col)						'Opening the HC Span
-											' MsgBox "MOVING - 2"
 											If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
 												EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 6, 5
 												EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 7, 5
@@ -18477,7 +17908,6 @@ class hc_eligibility_detail
 												End If
 
 												Call write_value_and_transmit("X", 7, 3)				'Assets'
-												' MsgBox "MOVING - 3"
 												EMReadScreen assets_pop_up_check, 6, 6, 35
 												If assets_pop_up_check = "Assets" Then
 													'TODO read asset information'
@@ -18485,16 +17915,12 @@ class hc_eligibility_detail
 												Else
 													EMWriteScreen " ", 7, 3
 												End If
-												' MsgBox "MOVING - 4"
 
 												Call write_value_and_transmit("X", 10, 3)				'Cooperration'
-												' MsgBox "MOVING - 5"
 												Call write_value_and_transmit("X", 10, 26)				'Cooperration'
-												' MsgBox "MOVING - 6"
 												EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
 												EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
 												transmit
-												' MsgBox "MOVING - 7"
 												EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
 												EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
 												EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
@@ -18503,21 +17929,17 @@ class hc_eligibility_detail
 												EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
 												EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
 												transmit
-												' MsgBox "MOVING - 8"
 
 												Call write_value_and_transmit("X", 14, 3)				'Fail to File'
-												' MsgBox "MOVING - 9"
 												EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
 												EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
 												EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
 												EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
 												EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
 												transmit
-												' MsgBox "MOVING - 10"
 												EMReadScreen ema_person_test_check, 3, 3, 27
 												If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
 												If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
-												' MsgBox "MOVING - 11"
 												EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
 												EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
 												EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
@@ -18535,19 +17957,15 @@ class hc_eligibility_detail
 												EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
 												EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
 												transmit
-												' MsgBox "MOVING - 12"
 
 												Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
-												' MsgBox "MOVING - 13"
 												transmit
-												' MsgBox "MOVING - 14"
 
 												' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
 												' transmit
 											End If
 
 											If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
-												' MsgBox "Reading IMD Info"
 												EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 7, 5
 												EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 8, 5
 												EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 9, 5
@@ -18569,13 +17987,10 @@ class hc_eligibility_detail
 												EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
 											End If
 
-
-
 											transmit
-											' MsgBox "MOVING - 15"
 
 											Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
-											' MsgBox "MOVING - 16"
+
 											EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
 											hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
 											hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
@@ -18594,18 +18009,13 @@ class hc_eligibility_detail
 											hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
 											hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
 											transmit
-											' MsgBox "MOVING - 17"
-
 											If hc_prog_elig_method(hc_prog_count) <> "X" Then
 												Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
 												EMReadScreen budget_exist, 22, 24, 15
 												If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
-												' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
 											End If
-											' MsgBox "hc_prog_elig_method(hc_prog_count) - " & hc_prog_elig_method(hc_prog_count)
 											If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
 
-												' MsgBox "MOVING - 18"
 												EMReadScreen hc_prog_elig_PTMA(hc_prog_count), 1, 5, 63
 												EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
 												EMReadScreen hc_prog_elig_basis(hc_prog_count), 20, 6, 24
@@ -18649,7 +18059,6 @@ class hc_eligibility_detail
 												End If
 
 												If InStr(budg_panel, "BBUD") <> 0 Then
-												' If hc_prog_elig_method(hc_prog_count) = "B" Then
 													' MsgBox "BBUD"
 													budget_found = true
 													hc_budget_type(hc_prog_count) = "BBUD"
@@ -18908,11 +18317,9 @@ class hc_eligibility_detail
 												If budget_found = false Then MsgBox "Budget not coded:" & vbCr & budg_panel & vbCr & vbCr & elig_footer_month & "/" & elig_footer_year
 
 												transmit
-												' MsgBox "MOVING - 19"
 											End If
 
 											Call write_value_and_transmit("X", 18, 3)				'MOBL
-											' MsgBox "MOVING - 20"
 
 											community_spenddown_exists(hc_prog_count) = False
 											EW_spenddown_exists(hc_prog_count) = False
@@ -18928,7 +18335,6 @@ class hc_eligibility_detail
 											Loop until mobl_ref_numb = "  "
 											Call write_value_and_transmit("X", mobl_row, 3)				'MOBL
 											Do
-												' MsgBox "MOVING - 21"
 												EMReadScreen spenddown_header, 75, 3, 2
 												spenddown_header = trim(spenddown_header)
 												If spenddown_header = "Community Spenddown Results (SPDN)" Then
@@ -19008,7 +18414,6 @@ class hc_eligibility_detail
 														EMReadScreen hc_prog_elig_six_mo_spdn_unused_balance(hc_prog_count), 		10, 19, 45
 													End if
 												ElseIf spenddown_header = "SIS-EW Waiver Obligation Results (EWWO)" Then
-													'2506494
 													mobl_col = 21
 													Do
 														EMReadScreen mobl_mo, 2, 11, mobl_col
@@ -19037,7 +18442,6 @@ class hc_eligibility_detail
 													Loop until mobl_col = 87
 
 												ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
-													'804476
 													LTC_spenddown_exists(hc_prog_count) = True
 
 													EMReadScreen spenddown_to_read, 1, 6, 21
@@ -19072,8 +18476,8 @@ class hc_eligibility_detail
 													mobl_col = 19
 													Do
 														EMReadScreen mobl_mo, 2, 7, mobl_col
-														EMReadScreen mobl_yr, 2, 7, mobl_col
-														If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+														EMReadScreen mobl_yr, 2, 7, mobl_col+3
+														If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year Then
 															LTC_spenddown_exists(hc_prog_count) = True
 															If spenddown_to_read <> "_" Then
 																EMReadScreen hc_prog_elig_ltc_spdn_amount(hc_prog_count), 9, 8, mobl_col-2
@@ -19097,11 +18501,9 @@ class hc_eligibility_detail
 												transmit
 												EMReadScreen back_to_MOBL_check, 4,	 3, 49
 											Loop until back_to_MOBL_check = "MOBL"
-											' MsgBox "MOVING - 22"
 											PF3
 
 											Call write_value_and_transmit("X", 18, 34)				'Cert Period Amount'
-											' MsgBox "MOVING - 22.5"
 											EMReadScreen cert_pd_pop_up_check, 27, 5, 13
 											If cert_pd_pop_up_check = "Certification Period Amount" Then
 												EMReadScreen hc_prog_elig_cert_prd_total_net_income(hc_prog_count), 	10, 7, 34
@@ -19110,10 +18512,8 @@ class hc_eligibility_detail
 												transmit
 											End If
 											EMWriteScreen " ", 18, 34
-											' MsgBox "MOVING - 23"
 
 											transmit
-											' MsgBox "MOVING - 24"
 
 											EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
 											EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
@@ -19137,20 +18537,16 @@ class hc_eligibility_detail
 											EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
 
 											transmit
-											' MsgBox "MOVING - 25"
 
 											Exit Do
 										End If
 										hc_col = hc_col + 11
-										' MsgBox "hc_col - " & hc_col
 										If hc_col = 83 Then hc_prog_elig_appd(hc_prog_count) = False
 									Loop until hc_col = 83
 								End If
 							End If
 
 							If hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
-								' MsgBox hc_prog_elig_major_program(hc_prog_count)
-								' EmReadScreen hc_elig_membs_prog_one
 								hc_budget_type(hc_prog_count) = "MBUD"
 								EMReadScreen hc_elig_full_name(hc_prog_count), 40, 5, 15
 								hc_elig_full_name(hc_prog_count) = trim(hc_elig_full_name(hc_prog_count))
@@ -19261,8 +18657,6 @@ class hc_eligibility_detail
 								hc_prog_list_all_income(hc_prog_count) = income_string
 								If right(hc_prog_list_all_income(hc_prog_count), 1) = "~" and len(hc_prog_list_all_income(hc_prog_count)) <> 1 Then hc_prog_list_all_income(hc_prog_count) = left(hc_prog_list_all_income(hc_prog_count), len(hc_prog_list_all_income(hc_prog_count))-1)
 								If len(hc_prog_list_all_income(hc_prog_count)) = 1 Then hc_prog_list_all_income(hc_prog_count) = ""
-								' MsgBox "ALL INCOME - " & hc_prog_list_all_income(hc_prog_count)
-
 
 								hc_prog_elig_budg_gross_unearned(hc_prog_count) = trim(hc_prog_elig_budg_gross_unearned(hc_prog_count))
 								hc_prog_elig_budg_deemed_unearned(hc_prog_count) = trim(hc_prog_elig_budg_deemed_unearned(hc_prog_count))
@@ -19299,7 +18693,6 @@ class hc_eligibility_detail
 								If hc_prog_elig_budg_excess_income(hc_prog_count) = "" Then hc_prog_elig_budg_excess_income(hc_prog_count) = "0.00"
 
 								Call write_value_and_transmit("X", 5, 66)			'Household Count'
-								' MsgBox "MOVING - 26"
 								EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
 								hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
 								hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
@@ -19317,10 +18710,8 @@ class hc_eligibility_detail
 								hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
 								hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
 								transmit
-								' MsgBox "MOVING - 27"
 
 								transmit
-								' MsgBox "MOVING - 28"
 
 								EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 				6, 6, 5
 								EMReadScreen hc_prog_elig_test_after_processing_month(hc_prog_count),	6, 7, 5
@@ -19342,11 +18733,8 @@ class hc_eligibility_detail
 								EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
 
 								transmit
-								' MsgBox "MOVING - 29"
 
 								EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
-								' MsgBox "hc_prog_elig_app_date(hc_prog_count) - " & hc_prog_elig_app_date(hc_prog_count) & vbCR & "2"
-								' If IsDate(hc_prog_elig_app_date(hc_prog_count)) = true Then
 								If trim(hc_prog_elig_app_date(hc_prog_count)) <> "" Then
 									If DateDiff("d", hc_prog_elig_app_date(hc_prog_count), date) = 0 Then
 										approved_today = True
@@ -19383,8 +18771,6 @@ class hc_eligibility_detail
 								EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
 
 								transmit
-								' MsgBox "MOVING - 30"
-
 							End If
 							If trim(hc_prog_elig_elig_type(hc_prog_count)) = "" Then
 								If hc_prog_elig_elig_type(hc_prog_count) = "" Then hc_prog_elig_basis(hc_prog_count) = ""
@@ -19445,55 +18831,8 @@ class hc_eligibility_detail
 
 				End If
 
-				' EMReadScreen next_ref_numb, 2, hc_row+1, 3
-				' If next_ref_numb = "  " Then
-				' 	hc_row = hc_row + 1
-				'
-				' 	EMReadScreen clt_hc_prog, 4, hc_row, 28
-				' 	If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
-				'
-				' 		EMReadScreen prog_status, 3, hc_row, 68
-				' 		If prog_status <> "APP" Then                        'Finding the approved version
-				' 			EMReadScreen total_versions, 2, hc_row, 64
-				' 			If total_versions = "01" Then
-				' 				hc_elig_membs_prog_two_appd(hc_prog_count) = False
-				' 			Else
-				' 				EMReadScreen current_version, 2, hc_row, 58
-				' 				If current_version = "01" Then
-				' 					hc_elig_membs_prog_two_appd(hc_prog_count) = False
-				' 				Else
-				' 					prev_version = right ("00" & abs(current_version) - 1, 2)
-				' 					EMWriteScreen prev_version, hc_row, 58
-				' 					transmit
-				' 					hc_elig_membs_prog_two_appd(hc_prog_count) = True
-				' 				End If
-				'
-				' 			End If
-				' 		Else
-				' 			hc_elig_membs_prog_two_appd(hc_prog_count) = True
-				' 		End If
-				' 	Else
-				' 		hc_elig_membs_prog_two_appd(hc_prog_count) = False
-				' 	End If
-				'
-				' 	If hc_elig_membs_prog_two_appd(hc_prog_count) = True Then
-				' 		EMReadScreen hc_elig_membs_prog_two_process_date(hc_prog_count), 8, 2, 73
-				' 		hc_elig_membs_prog_two_process_date(hc_prog_count) = DateAdd("d", 0, hc_elig_membs_prog_two_process_date(hc_prog_count))
-				'
-				' 		If DateDiff("'d", hc_elig_membs_prog_two_process_date(hc_prog_count), date) = 0 Then
-				' 			EMReadScreen hc_elig_membs_program_two(hc_prog_count), 4, hc_row, 28
-				' 			EMReadScreen hc_elig_membs_prog_two_eligibility_result(hc_prog_count), 8, hc_row, 41
-				' 			EMReadScreen hc_elig_membs_prog_two_status(hc_prog_count), 8, hc_row, 50
-				' 			EMReadScreen hc_elig_membs_prog_two_app_indc(hc_prog_count), 6, hc_row, 68
-				' 			EMReadScreen hc_elig_membs_prog_two_magi_excempt(hc_prog_count), 6, hc_row, 74
-				' 		Else
-				'
-				' 		End If
-				' 	End If
-				' End If
 				Do
 					EMReadScreen hhmm_check, 4, 3, 51
-					' MsgBox hhmm_check
 					If hhmm_check <> "HHMM" Then PF3
 				Loop Until hhmm_check = "HHMM"
 				hc_prog_count = hc_prog_count + 1
@@ -19511,7 +18850,6 @@ class hc_eligibility_detail
 				End If
 				EMReadScreen next_ref_numb, 2, hc_row, 3
 				EMReadScreen next_maj_prog, 4, hc_row, 28
-				' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
 			Loop until next_ref_numb = "  " and next_maj_prog = "    "
 		Else
 			approved_today = False
@@ -21866,7 +21204,6 @@ class stat_detail
 			If stat_memi_citizenship_verif_code(each_memb) = "OT" Then stat_memi_citizenship_verif_info(each_memb) = "Other Document"
 			If stat_memi_citizenship_verif_code(each_memb) = "NO" Then stat_memi_citizenship_verif_info(each_memb) = "No Verif Provided"
 			' If stat_memi_citizenship_verif_code(each_memb) = "NO" Then panels_not_verif_string = panels_not_verif_string & "Proof of Citizenship of Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
-
 		Next
 
 		Call navigate_to_MAXIS_screen("STAT", "HCMI")
@@ -23596,12 +22933,8 @@ class stat_detail
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_taxes_amount(each_memb)
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_room_amount(each_memb)
 				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_garage_amount(each_memb)
-
-
-
 			End If
 		Next
-
 
 		call navigate_to_MAXIS_screen("STAT", "DISQ")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
@@ -24488,7 +23821,6 @@ class stat_detail
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "_" Then stat_faci_LTC_inelig_reason_info(each_memb) = ""
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "L" Then stat_faci_LTC_inelig_reason_info(each_memb) = "This Level of Care Not Required"
 					If stat_faci_LTC_inelig_reason_code(each_memb) = "N" Then stat_faci_LTC_inelig_reason_info(each_memb) = "Not pre-Screened"
-
 				End if
 			End If
 		Next
@@ -24639,7 +23971,6 @@ class stat_detail
 			End If
 			EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
 		Loop until next_bils_ref_numb = "__"
-		' MsgBox "stat_bils_remedial_care_entered - " & stat_bils_remedial_care_entered
 
 		Call navigate_to_MAXIS_screen("STAT", "HEST")
 
@@ -24775,7 +24106,6 @@ class stat_detail
 		stat_revw_interview_date = replace(stat_revw_interview_date, " ", "/")
 		If stat_revw_interview_date = "__/__/__" Then stat_revw_interview_date = ""
 
-
 		Call navigate_to_MAXIS_screen("STAT", "MONT")
 
 		EMReadScreen stat_mont_cash_status, 1, 11, 43
@@ -24815,35 +24145,6 @@ const birthdate_verif				= 11
 
 const snap_elig_indicator			= 12
 const mfip_elig_indicator			= 13
-
-
-' const fs_request_yn_const			= 12
-' const fs_memb_code_const			= 13
-' const fs_memb_status_info_const		= 14
-' const fs_memb_counted_const			= 15
-' const fs_memb_state_food_const		= 16
-' const fs_memb_elig_status_const		= 17
-' const fs_memb_begin_date_const		= 18
-' const fs_memb_budg_cycle_const		= 19
-' const fs_memb_abawd_const			= 20
-' const fs_memb_absence_const			= 21
-' const fs_memb_roomer_const			= 22
-' const fs_memb_boarder_const			= 23
-' const fs_memb_citizenship_const		= 24
-' const fs_memb_citizenship_coop_const = 25
-' const fs_memb_cmdty_const			= 26
-' const fs_memb_disq_const			= 27
-' const fs_memb_dupl_assist_const		= 28
-' const fs_memb_fraud_const			= 29
-' const fs_memb_eligible_student_const = 30
-' const fs_memb_institution_const		= 31
-' const fs_memb_mfip_elig_const		= 32
-' const fs_memb_non_applcnt_const		= 33
-' const fs_memb_residence_const		= 34
-' const fs_memb_ssn_coop_const		= 35
-' const fs_memb_unit_memb_const		= 36
-' const fs_memb_work_reg_const		= 37
-' const fs_memb_drug_felon_test_const	= 38
 
 const last_const = 50
 
@@ -24916,6 +24217,7 @@ Do
 	Do
 		err_msg = ""
 
+		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 366, 135, "Eligibility Summary Case Number Dialog"
 		  EditBox 100, 10, 60, 15, MAXIS_case_number
 		  EditBox 125, 30, 15, 15, first_footer_month
@@ -24929,9 +24231,9 @@ Do
 		  Text 10, 35, 110, 10, "Initial Month of Today's Approval"
 		  Text 130, 45, 35, 10, "MM    YY"
 		  Text 10, 55, 80, 10, "Sign your case note(s):"
-		  Text 10, 90, 160, 10, "This script does not have an open 'Notes' field."
+		  Text 10, 90, 160, 10, "This script does not use open 'Notes' field."
 		  Text 10, 105, 235, 20, "If there were other actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
-		  Text 175, 5, 140, 20, "This script will detail information about all APP actions for a this case taken today."
+		  Text 175, 5, 160, 20, "NOTES - Eligibility Summary will detail information about all APP actions for this case taken today."
 		  Text 180, 25, 185, 10, "- Script will handle for approvals, denials, and closures."
 		  Text 180, 35, 155, 10, "- Script will handle for any program in MAXIS."
 		  Text 180, 45, 180, 10, "- To be handled by the script ELIG resulsts must be:"
@@ -24964,6 +24266,16 @@ Do
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
+Call check_for_MAXIS(False)
+
+'PRIV Handling
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
+
+'Out of County Handling
+'There are a few reasons to allow a script to run on an out of county case - so review if this is needed.
+EMReadScreen pw_county_code, 2, 21, 16
+If pw_county_code <> "27" Then script_end_procedure("This case is not in Hennepin County and cannot be updated. The script will now end.")
 
 'CHECKING FOR 'U' code on REVW and MONT. Prompts user to correct month by month.
 Call date_array_generator(first_footer_month, first_footer_year, footer_month_array) 'Uses the custom function to create an array of dates from the initial_month and initial_year variables, ends at CM + 1.
@@ -25192,8 +24504,6 @@ const hc_elig_const 			= 36
 const hc_budg_cycle_const 		= 37
 
 const cash_revw_completed_const = 38
-' const mfip_revw_completed_const =
-' const mfip_revw_completed_const =
 
 const final_const				= 40
 
@@ -25234,16 +24544,6 @@ If numb_EMER_versions <> "" Then
 			If first_prog_not_created_today = "" Then first_prog_not_created_today = "EMER"
 		End If
 	End If
-	' transactions = ""
-	' for each_tx = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-	' 	transactions = transactions & EMER_ELIG_APPROVAL.emer_check_program(each_tx) & " - $" & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_tx) & " Paid to: " & EMER_ELIG_APPROVAL.emer_check_vendor_name(each_tx)
-	' 	transactions = transactions & vbCr
-	' Next
-	'
-	' MsgBox "EMER_ELIG_APPROVAL.elig_footer_month - " & EMER_ELIG_APPROVAL.elig_footer_month & vbCr & "EMER_ELIG_APPROVAL.elig_footer_year - " & EMER_ELIG_APPROVAL.elig_footer_year & vbCr &_
-	' 		"EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & vbCr &_
-	' 		"EMER_ELIG_APPROVAL.emer_elig_summ_payment - " & EMER_ELIG_APPROVAL.emer_elig_summ_payment & vbCr &_
-	' 		transactions
 End If
 
 const footer_mo_const 				= 0
@@ -25282,7 +24582,6 @@ For each footer_month in MONTHS_ARRAY
 	REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = False
 	REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = False
 
-	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
 	approval_found_for_this_month = False
 
@@ -25340,14 +24639,9 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "DWP "
 			End If
 		End If
-		' MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
-		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
-		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
-
 	End If
 
 	If numb_MFIP_versions <> " " Then
-		' MsgBox "In MFIP"
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
 		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detail
 
@@ -25355,7 +24649,6 @@ For each footer_month in MONTHS_ARRAY
 		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year = MAXIS_footer_year
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
-
 
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
 			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
@@ -25402,10 +24695,6 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "MSA "
 			End If
 		End If
-		' MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
-		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
-		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
-
 	End If
 
 	If numb_GA_versions <> " " Then
@@ -25431,10 +24720,6 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "GA  "
 			End If
 		End If
-		' MsgBox "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & vbCr &_
-		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant & vbCr &_
-		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
-
 	End If
 
 	If numb_CASH_denial_versions <> " " Then
@@ -25497,19 +24782,6 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "DENY"
 			End If
 		End If
-		' members = ""
-		' for each_memb = 0 to UBound(CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs)
-		' 	members = members & "MEMB " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs(each_memb) & " - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_full_name(each_memb) & " Request: " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_request_yn(each_memb)
-		' 	members = members & vbCr
-		' Next
-
-		' MsgBox "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month & vbCr & "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year & vbCr &_
-		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info & vbCr &_
-		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info & vbCr &_
-		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info & vbCr &_
-		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info & vbCr &_
-		' members
-
 	End If
 
 	If numb_GRH_versions <> " " Then
@@ -25535,14 +24807,6 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "GRH "
 			End If
 		End If
-		' MsgBox "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_two: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_two & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two & vbCr &_
-		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
-
 	End If
 
 	If numb_SNAP_versions <> " " Then
@@ -25568,7 +24832,6 @@ For each footer_month in MONTHS_ARRAY
 				If first_prog_not_created_today = "" Then first_prog_not_created_today = "FS  "
 			End If
 		End If
-
 	End If
 
 	'here we can compare approvals to identify some specific situations that require certain handling.
@@ -25587,19 +24850,6 @@ For each footer_month in MONTHS_ARRAY
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
 
 	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
-
-	' elig_list = ""
-	' for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
-	' 	If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_appd(hc_elig) = True Then
-	' 		elig_list = elig_list & "MEMB " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs(hc_elig) & ": " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_major_program(hc_elig) & " " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_type(hc_elig) & "-" & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_standard(hc_elig) & vbCr
-	' 	End If
-	' 	' MsgBox "hc_elig - " & hc_elig & vbCr & elig_list
-	' Next
-	'
-	' MsgBox "Footer Month - " & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month & "/" & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year & vbCr &_
-	' 	   "Approved Today - " & HC_ELIG_APPROVALS(hc_elig_months_count).approved_today & vbCr &_
-	' 	   "HC Eligibility: " & vbCr &_
-	' 	   elig_list
 
    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
 		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
@@ -25679,7 +24929,6 @@ For each footer_month in MONTHS_ARRAY
 				notice_exception_message = "*  *  *  *  *  *  * NOTICE EXEPTION *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & "There is an Ex Parte Notice Exeption for this case."
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "This means the notice did not generate correctly for some reason."
-				' notice_exception_message = notice_exception_message & vbCr & vbCr & "The notice must be sent manually in SPEC/MEMO to the resident."
 				notice_exception_message = notice_exception_message & vbCr & "A notice is needed for the following members: " & replace(ex_parte_members, " ", ", ")
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *"
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "THE SCRIPT WILL ATTEMPT TO SEND A MEMO FOR THIS CASE."
@@ -25688,10 +24937,6 @@ For each footer_month in MONTHS_ARRAY
 				notice_exception_message = notice_exception_message & vbCr & vbCr & "Procedure on sending manual notices can be found in ONE Source."
 				notice_exception_message = notice_exception_message & vbCr & "Look under 'Renewals' for "
 				notice_exception_message = notice_exception_message & vbCr & "  -  MAXIS Ex Parte Renewal Notice Exceptions"
-				' testing_run = True
-
-				' notice_exception_message = notice_exception_message & vbCr & ""
-				' notice_exception_message = notice_exception_message & vbCr & vbCr & ""
 
 				MsgBox notice_exception_message
 			End If
@@ -25764,11 +25009,8 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-
 						End If
-
 					End If
-
 
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
 						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
@@ -25883,31 +25125,10 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 
-
 			For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
 				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
 
-						' If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
-						' 	STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
-						'
-						' 	STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
-						'
-						' 	STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
-						' 	STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-						'
-						' End If
-
-						' If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
 						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_deemed(each_elig_memb) = "Deemed" Then
 							STAT_INFORMATION(month_count).stat_jobs_one_job_deemed_for_mfip(each_stat_memb) = True
 							STAT_INFORMATION(month_count).stat_jobs_two_job_deemed_for_mfip(each_stat_memb) = True
@@ -25925,8 +25146,6 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_four_deemed_for_mfip(each_stat_memb) = True
 							STAT_INFORMATION(month_count).stat_unea_five_deemed_for_mfip(each_stat_memb) = True
 
-
-
 							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
@@ -25942,7 +25161,6 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-						' End If
 						ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
 							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
@@ -25959,7 +25177,6 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-
 						End If
 					End if
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
@@ -26191,8 +25408,6 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_three_deemed_for_ga(each_stat_memb) = True
 							STAT_INFORMATION(month_count).stat_unea_four_deemed_for_ga(each_stat_memb) = True
 							STAT_INFORMATION(month_count).stat_unea_five_deemed_for_ga(each_stat_memb) = True
-
-
 						End If
 					End if
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
@@ -26271,7 +25486,6 @@ For each footer_month in MONTHS_ARRAY
 
 			REPORTING_COMPLETE_ARRAY(grh_next_revw_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_elig_review_date
 			REPORTING_COMPLETE_ARRAY(grh_elig_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
-			' REPORTING_COMPLETE_ARRAY(grh_budg_cycle_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).ga_elig_summ_budget_cycle
 
 			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 				If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_memb_ref_numb <> STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
@@ -26388,7 +25602,6 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 
-			' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
 			SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = 0
 			SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = 0
 			For each_elig_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs)
@@ -26430,10 +25643,6 @@ For each footer_month in MONTHS_ARRAY
 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
 		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
 
-		' REPORTING_COMPLETE_ARRAY(hc_next_revw_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_revw_date
-		' REPORTING_COMPLETE_ARRAY(hc_elig_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_result
-		' REPORTING_COMPLETE_ARRAY(hc_budg_cycle_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_budget_cycle
-
 		If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
@@ -26457,14 +25666,6 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
 			End If
 		End If
-
-		' stat_faci_currently_in_facility(each_memb) = currently_in_FACI
-
-		' If STAT_INFORMATION(month_count).stat_mont_hc_status == "A" Then
-		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
-		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
-		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-		' End If
 	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
@@ -26498,7 +25699,6 @@ If approvals_not_created_today <> "" Then
 End If
 
 verifs_in_case_note = ""
-' MsgBox "ineligible_approval_exists - " & ineligible_approval_exists
 If ineligible_approval_exists = True Then
 	Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
 	too_old_date = DateAdd("d", -75, date)              'We don't need to read notes from before the CAF date
@@ -26509,7 +25709,6 @@ If ineligible_approval_exists = True Then
 		EMReadScreen note_date, 8, note_row, 6                  'reading the note date
 		EMReadScreen note_title, 55, note_row, 25               'reading the note header
 		note_title = trim(note_title)
-		' MsgBox "note_title - " & note_title
 		If InStr(note_title, "Application Check") <> 0 Then
 			Call write_value_and_transmit("X", note_row, 3)
 
@@ -26520,9 +25719,6 @@ If ineligible_approval_exists = True Then
 					Do
 						EMReadScreen case_note_line, 78, in_note_row, 3
 						enter_new_line = False
-						' If right(case_note_line, 2) = "  " Then enter_new_line = True
-						' If right(case_note_line, 2) = ". " Then enter_new_line = True
-						' If right(case_note_line, 1) = "." Then enter_new_line = True
 						verifs_in_case_note = verifs_in_case_note & trim(replace(case_note_line, "* Pending Verifications:", ""))
 						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
 
@@ -26613,9 +25809,6 @@ If ineligible_approval_exists = True Then
 					Do
 						EMReadScreen case_note_line, 78, in_note_row, 3
 						enter_new_line = False
-						' If right(case_note_line, 2) = "  " Then enter_new_line = True
-						' If right(case_note_line, 2) = ". " Then enter_new_line = True
-						' If right(case_note_line, 1) = "." Then enter_new_line = True
 						verifs_in_case_note = verifs_in_case_note & trim(case_note_line)
 						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
 
@@ -26624,13 +25817,10 @@ If ineligible_approval_exists = True Then
 							PF8
 							in_note_row = 4
 							EMReadScreen end_of_notes, 9, 24, 14
-							' MsgBox "end_of_notes - " & end_of_notes'' & vbCr & "in_note_row - "
 							If end_of_notes = "LAST PAGE" Then Exit Do
 						End if
 						EMReadScreen next_header, 3, in_note_row, 3
 					Loop until next_header = "---"
-
-
 				End If
 
 				If verifs_in_case_note <> "" Then Exit Do
@@ -26645,9 +25835,6 @@ If ineligible_approval_exists = True Then
 			Loop until trim(next_case_note_line) = ""
 
 			PF3
-
-
-
 		End If
 
 		If verifs_in_case_note <> "" Then
@@ -26655,11 +25842,6 @@ If ineligible_approval_exists = True Then
 			Do
 				verifs_in_case_note = replace(verifs_in_case_note, "  ", " ")
 			Loop until InStr(verifs_in_case_note, "  ") = 0
-			' If right(verifs_in_case_note, 1)  =";" Then
-			' 	verifs_in_case_note = verifs_in_case_note & " "
-			' ElseIf right(verifs_in_case_note, 2)  <>"; " Then
-			' 	verifs_in_case_note = verifs_in_case_note & "; "
-			' End If
 			Exit Do
 		End if
 
@@ -26677,8 +25859,6 @@ If ineligible_approval_exists = True Then
     Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
 End If
-
-' MsgBox "verifs_in_case_note - " & verifs_in_case_note
 
 pnd2_display_limit_hit = False
 deny_app_one = False
@@ -26827,25 +26007,6 @@ If first_DENY_approval <> "" Then enter_CNOTE_for_DENY = True
 If first_GRH_approval <> "" Then enter_CNOTE_for_GRH = True
 If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
-' MsgBox "first_MFIP_approval - " & first_MFIP_approval & vbCr & "enter_CNOTE_for_MFIP - " & enter_CNOTE_for_MFIP
-
-' REVIEW - handle for allowed functionality here'
-' If enter_CNOTE_for_MFIP = True Then testing_run = True
-' enter_CNOTE_for_GA = False
-' If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
-' If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_GRH = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_HC = False
-' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DWP = False
-
-' If enter_CNOTE_for_DWP = True Then testing_run = True
-' If enter_CNOTE_for_DENY = True Then testing_run = True
-' If enter_CNOTE_for_GRH = True Then testing_run = True
-' If enter_CNOTE_for_HC = True Then testing_run = True
-' If enter_CNOTE_for_EMER = True Then testing_run = True
 
 deductions_detail_btn 	= 1010
 hh_comp_detail			= 1020
@@ -26853,12 +26014,12 @@ shel_exp_detail_btn		= 1030
 unique_approval_explain_btn	= 1040
 nav_stat_elig_btn		= 1050
 reload_btn				= 1060
+verif_tips_and_tricks_btn = 2000
 
 app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
 explain_why_we_are_processing_btn = 130
-verif_tips_and_tricks_btn = 140
 
 const months_in_approval			= 0
 const limit_benefit_months			= 1
@@ -26896,7 +26057,9 @@ const process_for_note 				= 34
 const changes_for_note				= 35
 const designated_provider_info		= 36
 const l_budg						= 37
-const approval_confirmed			= 38
+const proration_reason				= 38
+const fiat_reason					= 39
+const approval_confirmed			= 40
 date_of_1503 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -26947,7 +26110,7 @@ Do
 	note_date = DateAdd("d", 0, note_date)
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
-		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
+		If InStr(note_title, " - DWP") <> 0 Then approval_note_found_for_DWP = True
 		If InStr(note_title, " - MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MFIP Special") <> 0 Then approval_note_found_for_MFSD = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
@@ -26973,7 +26136,7 @@ Do
 
 	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
 
-	' If approval_note_found_for_DWP = True Then approval_note_found = True
+	If approval_note_found_for_DWP = True Then approval_note_found = True
 	If approval_note_found_for_MFIP = True Then approval_note_found = True
 	If approval_note_found_for_MFSD = True Then approval_note_found = True
 	If approval_note_found_for_MSA = True Then approval_note_found = True
@@ -27175,6 +26338,7 @@ If enter_CNOTE_for_DWP = True Then
 	last_eligible_child_test = ""
 	last_coop_test = ""
 	last_verif_test = ""
+	last_info_source = ""
 
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
@@ -27212,6 +26376,7 @@ If enter_CNOTE_for_DWP = True Then
 				last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
 				last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
 				last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+				last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -27237,6 +26402,7 @@ If enter_CNOTE_for_DWP = True Then
 				If last_eligible_child_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child Then match_last_benefit_amounts = False
 				If last_coop_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop Then match_last_benefit_amounts = False
 				If last_verif_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif Then match_last_benefit_amounts = False
+				If last_info_source <> DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
@@ -27275,6 +26441,7 @@ If enter_CNOTE_for_DWP = True Then
 					last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
 					last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
 					last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+					last_info_source = DWP_ELIG_APPROVALS(approval).dwp_case_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -27309,6 +26476,7 @@ If enter_CNOTE_for_DWP = True Then
 
 	all_dwp_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(DWP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -27394,6 +26562,13 @@ If enter_CNOTE_for_DWP = True Then
 					End If
 				End If
 			End If
+			If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_case_source_of_info = "FIAT" Then
+					If DWP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for DWP in " & DWP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & DWP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+			End If
 
 			If show_pact = True and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" and DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
 				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" Then
@@ -27422,6 +26597,9 @@ If enter_CNOTE_for_DWP = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("DWP", DWP_UNIQUE_APPROVALS(process_for_note, approval_selected), DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/DWP has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if DWP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
@@ -27471,8 +26649,8 @@ If enter_CNOTE_for_DWP = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
-	' Loop until (ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If dwp_approval_is_incorrect = True Then
 		enter_CNOTE_for_DWP = False
@@ -27494,6 +26672,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 	last_housing_grant = ""
 	last_amount_already_issued = ""
 	last_food_portion_deduct = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -27526,6 +26705,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
 				last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 				last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
+				last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -27544,6 +26724,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_housing_grant <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant Then match_last_benefit_amounts = False
 				If last_amount_already_issued <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued Then match_last_benefit_amounts = False
 				If last_food_portion_deduct <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction Then match_last_benefit_amounts = False
+				If last_info_source <> MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
@@ -27572,6 +26753,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
 					last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 					last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
+					last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -27606,6 +26788,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 	all_mfip_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(MFIP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -27698,6 +26881,8 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			err_msg = ""
 			move_from_dialog = False
 
+			MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected))
+			MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(MFIP_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -27721,10 +26906,16 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If trim(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 
 			End If
+			If MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_source_of_info = "FIAT" Then
+					If MFIP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for MFIP in " & MFIP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & MFIP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+			End If
 
 			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True and MFIP_ELIG_APPROVALS(elig_ind).mfip_counted_memb_allocation_exists = True or MFIP_ELIG_APPROVALS(elig_ind).mfip_deemer_allocation_exists = True Then
 				If trim(MFIP_UNIQUE_APPROVALS(allocation_notes, approval_selected)) = "" Then err_msg = err_msg & vbNewLine & "* Add allocation details about this budget. Since this budget includes an allocation of funds in Earned or Unearned income, details about how this allocations was calculated are required for CASE/NOTE."
-				' testing_run = true
 			End If
 
 			If err_msg <> "" and ButtonPressed < 1000 Then
@@ -27740,7 +26931,6 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				EMWriteScreen ft_mo, 20, 55
 				EMWriteScreen ft_yr, 20, 58
 				Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
-				' transmit
 			End If
 
 			If ButtonPressed = MFIP_UNIQUE_APPROVALS(btn_ei, approval_selected) Then
@@ -27875,12 +27065,13 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				dialog Dialog1
 			End If
 
-
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MFIP", MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected), MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/MFIP has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if MFIP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
-
 				all_mfip_approvals_confirmed = True
 				mfip_approval_is_incorrect = False
 
@@ -27927,14 +27118,13 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
-	' Loop until (ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If mfip_approval_is_incorrect = True Then
 		enter_CNOTE_for_MFIP = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 If special_diet_check_exists = True Then
@@ -27949,13 +27139,18 @@ If special_diet_check_exists = True Then
 			call define_mf_special_diet_dialog
 
 			Do
-				dialog Dialog1
-				cancel_confirmation
+				Do
+					dialog Dialog1
+					cancel_confirmation
 
-				err_msg = ""
-				If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
-				If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-			Loop until err_msg = ""
+					err_msg = ""
+					If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
+					If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+				Loop until err_msg = ""
+				Call check_for_password(are_we_passworded_out)
+			Loop until are_we_passworded_out = False
+			Call check_for_MAXIS(True)
+			Call back_to_SELF
 
 			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Yes - check is Accurate" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = True
 			If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "No - do not CASE/NOTE this information" Then SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = False
@@ -27976,6 +27171,7 @@ If enter_CNOTE_for_MSA = True Then
 	last_msa_grant = ""
 	last_basic_assistance_standard = ""
 	last_special_needs = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -28004,6 +27200,7 @@ If enter_CNOTE_for_MSA = True Then
 				last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
 				last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
 				last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+				last_info_source = MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -28021,6 +27218,7 @@ If enter_CNOTE_for_MSA = True Then
 				If last_msa_grant <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant Then match_last_benefit_amounts = False
 				If last_basic_assistance_standard <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard Then match_last_benefit_amounts = False
 				If last_special_needs <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs Then match_last_benefit_amounts = False
+				If last_info_source <> MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
@@ -28048,6 +27246,7 @@ If enter_CNOTE_for_MSA = True Then
 					last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
 					last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
 					last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+					last_info_source = MSA_ELIG_APPROVALS(approval).msa_elig_summ_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -28082,6 +27281,7 @@ If enter_CNOTE_for_MSA = True Then
 
 	all_msa_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(MSA_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28156,6 +27356,7 @@ If enter_CNOTE_for_MSA = True Then
 
 			err_msg = ""
 
+			MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected))
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -28165,6 +27366,13 @@ If enter_CNOTE_for_MSA = True Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
 						End If
+					End If
+				End If
+			End If
+			If MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_source_of_info = "FIAT" Then
+					If MSA_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for MSA in " & MSA_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & MSA_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
 					End If
 				End If
 			End If
@@ -28187,6 +27395,9 @@ If enter_CNOTE_for_MSA = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MSA", MSA_UNIQUE_APPROVALS(process_for_note, approval_selected), MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/MSA has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if MSA should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
@@ -28237,13 +27448,12 @@ If enter_CNOTE_for_MSA = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 	Call back_to_SELF
-	' Loop until (ButtonPressed = app_confirmed_btn and all_msa_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+	Call check_for_MAXIS(True)
 
 	If msa_approval_is_incorrect = True Then
 		enter_CNOTE_for_MSA = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MSA Approvals from " & first_MSA_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 If enter_CNOTE_for_GA = True Then
@@ -28396,6 +27606,7 @@ If enter_CNOTE_for_GA = True Then
 
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(GA_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28471,6 +27682,7 @@ If enter_CNOTE_for_GA = True Then
 			err_msg = ""
 			move_from_dialog = False
 
+			GA_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(GA_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If (GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" OR GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info = "No Proof Given") and GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
@@ -28505,6 +27717,9 @@ If enter_CNOTE_for_GA = True Then
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GA", GA_UNIQUE_APPROVALS(process_for_note, approval_selected), GA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/GA has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if GA should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
@@ -28551,17 +27766,16 @@ If enter_CNOTE_for_GA = True Then
 				approval_selected = first_unconfirmed_month
 			End If
 
-		' Loop until (ButtonPressed = app_confirmed_btn and all_ga_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 	Call back_to_SELF
+	Call check_for_MAXIS(True)
 
 	If ga_approval_is_incorrect = True Then
 		enter_CNOTE_for_GA = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GA Approvals from " & first_GA_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 If enter_CNOTE_for_DENY = True Then
@@ -28675,6 +27889,7 @@ If enter_CNOTE_for_DENY = True Then
 
 	all_deny_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(DENY_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -28818,7 +28033,6 @@ If enter_CNOTE_for_DENY = True Then
 				EMWriteScreen ft_mo, 19, 54
 				EMWriteScreen ft_yr, 19, 57
 				Call find_last_approved_ELIG_version(19, 78, vrs_numb, vrs_dt, vrs_rslt, approval_found)
-				' transmit
 			End If
 
 
@@ -28866,10 +28080,10 @@ If enter_CNOTE_for_DENY = True Then
 				approval_selected = first_unconfirmed_month
 			End If
 
-		' Loop until (ButtonPressed = app_confirmed_btn and all_deny_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 
 	If deny_approval_is_incorrect = True Then
 		enter_CNOTE_for_DENY = False
@@ -28903,7 +28117,6 @@ If enter_CNOTE_for_DENY = True Then
 					    OkButton 415, 160, 75, 15
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) <> "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " - " & DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) & " ELIG/DENY Approval"
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) = "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " ELIG/DENY Approval"
-			    	  ' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
 					  If STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "1" or STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "1" Then
 						Text 15, 25, 200, 10, "Cash request has been withdrawn. Script will add detial"
 						Text 20, 40, 230, 10, "All cash programs have been denied because you have withdrawn the request."
@@ -28914,7 +28127,6 @@ If enter_CNOTE_for_DENY = True Then
 							Text 20, 40, 230, 10, "MFIP/DWP are Family Cash Programs."
 							Text 20, 50, 230, 10, "They require an eligible child/pregnant person to be eligible."
 						End If
-						' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
 						If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 							Text 15, 25, 130, 10, "Case is Family. Script will add detail:"
 							Text 20, 40, 230, 10, "GA/MSA are Adult Cash programs."
@@ -28964,6 +28176,7 @@ If enter_CNOTE_for_DENY = True Then
 			DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) = trim(deny_wcom_info_three)
 		Next
 	End If
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 End if
 
@@ -28984,6 +28197,7 @@ If enter_CNOTE_for_GRH = True Then
 	last_pre_post_pay_two = ""
 	last_client_obligation_two = ""
 	last_reporting_status = ""
+	last_info_source = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -28993,9 +28207,6 @@ If enter_CNOTE_for_GRH = True Then
 			If unique_app_count = 0 Then
 				ReDim preserve GRH_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
 
-				' MsgBox "month - " & GRH_ELIG_APPROVALS(approval).elig_footer_month
-				' MsgBox "year - " & GRH_ELIG_APPROVALS(approval).elig_footer_year
-				' MsgBox GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count)
 				GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
 				GRH_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
 				GRH_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
@@ -29019,8 +28230,7 @@ If enter_CNOTE_for_GRH = True Then
 				last_pre_post_pay_two = GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info
 				last_client_obligation_two = GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two
 				last_reporting_status = GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status
-				' last_ = GA_ELIG_APPROVALS(approval).
-				' last_ = GA_ELIG_APPROVALS(approval).
+				last_info_source = GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -29042,6 +28252,7 @@ If enter_CNOTE_for_GRH = True Then
 				If last_pre_post_pay_two <> GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info Then match_last_benefit_amounts = False
 				If last_client_obligation_two <> GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two Then match_last_benefit_amounts = False
 				If last_reporting_status <> GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status Then match_last_benefit_amounts = False
+				If last_info_source <> GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
@@ -29073,6 +28284,7 @@ If enter_CNOTE_for_GRH = True Then
 					last_pre_post_pay_two = GRH_ELIG_APPROVALS(approval).grh_elig_pre_or_post_pay_two_info
 					last_client_obligation_two = GRH_ELIG_APPROVALS(approval).grh_elig_client_obligation_two
 					last_reporting_status = GRH_ELIG_APPROVALS(approval).grh_elig_reporting_status
+					last_info_source = GRH_ELIG_APPROVALS(approval).grh_elig_source_of_info
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -29107,6 +28319,7 @@ If enter_CNOTE_for_GRH = True Then
 
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(GRH_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -29114,15 +28327,12 @@ If enter_CNOTE_for_GRH = True Then
 			elig_ind = ""
 			month_ind = ""
 			For approval = 0 to UBound(GRH_ELIG_APPROVALS)
-				' MsgBox "APPROVALS MO - " & GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "approval - " & approval & vbCr & "first_month - " & first_month
 				If GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
 			Next
 			For each_month = 0 to UBound(STAT_INFORMATION)
 				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 			Next
 
-			' MsgBox "elig_ind - " & elig_ind
-			' MsgBox GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_elig_type
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "INELIGIBLE" Then
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_application_withdrawn = "FAILED" Then GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_pben_coop = "FAILED" Then GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
@@ -29203,13 +28413,12 @@ If enter_CNOTE_for_GRH = True Then
 			err_msg = ""
 			move_from_dialog = False
 
-
-
+			GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected))
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 				Else
-					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+					If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_fail_file <> "FAILED" Then
 							err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 							GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
@@ -29227,6 +28436,13 @@ If enter_CNOTE_for_GRH = True Then
 				If trim(GRH_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(GRH_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 				GRH_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
 			End If
+			If GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then
+					If GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for GRH in " & GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+			End If
 
 			If err_msg <> "" and ButtonPressed < 1000 Then
 				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
@@ -29242,17 +28458,18 @@ If enter_CNOTE_for_GRH = True Then
 				EMWriteScreen ft_yr, 20, 58
 				Call write_value_and_transmit("GRH", 20, 71)
 				Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
-				' transmit
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GRH", GRH_UNIQUE_APPROVALS(process_for_note, approval_selected), GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/GRH has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if GRH/HS should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
 				all_grh_approvals_confirmed = True
 				grh_approval_is_incorrect = False
-				' MsgBox "GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) - " & GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) & vbCr & "approval_selected - " & approval_selected
 
 				If GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 					GRH_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
@@ -29265,7 +28482,6 @@ If enter_CNOTE_for_GRH = True Then
 				not_confirmed_pckg_list = ""
 				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(GRH_UNIQUE_APPROVALS, 2)
-					' MsgBox "GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) - " & GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) & vbCr & "each_app - " & each_app
 					If ButtonPressed = GRH_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_grh_approvals_confirmed = False
@@ -29288,7 +28504,6 @@ If enter_CNOTE_for_GRH = True Then
 					End If
 				End If
 			End If
-			' MsgBox "all_grh_approvals_confirmed - " & all_grh_approvals_confirmed
 			If ButtonPressed = app_confirmed_btn and all_grh_approvals_confirmed = True Then move_from_dialog = True
 			If grh_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_grh_approvals_confirmed = False and move_from_dialog = False Then
@@ -29299,20 +28514,18 @@ If enter_CNOTE_for_GRH = True Then
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If grh_approval_is_incorrect = True Then
 		enter_CNOTE_for_GRH = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GRH Approvals from " & first_GRH_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
 
 If enter_CNOTE_for_HC = True Then		'HC DIALOG
-
 	list_of_ref_numbers_approved = ""
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
-	' MsgBox "first_HC_approval - " & first_HC_approval & " - 1"
 	For approval = 0 to UBound(HC_ELIG_APPROVALS)
 		If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_HC_approval Then start_capturing_approvals = True
 		If start_capturing_approvals = True Then
@@ -29324,19 +28537,17 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			Next
 		End If
 	Next
-	' MsgBox "list_of_ref_numbers_approved - " & list_of_ref_numbers_approved
 	If left(list_of_ref_numbers_approved, 1) = "~" Then list_of_ref_numbers_approved = right(list_of_ref_numbers_approved, len(list_of_ref_numbers_approved)-1)
 	apprvd_ref_numbs_array = split(list_of_ref_numbers_approved, "~")
 	unique_app_count = 0
 	If trim(list_of_ref_numbers_approved) = "" Then enter_CNOTE_for_HC = False
 End If
-' MsgBox "list_of_ref_numbers_approved - " & list_of_ref_numbers_approved & vbCr & "enter_CNOTE_for_HC - " & enter_CNOTE_for_HC
+
 If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	cancel_out_of_hc = False
 
 	for each every_hc_member in apprvd_ref_numbs_array
 		memb_and_prog_array = split(every_hc_member, "::")
-		' next_pers_and_prog = true
 
 		last_elig_result = ""
 		last_major_program = ""
@@ -29354,15 +28565,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		last_ew_spenddown_liability = ""
 		last_premium = ""
 
-		' MsgBox "every_hc_member - " & every_hc_member & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
-
-		' MsgBox "first_HC_approval - " & first_HC_approval & " - 2"
-
 		start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 		For approval = 0 to UBound(HC_ELIG_APPROVALS)
 			If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_HC_approval Then start_capturing_approvals = True
 
-			' MsgBox "HC ELIG Month" & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "first_HC_approval - " & first_HC_approval & vbCr & "start_capturing_approvals - " & start_capturing_approvals
 			If start_capturing_approvals = True Then
 				For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
 					If HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = "MA" Then MSP_approvals_only = False
@@ -29375,8 +28581,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 							If STAT_INFORMATION(stat_year).footer_month = HC_ELIG_APPROVALS(approval).elig_footer_month and STAT_INFORMATION(stat_year).footer_year = HC_ELIG_APPROVALS(approval).elig_footer_year Then
 								For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
 									If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
-										' MsgBox "hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(member) & vbCr & "grh_status - " & grh_status & vbCr & "stat_faci_is_grh(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) & vbCr & "stat_faci_currently_in_facility(each_memb) - " & STAT_INFORMATION(stat_year).stat_faci_currently_in_facility(stat_memb)
-										' If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
 										If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_bils_remedial_care_entered = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
 											' MsgBox "HC Should Cancel or maybe allow for permission"
 											Dialog1 = ""
@@ -29419,19 +28623,12 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 						Next
 					End If
 					If cancel_out_of_hc = True Then Exit For
-					' MsgBox "start_capturing_approvals - " & start_capturing_approvals & vbCr & "approval - " & approval & vbCr & "unique_app_count - " & unique_app_count & vbCr & "HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) & vbCr & "memb_and_prog_array(0) - " & memb_and_prog_array(0) & vbCr & "memb_and_prog_array(1) - " & memb_and_prog_array(1)
 
-					' MsgBox "HC ELIG Ref Numb - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "every_hc_member - " & every_hc_member & vbCr & "member - " & member
-
-					' MsgBox "Approval ref - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "selection ref - " & memb_and_prog_array(0) & vbCr & "Approval major prog - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) & vbCr & "selection major prog - " & memb_and_prog_array(1) & vbCr & "Unique App Count - " & unique_app_count & vbCr & "approval - " & approval & vbCr & "member - " & member
 					If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = memb_and_prog_array(0) and HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) = memb_and_prog_array(1) Then
-						' MsgBox "HC ELIG appd? - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_appd(member) & vbCr & "HC ELIG apprvd today - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_approved_today(member)
 						If HC_ELIG_APPROVALS(approval).hc_prog_elig_appd(member) = True and HC_ELIG_APPROVALS(approval).hc_prog_elig_approved_today(member) = True Then
-							' MsgBox "THIS IS SAVING"
 							If unique_app_count = 0 Then
 								ReDim preserve HC_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
 								'WHAT ABOUT SAME REF NUMBER DIFFERENT HC PROGRAMS
-								' MsgBox "Month - " & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "MEMB " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "Unique App Count - " & unique_app_count & vbCr & "1"
 								HC_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year
 								HC_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year
 								HC_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
@@ -29483,11 +28680,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 								If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) <> last_member_ref_number Then match_last_benefit_amounts = False
 
-								' If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year <>
-								' last_month_and_year
-
-
-								' If last_member_ref_number = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) and last_month_and_year = HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year Then match_last_benefit_amounts = True
 								If match_last_benefit_amounts = True and InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1), HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year) = 0 Then
 									HC_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = HC_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year
 									HC_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year
@@ -29527,7 +28719,6 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 									unique_app_count = unique_app_count + 1
 								End If
 							End If
-							' MsgBox "Month - " & HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "MEMB " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "Unique App Count - " & unique_app_count & vbCr & "approval - " & approval & vbCr & "match_last_benefit_amounts - " & match_last_benefit_amounts & vbCr & "months in approval - " & HC_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1)
 						End If
 					End If
 				Next
@@ -29535,17 +28726,12 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			If cancel_out_of_hc = True Then Exit For
 		Next
 		If cancel_out_of_hc = True Then Exit For
-
 	next
-	' MsgBox "Top of Unique Approvals - " & UBound(HC_UNIQUE_APPROVALS, 2) & vbCr &"unique_app_count - " & unique_app_count
 
-	' for each_approval_pkkg = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
-	' 	MsgBox "REF NUMB - " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_approval_pkkg) & vbCr & "MAJ PRGM - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_approval_pkkg) & vbCr & "each_approval_pkkg - " & each_approval_pkkg
-	' next
 	If cancel_out_of_hc = False Then
 		all_hc_approvals_confirmed = False
 		approval_selected = 0
-
+		STATS_manualtime = STATS_manualtime + (UBound(HC_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 		Do
 			Do
 				first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
@@ -29562,13 +28748,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 						End If
 					Next
 				Next
-				' MsgBox "elig_ind - " & elig_ind & vbCr & "2"
+
 				For each_month = 0 to UBound(STAT_INFORMATION)
 					If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 				Next
-
-				' MsgBox "elig_ind - " & elig_ind
-				' MsgBox "approval_selected - " & approval_selected & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
 
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_income(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
@@ -29647,6 +28830,22 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				err_msg = ""
 				move_from_dialog = False
 
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" and HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+					If Isdate(HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
+						err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible Health Care approval."
+					Else
+						If DateDiff("d", HC_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+							err_msg = err_msg & vbNewLine & "* The verification request date: " &  HC_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+							HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - do not CASE/NOTE this information"
+						End If
+					End If
+				End If
+
+				If err_msg <> "" and ButtonPressed < 1100 Then
+					MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+					If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
+				End If
+
 				If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 				If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 				missing_1503_date = False
@@ -29711,6 +28910,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			Loop until move_from_dialog = True
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = False
+		Call check_for_MAXIS(True)
 		Call back_to_SELF
 
 		If stop_ex_parte_checkbox = checked Then ex_parte_approval = False
@@ -29731,12 +28931,8 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 
 	For approval = 0 to UBound(HC_ELIG_APPROVALS)
 		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
-			' MsgBox "wcom exception - " & wcom_exception & vbCr & "ref number - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "elig result - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member)
 			If HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" and InStr(wcom_exception, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) <> 0 Then
-				' REF NUMB ~&~&~ NAME ~&~&~ INCOME ~&~&~ HH SIZE ~&~&~ HC PROGS
-				' MsgBox "memo string - " & memo_ref_numb_string & vbCr & "ref number - " & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & vbCr & "elig result - " & HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member)
 				If InStr(memo_ref_numb_string, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then
-					' MsgBox "IN ONE"
 					memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
 					ReDim preserve memo_array(memo_count)
 					income_string = ""
@@ -29848,7 +29044,6 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 					'HC_ELIG_APPROVALS(approval).hc_elig_full_name(member)
 					memo_count = memo_count + 1
 				Else
-					' MsgBox "IN TWO"
 					for each memo_to_send in memo_array
 						If left(memo_to_send, 2) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) Then
 							memo_array(memo_count-1) = memo_array(memo_count-1) & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
@@ -29870,9 +29065,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		spenddown_type = this_memo_array(4)
 		spenddown_amount = this_memo_array(5)
 		memo_hc_progs = this_memo_array(6)
-		' MsgBox "NAME - " & memo_memb_name
-		' MsgBox "INCOME - " & memo_income
-		' MsgBox "PROGS - " & memo_hc_progs
+
 
 		MSP_memo_success = True		'TODO - add a way to make sure the memo was created
 		If memo_income <> "" Then
@@ -29889,6 +29082,7 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		Else
 			progs_temp_array = Array(memo_hc_progs)
 		End If
+		STATS_manualtime = STATS_manualtime + 120			'2 minutes to create a SPEC/MEMO and copy information into it if the notice failed from the E Parte approval
 
 		'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-16013
 		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
@@ -29900,7 +29094,6 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 			Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i))
 		Next
 
-		' Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("")
 		If memo_income <> "" Then
 			Call write_variable_in_SPEC_MEMO("You have been renewed because your income was able to be verified from electronic sources.")
@@ -29926,10 +29119,8 @@ If ex_parte_approval = True and wcom_exception <> "--" Then
 		Call write_variable_in_SPEC_MEMO("")
 		Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
 		Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
-		' MsgBox "See the MEMO?"
 		PF4 'Exits the MEMO
 	next
-
 End If
 
 If enter_CNOTE_for_EMER = True Then
@@ -30001,6 +29192,7 @@ If enter_CNOTE_for_EMER = True Then
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
 		EMER_ELIG_APPROVAL.emer_elig_summ_payment = EMER_ELIG_APPROVAL.emer_elig_summ_need_other
 	End If
+	STATS_manualtime = STATS_manualtime + 180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -30027,6 +29219,10 @@ If enter_CNOTE_for_EMER = True Then
 
 			End If
 
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/EMER has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if EA/EGA should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
+
 			If ButtonPressed = nav_stat_elig_btn Then
 				ft_mo = left(EMER_ELIG_APPROVAL.elig_footer_month, 2)
 				ft_yr = right(EMER_ELIG_APPROVAL.elig_footer_year, 2)
@@ -30036,19 +29232,16 @@ If enter_CNOTE_for_EMER = True Then
 				EMWriteScreen ft_yr, 20, 58
 				Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
 				err_msg = "LOOP"
-				' transmit
 			End If
 
-
-			If confirm_emer_budget_selection = "Indicate if the Budget is Accurate" Then
+			If confirm_emer_budget_selection = "Indicate if the Budget is Accurate"and ButtonPressed < 1100 Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review the approval details and indicate if they are correct before the scrript can continue."
 			End If
-			' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
-			' Next
 
 		Loop until confirm_emer_budget_selection <> "Indicate if the Budget is Accurate" and err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	EMER_ELIG_APPROVAL.bus_ticket_detail = TEMP_bus_ticket_info
@@ -30089,28 +29282,12 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 	last_shelter_expense = ""
 	last_hest_expense = ""
 	last_snap_entitlement = ""
+	last_expedited_status = ""
+	last_info_source = ""
 	expedited_package_approved = False
 	start_capturing_approvals = False
 	unique_app_count = 0
 	For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
-
-		' SNAP_ELIG_APPROVALS(approval).gather_stat_info
-
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone)
-		' Call ensure_variable_is_a_number(SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-
-		' sum_housing = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
-		' sum_hest = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone
-		'
-		' MsgBox ("Earned Income - " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc & vbCr & "Unearned Income - " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc & vbCr & "Housing Exp - " & sum_housing & vbCr & "Hest - " & sum_hest & vbCr & "FS Allotment - " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot & vbCr & vbCr & "Month - " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
 		If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_SNAP_approval Then start_capturing_approvals = True
 		If start_capturing_approvals = True Then
 			If unique_app_count = 0 Then
@@ -30130,6 +29307,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 				last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 				last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
+				last_info_source = SNAP_ELIG_APPROVALS(approval).snap_info_source
 
 				If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
 
@@ -30144,6 +29322,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				If last_eligibility <> SNAP_ELIG_APPROVALS(approval).snap_elig_result Then match_last_benefit_amounts = False
 				If last_snap_entitlement <> SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot Then match_last_benefit_amounts = False
 				If last_expedited_status <> SNAP_ELIG_APPROVALS(approval).snap_expedited Then match_last_benefit_amounts = False
+				If last_info_source <> SNAP_ELIG_APPROVALS(approval).snap_info_source Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
@@ -30167,10 +29346,9 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 					last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 					last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
+					last_info_source = SNAP_ELIG_APPROVALS(approval).snap_info_source
 
 					If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
-
-					' MsgBox ("last_shelter_expense - " & last_shelter_expense & vbCr & "last_hest_expense - " & last_hest_expense)
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -30178,8 +29356,6 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 		End If
 	Next
 
-	' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
-	' Next
 	If UBound(SNAP_UNIQUE_APPROVALS, 2) <> 0 Then
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 241, 215, UBound(SNAP_UNIQUE_APPROVALS, 2)+1 & " SNAP Approval Packages to be Reviewed"
@@ -30207,6 +29383,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 
 	all_snap_approvals_confirmed = False
 	approval_selected = 0
+	STATS_manualtime = STATS_manualtime + (UBound(SNAP_UNIQUE_APPROVALS, 2)+1)*180		'3 minutes manuall time to review each budget package
 
 	Do
 		Do
@@ -30229,14 +29406,10 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
-				' snap_case_prosp_gross_inc_test
-				' snap_case_prosp_net_inc_test
 
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
-				' snap_case_retro_gross_inc_test
-				' snap_case_retro_net_inc_test
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
@@ -30248,7 +29421,6 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			SNAP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = False
 			SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, approval_selected) = False
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then SNAP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
-
 
 			If IsNumeric(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc) = True and IsNumeric(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, approval_selected)) = True Then
 				grs_inc = SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc*1
@@ -30309,6 +29481,8 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			err_msg = ""
 			move_from_dialog = False
 
+			SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = trim(SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected))
+			SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected) = trim(SNAP_UNIQUE_APPROVALS(proration_reason, approval_selected))
 			If right(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), 1) = "." Then SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected) = left(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected))- 1)
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" and SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
 				If Isdate(SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
@@ -30330,6 +29504,13 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					If trim(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
 				End if
 			End if
+			If SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - do not CASE/NOTE this information" then
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_info_source = "FIAT" Then
+					If SNAP_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "" Then
+						err_msg = err_msg & vbNewLine & "* Since the approval for SNAP in " & SNAP_UNIQUE_APPROVALS(first_mo_const, approval_selected) & "-" & SNAP_UNIQUE_APPROVALS(last_mo_const, approval_selected)  & " was FIATed, an explanation of why the FIAT was completed is needed."
+					End If
+				End If
+			End If
 
 			If err_msg <> "" and ButtonPressed < 1100 Then
 				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
@@ -30344,16 +29525,15 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				EMWriteScreen ft_mo, 19, 54
 				EMWriteScreen ft_yr, 19, 57
 				Call find_last_approved_ELIG_version(19, 78, vrs_numb, vrs_dt, vrs_rslt, approval_found)
-				' transmit
 			End If
 
 			If ButtonPressed = deductions_detail_btn then Call display_snap_deductions_dialog
-			' If ButtonPressed = hh_comp_detail then MsgBox "HH COMP EXPLANATION TO GO HERE"
 			If ButtonPressed = shel_exp_detail_btn then Call display_snap_shelter_expenses
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("SNAP", SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected), SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
-
-			' If ButtonPressed = app_confirmed_btn
+			If ButtonPressed = verif_tips_and_tricks_btn Then
+				verifs_tips_and_tricks = MsgBox("Information about Verifications request are mandaotry." & vbCr & vbCr & "This is because ELIG/FS has Verifications FAILED." & vbCr & vbCr & "It does not matter if there were other reasons for the ineligibile results, if verifications are failed it needs to be addressed." & vbCr & vbCr & "If verifications have not been requested or 10 days have not passed, the eligibility results should not be failed for Verification. You can review the SPEC/MEMO to see that verifications are included in the ineligibility details." & vbCr & vbCr & "Include verifications detail or if SNAP should not be ineligibile for verifications, reapprove the case with correct information.", vbExclamation, "Verifications Requested Information")
+			End If
 
 			If err_msg = "" Then
 
@@ -30407,24 +29587,19 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
 				approval_selected = first_unconfirmed_month
 			End If
-			' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
-			' Next
-
-		' Loop until (ButtonPressed = app_confirmed_btn and all_snap_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 		Loop until move_from_dialog = True
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
+	Call check_for_MAXIS(True)
 	Call back_to_SELF
 
 	If snap_approval_is_incorrect = True Then
 		enter_CNOTE_for_SNAP = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for SNAP Approvals from " & first_SNAP_approval & " onward." & vbCr & " - If the approval is incorrect, update an ReApprove with correct eligibility. Run the script again after the new approval is completed." & vbCr
 	End if
-
 End If
-' MsgBox "STOP HERE - THE NOTES ARE NEXT"
 
-'TODO - START HERE WITH WORK
+'NOW WE START ENTERING CASE/NOTE
 If enter_CNOTE_for_DWP = True Then
 	For unique_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
 		first_month = left(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
@@ -30471,6 +29646,7 @@ If enter_CNOTE_for_DWP = True Then
 		End If
 		due_date = ""
 		If IsDate(DWP_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, DWP_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'TODO - add DWP WCOMS?
 
@@ -30483,9 +29659,7 @@ If enter_CNOTE_for_DWP = True Then
 		End If
 		PF3
 	Next
-
 End If
-
 
 If enter_CNOTE_for_MFIP = True Then
 	For unique_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
@@ -30516,7 +29690,6 @@ If enter_CNOTE_for_MFIP = True Then
 			Else
 				header_end = " only"
 			End If
-			' If MFIP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "- EXPEDITED SNAP"
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "SUSPENDED" Then
@@ -30587,6 +29760,7 @@ If enter_CNOTE_for_MFIP = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call mfip_elig_case_note
 
@@ -30611,6 +29785,7 @@ If special_diet_check_exists = True Then
 			for each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then memb_select = each_memb
 			next
+			STATS_manualtime = STATS_manualtime + 90			'1.5 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 			Call mfip_special_diet_case_note
 
@@ -30665,6 +29840,7 @@ if enter_CNOTE_for_MSA = True Then
 		End If
 		due_date = ""
 		If IsDate(MSA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, MSA_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'Here we entere the CASENOTE
 		Call msa_elig_case_note
@@ -30718,6 +29894,7 @@ if enter_CNOTE_for_GA = True Then
 		End If
 		due_date = ""
 		If IsDate(GA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, GA_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		'Here we entere the CASENOTE
 		Call ga_elig_case_note
@@ -30753,7 +29930,6 @@ If enter_CNOTE_for_DENY = True Then
 		If IsDate(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, DENY_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'This is the WCOM part
-		' DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
 		If DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
 			ft_mo = left(first_month, 2)
 			ft_yr = right(first_month, 2)
@@ -30788,12 +29964,10 @@ If enter_CNOTE_for_DENY = True Then
 								CALL write_variable_in_SPEC_MEMO("    You can reapply at any time if your situation changes or want to be reassessed.")
 							Else
 								CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
-								' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
 								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_code = "01" Then
 									CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
 									CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
 								End If
-								' If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
 								If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_code = "01" and CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_code = "01" Then
 									CALL write_variable_in_SPEC_MEMO("GA/MSA: These are Adult Cash programs.")
 									CALL write_variable_in_SPEC_MEMO("    Available only for households without children.")
@@ -30814,11 +29988,8 @@ If enter_CNOTE_for_DENY = True Then
 								CALL write_variable_in_SPEC_MEMO(" - " & DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app))
 							End If
 
-							' MsgBox "Pause 1"
 							PF4
-							' MsgBox "Pause 2"
 							PF3
-							' MsgBox "Pause 3"
 						End If
 						Exit Do
 					End If
@@ -30827,6 +29998,7 @@ If enter_CNOTE_for_DENY = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call deny_elig_case_note
 
@@ -30939,6 +30111,7 @@ If enter_CNOTE_for_GRH = True Then
 			Loop until notc_date = "        "
 			Call back_to_SELF
 		End If
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call grh_elig_case_note
 
@@ -30959,7 +30132,7 @@ If complete_ex_parte_as_closed = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
 	Else
 		end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
-		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+
 		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
 		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
@@ -30970,16 +30143,15 @@ If complete_ex_parte_as_closed = True Then
 		'This is the file path for the statistics Access database.
 		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-
 	End If
 End If
 
 If ex_parte_approval = True Then
+	STATS_manualtime = STATS_manualtime + 180			'3 minutes for Ex parte Note and data update
 
 	If developer_mode = True Then
 		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
 	Else
-		' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
 		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
@@ -31002,9 +30174,7 @@ If ex_parte_approval = True Then
 	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
 	If MSP_approvals_only = True and MSP_memo_success = True Then
 		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
-		' Call write_variable_in_CASE_NOTE("     (Manual MEMO required for MSP only case.)")
 	End If
-	' Call write_variable_in_CASE_NOTE("")
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -31014,41 +30184,6 @@ If ex_parte_approval = True Then
 		MsgBox "Ex Parte note Gone?"
 	End If
 	PF3
-
-	Next_REPT_year = CM_plus_1_yr				'We only need this for the CASE/NOTE returning HC to standard policy - the asset part.
-	Next_REPT_year = Next_REPT_year*1
-	Next_REPT_year = Next_REPT_year + 1
-	Next_REPT_year = Next_REPT_year & ""
-
-	Call start_a_blank_CASE_NOTE
-
-	Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-	Call write_variable_in_CASE_NOTE("Case has completed a Health Care Eligibility Review (Annual Renewal)")
-	Call write_variable_in_CASE_NOTE("Review completed for " & CM_plus_1_mo & "/" & CM_plus_1_yr & ")")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-	Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-	Call write_variable_in_CASE_NOTE("**************************************************************************")
-	Call write_variable_in_CASE_NOTE("If enrollees on this case have an asset limit:")
-	Call write_variable_in_CASE_NOTE("Assets will NOT be counted until after " & CM_plus_1_mo & "/01/" & Next_REPT_year & ".")
-	Call write_variable_in_CASE_NOTE("Asset panels should reflect known information.")
-	Call write_variable_in_CASE_NOTE("Review other CASE/NOTEs for detail on if the DHS-8445 was sent.")
-	Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-	Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-	Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
-	If developer_mode = True Then
-		MsgBox "Standard Polity NOTE REVIEW"			'TESTING OPTION'
-		PF10
-		MsgBox "Standard Policy Note Gone?"
-	End If
-
-	PF3
-
-
 End If
 
 If enter_CNOTE_for_HC = True Then
@@ -31107,6 +30242,7 @@ If enter_CNOTE_for_HC = True Then
 		End If
 		due_date = ""
 		If IsDate(HC_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, HC_UNIQUE_APPROVALS(verif_request_date, unique_app))
+		STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 		Call hc_elig_case_note
 
@@ -31122,6 +30258,7 @@ End If
 If enter_CNOTE_for_EMER = True Then
 	due_date = ""
 	If IsDate(emer_verif_request_date) = True Then due_date = DateAdd("d", 10, emer_verif_request_date)
+	STATS_manualtime = STATS_manualtime + 240			'4 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 	Call emer_elig_case_note
 
@@ -31300,7 +30437,6 @@ If enter_CNOTE_for_SNAP = True Then
 		PF3
 	Next
 
-	'WORKING HERE
 	If QCR_SNAP_ABAWD_30_09_Eligible = True Then
 		For each_month = 0 to UBound(SNAP_ELIG_APPROVALS)
 			If SNAP_ELIG_APPROVALS(each_month).snap_elig_result = "ELIGIBLE" Then
@@ -31571,10 +30707,7 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE(worker_signature)
 			End If
 		End If
-
 	End If
-
-
 End If
 
 For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
@@ -31673,9 +30806,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 					REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = True
 					REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/GRH"
 				End if
-				' REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/GRH"
 			End if
-
 		End If
 	End If
 
@@ -31764,24 +30895,8 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 			MsgBox "SR NOTE Gone?"
 		End If
 	End If
-
 Next
 
-
-
-
-' "- 04/22 . . . Entitlement:    $ "250
-' "              Prorated:       $ "150 (Prorated from 04/14/2022)
-' "              Recoupment:   - $ " 25
-' "              Issued to Resident:   $ "125
-
-'TODO - figure out how to read for the possible errors.'
-
-' For approval_month = 0 to UBound(SNAP_ELIG_APPROVALS)
-' 	For snap_memb = 0 to UBound(SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs)
-' 		MsgBox SNAP_ELIG_APPROVALS(approval_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval_month).elig_footer_year & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs(snap_memb) & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_membs_eligibility(snap_memb)
-' 	Next
-' Next
 
 script_run_lowdown = script_run_lowdown & vbCr & "ga_status - " & ga_status
 script_run_lowdown = script_run_lowdown & vbCr & "msa_status - " & msa_status
@@ -31806,52 +30921,54 @@ If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Active 
 If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pending programs: " & list_pending_programs
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
-end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "All programs are currently functioning, but we are eager to hear any feedback of the script operation."
-' end_msg_info = end_msg_info & vbCr & " - ELIG/GRH"
-' end_msg_info = end_msg_info & vbCr & " - ELIG/HC"
-' end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
-end_msg_info = end_msg_info & vbCr & "Stay tuned! More functionality is in development."
+end_msg_info = end_msg_info & "Eligibility Approvals review and documentation script run is complete."
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/01/2024
+'--Tab orders reviewed & confirmed----------------------------------------------07/01/2024					I think this is pretty solid but it can get a little weird - and there are 30 dialogs so there might be some missed
+'--Mandatory fields all present & Reviewed--------------------------------------07/01/2024
+'--All variables in dialog match mandatory fields-------------------------------07/01/2024
+'Review dialog names for content and content fit in dialog----------------------07/01/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------07/01/2024
+'--Create a button to reference instructions------------------------------------07/01/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/01/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/01/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------07/01/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/01/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/01/2024
+'--PRIV Case handling reviewed -------------------------------------------------07/01/2024
+'--Out-of-County handling reviewed----------------------------------------------07/01/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/01/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/01/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------07/01/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------07/01/2024
+'--Denomination reviewed -------------------------------------------------------07/01/2024
+'--Script name reviewed---------------------------------------------------------07/01/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/01/2024					Any tasks that are not completed will have their own issues created for follow up
+'--comment Code-----------------------------------------------------------------07/01/2024
+'--Update Changelog for release/update------------------------------------------07/01/2024
+'--Remove testing message boxes-------------------------------------------------07/01/2024
+'--Remove testing code/unnecessary code-----------------------------------------07/01/2024
+'--Review/update SharePoint instructions----------------------------------------07/01/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/01/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/01/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/01/2024
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
