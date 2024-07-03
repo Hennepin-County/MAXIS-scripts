@@ -6549,9 +6549,9 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Tot
 	total_real_estate 	= 0
 	total_assets 		= 0
 
-	total_cash = cInt(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
-	total_accounts = cInt(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb))
-	total_secu = cInt(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + cInt(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+	total_cash = round(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
+	total_accounts = round(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb))
+	total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
 
 	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
 	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
@@ -6563,21 +6563,21 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Tot
 
 	If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
 		If STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Used as Home" Then
-			car_1_total = cInt(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
+			car_1_total = round(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
 			car_count = car_count + 1
 		End If
 	End If
 
 	If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
 		If STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Used as Home" Then
-			car_2_total = cInt(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
+			car_2_total = round(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
 			car_count = car_count + 1
 		End If
 	End If
 
 	If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
 		If STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Used as Home" Then
-			car_3_total = cInt(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - cInt(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
+			car_3_total = round(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
 			car_count = car_count + 1
 		End If
 	End If
