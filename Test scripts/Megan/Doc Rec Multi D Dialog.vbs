@@ -2055,7 +2055,7 @@ end function
 function form_specific_error_handling()	'Error handling for main dialog of forms
 	If (ButtonPressed = complete_btn OR ButtonPressed = previous_btn OR ButtonPressed = next_btn OR ButtonPressed = -1 OR ButtonPressed = asset_btn OR ButtonPressed = atr_btn OR ButtonPressed = arep_btn OR ButtonPressed = change_btn OR ButtonPressed = evf_btn OR ButtonPressed = hospice_btn OR ButtonPressed = iaa_btn OR ButtonPressed = ltc_1503_btn OR ButtonPressed = mof_btn OR ButtonPressed = mtaf_btn OR ButtonPressed = psn_btn OR ButtonPressed = sf_btn OR ButtonPressed = diet_btn OR ButtonPressed = other_btn) Then 		'Error handling will display at the point of each dialog and will not let the user continue unless the applicable errors are resolved. Had to list all buttons including -1 so ensure the error reporting is called and hit when the script is run.
 		For form_errors = 0 to Ubound(form_type_array, 2)
-			If form_type_array(form_type_const, form_errors) = asset_form_name AND current_dialog = "asset" then 'Error handling for Asset Form
+			If form_type_array(form_type_const, form_errors) = asset_form_name then 'Error handling for Asset Form
 				actions_taken = Trim(actions_taken)
 				actions_taken = actions_taken & ", "
 				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
@@ -2064,7 +2064,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
 			End If
 
-			If form_type_array(form_type_const, form_errors) = atr_form_name AND current_dialog = "atr" Then 'Error handling for ATR Form 
+			If form_type_array(form_type_const, form_errors) = atr_form_name Then 'Error handling for ATR Form 
 				If IsDate(atr_date_received) = FALSE Then atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If atr_member_dropdown = "Select" Then atr_err_msg = atr_err_msg & vbNewLine & "* Select a member from the Member dropdown."
 				If IsDate(atr_start_date) = FALSE Then  atr_err_msg = atr_err_msg & vbNewLine & "* Enter a valid date for the Start Date."
@@ -2078,7 +2078,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If (trim(atr_other) <> "" and atr_other_checkbox = unchecked) Then atr_err_msg = atr_err_msg & vbNewLine & "* Other text field must be blank unless Other checkbox is checked"
 			End If
 
-			If form_type_array(form_type_const, form_errors) = arep_form_name AND current_dialog = "arep" then 'Error handling for AREP Form 
+			If form_type_array(form_type_const, form_errors) = arep_form_name then 'Error handling for AREP Form 
 				If trim(arep_name) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the AREP's name."
 				If arep_update_AREP_panel_checkbox = checked Then
 					If trim(arep_street) = "" OR trim(arep_city) = "" OR trim(arep_zip) = "" Then arep_err_msg = arep_err_msg & vbNewLine & "* Enter the street address of the AREP."
@@ -2110,7 +2110,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				IF (arepTIKL_check = checked AND trim(arep_signature_date) = "") THEN arep_err_msg = arep_err_msg & vbNewLine & "* You have requested the script to TIKL based on the signature date but you did not enter the signature date."
 			End If
 
-			If form_type_array(form_type_const, form_errors) = change_form_name AND current_dialog = "chng" then 'Error handling for Change Form 
+			If form_type_array(form_type_const, form_errors) = change_form_name then 'Error handling for Change Form 
 				If IsDate(chng_effective_date) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid Effective date."
 				If IsDate(chng_date_received) = False Then chng_err_msg = chng_err_msg & vbNewLine & "* Enter a valid date Document received date."  ' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 				If trim(chng_address_notes) = "" AND trim(chng_household_notes) = "" AND trim(chng_asset_notes) = "" AND trim(chng_vehicles_notes) = "" AND trim(chng_income_notes) = "" AND trim(chng_shelter_notes) = "" AND trim(chng_other_change_notes) = "" THEN chng_err_msg = chng_err_msg & vbNewLine & "* All change reported fields are blank. At least one needs info."  ' Validate the Changes Reported fields to ensure that at least one field is filled in
@@ -2119,7 +2119,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If chng_changes_continue = "Select One:" THEN chng_err_msg = chng_err_msg & vbNewLine & "* Indicate whether changes will or will not continue next month."  ' Validate that worker selects option from dropdown list as to how long change will last
 			End If
 
-			If form_type_array(form_type_const, form_errors) = evf_form_name AND current_dialog = "evf" then 'Error handling for EVF Form 
+			If form_type_array(form_type_const, form_errors) = evf_form_name then 'Error handling for EVF Form 
 				IF IsDate(evf_date_received) = FALSE THEN evf_err_msg = evf_err_msg & vbCr & "* Enter a vaid Document Date."
 				If EVF_status_dropdown = "Select one..." THEN evf_err_msg = evf_err_msg & vbCr & "* Select the status of the EVF on the dropdown menu"		'checks that there is a date in the date received box
 				IF trim(evf_employer) = "" THEN evf_err_msg = evf_err_msg & vbCr & "* Enter the employers name."  'checks if the employer name has been entered
@@ -2132,14 +2132,14 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If EVF_TIKL_checkbox = 1 and evf_info <> "yes" then evf_err_msg = evf_err_msg & vbCr & "* Additional information was not requested, uncheck the TIKL checkbox."
 			End If
 
-			If form_type_array(form_type_const, form_errors) = hosp_form_name AND current_dialog = "hosp" then 'Error handling for Hospice Form 
+			If form_type_array(form_type_const, form_errors) = hosp_form_name then 'Error handling for Hospice Form 
 				If IsDate(hosp_date_received) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Document Date." 
 				If hosp_resident_name = "Select" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Select the resident that is in hospice."
 				If trim(hosp_name) = "" Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
 				If IsDate(hosp_entry_date) = FALSE Then hosp_err_msg = hosp_err_msg & vbNewLine & "* Enter a valid date for the Hospice Entry."   'entry date also required
 			End If
 
-			If form_type_array(form_type_const, form_errors) = iaa_form_name AND current_dialog = "iaa" then 'Error handling for IAA Form 
+			If form_type_array(form_type_const, form_errors) = iaa_form_name then 'Error handling for IAA Form 
 				IF IsDate(iaa_date_received) = FALSE THEN iaa_err_msg = iaa_err_msg & vbCr & "* Enter a valid Document date."
 				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
@@ -2158,7 +2158,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If iaa_update_pben_checkbox = unchecked AND iaa_comments = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must explain in comments why PBEN is not being created/updated. "
 			End If
 
-			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name AND current_dialog = "ltc 1503" then 'Error handling for LTC 1503 Form
+			If form_type_array(form_type_const, form_errors) = ltc_1503_form_name then 'Error handling for LTC 1503 Form
 				If IsDate(ltc_1503_date_received) = FALSE THEN ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter a valid Document date."
 				If IsDate(ltc_1503_admit_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid admission date"
 				If ltc_1503_discharge_date <> "" AND IsDate(ltc_1503_discharge_date) = FALSE Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Enter valid discharge date"
@@ -2173,7 +2173,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If ltc_1503_sent_verif_request_checkbox = checked AND trim(ltc_1503_sent_request_to) = "" Then ltc_1503_err_msg = ltc_1503_err_msg & vbCr & "* Select/Enter verif sent to"
 			End If
 
-			If form_type_array(form_type_const, form_errors) = mof_form_name AND current_dialog = "mof" then 'Error handling for MOF Form 
+			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
 				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid Document date."
 				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
 				IF trim(mof_actions_taken) = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
@@ -2188,13 +2188,13 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				mof_other_notes = trim(mof_other_notes)
 			End If
 
-			If form_type_array(form_type_const, form_errors) = mtaf_form_name AND current_dialog = "mtaf" then 'Error handling for MTAF Form
+			If form_type_array(form_type_const, form_errors) = mtaf_form_name then 'Error handling for MTAF Form
 				If IsDate(MTAF_date) = False Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Enter the date the MTAF was received."
 				If MTAF_status_dropdown = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate the status of the MTAF."
 				If mtaf_sub_housing_droplist = "Select one..." Then mtaf_err_msg = mtaf_err_msg & vbNewLine & "* Indicate if housing is subsidized or not."
 			End If
 
-			If form_type_array(form_type_const, form_errors) = psn_form_name AND current_dialog = "psn" then 'Error handling for PSN Form
+			If form_type_array(form_type_const, form_errors) = psn_form_name then 'Error handling for PSN Form
 				IF IsDate(psn_date_received) = FALSE THEN psn_err_msg = psn_err_msg & vbCr & "* Enter a valid Document Date."
 				If psn_member_dropdown = "Select" Then psn_err_msg = psn_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If psn_section_1_dropdown = "" Then psn_err_msg = psn_err_msg & vbNewLine & "* For Section 1 make selection from dropdown."
@@ -2216,14 +2216,14 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				End If
 			End If
 
-			If form_type_array(form_type_const, form_errors) = sf_form_name AND current_dialog = "sf" then 'Error handling for Shelter Form
+			If form_type_array(form_type_const, form_errors) = sf_form_name then 'Error handling for Shelter Form
 				IF IsDate(sf_date_received) = FALSE THEN sf_err_msg = sf_err_msg & vbCr & "* Enter a valid Document Date." 
 				If sf_other_checkbox = checked AND trim(sf_other_utility) = "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You checked 'other', therefore you must specify specific utility."
 				If sf_other_checkbox = unchecked AND trim(sf_other_utility) <> "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You specified 'other' utility,'other checkbox' must be checked if field is filled out."
 				Call addr_shel_hest_panel_dialog
 			End If
 
-			If form_type_array(form_type_const, form_errors) = diet_form_name AND current_dialog = "diet" then 'Error handling for Diet Form 
+			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form 
 				If IsDate(diet_date_received) = FALSE Then diet_err_msg = diet_err_msg & vbNewLine & "* Enter a valid date for the Document Date."
 				If diet_member_number = "Select" Then diet_err_msg = diet_err_msg & vbNewLine & "* Select the resident for special diet."
 	
@@ -2302,7 +2302,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If diet_status_dropdown = "Denied" AND diet_comments = "" Then diet_err_msg = diet_err_msg & vbNewLine & "*Diet Denied, state reason for ineligibility & benefit end date in Comments"
 			End If
 
-			If form_type_array(form_type_const, form_errors) = other_form_name AND current_dialog = "other" then 'Error handling for Other Form 
+			If form_type_array(form_type_const, form_errors) = other_form_name then 'Error handling for Other Form 
 				IF IsDate(other_date_received) = FALSE THEN other_err_msg = other_err_msg & vbCr & "* Enter a valid Document Date."
 				If Trim(other_list_form_names) = ""  THEN other_err_msg = other_err_msg & vbCr & "* Specify name of form(s)"
 				If Trim(other_doc_notes) = "" THEN other_err_msg = other_err_msg & vbCr &  "* Specify details for each form"
