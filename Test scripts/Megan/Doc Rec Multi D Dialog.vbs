@@ -1,9 +1,9 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "NOTES - DOCUMENTS RECEIVED-TESTING.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
+name_of_script = "NOTES - DOCUMENTS RECEIVED TESTING.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 180            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the an actual manualtime based on time study
-STATS_denomination = "C"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation applicable to your script.
+STATS_counter = 0               'sets the stats counter at one
+STATS_manualtime = 90            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the an actual manualtime based on time study
+STATS_denomination = "I"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation applicable to your script.
 'END OF stats block==========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("07/03/2024", "Restructured the dialog, added additional forms and allows user to specific document date for each form. Users select specific documents received. Forms include: Assets, ATR, AREP, Change, Hospice, IAA, LTC1503, MOF, MTAF, PSN, Shelter, Special Diet, Other", "Megan Geissler, Hennepin County")
+call changelog_update("07/03/2024", "Restructured the dialog to be form-based instead of free-text based, unique document date for each form, and added additional forms - complete list includes: Assets, ATR, AREP, Change, Hospice, IAA, LTC1503, MOF, MTAF, PSN, Shelter, Special Diet, Other.", "Megan Geissler, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/14/2022", "Added a review of PROG for an interview date for the MTAF option selection.", "Casey Love, Hennepin County")
 call changelog_update("03/16/2022", "Removed Interview Date field and added a link to supports for the MFIP Orientation.", "Casey Love, Hennepin County")
@@ -4084,6 +4084,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "Asset detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = atr_form_name Then 
 		If InStr(end_msg, "ATR detail entered") Then 
@@ -4091,6 +4092,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "ATR detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = arep_form_name then 
 		If InStr(end_msg, "AREP detail entered") Then 
@@ -4098,6 +4100,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "AREP detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = change_form_name Then 
 		If InStr(docs_rec,"CHNG") Then
@@ -4110,6 +4113,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "Change detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = evf_form_name Then 
 		If InStr(docs_rec,"EVF") Then
@@ -4122,6 +4126,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "EVF detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = hosp_form_name Then 
 		If InStr(end_msg, "Hospice detail entered") Then 
@@ -4129,6 +4134,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "Hospice detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = iaa_form_name Then 
 		If InStr(docs_rec,"IAA(s)") Then
@@ -4141,6 +4147,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else
 			end_msg = end_msg & vbNewLine & "IAA(s) detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = ltc_1503_form_name Then 
 		If InStr(end_msg,"LTC-1503 detail entered") Then 
@@ -4148,6 +4155,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else
 			end_msg = end_msg & vbNewLine & "LTC-1503 detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = mof_form_name Then 
 		If InStr(docs_rec,"MOF") Then
@@ -4160,6 +4168,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "MOF detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = mtaf_form_name Then 
 		If InStr(docs_rec,"MTAF") Then
@@ -4172,6 +4181,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "MTAF detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = psn_form_name Then 
 		If InStr(docs_rec,"PSN") Then
@@ -4184,6 +4194,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "PSN detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = sf_form_name Then 
 		If InStr(docs_rec,"SF") Then
@@ -4196,6 +4207,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "Shelter detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = diet_form_name Then 
 		If InStr(docs_rec,"DIET") Then
@@ -4208,6 +4220,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "DIET detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 	If form_type_array(form_type_const, list_of_docs_received) = other_form_name Then 
 		If InStr(docs_rec, other_list_form_names) Then
@@ -4220,6 +4233,7 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 		Else 
 			end_msg = end_msg & vbNewLine & "Other Forms: " & other_list_form_names & " detail entered"
 		End If
+		STATS_counter = STATS_counter + 1
 	End If
 Next 
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
@@ -4671,9 +4685,9 @@ script_end_procedure_with_error_report("Success! " & vbcr & end_msg)
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------06/20/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/20/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------06/20/2024
+'--Denomination reviewed -------------------------------------------------------06/20/2024
 '--Script name reviewed---------------------------------------------------------NA
 '--BULK - remove 1 incrementor at end of script reviewed------------------------NA
 
@@ -4685,7 +4699,7 @@ script_end_procedure_with_error_report("Success! " & vbcr & end_msg)
 '--Remove testing code/unnecessary code-----------------------------------------06/20/2024
 '--Review/update SharePoint instructions----------------------------------------06/20/2024
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/20/2024
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/20/2024
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------NA
 '--Complete misc. documentation (if applicable)---------------------------------NA
 '--Update project team/issue contact (if applicable)----------------------------06/20/2024
