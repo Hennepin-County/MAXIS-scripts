@@ -405,18 +405,20 @@ Do
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     For this_memb = 0 to UBound(avs_members_array, 2) 'Check data table for existing records for each member	
         objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "'	AND SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"	'Find the record matching case / SMI
+        
         objRecordSet.Open objSQL, objConnection
-        'Do while not objRecordSet.eof
-            avs_members_array(auth_date_const, this_memb)              = objRecordSet("AVSFormDate")
-            avs_members_array(form_type_const , this_memb)  		   = objRecordSet("AVSFormType")
-            avs_members_array(form_valid_const, this_memb)             = objRecordSet("AVSFormValid")
-            avs_members_array(auth_sent_date_const, this_memb)         = objRecordSet("AuthSentDate")
-            avs_members_array(ad_hoc_type_const, this_memb)            = objRecordSet("AdHocType")
-            avs_members_array(ad_hoc_sent_count_const, this_memb)      = objRecordSet("AdHocSentCount")
-            avs_members_array(ad_hoc_sent_date_const, this_memb)       = objRecordSet("AdHocSentDate")
-            avs_members_array(ad_hoc_reviewed_date_const, this_memb)   = objRecordSet("AdHocReviewedWorker") 
-            avs_members_array(ad_hoc_closed_date_const, this_memb)     = objRecordSet("AdHocClosedDate")
-        'Loop
+            If Not objRecordSet.bof Then 'If we have an existing record for this member, read the values
+                avs_members_array(auth_date_const, this_memb)              = objRecordSet("AVSFormDate")
+                avs_members_array(form_type_const , this_memb)  		   = objRecordSet("AVSFormType")
+                avs_members_array(form_valid_const, this_memb)             = objRecordSet("AVSFormValid")
+                avs_members_array(auth_sent_date_const, this_memb)         = objRecordSet("AuthSentDate")
+                avs_members_array(ad_hoc_type_const, this_memb)            = objRecordSet("AdHocType")
+                avs_members_array(ad_hoc_sent_count_const, this_memb)      = objRecordSet("AdHocSentCount")
+                avs_members_array(ad_hoc_sent_date_const, this_memb)       = objRecordSet("AdHocSentDate")
+                avs_members_array(ad_hoc_reviewed_date_const, this_memb)   = objRecordSet("AdHocReviewedWorker") 
+                avs_members_array(ad_hoc_closed_date_const, this_memb)     = objRecordSet("AdHocClosedDate")
+            End If 
+        ObjRecordSet.Close
     Next 
 	objConnection.close 'close down the connection
    
@@ -523,12 +525,12 @@ Do
         For this_memb = 0 to UBound(avs_members_array, 2) 'Check data table for existing records for each member	
             objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "'	AND SMI = '" & avs_members_array(member_smi_const, memb) & "'"	'Find the record matching case / SMI
             objRecordSet.Open objSQL, objConnection
-            'Do while not objRecordSet.eof
+            
             'Possibly use this to check if data exists before update
-            Set objUpdateConnection = CreateObject("ADODB.Connection")		'Creating objects for access to the SQL table
-			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
-			'opening the connections and data table
-			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            If objRecordSet.Bof Then 'There isn't an existing record for this person, we will insert one
+                
+            End If  
+            
             'AVS Form updates
 
 
