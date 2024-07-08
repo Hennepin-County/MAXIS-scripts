@@ -4240,20 +4240,21 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 	End If
 Next 
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
+case_header = FALSE
 
 'CASE NOTE===========================================================================
 'For/Next creates one casenote for all documents received that should be CASENOTED TOGETHER. 
 For each_case_note = 0 to Ubound(form_type_array, 2)	
 	'Handling to change the case note header depending on if MTAF is one of the documents processed 
-	If each_case_note = 0 Then
+	If case_header = FALSE Then
 		If Instr(docs_rec, "MTAF") AND MTAF_note_only_checkbox = checked Then 
 			Call start_a_blank_case_note
 			CALL write_variable_in_CASE_NOTE("*** MTAF Processed: " & MTAF_status_dropdown & "***")
+			case_header = TRUE
 		ElseIf form_type_array(form_type_const, each_case_note) = mtaf_form_name OR form_type_array(form_type_const, each_case_note) = asset_form_name OR form_type_array(form_type_const, each_case_note) = change_form_name OR form_type_array(form_type_const, each_case_note) = evf_form_name OR form_type_array(form_type_const, each_case_note) = iaa_form_name OR form_type_array(form_type_const, each_case_note) = mof_form_name OR form_type_array(form_type_const, each_case_note) = psn_form_name OR form_type_array(form_type_const, each_case_note) = sf_form_name OR form_type_array(form_type_const, each_case_note) = diet_form_name OR form_type_array(form_type_const, each_case_note) = other_form_name Then 
 			Call start_a_blank_case_note
 			Call write_variable_in_case_note("Docs Rec'd: " & docs_rec)
-		Else 
-			Exit For
+			case_header = TRUE
 		End If
 	End If
 
