@@ -2393,8 +2393,8 @@ If CSES_messages = 1 Then
 
                                                 ElseIf InStr(dail_msg, "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR:") Then
 
-                                                    activate_msg_boxes = True
-                                                    testing_status = True
+                                                    ' activate_msg_boxes = True
+                                                    ' testing_status = True
 
                                                     If activate_msg_boxes = True then MsgBox "CS REPORTED: NEW EMPLOYER FOR CAREGIVER REF NBR: - In-scope message, evaluate how it works!"
                                                 
@@ -4779,26 +4779,26 @@ If HIRE_messages = 1 Then
                                                         EMReadSCreen back_to_dail_check, 8, 1, 72
                                                         If back_to_dail_check = "FMKDLAM6" Then
 
-                                                            MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
+                                                            ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
 
                                                             'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
                                                             Call write_value_and_transmit("H", dail_row, 3)
                                                             PF3
 
-                                                            MsgBox "DAIL should now be reset to all DAIL messages"
+                                                            ' MsgBox "DAIL should now be reset to all DAIL messages"
 
                                                             'Reset DAIL to only HIRE messages
                                                             Call write_value_and_transmit("X", 4, 12)
                                                             EMWriteScreen "_", 7, 39
                                                             Call write_value_and_transmit("X", 13, 39)
 
-                                                            MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
+                                                            ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
 
                                                             'Script should now navigate to specific member name, or at least get close
                                                             EMWriteScreen hire_message_member_name, 21, 25
                                                             transmit
 
-                                                            MsgBox "DAIL should now be back to member name. It will enter do loop now"
+                                                            ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
 
                                                             'Script will enter do loop to find match
 
@@ -4832,11 +4832,11 @@ If HIRE_messages = 1 Then
                                                                 return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                 If return_full_dail_msg = check_full_dail_msg Then 
-                                                                    msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                    ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
                                                                     transmit
                                                                     Exit Do
                                                                 Else
-                                                                    msgbox "Testing -- It did not find the matching message"
+                                                                    ' msgbox "Testing -- It did not find the matching message"
                                                                     transmit
                                                                     dail_row = dail_row + 1
 
@@ -4857,7 +4857,7 @@ If HIRE_messages = 1 Then
                                                             'Reset the dail_row back to 6
                                                             dail_row = 6
 
-                                                            msgbox "Testing -- Did it get close to correct message?"
+                                                            ' msgbox "Testing -- Did it get close to correct message?"
 
                                                             'Initial dialog - select whether to create a list or process a list
                                                             Dialog1 = ""
@@ -5001,7 +5001,7 @@ If HIRE_messages = 1 Then
                                                             PF3
 
                                                         ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
-                                                            MsgBox "Testing -- not 01 on FS eligibility"
+                                                            ' MsgBox "Testing -- not 01 on FS eligibility"
 
                                                             DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
 
@@ -5280,26 +5280,26 @@ If HIRE_messages = 1 Then
                                                             EMReadSCreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
 
-                                                                MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
+                                                                ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
 
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
                                                                 Call write_value_and_transmit("H", dail_row, 3)
                                                                 PF3
 
-                                                                MsgBox "DAIL should now be reset to all DAIL messages"
+                                                                ' MsgBox "DAIL should now be reset to all DAIL messages"
 
                                                                 'Reset DAIL to only HIRE messages
                                                                 Call write_value_and_transmit("X", 4, 12)
                                                                 EMWriteScreen "_", 7, 39
                                                                 Call write_value_and_transmit("X", 13, 39)
 
-                                                                MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
+                                                                ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
 
                                                                 'Script should now navigate to specific member name, or at least get close
                                                                 EMWriteScreen hire_message_member_name, 21, 25
                                                                 transmit
 
-                                                                MsgBox "DAIL should now be back to member name. It will enter do loop now"
+                                                                ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
 
                                                                 'Script will enter do loop to find match
 
@@ -5333,11 +5333,11 @@ If HIRE_messages = 1 Then
                                                                     return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then 
-                                                                        msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                        ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
                                                                         transmit
                                                                         Exit Do
                                                                     Else
-                                                                        msgbox "Testing -- It did not find the matching message"
+                                                                        ' msgbox "Testing -- It did not find the matching message"
                                                                         transmit
                                                                         dail_row = dail_row + 1
 
@@ -5358,7 +5358,7 @@ If HIRE_messages = 1 Then
                                                                 'Reset the dail_row back to 6
                                                                 dail_row = 6
 
-                                                                msgbox "Testing -- Did it get close to correct message?"
+                                                                ' msgbox "Testing -- Did it get close to correct message?"
 
                                                                 'Initial dialog - select whether to create a list or process a list
                                                                 Dialog1 = ""
@@ -5502,7 +5502,7 @@ If HIRE_messages = 1 Then
                                                                 PF3
 
                                                             ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
-                                                                MsgBox "Testing -- not 01 on FS eligibility"
+                                                                ' MsgBox "Testing -- not 01 on FS eligibility"
 
                                                                 DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
 
@@ -5688,7 +5688,7 @@ If HIRE_messages = 1 Then
                 EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
                 MAXIS_case_number = trim(MAXIS_case_number)
 
-                If InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, "VIA NEW HIRE") <> 0 Then
+                If (InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, "VIA NEW HIRE") <> 0 and Instr(dail_msg, " JOB (HIRE") = 0) or (InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, " JOB (HIRE") <> 0) Then
                     'The DAIL message is a TIKL for new hire script
 
                     Call write_value_and_transmit("X", dail_row, 3)
@@ -5700,8 +5700,22 @@ If HIRE_messages = 1 Then
                     tikl_case_name_check = trim(tikl_case_name_check)
                     transmit
 
-                    TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
-                    If activate_msg_boxes = True then msgbox "TIKL_comparison " & TIKL_comparison & " and the dail_msg is " & dail_msg
+                    If InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, "VIA NEW HIRE") <> 0 and Instr(dail_msg, " JOB (HIRE") = 0 Then
+                        TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, "JOB VIA NEW") - 1) & "*"
+                        ' If activate_msg_boxes = True then msgbox "TIKL_comparison " & TIKL_comparison & " and the dail_msg is " & dail_msg
+                        ' Msgbox "TIKL_comparison " & TIKL_comparison & " and the dail_msg is " & dail_msg
+
+                        
+                    ElseIf InStr(dail_msg, "VERIFICATION OF ") <> 0 and Instr(dail_msg, " JOB (HIRE") <> 0 Then
+                        TIKL_comparison = "*" & tikl_case_number_check & "-" & tikl_case_name_check & "-" & Mid(dail_msg, 1, instr(dail_msg, " JOB (HIRE") - 1) & "*"
+                        ' If activate_msg_boxes = True then msgbox "TIKL_comparison " & TIKL_comparison & " and the dail_msg is " & dail_msg
+                        ' Msgbox "TIKL_comparison " & TIKL_comparison & " and the dail_msg is " & dail_msg
+
+                    Else
+                        MsgBox "Neither TIKL Worked 5708"
+                    End If
+
+                    
 
                     If InStr(list_of_TIKLs_to_delete, TIKL_comparison) Then 
                         'This is a match for the TIKL, it can be deleted
