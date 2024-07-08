@@ -2057,11 +2057,11 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 		For form_errors = 0 to Ubound(form_type_array, 2)
 			If form_type_array(form_type_const, form_errors) = asset_form_name then 'Error handling for Asset Form
 				actions_taken = Trim(actions_taken)
-				actions_taken = actions_taken & ", "
+				If actions_taken <> "" Then actions_taken = actions_taken & ", "
 				If IsDate(asset_date_received) = FALSE Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter a valid date for the Document Date."
 				If actions_taken = "" Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter your actions taken."
 				If (asset_dhs_6054_checkbox = checked AND IsDate(asset_date_received) = FALSE) Then asset_err_msg = asset_err_msg & vbNewLine & "* You must enter Document Date."
-				Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
+				If current_dialog = "asset" Then Call asset_dialog_DHS6054_and_update_asset_panels		'This will call additional asset dialogs if DHS6054 or update asset panels is checked
 			End If
 
 			If form_type_array(form_type_const, form_errors) = atr_form_name Then 'Error handling for ATR Form 
@@ -2220,7 +2220,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				IF IsDate(sf_date_received) = FALSE THEN sf_err_msg = sf_err_msg & vbCr & "* Enter a valid Document Date." 
 				If sf_other_checkbox = checked AND trim(sf_other_utility) = "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You checked 'other', therefore you must specify specific utility."
 				If sf_other_checkbox = unchecked AND trim(sf_other_utility) <> "" Then sf_err_msg = sf_err_msg & vbNewLine & "* You specified 'other' utility,'other checkbox' must be checked if field is filled out."
-				Call addr_shel_hest_panel_dialog
+				If current_dialog = "sf" Then Call addr_shel_hest_panel_dialog
 			End If
 
 			If form_type_array(form_type_const, form_errors) = diet_form_name then 'Error handling for Diet Form 
