@@ -3524,6 +3524,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 321, 50, "Outstanding Verifications"
 			EditBox 120, 5, 195, 15, outstanding_verifs
 			ButtonGroup ButtonPressed
+				PushButton 155, 30, 50, 15, "None", none_btn
 				OkButton 210, 30, 50, 15
 				CancelButton 265, 30, 50, 15
 			Text 5, 10, 115, 10, "Specify outstanding verifications:"
@@ -4240,9 +4241,11 @@ For list_of_docs_received = 0 to Ubound(form_type_array, 2)
 	End If
 Next 
 If left(docs_rec, 2) = ", " Then docs_rec = right(docs_rec, len(docs_rec)-2)        'trimming the ',' off of the list of docs
-case_header = FALSE
 
 'CASE NOTE===========================================================================
+case_header = FALSE			'Boolean to only create a case note header once  
+verifs_case_note = FALSE	'Boolean to determine if outstanding verifs were casenoted
+
 'For/Next creates one casenote for all documents received that should be CASENOTED TOGETHER. 
 For each_case_note = 0 to Ubound(form_type_array, 2)	
 	'Handling to change the case note header depending on if MTAF is one of the documents processed 
@@ -4259,6 +4262,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = asset_form_name then 		'Asset Statement Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** ASSET STATEMENT RECEIVED ***")
 		CALL write_bullet_and_variable_in_CASE_NOTE("Date received", asset_date_received)
@@ -4328,6 +4332,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = change_form_name Then 	'Change Reported Case Note
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** CHANGE REPORT FORM RECEIVED ***")
 		CALL write_bullet_and_variable_in_case_note("Notable changes reported", chng_notable_change)
@@ -4344,9 +4349,11 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("  Other Notes", chng_other_notes)
 		CALL write_bullet_and_variable_in_case_note("  Verifs Requested", chng_verifs_requested)
 		CALL write_bullet_and_variable_in_case_note("  The changes client reports", chng_changes_continue)
+		Call write_variable_in_case_note("---")
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = evf_form_name Then 		'EVF Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		Call write_variable_in_case_note("*** EVF FORM RECEIVED ***")
 		Call write_bullet_and_variable_in_case_note("EVF received",  evf_date_received & "- " & EVF_status_dropdown & "*")
@@ -4364,6 +4371,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = iaa_form_name Then 		'IAA Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		If iaa_form_received_checkbox = checked and iaa_ssi_form_received_checkbox = checked Then CALL write_variable_in_case_note("*** IAA and IAA-SSI FORMS RECEIVED ***")
 		If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = checked Then CALL write_variable_in_case_note("*** IAA-SSI FORM RECEIVED ***")
@@ -4395,6 +4403,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 	
 	If form_type_array(form_type_const, each_case_note) = mof_form_name Then 		'MOF Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** MEDICAL OPINION FORM RECEIVED ***")
 		CALL write_variable_in_CASE_NOTE("* Date Received " & mof_date_received & " for M" & mof_hh_memb)
@@ -4412,6 +4421,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = mtaf_form_name Then 		'MTAF Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** MINNESOTA TRANSITION APPLICATION RECEIVED ***")
 		CALL write_bullet_and_variable_in_CASE_NOTE ("Date received", MTAF_date)
@@ -4438,6 +4448,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = psn_form_name Then 		'PSN Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** PROFESSIONAL STATEMENT OF NEED RECEIVED ***")
 		CALL write_bullet_and_variable_in_case_note("Date Received", psn_date_received)
@@ -4468,6 +4479,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 	
 	If form_type_array(form_type_const, each_case_note) = sf_form_name Then 		'SF Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** SHELTER FORM RECEIVED ***")
 		CALL write_bullet_and_variable_in_case_note("Form Name",sf_name_of_form)
@@ -4502,6 +4514,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = diet_form_name Then 		'Special Diet Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
 		CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
@@ -4533,6 +4546,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = other_form_name Then 		'Other Case Notes
+		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** Other forms received: " & other_list_form_names)	
 		CALL write_bullet_and_variable_in_case_note("Date Received", other_date_received)
@@ -4541,7 +4555,15 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Action Taken", other_action_taken)
 		CALL write_variable_in_case_note("---")
 	End If 
-	If each_case_note = Ubound(form_type_array, 2) Then CALL write_variable_in_case_note(worker_signature)
+	If each_case_note = Ubound(form_type_array, 2) Then
+		If verifs_case_note = TRUE Then 
+			If ButtonPressed <> none_btn OR trim(outstanding_verifs) <> "" Then 
+				Call start_a_blank_case_note
+				CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+			End If
+		End If
+		CALL write_variable_in_case_note(worker_signature)
+	End If
 Next
 
 'For/Next creates individual case notes for the following documents. Casenoting these individually so we can search for them in the future.
@@ -4568,6 +4590,13 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		If atr_other_checkbox = checked Then CALL write_bullet_and_variable_in_case_note("Record requested will be used", atr_other)
 		CALL write_bullet_and_variable_in_case_note("Comments", atr_comments)
 		Call write_variable_in_case_note("---")
+		If verifs_case_note = FALSE Then
+			If ButtonPressed <> none_btn OR trim(outstanding_verifs) <> "" Then 
+				Call start_a_blank_case_note
+				CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+				verifs_case_note = TRUE
+			End If
+		End If
 		Call write_variable_in_case_note(worker_signature)
 	End If
 
@@ -4592,6 +4621,13 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		IF arep_TIKL_check = checked THEN write_variable_in_CASE_NOTE("  - TIKL'd for 12 months to get new HC AREP form.")
 		If arep_update_AREP_panel_checkbox = checked Then write_variable_in_CASE_NOTE("  - AREP panel updated.")
 		Call write_variable_in_case_note("---")
+		If verifs_case_note = FALSE Then
+			If ButtonPressed <> none_btn OR trim(outstanding_verifs) <> "" Then 
+				Call start_a_blank_case_note
+				CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+				verifs_case_note = TRUE
+			End If
+		End If
 		Call write_variable_in_case_note(worker_signature)
 	End If
 	
@@ -4608,6 +4644,13 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		Call write_bullet_and_variable_in_CASE_NOTE("MMIS not updated due to", hosp_reason_not_updated)
 		Call write_bullet_and_variable_in_CASE_NOTE("Notes", hosp_other_notes)
 		Call write_variable_in_case_note("---")
+		If verifs_case_note = FALSE Then
+			If ButtonPressed <> none_btn OR trim(outstanding_verifs) <> "" Then 
+				Call start_a_blank_case_note
+				CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+				verifs_case_note = TRUE
+			End If
+		End If
 		Call write_variable_in_case_note(worker_signature)
 	End If
 
@@ -4646,17 +4689,16 @@ For unique_case_notes = 0 to Ubound(form_type_array, 2)
 		Call write_bullet_and_variable_in_CASE_NOTE("METS Case Number", ltc_1503_mets_case_number)
 		Call write_bullet_and_variable_in_case_note("Notes", ltc_1503_notes)
 		Call write_variable_in_case_note("---")
+		If verifs_case_note = FALSE Then
+			If ButtonPressed <> none_btn OR trim(outstanding_verifs) <> "" Then 
+				Call start_a_blank_case_note
+				CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
+				verifs_case_note = TRUE
+			End If
+		End If
 		Call write_variable_in_case_note(worker_signature)
 	End If
 Next
-
-'Documenting verifications still outstanding 
-If ButtonPressed = none_btn OR trim(outstanding_verifs) <> "" Then 
-	PF3
-	Call start_a_blank_case_note
-	CALL write_bullet_and_variable_in_case_note("Outstanding Verifications", outstanding_verifs)
-	CALL write_variable_in_case_note(worker_signature)
-End If
 
 script_end_procedure_with_error_report("Success! " & vbcr & end_msg)
 
