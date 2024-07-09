@@ -24456,6 +24456,10 @@ If First_footer <> CM_plus_1 Then
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 	EMReadScreen numb_EMER_versions, 1, 16, 40
 	numb_EMER_versions = trim(numb_EMER_versions)
+	' TEMPORARY WORKAROUND
+	' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
+	' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
+	If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then numb_EMER_versions = ""
 End If
 
 const month_const 	= 0
@@ -24614,6 +24618,20 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
+
+	' TEMPORARY WORKAROUND
+	' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
+	' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
+	If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then
+		numb_DWP_versions = " "
+		numb_MFIP_versions = " "
+		numb_MSA_versions = " "
+		numb_GA_versions = " "
+		numb_CASH_denial_versions = " "
+		numb_GRH_versions = " "
+		numb_SNAP_versions = " "
+	End If
+
 	Call back_to_SELF
 
 	If numb_DWP_versions <> " " Then
