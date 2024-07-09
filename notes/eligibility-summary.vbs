@@ -24401,7 +24401,7 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or 
 ' developer_mode = True
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
-If MAXIS_case_number = "" Then allow_late_note = True
+If MAXIS_case_number = "756989" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
@@ -26007,6 +26007,19 @@ If first_DENY_approval <> "" Then enter_CNOTE_for_DENY = True
 If first_GRH_approval <> "" Then enter_CNOTE_for_GRH = True
 If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
+
+' TEMPORARY WORKAROUND
+' Special workaround handling for Tim Erickson and Sarah Haigh since they do not have access in MAXIS for anything but HC processing.
+' We are working on getting access updated for them to have view/inquiry access in the MONY area of MAXIS so that the script can view it as a part of the information gathering.
+If user_ID_for_validation = "TIER002" or user_ID_for_validation = "SASA003" Then
+	enter_CNOTE_for_DWP = False
+	enter_CNOTE_for_MFIP = False
+	enter_CNOTE_for_MSA = False
+	enter_CNOTE_for_GA = False
+	enter_CNOTE_for_DENY = False
+	enter_CNOTE_for_GRH = False
+	enter_CNOTE_for_SNAP = False
+End If
 
 deductions_detail_btn 	= 1010
 hh_comp_detail			= 1020
