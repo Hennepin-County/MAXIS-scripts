@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2024", "Updated the script to handle ex parte phase 1 for households with 3 or more members on health care.", "Dave Courtright, Hennepin County")
 call changelog_update("07/02/2024", "Added Asset total by member to case note.", "Megan Geissler, Hennepin County")
 call changelog_update("04/15/2024", "Updated the script to handle changes to STAT/REVW HC popup and STAT/HCMI.", "Dave Courtright, Hennepin County")
 call changelog_update("03/01/2024", "Ex Parte Processing Support with notes about Mixed Housholds.", "Casey Love, Hennepin County")
@@ -4577,7 +4578,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If INCOME_ARRAY(inc_type_code, income_count) = "07" Then INCOME_ARRAY(inc_type_info, income_count) = "In Home Daycare"
 						If INCOME_ARRAY(inc_type_code, income_count) = "08" Then INCOME_ARRAY(inc_type_info, income_count) = "Rental Income"
 						If INCOME_ARRAY(inc_type_code, income_count) = "09" Then INCOME_ARRAY(inc_type_info, income_count) = "Other Self Employment"
-						If INCOME_ARRAY(inc_type_code, income_count) = "10" Then INCOME_ARRAY(inc_type_info, income_count) = "Lived Experience"
 
 						If INCOME_ARRAY(inc_start, income_count) = "__ __ __" Then INCOME_ARRAY(inc_start, income_count) = ""
 						INCOME_ARRAY(inc_start, income_count) = replace(INCOME_ARRAY(inc_start, income_count), " ", "/")
@@ -4920,10 +4920,197 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		policy_3_button = 1030
 
 		If NO_HC_EXISTS = True Then ex_parte_determination = "Health Care has been Closed"
+		'Get a count of members with HC for dialog
+		total_members = 0
+		dialog_member_count = 0
+		memb_with_hc_list = " "
+		For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then total_members = total_members + 1
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then memb_with_hc_list = memb_with_hc_list & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " "
+		Next
+		If total_members > 3 Then 'If we have more than 3 members on HC, this puts the first 3 on their own dialog, before displaying final.
+			Dialog1 = ""
+			dialog_width = 556
+			If total_members > 4 Then dialog_width = 705
+			membs_in_dialog = 0 'This variable tracks the number of members displayed so we can start the next dialog when needed
+			BeginDialog Dialog1, 0, 0, dialog_width, 385, "Phase 1 - Ex Parte Evaluation"
 
+			If NO_HC_EXISTS = True Then
+				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
+			Else
+				y_pos = 10
+				If all_update_dates_are_current = False Then
+					Text 15, y_pos+10, 450, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURING PREP MONTH * * * *     * * * * Manual Review of this case is important. * * * *"
+					' Text 55, y_pos+10, 185, 10, ""
+					y_pos = y_pos + 25
+				Else
+					y_pos = 15
+				End If
+				x_pos = 10
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If y_pos > 35 Then y_pos = 35
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+						membs_in_dialog = membs_in_dialog + 1
+						If (total_members = 4 AND membs_in_dialog < 3) OR (total_members > 4 AND membs_in_dialog < 4) Then
+							dialog_member_count = dialog_member_count + 1
+							memb_grp_x = x_pos
+							memb_grp_y = y_pos
+							x_pos = x_pos + 10
+							y_pos = y_pos +10
+
+							Text x_pos+100, y_pos, 65, 10, "PMI: " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+							Text x_pos, y_pos, 150, 10, "Health Care Programs:"
+							y_pos = y_pos + 10
+							If MEMBER_INFO_ARRAY(hc_prog_1, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_1, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_1, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(hc_prog_2, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_2, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_2, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(hc_prog_3, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_3, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_3, each_memb)
+								y_pos = y_pos + 10
+							End If
+							y_pos = y_pos + 5
+
+							Text x_pos, y_pos, 200, 10, "DISA:        " & MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb)
+							y_pos = y_pos + 10
+							If MEMBER_INFO_ARRAY(DISA_end_date, each_memb) <> "" Then
+								Text x_pos+35, y_pos, 100, 10, "End Date: " & MEMBER_INFO_ARRAY(DISA_end_date, each_memb)
+								y_pos = y_pos + 10
+							ElseIf MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) <> "" Then
+								Text x_pos+35, y_pos, 100, 10, "CERT End Date: " & MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb)
+								y_pos = y_pos + 10
+							End If
+							y_pos = y_pos + 5
+							Text x_pos, y_pos, 100, 10, "Waiver:     " & MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb)
+							y_pos = y_pos + 15
+							If MEMBER_INFO_ARRAY(MEDI_expt_exists_const, each_memb) = True Then
+								MEDI_part_a = ""
+								If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then
+									If MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then MEDI_part_a = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb)
+									If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" Then MEDI_part_a = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb)
+									If left(MEDI_part_a, 1) = "," Then MEDI_part_a = right(MEDI_part_a, len(MEDI_part_a)-2)
+								End If
+								MEDI_part_b = ""
+								If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then
+									If MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then MEDI_part_b = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb)
+									If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" Then MEDI_part_b = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb)
+									If left(MEDI_part_b, 1) = "," Then MEDI_part_b = right(MEDI_part_b, len(MEDI_part_b)-2)
+								End If
+								Text x_pos, y_pos, 200, 10, "MEDI Info: Part A: " & MEDI_part_a
+								Text x_pos+35, y_pos+10, 200, 10, " Part B: " & MEDI_part_b
+								y_pos = y_pos + 25
+							Else
+								Text x_pos, y_pos, 200, 10, "NO MEDI Panel entered for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+								y_pos = y_pos + 10
+							End If
+
+							If MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = True then
+								Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - currently in a facility"
+								Text x_pos+10, y_pos+10, 200, 10, "Facility Name: " & MEMBER_INFO_ARRAY(FACI_name, each_memb)
+								Text x_pos+20, y_pos+20, 150, 10, "Entry Date: " & MEMBER_INFO_ARRAY(FACI_date_in, each_memb)
+								Text x_pos+14, y_pos+30, 200, 10,"Facility Type: " & MEMBER_INFO_ARRAY(FACI_type_info, each_memb)
+								y_pos = y_pos + 45
+							Else
+								Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - Does not appear to be in a facility"
+								y_pos = y_pos + 10
+							End If
+
+							If MEMBER_INFO_ARRAY(PDED_PICKLE_exists, each_memb) = True Then
+								Text x_pos, y_pos, 200, 10, "PICKLE Disregard of $ " & MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(PDED_DAC_exists , each_memb) = True Then
+								Text x_pos, y_pos, 200, 10, "DAC Disregard Exists"
+								y_pos = y_pos + 10
+							End If
+
+							' If all_update_dates_are_current = True Then
+								first_income = True
+								For each_income = 0 to UBound(INCOME_ARRAY, 2)
+									If INCOME_ARRAY(inc_ref_numb, each_income) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) Then
+										If first_income = True Then
+											y_pos = y_pos + 10
+											Text x_pos, y_pos, 200, 10, "INCOME for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+											y_pos = y_pos + 10
+											first_income = False
+										End If
+										Text x_pos+5, y_pos, 150, 10, INCOME_ARRAY(inc_panel_name, each_income) & " Income - " & INCOME_ARRAY(inc_type_info, each_income)
+										Text x_pos+160, y_pos, 50, 10, "Verif: " & INCOME_ARRAY(inc_verif, each_income)
+										Text x_pos+10, y_pos+10, 100, 10, "Gross Income $ " & INCOME_ARRAY(inc_prosp_amt, each_income)
+										y_pos = y_pos + 20
+										If INCOME_ARRAY(inc_end, each_income) <> "" Then
+											Text x_pos+10, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+											y_pos = y_pos + 10
+										End If
+									End If
+								Next
+							' End If
+							If last_y_pos = "" Then
+								last_y_pos = y_pos
+							Else
+								If y_pos > last_y_pos Then last_y_pos = y_pos
+							End If
+							DropListBox x_pos + 85, y_pos, 115, 10, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be processed as Ex Parte"+chr(9)+"Health Care closed for member", MEMBER_INFO_ARRAY(Memb_ex_parte_status, each_memb)
+  							Text x_pos, y_pos+5, 80, 10, "Member Ex Parte Status:"
+
+							GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+20, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+							x_pos = x_pos + 225
+						End If
+					End If
+				Next
+
+				first_income = True
+				y_pos = last_y_pos + 20
+				For each_income = 0 to UBound(INCOME_ARRAY, 2)
+					If InStr(memb_with_hc_list, INCOME_ARRAY(inc_ref_numb, each_income)) = 0 Then
+						If first_income = True Then
+							grp_box_start = y_pos
+							y_pos = y_pos + 15
+							first_income = False
+						End If
+						Text 20, y_pos, 200, 10, "MEMB " & INCOME_ARRAY(inc_ref_numb, each_income) & " - " & INCOME_ARRAY(inc_panel_name, each_income) & " Income - Gross Amount $ " & INCOME_ARRAY(inc_prosp_amt, each_income) & " - Verif: " & INCOME_ARRAY(inc_verif, each_income)
+						y_pos = y_pos + 10
+						If INCOME_ARRAY(inc_end, each_income) <> "" Then
+							Text 30, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+							y_pos = y_pos + 10
+						End If
+					End If
+				Next
+				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
+				ButtonGroup ButtonPressed
+				OkButton dialog_width-115, 365, 50, 15
+				CancelButton dialog_width-55, 365, 50, 15
+				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+				PushButton 475, 15, 80, 15, "Instructions", instructions_button
+				Text 10, 5, 450, 10, "***Initial household member dialog. Select ex-parte status for each member shown and press OK to view remaining HC members."
+			End If
+			Do
+				err_msg = ""
+				Dialog Dialog1
+				cancel_confirmation
+				'Verify status selected for all members
+				current_memb = 0
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+						current_memb = current_memb + 1
+						If current_memb <= membs_in_dialog Then
+							If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "" Then err_msg = err_msg & vbCr & "* You must select each member's ex parte status." & vbCr & "  - MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " assessment is missing."
+						End if
+					End If
+				Next
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = "" AND ButtonPressed = -1
+			EndDialog
+		End If
+		'Normal dialog, final dialog for more than 3 members
 		Dialog1 = ""
-
-		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
+		dialog_width = 556
+		If total_members = 3 or total_members = 6 Then dialog_width = 705
+		BeginDialog Dialog1, 0, 0, dialog_width, 385, "Phase 1 - Ex Parte Evaluation"
 
 			If NO_HC_EXISTS = True Then
 				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
@@ -4937,11 +5124,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					y_pos = 15
 				End If
 				x_pos = 10
-				memb_with_hc_list = " "
-				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				For each_memb = dialog_member_count to UBound(MEMBER_INFO_ARRAY, 2)
 					If y_pos > 35 Then y_pos = 35
 					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
-						memb_with_hc_list = memb_with_hc_list & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " "
 						memb_grp_x = x_pos
 						memb_grp_y = y_pos
 						x_pos = x_pos + 10
@@ -5047,7 +5232,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
   						Text x_pos, y_pos+5, 80, 10, "Member Ex Parte Status:"
 
 						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+20, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
-						x_pos = x_pos + 230
+						x_pos = x_pos + 225
 					End If
 				Next
 
@@ -5068,7 +5253,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						End If
 					End If
 				Next
-				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
+				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Household Members not on HC on this case"
 
 			End If
 			Text 100, 325, 425, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total combined character limit is 255."
@@ -5096,33 +5281,34 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				CancelButton 500, 365, 50, 15
 				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
 				PushButton 475, 15, 80, 15, "Instructions", instructions_button
-				Text 495, 40, 45, 10, "--- POLICY ---"
-				PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
-				' PushButton 490, 65, 55, 15, policy_2, policy_2_button
-				' PushButton 490, 80, 55, 15, policy_3, policy_3_button
-				Text 490, 105, 55, 10, "--- NAVIGATE ---"
-				PushButton 485, 117, 25, 10, "ACCI", acci_button
-				PushButton 515, 117, 25, 10, "BILS", bils_button
-				PushButton 485, 130, 25, 10, "BUDG", budg_button
-				PushButton 515, 130, 25, 10, "BUSI", busi_button
-				PushButton 485, 143, 25, 10, "DISA", disa_button
-				PushButton 515, 143, 25, 10, "EMMA", emma_button
-				PushButton 485, 156, 25, 10, "FACI", faci_button
-				PushButton 515, 156, 25, 10, "HCMI", hcmi_button
-				PushButton 485, 169, 25, 10, "IMIG", imig_button
-				PushButton 515, 169, 25, 10, "INSA", insa_button
-				PushButton 485, 182, 25, 10, "JOBS", jobs_button
-				PushButton 515, 182, 25, 10, "LUMP", lump_button
-				PushButton 485, 195, 25, 10, "MEDI", medi_button
-				PushButton 515, 195, 25, 10, "MEMB", memb_button
-				PushButton 485, 208, 25, 10, "MEMI", memi_button
-				PushButton 515, 208, 25, 10, "PBEN", pben_button
-				PushButton 485, 221, 25, 10, "PDED", pded_button
-				PushButton 515, 221, 25, 10, "REVW", revw_button
-				PushButton 485, 234, 25, 10, "SPON", spon_button
-				PushButton 515, 234, 25, 10, "STWK", stwk_button
-				PushButton 485, 247, 25, 10, "UNEA", unea_button
-
+				If total_members < 3 Then
+					Text 495, 40, 45, 10, "--- POLICY ---"
+					PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
+					' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+					' PushButton 490, 80, 55, 15, policy_3, policy_3_button
+					Text 490, 105, 55, 10, "--- NAVIGATE ---"
+					PushButton 485, 117, 25, 10, "ACCI", acci_button
+					PushButton 515, 117, 25, 10, "BILS", bils_button
+					PushButton 485, 130, 25, 10, "BUDG", budg_button
+					PushButton 515, 130, 25, 10, "BUSI", busi_button
+					PushButton 485, 143, 25, 10, "DISA", disa_button
+					PushButton 515, 143, 25, 10, "EMMA", emma_button
+					PushButton 485, 156, 25, 10, "FACI", faci_button
+					PushButton 515, 156, 25, 10, "HCMI", hcmi_button
+					PushButton 485, 169, 25, 10, "IMIG", imig_button
+					PushButton 515, 169, 25, 10, "INSA", insa_button
+					PushButton 485, 182, 25, 10, "JOBS", jobs_button
+					PushButton 515, 182, 25, 10, "LUMP", lump_button
+					PushButton 485, 195, 25, 10, "MEDI", medi_button
+					PushButton 515, 195, 25, 10, "MEMB", memb_button
+					PushButton 485, 208, 25, 10, "MEMI", memi_button
+					PushButton 515, 208, 25, 10, "PBEN", pben_button
+					PushButton 485, 221, 25, 10, "PDED", pded_button
+					PushButton 515, 221, 25, 10, "REVW", revw_button
+					PushButton 485, 234, 25, 10, "SPON", spon_button
+					PushButton 515, 234, 25, 10, "STWK", stwk_button
+					PushButton 485, 247, 25, 10, "UNEA", unea_button
+				End If
 		EndDialog
 
 		'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
@@ -5139,20 +5325,17 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
 				ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
 
-				'Validating / storing the ex parte status selected for each member
+				'Count up the ex_parte members to determine if mixed household
 				exparte_membs = 0
+
 				For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
 
 					If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then
-						exparte_membs = exparte_membs + 1
+						If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "Appears Ex Parte"  Then exparte_membs = exparte_membs + 1
 						If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "" Then err_msg = err_msg & vbCr & "* You must select each member's ex parte status."
-						If exparte_membs = 1 Then first_ex_parte_status = MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb)
-						If exparte_membs = 2 Then second_ex_parte_status = MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb)
 					End If
 				Next
-				If exparte_membs = 2 Then
-					If first_ex_parte_status <> second_ex_parte_status Then mixed_household = True
-				End If
+				If exparte_membs > 0 AND exparte_membs <> total_members Then mixed_household = True
 				'Add validation for mixed households field
 				If mixed_household = true Then
 					If mixed_household_notes = "" Then err_msg = err_msg & vbCr & "* This is a mixed household. You must enter mixed household notes to explain which members are not ex parte and why."
@@ -5188,7 +5371,6 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 		mixed_household_notes = trim(mixed_household_notes)
 		'End dialog section-----------------------------------------------------------------------------------------------
-
 
 		'Checks to see if in MAXIS
 		Call check_for_MAXIS(False)
@@ -5283,7 +5465,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
 						'TO DO - determine how to determine if meets spenddown?
 						' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
-						If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+						'If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
 						'TODO - put back the funcitonality for spenddowns
 
 						'Validate that Exempt from 6 Mo IR is set to N
@@ -5384,8 +5566,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validation to ensure that elig renewal date has not changed
 						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
-						'Validation for Income/Asset Renewal Date to ensure that information has not changed
-						If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed - removing for now due to problems with incorrectly coded cases in maxis
+						'If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
 						'Validation to ensure that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
@@ -5475,8 +5657,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validation to ensure that elig renewal date has not changed
 						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
-						'Validation for Income/Asset Renewal Date to ensure that information has not changed
-						If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed - removing for now, causes problems with cases originally coded wrong in maxis
+						'If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
 						'Validation to ensure that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
@@ -5583,6 +5765,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		'Script end procedure
 		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
 	End If
+
 
 	If ex_parte_phase = "Phase 2" Then
 		Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, ex_parte_renewal_month, ex_parte_renewal_year)
