@@ -523,12 +523,29 @@ Do
 	    'opening the connections and data table
 	    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
         For this_memb = 0 to UBound(avs_members_array, 2) 'Check data table for existing records for each member	
+
+            
+            
             objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "'	AND SMI = '" & avs_members_array(member_smi_const, memb) & "'"	'Find the record matching case / SMI
             objRecordSet.Open objSQL, objConnection
             
-            'Possibly use this to check if data exists before update
+            'check if data exists before update
             If objRecordSet.Bof Then 'There isn't an existing record for this person, we will insert one
+                   If MEMBER_INFO_ARRAY(memb_age_const, this_memb) >= 21 Then
+					memb_asset_test = 1
+				Else
+					memb_asset_test = 0
+				End If 
+				member_smi = MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb)
+				this_month = datepart("M", date)
+				If len(this_month) = 1 Then this_month = "0" & this_month
+				year_month = datepart("YYYY", date) & this_month
                 
+                objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "')"
+			
+			    Set objinsertRecordSet = CreateObject("ADODB.Recordset")
+    			'Opening and inserting the values
+				objinsertRecordSet.Open objAVSinsert, objUpdateConnection	
             End If  
             
             'AVS Form updates
