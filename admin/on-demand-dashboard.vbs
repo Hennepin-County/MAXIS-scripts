@@ -699,8 +699,8 @@ function create_assignment_report()
     excel_row = 2
 	assigned_date = date
     Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
-	If ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker and ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date Then
-		cases_completed_by_me = cases_completed_by_me + 1
+		If ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker and ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date Then
+			cases_completed_by_me = cases_completed_by_me + 1
 		End If
 		excel_row = excel_row + 1
 	Loop
@@ -755,24 +755,24 @@ function create_assignment_report()
 			ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date
 			ObjExcel.Cells(excel_row, CaseNumber_col).value = objRecordSet("CaseNumber")
 			ObjExcel.Cells(excel_row, CaseName_col).value =  objRecordSet("CaseName")
-			ObjExcel.Cells(excel_row, ApplDate_col).value =  objRecordSet("ApplDate")
-			ObjExcel.Cells(excel_row, InterviewDate_col).value =  objRecordSet("InterviewDate")
-			ObjExcel.Cells(excel_row, Day_30_dash_col).value =  objRecordSet("Day_30")
+			ObjExcel.Cells(excel_row, ApplDate_col).value =  DateAdd("d", 0, objRecordSet("ApplDate"))
+			ObjExcel.Cells(excel_row, InterviewDate_col).value =  DateAdd("d", 0, objRecordSet("InterviewDate"))
+			ObjExcel.Cells(excel_row, Day_30_dash_col).value =  DateAdd("d", 0, objRecordSet("Day_30"))
 			ObjExcel.Cells(excel_row, DaysPending_col).value =  objRecordSet("DaysPending")
 			ObjExcel.Cells(excel_row, SnapStatus_col).value =  objRecordSet("SnapStatus")
 			ObjExcel.Cells(excel_row, CashStatus_col).value =  objRecordSet("CashStatus")
-			ObjExcel.Cells(excel_row, SecondApplicationDate_col).value =  objRecordSet("SecondApplicationDate")
+			ObjExcel.Cells(excel_row, SecondApplicationDate_col).value =  DateAdd("d", 0, objRecordSet("SecondApplicationDate"))
 			ObjExcel.Cells(excel_row, REPT_PND2Days_col).value =  objRecordSet("REPT_PND2Days")
 			ObjExcel.Cells(excel_row, QuestionableInterview_col).value =  objRecordSet("QuestionableInterview")
 			ObjExcel.Cells(excel_row, Resolved_col).value =  objRecordSet("Resolved")
-			ObjExcel.Cells(excel_row, ApptNoticeDate_col).value =  objRecordSet("ApptNoticeDate")
-			ObjExcel.Cells(excel_row, ApptDate_col).value =  objRecordSet("ApptDate")
+			ObjExcel.Cells(excel_row, ApptNoticeDate_col).value =  DateAdd("d", 0, objRecordSet("ApptNoticeDate"))
+			ObjExcel.Cells(excel_row, ApptDate_col).value =  DateAdd("d", 0, objRecordSet("ApptDate"))
 			ObjExcel.Cells(excel_row, Confirmation_col).value =  objRecordSet("Confirmation")
-			ObjExcel.Cells(excel_row, NOMIDate_col).value =  objRecordSet("NOMIDate")
+			ObjExcel.Cells(excel_row, NOMIDate_col).value =  DateAdd("d", 0, objRecordSet("NOMIDate"))
 			ObjExcel.Cells(excel_row, Confirmation2_col).value =  objRecordSet("Confirmation2")
 			ObjExcel.Cells(excel_row, DenialNeeded_col).value =  objRecordSet("DenialNeeded")
 			ObjExcel.Cells(excel_row, NextActionNeeded_col).value =  objRecordSet("NextActionNeeded")
-			ObjExcel.Cells(excel_row, AddedtoWorkList_col).value =  objRecordSet("AddedtoWorkList")
+			ObjExcel.Cells(excel_row, AddedtoWorkList_col).value =  DateAdd("d", 0, objRecordSet("AddedtoWorkList"))
 			ObjExcel.Cells(excel_row, SecondApplicationDateNotes_col).value =  objRecordSet("SecondApplicationDateNotes")
 			ObjExcel.Cells(excel_row, ClosedInPast30Days_col).value =  objRecordSet("ClosedInPast30Days")
 			ObjExcel.Cells(excel_row, ClosedInPast30DaysNotes_col).value =  objRecordSet("ClosedInPast30DaysNotes")
@@ -813,6 +813,7 @@ function create_assignment_report()
 				End If
 			End With
 
+            excel_row = excel_row + 1
             cases_completed_by_me = cases_completed_by_me + 1
         End If
         objRecordSet.MoveNext
