@@ -97,9 +97,11 @@ DO
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
+			transfer_to_worker = trim(transfer_to_worker)
+
             Call validate_MAXIS_case_number(err_msg, "*")
             IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
-            IF UCASE(trim(transfer_to_worker)) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case is will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
+            IF UCASE(transfer_to_worker) = "X127CCL" then err_msg = err_msg & vbNewLine & "This case is will be transferred via an automated script after being closed for 4 months. Choose another case load or press CANCEL to stop the script."
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
