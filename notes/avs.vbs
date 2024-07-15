@@ -157,14 +157,15 @@ const sigs_needed_const        = 22
 const avs_action_const         = 23 
 const first_submitted_const    = 24
 const second_submitted_const   = 25
-const member_smi_const         = 26
+const memb_smi_const           = 26
 const ad_hoc_type_const        = 27 
 const ad_hoc_sent_count_const  = 28
 const ad_hoc_sent_date_const   = 29
 const ad_hoc_reviewed_date_const = 30 
 const ad_hoc_closed_date_const = 31
 const ad_hoc_status_const      = 32
-const memb_array_last_const    = 33
+const memb_age_const           = 33
+const memb_array_last_const    = 34
 add_to_array = False    'defaulting to false
 DO
 	EMReadscreen ref_nbr, 2, 4, 33
@@ -202,9 +203,10 @@ DO
         avs_members_array(member_info_const,    avs_membs) = ref_nbr & " " & last_name & first_name
         avs_members_array(member_number_const,  avs_membs) = ref_nbr
         avs_members_array(member_name_const,    avs_membs) = first_name & "" & last_name
-        avs_members_array(member_smi_const,    avs_membs) = client_smi
+        avs_members_array(memb_smi_const,       avs_membs) = client_smi
         avs_members_array(checked_const,        avs_membs) = 1          'defaulted to checked
-		If client_ssn = "" then
+		avs_members_array(memb_age_const,       avs_membs) = client_age
+        If client_ssn = "" then
 			If initial_option = "AVS Submission/Results" then avs_members_array(request_type_const, avs_membs) = "N/A - No SSN" 'NO SSN need to sign forms, but we just need to case note AVS Submission exemption
 		End if
         avs_membs = avs_membs + 1
@@ -217,7 +219,7 @@ LOOP until edit_check = "ENTER A"			'the script will continue to transmit throug
 If avs_membs = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
 
 Call navigate_to_MAXIS_screen("STAT", "MEMI")   'Finding marital status to add to array
-For item = 0 to Ubound(avs_members_array, 2)
+For items= 0 to Ubound(avs_members_array, 2)
     EmWriteScreen avs_members_array(member_number_const, item), 20, 76
     transmit
     EmReadscreen marital_status, 1, 7, 40
@@ -247,7 +249,7 @@ Loop until last_panel = "ENTER"	'This means that there are no other faci panels
 
 'STAT/TYPE info is to help default some of the initial options for the applicant type.
 Call navigate_to_MAXIS_screen("STAT", "TYPE")
-For item = 0 to Ubound(avs_members_array, 2)
+For items= 0 to Ubound(avs_members_array, 2)
     If avs_members_array(hc_applicant_const, item) = "" then
         'adding TYPE Information to be output into the dialog and case note
         row = 6
@@ -282,7 +284,7 @@ Next
 Do
     'Blanking out variables for the array to start the AVS Submission process. This is a valid option for users to select is the AVS Forms process is selected, and the form(s) are returned complete.
     If confirm_msgbox = vbYes then
-        For item = 0 to ubound(avs_members_array, 2)
+        For items= 0 to ubound(avs_members_array, 2)
             run_initial_option = False
             avs_members_array(forms_status_const,       item) = ""
             avs_members_array(avs_status_const,         item) = ""
@@ -333,16 +335,16 @@ Do
     End if
 
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 200, (50 + (item * 20)), "AVS Member Selection Dialog"
+    BeginDialog Dialog1, 0, 0, 200, (50 + (items* 20)), "AVS Member Selection Dialog"
         Text 5, 5, 180, 10, selection_text
         ButtonGroup ButtonPressed
         PushButton 170, 0, 10, 15, "!", help_button
-        For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (item * 20)), 130, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
+        For items= 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (items* 20)), 130, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
         Next
         ButtonGroup ButtonPressed
-        OkButton 85, (30 + (item * 20)), 45, 15
-        CancelButton 135, (30 + (item * 20)), 45, 15
+        OkButton 85, (30 + (items * 20)), 45, 15
+        CancelButton 135, (30 + (items * 20)), 45, 15
     EndDialog
 
     'Member selection Dialog
@@ -357,7 +359,7 @@ Do
             End if
             'ensuring that users have
             checked_count = 0
-            FOR item = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            FOR items = 0 to UBound(avs_members_array, 2)										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
                 If avs_members_array(checked_const, item) = 1 then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
             NEXT
             If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons responsible for signing the AVS form."
@@ -368,7 +370,7 @@ Do
 
     'Resizing the array based on who was selected in the previous dialog. Revaluing the array if selected or checked in the previous dialog.
     resize_counter = 0
-    For item = 0 to UBound(avs_members_array, 2)
+    For items = 0 to UBound(avs_members_array, 2)
         If avs_members_array(checked_const, item) = 1 Then
             avs_members_array(member_number_const     , resize_counter) = avs_members_array(member_number_const     , item)
             avs_members_array(member_info_const       , resize_counter) = avs_members_array(member_info_const       , item)
@@ -387,7 +389,8 @@ Do
             avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , item)
             avs_members_array(ECF_const               , resize_counter) = avs_members_array(ECF_const               , item)
             avs_members_array(additional_info_const   , resize_counter) = avs_members_array(additional_info_const   , item)
-            avs_members_array(member_smi_const        , resize_counter) = avs_members_array(member_smi_const        , item)
+            avs_members_array(memb_smi_const          , resize_counter) = avs_members_array(memb_smi_const          , item)
+            avs_members_array(memb_age_const          , resize_counter) = avs_members_array(memb_age_const          , item)
             resize_counter = resize_counter + 1
             STATS_counter = STATS_counter + 1
         End If
@@ -397,14 +400,14 @@ Do
     call generate_client_list(member_list, "")
 
     'Connecting to the database and finding current info on this person
-    
+    SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
 	Set objConnection = CreateObject("ADODB.Connection")	'Creating objects for access to the SQL table
 	Set objRecordSet = CreateObject("ADODB.Recordset")
 
 	'opening the connections and data table
 	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     For this_memb = 0 to UBound(avs_members_array, 2) 'Check data table for existing records for each member	
-        objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "'	AND SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"	'Find the record matching case / SMI
+        objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & SQL_Case_Number & "'	AND SMI = '" & avs_members_array(memb_smi_const, this_memb) & "'"	'Find the record matching case / SMI
         
         objRecordSet.Open objSQL, objConnection
             If Not objRecordSet.bof Then 'If we have an existing record for this member, read the values
@@ -424,7 +427,6 @@ Do
    
     'Set the current status / info message for each member
     For this_memb = 0 to UBound(avs_members_array, 2)
-     msgbox "." & avs_members_array(ad_hoc_sent_date_const, this_memb) & "."
         If isdate(avs_members_array(ad_hoc_sent_date_const, this_memb)) = True Then '                    
             If datediff("d", avs_members_array(ad_hoc_sent_date_const, this_memb), date) > 90 Then 
                 avs_members_array(ad_hoc_status_const, this_memb) = "Last ad-hoc recorded was " & avs_members_array(ad_hoc_sent_date_const, this_memb) 
@@ -458,9 +460,9 @@ Do
           Text 45, y_pos + 10, 340, 10, avs_members_array(status_msg_const, this_memb) '"Check case file for existing authorizations and complete below with status of any authorization on file."
             'TODO 
          GroupBox 10, y_pos, 560, 65, avs_members_array(member_number_const, this_memb) & " " & avs_members_array(member_name_const, this_memb)
-         EditBox 190, y_pos+25, 45, 15, avs_members_array(auth_date_const, this_memb)
          Text 15, y_pos+30, 55, 10, "AVS Form Type: "
          DropListBox 70, y_pos+25, 75, 15, ""+chr(9)+"DHS-7823 Auth Form"+chr(9)+"HCAPP"+chr(9)+"HC Renewal", avs_members_array(form_type_const, this_memb)
+         EditBox 190, y_pos+25, 45, 15, avs_members_array(auth_date_const, this_memb)
          Text 150, y_pos+30, 40, 10, "Form Date:"
          DropListBox 265, y_pos+25, 75, 15, ""+chr(9)+"Valid form on file"+chr(9)+"Form is invalid"+chr(9)+"No form on file", avs_members_array(form_valid_const, this_memb)
          Text 240, y_pos+30, 25, 10, "Status:"
@@ -503,7 +505,7 @@ Do
                 End if
 
                 'mandatory fields for all AVS_membs
-                FOR item = 0 to UBound(avs_members_array, 2)
+                FOR this_thing = 0 to UBound(avs_members_array, 2)
                     'AVS Forms mandatory fields
 
                     'AVS Submission/Results mandatory fields
@@ -522,27 +524,29 @@ Do
 
 	    'opening the connections and data table
 	    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-        For this_memb = 0 to UBound(avs_members_array, 2) 'Check data table for existing records for each member	
-
-            
-            
-            objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & MAXIS_case_number & "'	AND SMI = '" & avs_members_array(member_smi_const, memb) & "'"	'Find the record matching case / SMI
+        For this_memb = 0 to UBound(avs_members_array, 2) 'Loop through each member and update data table
+            'set variables
+            form_type = avs_members_array(form_type_const, this_memb)
+            memb_smi  = avs_members_array(memb_smi_const, this_memb)
+                       
+            objSQL = "SELECT * FROM ES.ES_AVSList WHERE CaseNumber = '" & SQL_Case_Number & "'	AND SMI = '" & memb_smi & "'"	'Find the record matching case / SMI
             objRecordSet.Open objSQL, objConnection
             
             'check if data exists before update
-            If objRecordSet.Bof Then 'There isn't an existing record for this person, we will insert one
-                   If MEMBER_INFO_ARRAY(memb_age_const, this_memb) >= 21 Then
+            If objRecordSet.Bof and objRecordSet.EOF Then 'There isn't an existing record for this person, we will insert one
+               msgbox "Record not found"
+                If avs_members_array(memb_age_const, this_memb)*1 >= 21 Then
 					memb_asset_test = 1
 				Else
 					memb_asset_test = 0
 				End If 
-				member_smi = MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb)
+				
 				this_month = datepart("M", date)
 				If len(this_month) = 1 Then this_month = "0" & this_month
 				year_month = datepart("YYYY", date) & this_month
                 
-                objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "')"
-			
+                objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & memb_smi & "', '" & SQL_Case_Number & "', '" & memb_asset_test & "')"
+                
 			    Set objinsertRecordSet = CreateObject("ADODB.Recordset")
     			'Opening and inserting the values
 				objinsertRecordSet.Open objAVSinsert, objUpdateConnection	
@@ -550,22 +554,22 @@ Do
             
             'AVS Form updates
 
-
+        msgbox "what?"
 
             'AVS sent updates
             If objRecordSet("AdHocSentDate") <> avs_members_array(ad_hoc_sent_date_const, this_memb) Then
                 ObjSentUpdate = "UPDATE ES.ES_AVSList SET AdHocSentDate = '" & avs_members_array(ad_hoc_sent_date_const, this_memb)  & "', "&_     
                 "AdhocSentCount  = '" & avs_members_array(ad_hoc_sent_count_const, this_memb) & "', "&_
                 "AdHocSentWorker = '" & user_ID_for_validation & "', "&_
-                "WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"
-			    objUpdateRecordSet.Open objSentUpdate, objUpdateConnection           
+                "WHERE CaseNumber = '" & SQL_Case_Number & "' and SMI = '" & memb_smi & "'"
+			    objRecordSet.Open objSentUpdate, objUpdateConnection           
             End If 
              'AVS closed updates
             If objRecordSet("AdHocClosedDate") <> avs_members_array(ad_hoc_closed_date_const, this_memb) Then
                 ObjClosedUpdate = "UPDATE ES.ES_AVSList SET AdHocClosedDate = '" & avs_members_array(ad_hoc_closed_date_const, this_memb)  & "', "&_     
                 " AdHocClosedWorker = '" & user_ID_for_validation & "', "&_
-                "WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"
-			    objUpdateRecordSet.Open objClosedUpdate, objUpdateConnection           
+                "WHERE CaseNumber = '" & SQL_Case_Number & "' and SMI = '" & memb_smi & "'"
+			    objRecordSet.Open objClosedUpdate, objUpdateConnection           
             End If 
                    '    AdHocType =  '" & avs_members_array(ad_hoc_type_const, this_memb)  & "', &_
                 
@@ -578,17 +582,18 @@ Do
             End If 
 
             If objRecordSet("AVSFormValid") <> form_valid OR  objRecordSet("AVSFormDate") <> avs_members_array(auth_date_const, this_memb) OR objRecordSet("AVSFormType") <> avs_members_array(form_type_const , this_memb) Then 
+                msgbox objRecordSet("AVSFormValid") 
                 objFormUpdateSQL = "UPDATE ES.ES_AVSList SET AVSFormDate = '" & avs_members_array(auth_date_const, this_memb) & "', "&_
                 "AVSFormType = '" & avs_members_array(form_type_const , this_memb) & "', "&_                
                 "AVSFormValid = '" &  form_valid & "', "&_
-                "WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"
-                objUpdateRecordSet.Open objFormUpdateSQL, objUpdateConnection 
+                "WHERE CaseNumber = '" & SQL_Case_Number & "' and SMI = '" & memb_smi & "'"
+                objRecordSet.Open objFormUpdateSQL, objUpdateConnection 
             End If 
             'AVS
             If objRecordSet("AuthSentDate") <> avs_members_array(auth_sent_date_const, this_memb) Then
                 objAuthSQL = "UPDATE ES.ES_AVSList SET AuthSentDate = '" &   avs_members_array(auth_sent_date_const, this_memb) & "', "&_           
-                "WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & avs_members_array(member_smi_const, this_memb) & "'"
-                objUpdateRecordSet.Open objAuthSQL, objUpdateConnection
+                "WHERE CaseNumber = '" & SQL_Case_Number & "' and SMI = '" & memb_smi & "'"
+                objRecordSet.Open objAuthSQL, objUpdateConnection
             End If 
         Next 
 	    objConnection.close 'close down the connection
@@ -598,30 +603,30 @@ Do
         BeginDialog Dialog1, 0, 0, 575, (115 + (checked_count * 15)), "AVS Member Information Dialog"
         GroupBox 10, 5, 550, (60 + (checked_count * 15)), "Complete the following information for required AVS members:"
         Text 20, 25, 520, 10, "----------AVS Member-------------------------------------" & type_text & " Type----------------------" & dialog_text & " Status-------------------" & dialog_text & " Sent/Rec'd Date-------------------Person-Based Info----------------"
-          For item = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-              y_pos = (50 + item * 20)
-              Text 20, y_pos, 130, 15, avs_members_array(member_info_const, item)
+          For items = 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+              y_pos = (50 + items * 20)
+              Text 20, y_pos, 130, 15, avs_members_array(member_info_const, items)
               'AVS Forms selections
               If initial_option = "AVS Forms" then
-                  DropListBox 150, y_pos - 5, 70, 15, "Select one..."+chr(9)+"Applying"+chr(9)+"Applying/Spouse"+chr(9)+"Deeming"+chr(9)+"Not Applying"+chr(9)+"Spouse", avs_members_array(applicant_type_const, item)
+                  DropListBox 150, y_pos - 5, 70, 15, "Select one..."+chr(9)+"Applying"+chr(9)+"Applying/Spouse"+chr(9)+"Deeming"+chr(9)+"Not Applying"+chr(9)+"Spouse", avs_members_array(applicant_type_const, items)
                   DropListBox 225, y_pos - 5, 90, 15, "Select one..."+chr(9)+"Initial Request"+chr(9)+"Not Received"+chr(9)+"Received - Complete"+chr(9)+"Received - Incomplete", avs_members_array(forms_status_const, item)
               End if
               'AVS Submission/Results selections
               If initial_option = "AVS Submission/Results" then
-                      DropListBox 135, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, item)
-                  DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, item)
+                      DropListBox 135, y_pos - 5, 90, 15, "Select one..."+chr(9)+"BI - Brain Injury Waiver"+chr(9)+"BX - Blind"+chr(9)+"CA - CAC Waiver"+chr(9)+"CD - CADI Waiver"+chr(9)+"DD - DD Waiver"+chr(9)+"DP - MA-EPD"+chr(9)+"DX - Disability"+chr(9)+"EH - EMA"+chr(9)+"EW - Elderly Waiver"+chr(9)+"EX - 65 and Older"+chr(9)+"LC - Long Term Care"+chr(9)+"MP - QMB/SLMB Only"+chr(9)+"N/A - No SSN"+chr(9)+"N/A - Not Applying"+chr(9)+"N/A - Not Deeming"+chr(9)+"N/A - PRIV"+chr(9)+"QI -QI"+chr(9)+"QW - QWD", avs_members_array(request_type_const, items)
+                  DropListBox 235, y_pos - 5, 90, 15, "Select one..."+chr(9)+"N/A"+chr(9)+"Submitting a Request"+chr(9)+"Review Results"+chr(9)+"Results After Decision", avs_members_array(avs_status_const, items)
               End if
-              EditBox 330, y_pos - 5, 50, 15, avs_members_array(avs_date_const, item)
-              EditBox 390, y_pos - 5, 160, 15, avs_members_array(additional_info_const, item)
+              EditBox 330, y_pos - 5, 50, 15, avs_members_array(avs_date_const, items)
+              EditBox 390, y_pos - 5, 160, 15, avs_members_array(additional_info_const, items)
           Next
-          y_pos = (80 + item * 15)
+          y_pos = (80 + items * 15)
           Text 15, y_pos, 45, 15, "Other Notes:"
           EditBox 60, y_pos - 5, 225, 15, other_notes
           Text 290, y_pos, 60, 15, "Worker Signature:"
           EditBox 350, y_pos - 5, 120, 15, worker_signature
           ButtonGroup ButtonPressed
-            OkButton 475, (75 + (item * 15)), 40, 15
-            CancelButton 515, (75 + (item * 15)), 40, 15
+            OkButton 475, (75 + (items * 15)), 40, 15
+            CancelButton 515, (75 + (items * 15)), 40, 15
             PushButton 215, 0, 10, 15, "!", help_button_1
             PushButton 400, 20, 10, 15, "!", help_button_2
         EndDialog
@@ -642,17 +647,17 @@ Do
             End if
 
             'mandatory fields for all AVS_membs
-            FOR item = 0 to UBound(avs_members_array, 2)
+            FOR items= 0 to UBound(avs_members_array, 2)
                 'AVS Forms mandatory fields
                 If initial_option = "AVS Forms" then
-                    If avs_members_array(applicant_type_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the Applicant Type for: " & avs_members_array(member_info_const, item)
-                    If avs_members_array(forms_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the forms status for: " & avs_members_array(member_info_const, item)
-                    If (avs_members_array(forms_status_const, item) = "Received - Incomplete" and trim(avs_members_array(additional_info_const, item)) = "") then err_msg = err_msg & vbcr & "* Enter the reason the AVS form is incomplete for: " & avs_members_array(member_info_const, item) & " in the 'additional information' field."
+                    If avs_members_array(applicant_type_const, items) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the Applicant Type for: " & avs_members_array(member_info_const, items)
+                    If avs_members_array(forms_status_const, items) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the forms status for: " & avs_members_array(member_info_const, items)
+                    If avs_members_array(forms_status_const, items) = "Received - Incomplete" and trim(avs_members_array(additional_info_const, item)) = "" then err_msg = err_msg & vbcr & "* Enter the reason the AVS form is incomplete for: " & avs_members_array(member_info_const, items) & " in the 'additional information' field."
                 End if
                 'AVS Submission/Results mandatory fields
                 If initial_option = "AVS Submission/Results" then
-                    If avs_members_array(request_type_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
-                    If avs_members_array(avs_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
+                    If avs_members_array(request_type_const, items) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, item)
+                    If avs_members_array(avs_status_const, item) = "Select one..." then err_msg = err_msg & vbcr & "* Enter the request type for: " & avs_members_array(member_info_const, items)
                     If avs_members_array(avs_status_const, item) = "N/A" then
                         If left(avs_members_array(request_type_const, item), 3) <> "N/A" then err_msg = err_msg & vbcr & "* N/A is only a valid AVS status or process if the request type is also N/A."
                         If avs_members_array(additional_info_const, item) = "" then err_msg = err_msg & vbcr & "* Enter reason that N/A is the AVS Status or processed selected."
@@ -667,7 +672,7 @@ Do
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     '----------------------------------------------------------------------------------------------------ASSET DIALOG: for AVS Submission/Results members who have returned AVS results.
-    For item = 0 to ubound(avs_members_array, 2)
+    For items= 0 to ubound(avs_members_array, 2)
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then
             STATS_counter = STATS_counter + 1
             'avs results information if any members meets review results or results after decision
@@ -806,7 +811,7 @@ Do
     Call write_variable_in_CASE_NOTE("The following info is in regards to AVS members required to sign AVS Forms:")
     Call write_variable_in_CASE_NOTE("-----")
     'AVS member array output
-    For item = 0 to ubound(avs_members_array, 2)
+    For items= 0 to ubound(avs_members_array, 2)
         Call write_bullet_and_variable_in_CASE_NOTE("Name", avs_members_array(member_info_const, item))
         'AVS Forms selections
         If initial_option = "AVS Forms" then
@@ -866,7 +871,7 @@ Do
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     'Providing the option to run the avs option
-    For item = 0 to ubound(avs_members_array, 2)
+    For items= 0 to ubound(avs_members_array, 2)
         If avs_members_array(forms_status_const, item) = "Received - Complete" then
             confirm_msgbox = msgbox("Do you wish to case note submitting the AVS request?", vbQuestion + vbYesNo, "Submit the AVS Request?")
             If confirm_msgbox = vbNo then
