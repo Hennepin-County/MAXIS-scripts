@@ -555,7 +555,7 @@ Do
                 If DatePart("m", check_date) = the_month AND DatePart("yyyy", check_date) = the_year Then		'if the check date is in the current month - we write the information to the panel here.
                     ' MsgBox "MATCH FOUND"
                     call create_mainframe_friendly_date(check_date, panel_row, 54, "YY")						'writing in the information
-                    EMWriteScreen PANELS_ARRAY(panel_pay_amt_const, view_panel), panel_row, 68
+                    EMWriteScreen PANELS_ARRAY(panel_pay_amt_const, view_panel), panel_row, 67
                     total_hours = total_hours + PANELS_ARRAY(check_hours_const, view_panel)
                     panel_row = panel_row + 1																	'going to the next row
                 End If
