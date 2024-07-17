@@ -10948,6 +10948,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 		If row <> 0 then
 			EMReadScreen MAXIS_function, 4, row, col + 10
 			EMReadScreen STAT_note_check, 4, 2, 45
+			EMReadScreen EA_history_panel_check, 7, 2, 28
 			row = 1
 			col = 1
 			EMSearch "Case Nbr: ", row, col
@@ -10973,7 +10974,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 		End if
 
 		If already_at_the_correct_screen = False Then
-			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to and STAT_note_check <> "NOTE" and at_correct_footer_month = True then
+			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to and STAT_note_check <> "NOTE" and EA_history_panel_check <> "Date EA" and at_correct_footer_month = True then
 				row = 1
 				col = 1
 				EMSearch "Command: ", row, col
