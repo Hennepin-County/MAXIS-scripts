@@ -516,7 +516,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "No" THEN 'or c
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
 			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Resident name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
-			IF resolution_status = "BO-Other" THEN IULB_notes = "No review due during the match period. " & other_notes
+			IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in case file, " & other_notes
 
 			iulb_row = 8
@@ -693,7 +693,7 @@ IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note
 IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Resident reported income. Correct income is in JOBS/BUSI and budgeted.")
 IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Resident name and wage earner name are different. Resident's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify.")
-IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
+IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
 IF resolution_status = "NC-Non Cooperation" THEN
 	CALL write_variable_in_case_note("* Resident failed to cooperate with wage match.")
 	CALL write_variable_in_case_note("* Case approved to close.")
