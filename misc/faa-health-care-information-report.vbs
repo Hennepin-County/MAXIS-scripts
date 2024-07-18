@@ -203,15 +203,15 @@ Call clear_line_of_text(9, 19)  'Clearing Case Number
 Call clear_line_of_text(9, 48)  'Clearing Client Option Number
 Call clear_line_of_text(9, 69)  'Clearing Case Type
 
-For item = 0 to UBound(case_array, 2)
-    Client_PMI = case_array(clt_PMI_const, item)
+For i = 0 to UBound(case_array, 2)
+    Client_PMI = case_array(clt_PMI_const, i)
 
     get_to_RKEY
     Call write_value_and_transmit (Client_PMI, 4, 19)
     EmReadscreen RKEY_panel_check, 4, 1, 52
     If RKEY_panel_check = "RKEY" then
         EmReadscreen RKEY_error, 78, 24, 2
-        case_array(case_status, item) = trim(RKEY_error)
+        case_array(case_status, i) = trim(RKEY_error)
     Else
         'All accessable cases will have information gathered for them from the RCIP panel.
         Call write_value_and_transmit ("RCIP", 1, 8)
@@ -221,34 +221,34 @@ For item = 0 to UBound(case_array, 2)
         Client_SSN = trim(Client_SSN)
 
         If Client_SSN = "" then
-            case_array(case_status, item) = "Unable to find SSN in MMIS."
+            case_array(case_status, i) = "Unable to find SSN in MMIS."
         Else
-            case_array(case_status, item) = ""
-            Case_array(client_SSN_const, item) = Client_SSN
+            case_array(case_status, i) = ""
+            Case_array(client_SSN_const, i) = Client_SSN
         End if
 
         EmReadscreen last_name, 17, 3, 2
-        Case_array(last_name_const, item) = trim(last_name)
+        Case_array(last_name_const, i) = trim(last_name)
 
         EmReadscreen first_name, 13, 3, 20
-        Case_array(first_name_const, item) = trim(first_name)
+        Case_array(first_name_const, i) = trim(first_name)
 
         EmReadscreen client_DOB, 10, 2, 24
-        case_array(DOB_const, item) = trim(client_DOB)
+        case_array(DOB_const, i) = trim(client_DOB)
 
         EmReadscreen gender_code, 1, 8, 28
-        case_array(gender_const, item) = gender_code
+        case_array(gender_const, i) = gender_code
     End if
 Next
 
 '----------------------------------------------------------------------------------------------------Health Care Information Report
-For item = 0 to UBound(case_array, 2)
-    Client_SSN = case_array(client_SSN_const, item)
-    Client_PMI = case_array(clt_PMI_const, item)
+For i = 0 to UBound(case_array, 2)
+    Client_SSN = case_array(client_SSN_const, i)
+    Client_PMI = case_array(clt_PMI_const, i)
 
-    If case_array(case_status, item) = "RECIPIENT ID COULD NOT BE FOUND" then
-        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, item)
-        objExcel.Cells(excel_row, 23).Value = case_array(case_status, item)
+    If case_array(case_status, i) = "RECIPIENT ID COULD NOT BE FOUND" then
+        objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, i)
+        objExcel.Cells(excel_row, 23).Value = case_array(case_status, i)
         excel_row = excel_row + 1
     Else
         get_to_RKEY
@@ -278,8 +278,8 @@ For item = 0 to UBound(case_array, 2)
                         EmReadscreen RSEL_error, 70, 24, 2
                         If trim(RSEL_error) <> "" then
                             EmReadscreen RSEL_pmi, 8, RSEL_row, 4
-                            case_array(rsum_PMI_const, item) = ""
-                            case_array(case_status, item) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
+                            case_array(rsum_PMI_const, i) = ""
+                            case_array(case_status, i) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
                             duplicate_entry = False 'stopping the further search for case information
                             Exit do
                         End if
@@ -293,56 +293,56 @@ For item = 0 to UBound(case_array, 2)
             If panel_check = "RSUM" then
                 '1st case type/prog/elig/case number
                 EmReadscreen RSUM_PMI, 8, 2, 2
-                Case_array(rsum_PMI_const, item) = RSUM_PMI
+                Case_array(rsum_PMI_const, i) = RSUM_PMI
                 EmReadscreen first_case_number, 8, 7, 16
                 first_case_number = trim(first_case_number)
 
-                If first_case_number = "" then case_array(case_status, item) = "No active programs in MMIS under billed PMI."
+                If first_case_number = "" then case_array(case_status, i) = "No active programs in MMIS under billed PMI."
 
-                case_array(first_case_number_const, item) = first_case_number
+                case_array(first_case_number_const, i) = first_case_number
                 EmReadscreen first_program, 2, 6, 13
                 EmReadscreen first_type, 2, 6, 35
                 If trim(first_program) <> "" then
                     first_elig_type = first_program & "-" & first_type
-                    case_array(first_type_const, item) = first_elig_type
+                    case_array(first_type_const, i) = first_elig_type
                     '1st elig dates
                     EmReadscreen first_elig_start, 8, 7, 35
                     EmReadscreen first_elig_end, 8, 7, 54
                     first_elig_dates = first_elig_start &  " - " & first_elig_end
-                    case_array(first_elig_const, item) = first_elig_dates
+                    case_array(first_elig_const, i) = first_elig_dates
                 End if
 
                 EmReadscreen second_case_number, 8, 9, 16
                 second_case_number = trim(second_case_number)
                 If second_case_number <> "" then
-                    case_array(second_case_number_const, item) = second_case_number
+                    case_array(second_case_number_const, i) = second_case_number
                     EmReadscreen second_program, 2, 8, 13
                     EmReadscreen second_type, 2, 8, 35
                     If trim(second_program) <> "" then
                         second_elig_type = second_program & "-" & second_type
-                        case_array(second_type_const, item) = second_elig_type
+                        case_array(second_type_const, i) = second_elig_type
                         '1st elig dates
                         EmReadscreen second_elig_start, 8, 9, 35
                         EmReadscreen second_elig_end, 8, 9, 54
                         second_elig_dates = second_elig_start &  " - " & second_elig_end
-                        case_array(second_elig_const, item) = second_elig_dates
+                        case_array(second_elig_const, i) = second_elig_dates
                     ENd if
                 End if
 
                 EmReadscreen third_case_number, 8, 11, 16
                 third_case_number = trim(third_case_number)
                 If third_case_number <> "" then
-                    case_array(third_case_number_const, item) = third_case_number
+                    case_array(third_case_number_const, i) = third_case_number
                     EmReadscreen third_program, 2, 10, 13
                     EmReadscreen third_type, 2, 10, 35
                     If trim(third_program) <> "" then
                         third_elig_type = third_program & "-" & third_type
-                        case_array(third_type_const, item) = third_elig_type
+                        case_array(third_type_const, i) = third_elig_type
                         '1st elig dates
                         EmReadscreen third_elig_start, 8, 11, 35
                         EmReadscreen third_elig_end, 8, 11, 54
                         third_elig_dates = third_elig_start &  " - " & third_elig_end
-                        case_array(third_elig_const, item) = third_elig_dates
+                        case_array(third_elig_const, i) = third_elig_dates
                     End if
                 End if
 
@@ -352,56 +352,56 @@ For item = 0 to UBound(case_array, 2)
                 EMReadScreen medi_part_B_start, 8, 21, 57
                 EMReadScreen medi_part_B_end, 8, 21, 71
 
-                case_array(medi_A_begin, item) = trim(medi_part_A_start)
-                case_array(medi_A_end,   item) = trim(medi_part_A_end)
-                case_array(medi_B_begin, item) = trim(medi_part_B_start)
-                case_array(medi_B_end,   item) = trim(medi_part_B_end)
+                case_array(medi_A_begin, i) = trim(medi_part_A_start)
+                case_array(medi_A_end,   i) = trim(medi_part_A_end)
+                case_array(medi_B_begin, i) = trim(medi_part_B_start)
+                case_array(medi_B_end,   i) = trim(medi_part_B_end)
 
         'Reading PMAP Information from RPPH panel
                 Call write_value_and_transmit("RPPH", 1, 8)
                 Call MMIS_panel_confirmation("RPPH", 52)
 
                 EmReadscreen pmap_begin, 8, 13, 5
-                case_array(pmap_begin_const, item) = trim(pmap_begin)
+                case_array(pmap_begin_const, i) = trim(pmap_begin)
 
                 EmReadscreen pmap_end, 8, 13, 14
-                case_array(pmap_end_const, item) = trim(pmap_end)
+                case_array(pmap_end_const, i) = trim(pmap_end)
 
                 EMReadScreen hp_code, 10, 13, 23
 
-                If hp_code = "A585713900" then case_array(pmap_name_const, item) = "HealthPartners"
-                If hp_code = "A565813600" then case_array(pmap_name_const, item) = "Ucare"
-                If hp_code = "A405713900" then case_array(pmap_name_const, item) = "Medica"
-                If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
-                If hp_code = "A168407400" then case_array(pmap_name_const, item) = "United Healthcare"
-                If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
-                If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
+                If hp_code = "A585713900" then case_array(pmap_name_const, i) = "HealthPartners"
+                If hp_code = "A565813600" then case_array(pmap_name_const, i) = "Ucare"
+                If hp_code = "A405713900" then case_array(pmap_name_const, i) = "Medica"
+                If hp_code = "A065813800" then case_array(pmap_name_const, i) = "BluePlus"
+                If hp_code = "A168407400" then case_array(pmap_name_const, i) = "United Healthcare"
+                If hp_code = "A836618200" then case_array(pmap_name_const, i) = "Hennepin Health PMAP"
+                If hp_code = "A965713400" then case_array(pmap_name_const, i) = "Hennepin Health SNBC"
             End if
 
             'outputting to Excel
-            objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            item)
-            objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           item)
-            objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          item)
-            objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         item)
-            objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                item)
-            objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             item)
-            objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  item)
-            objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    item)
-            objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    item)
-            objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, item)
-            objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    item)
-            objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    item)
-            objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  item)
-            objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	item)
-            objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         item)
-            objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
-            objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
-            objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
-            objExcel.Cells(excel_row, 19).Value = case_array(medi_A_begin,              item)
-            objExcel.Cells(excel_row, 20).Value = case_array(medi_A_end,                item)
-            objExcel.Cells(excel_row, 21).Value = case_array(medi_B_begin,              item)
-            objExcel.Cells(excel_row, 22).Value = case_array(medi_B_end,                item)
-            objExcel.Cells(excel_row, 23).Value = case_array(case_status,               item)
+            objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const,            i)
+            objExcel.Cells(excel_row,  2).Value = case_array (rsum_PMI_const,           i)
+            objExcel.Cells(excel_row,  3).Value = case_array (last_name_const,          i)
+            objExcel.Cells(excel_row,  4).Value = case_array (first_name_const,         i)
+            objExcel.Cells(excel_row,  5).Value = case_array (DOB_const,                i)
+            objExcel.Cells(excel_row,  6).Value = case_array (gender_const,             i)
+            objExcel.Cells(excel_row,  7).Value = case_array (first_case_number_const,  i)
+            objExcel.Cells(excel_row,  8).Value = case_array (first_type_const, 	    i)
+            objExcel.Cells(excel_row,  9).Value = case_array (first_elig_const, 	    i)
+            objExcel.Cells(excel_row, 10).Value = case_array (second_case_number_const, i)
+            objExcel.Cells(excel_row, 11).Value = case_array (second_type_const, 	    i)
+            objExcel.Cells(excel_row, 12).Value = case_array (second_elig_const, 	    i)
+            objExcel.Cells(excel_row, 13).Value = case_array (third_case_number_const,  i)
+            objExcel.Cells(excel_row, 14).Value = case_array (third_type_const,      	i)
+            objExcel.Cells(excel_row, 15).Value = case_array (third_elig_const,         i)
+            objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          i)
+            objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            i)
+            objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           i)
+            objExcel.Cells(excel_row, 19).Value = case_array(medi_A_begin,              i)
+            objExcel.Cells(excel_row, 20).Value = case_array(medi_A_end,                i)
+            objExcel.Cells(excel_row, 21).Value = case_array(medi_B_begin,              i)
+            objExcel.Cells(excel_row, 22).Value = case_array(medi_B_end,                i)
+            objExcel.Cells(excel_row, 23).Value = case_array(case_status,               i)
             excel_row = excel_row + 1
 
             If duplicate_entry = True then
@@ -409,24 +409,24 @@ For item = 0 to UBound(case_array, 2)
                 PF3
                 EmReadscreen RSEL_panel_check, 4, 1, 52  'RSEL is listed at column 52
                 If RSEL_panel_check = "RSEL" then
-                    case_array(first_case_number_const, item) = ""
-            		case_array(rsum_PMI_const,          item) = ""
-                    case_array(first_type_const, 	    item) = ""
-                    case_array(first_elig_const, 	    item) = ""
-                    case_array(second_case_number_const,item) = ""
-                    case_array(second_type_const, 	    item) = ""
-                    case_array(second_elig_const,       item) = ""
-                    case_array(third_case_number_const, item) = ""
-                    case_array(third_type_const,        item) = ""
-                    case_array(third_elig_const,        item) = ""
-                    case_array(case_status,             item) = ""
-                    case_array(pmap_begin_const,        item) = ""
-                    case_array(pmap_end_const,          item) = ""
-                    case_array(pmap_name_const,         item) = ""
-                    case_array(medi_A_begin,            item) = ""
-                    case_array(medi_A_end,              item) = ""
-                    case_array(medi_B_begin,            item) = ""
-                    case_array(medi_B_end,              item) = ""
+                    case_array(first_case_number_const, i) = ""
+            		case_array(rsum_PMI_const,          i) = ""
+                    case_array(first_type_const, 	    i) = ""
+                    case_array(first_elig_const, 	    i) = ""
+                    case_array(second_case_number_const,i) = ""
+                    case_array(second_type_const, 	    i) = ""
+                    case_array(second_elig_const,       i) = ""
+                    case_array(third_case_number_const, i) = ""
+                    case_array(third_type_const,        i) = ""
+                    case_array(third_elig_const,        i) = ""
+                    case_array(case_status,             i) = ""
+                    case_array(pmap_begin_const,        i) = ""
+                    case_array(pmap_end_const,          i) = ""
+                    case_array(pmap_name_const,         i) = ""
+                    case_array(medi_A_begin,            i) = ""
+                    case_array(medi_A_end,              i) = ""
+                    case_array(medi_B_begin,            i) = ""
+                    case_array(medi_B_end,              i) = ""
                 Else
                     exit do 'No more cases on RSEL
                 End if
