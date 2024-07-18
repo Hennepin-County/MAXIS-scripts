@@ -3,7 +3,7 @@ name_of_script = "FAA- HEALTH CARE INFORMATION REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 300                      'manual run time in seconds
-STATS_denomination = "C"       				'C is for each CASE
+STATS_denomination = "I"       				
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/18/2024", "Added Medicare start and end dates to the output report.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report for new plan: United HealthCare.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report. Added status to report. Removed error list. Status cases may also have health care information, enhancement from previous error list.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Added link to instructions in main dialog.", "Ilse Ferris, Hennepin County")
@@ -82,7 +83,7 @@ Do
         Do
         	Dialog Dialog1
         	cancel_without_confirmation
-            If ButtonPressed = help_button then open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/General%20and%20Organizational%20Documents/Health%20Care%20Information%20Report%20Instructions.docx?d=w66570f8c377544eb973f334f3210fbed&csf=1&web=1&e=bRpmfV")
+            If ButtonPressed = help_button then open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/General%20and%20Organizational%20Documents/Health%20Care%20Information%20Report%20Instructions.docx")
         	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         Loop until ButtonPressed = -1
         err_msg = ""
@@ -191,7 +192,7 @@ NEXT
 
 excel_row = 2
 '----------------------------------------------------------------------------------------------------Gathering Person information based on provided PMI
-get_to_RKEY 'Navigate to RKEY and clear any exising searches
+get_to_RKEY 'Navigate to RKEY and clear any existing searches
 Call clear_line_of_text(4, 19)  'Clearing PMI
 Call clear_line_of_text(5, 19)  'Clearing SSN
 Call clear_line_of_text(5, 48)  'Clearing Medicare ID
@@ -213,7 +214,7 @@ For i = 0 to UBound(case_array, 2)
         EmReadscreen RKEY_error, 78, 24, 2
         case_array(case_status, i) = trim(RKEY_error)
     Else
-        'All accessable cases will have information gathered for them from the RCIP panel.
+        'All accessible cases will have information gathered for them from the RCIP panel.
         Call write_value_and_transmit ("RCIP", 1, 8)
         Call MMIS_panel_confirmation("RCIP", 52)
 
@@ -444,3 +445,51 @@ NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure("Success! Your list has been created. Please review for cases that need to be processed manually.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/18/2024
+'--Tab orders reviewed & confirmed----------------------------------------------07/18/2024
+'--Mandatory fields all present & Reviewed--------------------------------------07/18/2024
+'--All variables in dialog match mandatory fields-------------------------------07/18/2024
+'--Review dialog names for content and content fit in dialog--------------------07/18/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024--------------------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------07/18/2024-----------------Didn't add category to this one since the script isn't accessed through the power pads. 
+'--Create a button to reference instructions------------------------------------07/18/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/18/2024-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/18/2024-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/18/2024-------------------N/A
+'--write_variable_in_CASE_NOTE: confirm that proper punctuation is used---------07/18/2024-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/18/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/18/2024-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------07/18/2024-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------07/18/2024-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/18/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------07/18/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/18/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/18/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------07/18/2024
+'--Denomination reviewed -------------------------------------------------------07/18/2024
+'--Script name reviewed---------------------------------------------------------07/18/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/18/2024
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/18/2024
+'--comment Code-----------------------------------------------------------------07/18/2024
+'--Update Changelog for release/update------------------------------------------07/18/2024
+'--Remove testing message boxes-------------------------------------------------07/18/2024
+'--Remove testing code/unnecessary code-----------------------------------------07/18/2024
+'--Review/update SharePoint instructions----------------------------------------07/18/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/18/2024-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/18/2024-------------------N/A: Not held in the CLoS due to the script being accessed directly through the redirect file.
+'--Complete misc. documentation (if applicable)---------------------------------07/18/2024
+'--Update project team/issue contact (if applicable)----------------------------07/18/2024
