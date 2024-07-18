@@ -62,7 +62,7 @@ Call check_for_MMIS(False) 'ensuring we're in MMIS
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 115, "Health Care Information Report"
+BeginDialog Dialog1, 0, 0, 221, 115, "FAA Health Care Information Report"
   ButtonGroup ButtonPressed
     PushButton 170, 45, 40, 15, "Browse...", select_a_file_button
     PushButton 45, 95, 80, 15, "Script Instructions", help_button
@@ -94,7 +94,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 DIM case_array()
-ReDim case_array(19, 0)
+ReDim case_array(case_status, 0)
 
 'constants for array
 const clt_PMI_const 	        = 0
@@ -112,11 +112,15 @@ const second_elig_const 	    = 11
 const third_case_number_const 	= 12
 const third_type_const      	= 13
 const third_elig_const      	= 14
-const case_status               = 15
-const rsum_PMI_const            = 16
-const pmap_begin_const          = 17
-const pmap_end_const            = 18
-const pmap_name_const           = 19
+const medi_A_begin              = 15
+const medi_A_end                = 16
+const medi_B_begin              = 17
+const medi_B_end                = 18
+const rsum_PMI_const            = 19
+const pmap_begin_const          = 20
+const pmap_end_const            = 21
+const pmap_name_const           = 22
+const case_status               = 23
 
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start checking the members for
@@ -133,29 +137,9 @@ Do
     If instr(all_pmi_array, "*" & Client_PMI & "*") then
         add_to_array = False
     Else
-        ReDim Preserve case_array(19, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        ReDim Preserve case_array(case_status, entry_record)	'This resizes the array based on the number of rows in the Excel File'
         'The client information is added to the array'
-        case_array(clt_PMI_const,               entry_record) = Client_PMI
-        case_array(last_name_const,             entry_record) = ""
-        case_array(first_name_const,            entry_record) = ""
-        case_array(client_SSN_const,            entry_record) = ""
-        case_array(DOB_const,                   entry_record) = ""
-        case_array(gender_const,                entry_record) = ""
-        case_array(first_case_number_const,   	entry_record) = ""
-        case_array(first_type_const, 	        entry_record) = ""
-        case_array(first_elig_const, 	        entry_record) = ""
-        case_array(second_case_number_const,    entry_record) = ""
-        case_array(second_type_const, 	        entry_record) = ""
-        case_array(second_elig_const, 	        entry_record) = ""
-        case_array(third_case_number_const, 	entry_record) = ""
-        case_array(third_type_const,      	    entry_record) = ""
-        case_array(third_elig_const,            entry_record) = ""
-        case_array(case_status,                 entry_record) = ""
-        case_array(rsum_PMI_const,              entry_record) = ""
-        case_array(pmap_begin_const,            entry_record) = ""
-        case_array(pmap_end_const,              entry_record) = ""
-        case_array(pmap_name_const,             entry_record) = ""
-
+        case_array(clt_PMI_const, entry_record) = Client_PMI
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
         all_pmi_array = trim(all_pmi_array & Client_PMI & "*") 'Adding MAXIS case number to case number string
@@ -193,9 +177,13 @@ ObjExcel.Cells(1, 15).Value = "3rd Elig Dates"
 ObjExcel.Cells(1, 16).Value = "PMAP Start"
 ObjExcel.Cells(1, 17).Value = "PMAP End"
 ObjExcel.Cells(1, 18).Value = "PMAP Name"
-ObjExcel.Cells(1, 19).Value = "Status"
+ObjExcel.Cells(1, 19).Value = "Medi A Begin"
+ObjExcel.Cells(1, 20).Value = "Med A End"
+ObjExcel.Cells(1, 21).Value = "Medi B Begin"
+ObjExcel.Cells(1, 22).Value = "Med B End"
+ObjExcel.Cells(1, 23).Value = "Status"
 
-FOR i = 1 to 19 	'formatting the cells'
+FOR i = 1 to 23 	'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -260,7 +248,7 @@ For item = 0 to UBound(case_array, 2)
 
     If case_array(case_status, item) = "RECIPIENT ID COULD NOT BE FOUND" then
         objExcel.Cells(excel_row,  1).Value = case_array (clt_PMI_const, item)
-        objExcel.Cells(excel_row, 19).Value = case_array(case_status,    item)
+        objExcel.Cells(excel_row, 23).Value = case_array(case_status, item)
         excel_row = excel_row + 1
     Else
         get_to_RKEY
@@ -292,7 +280,7 @@ For item = 0 to UBound(case_array, 2)
                             EmReadscreen RSEL_pmi, 8, RSEL_row, 4
                             case_array(rsum_PMI_const, item) = ""
                             case_array(case_status, item) = "RSEL screen error with PMI: " & RSEL_pmi & ". " & trim(RSEL_error)
-                            duplicate_entry = False 'stopping the futher search for case information
+                            duplicate_entry = False 'stopping the further search for case information
                             Exit do
                         End if
                     End if
@@ -358,7 +346,18 @@ For item = 0 to UBound(case_array, 2)
                     End if
                 End if
 
-                'Reading PMAP Information from RPPH panel
+        'Medicare Information from RSUM
+                EMReadScreen medi_part_A_start, 8, 21, 22
+                EMReadScreen medi_part_A_end, 8, 21, 36
+                EMReadScreen medi_part_B_start, 8, 21, 57
+                EMReadScreen medi_part_B_end, 8, 21, 71
+
+                case_array(medi_A_begin, item) = trim(medi_part_A_start)
+                case_array(medi_A_end,   item) = trim(medi_part_A_end)
+                case_array(medi_B_begin, item) = trim(medi_part_B_start)
+                case_array(medi_B_end,   item) = trim(medi_part_B_end)
+
+        'Reading PMAP Information from RPPH panel
                 Call write_value_and_transmit("RPPH", 1, 8)
                 Call MMIS_panel_confirmation("RPPH", 52)
 
@@ -398,7 +397,11 @@ For item = 0 to UBound(case_array, 2)
             objExcel.Cells(excel_row, 16).Value = case_array(pmap_begin_const,          item)
             objExcel.Cells(excel_row, 17).Value = case_array(pmap_end_const,            item)
             objExcel.Cells(excel_row, 18).Value = case_array(pmap_name_const,           item)
-            objExcel.Cells(excel_row, 19).Value = case_array(case_status,               item)
+            objExcel.Cells(excel_row, 19).Value = case_array(medi_A_begin,              item)
+            objExcel.Cells(excel_row, 20).Value = case_array(medi_A_end,                item)
+            objExcel.Cells(excel_row, 21).Value = case_array(medi_B_begin,              item)
+            objExcel.Cells(excel_row, 22).Value = case_array(medi_B_end,                item)
+            objExcel.Cells(excel_row, 23).Value = case_array(case_status,               item)
             excel_row = excel_row + 1
 
             If duplicate_entry = True then
@@ -420,6 +423,10 @@ For item = 0 to UBound(case_array, 2)
                     case_array(pmap_begin_const,        item) = ""
                     case_array(pmap_end_const,          item) = ""
                     case_array(pmap_name_const,         item) = ""
+                    case_array(medi_A_begin,            item) = ""
+                    case_array(medi_A_end,              item) = ""
+                    case_array(medi_B_begin,            item) = ""
+                    case_array(medi_B_end,              item) = ""
                 Else
                     exit do 'No more cases on RSEL
                 End if
@@ -431,7 +438,7 @@ For item = 0 to UBound(case_array, 2)
     End if
 Next
 
-FOR i = 1 to 19		'formatting the cells
+FOR i = 1 to 23		'formatting the cells
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
