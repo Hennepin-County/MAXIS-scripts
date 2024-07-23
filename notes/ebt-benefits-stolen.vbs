@@ -373,7 +373,7 @@ If action_step = "CASE/NOTE Information about Request" Then
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation
-        If denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0 Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
+        If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
         If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
         If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -433,7 +433,7 @@ If action_step = "Send SPEC/MEMO regarding Request" Then
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation
-        If denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0 Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
+        If (denial_two_replacements + denial_not_reported_30_days + denial_dhs_8557_not_returned + denial_additional_info_not_provided + denial_not_stolen_determination + denial_stolen_outside_time_period = 0) and trim(denial_additional_reasons) = "" Then err_msg = err_msg & vbCr & "* You must check at least one of the reasons for denial."
         If denial_additional_info_not_provided = 1 and (trim(denial_specific_additional_info_not_provided) = "" or len(trim(denial_specific_additional_info_not_provided)) < 5) Then err_msg = err_msg & vbCr & "* You must provide enough details to explain the specific information requested to validate the claim that was not provided."
         If trim(denial_additional_reasons) <> "" and len(trim(denial_additional_reasons)) < 5 Then err_msg = err_msg & vbCr & "* You must provide sufficient details for the additional reasons for the denial."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
