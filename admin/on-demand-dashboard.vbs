@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/24/2024", "Added an option for Interviews that do not have Aligned dates to indicate the case does not have to be reviewed for a week. This is intending to reduce the number of cases on the list to review on a daily basis.", "Casey Love, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("12/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
@@ -1066,6 +1067,19 @@ function set_variables_from_SQL()
     case_review_notes = replace(case_review_notes, "STS-RC", "")
     case_review_notes = replace(case_review_notes, "STS-NL", "")
     case_review_notes = trim(case_review_notes)
+
+	If InStr(case_review_notes, "%$#@") Then
+		beg_of_intv_revw = InStr(case_review_notes, "@#$%")
+		beg_of_intv_revw = beg_of_intv_revw+17
+		end_of_intv_revw = InStr(case_review_notes, "@%$#@")
+		If beg_of_intv_revw = end_of_intv_revw Then
+			note_align_intv_revw_dt = False
+			case_review_notes = replace(case_review_notes, "@#$%REVIEWED ON: @%$#@", "")
+		Else
+			note_align_intv_revw_dt = Mid(case_review_notes, beg_of_intv_revw, end_of_intv_revw-beg_of_intv_revw)
+			case_review_notes = replace(case_review_notes, "@#$%REVIEWED ON: " & note_align_intv_revw_dt & "@%$#@", "")
+		End If
+	End If
 	If Instr(case_review_notes,"PRIVILEGED CASE.") <> 0 Then
 		' case_review_notes = replace(case_review_notes, "PRIVILEGED CASE.", "")
 		assigned_case_is_priv = True
@@ -1236,6 +1250,7 @@ function update_tracking_cookie(update_reason)
 end function
 
 'END FUNCTIONS =============================================================================================================
+Dim align_interview_selection
 
 EMConnect ""                'connecting to MAXIS
 Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
@@ -1902,6 +1917,8 @@ If worker_on_task = True Then
 	        	  Text 20, 130, 180, 10, "*** Interview Dates on PROG need to be ALIGNED ***"
 	        	  Text 20, 145, 40, 10, "Resolution: "
 	        	  EditBox 60, 140, 170, 15, align_interview_dates_resolution
+				  Text 20, 160, 150, 20, "Are the Interview Alignment Dates Incorrect due to SNAP Waived Interview?"
+				  DropListBox 20, 180, 200, 15, "No - Case Needed Update"+chr(9)+"Waived Interview Applies but case was Mishandled"+chr(9)+"Yes - Interview dates are Correct", align_interview_selection
 	          End If
 	          If assigned_next_action_needed = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then
 	        	  Text 20, 165, 180, 10, "*** Questionable Interview Date Found: " & assigned_questionable_interview & " ***"
@@ -1989,6 +2006,7 @@ If worker_on_task = True Then
         case_review_notes = trim(case_review_notes)
         case_review_notes = "STS-RC-"&user_ID_for_validation & " " & case_review_notes
         If follow_up_tomorrow_checkbox = checked Then case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
+		If align_interview_selection = "Yes - Interview dates are Correct" Then case_review_notes = case_review_notes & "@#$%REVIEWED ON: " & date & "@%$#@"
         end_msg = end_msg & vbCr & vbCr & "The review for Case # " & MAXIS_case_number & " has been completed."
 
         assigned_end_time = time
