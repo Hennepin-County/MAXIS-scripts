@@ -851,6 +851,15 @@ Function ABAWD_FSET_exemption_finder()
     	END IF
     NEXT
 
+    CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+    FOR EACH person IN HH_member_array
+    	IF person <> "" THEN
+    		CALL write_value_and_transmit(person, 20, 76)
+            EMReadScreen military_service_code, 1, 12, 78
+            If military_service_code = "Y" then closing_message = closing_message & vbCr & "* M" & person & ": Appears to be exempt due to military service."
+    	END IF
+    NEXT
+
     CALL navigate_to_MAXIS_screen("STAT", "DISA")
     FOR EACH person IN HH_member_array
     	disa_status = false
