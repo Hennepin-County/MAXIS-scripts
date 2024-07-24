@@ -28653,8 +28653,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 					'REMEDIAL CARE UPDATES
 					If budget_without_remedial_care = "" Then
-						If STAT_INFORMATION(stat_year).no_stat_data = False Then
-							For stat_year = 0 to UBound(STAT_INFORMATION)
+						For stat_year = 0 to UBound(STAT_INFORMATION)
+							If STAT_INFORMATION(stat_year).no_stat_data = False Then
 								If STAT_INFORMATION(stat_year).footer_month = HC_ELIG_APPROVALS(approval).elig_footer_month and STAT_INFORMATION(stat_year).footer_year = HC_ELIG_APPROVALS(approval).elig_footer_year Then
 									For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
 										If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
@@ -28697,8 +28697,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 									Next
 								End If
 								If cancel_out_of_hc = True Then Exit For
-							Next
-						End If
+							End If
+						Next
 					End If
 					If cancel_out_of_hc = True Then Exit For
 
@@ -28842,7 +28842,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				' 	If HC_ELIG_APPROVALS(scnd_elig_ind).hc_prog_elig_test_obligation_six_mo(memb_ind) = "FAILED" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
 				' End If
 
-				If STAT_INFORMATION(stat_year).no_stat_data = False Then
+				If STAT_INFORMATION(month_ind).no_stat_data = False Then
 
 					ei_count = 0
 					unea_count = 0
