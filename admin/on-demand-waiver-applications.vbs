@@ -2200,7 +2200,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "RESOLVE SUBSEQUENT APPLICATION DATE" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "ALIGN INTERVIEW DATES" Then
 		If IsDate(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry)) = True Then
-			If DateDiff("d", WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry), date) > 7 Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+			If DateDiff("d", WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry), date) > 6 Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 		Else
 			WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 		End If
