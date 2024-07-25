@@ -1472,7 +1472,6 @@ Do While NOT objWorkRecordSet.Eof
 
 		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
-		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "ALIGN INTERVIEW DATES" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 
 		case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
 		If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> NULL Then
@@ -2200,10 +2199,10 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW OTHER COUNTY CASE"	Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "RESOLVE SUBSEQUENT APPLICATION DATE" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "ALIGN INTERVIEW DATES" Then
-		If WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = "" or WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = False Then
+		If IsDate(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry)) = True Then
+			If DateDiff("d", WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry), date) > 7 Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+		Else
 			WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-		ElseIf IsDate(WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry)) = True Then
-			If DateDiff("d", WORKING_LIST_CASES_ARRAY(align_intv_revw_dt, case_entry) = False, date) > 7 Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 		End If
 	End If
 	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW RECENT CLOSURE/DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
