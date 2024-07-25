@@ -111,23 +111,8 @@ EMConnect ""
 EMFocus
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
-
-'This brings up a hidden excel Spreed sheet and formats it by date. The script will plot faci discharged dates into the spreadsheet, and calculates/declares most recent faci discharge date (the variant will be: Last_Faci_OutDate) with case/faci/pnls.
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = false
-Set objWorkbook = objExcel.Workbooks.Add()
-'table have 5 columns by condition of 5 Faci pnl limitation.
-objExcel.Cells(6,1).NumberFormat = "mm/dd/yy" 	'formats the cell
-objExcel.Cells(6,2).NumberFormat = "mm/dd/yy"
-objExcel.Cells(6,3).NumberFormat = "mm/dd/yy"
-objExcel.Cells(6,4).NumberFormat = "mm/dd/yy"
-objExcel.Cells(6,5).NumberFormat = "mm/dd/yy"
-objExcel.Cells(6,1) = "=MAX(A1:A5)"			'finds earlist discharge dates for columns
-objExcel.Cells(6,2) = "=MAX(B1:B5)"
-objExcel.Cells(6,3) = "=MAX(C1:C5)"
-objExcel.Cells(6,4) = "=MAX(D1:D5)"
-objExcel.Cells(6,5) = "=MAX(E1:E5)"
-objExcel.Cells(7,1) = "=MAX(A6:E6)" 		'this cell holds the earliest discharge date from all of the columns/total collected dates/data
+'Create string of FACI discharge dates to determine most recent discharge date
+faci_discharge_dates = ""
 
 'Grabbing case number and putting in the month and year entered from dialog box.
 call MAXIS_case_number_finder(MAXIS_case_number)
@@ -181,9 +166,6 @@ CALL navigate_to_MAXIS_screen ("STAT", "FACI")
 EMReadScreen faci_pnls, 1, 2, 78			'counts faci pnls
 IF faci_pnls = "0" then                     'if none
 	script_end_procedure ("Script will end here.  There is no active facility panel created.  Please manually review client status and facility needs.")
-	objworkbook.Saved = false
-	objWorkbook.Close
-	objExcel.Quit
 End If
 'Faci pnls exists will determine any active post pay facilities.
 For i = 1 to faci_pnls
@@ -207,21 +189,21 @@ For i = 1 to faci_pnls
 				'If there are no open ended dates, then script formats the date and plots it to hidden spread sheet, later to be recalled and find most recent faci discharged date (the variant will be: Last_Faci_OutDate)
 				c_row = maxis_row - 13
 				faci_date_out = replace(faci_date_out, " ","/")
-				objExcel.Cells(c_row, i) = faci_date_out
-				objExcel.Cells(c_row, i).NumberFormat = "mm/dd/yy"
+				faci_discharge_dates = faci_discharge_dates & faci_date_out & "*" 
 			Next
 		ElseIf faci_postpay_status <> true then
 			addr_faci_vnds_status = "There are no Post Pay facility pnls in this case."     'If no FACI consist of "Y" Post Pay indication, addr_faci_vnds_status variant is declared
 		End If
 Next
 
-'From spreadsheet Delcares variable Last_Faci_OutDate: as the most recent faci discharge date then Closes the hidden excel spreadsheet
-objExcel.Cells(7,1).NumberFormat = "mm/dd/yy"
-Last_Faci_OutDate = objExcel.Cells(7,1).Value
-Last_Faci_OutDate = replace(Last_Faci_OutDate, "20","")       'excel automatically formats date with no "0"s. for example input is 05/01/2016. out put is 5/1/2016. update variant to 5/1/16
-objworkbook.Saved = True
-objWorkbook.Close
-objExcel.Quit
+'Remove asterisk from end of list
+faci_discharge_dates = left(faci_discharge_dates, len(faci_discharge_dates) - 1)
+'Create an array from FACI discharge dates
+faci_discharge_dates_array = split(faci_discharge_dates, "*")
+'Sort the dates from oldest to newest 
+Call sort_dates(faci_discharge_dates_array)
+'Identify the newest date
+Last_Faci_OutDate = faci_discharge_dates_array(ubound(faci_discharge_dates_array))
 
 'if above faci screening shows that there are none still active, the script will focus on the one with the most recent discharged date.
 If faci_date_out <> "(none) - client is still active" Then
@@ -233,8 +215,6 @@ If faci_date_out <> "(none) - client is still active" Then
 			For maxis_row = 14 to 18
 				EMReadScreen faci_date_out, 10, maxis_row, 71
 				faci_date_out = replace(faci_date_out, " ","/")
-				faci_date_out = replace(faci_date_out, "20","")
-				faci_date_out = replace(faci_date_out, "0","")         	'formats date to match excel formate of the Last_Faci_Outdate variant. ex: 05/01/2016 replaced to 5/1/16
 				IF faci_date_out = Last_Faci_OutDate then				'once it finds the matching date in that faci pnls. script delcares variant of the current vnd/faci info
 					EMReadScreen faci_location, 30, 6, 43
 					faci_location = replace(faci_location, "_","") & ", "
