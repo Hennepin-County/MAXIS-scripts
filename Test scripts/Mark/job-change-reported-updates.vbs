@@ -58,29 +58,36 @@ Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 testing_status = false	'Testing Status: Update status to true to display all testing msgbox or false to hide all testing msgbox
-
 'Initial dialog to gather case details
+
+
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 176, 65, "Case Number Dialog"
-  ButtonGroup ButtonPressed
-    OkButton 75, 45, 45, 15
-    CancelButton 125, 45, 45, 15
-  EditBox 75, 5, 45, 15, MAXIS_case_number
-  EditBox 75, 25, 95, 15, worker_signature
-  Text 20, 10, 50, 10, "Case Number:"
-  Text 10, 30, 60, 10, "Worker Signature:"
+BeginDialog Dialog1, 0, 0, 221, 90, "Job Change Reported Case Number Dialog"
+    EditBox 75, 5, 45, 15, MAXIS_case_number
+    EditBox 75, 25, 140, 15, worker_signature
+    ButtonGroup ButtonPressed
+        OkButton 65, 70, 45, 15
+        CancelButton 170, 70, 45, 15
+        PushButton 115, 70, 50, 15, "Instructions", msg_show_instructions_btn
+    Text 20, 10, 50, 10, "Case Number:"
+    Text 10, 30, 60, 10, "Worker Signature:"
+    Text 10, 45, 200, 20, "Script Purpose: Captures details and updates STAT panels of a change to a job reported, but not verified, to the agency."
 EndDialog
 
-'Runs the first dialog - which confirms the case number
-Do
-	Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-      	Call validate_MAXIS_case_number(err_msg, "*")
+Do 
+    Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_without_confirmation
+        Call validate_MAXIS_case_number(err_msg, "*")
         If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-	Loop until err_msg = ""
+        
+        If ButtonPressed = msg_show_instructions_btn Then 
+            err_msg = "LOOP"
+            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20JOB%20CHANGE%20REPORTED.docx"
+        End If
+        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -91,28 +98,22 @@ If is_this_priv = True then script_end_procedure("This case is privileged and ca
 EmReadscreen county_code, 4, 21, 21
 If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE/NOTE. The script will now stop.")
 
-If job_change_type = "New Job Reported" Then change_text = "new job"                                        'creating text for easy view in the next dialog - this is not functional - just formatting.
-If job_change_type = "Income/Hours Change for Current Job" Then change_text = "change job income"
-If job_change_type = "Job Ended" Then change_text = "stwk"
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 251, 130, "Verification Received?"
-  DropListBox 10, 35, 235, 45, "Select One..."+chr(9)+"Yes - sufficient verification received to budget income accurately."+chr(9)+"No - we need to request additional verification.", verifs_received_selection
-  ButtonGroup ButtonPressed
-    OkButton 140, 110, 50, 15
-    CancelButton 195, 110, 50, 15
-  Text 10, 10, 175, 20, "Have we received verification sufficient verification to budget the income for this " & change_text & "?"
-  Text 25, 55, 190, 50, "This script is meant for noting and updating when a change in job is reported but has not been sufficiently verified. If we have sufficient verification to budget the new income, we need to use the script ACTIONS - Earned Income Budgeting as it has been created for the purpose of updating and docudmenting verified job changes."
-EndDialog
 Do
     Do
         err_msg = ""
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 251, 130, "Verification Received?"
+        DropListBox 10, 35, 235, 45, "Select One..."+chr(9)+"Yes - sufficient verification received to budget income accurately."+chr(9)+"No - we need to request additional verification.", verifs_received_selection
+        ButtonGroup ButtonPressed
+            OkButton 140, 110, 50, 15
+            CancelButton 195, 110, 50, 15
+        Text 10, 10, 175, 20, "Have we received verification sufficient verification to budget the income for this " & change_text & "?"
+        Text 25, 55, 190, 50, "This script is meant for noting and updating when a change in job is reported but has not been sufficiently verified. If we have sufficient verification to budget the new income, we need to use the script ACTIONS - Earned Income Budgeting as it has been created for the purpose of updating and documenting verified job changes."
+        EndDialog
 
         Dialog Dialog1
         cancel_without_confirmation
-
         If verifs_received_selection = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if we have sufficient verification or are requesting more."
-
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
@@ -167,7 +168,7 @@ If testing_status = True Then msgbox hh_memb_and_current_jobs
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_case_number
-  DropListBox 140, 10, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
+  DropListBox 140, 5, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
   DropListBox 220, 30, 140, 15, HH_Memb_DropDown, hh_memb_with_new_job
   DropListBox 70, 50, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
   ComboBox 285, 50, 90, 15, list_of_all_hh_members, person_who_reported_job
@@ -177,12 +178,12 @@ BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_cas
   ButtonGroup ButtonPressed
     OkButton 265, 105, 50, 15
     CancelButton 325, 105, 50, 15
-  Text 230, 70, 55, 10, "Date reported:"
-  Text 10, 30, 210, 10, "If no matching JOBS panel, select Member for new JOBS panel:"
-  Text 10, 10, 130, 10, "Member(s) with JOBS Panel(s) on case:"
-  Text 10, 50, 60, 10, "Job Change Type:"
-  Text 230, 50, 55, 10, "Who reported?"
-  Text 10, 70, 90, 10, "How was the job reported?"
+  Text 230, 75, 55, 10, "Date reported:"
+  Text 10, 35, 210, 10, "If no matching JOBS panel, select Member to create JOBS panel:"
+  Text 10, 10, 130, 10, "Select Member/JOBS Panel impacted:"
+  Text 10, 55, 60, 10, "Job Change Type:"
+  Text 230, 55, 55, 10, "Who reported?"
+  Text 10, 75, 90, 10, "How was the job reported?"
 EndDialog
 
 Do
@@ -190,17 +191,24 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-		' If (hh_member_current_jobs = "New Job Reported" AND (hh_memb_with_new_job = "Select One:" OR job_change_type <> "New Job Reported")) OR (job_change_type = "New Job Reported" AND (hh_member_current_jobs <> "New Job Reported" OR hh_memb_with_new_job = "Select One:")) Then err_msg = err_msg & vbNewLine & "* To add a new job: Member-Jobs list and Job Change Type must both say New Job Reported and Member of New Job must be selected"
-		If hh_memb_with_new_job <>  "Select One:" AND (hh_member_current_jobs <> "New Job Reported" AND job_change_type <> "New Job Reported") Then err_msg = err_msg & vbNewLine & "* Cannot select Member of New Job if New Job Reported is not selected for Member-Jobs list and Job Change Type"
-		If job_change_type = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select valid Job Change Type"
+        If hh_member_current_jobs = "Select One:" Then err_msg = err_msg & vbNewLine & "* Must make selection for Select Member/JOBS Panel impacted"
+        If hh_memb_with_new_job <>  "Select One:" AND hh_member_current_jobs <> "No JOBS Panel Exists" Then err_msg = err_msg & vbNewLine & "* Member/JOBS Panel impacted must equal 'No JOBS Panel Exists' if Member to create JOBS panel is selected"
+        If hh_member_current_jobs = "No JOBS Panel Exists" AND hh_memb_with_new_job = "Select One:" Then err_msg = err_msg & vbNewLine & "* Member to create JOBS panel must be selected if Member/JOBS Panel impacted is 'No JOBS Panel Exists'" 
+        If job_change_type = "New Job Reported" AND (hh_memb_with_new_job = "Select One:" OR hh_member_current_jobs <> "No JOBS Panel Exists") Then err_msg = err_msg & vbNewLine & "* Change Type: New Job Reported, Member/JOBS panel impacted must be 'No JOBS Panel Exists' and Member to create JOBS panel must be selected."
+        If job_change_type = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select valid Job Change Type"
 		If person_who_reported_job = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Select who reported the job change"
 		If job_report_type = "Type or Select" Then err_msg = err_msg & vbNewLine & "* Select how the job was reported"
 		If IsDate(reported_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter valid date reported." 
-		If instr(hh_memb_5_jobs_panels, hh_memb_with_new_job) then Call script_end_procedure("Script is unable to add another JOBS panel for " & hh_memb_with_new_job & " as there are 5 JOBS panels already. Please delete a JOBS panel for the Household Member and then restart the script.")
+		If instr(hh_memb_5_jobs_panels, hh_memb_with_new_job) then Call script_end_procedure("Script is unable to add another JOBS panel for " & hh_memb_with_new_job & " as there are 5 JOBS panels already. The script will now end." & vbcr & vbcr &  "Please delete a JOBS panel for the Household Member and then restart the script.")
         If err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = "" 
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+
+If job_change_type = "New Job Reported" Then change_text = "new job"                                        'creating text for easy view in the next dialog - this is not functional - just formatting.
+If job_change_type = "Income/Hours Change for Current Job" Then change_text = "change job income"
+If job_change_type = "Job Ended" Then change_text = "stwk"
 
 call generate_client_list(list_of_members, "Type or Select")
 client_name_array = split(list_of_members, chr(9))
@@ -293,7 +301,13 @@ If hh_member_current_jobs <> "No JOBS Panel Exists" Then
 	job_pic_pay_per_hour = replace(job_pic_pay_per_hour, "_", "")
 
 	job_update_date = DateValue(job_update_date)
-	If job_update_date = date Then script_update_stat = "No - Update of JOBS not needed"
+	If job_update_date = date Then 
+        script_update_stat = "No - Update of JOBS not needed"
+    Else 
+        script_update_stat = "Yes - Update an existing JOBS Panel"
+    End If
+Else 
+    script_update_stat = "Yes - Create a new JOBS Panel"   'If the worker indicated the panel exists then defaulting updating an existing panel
 End If
 
 'This function will read what programs are on the case and what the case status is.
@@ -324,6 +338,7 @@ End If
 If job_change_type = "Job Ended" Then                       'If the panel exists and there is already an end date, we can default to that date
     If IsDate(job_income_end) = TRUE Then job_end_income_end_date = job_income_end
 End If
+'TODO: Is it necessary to define job_verification if blank?Field seems required so I'm not sure when this would be necessary.... Also the dropdown on the dialog only allows for N - No verif provided and ? - delayed verification (? seems to be allowed in MAXIS for this field) -- 
 If job_verification = "" Then job_verification = "N - No Verif Provided"        'Setting the verification to 'N'
 
 ' job_update_date
@@ -345,8 +360,6 @@ If job_verification = "" Then job_verification = "N - No Verif Provided"        
 ' job_pic_hours_per_week
 ' job_pic_pay_per_hour
 reported_date = date & ""                                   'defaulting the reported date to today
-script_update_stat = "Yes - Create a new JOBS Panel"        'Defaulting to having the script create and update a new panel
-If job_panel_exists = checked Then script_update_stat = "Yes - Update an existing JOBS Panel"   'If the worker indicated the panel exists then defaulting updating an existing panel
 If developer_mode = TRUE Then script_update_stat = "No - Update of JOBS not needed"             'If we are in developer mode, then we cannot update
 
 'To do - needs to be validated
@@ -364,8 +377,8 @@ End If
 
 'This dialog has a different middle part based on the type of report that is happening
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 520, 335, "Job Change Details Dialog"
-  GroupBox 5, 5, 250, 220, "Job Information"
+BeginDialog Dialog1, 0, 0, 521, 370, "Job Change Details Dialog"
+  GroupBox 5, 5, 250, 250, "Job Information"
   Text 10, 20, 85, 10, "Employee (HH Member)*:"
   Text 10, 40, 60, 10, "Work Number ID:"
 '   If job_ref_number <> "" Then Text 475, 65, 50, 10, "JOBS " & job_ref_number & " "  & job_instance
@@ -373,117 +386,117 @@ BeginDialog Dialog1, 0, 0, 520, 335, "Job Change Details Dialog"
   Text 10, 80, 85, 10, "Subsidized Income Type:"
   Text 10, 100, 40, 10, "Employer*:"
   Text 10, 120, 45, 10, "Verification*:"
-  Text 10, 140, 55, 10, "Pay Frequency:"
-  Text 10, 160, 60, 10, "Income start date:"
+  Text 10, 140, 55, 10, "Pay Frequency:*"
+  Text 10, 160, 60, 10, "Income Start Date:"
   Text 10, 180, 60, 10, "Income End Date:"
   Text 10, 200, 75, 10, "Contract through date:"
   Text 95, 20, 140, 10, hh_memb_with_job_change
 '   DropListBox 95, 15, 140, 45, list_of_employees, job_employee
   EditBox 95, 35, 50, 15, work_numb_id
-  DropListBox 95, 55, 140, 15, "W - Wages"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", job_income_type
-  DropListBox 95, 75, 140, 15, "01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-the-Job-Training"+chr(9)+"04 - AmeriCorps", job_subsidized_income_type
+  DropListBox 95, 55, 140, 15, ""+chr(9)+"W - Wages"+chr(9)+"J - WIOA"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", job_income_type
+  DropListBox 95, 75, 140, 15, ""+chr(9)+"01 - Subsidized Public Sector Employer"+chr(9)+"02 - Subsidized Private Sector Employer"+chr(9)+"03 - On-the-Job-Training"+chr(9)+"04 - AmeriCorps", job_subsidized_income_type
   EditBox 95, 95, 140, 15, job_employer_name
-  DropListBox 95, 115, 95, 45, "N - No Verif Provided"+chr(9)+"? - Delayed Verification", job_verification
-  DropListBox 95, 135, 95, 45, "1 - Monthly"+chr(9)+"2 - Semi-Monthly"+chr(9)+"3 - Biweekly"+chr(9)+"4 - Weekly"+chr(9)+"5 - Other", job_pay_frequency
+  DropListBox 95, 115, 95, 45, ""+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", job_verification
+  DropListBox 95, 135, 95, 45, ""+chr(9)+"1 - Monthly"+chr(9)+"2 - Semi-Monthly"+chr(9)+"3 - Biweekly"+chr(9)+"4 - Weekly"+chr(9)+"5 - Other", job_pay_frequency
   EditBox 95, 155, 55, 15, job_income_start
   EditBox 95, 175, 55, 15, job_income_end
   EditBox 95, 195, 55, 15, job_contract_through_date
 
   Select Case job_change_type
       Case "New Job Reported"
-        GroupBox 260, 5, 250, 220, "Update Reported - NEW JOB"
+        GroupBox 260, 5, 250, 250, "Update Reported - NEW JOB"
         Text 270, 20, 65, 10, "Date work started:"
         Text 270, 40, 105, 10, "Date income started/will start*:"
         Text 270, 60, 95, 10, "Initial check GROSS amount:"
         Text 270, 80, 90, 10, "Anticipated hours per week:"
         Text 270, 100, 80, 10, "Anticipated hourly wage:"
         Text 270, 120, 65, 10, "Conversation with:"
-        Text 270, 135, 25, 10, "Details:"
-        Text 270, 175, 95, 10, "* Impact on WREG/ABAWD:"
+        Text 270, 140, 25, 10, "Details:"
+        Text 270, 160, 95, 10, "WREG/ABAWD Impact*:"
         EditBox 375, 15, 55, 15, date_work_started
         EditBox 375, 35, 55, 15, new_job_income_start
         EditBox 375, 55, 55, 15, initial_check_gross_amount
         EditBox 375, 75, 55, 15, new_job_hours_per_week
         EditBox 375, 95, 55, 15, new_job_hourly_wage
-        ComboBox 375, 120, 130, 45, list_of_members, conversation_with_person
+        ComboBox 375, 115, 130, 45, list_of_all_hh_members, conversation_with_person
         EditBox 375, 135, 130, 15, conversation_detail
-        CheckBox 270, 155, 145, 10, "Check here if Work Number request sent", work_number_checkbox
-        EditBox 375, 170, 125, 15, wreg_abawd_notes
+        EditBox 375, 155, 125, 15, wreg_abawd_notes
+        CheckBox 270, 175, 145, 10, "Check here if Work Number request sent", work_number_checkbox
       Case "Income/Hours Change for Current Job"
-        GroupBox 260, 5, 250, 220, "Update Reported - JOB CHANGE"
+        GroupBox 260, 5, 245, 250, "Update Reported - JOB CHANGE"
         Text 265, 20, 55, 10, "Date of Change:"
-        Text 265, 40, 70, 10, "* Change Reported:"
-        Text 265, 55, 90, 10, "-- Old Anticipated Income --"
-        Text 265, 70, 60, 10, "Hours per Week:"
-        Text 395, 70, 50, 10, "Hourly Wage:"
-        Text 265, 85, 55, 10, "Income Change:"
-        Text 265, 105, 95, 10, "-- New Anticipated Income* --"
-        Text 265, 120, 60, 10, "Hours per Week:"
-        Text 400, 120, 50, 10, "Hourly Wage:"
-        Text 265, 140, 85, 10, "First Pay Date Impacted*:"
-        Text 265, 155, 65, 10, "Conversation with:"
-        Text 265, 175, 25, 10, "Details:"
-        Text 265, 210, 95, 10, "Impact on WREG/ABAWD*:"
-        EditBox 340, 15, 55, 15, job_change_date
-        EditBox 340, 35, 165, 15, job_change_details
-        EditBox 340, 65, 50, 15, job_change_old_hours_per_week
-        EditBox 455, 65, 50, 15, job_change_old_hourly_wage
-        ComboBox 340, 85, 165, 45, "Select or Type"+chr(9)+"Increase"+chr(9)+"Decrease", income_change_type
-        EditBox 355, 115, 35, 15, job_change_new_hours_per_week
-        EditBox 455, 115, 50, 15, job_change_new_hourly_wage
-        EditBox 355, 135, 60, 15, first_pay_date_of_change
-        ComboBox 355, 155, 150, 45, list_of_members, conversation_with_person
-        EditBox 355, 170, 150, 15, conversation_detail
-        CheckBox 265, 190, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-        EditBox 365, 205, 140, 15, wreg_abawd_notes      
+        Text 265, 40, 70, 10, "Change Reported*:"
+        Text 265, 65, 90, 10, "-- Old Anticipated Income --"
+        Text 265, 80, 60, 10, "Hours per Week:"
+        Text 395, 80, 50, 10, "Hourly Wage:"
+        Text 265, 100, 55, 10, "Income Change:"
+        Text 265, 125, 95, 10, "-- New Anticipated Income* --"
+        Text 265, 140, 60, 10, "Hours per Week:"
+        Text 400, 140, 50, 10, "Hourly Wage:"
+        Text 265, 160, 85, 10, "First Pay Date Impacted:"
+        Text 265, 185, 65, 10, "Conversation with:"
+        Text 265, 205, 25, 10, "Details:"
+        Text 265, 225, 85, 10, "WREG/ABAWD Impact*:"
+        EditBox 350, 15, 55, 15, job_change_date
+        EditBox 350, 35, 150, 15, job_change_details
+        EditBox 350, 75, 40, 15, job_change_old_hours_per_week
+        EditBox 455, 75, 45, 15, job_change_old_hourly_wage
+        ComboBox 350, 95, 150, 45, "Select or Type"+chr(9)+"Increase"+chr(9)+"Decrease", income_change_type
+        EditBox 350, 135, 35, 15, job_change_new_hours_per_week
+        EditBox 455, 135, 45, 15, job_change_new_hourly_wage
+        EditBox 350, 155, 60, 15, first_pay_date_of_change
+        ComboBox 350, 185, 150, 45, list_of_all_hh_members, conversation_with_person
+        EditBox 350, 200, 150, 15, conversation_detail
+        EditBox 350, 220, 150, 15, wreg_abawd_notes
+        CheckBox 265, 240, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox  
       Case "Job Ended"
-        GroupBox 260, 5, 250, 220, "Update Reported - JOB ENDED"
+        GroupBox 260, 5, 250, 250, "Update Reported - JOB ENDED"
         Text 270, 20, 70, 10, "Date Work Ended*:"
-        Text 270, 40, 105, 10, "Date income ended/will end*:"
-        Text 400, 20, 65, 10, "Last pay amount*:"
-        Text 270, 60, 60, 10, "Reason for STWK:"
-        Text 270, 90, 55, 10, "Voluntary Quit*:"
-        Text 395, 90, 60, 10, "Good cause met?"
-        Text 270, 145, 65, 10, "Conversation with:"
-        Text 270, 165, 25, 10, "Details:"
-        Text 270, 125, 160, 10, "Is the client applying for Unemployment Income?"
-        Text 270, 185, 95, 10, "Impact on WREG/ABAWD*:"
-        Text 270, 75, 70, 10, "STWK Verification*:"
-        Text 270, 110, 50, 10, "Refused Empl:"
-        Text 380, 110, 65, 10, "Refused Empl Date:"
-        EditBox 340, 15, 55, 15, date_work_ended
-        EditBox 375, 35, 50, 15, job_end_income_end_date
-        EditBox 465, 15, 40, 15, last_pay_amount
-        EditBox 340, 55, 130, 15, stwk_reason
-        DropListBox 340, 90, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
-        DropListBox 460, 90, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
-        ComboBox 340, 145, 165, 45, list_of_members, conversation_with_person
-        EditBox 340, 160, 165, 15, conversation_detail
-        DropListBox 440, 125, 45, 45, "?"+chr(9)+"Yes"+chr(9)+"No", uc_yn
-        EditBox 365, 180, 140, 15, wreg_abawd_notes
-        CheckBox 270, 200, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
-        DropListBox 340, 75, 125, 45, "Select One..."+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", stwk_verif
-        DropListBox 340, 105, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", refused_empl_yn
-        EditBox 460, 105, 45, 15, refused_empl_date      
+        Text 270, 40, 65, 10, "Last pay amount*:"
+        Text 270, 60, 105, 10, "Date income ended/will end*:"
+        Text 270, 80, 60, 10, "Reason for STWK:"
+        Text 270, 100, 70, 10, "STWK Verification*:"
+        Text 270, 115, 55, 10, "Voluntary Quit*:"
+        Text 410, 115, 60, 10, "Good cause met?"
+        Text 270, 130, 50, 10, "Refused Empl:"
+        Text 410, 130, 45, 10, "Refusal Date:"
+        Text 270, 150, 160, 10, "Is the client applying for Unemployment Income?"
+        Text 270, 170, 65, 10, "Conversation with:"
+        Text 270, 185, 25, 10, "Details:"
+        Text 270, 205, 85, 10, "WREG/ABAWD Impact*:"
+        EditBox 365, 15, 55, 15, date_work_ended
+        EditBox 365, 35, 55, 15, last_pay_amount
+        EditBox 365, 55, 55, 15, job_end_income_end_date
+        EditBox 365, 75, 135, 15, stwk_reason
+        DropListBox 365, 95, 135, 45, "Select One..."+chr(9)+"N - No Verif Provided"+chr(9)+"? - Delayed Verification", stwk_verif
+        DropListBox 365, 110, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
+        DropListBox 470, 110, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
+        DropListBox 365, 125, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", refused_empl_yn
+        EditBox 460, 125, 40, 15, refused_empl_date
+        DropListBox 435, 145, 65, 45, "?"+chr(9)+"Yes"+chr(9)+"No", uc_yn
+        ComboBox 365, 165, 135, 45, list_of_all_hh_members, conversation_with_person
+        EditBox 365, 180, 135, 15, conversation_detail
+        EditBox 365, 200, 135, 15, wreg_abawd_notes
+        CheckBox 270, 220, 190, 10, "Check here if you sent a Work Number request.", work_number_checkbox
         ' ComboBox 80, 260, 125, 45, "Select One..."+chr(9)+"1 - Employers Statement"+chr(9)+"2 - Seperation Notice"+chr(9)+"3 - Collateral Statement"+chr(9)+"4 - Other Document"+chr(9)+"N - No Verif Provided", stwk_verif
   End Select
 
-  GroupBox 5, 230, 505, 75, "Actions"
-  Text 10, 245, 105, 10, "Date verification Request Sent:"
-  Text 10, 265, 105, 10, "Time frame of verifs requested:"
-  Text 10, 285, 90, 10, "Have Script Update Panel:"
-  Text 10, 315, 25, 10, "Notes:"
-  EditBox 120, 240, 75, 15, verif_form_date
-  EditBox 120, 260, 75, 15, verif_time_frame
-  CheckBox 270, 240, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
-  CheckBox 270, 285, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-  DropListBox 120, 285, 135, 45, "Select One..."+chr(9)+"No - Update of JOBS not needed"+chr(9)+"Yes - Update an existing JOBS Panel"+chr(9)+"Yes - Create a new JOBS Panel", script_update_stat
-  CheckBox 270, 270, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
-  CheckBox 270, 255, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
-  EditBox 40, 310, 340, 15, notes
+  GroupBox 5, 265, 505, 75, "Actions"
+  Text 10, 280, 105, 10, "Date verification Request Sent:"
+  Text 10, 300, 105, 10, "Time frame of verifs requested:"
+  Text 10, 320, 90, 10, "Have Script Update Panel:"
+  Text 10, 350, 25, 10, "Notes:"
+  EditBox 120, 275, 75, 15, verif_form_date
+  EditBox 120, 295, 75, 15, verif_time_frame
+  CheckBox 270, 275, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
+  CheckBox 270, 320, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  Text 120, 320, 135, 45, script_update_stat    'TODO: Verify the logic for this variable is sound 
+  CheckBox 270, 305, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 270, 290, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
+  EditBox 40, 345, 340, 15, notes
   ButtonGroup ButtonPressed
-    OkButton 405, 310, 50, 15
-    CancelButton 460, 310, 50, 15
+    OkButton 405, 345, 50, 15
+    CancelButton 460, 345, 50, 15
 EndDialog
 
 Do                      'Showing the main dialog
@@ -506,16 +519,12 @@ Do                      'Showing the main dialog
         End If
 
         'The rest of the error handing. There is a lot here because we need to gether more information about job changes.
-        If job_report_type = "Type or Select" OR trim(job_report_type) = "" Then err_msg = err_msg & vbNewLine & "* Indicate how the income was reported."
-        If person_who_reported_job = "Type or Select" or trim(person_who_reported_job) = "" Then err_msg = err_msg & vbNewLine & "* Select the household member, or type in the name of the person who reported the job."
-        If IsDate(reported_date)  = False Then err_msg = err_msg & vbNewLine & "* Enter a valid date for when this job was reported."
         err_msg = err_msg & vbNewLine
-
-        If hh_memb_with_job_change = "Select One ..." Then err_msg = err_msg & vbNewLine & "* Select the household member who is the employee."
+        If job_income_type = "" Then err_msg = err_msg & vbNewLine & "* Select Income type"
         If trim(job_employer_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the employer."
         If len(trim(job_employer_name)) > 30 Then err_msg = err_msg & vbNewLine & "* The employer name is more than 30 characters and MAXIS only allows for 30 characters on the employer line. Change the employer name to fit MAIXS."
         If job_verification = "" Then err_msg = err_msg & vbNewLine & "* Enter the verification of the JOBS panel."
-        If job_pay_frequency = " " Then err_msg = err_msg & vbNewLine & "* Enter the frequency of the pay (weekly, biweekly, monthly)."
+        If job_pay_frequency = "" Then err_msg = err_msg & vbNewLine & "* Enter the frequency of the pay (weekly, biweekly, monthly)." ' TODO Do we need this to be required? Panel doesn't seem to require it but maybe there is math that requires it?
         If IsDate(job_income_start) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the income will or has started."
         err_msg = err_msg & vbNewLine
 
@@ -525,33 +534,33 @@ Do                      'Showing the main dialog
                 If trim(new_job_hours_per_week) <> "" AND IsNumeric(new_job_hours_per_week) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the hours per week as a number."
 
             Case "Income/Hours Change for Current Job"
-                If IsDate(first_pay_date_of_change) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the change will be reflected in income (the first paycheck that will be affected by this change)."
                 If trim(job_change_details) = "" Then err_msg = err_msg & vbNewLine & "* Enter the information about the change reported."
                 If trim(job_change_new_hourly_wage) = "" Then
-                    err_msg = err_msg & vbNewLine & "* The new hourly wage must be entered."
+                    err_msg = err_msg & vbNewLine & "* The anticipated hourly wage must be entered."
                 Else
                     If IsNumeric(job_change_new_hourly_wage) = False Then err_msg = err_msg & vbNewLine & "* Enter the hourly wage as a number."
                 End If
                 If trim(job_change_new_hours_per_week) = "" Then
-                    err_msg = err_msg & vbNewLine & "* The new hours worked per week must be entered."
+                    err_msg = err_msg & vbNewLine & "* The anticipated hours worked per week must be entered."
                 Else
                     If IsNumeric(job_change_new_hours_per_week) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the hours per week as a number."
                 End If
+                If IsDate(first_pay_date_of_change) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the change will be reflected in income (the first paycheck that will be affected by this change)."
 
             Case "Job Ended"
-                If IsDate(job_end_income_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of the last paycheck."
                 If IsDate(date_work_ended) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the client last worked."
                 If IsNumeric(last_pay_amount) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the amount of the last pay. This can be an estimate amount."
-                If vol_quit_yn = "?" Then err_msg = err_msg & vbNewLine & "* Select Voluntary Quit information - Yes or No"
+                If IsDate(job_end_income_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of the last paycheck."
                 If stwk_verif = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the verification code for the STWK Panel."
-                If refused_empl_yn = "Yes" AND IsDate(refused_empl_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Since you indicated that the client refused employment, you must enter the date employment was refused as a valid date."
+                If vol_quit_yn = "?" Then err_msg = err_msg & vbNewLine & "* Select Voluntary Quit information - Yes or No"
                 If vol_quit_yn = "Yes" AND good_cause_yn = "No" Then err_msg = err_msg & vbNewLine & "* Currently there voluntary quit sanctions and processing is suspended due to COVID-19. If the client quit voluntarily, code good cause as 'Yes'."            'This is here because good cause is always true - COVID WAIVER
                 If vol_quit_yn = "Yes" AND good_cause_yn = "?" Then err_msg = err_msg & vbNewLine & "* Since this job has ended voluntarily, indicate if this voluntary quit meets good cause."
+                If refused_empl_yn = "Yes" AND IsDate(refused_empl_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Since you indicated that the client refused employment, you must enter the date employment was refused as a valid date."
         End Select
         err_msg = err_msg & vbNewLine
-        If trim(wreg_abawd_notes) = "" AND SNAP_case = TRUE Then err_msg = err_msg & vbNewLine & vbNewLine & "* Enter how this change will impact WREG/ABWAD for this pmember. NOTE: The imact may be 'NO CHANGE' or something similar. This information provided here should be thorough and complete, more is better when explaining the WREG and ABAWD status." & vbNewLine
-        If conversation_with_person = "Type or Select" Then     'handling to deal with conversation information - thiere should be a person listed AND conversation detil if either are listed
-            If trim(conversation_detail) <> "" Then err_msg = err_msg & vbNewLine & "* There is information added to the conversation detail but no information about who the conversation was with has been provided. Enter the member or name of the person the conversationwas completed with."
+        If trim(wreg_abawd_notes) = "" AND SNAP_case = TRUE Then err_msg = err_msg & vbNewLine & vbNewLine & "* Enter how this change will impact WREG/ABWAD for this member. NOTE: The impact may be 'NO CHANGE' or something similar. The information provided here should be thorough and complete, more is better when explaining the WREG and ABAWD status." & vbNewLine
+        If conversation_with_person = "Select or Type" Then     'handling to deal with conversation information - there should be a person listed AND conversation detail if either are listed
+            If trim(conversation_detail) <> "" Then err_msg = err_msg & vbNewLine & "* There is information added to the conversation detail but no information about who the conversation was with has been provided. Enter the member or name of the person the conversation was completed with."
         Else
             If trim(conversation_detail) = "" Then err_msg = err_msg & vbNewLine & "* There is information provided about who the conversation has been completed with but no details about what was discussed in the conversation. Add details about the conversation."
         End If
@@ -567,7 +576,7 @@ Do                      'Showing the main dialog
             If requested_CEI_OHI_docs_checkbox = checked Then err_msg = err_msg & vbNewLine & "* You have indicated that CEI/OHI documents are being requested but have not indicated when the verification request form was sent. Either update the verification request date or uncheck the CEI/OHI box."
         End If
         If script_update_stat = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the script should update the STAT panels or not."
-        If trim(verif_time_frame) <> "" AND IsDate(verif_form_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Indate the time frame for the verification request."
+        If trim(verif_time_frame) <> "" AND IsDate(verif_form_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the verification request form has been sent."
 
         If err_msg = vbNewLine & vbNewLine & vbNewLine Then err_msg = ""
         'Displaying the error message
@@ -592,7 +601,7 @@ Select Case job_change_type                                         'here we are
         CALL convert_date_into_MAXIS_footer_month(job_end_income_end_date, MAXIS_footer_month, MAXIS_footer_year)
 End Select
 
-If conversation_with_person = "Type or Select" Then conversation_with_person = ""
+If conversation_with_person = "Select or Type" Then conversation_with_person = ""
 
 'VOLUNTARY QUIT functionality needs TESTING when this policy goes back into effect
 review_vol_quit = FALSE                     'this is a a defaulted variable to indicate if we need to review more detail about possible voluntary quit
@@ -675,6 +684,7 @@ Initial_footer_year = MAXIS_footer_year
 second_loop = FALSE         'Knowing where we are
 
 If developer_mode = FALSE Then                      'If we are in developer mode then we are going to skip the update parts
+    msgbox "pause"
     Do
         EMWriteScreen "SUMM", 20, 71                'Getting into STAT
         transmit
@@ -693,7 +703,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             EMReadScreen panel_exists, 14, 24, 13
             If panel_exists = "DOES NOT EXIST" Then
                 EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
-                ref_nbr = left(hh_memb_with_job_change, 2)
+                ref_nbr = left(hh_memb_with_job_change, 2) 
                 EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
                 EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
                 transmit
@@ -701,6 +711,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                 EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
                 job_instance = "0" & this_instance
             Else
+                'TODO: Need to update this since we didn't read the original job name anywhere or if we did it's not the same variable 
                 EMReadScreen this_panel_job, 30, 7, 42          'reading the name of job
 
                 If this_panel_job <> original_full_jobs_name Then       'if the panel name isn't what we read earlier then we have a problem
@@ -717,19 +728,20 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             'Navigate to STAT/JOBS
             Call navigate_to_MAXIS_screen("STAT", "JOBS")
         
-            'Navigate to the corresponding JOBS panel for select household member
-            msgbox "hh_memb_with_job_change " & hh_memb_with_job_change
+            'Navigate to the corresponding Member and JOBS panel for the update 
             EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76
-            EMWriteScreen Left(Right(hh_memb_with_job_change, 3), 2), 20, 79
+            EMWriteScreen Left(Right(hh_member_current_jobs, 3), 2), 20, 79
+            msgbox "pause to verify"
             transmit
 
-            EmReadScreen jobs_panel_error_check, 35, 24, 2
-            jobs_panel_error_check = trim(jobs_panel_error_check)
+            'TODO: I don't think we need this chunk of code because the user is selecting the job at the beginning of the script 
+            ' EmReadScreen jobs_panel_error_check, 35, 24, 2
+            ' jobs_panel_error_check = trim(jobs_panel_error_check)
 
-            'To do - add handling to match the employer name and details?
+            ' 'To do - add handling to match the employer name and details?
             
-            'Ensure that script found the correct job
-            If instr(jobs_panel_error_check, "DOES NOT EXIST") Then Call script_end_procedure("Update not completed as selectd JOBS panel does not exist. Please run the script again and select the option to create a new JOBS panel.")
+            ' 'Ensure that script found the correct job
+            ' If instr(jobs_panel_error_check, "DOES NOT EXIST") Then Call script_end_procedure("Update not completed as selectd JOBS panel does not exist. Please run the script again and select the option to create a new JOBS panel.")
 
             'Put the JOBS panel into edit mode
             PF9
@@ -743,9 +755,11 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
             EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76               'go to the right member
             msgbox "hh_memb_with_job_change " & hh_memb_with_job_change
-            'Check if there are 5 JOBS panels for HH member already
-            EmReadScreen five_jobs_check, 1, 2, 78
-            If five_jobs_check = "5" Then Call script_end_procedure("Script is unable to add another JOBS panel for household member " & Left(hh_member_current_jobs, 2) & " as there are 5 JOBS panels already. Please delete a JOBS panel for the Household Member and then restart the script.")
+            'TODO: I don't think we need this chunk of code because we look for 5 jobs at the beginning of the script. 
+
+            ' 'Check if there are 5 JOBS panels for HH member already
+            ' EmReadScreen five_jobs_check, 1, 2, 78
+            ' If five_jobs_check = "5" Then Call script_end_procedure("Script is unable to add another JOBS panel for household member " & Left(hh_member_current_jobs, 2) & " as there are 5 JOBS panels already. Please delete a JOBS panel for the Household Member and then restart the script.")
             EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
             transmit
 
@@ -761,7 +775,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             ' MsgBox "Update - " & script_update_stat & " - 3"
             EMWriteScreen left(job_income_type, 1), 5, 34                                                               'income type
             If job_subsidized_income_type <> "" Then EMWriteScreen left(job_subsidized_income_type, 2), 5, 74           'subsidized type
-            If job_verification <> " " Then EMWriteScreen left(job_verification, 1), 6, 34                              'job verification
+            If job_verification <> "" Then EMWriteScreen left(job_verification, 1), 6, 34                              'job verification
             EMWriteScreen "                              ", 7, 42                                                       'blank out the employer name
             EMWriteScreen job_employer_name, 7, 42                                                                      'enter the employer name
             If IsDate(job_income_start) = TRUE Then Call create_mainframe_friendly_date(job_income_start, 9, 35, "YY")      'income start date
@@ -918,7 +932,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                 jobs_row = 12       'If we have no end date we start at the top of the list of pay dates
             Else
                 jobs_row = 16       'If we do have an end date, we start at the bottom
-                Call create_mainframe_friendly_date(job_end_income_end_date, 9, 49, "YY")       'If we know the end date, this will enter the income end date in the forect spot on the panel.
+                Call create_mainframe_friendly_date(job_end_income_end_date, 9, 49, "YY")       'If we know the end date, this will enter the income end date in the correct spot on the panel.
             End If
             prosp_hours = 0                 'setting the pospecive hours to be a number - this has to reset at the beginning of every month
 
@@ -1143,7 +1157,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
         transmit
 
         EMReadScreen wrap_check, 4, 2, 46
-        If wrap_check <> "WRAP" Then
+        If wrap_check <> "WRAP" Then    'TODO: Then what? 
 
         End If
         EMWriteScreen "Y", 16, 54           'This goes into the next footer month without leaving STAT
