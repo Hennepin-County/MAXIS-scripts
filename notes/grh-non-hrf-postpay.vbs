@@ -55,10 +55,10 @@ changelog_display
 
 'This function checks and compares most active Faci VND address to clients current ADDR. then declares a value to be put into the dialog variant and casenote. Will be called during faci screening
 FUNCTION vnd_addr_check
-	Call navigate_to_MAXIS_screen ("STAT", "ADDR")
+	Call navigate_to_MAXIS_screen("STAT", "ADDR")
 	EMReadScreen addrpnl_address, 22, 6, 43
 	addrpnl_address = replace(addrpnl_address, "_","")
-	Call navigate_to_MAXIS_screen ("MONY", "VNDS")
+	Call navigate_to_MAXIS_screen("MONY", "VNDS")
 	EMWriteScreen faci_vndnumber, 04, 59
 	Transmit
 	EMreadScreen faci_address, 22, 5, 15
@@ -162,10 +162,10 @@ Do
 LOOP UNTIL are_we_passworded_out = false
 
 'navigating to FACI panel. reads if there are FACI panel or not. If none, then the script stop and closes active background excel sheets
-CALL navigate_to_MAXIS_screen ("STAT", "FACI")
+CALL navigate_to_MAXIS_screen("STAT", "FACI")
 EMReadScreen faci_pnls, 1, 2, 78			'counts faci pnls
 IF faci_pnls = "0" then                     'if none
-	script_end_procedure ("Script will end here.  There is no active facility panel created.  Please manually review client status and facility needs.")
+	script_end_procedure("Script will end here.  There is no active facility panel created.  Please manually review client status and facility needs.")
 End If
 'Faci pnls exists will determine any active post pay facilities.
 For i = 1 to faci_pnls
@@ -275,7 +275,7 @@ earnincome_status = jobs_status & ", " & busi_status
 
 'checks UNEA and types of UNEA'
 Call MAXIS_case_number_finder(MAXIS_case_number)
-Call navigate_to_MAXIS_screen ("STAT", "UNEA")
+Call navigate_to_MAXIS_screen("STAT", "UNEA")
 EMReadScreen unea_pnls, 1, 2, 78		'counts how many active unea pnls
 Dim unea_list()					'Dims variable to make an array list of existing UNEA pnls
 ReDim unea_list(unea_pnls)
@@ -422,11 +422,11 @@ DO
 				End If
 				'Button sends case to BGTX. Waits for MAXIS comes back from BG. Then brings Post Pay results into dialog variant
 				If ButtonPressed = CASE_BGTX then
-					call navigate_to_MAXIS_screen("stat", "memb")
+					call navigate_to_MAXIS_screen("STAT", "MEMB")
 						EMWriteScreen "BGTX", 20, 71  'sending case through background.
 						transmit
 						MAXIS_background_check
-						call navigate_to_MAXIS_screen("elig", "grh")
+						call navigate_to_MAXIS_screen("ELIG", "GRH")
 						EMReadScreen GRPR_check, 4, 3, 47
 						If GRPR_check <> "GRPR" then
 							MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
