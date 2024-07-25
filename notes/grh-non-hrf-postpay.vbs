@@ -53,86 +53,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 'FUNCTION edition Block. Need to added this customized navigation FUNCTION=============================================================
 
-FUNCTION MAXIS_dialog_navigation2
-	'This part works with the prev/next buttons on several of our dialogs. You need to name your buttons prev_panel_button, next_panel_button, prev_memb_button, and next_memb_button in order to use them.
-	EMReadScreen STAT_check, 4, 20, 21
-	If STAT_check = "STAT" then
-		If ButtonPressed = prev_panel_button then
-			EMReadScreen current_panel, 1, 2, 73
-			EMReadScreen amount_of_panels, 1, 2, 78
-			If current_panel = 1 then new_panel = current_panel
-			If current_panel > 1 then new_panel = current_panel - 1
-			If amount_of_panels > 1 then EMWriteScreen "0" & new_panel, 20, 79
-			transmit
-		ELSEIF ButtonPressed = next_panel_button then
-			EMReadScreen current_panel, 1, 2, 73
-			EMReadScreen amount_of_panels, 1, 2, 78
-			If current_panel < amount_of_panels then new_panel = current_panel + 1
-			If current_panel = amount_of_panels then new_panel = current_panel
-			If amount_of_panels > 1 then EMWriteScreen "0" & new_panel, 20, 79
-			transmit
-		End if
-	End if
-	'This part takes care of remaining navigation buttons, designed to go to a single panel.
-	If ButtonPressed = ADDR_button then call navigate_to_MAXIS_screen("stat", "ADDR")
-	If ButtonPressed = BUSI_button then call navigate_to_MAXIS_screen("stat", "BUSI")
-	If ButtonPressed = ELIG_HC_button then call navigate_to_MAXIS_screen("elig", "HC__")
-	If ButtonPressed = FACI_button then call navigate_to_MAXIS_screen("stat", "FACI")
-	If ButtonPressed = JOBS_button then call navigate_to_MAXIS_screen("stat", "JOBS")
-	If ButtonPressed = MEMB_button then call navigate_to_MAXIS_screen("stat", "MEMB")
-	If ButtonPressed = MEMI_button then call navigate_to_MAXIS_screen("stat", "MEMI")
-	If ButtonPressed = PBEN_button then call navigate_to_MAXIS_screen("stat", "PBEN")
-	If ButtonPressed = REVW_button then call navigate_to_MAXIS_screen("stat", "REVW")
-	If ButtonPressed = UNEA_button then call navigate_to_MAXIS_screen("stat", "UNEA")
-	'This part is customized to work on the GRH NON HRF dialog nav buttons
-	If ButtonPressed = ELIG_GRH_button then
-		call navigate_to_MAXIS_screen("elig", "GRH_")
-		Transmit
-		Transmit
-		Transmit
-	End If
-	'Goes to MONY VNDS screen using the most active faci vnd number on case... If EMReadScreen does not read any FACI pnls. MsgBox there are no faci pnls.
-	If ButtonPressed = VNDS_button then
-		If faci_pnls = "0" then
-			MsgBox "There Are No Facility panels"
-		Else
-			call navigate_to_MAXIS_screen("MONY", "VNDS")
-			EMWriteScreen faci_vndnumber, 04, 59
-			Transmit
-		End If
-	End If
-	'Button sends case to BGTX. Waits for MAXIS comes back from BG. Then brings Post Pay results into dialog variant
-	If ButtonPressed = CASE_BGTX then
-	call navigate_to_MAXIS_screen("stat", "memb")
-		EMWriteScreen "BGTX", 20, 71  'sending case through background.
-		transmit
-		MAXIS_background_check
-		call navigate_to_MAXIS_screen("elig", "grh")
-		EMReadScreen GRPR_check, 4, 3, 47
-		If GRPR_check <> "GRPR" then
-			MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
-			Else
-			EMWriteScreen "GRSM", 20, 71
-		End If
-		transmit
-	'reads elig/grh info from GRSM for inputting into dialog and case note.
-		If GRPR_check = "GRPR" then
-			EMReadScreen GRSM_vnd, 9, 10, 31
-			GRSM_vnd = replace(GRSM_vnd, " ","")
-		End If
-		If GRPR_check = "GRPR" then
-			EMReadScreen GRSM_payable, 9, 12, 31
-			GRSM_payable = replace(GRSM_payable, " ","")
-		End If
-		If GRPR_check = "GRPR" then
-			EMReadScreen GRSM_Obligation, 9, 18, 31
-			GRSM_Obligation = replace(GRSM_Obligation, " ","")
-		End If
-	'Declares variable post pay results for variant and case note
-	Postpay_results = "Vendor#: " & GRSM_vnd & ", Payable Amount: $" & GRSM_payable & ", Client Obligation: $" & GRSM_Obligation
-	End If
-END FUNCTION
-
 'This function checks and compares most active Faci VND address to clients current ADDR. then declares a value to be put into the dialog variant and casenote. Will be called during faci screening
 FUNCTION vnd_addr_check
 	Call navigate_to_MAXIS_screen ("STAT", "ADDR")
@@ -509,7 +429,47 @@ DO
 				 	Dialog Dialog1
 					cancel_confirmation
 				LOOP UNTIL ButtonPressed <> no_cancel_button
-				MAXIS_dialog_navigation2
+				MAXIS_dialog_navigation
+				'Goes to MONY VNDS screen using the most active faci vnd number on case... If EMReadScreen does not read any FACI pnls. MsgBox there are no faci pnls.
+				If ButtonPressed = VNDS_button then
+					If faci_pnls = "0" then
+						MsgBox "There Are No Facility panels"
+					Else
+						call navigate_to_MAXIS_screen("MONY", "VNDS")
+						EMWriteScreen faci_vndnumber, 04, 59
+						Transmit
+					End If
+				End If
+				'Button sends case to BGTX. Waits for MAXIS comes back from BG. Then brings Post Pay results into dialog variant
+				If ButtonPressed = CASE_BGTX then
+					call navigate_to_MAXIS_screen("stat", "memb")
+						EMWriteScreen "BGTX", 20, 71  'sending case through background.
+						transmit
+						MAXIS_background_check
+						call navigate_to_MAXIS_screen("elig", "grh")
+						EMReadScreen GRPR_check, 4, 3, 47
+						If GRPR_check <> "GRPR" then
+							MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
+							Else
+							EMWriteScreen "GRSM", 20, 71
+						End If
+						transmit
+					'reads elig/grh info from GRSM for inputting into dialog and case note.
+						If GRPR_check = "GRPR" then
+							EMReadScreen GRSM_vnd, 9, 10, 31
+							GRSM_vnd = replace(GRSM_vnd, " ","")
+						End If
+						If GRPR_check = "GRPR" then
+							EMReadScreen GRSM_payable, 9, 12, 31
+							GRSM_payable = replace(GRSM_payable, " ","")
+						End If
+						If GRPR_check = "GRPR" then
+							EMReadScreen GRSM_Obligation, 9, 18, 31
+							GRSM_Obligation = replace(GRSM_Obligation, " ","")
+						End If
+					'Declares variable post pay results for variant and case note
+					Postpay_results = "Vendor#: " & GRSM_vnd & ", Payable Amount: $" & GRSM_payable & ", Client Obligation: $" & GRSM_Obligation
+				End If
 			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
 			err_msg = ""
 			IF addr_faci_vnds_status = "" THEN err_msg = err_msg & vbCr & "* You must indicate a facility status within the 'Recent(Post Pay)Faci' field."
