@@ -101,7 +101,6 @@ EMReadScreen pben_line_01, 8, 8, 66
 	End If
 END FUNCTION
 
-
 'End of Customized FUNCTION BLOCK===================================================================================================
 
 
@@ -228,6 +227,9 @@ Next
 
 'Remove asterisk from end of list
 faci_discharge_dates = left(faci_discharge_dates, len(faci_discharge_dates) - 1)
+'Remove empty dates from string
+faci_discharge_dates = replace(faci_discharge_dates, "__/__/____*", "")
+faci_discharge_dates = replace(faci_discharge_dates, "*__/__/____", "")
 'Create an array from FACI discharge dates
 faci_discharge_dates_array = split(faci_discharge_dates, "*")
 'Sort the dates from oldest to newest 
@@ -384,112 +386,103 @@ End If
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'Second Dialog when all info has been grab from case will be called into fields/variants to be reviewed by worker
-BeginDialog Dialog1, 0, 0, 456, 275, "GRH NON-HRF CASE NOTE dialog"
-  EditBox 80, 5, 365, 15, addr_faci_vnds_status
-  EditBox 80, 60, 245, 15, IAA_status
-  EditBox 80, 80, 245, 15, earnincome_status
-  EditBox 80, 100, 365, 15, unea_status
-  EditBox 80, 120, 365, 15, other_notes
-  EditBox 80, 140, 365, 15, changes
-  EditBox 80, 160, 365, 15, verifs_needed
-  EditBox 80, 180, 365, 15, actions_taken
-  EditBox 10, 210, 290, 15, Postpay_results
-  EditBox 375, 230, 70, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 376, 275, "GRH NON-HRF CASE NOTE dialog"
+  EditBox 80, 10, 225, 15, addr_faci_vnds_status
+  EditBox 80, 30, 225, 15, IAA_status
+  EditBox 80, 50, 225, 15, earnincome_status
+  EditBox 80, 70, 225, 15, unea_status
+  EditBox 80, 90, 225, 15, other_notes
+  EditBox 80, 110, 225, 15, changes
+  EditBox 80, 130, 225, 15, verifs_needed
+  EditBox 80, 150, 225, 15, actions_taken
+  EditBox 10, 200, 290, 15, Postpay_results
+  EditBox 75, 255, 120, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 340, 255, 50, 15
-	CancelButton 395, 255, 50, 15
-	PushButton 80, 35, 25, 10, "VNDS", VNDS_button
-	PushButton 105, 35, 25, 10, "FACI", FACI_button
-	PushButton 130, 35, 25, 10, "ADDR", ADDR_button
-	PushButton 275, 35, 25, 10, "BUSI", BUSI_button
-	PushButton 300, 35, 25, 10, "JOBS", JOBS_button
-	PushButton 325, 35, 25, 10, "UNEA", UNEA_button
-	PushButton 365, 35, 45, 10, "prev. panel", prev_panel_button
-	PushButton 365, 45, 45, 10, "next panel", next_panel_button
-	PushButton 340, 75, 25, 10, "MEMB", MEMB_button
-	PushButton 365, 75, 25, 10, "MEMI", MEMI_button
-	PushButton 390, 75, 25, 10, "REVW", REVW_button
-	PushButton 415, 75, 25, 10, "PBEN", PBEN_button
-	PushButton 10, 230, 290, 15, "Send case to BGTX", CASE_BGTX
-	PushButton 315, 210, 20, 10, "GRH", ELIG_GRH_button
-	PushButton 335, 210, 20, 10, "HC", ELIG_HC_button
-  Text 35, 65, 40, 10, "IAA Status:"
-  Text 30, 125, 40, 10, "Other notes:"
-  Text 35, 145, 35, 10, "Changes?:"
-  Text 25, 165, 50, 10, "Verifs needed:"
-  Text 25, 185, 50, 10, "Actions taken:"
-  GroupBox 5, 200, 300, 50, "Post Payment Results"
-  Text 310, 235, 60, 10, "Worker Signature:"
-  GroupBox 310, 200, 50, 25, "ELIG panels:"
-  Text 10, 105, 70, 10, "Active Disa/UNEA?:"
-  Text 5, 85, 70, 10, "Earn Income Status:"
-  Text 5, 10, 75, 10, "Recent(PostPay)Faci: "
-  GroupBox 270, 25, 85, 25, "Income panels"
-  GroupBox 75, 25, 85, 25, "Locations"
-  GroupBox 360, 25, 85, 35, "STAT-based navigation:"
-  GroupBox 335, 65, 110, 25, "other STAT panels:"
+    OkButton 260, 255, 50, 15
+    CancelButton 315, 255, 50, 15
+    PushButton 320, 190, 45, 15, "VNDS", VNDS_button
+    PushButton 320, 205, 45, 15, "FACI", FACI_button
+    PushButton 320, 220, 45, 15, "ADDR", ADDR_button
+    PushButton 320, 15, 45, 15, "BUSI", BUSI_button
+    PushButton 320, 30, 45, 15, "JOBS", JOBS_button
+    PushButton 320, 45, 45, 15, "UNEA", UNEA_button
+    PushButton 320, 60, 45, 15, "MEMB", MEMB_button
+    PushButton 320, 75, 45, 15, "MEMI", MEMI_button
+    PushButton 320, 90, 45, 15, "REVW", REVW_button
+    PushButton 320, 105, 45, 15, "PBEN", PBEN_button
+    PushButton 10, 220, 290, 15, "Send case to BGTX", CASE_BGTX
+    PushButton 320, 140, 45, 15, "GRH", ELIG_GRH_button
+    PushButton 320, 155, 45, 15, "HC", ELIG_HC_button
+  Text 5, 35, 40, 10, "IAA Status:"
+  Text 5, 95, 40, 10, "Other notes:"
+  Text 5, 115, 35, 10, "Changes?:"
+  Text 5, 135, 50, 10, "Verifs needed:"
+  Text 5, 155, 50, 10, "Actions taken:"
+  GroupBox 5, 190, 300, 50, "Post Payment Results"
+  Text 10, 260, 60, 10, "Worker Signature:"
+  GroupBox 315, 130, 55, 45, "ELIG panels:"
+  Text 5, 75, 70, 10, "Active Disa/UNEA?:"
+  Text 5, 55, 70, 10, "Earn Income Status:"
+  Text 5, 15, 75, 10, "Recent(PostPay)Faci: "
+  GroupBox 315, 5, 55, 120, "STAT panels:"
+  GroupBox 315, 180, 55, 60, "Locations"
 EndDialog
 
 'Initiates last dialog: GRH_case_note_dialog
 DO
-	DO
-		DO
-			DO
-				DO
-				 	Dialog Dialog1
-					cancel_confirmation
-				LOOP UNTIL ButtonPressed <> no_cancel_button
-				MAXIS_dialog_navigation
-				'Goes to MONY VNDS screen using the most active faci vnd number on case... If EMReadScreen does not read any FACI pnls. MsgBox there are no faci pnls.
-				If ButtonPressed = VNDS_button then
-					If faci_pnls = "0" then
-						MsgBox "There Are No Facility panels"
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation
+		MAXIS_dialog_navigation
+
+		If ButtonPressed = VNDS_button then
+			If faci_pnls = "0" then
+				MsgBox "There Are No Facility panels"
+			Else
+				call navigate_to_MAXIS_screen("MONY", "VNDS")
+				EMWriteScreen faci_vndnumber, 04, 59
+				Transmit
+			End If
+		End If
+		'Button sends case to BGTX. Waits for MAXIS comes back from BG. Then brings Post Pay results into dialog variant
+		If ButtonPressed = CASE_BGTX then
+			call navigate_to_MAXIS_screen("STAT", "MEMB")
+				EMWriteScreen "BGTX", 20, 71  'sending case through background.
+				transmit
+				MAXIS_background_check
+				call navigate_to_MAXIS_screen("ELIG", "GRH")
+				EMReadScreen GRPR_check, 4, 3, 47
+				If GRPR_check <> "GRPR" then
+					MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
 					Else
-						call navigate_to_MAXIS_screen("MONY", "VNDS")
-						EMWriteScreen faci_vndnumber, 04, 59
-						Transmit
-					End If
+					EMWriteScreen "GRSM", 20, 71
 				End If
-				'Button sends case to BGTX. Waits for MAXIS comes back from BG. Then brings Post Pay results into dialog variant
-				If ButtonPressed = CASE_BGTX then
-					call navigate_to_MAXIS_screen("STAT", "MEMB")
-						EMWriteScreen "BGTX", 20, 71  'sending case through background.
-						transmit
-						MAXIS_background_check
-						call navigate_to_MAXIS_screen("ELIG", "GRH")
-						EMReadScreen GRPR_check, 4, 3, 47
-						If GRPR_check <> "GRPR" then
-							MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
-							Else
-							EMWriteScreen "GRSM", 20, 71
-						End If
-						transmit
-					'reads elig/grh info from GRSM for inputting into dialog and case note.
-						If GRPR_check = "GRPR" then
-							EMReadScreen GRSM_vnd, 9, 10, 31
-							GRSM_vnd = replace(GRSM_vnd, " ","")
-						End If
-						If GRPR_check = "GRPR" then
-							EMReadScreen GRSM_payable, 9, 12, 31
-							GRSM_payable = replace(GRSM_payable, " ","")
-						End If
-						If GRPR_check = "GRPR" then
-							EMReadScreen GRSM_Obligation, 9, 18, 31
-							GRSM_Obligation = replace(GRSM_Obligation, " ","")
-						End If
-					'Declares variable post pay results for variant and case note
-					Postpay_results = "Vendor#: " & GRSM_vnd & ", Payable Amount: $" & GRSM_payable & ", Client Obligation: $" & GRSM_Obligation
+				transmit
+			'reads elig/grh info from GRSM for inputting into dialog and case note.
+				If GRPR_check = "GRPR" then
+					EMReadScreen GRSM_vnd, 9, 10, 31
+					GRSM_vnd = replace(GRSM_vnd, " ","")
 				End If
-			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
-			err_msg = ""
-			IF addr_faci_vnds_status = "" THEN err_msg = err_msg & vbCr & "* You must indicate a facility status within the 'Recent(Post Pay)Faci' field."
-			IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
-			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-			IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
-	LOOP WHILE ButtonPressed = previous_button
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+				If GRPR_check = "GRPR" then
+					EMReadScreen GRSM_payable, 9, 12, 31
+					GRSM_payable = replace(GRSM_payable, " ","")
+				End If
+				If GRPR_check = "GRPR" then
+					EMReadScreen GRSM_Obligation, 9, 18, 31
+					GRSM_Obligation = replace(GRSM_Obligation, " ","")
+				End If
+			'Declares variable post pay results for variant and case note
+			Postpay_results = "Vendor#: " & GRSM_vnd & ", Payable Amount: $" & GRSM_payable & ", Client Obligation: $" & GRSM_Obligation
+		End If
+		IF addr_faci_vnds_status = "" THEN err_msg = err_msg & vbCr & "* You must indicate a facility status within the 'Recent(Post Pay)Faci' field."
+		IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+	    IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
+		IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    Loop until err_msg = ""
+    'Add to all dialogs where you need to work within BLUEZONE
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'GRH NON HRF CASE NOTE
 Call start_a_blank_CASE_NOTE
@@ -509,7 +502,7 @@ call write_variable_in_CASE_NOTE("---------")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'reminding workers to go back to fill in the items that may have left to be fill during the first run.
-call script_end_procedure("Success!!! The script will stop here.  Please remember to review, fill-in, postpay code and approved from ELIG results screen if needed."& VbCrLf & VbCrLf &"Thank you!")
+call script_end_procedure("Success!!! The script will stop here. Please remember to review, fill-in, postpay code and approved from ELIG results screen if needed."& VbCrLf & VbCrLf &"Thank you!")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
