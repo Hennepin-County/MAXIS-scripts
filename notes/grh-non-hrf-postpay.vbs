@@ -103,7 +103,6 @@ END FUNCTION
 
 'End of Customized FUNCTION BLOCK===================================================================================================
 
-
 'The Script=========================================================================================================================
 'Connecting to BlueZone
 EMConnect ""
@@ -131,9 +130,9 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-    Call validate_MAXIS_case_number(err_msg, "*")
-    If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		Call validate_MAXIS_case_number(err_msg, "*")
+		If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
   CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -146,9 +145,9 @@ faci_discharge_dates = ""
 'Grabbing case number and putting in the month and year entered from dialog box.
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
-'Delcares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
+'Declares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
 GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
-MAXIS_footer_month_confirmation									'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
+MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -198,31 +197,31 @@ IF faci_pnls = "0" then                     'if none
 End If
 'Faci pnls exists will determine any active post pay facilities.
 For i = 1 to faci_pnls
-		EMWriteScreen "0" & i, 20, 79
-		transmit
-		EMReadScreen faci_postpay, 1, 13, 71
-		IF faci_postpay = "Y" then
-			For maxis_row = 14 to 18
-				EMReadScreen faci_date_in, 10, maxis_row, 47
-				EMReadScreen faci_date_out, 10, maxis_row, 71
-				'If finds a faci with a start date but no enddate, then it declares that faci as the most active pnl
-				IF faci_date_in <> "__ __ ____" AND faci_date_out = "__ __ ____" then
-					faci_postpay_status = true
-					EMReadScreen faci_location, 30, 6, 43
-					faci_location = replace(faci_location, "_","") & ", "
-					EMReadScreen faci_vndnumber, 8, 5, 43
-					faci_date_out = "(none) - client is still active"   	'declares no out dates therefore client is still active at current faci
-					vnd_addr_check                     				'function to pull mony vnds and compares clt's addr then declares variant to dialog/casenote
-					Exit For
-				End If
-				'If there are no open ended dates, then script formats the date and plots it to hidden spread sheet, later to be recalled and find most recent faci discharged date (the variant will be: Last_Faci_OutDate)
-				c_row = maxis_row - 13
-				faci_date_out = replace(faci_date_out, " ","/")
-				faci_discharge_dates = faci_discharge_dates & faci_date_out & "*" 
-			Next
-		ElseIf faci_postpay_status <> true then
-			addr_faci_vnds_status = "There are no Post Pay facility pnls in this case."     'If no FACI consist of "Y" Post Pay indication, addr_faci_vnds_status variant is declared
-		End If
+	EMWriteScreen "0" & i, 20, 79
+	transmit
+	EMReadScreen faci_postpay, 1, 13, 71
+	IF faci_postpay = "Y" then
+		For maxis_row = 14 to 18
+			EMReadScreen faci_date_in, 10, maxis_row, 47
+			EMReadScreen faci_date_out, 10, maxis_row, 71
+			'If finds a faci with a start date but no enddate, then it declares that faci as the most active pnl
+			IF faci_date_in <> "__ __ ____" AND faci_date_out = "__ __ ____" then
+				faci_postpay_status = true
+				EMReadScreen faci_location, 30, 6, 43
+				faci_location = replace(faci_location, "_","") & ", "
+				EMReadScreen faci_vndnumber, 8, 5, 43
+				faci_date_out = "(none) - client is still active"   	'declares no out dates therefore client is still active at current faci
+				vnd_addr_check                     				'function to pull mony vnds and compares clt's addr then declares variant to dialog/casenote
+				Exit For
+			End If
+			'If there are no open ended dates, then script formats the date and plots it to hidden spread sheet, later to be recalled and find most recent faci discharged date (the variant will be: Last_Faci_OutDate)
+			c_row = maxis_row - 13
+			faci_date_out = replace(faci_date_out, " ","/")
+			faci_discharge_dates = faci_discharge_dates & faci_date_out & "*" 
+		Next
+	ElseIf faci_postpay_status <> true then
+		addr_faci_vnds_status = "There are no Post Pay facility pnls in this case."     'If no FACI consist of "Y" Post Pay indication, addr_faci_vnds_status variant is declared
+	End If
 Next
 
 'Remove asterisk from end of list
@@ -261,7 +260,7 @@ If faci_date_out <> "(none) - client is still active" Then
 				End If
 			Next
 		ElseIf faci_postpay_status <> true then
-				addr_faci_vnds_status = "There are no Post Pay facility pnls in this case. "     'If no FACI consist of "Y" Post Pay indication, addr_faci_vnds_status variant is declared
+			addr_faci_vnds_status = "There are no Post Pay facility pnls in this case. "     'If no FACI consist of "Y" Post Pay indication, addr_faci_vnds_status variant is declared
 		End If
 	Next
 End If
@@ -271,16 +270,16 @@ MAXIS_background_check
 CALL navigate_to_MAXIS_screen("STAT", "JOBS")
 EMReadScreen jobs_pnls, 1, 2, 78  'reads the panel 0 of 0, reading the total panel value..if it's zero or 1+
 If jobs_pnls <> "0" then
-  For jobs_to_review = 1 to jobs_pnls
-    EMWriteScreen "0" & jobs_to_review, 20, 79
-	  transmit
-    EMReadScreen jobs_hrs_end, 3, 18, 72
-			IF jobs_hrs_end <> "___" Then
-				jobs_status = "There is an active Job pnl. POSSIBLE HRF process?"
-			Else
-				jobs_status = "no active jobs"
-      End If
-		Next
+  	For jobs_to_review = 1 to jobs_pnls
+		EMWriteScreen "0" & jobs_to_review, 20, 79
+		transmit
+		EMReadScreen jobs_hrs_end, 3, 18, 72
+		IF jobs_hrs_end <> "___" Then
+			jobs_status = "There is an active Job pnl. POSSIBLE HRF process?"
+		Else
+			jobs_status = "no active jobs"
+		End If
+	Next
 Else
 	jobs_status = "no active jobs"
 End If
@@ -289,19 +288,20 @@ End If
 CALL navigate_to_MAXIS_screen("STAT", "BUSI")
 EMReadScreen busi_pnls, 1, 2, 78  'reads the panel 0 of 0, reading the total panel value..if it's zero or 1+
 If busi_pnls <> "0" then
-  For busi_to_review = 1 to busi_pnls
-    EMWriteScreen "0" & busi_to_review, 20, 79
-	  transmit
-    EMReadScreen busi_hrs_end, 3, 13, 74
-			IF busi_hrs_end <> "___" Then
-				busi_status = "There is an active BUSI pnl. POSSIBLE HRF process?"
-			Else
-				busi_status = "no active BUSI."
-      End If
-		Next
+	For busi_to_review = 1 to busi_pnls
+		EMWriteScreen "0" & busi_to_review, 20, 79
+		transmit
+		EMReadScreen busi_hrs_end, 3, 13, 74
+		If busi_hrs_end <> "___" Then
+			busi_status = "There is an active BUSI pnl. POSSIBLE HRF process?"
+		Else
+			busi_status = "no active BUSI."
+		End If
+	Next
 Else
 	busi_status = "no active BUSI."
 End If
+
 'declares variant earnincome_status for dialog/case notes
 earnincome_status = jobs_status & ", " & busi_status
 
@@ -332,7 +332,7 @@ If unea_pnls <> "0" then
       		u = u + 1
       		r = r + 1
 			IAA_status = "Disability UNEA benefits exists, therefore no updates needed"	'Will declare IAA_status variant since UNEA disa exist
-			unea_status = unea_list(r)									'Delcares unea_status the dialog variant and added to the array variant, will be updated with more amts each "For" stmt
+			unea_status = unea_list(r)									'Declares unea_status the dialog variant and added to the array variant, will be updated with more amts each "For" stmt
 		'If unea pnl have an end date, however same as footer month, then income counts for processing post pay for that footer month. repeats with same array logic above
 		ElseIF unea_end <> "__ __ __" and month(GRH_process_date) = month(replace(unea_end, " ","/")) and year(GRH_process_date) = year(replace(unea_end, " ","/")) then
 			EMReadScreen unea_amt, 8, 18, 68
@@ -355,7 +355,7 @@ If unea_pnls <> "0" then
 	Else
 		'If there are UNEA but no 'disa' UNEA pnls, then script will look at pben info, finds if IAA are expired or are still within 12 months
 		If SSA_income <> TRUE then
-			unea_status = "UNEA income exsist, but not disability UNEA."
+			unea_status = "UNEA income exists, but not disability UNEA."
 			call navigate_to_MAXIS_screen("STAT", "PBEN")
 			EMReadScreen pben_pnls, 1, 2, 78
 			If pben_pnls <> 0 then
@@ -455,20 +455,16 @@ DO
 				EMReadScreen GRPR_check, 4, 3, 47
 				If GRPR_check <> "GRPR" then
 					MsgBox "The script couldn't find ELIG/GRH. It will now jump to case note."
-					Else
+				Else
 					EMWriteScreen "GRSM", 20, 71
 				End If
 				transmit
-			'reads elig/grh info from GRSM for inputting into dialog and case note.
+				'reads elig/grh info from GRSM for inputting into dialog and case note.
 				If GRPR_check = "GRPR" then
 					EMReadScreen GRSM_vnd, 9, 10, 31
 					GRSM_vnd = replace(GRSM_vnd, " ","")
-				End If
-				If GRPR_check = "GRPR" then
 					EMReadScreen GRSM_payable, 9, 12, 31
 					GRSM_payable = replace(GRSM_payable, " ","")
-				End If
-				If GRPR_check = "GRPR" then
 					EMReadScreen GRSM_Obligation, 9, 18, 31
 					GRSM_Obligation = replace(GRSM_Obligation, " ","")
 				End If
