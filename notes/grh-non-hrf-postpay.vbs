@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/29/2024", "Updated script to align with current script standards.", "Mark Riegel, Hennepin County") '#316
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/30/2016", "Case Note title changed to indicate GRH payment.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -139,6 +140,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 call check_for_MAXIS(False)	'checking for an active MAXIS session
 
+'PRIV Handling
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
+PF3
+
 'Create string of FACI discharge dates to determine most recent discharge date
 faci_discharge_dates = ""
 
@@ -152,27 +158,30 @@ MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer mont
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'First Dialog that asks for case number and footer month.
-BeginDialog Dialog1, 0, 0, 311, 100, "PostPay Non-HRF"
-  EditBox 90, 5, 65, 15, MAXIS_case_number
-  EditBox 105, 30, 20, 15, MAXIS_footer_month
-  EditBox 135, 30, 20, 15, MAXIS_footer_year
-  EditBox 70, 60, 95, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 311, 110, "PostPay Non-HRF"
+  EditBox 40, 15, 80, 15, MAXIS_case_number
+  EditBox 70, 45, 20, 15, MAXIS_footer_month
+  EditBox 100, 45, 20, 15, MAXIS_footer_year
+  EditBox 75, 90, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 105, 80, 50, 15
-	CancelButton 160, 80, 50, 15
-  Text 60, 10, 25, 10, "Case #:"
-  Text 130, 35, 5, 10, "/"
-  Text 15, 35, 80, 10, "PostPay month (mm/yy):"
-  Text 5, 65, 65, 10, "Worker's Signature:"
-  Text 175, 15, 120, 10, "This script is for NON-HRF PostPay."
-  Text 175, 25, 125, 10, "It will go through the following panels:"
-  Text 185, 40, 20, 10, "* FACI"
-  Text 185, 50, 30, 10, "* ADDR"
-  Text 185, 60, 25, 10, "* JOBS"
-  Text 240, 40, 25, 10, "* UNEA"
-  Text 240, 50, 25, 10, "* PBEN"
-  Text 240, 60, 50, 10, "* VNDS"
-  GroupBox 170, 5, 135, 70, "Description:"
+    OkButton 205, 90, 50, 15
+    CancelButton 255, 90, 50, 15
+  Text 10, 20, 25, 10, "Case #:"
+  Text 95, 50, 5, 10, "/"
+  Text 75, 60, 15, 10, "MM"
+  Text 5, 95, 65, 10, "Worker's Signature:"
+  Text 140, 10, 160, 20, "This script is for NON-HRF PostPay. It will go through the following panels:"
+  Text 140, 35, 25, 10, "* FACI"
+  Text 140, 45, 30, 10, "* ADDR"
+  Text 195, 45, 25, 10, "* JOBS"
+  Text 195, 35, 25, 10, "* UNEA"
+  Text 255, 35, 25, 10, "* PBEN"
+  Text 255, 45, 35, 10, "* VNDS"
+  GroupBox 135, 0, 175, 60, "Description:"
+  ButtonGroup ButtonPressed
+    PushButton 135, 65, 175, 15, "Script Instructions", script_instructions_btn
+  Text 10, 50, 55, 10, "PostPay month:"
+  Text 105, 60, 15, 10, "YY"
 EndDialog
 'First Dialog. Showing case number, postpay month & year...checking for valid entries of these info.  It'll loop until workers enter the right condition.
 Do
@@ -184,8 +193,12 @@ Do
 		If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
 	    If MAXIS_footer_year = "" OR len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid year value of: YY"
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	LOOP UNTIL err_msg = ""
+		If ButtonPressed = script_instructions_btn Then 
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/_layouts/15/Doc.aspx?sourcedoc=%7B8AEDDDB8-DACB-4CB4-AABB-1EB5FD43C0D3%7D&file=NOTES%20-%20GRH%20NON%20HRF%20POSTPAY.docx"
+			err_msg = "LOOP"
+		End If
+		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = "" or err_msg <> "LOOP"
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
@@ -396,13 +409,12 @@ BeginDialog Dialog1, 0, 0, 376, 275, "GRH NON-HRF CASE NOTE dialog"
   EditBox 80, 130, 225, 15, verifs_needed
   EditBox 80, 150, 225, 15, actions_taken
   EditBox 10, 200, 290, 15, Postpay_results
+  ButtonGroup ButtonPressed
+    PushButton 10, 220, 290, 15, "Send case to BGTX", CASE_BGTX
   EditBox 75, 255, 120, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 260, 255, 50, 15
     CancelButton 315, 255, 50, 15
-    PushButton 320, 190, 45, 15, "VNDS", VNDS_button
-    PushButton 320, 205, 45, 15, "FACI", FACI_button
-    PushButton 320, 220, 45, 15, "ADDR", ADDR_button
     PushButton 320, 15, 45, 15, "BUSI", BUSI_button
     PushButton 320, 30, 45, 15, "JOBS", JOBS_button
     PushButton 320, 45, 45, 15, "UNEA", UNEA_button
@@ -410,21 +422,23 @@ BeginDialog Dialog1, 0, 0, 376, 275, "GRH NON-HRF CASE NOTE dialog"
     PushButton 320, 75, 45, 15, "MEMI", MEMI_button
     PushButton 320, 90, 45, 15, "REVW", REVW_button
     PushButton 320, 105, 45, 15, "PBEN", PBEN_button
-    PushButton 10, 220, 290, 15, "Send case to BGTX", CASE_BGTX
     PushButton 320, 140, 45, 15, "GRH", ELIG_GRH_button
     PushButton 320, 155, 45, 15, "HC", ELIG_HC_button
+    PushButton 320, 190, 45, 15, "VNDS", VNDS_button
+    PushButton 320, 205, 45, 15, "FACI", FACI_button
+    PushButton 320, 220, 45, 15, "ADDR", ADDR_button
+  Text 5, 15, 75, 10, "Recent(PostPay)Faci: "
   Text 5, 35, 40, 10, "IAA Status:"
+  Text 5, 55, 70, 10, "Earn Income Status:"
+  Text 5, 75, 70, 10, "Active Disa/UNEA?:"
   Text 5, 95, 40, 10, "Other notes:"
   Text 5, 115, 35, 10, "Changes?:"
   Text 5, 135, 50, 10, "Verifs needed:"
   Text 5, 155, 50, 10, "Actions taken:"
   GroupBox 5, 190, 300, 50, "Post Payment Results"
   Text 10, 260, 60, 10, "Worker Signature:"
-  GroupBox 315, 130, 55, 45, "ELIG panels:"
-  Text 5, 75, 70, 10, "Active Disa/UNEA?:"
-  Text 5, 55, 70, 10, "Earn Income Status:"
-  Text 5, 15, 75, 10, "Recent(PostPay)Faci: "
   GroupBox 315, 5, 55, 120, "STAT panels:"
+  GroupBox 315, 130, 55, 45, "ELIG panels:"
   GroupBox 315, 180, 55, 60, "Locations"
 EndDialog
 
@@ -504,46 +518,46 @@ call script_end_procedure("Success!!! The script will stop here. Please remember
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
-'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
-'--Include script category and name somewhere on first dialog-------------------
-'--Create a button to reference instructions------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/29/2024
+'--Tab orders reviewed & confirmed----------------------------------------------07/29/2024
+'--Mandatory fields all present & Reviewed--------------------------------------07/29/2024
+'--All variables in dialog match mandatory fields-------------------------------07/29/2024
+'--Review dialog names for content and content fit in dialog--------------------07/29/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------07/29/2024
+'--Include script category and name somewhere on first dialog-------------------07/29/2024
+'--Create a button to reference instructions------------------------------------07/29/2024
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/29/2024
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/29/2024
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/29/2024
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----07/29/2024
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/29/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/29/2024
+'--PRIV Case handling reviewed -------------------------------------------------07/29/2024
+'--Out-of-County handling reviewed----------------------------------------------07/29/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/29/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------07/29/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------07/29/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------07/29/2024
+'--Script name reviewed---------------------------------------------------------07/29/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/29/2024
+'--comment Code-----------------------------------------------------------------07/29/2024
+'--Update Changelog for release/update------------------------------------------07/29/2024
+'--Remove testing message boxes-------------------------------------------------07/29/2024
+'--Remove testing code/unnecessary code-----------------------------------------07/29/2024
+'--Review/update SharePoint instructions----------------------------------------07/29/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/29/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/29/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------07/29/2024
+'--Complete misc. documentation (if applicable)---------------------------------07/29/2024
+'--Update project team/issue contact (if applicable)----------------------------07/29/2024
