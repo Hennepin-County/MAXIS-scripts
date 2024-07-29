@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("07/29/2024", "Updated script to align with current script standards.", "Mark Riegel, Hennepin County") '#316
+CALL changelog_update("07/29/2024", "Updated script to align with current script standards.", "Mark Riegel, Hennepin County") '#485
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/30/2016", "Case Note title changed to indicate GRH payment.", "Charles Potter, DHS")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -77,7 +77,7 @@ END FUNCTION
 
 'this function checks pben IAA dates and determines the variant IAA_status
 FUNCTION pben_check_IAA_dates
-EMReadScreen pben_line_01, 8, 8, 66
+	EMReadScreen pben_line_01, 8, 8, 66
 	EMReadScreen pben_line_02, 8, 9, 66
 	EMReadScreen pben_line_03, 8, 10, 66
 	EMReadScreen pben_line_04, 8, 11, 66
@@ -144,6 +144,7 @@ call check_for_MAXIS(False)	'checking for an active MAXIS session
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 If is_this_PRIV = True then script_end_procedure("This case is privileged and you do not have access to it. The script will now end.")
 PF3
+PF3
 
 'Create string of FACI discharge dates to determine most recent discharge date
 faci_discharge_dates = ""
@@ -153,6 +154,7 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Declares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
 GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
+msgbox GRH_process_date
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 '-------------------------------------------------------------------------------------------------DIALOG
