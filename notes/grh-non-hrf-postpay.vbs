@@ -149,12 +149,14 @@ PF3
 'Create string of FACI discharge dates to determine most recent discharge date
 faci_discharge_dates = ""
 
+'Create initial variable for addr_faci_vnds_status
+addr_faci_vnds_status = "" 
+
 'Grabbing case number and putting in the month and year entered from dialog box.
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Declares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
 GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
-msgbox GRH_process_date
 MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -239,20 +241,22 @@ For i = 1 to faci_pnls
 	End If
 Next
 
-'Remove asterisk from end of list
-faci_discharge_dates = left(faci_discharge_dates, len(faci_discharge_dates) - 1)
-'Remove empty dates from string
-faci_discharge_dates = replace(faci_discharge_dates, "__/__/____*", "")
-faci_discharge_dates = replace(faci_discharge_dates, "*__/__/____", "")
-'Create an array from FACI discharge dates
-faci_discharge_dates_array = split(faci_discharge_dates, "*")
-'Sort the dates from oldest to newest 
-Call sort_dates(faci_discharge_dates_array)
-'Identify the newest date
-Last_Faci_OutDate = faci_discharge_dates_array(ubound(faci_discharge_dates_array))
+If faci_date_out <> "Out Date: (none) - client is still active" and faci_date_out <> "" Then
+	'Remove asterisk from end of list
+	faci_discharge_dates = left(faci_discharge_dates, len(faci_discharge_dates) - 1)
+	'Remove empty dates from string
+	faci_discharge_dates = replace(faci_discharge_dates, "__/__/____*", "")
+	faci_discharge_dates = replace(faci_discharge_dates, "*__/__/____", "")
+	'Create an array from FACI discharge dates
+	faci_discharge_dates_array = split(faci_discharge_dates, "*")
+	'Sort the dates from oldest to newest 
+	Call sort_dates(faci_discharge_dates_array)
+	'Identify the newest date
+	Last_Faci_OutDate = faci_discharge_dates_array(ubound(faci_discharge_dates_array))
+End If
 
 'if above faci screening shows that there are none still active, the script will focus on the one with the most recent discharged date.
-If faci_date_out <> "(none) - client is still active" Then
+If faci_date_out <> "Out Date: (none) - client is still active" Then
 	For i = 1 to faci_pnls
 		EMWriteScreen "0" & i, 20, 79
 		transmit
