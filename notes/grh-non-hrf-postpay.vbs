@@ -508,17 +508,17 @@ call write_bullet_and_variable_in_CASE_NOTE("Most recent FACI/ADDR info", addr_f
 If PostPay_results <> "" then call write_bullet_and_variable_in_CASE_NOTE("PostPay Results", PostPay_results)
 call write_variable_in_CASE_NOTE("---------")
 If IAA_status <> "" then call write_bullet_and_variable_in_CASE_NOTE("IAA Status", IAA_status)
-If jobs_status <> "" then call write_bullet_and_variable_in_CASE_NOTE("Earn Income Status", earnincome_status)
+If jobs_status <> "" then call write_bullet_and_variable_in_CASE_NOTE("Earned Income Status", earnincome_status)
 If unea_status <> "" then call write_bullet_and_variable_in_CASE_NOTE("Active Disa/UNEA?", unea_status)
 If other_notes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-If changes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Changes Report", changes)
+If changes <> "" then call write_bullet_and_variable_in_CASE_NOTE("Changes Reported", changes)
 If verifs_needed <> "" then call write_bullet_and_variable_in_CASE_NOTE("Verifications needed", verifs_needed)
 If actions_taken <> "" then call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 call write_variable_in_CASE_NOTE("---------")
 call write_variable_in_CASE_NOTE(worker_signature)
 
 'reminding workers to go back to fill in the items that may have left to be fill during the first run.
-call script_end_procedure("Success!!! The script will stop here. Please remember to review, fill-in, postpay code and approved from ELIG results screen if needed."& VbCrLf & VbCrLf &"Thank you!")
+call script_end_procedure("Success!!! Please remember to review and fill-in postpay code and approve from ELIG results screen if needed."& VbCrLf & VbCrLf &"Thank you!")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
