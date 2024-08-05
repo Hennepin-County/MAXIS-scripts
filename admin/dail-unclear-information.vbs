@@ -4629,6 +4629,7 @@ If HIRE_messages = 1 Then
                                                     HIRE_employer_name_TIKL = ""
                                                     tikl_case_number = ""
                                                     tikl_case_name = ""
+                                                    blank_state_check = ""
 
                                                     'Blanking variables to check for potential SNAP income exclusion
                                                     hh_memb_age = ""
@@ -4678,7 +4679,14 @@ If HIRE_messages = 1 Then
                                                     EmReadScreen tikl_case_name, 25, 7, 55
                                                     tikl_case_name = trim(tikl_case_name)
 
-                                                    'Identify where 'Ref Nbr:' text is so that script can account for slight changes in location in MAXIS
+                                                    'Identify where 'NDNH MEMB:' text is so that script can account for slight changes in location in MAXIS
+                                                    'Set row and col
+                                                    row = 1
+                                                    col = 1
+                                                    EMSearch "NDNH MEMB", row, col
+                                                    EMReadScreen blank_state_check, 2, row, col + 17
+
+                                                    'Identify where 'NDNH MEMB:' text is so that script can account for slight changes in location in MAXIS
                                                     'Set row and col
                                                     row = 1
                                                     col = 1
@@ -4715,309 +4723,315 @@ If HIRE_messages = 1 Then
                                                     EMReadScreen HIRE_employer_name_TIKL, 25, row, col + 10
                                                     HIRE_employer_name_TIKL = TRIM(HIRE_employer_name_TIKL)
 
-                                                    'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
-                                                    HIRE_employer_name_split = split(HIRE_employer_name, " ")
+                                                    If blank_state_check <> "??" and HIRE_employer_name <> "" Then
 
-                                                    If len(HIRE_employer_name_split(0)) < 4 and Ubound(HIRE_employer_name_split) > 0 Then
-                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0) & " " & HIRE_employer_name_split(1)
-                                                        If activate_msg_boxes = True then MsgBox "First word less than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word  
-                                                    Else
-                                                        HIRE_employer_name_first_word = HIRE_employer_name_split(0)   
-                                                        If activate_msg_boxes = True then MsgBox "First word longer than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word
-                                                    End If
+                                                        'Add handling to compare the first word of employer from HIRE to first word of employer on JOBS panel
+                                                        HIRE_employer_name_split = split(HIRE_employer_name, " ")
 
-                                                    If instr(len(HIRE_employer_name_first_word), HIRE_employer_name_first_word, ",") = len(HIRE_employer_name_first_word) then 
-                                                        HIRE_employer_name_first_word = Mid(HIRE_employer_name_first_word, 1, len(HIRE_employer_name_first_word) - 1)
-                                                        If activate_msg_boxes = True then MsgBox "Last character is a comma. HIRE_employer_name_first_word is now " & HIRE_employer_name_first_word
-                                                    End If
+                                                        If len(HIRE_employer_name_split(0)) < 4 and Ubound(HIRE_employer_name_split) > 0 Then
+                                                            HIRE_employer_name_first_word = HIRE_employer_name_split(0) & " " & HIRE_employer_name_split(1)
+                                                            If activate_msg_boxes = True then MsgBox "First word less than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word  
+                                                        Else
+                                                            HIRE_employer_name_first_word = HIRE_employer_name_split(0)   
+                                                            If activate_msg_boxes = True then MsgBox "First word longer than 3 characters long. HIRE_employer_name_first_word is " & HIRE_employer_name_first_word
+                                                        End If
 
-                                                    'Identify where 'MAXIS NAME   :' text is so that script can account for slight changes in location in MAXIS
-                                                    'Set row and col
-                                                    row = 1
-                                                    col = 1
-                                                    EMSearch "MAXIS NAME   :", row, col
-                                                    EMReadScreen NDNH_MAXIS_name, 30, row, col + 15
-                                                    NDNH_MAXIS_name = trim(NDNH_MAXIS_name)
+                                                        If instr(len(HIRE_employer_name_first_word), HIRE_employer_name_first_word, ",") = len(HIRE_employer_name_first_word) then 
+                                                            HIRE_employer_name_first_word = Mid(HIRE_employer_name_first_word, 1, len(HIRE_employer_name_first_word) - 1)
+                                                            If activate_msg_boxes = True then MsgBox "Last character is a comma. HIRE_employer_name_first_word is now " & HIRE_employer_name_first_word
+                                                        End If
 
-                                                    'Identify where 'NEW HIRE NAME:' text is so that script can account for slight changes in location in MAXIS
-                                                    'Set row and col
-                                                    row = 1
-                                                    col = 1
-                                                    EMSearch "NEW HIRE NAME:", row, col
-                                                    EMReadScreen NDNH_new_hire_name, 30, row, col + 15
-                                                    NDNH_new_hire_name = trim(NDNH_new_hire_name)
+                                                        'Identify where 'MAXIS NAME   :' text is so that script can account for slight changes in location in MAXIS
+                                                        'Set row and col
+                                                        row = 1
+                                                        col = 1
+                                                        EMSearch "MAXIS NAME   :", row, col
+                                                        EMReadScreen NDNH_MAXIS_name, 30, row, col + 15
+                                                        NDNH_MAXIS_name = trim(NDNH_MAXIS_name)
 
-                                                    'Transmit back to DAIL message
-                                                    transmit
+                                                        'Identify where 'NEW HIRE NAME:' text is so that script can account for slight changes in location in MAXIS
+                                                        'Set row and col
+                                                        row = 1
+                                                        col = 1
+                                                        EMSearch "NEW HIRE NAME:", row, col
+                                                        EMReadScreen NDNH_new_hire_name, 30, row, col + 15
+                                                        NDNH_new_hire_name = trim(NDNH_new_hire_name)
 
-                                                    EMWriteScreen "S", dail_row, 3
-                                                    EMSendKey "<enter>"
-                                                    EMReadScreen background_check, 25, 7, 30
-                                                    If InStr(background_check, "A Background transaction") Then
-                                                        EMWaitReady 2, 2000
-                                                        Do
-                                                            background_check = ""
-                                                            PF3
-                                                            EMWaitReady 2, 2000
-                                                            EMWriteScreen "S", dail_row, 3
-                                                            EMWaitReady 2, 2000
-                                                            EMSendKey "<enter>"
-                                                            EMWaitReady 2, 2000
-                                                            EMReadScreen background_check, 25, 7, 30
-                                                            If InStr(background_check, "A Background transaction") = 0 then Exit Do
-                                                        Loop
-                                                    End If
-
-                                                    EMReadScreen self_panel_check, 4, 2, 50
-                                                    If self_panel_check = "SELF" Then
-                                                        EMWaitReady 2, 2000
-                                                        EMWaitReady 2, 2000
-                                                        EMWriteScreen "DAIL", 16, 43
-                                                        EMWriteScreen "DAIL", 21, 70
+                                                        'Transmit back to DAIL message
                                                         transmit
 
-                                                        EMReadSCreen back_to_dail_check, 8, 1, 72
-                                                        If back_to_dail_check = "FMKDLAM6" Then
+                                                        EMWriteScreen "S", dail_row, 3
+                                                        EMSendKey "<enter>"
+                                                        EMReadScreen background_check, 25, 7, 30
+                                                        If InStr(background_check, "A Background transaction") Then
+                                                            EMWaitReady 2, 2000
+                                                            Do
+                                                                background_check = ""
+                                                                PF3
+                                                                EMWaitReady 2, 2000
+                                                                EMWriteScreen "S", dail_row, 3
+                                                                EMWaitReady 2, 2000
+                                                                EMSendKey "<enter>"
+                                                                EMWaitReady 2, 2000
+                                                                EMReadScreen background_check, 25, 7, 30
+                                                                If InStr(background_check, "A Background transaction") = 0 then Exit Do
+                                                            Loop
+                                                        End If
 
-                                                            ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
-
-                                                            'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
-                                                            Call write_value_and_transmit("H", dail_row, 3)
-                                                            PF3
-
-                                                            ' MsgBox "DAIL should now be reset to all DAIL messages"
-
-                                                            'Reset DAIL to only HIRE messages
-                                                            Call write_value_and_transmit("X", 4, 12)
-                                                            EMWriteScreen "_", 7, 39
-                                                            Call write_value_and_transmit("X", 13, 39)
-
-                                                            ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
-
-                                                            'Script should now navigate to specific member name, or at least get close
-                                                            EMWriteScreen hire_message_member_name, 21, 25
+                                                        EMReadScreen self_panel_check, 4, 2, 50
+                                                        If self_panel_check = "SELF" Then
+                                                            EMWaitReady 2, 2000
+                                                            EMWaitReady 2, 2000
+                                                            EMWriteScreen "DAIL", 16, 43
+                                                            EMWriteScreen "DAIL", 21, 70
                                                             transmit
 
-                                                            ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
+                                                            EMReadSCreen back_to_dail_check, 8, 1, 72
+                                                            If back_to_dail_check = "FMKDLAM6" Then
 
-                                                            'Script will enter do loop to find match
+                                                                ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
 
-                                                            Do
-                                                                return_full_dail_msg = ""
-                                                                return_full_dail_msg_case_number = ""
-                                                                return_full_dail_msg_case_name = ""
-                                                                return_full_dail_msg_line_1 = ""
-                                                                return_full_dail_msg_line_2 = ""
-                                                                return_full_dail_msg_line_3 = ""
-                                                                return_full_dail_msg_line_4 = ""
+                                                                'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
+                                                                Call write_value_and_transmit("H", dail_row, 3)
+                                                                PF3
 
-                                                                'Enters “X” on DAIL message to open full message. 
-                                                                Call write_value_and_transmit("X", dail_row, 3)
+                                                                ' MsgBox "DAIL should now be reset to all DAIL messages"
 
-                                                                ' Script reads the full DAIL message so that it can process, or not process, as needed.
-                                                                EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
-                                                                return_full_dail_msg_case_number = trim(return_full_dail_msg_case_number)
-                                                                EMReadScreen return_full_dail_msg_case_name, 35, 7, 44
-                                                                return_full_dail_msg_case_name = trim(return_full_dail_msg_case_name)
+                                                                'Reset DAIL to only HIRE messages
+                                                                Call write_value_and_transmit("X", 4, 12)
+                                                                EMWriteScreen "_", 7, 39
+                                                                Call write_value_and_transmit("X", 13, 39)
 
-                                                                EMReadScreen return_full_dail_msg_line_1, 60, 9, 5
-                                                                return_full_dail_msg_line_1 = trim(return_full_dail_msg_line_1)
-                                                                EMReadScreen return_full_dail_msg_line_2, 60, 10, 5
-                                                                return_full_dail_msg_line_2 = trim(return_full_dail_msg_line_2)
-                                                                EMReadScreen return_full_dail_msg_line_3, 60, 11, 5
-                                                                return_full_dail_msg_line_3 = trim(return_full_dail_msg_line_3)
-                                                                EMReadScreen return_full_dail_msg_line_4, 60, 12, 5
-                                                                return_full_dail_msg_line_4 = trim(return_full_dail_msg_line_4)
+                                                                ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
 
-                                                                return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
+                                                                'Script should now navigate to specific member name, or at least get close
+                                                                EMWriteScreen hire_message_member_name, 21, 25
+                                                                transmit
 
-                                                                If return_full_dail_msg = check_full_dail_msg Then 
-                                                                    ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
-                                                                    transmit
-                                                                    Exit Do
-                                                                Else
-                                                                    ' msgbox "Testing -- It did not find the matching message"
-                                                                    transmit
-                                                                    dail_row = dail_row + 1
+                                                                ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
 
-                                                                    'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
-                                                                    EMReadScreen new_case, 8, dail_row, 63
-                                                                    new_case = trim(new_case)
-                                                                    IF new_case <> "CASE NBR" THEN 
-                                                                        'If there is NOT a new case number, the script will top the message
-                                                                        Call write_value_and_transmit("T", dail_row, 3)
-                                                                    ELSEIF new_case = "CASE NBR" THEN
-                                                                        'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
-                                                                        Call write_value_and_transmit("T", dail_row + 1, 3)
-                                                                    End if
-                                                                End If
+                                                                'Script will enter do loop to find match
 
-                                                            Loop
+                                                                Do
+                                                                    return_full_dail_msg = ""
+                                                                    return_full_dail_msg_case_number = ""
+                                                                    return_full_dail_msg_case_name = ""
+                                                                    return_full_dail_msg_line_1 = ""
+                                                                    return_full_dail_msg_line_2 = ""
+                                                                    return_full_dail_msg_line_3 = ""
+                                                                    return_full_dail_msg_line_4 = ""
 
-                                                            'Reset the dail_row back to 6
-                                                            dail_row = 6
+                                                                    'Enters “X” on DAIL message to open full message. 
+                                                                    Call write_value_and_transmit("X", dail_row, 3)
 
-                                                            ' msgbox "Testing -- Did it get close to correct message?"
+                                                                    ' Script reads the full DAIL message so that it can process, or not process, as needed.
+                                                                    EMReadScreen return_full_dail_msg_case_number, 35, 6, 44
+                                                                    return_full_dail_msg_case_number = trim(return_full_dail_msg_case_number)
+                                                                    EMReadScreen return_full_dail_msg_case_name, 35, 7, 44
+                                                                    return_full_dail_msg_case_name = trim(return_full_dail_msg_case_name)
 
-                                                            'Initial dialog - select whether to create a list or process a list
-                                                            Dialog1 = ""
-                                                            BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
-                                                            
-                                                            ButtonGroup ButtonPressed
-                                                                OkButton 205, 200, 40, 15
-                                                                CancelButton 245, 200, 40, 15
-                                                            EndDialog
+                                                                    EMReadScreen return_full_dail_msg_line_1, 60, 9, 5
+                                                                    return_full_dail_msg_line_1 = trim(return_full_dail_msg_line_1)
+                                                                    EMReadScreen return_full_dail_msg_line_2, 60, 10, 5
+                                                                    return_full_dail_msg_line_2 = trim(return_full_dail_msg_line_2)
+                                                                    EMReadScreen return_full_dail_msg_line_3, 60, 11, 5
+                                                                    return_full_dail_msg_line_3 = trim(return_full_dail_msg_line_3)
+                                                                    EMReadScreen return_full_dail_msg_line_4, 60, 12, 5
+                                                                    return_full_dail_msg_line_4 = trim(return_full_dail_msg_line_4)
 
-                                                            Do
-                                                                Dialog Dialog1
-                                                            Loop until ButtonPressed = OK
+                                                                    return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
+
+                                                                    If return_full_dail_msg = check_full_dail_msg Then 
+                                                                        ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
+                                                                        transmit
+                                                                        Exit Do
+                                                                    Else
+                                                                        ' msgbox "Testing -- It did not find the matching message"
+                                                                        transmit
+                                                                        dail_row = dail_row + 1
+
+                                                                        'Determining if the script has moved to a new case number within the dail, in which case it needs to move down one more row to get to next dail message
+                                                                        EMReadScreen new_case, 8, dail_row, 63
+                                                                        new_case = trim(new_case)
+                                                                        IF new_case <> "CASE NBR" THEN 
+                                                                            'If there is NOT a new case number, the script will top the message
+                                                                            Call write_value_and_transmit("T", dail_row, 3)
+                                                                        ELSEIF new_case = "CASE NBR" THEN
+                                                                            'If the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
+                                                                            Call write_value_and_transmit("T", dail_row + 1, 3)
+                                                                        End if
+                                                                    End If
+
+                                                                Loop
+
+                                                                'Reset the dail_row back to 6
+                                                                dail_row = 6
+
+                                                                ' msgbox "Testing -- Did it get close to correct message?"
+
+                                                                'Initial dialog - select whether to create a list or process a list
+                                                                Dialog1 = ""
+                                                                BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
+                                                                
+                                                                ButtonGroup ButtonPressed
+                                                                    OkButton 205, 200, 40, 15
+                                                                    CancelButton 245, 200, 40, 15
+                                                                EndDialog
+
+                                                                Do
+                                                                    Dialog Dialog1
+                                                                Loop until ButtonPressed = OK
 
 
-                                                            EMWriteScreen "S", dail_row, 3
-                                                            EMSendKey "<enter>"
-                                                        Else
-                                                            MsgBox "NOT AT DAIL - why?"
-                                                        End If
-                                                    End If
-
-                                                    EMWriteScreen "MEMB", 20, 71
-                                                    Call write_value_and_transmit(HIRE_memb_number, 20, 76)
-
-                                                    EMReadScreen memb_panel_check, 4, 2, 48
-                                                    IF memb_panel_check <> "MEMB" Then 
-                                                        EMReadScreen summ_panel_check, 4, 2, 46
-                                                        If summ_panel_check = "SUMM" Then
-                                                            EMWriteScreen "MEMB", 20, 71
-                                                            Call write_value_and_transmit(HIRE_memb_number, 20, 76)
-                                                            EMReadScreen memb_panel_check, 4, 2, 48
-                                                            IF memb_panel_check <> "MEMB" Then MsgBox "Testing -- second attempt to get to MEMB failed 5709"
-                                                        Else
-                                                            MsgBox "Testing -- not on Summ 4830. Will attempt to go back to DAIL"
-                                                        End If
-                                                    End If
-
-                                                    'Ensure the script is not creating a new MEMB panel
-                                                    EMReadScreen new_memb_panel_check, 12, 8, 22
-                                                    If new_memb_panel_check = "Arrival Date" Then
-                                                        PF3
-                                                        PF10
-                                                        msgbox "Testing -- Script tried to navigate to a HH Memb that doesn't exist. It should have deleted the panel but double check MAKE SURE IT DELETED ADDED PANEL"
-
-                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "HIRE message identifies a HH Member that does not exist on the case (" & HIRE_memb_number & "). Review needed." & " Message should not be deleted."
-                                                    Else
-                                                    
-                                                        'Check the HH Memb's age and relationship status
-                                                        EMReadScreen hh_memb_age, 2, 8, 76
-                                                        hh_memb_age = trim(hh_memb_age)
-                                                        'Convert age into a number
-                                                        If hh_memb_age = "" then MsgBox "Testing -- No age on panel. stop here"
-                                                        If hh_memb_age <> "" Then hh_memb_age = hh_memb_age * 1
-
-                                                        If hh_memb_age > 17 then 
-                                                            under_18_check = False 
-                                                        Else
-                                                            under_18_check = True
-                                                        End If
-
-                                                        'Convert age to a number
-                                                        EMReadScreen hh_memb_rel_to_applicant, 2, 10, 42
-                                                        If hh_memb_rel_to_applicant = "03" OR hh_memb_rel_to_applicant = "08" OR hh_memb_rel_to_applicant = "16" OR hh_memb_rel_to_applicant = "17" Then 
-                                                            child_of_hh_member = True
-                                                        Else
-                                                            child_of_hh_member = False
-                                                        End If
-
-                                                        If under_18_check = True and child_of_hh_member = True Then
-                                                            If activate_msg_boxes = True then MsgBox "Testing -- under_18_check = True and child_of_hh_member = True. Navigating to SCHL now"
-                                                            'Navigate to SCHL panel to check status
-                                                            EMWriteScreen "SCHL", 20, 71
-                                                            Call write_value_and_transmit(HIRE_memb_number, 20, 76)
-                                                            EMReadScreen schl_panel_exists, 25, 24, 2
-                                                            If InStr(schl_panel_exists, "DOES NOT EXIST") Then
-                                                                school_status_qualifies = False
-                                                                school_type_qualifies = False
+                                                                EMWriteScreen "S", dail_row, 3
+                                                                EMSendKey "<enter>"
                                                             Else
-                                                                EMReadScreen school_status, 1, 6, 40
-                                                                If school_status = "F" or school_status = "H" Then
-                                                                    school_status_qualifies = True
-                                                                Else
-                                                                    school_status_qualifies = False
-                                                                End If 
-
-                                                                EMReadScreen school_type, 2, 7, 40
-                                                                If school_type = "01" or school_type = "11" or school_type = "02" or school_type = "03" Then
-                                                                    school_type_qualifies = True
-                                                                Else
-                                                                    school_type_qualifies = False
-                                                                End If 
-
-                                                                EMReadScreen fs_eligibility_status_check, 2, 16, 63
-                                                                If fs_eligibility_status_check = "01" Then 
-                                                                    fs_eligibility_eligible = True
-                                                                Else
-                                                                    fs_eligibility_eligible = False
-                                                                End If
-
+                                                                MsgBox "NOT AT DAIL - why?"
                                                             End If
                                                         End If
 
-                                                        If under_18_check = True and child_of_hh_member = True and school_status_qualifies = True and school_type_qualifies = True Then
-                                                            snap_earned_income_minor_exclusion = True
+                                                        EMWriteScreen "MEMB", 20, 71
+                                                        Call write_value_and_transmit(HIRE_memb_number, 20, 76)
+
+                                                        EMReadScreen memb_panel_check, 4, 2, 48
+                                                        IF memb_panel_check <> "MEMB" Then 
+                                                            EMReadScreen summ_panel_check, 4, 2, 46
+                                                            If summ_panel_check = "SUMM" Then
+                                                                EMWriteScreen "MEMB", 20, 71
+                                                                Call write_value_and_transmit(HIRE_memb_number, 20, 76)
+                                                                EMReadScreen memb_panel_check, 4, 2, 48
+                                                                IF memb_panel_check <> "MEMB" Then MsgBox "Testing -- second attempt to get to MEMB failed 5709"
+                                                            Else
+                                                                MsgBox "Testing -- not on Summ 4830. Will attempt to go back to DAIL"
+                                                            End If
+                                                        End If
+
+                                                        'Ensure the script is not creating a new MEMB panel
+                                                        EMReadScreen new_memb_panel_check, 12, 8, 22
+                                                        If new_memb_panel_check = "Arrival Date" Then
+                                                            PF3
+                                                            PF10
+                                                            msgbox "Testing -- Script tried to navigate to a HH Memb that doesn't exist. It should have deleted the panel but double check MAKE SURE IT DELETED ADDED PANEL"
+
+                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "HIRE message identifies a HH Member that does not exist on the case (" & HIRE_memb_number & "). Review needed." & " Message should not be deleted."
                                                         Else
-                                                            snap_earned_income_minor_exclusion = False
-                                                        End If
-                                                            
-                                                        If snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = True Then
-                                                            'Since household member meets exclusion criteria, then HIRE message can just be deleted
-                                                            'Navigate to CASE/NOTE
-                                                            If activate_msg_boxes = True then msgbox "Testing -- snap_earned_income_minor_exclusion = True. navigating to create CASE/NOTE"
-                                                            PF4
-
-                                                            EMReadScreen case_note_check, 4, 2, 45
-                                                            If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
-                                                            'Open a new case note
-                                                            PF9
-
-                                                            CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
-                                                            CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-                                                            CALL write_variable_in_case_note("MAXIS NAME: " & NDNH_maxis_name)
-                                                            CALL write_variable_in_case_note("NEW HIRE NAME: " & NDNH_new_hire_name)
-                                                            CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
-                                                            CALL write_variable_in_case_note("---")
-                                                            CALL write_variable_in_case_note("HIRE MESSAGE CLEARED THROUGH INFC. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
-                                                            CALL write_variable_in_case_note("---")
-                                                            CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
-                                                            CALL write_variable_in_case_note("---")
-                                                            CALL write_variable_in_case_note(worker_signature)
-
-                                                            If activate_msg_boxes = True then MsgBox "Testing -- The script is about to save the CASE/NOTE. Stop here if in testing or production"
-
-                                                            'PF3 to save the CASE/NOTE
-                                                            PF3
-
-                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " Household member meets SNAP earned income exclusion. No JOBS panel(s) evaluated or added for member number: " & HIRE_memb_number & ". CASE/NOTE added. Message should be deleted.")
-
-                                                            'PF3 BACK to SCHL panel
-                                                            PF3
-
-                                                        ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
-                                                            ' MsgBox "Testing -- not 01 on FS eligibility"
-
-                                                            DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
-
-                                                        Elseif snap_earned_income_minor_exclusion = False Then
                                                         
-                                                            'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
-                                                            If activate_msg_boxes = True then msgbox "Testing -- snap_earned_income_minor_exclusion = False so navigating to STAT/JOBS"
-                                                            Call write_value_and_transmit("JOBS", 20, 71)
+                                                            'Check the HH Memb's age and relationship status
+                                                            EMReadScreen hh_memb_age, 2, 8, 76
+                                                            hh_memb_age = trim(hh_memb_age)
+                                                            'Convert age into a number
+                                                            If hh_memb_age = "" then MsgBox "Testing -- No age on panel. stop here"
+                                                            If hh_memb_age <> "" Then hh_memb_age = hh_memb_age * 1
 
-                                                            'Open the first JOBS panel of the caregiver reference number
-                                                            EMWriteScreen HIRE_memb_number, 20, 76
-                                                            Call write_value_and_transmit("01", 20, 79)
+                                                            If hh_memb_age > 17 then 
+                                                                under_18_check = False 
+                                                            Else
+                                                                under_18_check = True
+                                                            End If
 
-                                                            Call check_and_add_new_jobs_panel(False)
+                                                            'Convert age to a number
+                                                            EMReadScreen hh_memb_rel_to_applicant, 2, 10, 42
+                                                            If hh_memb_rel_to_applicant = "03" OR hh_memb_rel_to_applicant = "08" OR hh_memb_rel_to_applicant = "16" OR hh_memb_rel_to_applicant = "17" Then 
+                                                                child_of_hh_member = True
+                                                            Else
+                                                                child_of_hh_member = False
+                                                            End If
+
+                                                            If under_18_check = True and child_of_hh_member = True Then
+                                                                If activate_msg_boxes = True then MsgBox "Testing -- under_18_check = True and child_of_hh_member = True. Navigating to SCHL now"
+                                                                'Navigate to SCHL panel to check status
+                                                                EMWriteScreen "SCHL", 20, 71
+                                                                Call write_value_and_transmit(HIRE_memb_number, 20, 76)
+                                                                EMReadScreen schl_panel_exists, 25, 24, 2
+                                                                If InStr(schl_panel_exists, "DOES NOT EXIST") Then
+                                                                    school_status_qualifies = False
+                                                                    school_type_qualifies = False
+                                                                Else
+                                                                    EMReadScreen school_status, 1, 6, 40
+                                                                    If school_status = "F" or school_status = "H" Then
+                                                                        school_status_qualifies = True
+                                                                    Else
+                                                                        school_status_qualifies = False
+                                                                    End If 
+
+                                                                    EMReadScreen school_type, 2, 7, 40
+                                                                    If school_type = "01" or school_type = "11" or school_type = "02" or school_type = "03" Then
+                                                                        school_type_qualifies = True
+                                                                    Else
+                                                                        school_type_qualifies = False
+                                                                    End If 
+
+                                                                    EMReadScreen fs_eligibility_status_check, 2, 16, 63
+                                                                    If fs_eligibility_status_check = "01" Then 
+                                                                        fs_eligibility_eligible = True
+                                                                    Else
+                                                                        fs_eligibility_eligible = False
+                                                                    End If
+
+                                                                End If
+                                                            End If
+
+                                                            If under_18_check = True and child_of_hh_member = True and school_status_qualifies = True and school_type_qualifies = True Then
+                                                                snap_earned_income_minor_exclusion = True
+                                                            Else
+                                                                snap_earned_income_minor_exclusion = False
+                                                            End If
+                                                                
+                                                            If snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = True Then
+                                                                'Since household member meets exclusion criteria, then HIRE message can just be deleted
+                                                                'Navigate to CASE/NOTE
+                                                                If activate_msg_boxes = True then msgbox "Testing -- snap_earned_income_minor_exclusion = True. navigating to create CASE/NOTE"
+                                                                PF4
+
+                                                                EMReadScreen case_note_check, 4, 2, 45
+                                                                If case_note_check <> "NOTE" then MsgBox "Testing -- not at case note stop here"
+                                                                'Open a new case note
+                                                                PF9
+
+                                                                CALL write_variable_in_case_note("-NDNH Match for (M" & HIRE_memb_number & ") for " & trim(HIRE_employer_name) & "-")
+                                                                CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+                                                                CALL write_variable_in_case_note("MAXIS NAME: " & NDNH_maxis_name)
+                                                                CALL write_variable_in_case_note("NEW HIRE NAME: " & NDNH_new_hire_name)
+                                                                CALL write_variable_in_case_note("EMPLOYER: " & HIRE_employer_name)
+                                                                CALL write_variable_in_case_note("---")
+                                                                CALL write_variable_in_case_note("HIRE MESSAGE CLEARED THROUGH INFC. NO JOBS PANEL CREATED. HOUSEHOLD MEMBER APPEARS TO MEET SNAP EARNED INCOME EXCLUSION. SEE CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20.")
+                                                                CALL write_variable_in_case_note("---")
+                                                                CALL write_variable_in_case_note("REVIEW INCOME WITH RESIDENT AT RENEWAL/RECERTIFICATION AS CASE IS A SNAP 6-MONTH REPORTING CASE. SEE CM 0007.03.02 - SIX-MONTH REPORTING.")
+                                                                CALL write_variable_in_case_note("---")
+                                                                CALL write_variable_in_case_note(worker_signature)
+
+                                                                If activate_msg_boxes = True then MsgBox "Testing -- The script is about to save the CASE/NOTE. Stop here if in testing or production"
+
+                                                                'PF3 to save the CASE/NOTE
+                                                                PF3
+
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = trim(DAIL_message_array(dail_processing_notes_const, DAIL_count) & " Household member meets SNAP earned income exclusion. No JOBS panel(s) evaluated or added for member number: " & HIRE_memb_number & ". CASE/NOTE added. Message should be deleted.")
+
+                                                                'PF3 BACK to SCHL panel
+                                                                PF3
+
+                                                            ElseIf snap_earned_income_minor_exclusion = True and fs_eligibility_eligible = False Then
+                                                                ' MsgBox "Testing -- not 01 on FS eligibility"
+
+                                                                DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & " HH M" & HIRE_memb_number & " appears to meet SNAP earned income exclusion, however, FS eligibility is not 01 on SCHL panel." & " Message should not be deleted."
+
+                                                            Elseif snap_earned_income_minor_exclusion = False Then
                                                             
+                                                                'Navigate to STAT/JOBS to check if corresponding JOBS panel exists
+                                                                If activate_msg_boxes = True then msgbox "Testing -- snap_earned_income_minor_exclusion = False so navigating to STAT/JOBS"
+                                                                Call write_value_and_transmit("JOBS", 20, 71)
+
+                                                                'Open the first JOBS panel of the caregiver reference number
+                                                                EMWriteScreen HIRE_memb_number, 20, 76
+                                                                Call write_value_and_transmit("01", 20, 79)
+
+                                                                Call check_and_add_new_jobs_panel(False)
+                                                                
+                                                            End If
                                                         End If
+                                                    Else
+                                                        DAIL_message_array(dail_processing_notes_const, DAIL_count) = DAIL_message_array(dail_processing_notes_const, DAIL_count) & "The employer name and/or state is blank." & " Message should not be deleted."
+                                                        
                                                     End If
 
                                                     If InStr(DAIL_message_array(dail_processing_notes_const, DAIL_count), "Message should not be deleted") Then
