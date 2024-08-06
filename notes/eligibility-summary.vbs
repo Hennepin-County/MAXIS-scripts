@@ -803,11 +803,17 @@ function define_mf_special_diet_dialog()
 						Text 25, 175, 240, 10, "Amount: $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_two(each_memb)
 						Text 25, 190, 240, 10, "Verif: " & STAT_INFORMATION(month_select).stat_diet_mf_verif_two(each_memb)
 						grp_len = grp_len + 40
-						Text 10, grp_len+105, 400, 10, "The check issued is for the diet that gives the largest benefit. These amounts are not combined."
+						If MFIP_ELIG_APPROVALS(elig_select).MFSD_overlap_exists = True Then Text 10, grp_len+105, 400, 10, "DIETS OVERLAP - The check issued is for the diet that gives the largest benefit. These amounts are not combined."
 					End If
 					GroupBox 5, 100, 285, grp_len, "MFIP Special Diet for MEMB " & STAT_INFORMATION(month_select).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_select).stat_memb_full_name_no_initial(each_memb)
 				End If
 			next
+			If MFIP_ELIG_APPROVALS(elig_select).MFSD_diet_info_missing = True Then
+				Text 10, 120+grp_len, 300, 10, "It appears there are additional diets that are not listed on STAT/DIET "
+				Text 10, 130+grp_len, 300, 10, "but are inclueded in the check."
+				Text 10, 145+grp_len, 125, 10, "Detail the information about the DIETs:"
+				EditBox 10, 155+grp_len, 280, 15, hold_missing_diet_note
+			End If
 			PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 	EndDialog
 end function
@@ -3389,6 +3395,13 @@ function define_hc_elig_dialog()
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Not all VERIFICATIONS have been provided. -VERIFICATION"
 					add_to_y_pos = add_to_y_pos + 10
+					Text 20, y_pos+add_to_y_pos+5, 165, 10, "What is the date the verification request was sent? "
+					Editbox 185, y_pos+add_to_y_pos, 50, 15, HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)
+					Text 240, y_pos+add_to_y_pos+5, 150, 10, "(due date is 10 days from this request date)"
+					add_to_y_pos = add_to_y_pos + 15
+					Text 20, y_pos+add_to_y_pos, 175, 10, "Detail the Verifications NOT Received and Needed:"
+					EditBox 20, y_pos+add_to_y_pos+10, 420, 15, HC_UNIQUE_APPROVALS(verif_request_details, approval_selected)
+					add_to_y_pos = add_to_y_pos + 25
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_withdrawn(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Request for Health Care has been withdrawn or requested closed. -WITHDRAWAL"
@@ -5382,7 +5395,7 @@ function mfip_special_diet_case_note()
 	Call write_bullet_and_variable_in_CASE_NOTE("Check Issued Date", MFIP_ELIG_APPROVALS(elig_select).MFSD_check_issue_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Check Issued For", "MEMB " & STAT_INFORMATION(month_select).stat_memb_ref_numb(memb_select) & " - " & STAT_INFORMATION(month_select).stat_memb_full_name_no_initial(memb_select))
 	Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
-	Call write_bullet_and_variable_in_CASE_NOTE("Check Amount", MFIP_ELIG_APPROVALS(elig_select).MFSD_check_transaction_amount)
+	Call write_bullet_and_variable_in_CASE_NOTE("Check Amount", "$ " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_transaction_amount)
 	Call write_variable_in_CASE_NOTE("=============================== DIET INFORMATION ============================")
 
 	If STAT_INFORMATION(month_select).stat_diet_mf_type_code_one(memb_select) <> "" and STAT_INFORMATION(month_select).stat_diet_mf_verif_one(memb_select) = "Y" Then
@@ -5390,9 +5403,17 @@ function mfip_special_diet_case_note()
 	End If
 
 	If STAT_INFORMATION(month_select).stat_diet_mf_type_code_two(memb_select) <> "" and STAT_INFORMATION(month_select).stat_diet_mf_verif_two(memb_select) = "Y" Then
-		Call write_variable_in_CASE_NOTE("* Diet Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_two(memb_select) & " - $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_two(memb_select))
-		Call write_variable_in_CASE_NOTE("  The check issued is for the diet that gives the largest benefit.")
-		Call write_variable_in_CASE_NOTE("  These amounts are not combined.")
+		Call write_variable_in_CASE_NOTE("* Diet Type: " & STAT_INFORMATION(month_select).stat_diet_mf_type_info_two(memb_select) & " for $ " & STAT_INFORMATION(month_select).stat_diet_mf_amount_two(memb_select))
+		If MFIP_ELIG_APPROVALS(elig_select).MFSD_overlap_exists = True Then
+			Call write_variable_in_CASE_NOTE("  The check issued is for the diet that gives the largest benefit.")
+			Call write_variable_in_CASE_NOTE("  These amounts are not combined.")
+		End If
+	End If
+	If MFIP_ELIG_APPROVALS(elig_select).MFSD_diet_info_missing = True Then
+		Call write_variable_in_CASE_NOTE("* Not all diet details are listed on STAT/DIET.")
+		If MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note <> "" Then
+			Call write_variable_in_CASE_NOTE("  Additional DIET Detials: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note)
+		End If
 	End If
 
 	Call write_variable_in_CASE_NOTE("---")
@@ -10185,6 +10206,9 @@ class mfip_eligibility_detail
 
 	public MFSD_check_found
 	public MFSD_approved_today
+	public MFSD_overlap_exists
+	public MFSD_diet_info_missing
+	public MFSD_missing_diet_note
 	public MFSD_check_issue_date
 	public MFSD_check_status_code
 	public MFSD_check_warrant_number
@@ -11538,6 +11562,7 @@ class mfip_eligibility_detail
 				EMReadScreen MFSD_check_month, 2, inqd_row, 62
 				EMReadScreen MFSD_check_year, 2, inqd_row, 68
 				If MFSD_check_month <> elig_footer_month or MFSD_check_year <> elig_footer_year Then MFSD_check_found = False
+				MFSD_check_transaction_amount = FormatNumber(MFSD_check_transaction_amount, 2, -1, 0, -1)
 
 				Call write_value_and_transmit("I", inqd_row, 4)
 				EMReadScreen MFSD_check_payment_reason, 	30, 7, 17
@@ -11556,7 +11581,11 @@ class mfip_eligibility_detail
 						' MsgBox "MFSD_approved_today - " & MFSD_approved_today
 					End if
 				End If
-				If MFSD_approved_today = True Then Exit Do
+				If MFSD_approved_today = True Then
+					MFSD_overlap_exists = False
+					MFSD_diet_info_missing = False
+					Exit Do
+				End If
 			End If
 
 			tx_count = tx_count + 1
@@ -24724,6 +24753,7 @@ For each footer_month in MONTHS_ARRAY
 			SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count) = True
 			SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, month_count) = mfip_elig_months_count
 			special_diet_check_exists = True
+
 		End If
 	End If
 
@@ -24906,7 +24936,7 @@ For each footer_month in MONTHS_ARRAY
 
 	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
 
-   If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+    If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
 		SPECIAL_PROCESSES_BY_MONTH(HC_app_const, month_count) = "APPROVED"
 
    		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
@@ -25339,6 +25369,32 @@ For each footer_month in MONTHS_ARRAY
 					End If
 				Next
 			Next
+		End If
+		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today = True Then
+			diets_running_total = 0
+			For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
+				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+						If STAT_INFORMATION(month_count).stat_diet_exists(each_stat_memb) = True Then
+							diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_one(each_stat_memb)
+							diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_two(each_stat_memb)
+						End If
+					End If
+				Next
+			Next
+			diets_running_total = FormatNumber(diets_running_total, 2, -1, 0, -1)
+
+			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount < diets_running_total Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_overlap_exists = True
+			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount > diets_running_total Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_diet_info_missing = True
+			' MsgBox "MFSD_check_transaction_amount - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount & vbCr &_
+			' "diets_running_total - " & diets_running_total & vbCr &_
+			' "MFSD_overlap_exists - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_overlap_exists & vbCr &_
+			' "MFSD_diet_info_missing - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_diet_info_missing
+
+			SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count) = True
+			SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, month_count) = mfip_elig_months_count
+			special_diet_check_exists = True
+
 		End If
 		mfip_elig_months_count = mfip_elig_months_count + 1
 	End If
@@ -27210,6 +27266,7 @@ If special_diet_check_exists = True Then
 			for stat_month = 0 to UBound(STAT_INFORMATION)
 				If SPECIAL_PROCESSES_BY_MONTH(MX_foot_mo_const, info_month)  = STAT_INFORMATION(stat_month).footer_month and SPECIAL_PROCESSES_BY_MONTH(MX_foot_yr_const, info_month) = STAT_INFORMATION(stat_month).footer_year Then month_select = stat_month
 			next
+			hold_missing_diet_note = MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note
 
 			Dialog1 = ""
 			call define_mf_special_diet_dialog
@@ -27220,6 +27277,7 @@ If special_diet_check_exists = True Then
 					cancel_confirmation
 
 					err_msg = ""
+					MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note = trim(hold_missing_diet_note)
 					If SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_confirm, info_month) = "Indicate if the Check is Accurate" Then err_msg = err_msg & vbCr & "Indicate if the check details "
 					If err_msg <> "" Then MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 				Loop until err_msg = ""
