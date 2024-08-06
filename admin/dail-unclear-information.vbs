@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - DAIL UNCLEAR INFORMATION.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
-STATS_manualtime = 30
+STATS_manualtime = 0
 STATS_denomination = "I"       			'I is for each item
 'END OF stats block==============================================================================================
 
@@ -3251,6 +3251,11 @@ If CSES_messages = 1 Then
     Next
 
     'Update Stats Info
+
+    'Calculate the manual time savings
+    total_cases_evaluated = case_excel_row - 2
+    STATS_manualtime = (total_cases_evaluated * 30) + (dail_msg_deleted_count * 90) + (not_processable_msg_count * 15) + (QI_flagged_msg_count * 30)
+
     'Activate the stats sheet
     objExcel.Worksheets("Stats").Activate
     objExcel.Cells(1, 2).Value = case_excel_row - 2
@@ -3258,8 +3263,9 @@ If CSES_messages = 1 Then
     objExcel.Cells(3, 2).Value = not_processable_msg_count
     objExcel.Cells(4, 2).Value = dail_msg_deleted_count
     objExcel.Cells(5, 2).Value = QI_flagged_msg_count
-    objExcel.Cells(6, 2).Value = timer - start_time
-    objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+    objExcel.Cells(6, 2).Value = timer - start_time ' script runtime
+    objExcel.Cells(7, 2).Value = ((STATS_manualtime) - (timer - start_time)) / 60 'time savings from script
+
 
     'Finding the right folder to automatically save the file
     this_month = CM_mo & " " & CM_yr
@@ -4789,26 +4795,18 @@ If HIRE_messages = 1 Then
                                                             EMReadSCreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
 
-                                                                ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
-
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
                                                                 Call write_value_and_transmit("H", dail_row, 3)
                                                                 PF3
-
-                                                                ' MsgBox "DAIL should now be reset to all DAIL messages"
 
                                                                 'Reset DAIL to only HIRE messages
                                                                 Call write_value_and_transmit("X", 4, 12)
                                                                 EMWriteScreen "_", 7, 39
                                                                 Call write_value_and_transmit("X", 13, 39)
 
-                                                                ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
-
                                                                 'Script should now navigate to specific member name, or at least get close
                                                                 EMWriteScreen hire_message_member_name, 21, 25
                                                                 transmit
-
-                                                                ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
 
                                                                 'Script will enter do loop to find match
 
@@ -4842,11 +4840,9 @@ If HIRE_messages = 1 Then
                                                                     return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then 
-                                                                        ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
                                                                         transmit
                                                                         Exit Do
                                                                     Else
-                                                                        ' msgbox "Testing -- It did not find the matching message"
                                                                         transmit
                                                                         dail_row = dail_row + 1
 
@@ -4867,11 +4863,13 @@ If HIRE_messages = 1 Then
                                                                 'Reset the dail_row back to 6
                                                                 dail_row = 6
 
-                                                                ' msgbox "Testing -- Did it get close to correct message?"
+                                                                EMWriteScreen "S", dail_row, 3
+                                                                EMSendKey "<enter>"
+                                                            Else
 
                                                                 'Initial dialog - select whether to create a list or process a list
                                                                 Dialog1 = ""
-                                                                BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
+                                                                BeginDialog Dialog1, 0, 0, 306, 220, "Unable to return to DAIL. Double-check the issue."
                                                                 
                                                                 ButtonGroup ButtonPressed
                                                                     OkButton 205, 200, 40, 15
@@ -4882,11 +4880,6 @@ If HIRE_messages = 1 Then
                                                                     Dialog Dialog1
                                                                 Loop until ButtonPressed = OK
 
-
-                                                                EMWriteScreen "S", dail_row, 3
-                                                                EMSendKey "<enter>"
-                                                            Else
-                                                                MsgBox "NOT AT DAIL - why?"
                                                             End If
                                                         End If
 
@@ -5294,26 +5287,18 @@ If HIRE_messages = 1 Then
                                                             EMReadSCreen back_to_dail_check, 8, 1, 72
                                                             If back_to_dail_check = "FMKDLAM6" Then
 
-                                                                ' MsgBox "It is back at DAIL. Script will now attempt to get back to correct DAIL message."
-
                                                                 'Navigate to CASE/CURR to force DAIL to reset and then PF3 back to get back to start of the DAIL
                                                                 Call write_value_and_transmit("H", dail_row, 3)
                                                                 PF3
-
-                                                                ' MsgBox "DAIL should now be reset to all DAIL messages"
 
                                                                 'Reset DAIL to only HIRE messages
                                                                 Call write_value_and_transmit("X", 4, 12)
                                                                 EMWriteScreen "_", 7, 39
                                                                 Call write_value_and_transmit("X", 13, 39)
 
-                                                                ' MsgBox "DAIL should be set to INFO only. Should be back at Msg 1"
-
                                                                 'Script should now navigate to specific member name, or at least get close
                                                                 EMWriteScreen hire_message_member_name, 21, 25
                                                                 transmit
-
-                                                                ' MsgBox "DAIL should now be back to member name. It will enter do loop now"
 
                                                                 'Script will enter do loop to find match
 
@@ -5347,11 +5332,9 @@ If HIRE_messages = 1 Then
                                                                     return_full_dail_msg = trim(return_full_dail_msg_case_number & " " & return_full_dail_msg_case_name & " " & return_full_dail_msg_line_1 & " " & return_full_dail_msg_line_2 & " " & return_full_dail_msg_line_3 & " " & return_full_dail_msg_line_4)
 
                                                                     If return_full_dail_msg = check_full_dail_msg Then 
-                                                                        ' msgbox "Testing -- It found the matching message. return_full_dail_msg               " & return_full_dail_msg
                                                                         transmit
                                                                         Exit Do
                                                                     Else
-                                                                        ' msgbox "Testing -- It did not find the matching message"
                                                                         transmit
                                                                         dail_row = dail_row + 1
 
@@ -5372,11 +5355,12 @@ If HIRE_messages = 1 Then
                                                                 'Reset the dail_row back to 6
                                                                 dail_row = 6
 
-                                                                ' msgbox "Testing -- Did it get close to correct message?"
-
+                                                                EMWriteScreen "S", dail_row, 3
+                                                                EMSendKey "<enter>"
+                                                            Else
                                                                 'Initial dialog - select whether to create a list or process a list
                                                                 Dialog1 = ""
-                                                                BeginDialog Dialog1, 0, 0, 306, 220, "ENSURE BACK AT EXACT SAME MESSAGE THAT IS NEXT!!! RESET DAIL PICK TO HIRE. CLICK OK TO CONTINUE."
+                                                                BeginDialog Dialog1, 0, 0, 306, 220, "Unable to return to DAIL. Double-check the issue."
                                                                 
                                                                 ButtonGroup ButtonPressed
                                                                     OkButton 205, 200, 40, 15
@@ -5386,12 +5370,7 @@ If HIRE_messages = 1 Then
                                                                 Do
                                                                     Dialog Dialog1
                                                                 Loop until ButtonPressed = OK
-
-
-                                                                EMWriteScreen "S", dail_row, 3
-                                                                EMSendKey "<enter>"
-                                                            Else
-                                                                MsgBox "NOT AT DAIL - why?"
+                                                                
                                                             End If
                                                         End If
 
@@ -5869,6 +5848,11 @@ If HIRE_messages = 1 Then
     Next
 
     'Update Stats Info
+
+    'Calculate the manual time savings
+    total_cases_evaluated = case_excel_row - 2
+    STATS_manualtime = (total_cases_evaluated * 30) + (dail_msg_deleted_count * 300) + (not_processable_msg_count * 15) + (QI_flagged_msg_count * 30)
+
     'Activate the stats sheet
     objExcel.Worksheets("Stats").Activate
     objExcel.Cells(1, 2).Value = case_excel_row - 2
@@ -5877,7 +5861,7 @@ If HIRE_messages = 1 Then
     objExcel.Cells(4, 2).Value = dail_msg_deleted_count
     objExcel.Cells(5, 2).Value = QI_flagged_msg_count
     objExcel.Cells(6, 2).Value = timer - start_time
-    objExcel.Cells(7, 2).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
+    objExcel.Cells(7, 2).Value = ((STATS_manualtime) - (timer - start_time)) / 60
 
     'Finding the right folder to automatically save the file
     this_month = CM_mo & " " & CM_yr
@@ -5920,25 +5904,25 @@ End If
 '--PRIV Case handling reviewed -------------------------------------------------05/03/2024
 '--Out-of-County handling reviewed----------------------------------------------05/03/2024
 '--script_end_procedures (w/ or w/o error messaging)----------------------------05/03/2024
-'--BULK - review output of statistics and run time/count (if applicable)--------
+'--BULK - review output of statistics and run time/count (if applicable)--------08/06/2024
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/03/2024
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------08/06/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------08/06/2024
+'--Denomination reviewed -------------------------------------------------------08/06/2024
+'--Script name reviewed---------------------------------------------------------08/06/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/06/2024
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------08/06/2024
+'--comment Code-----------------------------------------------------------------08/06/2024
+'--Update Changelog for release/update------------------------------------------08/06/2024
 '--Remove testing message boxes-------------------------------------------------05/22/2024
 '--Remove testing code/unnecessary code-----------------------------------------05/22/2024
-'--Review/update SharePoint instructions----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Review/update SharePoint instructions----------------------------------------08/06/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/06/2024
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/06/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------08/06/2024
+'--Complete misc. documentation (if applicable)---------------------------------08/06/2024
+'--Update project team/issue contact (if applicable)----------------------------08/06/2024
