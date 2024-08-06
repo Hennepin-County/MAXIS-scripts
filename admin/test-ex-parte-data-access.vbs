@@ -239,7 +239,7 @@ If user_ID = "CALO001" Then
 	SQL_table = "SELECT * from usage_log WHERE SDATE > '2024-01-01'"				'identifying the table that stores the ES Staff user information
 
 	'This is the file path the data tables
-	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
 
 	count = 0
@@ -338,8 +338,8 @@ Call check_for_MAXIS(False)
 
 ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 2, date)), 2)
 ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 2, date)), 2)
-ep_revw_mo = "07"
-ep_revw_yr = "23"
+' ep_revw_mo = "07"
+' ep_revw_yr = "23"
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
@@ -359,7 +359,7 @@ review_date = DateAdd("d", 0, review_date)
 ' 'This is the file path for the statistics Access database.
 ' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 ' 'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 ' objRecordSet.Open objSQL, objConnection
 ' ' row_count = objRecordSet(0).value
 
@@ -403,46 +403,46 @@ Loop until are_we_passworded_out = False
 
 '============== DBO USEAGE LOG TEST ==================================
 
-stop_time = timer				'TODO - delete when the new data recording function is in place
-script_run_end_time = time		'TODO - delete when the new data recording function is in place
-script_run_end_date = date		'TODO - delete when the new data recording function is in place
-script_run_time = stop_time - start_time
-trial_name_of_script = "TEST - Database Access Test.vbs"
-closing_message = "Test complete"
+' stop_time = timer				'TODO - delete when the new data recording function is in place
+' script_run_end_time = time		'TODO - delete when the new data recording function is in place
+' script_run_end_date = date		'TODO - delete when the new data recording function is in place
+' script_run_time = stop_time - start_time
+' trial_name_of_script = "TEST - Database Access Test.vbs"
+' closing_message = "Test complete"
 
 
-'Setting constants
-Const adOpenStatic = 3
-Const adLockOptimistic = 3
+' 'Setting constants
+' Const adOpenStatic = 3
+' Const adLockOptimistic = 3
 
-'Defaulting script success to successful
-SCRIPT_success = -1
+' 'Defaulting script success to successful
+' SCRIPT_success = -1
 
-'Creating objects for Access
-Set objConnection = CreateObject("ADODB.Connection")
-Set objRecordSet = CreateObject("ADODB.Recordset")
+' 'Creating objects for Access
+' Set objConnection = CreateObject("ADODB.Connection")
+' Set objRecordSet = CreateObject("ADODB.Recordset")
 
-'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
-closing_message = replace(closing_message, "'", "")
+' 'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+' closing_message = replace(closing_message, "'", "")
 
-'Opening DB
-stats_database_path = "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+' 'Opening DB
+' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
 
-objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
-"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & trial_name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+' objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+' "VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & trial_name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
 
-'Closing the connection
-objConnection.Close
+' 'Closing the connection
+' objConnection.Close
 
-Call find_user_name(assigned_worker)
+' Call find_user_name(assigned_worker)
 
-email_subject = "Database Access Test Completed for " & assigned_worker
-email_body = "The test was successful."
+' email_subject = "Database Access Test Completed for " & assigned_worker
+' email_body = "The test was successful."
 
-Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+' Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
-Call script_end_procedure("Test Complete.")
+' Call script_end_procedure("Test Complete.")
 
 
 '======== EX PARTE FUNCTIONALITY ======================================================
@@ -461,7 +461,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 'THIS USES THE STAGE AREA - NOT PRODUCTION
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 objRecordSet.Open objSQL, objConnection
 
 Do While NOT objRecordSet.Eof
@@ -494,7 +494,7 @@ Do While NOT objRecordSet.Eof
 	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 	'objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	'THIS USES THE STAGE AREA - NOT PRODUCTION
-	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objELIGRecordSet.Open objELIGSQL, objELIGConnection
 
 	Do While NOT objELIGRecordSet.Eof
@@ -598,7 +598,7 @@ Do While NOT objRecordSet.Eof
 	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 	'objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	'THIS USES THE STAGE AREA - NOT PRODUCTION
-	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
 
 	Do While NOT objIncomeRecordSet.Eof
@@ -792,7 +792,7 @@ Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 'objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 'THIS USES THE STAGE AREA - NOT PRODUCTION
-objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlsw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
 
 Call find_user_name(assigned_worker)
