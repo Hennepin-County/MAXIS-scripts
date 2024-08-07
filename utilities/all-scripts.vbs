@@ -720,40 +720,65 @@ Do
 					if script_item.policy_references(poli_info) <> "" Then
 						details_array = ""
 						details_array = split(script_item.policy_references(poli_info))
-						reference_name = replace(details_array(1), "_", " ")
 
-						Select Case details_array(0)
-							Case "CM"
-								reference_name = "CM " & details_array(2) & " - " & reference_name
-								reference_link = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00" & replace(details_array(2), ".", "")
-							Case "TE"
-								reference_name = "TE " & details_array(2) & " - " & reference_name
-								reference_link = "NULL"
-							Case "SHAREPOINT"
-								reference_name = reference_name & " - Henn Co Sharepoint"
-								reference_link = details_array(2)
-							Case "SIR"
-								reference_name = reference_name & " - DHS SIR"
-								reference_link = details_array(2)
-							Case "ONESOURCE"
-								reference_name = reference_name & " - OneSource"
-								reference_link = details_array(2)
-							Case "EPM"
-								reference_name = reference_name & " - HCPM-EPM"
-								reference_link = details_array(2)
-							Case "BULLETIN"
-								reference_name = reference_name & " - Bulletin"
-								reference_link = details_array(2)
-						End Select
-						' MsgBox "script_item.policy_links" & vbCr & "~" & script_item.policy_links & "~"
+						'This IF statement is to support scriptwriter testing of policy reference updates to CLOS.
+						If UBound(details_array) <> 2 Then											'This code is to test our policy references because they are futsy
+							list_of_elements = ""													'there should always be 0, 1, 2 as the indexes. If there are more or fewer, then we can programmatically determing there is a problem
+							for e = 0 to UBound(details_array)
+								list_of_elements = list_of_elements & "   - " & details_array(e) & vbCr
+							next
+
+							'display that there is a syntax error with details about where the error is so the scriptwriter can resolve it easier in the Complete List of Scripts
+							MsgBox 	"* * * BZ SCRIPT POLICY REFERENCE SYNTAX ISSUE * * *" & vbCr & vbCr &_
+									"The script " & script_item.category & " - " & script_item.script_name & " has a policy reference that does not meet the syntax requirements." & vbCr & vbCr &_
+									"There appear to be " & UBound(details_array) + 1 & " array elements for the policy:" & vbCr &_
+									"  " & script_item.policy_references(poli_info) & vbCr & vbCr &_
+									"There should only be 3 elements." & vbCr &_
+									"The elements appear to be:" & vbCr &_
+									list_of_elements & vbCr &_
+									"The ARRAY Elements should be:" & vbCr &_
+									"  - Policy Source (CM, EPM, Sharepoint)" & vbCr &_
+									"  - Policy Reference Name/Title" & vbCr &_
+									"  - Policy link/address" & vbCr &_
+									"Please resolve in the COMPLETE LIST OF SCRIPTS."
+
+							ObjExcel.Cells(row_to_use, ref_col).Value = "MISSING - ARRAY SYNTAX ERROR"
+
+						Else		'Here is where the policy reference information gets put into Excel IF the right number of array items are used.
+							reference_name = replace(details_array(1), "_", " ")
+
+							Select Case details_array(0)
+								Case "CM"
+									reference_name = "CM " & details_array(2) & " - " & reference_name
+									reference_link = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00" & replace(details_array(2), ".", "")
+								Case "TE"
+									reference_name = "TE " & details_array(2) & " - " & reference_name
+									reference_link = "NULL"
+								Case "SHAREPOINT"
+									reference_name = reference_name & " - Henn Co Sharepoint"
+									reference_link = details_array(2)
+								Case "SIR"
+									reference_name = reference_name & " - DHS SIR"
+									reference_link = details_array(2)
+								Case "ONESOURCE"
+									reference_name = reference_name & " - OneSource"
+									reference_link = details_array(2)
+								Case "EPM"
+									reference_name = reference_name & " - HCPM-EPM"
+									reference_link = details_array(2)
+								Case "BULLETIN"
+									reference_name = reference_name & " - Bulletin"
+									reference_link = details_array(2)
+							End Select
+							' MsgBox "script_item.policy_links" & vbCr & "~" & script_item.policy_links & "~"
 
 
-						If reference_link = "NULL" Then
-							ObjExcel.Cells(row_to_use, ref_col).Value = reference_name
-						Else
-							ObjExcel.Cells(row_to_use, ref_col).Value = "=HYPERLINK(" & chr(34) & reference_link & chr(34) & ", " & chr(34) & reference_name & chr(34) & ")"
+							If reference_link = "NULL" Then
+								ObjExcel.Cells(row_to_use, ref_col).Value = reference_name
+							Else
+								ObjExcel.Cells(row_to_use, ref_col).Value = "=HYPERLINK(" & chr(34) & reference_link & chr(34) & ", " & chr(34) & reference_name & chr(34) & ")"
+							End If
 						End If
-
 						reference_name = ""
 						reference_link = ""
 						If ref_col > last_col Then last_col = ref_col

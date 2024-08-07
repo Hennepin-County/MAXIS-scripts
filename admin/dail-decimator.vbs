@@ -128,7 +128,7 @@ Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name,
 		EMReadScreen more_pages_check, 7, 19, 3
 		If more_pages_check = "More: +" then
 			PF8			'getting to next screen
-			MAXIS_row = 7	'redeclaring MAXIS row so as to start reading from the top of the list again
+			MAXIS_row = 7	're-declaring MAXIS row so as to start reading from the top of the list again
 		End if
 	Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
 
@@ -143,6 +143,7 @@ all_workers_check = 1
 
 this_month = CM_mo & " " & CM_yr
 next_month = CM_plus_1_mo & " " & CM_plus_1_yr
+last_month = CM_minus_1_mo & " " & CM_minus_1_yr
 CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
 
 'Finding the right folder to automatically save the file
@@ -151,10 +152,10 @@ decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 150, "Dail Decimator Dialog"
+BeginDialog Dialog1, 0, 0, 266, 150, "DAIL Decimator Dialog"
   GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
   Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
-  Text 40, 55, 35, 10, "Dail type:"
+  Text 40, 55, 35, 10, "DAIL type:"
   DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
   Text 15, 75, 60, 10, "Worker number(s):"
   EditBox 80, 70, 180, 15, worker_number
@@ -186,20 +187,12 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
-'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
-If dail_to_decimate = "ALL" then
-    dail_end_msg = "NO MESSAGES WORK"
-Else
-    'all specified selection(s) will get this ending user message.
-    dail_end_msg = "NO MESSAGES TYPE"
-End if
-
 'determining if this is a restart or not in function below when gathering the x numbers.
 If trim(restart_worker_number) = "" then
     restart_status = False
-Else 
+Else
 	restart_status = True
-End if 
+End if
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -244,6 +237,8 @@ NEXT
 DIM DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
+all_dail_array = "*"    'setting up string to find duplicate DAIL messages. At times there is a glitch in the DAIL, and messages are reviewed a second time.
+false_count = 0
 
 'constants for array
 const worker_const	            = 0
@@ -277,14 +272,14 @@ For each worker in worker_array
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
-		    IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-				Call write_value_and_transmit("T", dail_row, 3)
-			ELSEIF new_case = "CASE NBR" THEN
+		    IF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
+			ELSEIF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
+				Call write_value_and_transmit("T", dail_row, 3)
 			End if
 
-            dail_row = 6  'resestting the DAIL row '
+            dail_row = 6  'resetting the DAIL row
 
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
@@ -305,49 +300,85 @@ For each worker in worker_array
                 If instr(dail_msg, "TPQY RESPONSE RECEIVED FROM SSA") then actionable_dail = False  'cleaning up TPQY messages after BULK SVES/QURY for SSI/RSDI RAP project.
             End if
 
-            IF actionable_dail = False then
-				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
-				objExcel.Cells(excel_row, 1).Value = worker
-				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-				objExcel.Cells(excel_row, 3).Value = dail_type
-				objExcel.Cells(excel_row, 4).Value = dail_month
-				objExcel.Cells(excel_row, 5).Value = dail_msg
-				excel_row = excel_row + 1
+			'Accounting for duplicate DAIL messages
+			dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
 
-				Call write_value_and_transmit("D", dail_row, 3)
-				EMReadScreen other_worker_error, 13, 24, 2
-				If other_worker_error = "** WARNING **" then transmit
-				deleted_dails = deleted_dails + 1
-			else
-				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
-				dail_row = dail_row + 1
-                ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-            	DAIL_array(worker_const,	           DAIL_count) = worker
-            	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
-            	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-            	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
-            	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
-                Dail_count = DAIL_count + 1
+            'special handling for duplicate PEPR messages in CM and CM + 1
+            If dail_type = "PEPR" then 
+                'If the message has already been determined to be non-actionable, we don't need to evaluate those.
+                If actionable_dail = True then 
+                    If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
+                        actionable_dail = True 'this is so these non-deletable messages are skipped. 
+                    Else 
+                        'PEPR determination for duplicate messages that are CM + 1
+                        this_month_dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & this_month & " " & dail_msg
+                        'if this month's message was found in the all_dail_array then the CM + 1 messages is non-actionable
+                        If instr(all_dail_array, "*" & this_month_dail_string & "*") then 
+                            actionable_dail = False
+                        Else
+                            'otherwise it's captured. This happens with a lot of HC program PEPR's. 
+                            actionable_dail = True 
+                        End if 
+                    End if 
+                End if 
+            End if 
+
+            'If the case number is found in the string of case numbers, it's not added again.
+            If instr(all_dail_array, "*" & dail_string & "*") then
+                If dail_type = "HIRE" then
+                    capture_message = True
+                Else
+                    capture_message = False
+					false_count = false_count + 1
+                End if
+            else
+                capture_message = True
+            End if
+
+			If capture_message = True then
+				all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding dail_string to all_daily_array
+                IF actionable_dail = False then
+			    	'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
+			    	objExcel.Cells(excel_row, 1).Value = worker
+			    	objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+			    	objExcel.Cells(excel_row, 3).Value = dail_type
+			    	objExcel.Cells(excel_row, 4).Value = dail_month
+			    	objExcel.Cells(excel_row, 5).Value = dail_msg
+			    	excel_row = excel_row + 1
+                    deleted_dails = deleted_dails + 1
+			    else
+			    	actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
+                    ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+                	DAIL_array(worker_const,	           DAIL_count) = worker
+                	DAIL_array(maxis_case_number_const,    DAIL_count) = MAXIS_case_number
+                	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+                	DAIL_array(dail_month_const, 		   DAIL_count) = dail_month
+                	DAIL_array(dail_msg_const, 		       DAIL_count) = dail_msg
+                    Dail_count = DAIL_count + 1
+			    End if
 			End if
 
-            EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
-            If message_error = "NO MESSAGES" then exit do
+			'Navigation handling for if a case is actionable or not. If actionable the dail_row needs to increment
+			If actionable_DAIL = False then
+				Call write_value_and_transmit("D", dail_row, 3)
+			    EMReadScreen other_worker_error, 13, 24, 2
+			    If other_worker_error = "** WARNING **" then transmit
+			Elseif actionable_DAIL = True then
+				dail_row = dail_row + 1
+			End if
 
-			'...going to the next page if necessary
-			EMReadScreen next_dail_check, 4, dail_row, 4
-			If trim(next_dail_check) = "" then
-				PF8
-				EMReadScreen last_page_check, 16, 24, 2
-                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
-                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
-					all_done = true
-					exit do
-				Else
-					dail_row = 6
-				End if
+            'checking for the last DAIL message - If it's the last message, which can be blank OR _ then the script will exit the do. 
+			EMReadScreen next_dail_check, 7, dail_row, 3
+			If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                PF8
+                EMReadScreen next_dail_check, 7, dail_row, 3
+			    If trim(next_dail_check) = "" or trim(next_dail_check) = "_" then
+                    last_case = true
+				    exit do
+                End if 
 			End if
 		LOOP
-		IF all_done = true THEN exit do
+		IF last_case = true THEN exit do
 	LOOP
 Next
 
@@ -359,6 +390,7 @@ objExcel.Cells(4, 7).Value = "Estimated manual processing time (lines x average)
 objExcel.Cells(5, 7).Value = "Script run time (in seconds):"
 objExcel.Cells(6, 7).Value = "Estimated time savings by using script (in minutes):"
 objExcel.Cells(7, 7).Value = "Number of messages reviewed/DAIL messages remaining:"
+objExcel.Cells(8, 7).Value = "False count/duplicate DAIL Messages not counted:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(2, 8).Value = deleted_dails
 objExcel.Cells(3, 8).Value = STATS_manualtime
@@ -366,6 +398,7 @@ objExcel.Cells(4, 8).Value = STATS_counter * STATS_manualtime
 objExcel.Cells(5, 8).Value = timer - start_time
 objExcel.Cells(6, 8).Value = ((STATS_counter * STATS_manualtime) - (timer - start_time)) / 60
 objExcel.Cells(7, 8).Value = STATS_counter
+objExcel.Cells(8, 8).Value = false_count
 
 'Formatting the column width.
 FOR i = 1 to 8
@@ -389,7 +422,7 @@ FOR i = 1 to 5		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
-'Export informaiton to Excel re: case status
+'Export information to Excel re: case status
 For item = 0 to UBound(DAIL_array, 2)
 	objExcel.Cells(excel_row, 1).Value = DAIL_array(worker_const, item)
 	objExcel.Cells(excel_row, 2).Value = DAIL_array(maxis_case_number_const, item)
@@ -399,7 +432,7 @@ For item = 0 to UBound(DAIL_array, 2)
 	excel_row = excel_row + 1
 Next
 
-objExcel.Cells(1, 7).Value = "Remaning DAIL messages:"
+objExcel.Cells(1, 7).Value = "Remaining DAIL messages:"
 objExcel.Columns(7).Font.Bold = true
 objExcel.Cells(1, 8).Value = DAIL_count
 
@@ -418,3 +451,48 @@ objExcel.Application.Quit
 objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/20/2023
+'--Tab orders reviewed & confirmed----------------------------------------------11/20/2023
+'--Mandatory fields all present & Reviewed--------------------------------------11/20/2023
+'--All variables in dialog match mandatory fields-------------------------------11/20/2023
+'Review dialog names for content and content fit in dialog----------------------11/20/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/20/2023-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/20/2023-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/20/2023-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/20/2023-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/20/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/20/2023-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------11/20/2023-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------11/20/2023-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/20/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------11/20/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/20/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/20/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------11/20/2023
+'--Denomination reviewed -------------------------------------------------------11/20/2023
+'--Script name reviewed---------------------------------------------------------11/20/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/20/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/20/2023
+'--comment Code-----------------------------------------------------------------11/20/2023
+'--Update Changelog for release/update------------------------------------------11/20/2023-------------------N/A
+'--Remove testing message boxes-------------------------------------------------11/20/2023
+'--Remove testing code/unnecessary code-----------------------------------------11/20/2023
+'--Review/update SharePoint instructions----------------------------------------11/20/2023-------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/20/2023-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/20/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------11/20/2023-------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------11/20/2023
+'--Update project team/issue contact (if applicable)----------------------------11/20/2023

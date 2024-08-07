@@ -106,7 +106,7 @@ time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM",
 time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM")
 
 'Array of all the upcoming holidays
-HOLIDAYS_ARRAY = Array(#11/11/22#, #11/24/22#, #11/25/22#, #12/26/22#, #01/2/23#, #1/16/23#, #2/20/23#, #5/29/23#, #6/19/23#, #7/4/23#, #9/4/23#, #11/10/23#, #11/23/23#, #11/24/23#, #12/25/23#)
+HOLIDAYS_ARRAY = Array(#11/10/23#, #11/23/23#, #11/24/23#, #12/25/23#, #1/1/24#, #1/15/24#, #2/19/24#, #5/27/24#, #6/19/24#, #7/4/24#, #9/2/24#, #11/11/24#, #11/28/24#, #11/29/24#, #12/25/24#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
 Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr, CM_plus_3_mo, CM_plus_3_yr, CM_minus_1_mo, CM_minus_1_yr, CM_minus_2_mo, CM_minus_2_yr, CM_minus_3_mo, CM_minus_3_yr
@@ -138,34 +138,34 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-IF CM_mo = "01" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #01/19/2023#
-ELSEIF CM_mo = "02" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #02/16/2023#
-ELSEIF CM_mo = "03" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #03/21/2023#
-ELSEIF CM_mo = "04" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #04/20/2023#
-ELSEIF CM_mo = "05" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #05/19/2023#
-ELSEIF CM_mo = "06" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #06/20/2023#
-ELSEIF CM_mo = "07" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #07/20/2023#
-ELSEIF CM_mo = "08" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #08/21/2023#
-ELSEIF CM_mo = "09" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #09/20/2023#
-ELSEIF CM_mo = "10" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #10/19/2023#
+IF CM_mo = "01" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #01/19/2024#
+ELSEIF CM_mo = "02" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #02/16/2024#
+ELSEIF CM_mo = "03" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #03/21/2024#
+ELSEIF CM_mo = "04" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #04/18/2024#
+ELSEIF CM_mo = "05" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #05/21/2024#
+ELSEIF CM_mo = "06" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #06/20/2024#
+ELSEIF CM_mo = "07" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #07/19/2024#
+ELSEIF CM_mo = "08" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #08/21/2024#
+ELSEIF CM_mo = "09" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #09/19/2024#
+ELSEIF CM_mo = "10" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #10/21/2024#
+ELSEIF CM_mo = "11" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #11/19/2024#
+ELSEIF CM_mo = "12" AND CM_yr = "24" THEN
+    ten_day_cutoff_date = #12/19/2024#
 ELSEIF CM_mo = "11" AND CM_yr = "23" THEN
     ten_day_cutoff_date = #11/20/2023#
 ELSEIF CM_mo = "12" AND CM_yr = "23" THEN
-    ten_day_cutoff_date = #12/20/2023#
-ELSEIF CM_mo = "11" AND CM_yr = "22" THEN
-    ten_day_cutoff_date = #11/18/2022#
-ELSEIF CM_mo = "12" AND CM_yr = "22" THEN
-    ten_day_cutoff_date = #12/21/2022#                                'last month of current year
+    ten_day_cutoff_date = #12/20/2023#                              'last month of current year
 ELSE
 	MsgBox "You have entered a date (" & CM_mo & "/" & CM_yr & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 END IF
@@ -435,6 +435,7 @@ JOBS_type_list = JOBS_type_list+chr(9)+"C - Contract Income"
 JOBS_type_list = JOBS_type_list+chr(9)+"T - Training Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"P - Service Program"
 JOBS_type_list = JOBS_type_list+chr(9)+"R - Rehab Program"
+JOBS_type_list = JOBS_type_list+chr(9)+"N - Census Income"
 
 function remove_dash_from_droplist(list_to_alter)
 	list_to_alter = replace(list_to_alter, " - ", " ")
@@ -473,9 +474,9 @@ For Each objFile in colFiles																'looping through each file
 	this_file_created_date = objFile.DateCreated											'Reading the date created
 	this_file_path = objFile.Path															'Grabing the path for the file
 
-	If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
-	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+	If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True			'We want to delete files that say 'caf-answers-' as this is how the NOTES - CAF script creates the save your work doc
 	If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+	If InStr(this_file_name, "earned-income-detail-") <> 0 Then delete_this_file = True		'We want to delete files that say 'earned-income-detail-' as this is how the ACTIONS - Earned Income Budgeting script creates the save your work doc
 	If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
 	If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
 
@@ -848,6 +849,15 @@ Function ABAWD_FSET_exemption_finder()
     		IF cl_age = "  " THEN cl_age = 0
     		cl_age = cl_age * 1
     		IF cl_age < 18 OR cl_age >= 50 THEN closing_message = closing_message & vbCr & "* M" & person & ": Appears to have exemption. Age = " & cl_age & "."
+    	END IF
+    NEXT
+
+    CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+    FOR EACH person IN HH_member_array
+    	IF person <> "" THEN
+    		CALL write_value_and_transmit(person, 20, 76)
+            EMReadScreen military_service_code, 1, 12, 78
+            If military_service_code = "Y" then closing_message = closing_message & vbCr & "* M" & person & ": Appears to be exempt due to military service."
     	END IF
     NEXT
 
@@ -1345,13 +1355,11 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen reservation_line, 1, 10, 74
         EMReadScreen living_sit_line, 2, 11, 43
 		EMReadScreen reservation_name, 2, 11, 74
-
         resi_line_one = replace(line_one, "_", "")								'formatting the residence address information to remove the '_'
         resi_line_two = replace(line_two, "_", "")
 		resi_street_full = trim(resi_line_one & " " & resi_line_two)
         resi_city = replace(city_line, "_", "")
         resi_zip = replace(zip_line, "_", "")
-
         If county_line = "01" Then addr_county = "01 Aitkin"					'Adding the county name to the county string
         If county_line = "02" Then addr_county = "02 Anoka"
         If county_line = "03" Then addr_county = "03 Becker"
@@ -1443,6 +1451,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         resi_county = addr_county
 
 		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
+		Call remove_dash_from_droplist(state_list)
 
         If homeless_line = "Y" Then addr_homeless = "Yes"						'formatting the Y and N to 'Yes' or 'No'
         If homeless_line = "N" Then addr_homeless = "No"
@@ -1517,17 +1526,17 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMReadScreen mail_state_line, 2, 15, 49
 			EMReadScreen mail_zip_line, 7, 15, 58
 
-			EMReadScreen phone_one, 14, 16, 39
-			EMReadScreen phone_two, 14, 17, 39
-			EMReadScreen phone_three, 14, 18, 39
+			EMReadScreen phone_one, 12, 16, 33
+			EMReadScreen phone_two, 12, 17, 33
+			EMReadScreen phone_three, 12, 18, 33
 
-			EMReadScreen type_one, 1, 16, 61
-			EMReadScreen type_two, 1, 17, 61
-			EMReadScreen type_three, 1, 18, 61
+			EMReadScreen type_one, 1, 16, 52
+			EMReadScreen type_two, 1, 17, 52
+			EMReadScreen type_three, 1, 18, 52
 
-			EMReadScreen text_yn_one, 1, 16, 76
-			EMReadScreen text_yn_two, 1, 17, 76
-			EMReadScreen text_yn_three, 1, 18, 76
+			EMReadScreen text_yn_one, 1, 16, 66
+			EMReadScreen text_yn_two, 1, 17, 66
+			EMReadScreen text_yn_three, 1, 18, 66
 
 
 			EMReadScreen addr_email, 50, 19, 31
@@ -1540,9 +1549,11 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         mail_line_two = replace(mail_line_two, "_", "")
 		mail_street_full = trim(mail_line_one & " " & mail_line_two)
         mail_city = replace(mail_city_line, "_", "")
-        mail_state = replace(mail_state_line, "_", "")
-        mail_zip = replace(mail_zip_line, "_", "")
-
+		Call get_state_name_from_state_code(mail_state_line, mail_state, TRUE)		'This function makes the state code to be the state name written out - including the code
+		mail_state = replace(mail_state, "_", "")
+		mail_state_line = replace(mail_state_line, "_", "")
+		mail_state_line = trim(mail_state_line)
+		mail_zip = replace(mail_zip_line, "_", "")
 		If text_yn_one = "_" Then text_yn_one = ""								'Changing blanks to nulls
 		If text_yn_two = "_" Then text_yn_two = ""
 		If text_yn_three = "_" Then text_yn_three = ""
@@ -1552,7 +1563,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			If left(addr_email, 1) = "_" Then addr_email = right(addr_email, len(addr_email) - 1)
 		Loop until right(addr_email, 1) <> "_" AND  left(addr_email, 1) <> "_"
 
-        notes_on_address = "Address effective on " & addr_eff_date & "."
+		notes_on_address = "Address effective on " & addr_eff_date & "."
         ' If mail_line_one <> "" Then
         '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
         '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
@@ -1560,16 +1571,13 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
 		notes_on_address = notes_on_address & "; "
 
-        phone_one = replace(phone_one, " ) ", "-")								'formatting phone numbers
-        phone_one = replace(phone_one, " ", "-")
-        If phone_one = "___-___-____" Then phone_one = ""
+        phone_one = replace(phone_one, " ", "-")									'formatting phone numbers
+        If phone_one = "___-___-____" Then phone_one = ""							'ALERT - phone numbers from panels before 10/21 will be formatted weird
 
-        phone_two = replace(phone_two, " ) ", "-")
         phone_two = replace(phone_two, " ", "-")
         If phone_two = "___-___-____" Then phone_two = ""
 
-        phone_three = replace(phone_three, " ) ", "-")
-        phone_three = replace(phone_three, " ", "-")
+		phone_three = replace(phone_three, " ", "-")
         If phone_three = "___-___-____" Then phone_three = ""
 
         If type_one = "H" Then type_one = "H - Home"
@@ -1601,12 +1609,12 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		original_information = UCASE(original_information)
     End If
 
-    If access_type = "WRITE" Then
+	If access_type = "WRITE" Then
 		' verif_received 'add functionality to change how this is updated based on if we have verif or not.
-
 		update_attempted = False
 		resi_line_one = trim(resi_line_one)
 		resi_line_two = trim(resi_line_two)
+		If resi_line_one <> "" OR resi_line_two <> "" Then resi_street_full = trim(resi_line_one & " " & resi_line_two)
 		resi_street_full = trim(resi_street_full)
 		resi_city = trim(resi_city)
 		resi_state = trim(resi_state)
@@ -1618,10 +1626,17 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		addr_living_sit = trim(addr_living_sit)
 		mail_line_one = trim(mail_line_one)
 		mail_line_two = trim(mail_line_two)
+		If mail_line_one <> "" OR mail_line_two <> "" Then mail_street_full = trim(mail_line_one & " " & mail_line_two)
 		mail_street_full = trim(mail_street_full)
 		mail_city = trim(mail_city)
 		mail_state = trim(mail_state)
 		mail_zip = trim(mail_zip)
+		var_month = datepart("m", addr_eff_date)
+		IF len(var_month) = 1 THEN var_month = "0" & var_month
+		var_day = datepart("d", addr_eff_date)
+		IF len(var_day) = 1 THEN var_day = "0" & var_day
+		var_year = Right(addr_eff_date, 2)
+		addr_eff_date = var_month & "/" & var_day & "/" & var_year
 		addr_eff_date = trim(addr_eff_date)
 		addr_future_date = trim(addr_future_date)
 		phone_one = trim(phone_one)
@@ -1631,12 +1646,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		type_two = trim(type_two)
 		type_three = trim(type_three)
 		verif_received = trim(verif_received)
-
 		current_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
 							  addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
 							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&_
 							  text_yn_one&"|"&text_yn_two&"|"&text_yn_three&"|"&addr_email&"|"&addr_verif
-
 
 		current_information = UCase(current_information)
 		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
@@ -1666,23 +1679,23 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 				Call clear_line_of_text(15, 49) 	'mail state
 				Call clear_line_of_text(15, 58) 	'mail zip
 
-				Call clear_line_of_text(16, 39)		'phone information'
-				Call clear_line_of_text(16, 45)
-				Call clear_line_of_text(16, 49)
-				Call clear_line_of_text(16, 61)
-				Call clear_line_of_text(16, 76)
+				Call clear_line_of_text(16, 33)		'phone information'
+				Call clear_line_of_text(16, 37)
+				Call clear_line_of_text(16, 41)
+				Call clear_line_of_text(16, 52)
+				Call clear_line_of_text(16, 66)
 
-				Call clear_line_of_text(17, 39)
-				Call clear_line_of_text(17, 45)
-				Call clear_line_of_text(17, 49)
-				Call clear_line_of_text(17, 61)
-				Call clear_line_of_text(17, 76)
+				Call clear_line_of_text(17, 33)
+				Call clear_line_of_text(17, 37)
+				Call clear_line_of_text(17, 41)
+				Call clear_line_of_text(17, 52)
+				Call clear_line_of_text(17, 66)
 
-				Call clear_line_of_text(18, 39)
-				Call clear_line_of_text(18, 45)
-				Call clear_line_of_text(18, 49)
-				Call clear_line_of_text(18, 61)
-				Call clear_line_of_text(18, 76)
+				Call clear_line_of_text(18, 33)
+				Call clear_line_of_text(18, 37)
+				Call clear_line_of_text(18, 41)
+				Call clear_line_of_text(18, 52)
+				Call clear_line_of_text(18, 66)
 
 				Call clear_line_of_text(19, 31)
 			End If
@@ -1712,29 +1725,56 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
 
-			resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
-			If len(resi_line_one) > 22 or len(resi_line_two) > 22 Then
-				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-	            resi_words = split(resi_street_full, " ")
-	            write_resi_line_one = ""
-	            write_resi_line_two = ""
-	            For each word in resi_words
-	                If write_resi_line_one = "" Then
-	                    write_resi_line_one = word
-	                ElseIf len(write_resi_line_one & " " & word) =< 22 Then
-	                    write_resi_line_one = write_resi_line_one & " " & word
-	                Else
-	                    If write_resi_line_two = "" Then
-	                        write_resi_line_two = word
-	                    Else
-	                        write_resi_line_two = write_resi_line_two & " " & word
-	                    End If
-	                End If
-	            Next
-	        Else
-	            write_resi_line_one = resi_line_one
-				write_resi_line_two = resi_line_two
-	        End If
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			move_to_line_two = FALSE
+			If resi_line_one = "" AND resi_line_two = "" Then
+				If len(resi_street_full) > 22 Then
+					resi_words = split(resi_street_full, " ")
+					write_resi_line_one = ""
+					write_resi_line_two = ""
+					For each word in resi_words
+						If write_resi_line_one = "" Then
+							write_resi_line_one = word
+						ElseIf len(write_resi_line_one & " " & word) =< 22 AND move_to_line_two = FALSE Then
+							write_resi_line_one = write_resi_line_one & " " & word
+						Else
+							move_to_line_two = TRUE
+							If write_resi_line_two = "" Then
+								write_resi_line_two = word
+							Else
+								write_resi_line_two = write_resi_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_resi_line_one = resi_street_full
+				End If
+
+			Else
+				resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
+				If len(resi_line_one) or len(resi_line_two) > 22 Then
+					resi_words = split(resi_street_full, " ")
+					write_resi_line_one = ""
+					write_resi_line_two = ""
+					For each word in resi_words
+						If write_resi_line_one = "" Then
+							write_resi_line_one = word
+						ElseIf len(write_resi_line_one & " " & word) =< 22 AND move_to_line_two = FALSE Then
+							write_resi_line_one = write_resi_line_one & " " & word
+						Else
+							move_to_line_two = TRUE
+							If write_resi_line_two = "" Then
+								write_resi_line_two = word
+							Else
+								write_resi_line_two = write_resi_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_resi_line_one = resi_line_one
+					write_resi_line_two = resi_line_two
+				End If
+			End If
 	        EMWriteScreen write_resi_line_one, 6, 43
 	        EMWriteScreen write_resi_line_two, 7, 43
 	        EMWriteScreen resi_city, 8, 43
@@ -1745,33 +1785,57 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMWriteScreen left(addr_homeless, 1), 10, 43
 			EMWriteScreen left(addr_reservation, 1), 10, 74
 			IF addr_reservation = "No" THEN Call clear_line_of_text(11, 74)
-
 	        EMWriteScreen left(addr_verif, 2), 9, 74
 
-			mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
-			If len(mail_line_one) > 22 or len(mail_line_two) > 22 Then
-				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-	            mail_words = split(mail_street_full, " ")
-	            write_mail_line_one = ""
-	            write_mail_line_two = ""
-	            For each word in mail_words
-	                If write_mail_line_one = "" Then
-	                    write_mail_line_one = word
-	                ElseIf len(write_mail_line_one & " " & word) =< 22 Then
-	                    write_mail_line_one = write_mail_line_one & " " & word
-	                Else
-	                    If write_mail_line_two = "" Then
-	                        write_mail_line_two = word
-	                    Else
-	                        write_mail_line_two = write_mail_line_two & " " & word
-	                    End If
-	                End If
-	            Next
-	        Else
-	            write_mail_line_one = mail_line_one
-				write_mail_line_two = mail_line_two
-	        End If
-
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+			mail_move_to_line_two = FALSE
+			If mail_line_one = "" AND mail_line_two = "" Then
+				If len(mail_street_full) > 22 Then
+					mail_words = split(mail_street_full, " ")
+					write_mail_line_one = ""
+					write_mail_line_two = ""
+					For each word in mail_words
+						If write_mail_line_one = "" Then
+							write_mail_line_one = word
+						ElseIf len(write_mail_line_one & " " & word) =< 22 AND mail_move_to_line_two = FALSE Then
+							write_mail_line_one = write_mail_line_one & " " & word
+						Else
+							mail_move_to_line_two = TRUE
+							If write_mail_line_two = "" Then
+								write_mail_line_two = word
+							Else
+								write_mail_line_two = write_mail_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_mail_line_one = mail_street_full
+				End If
+			Else
+				mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
+				If len(mail_line_one) or len(mail_line_two) > 22 Then
+					mail_words = split(mail_street_full, " ")
+					write_mail_line_one = ""
+					write_mail_line_two = ""
+					For each word in mail_words
+						If write_mail_line_one = "" Then
+							write_mail_line_one = word
+						ElseIf len(write_mail_line_one & " " & word) =< 22 AND mail_move_to_line_two = FALSE Then
+							write_mail_line_one = write_mail_line_one & " " & word
+						Else
+							mail_move_to_line_two = TRUE
+							If write_mail_line_two = "" Then
+								write_mail_line_two = word
+							Else
+								write_mail_line_two = write_mail_line_two & " " & word
+							End If
+						End If
+					Next
+				Else
+					write_mail_line_one = mail_line_one
+					write_mail_line_two = mail_line_two
+				End If
+			End If
 
 			If new_version = False then
 				EMWriteScreen write_mail_line_one, 13, 43
@@ -1811,23 +1875,23 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
 		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
 
-		        EMWriteScreen phone_one_left, 16, 39
-		        EMWriteScreen phone_one_mid, 16, 45
-		        EMWriteScreen phone_one_right, 16, 49
-		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 61
-				If phone_one <> "" Then EMWriteScreen text_yn_one, 16, 76
+		        EMWriteScreen phone_one_left, 16, 33
+		        EMWriteScreen phone_one_mid, 16, 37
+		        EMWriteScreen phone_one_right, 16, 41
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 52
+				If phone_one <> "" Then EMWriteScreen text_yn_one, 16, 66
 
-		        EMWriteScreen phone_two_left, 17, 39
-		        EMWriteScreen phone_two_mid, 17, 45
-		        EMWriteScreen phone_two_right, 17, 49
-		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 61
-				If phone_two <> "" Then EMWriteScreen text_yn_two, 17, 76
+		        EMWriteScreen phone_two_left, 17, 33
+		        EMWriteScreen phone_two_mid, 17, 37
+		        EMWriteScreen phone_two_right, 17, 41
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 52
+				If phone_two <> "" Then EMWriteScreen text_yn_two, 17, 66
 
-		        EMWriteScreen phone_three_left, 18, 39
-		        EMWriteScreen phone_three_mid, 18, 45
-		        EMWriteScreen phone_three_right, 18, 49
-		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 61
-				If phone_three <> "" Then EMWriteScreen text_yn_three, 18, 76
+		        EMWriteScreen phone_three_left, 18, 33
+		        EMWriteScreen phone_three_mid, 18, 37
+		        EMWriteScreen phone_three_right, 18, 41
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 52
+				If phone_three <> "" Then EMWriteScreen text_yn_three, 18, 66
 
 				EMSetCursor 19, 31
 				EMSendKey "<eraseEOF>"
@@ -1842,7 +1906,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
 	            EMReadScreen mail_standard_note, 31, 24, 2
 	            If mail_standard_note = "MAILING ADDRESS IS STANDARDIZED" Then transmit
-
 				EMReadScreen warn_msg, 60, 24, 2
 				warn_msg = trim(warn_msg)
 				If warn_msg = "ENTER A VALID COMMAND OR PF-KEY" Then Exit Do
@@ -2561,6 +2624,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 		EMWriteScreen "X", 7, 26
 		EMSendKey "<enter>"
 		EMWaitReady 0, 0
@@ -2624,6 +2688,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
+		If BUSI_type = "10" then BUSI_type = "Lived Experience"
 
 		'Reading and converting BUSI Self employment method into human-readable
 		EMReadScreen BUSI_method, 2, 16, 53
@@ -3373,13 +3438,15 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
 		ABPS_current = trim(ABPS_current)
         ABPS_current = split(ABPS_current)
         For each ABPS_part in ABPS_current
-          first_letter = ucase(left(ABPS_part, 1))
-          other_letters = LCase(right(ABPS_part, len(ABPS_part) -1))
-          If len(ABPS_part) > 1 then
-            new_ABPS_current = new_ABPS_current & first_letter & other_letters & " "
-          Else
-            new_ABPS_current = new_ABPS_current & ABPS_part & " "
-          End if
+          	If ABPS_part <> "" Then
+				first_letter = ucase(left(ABPS_part, 1))
+				other_letters = LCase(right(ABPS_part, len(ABPS_part) -1))
+				If len(ABPS_part) > 1 then
+					new_ABPS_current = new_ABPS_current & first_letter & other_letters & " "
+				Else
+					new_ABPS_current = new_ABPS_current & ABPS_part & " "
+				End if
+			End If
         Next
         ABPS_row = 15 'Setting variable for do...loop
         Do
@@ -4758,6 +4825,10 @@ function changelog_display()
 						script_in_local_changelog = true
 						if local_changelog_item_array(2) <> last_item_added_to_changelog(1) then
 							display_changelog = true
+							If local_changelog_item_array(2) = "* * * THIS SCRIPT IS BEING RETIRED ON 06/01/2024 * * *##~####~##NOTES - Eligibility Summary will be used to document any Approval starting 6/1/24, you will no longer be able to select for Approved Programs to continue with the old functionality.##~## ##~##If you have any concerns about Eligibility Summary, please report them right away so we can review.##~## ##~##                                       \    " Then
+								local_changelog_item_array(2) = "* * * THIS SCRIPT IS BEING RETIRED ON 06/01/2024 * * *##~####~##NOTES - Eligibility Summary will be used to document any Approval starting 6/1/24, you will no longer be able to select for Approved Programs to continue with the old functionality.##~## ##~##If you have any concerns about Eligibility Summary, please report them right away so we can review.##~## ##~##                                       \     |       / ##~##                            \      \    \    |     /    /       / ##~##                       \      \      \   \   |    /   /       /      / ##~##                   \     \      \  \   \  \  |   /  /  /   /      /      / ##~##                     \     \   \  \  \  @@@   /   /      /     / ##~##                 \     \     \   \ @@@@@@  /   /      /   / ##~##                \  \     \      @@@@@@@@    /      /   / ##~##              \   \  \      @@@@@@@@@@  /   /   /  / ##~##                 \  \  \  @@@@@@@@@@@  /  /  / ##~##    ~~ ~ ~ ~ ~ @@@@@@@@@@@@ ~ ~ ~ ~ ~~ ##~##                 /  /  / @@@@@@@@@@@ \  \  \ ##~##------------------------------------------------------------------------ ##~##(Sundown) "
+								' local_changelog_item_array(2) = replace(local_changelog_item_array(2), " | ", "")
+							End If
 							local_changelog_text_of_change = trim(local_changelog_item_array(2))
 							line_in_local_changelog_array_to_delete = i
 						Else
@@ -4794,7 +4865,12 @@ function changelog_display()
 				For each changelog_entry in changelog
 					date_of_change = left(changelog_entry, instr(changelog_entry, " | ") - 1)
 					scriptwriter_of_change = trim(right(changelog_entry, len(changelog_entry) - instrrev(changelog_entry, "|") ))
-					text_of_change = replace(replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change, ""), " | ", "")
+					If InStr(changelog_entry, " ##~##                 /  /  / @@@@@@@@@@@ \  \  \ ##~##------------------------------------------------------------------------ ##~##(Sundown)") <> 0 Then
+						scriptwriter_of_change = "| Casey Love, Hennepin County"
+						text_of_change = replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change & " |", "")
+					Else
+						text_of_change = replace(replace(replace(changelog_entry, scriptwriter_of_change, ""), date_of_change, ""), " | ", "")
+					End If
 
 					'If the text_of_change is the same as that stored in the local changelog, that means the user is up-to-date to this point, and the script should exit without displaying any more updates. Otherwise, add it to the contents.
 					if trim(text_of_change) = trim(local_changelog_text_of_change) then
@@ -4871,7 +4947,8 @@ function check_for_MAXIS(end_script)
 				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & vbCr & "The script has stopped, please check your MAXIS screen and try again."
 				script_end_procedure(check_for_MAXIS_msg)
 			Else
-				BeginDialog Password_dialog, 0, 0, 241, 145, "Password Dialog"
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 241, 145, "Password Dialog"
 				ButtonGroup ButtonPressed
 					OkButton 130, 125, 50, 15
 					CancelButton 185, 125, 50, 15
@@ -4886,7 +4963,7 @@ function check_for_MAXIS(end_script)
 				EndDialog
                 Do
                     Do
-                        dialog Password_dialog
+                        dialog Dialog1
                         cancel_confirmation
                     Loop until ButtonPressed = -1
                     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -4952,6 +5029,40 @@ function check_for_password_without_transmit(are_we_passworded_out)
 	End If
 end function
 
+function check_MAXIS_environment(environment_to_check, end_script)
+    'This function checks to make sure that the user is in the correct environment of maxis and has not passworded out.
+    'environment_to_check is the region required for the script - use "PRODUCTION", "INQUIRY DB", or "TRAINING"
+    'end_script is true/false - set to true to have the script end if not in the correct region, set to false to prompt the user to navigate to the correct region before pressing ok.
+    Do
+        back_to_SELF
+        CALL find_variable("Environment: ", current_environment, 10)			'reading if script was started in production or inquir…
+        If trim(current_environment) <> trim(environment_to_check) then
+
+            If end_script = true Then
+                script_end_procedure("This script must be run in " & environment_to_check & ". Please switch to " & environment_to_check & " and run the script again.")
+            Else
+                Dialog1 = ""
+		    	BeginDialog Dialog1, 0, 0, 251, 120, "Check Environment"
+		    		ButtonGroup ButtonPressed
+		    			OkButton 140, 100, 50, 15
+		    			CancelButton 195, 100, 50, 15
+		    		Text 5, 10, 255, 10, "*** This script requires you to be in the MAXIS " & environment_to_check & " environment. ***"
+		    		Text 15, 25, 210, 20, "Please ensure you are logged into the correct environment and have not passworded out."
+		    		Text 25, 50, 215, 20, "-- Password back in or navigate to the " & environment_to_check & " environment of MAXIS and press 'OK'' to continue."
+		    		Text 25, 80, 170, 10, "-- Or press 'Cancel'' to stop the script."
+		    	EndDialog
+                Do
+                    Do
+                       dialog Dialog1
+                       cancel_confirmation
+                    Loop until ButtonPressed = -1
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
+            End If
+        End If
+    Loop until trim(current_environment) = trim(environment_to_check)
+end function
+
 function clear_line_of_text(row, start_column)
 '--- This function clears out a single line of text
 '~~~~~ row: coordinate of row to clear
@@ -4960,6 +5071,739 @@ function clear_line_of_text(row, start_column)
   EMSetCursor row, start_column
   EMSendKey "<EraseEof>"
   EMWaitReady 0, 0
+end function
+
+function collect_script_usage_data(script_to_record, closing_message, timer_begin)
+'--- This function records script runs into the usage log and can be used for functionality runs, not just completed scripts.
+'~~~~~ script_to_record: this would be the 'name_of_script' for completed script runs, but can be adjusted if run on functionality instead of the completed script
+'~~~~~ closing_message: information about the script run should be passed through this variable, for completed script runs, this would be the closing message
+'~~~~~ timer_begin: passes the timer variable through to the data usage to record script run time. This allows for different timers to be set and reset based on the specific script functionality
+'===== Keywords: MAXIS, MMIS, script, statistics
+	stop_time = timer
+	script_run_end_time = time
+	script_run_end_date = date
+	script_run_time = stop_time - timer_begin
+
+	'Getting user name
+	Set objNet = CreateObject("WScript.NetWork")
+	user_ID = objNet.UserName
+
+	'Setting constants
+	Const adOpenStatic = 3
+	Const adLockOptimistic = 3
+
+	'Defaulting script success to successful
+	SCRIPT_success = -1
+
+	'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
+	IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+	closing_message = replace(closing_message, "'", "")
+
+	'Opening DB
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+
+	objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+	"VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & script_to_record & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+
+	'Closing the connection
+	objConnection.Close
+end function
+
+function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_name_const, memb_age_const, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
+'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE
+
+	'first - assess if caregiver meets an exemption
+		'- Single parent household employed at least 35 hours per week
+		'- 2 Parent household where the 1st parent is employed at least 35 hours per week
+		'- 2 Parened household where the 2nd parent is employed at least 20 hours per week and the 1st is employed 35
+		'- Pregnant or parenting minor under 20 who is coplying with the educational requirements
+		'- Caregiver is not receiving MFIP
+
+	'Identify the caregivers
+	'Identify if they are requesting Cash
+	'Indicate if this will be DWP or MFIP
+	'Identify if the caregiver is a minor
+	'List the hours employed for each caregiver
+	'
+	person_list = "Select One..."+chr(9)+"No Caregiver"
+	second_person_list = "Select One..."+chr(9)+"No Second Caregiver"
+
+	For person = 0 to UBound(CAREGIVER_ARRAY, 2)
+		person_list = person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
+		second_person_list = second_person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
+	Next
+    If UBound(CAREGIVER_ARRAY, 2) = 0 Then caregiver_two = "No Second Caregiver"
+	caregiver_one = CAREGIVER_ARRAY(memb_name_const, 0)
+
+	Do
+		err_msg = ""
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 551, 150, "Assess for Caregiver MFIP Orientation Requirement"
+		  DropListBox 185, 10, 60, 45, "MFIP"+chr(9)+"DWP", family_cash_program
+		  EditBox 110, 30, 430, 15, famliy_cash_notes
+		  DropListBox 65, 65, 140, 45, person_list, caregiver_one
+		  DropListBox 330, 65, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_one_req_cash
+		  EditBox 430, 65, 30, 15, caregiver_one_hours_per_week
+		  If UBound(CAREGIVER_ARRAY, 2) = 0 Then
+            Text 65, 90, 140, 10, caregiver_two
+            Text 330, 90, 45, 10, "N/A"
+            Text 430, 90, 30, 10, "N/A"
+          Else
+            DropListBox 65, 85, 140, 45, second_person_list, caregiver_two
+            DropListBox 330, 85, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_two_req_cash
+            EditBox 430, 85, 30, 15, caregiver_two_hours_per_week
+          End If
+		  Text 15, 125, 450, 20, "These questions will identify if these caregivers need an MFIP orientation. See CM 05.12.12.06   to see the reasons that a caregiver would not need an MFIP Orientation. The script will use this information to determine if the MFIP Orientation Functionality should be run."
+		  ButtonGroup ButtonPressed
+			OkButton 490, 125, 50, 15
+			PushButton 420, 10, 120, 15, "MFIP Orientation Script Instructions", msg_mfip_orientation_btn
+            PushButton 260, 123, 55, 10, "CM05.12.12.06", cm_05_12_12_06_btn
+		  Text 10, 15, 170, 10, "Which Family Cash Program is this Application for?"
+		  Text 10, 35, 100, 10, "Notes on Program Selection:"
+		  GroupBox 10, 50, 530, 55, "Who are the Caregivers"
+		  Text 20, 70, 40, 10, "Caregiver:"
+		  Text 215, 70, 115, 10, "Is this caregiver requesting cash?"
+		  Text 385, 70, 40, 10, "Employed: "
+		  Text 465, 70, 50, 10, "hours/week"
+		  Text 20, 90, 40, 10, "Caregiver:"
+		  Text 215, 90, 115, 10, "Is this caregiver requesting cash?"
+		  Text 385, 90, 40, 10, "Employed: "
+		  Text 465, 90, 50, 10, "hours/week"
+		  Text 15, 110, 100, 10, "Why is this being asked?"
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		If caregiver_one = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the First Caregiver or clarify that there is no caregiver"
+		If caregiver_two = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the Second Caregiver or clarify that there is no second caregiver"
+		If caregiver_one = caregiver_two Then err_msg = err_msg & vbCr & "* Select two different caregivers"
+		If IsNumeric(caregiver_one_hours_per_week) = False AND trim(caregiver_one_hours_per_week) <> "" Then err_msg = err_msg & vbCr & "* Hours per week should be a number, or left blank."
+		If IsNumeric(caregiver_two_hours_per_week) = False AND trim(caregiver_two_hours_per_week) <> "" Then err_msg = err_msg & vbCr & "* Hours per week should be a number, or left blank."
+
+		If family_cash_program = "DWP" Then err_msg = ""
+
+		If ButtonPressed <> -1 Then err_msg = "LOOP"
+		If err_msg <> "" And ButtonPressed = -1 Then MsgBox err_msg
+
+        If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
+		If ButtonPressed = msg_mfip_orientation_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20MFIP%20ORIENTATION.docx"
+
+	Loop until err_msg = ""
+
+	If family_cash_program = "MFIP" Then
+		If IsNumeric(caregiver_one_hours_per_week) = True Then caregiver_one_hours_per_week = caregiver_one_hours_per_week * 1
+		If trim(caregiver_one_hours_per_week) = "" Then caregiver_one_hours_per_week = 0
+
+		If IsNumeric(caregiver_two_hours_per_week) = True Then caregiver_two_hours_per_week = caregiver_two_hours_per_week * 1
+		If trim(caregiver_two_hours_per_week) = "" Then caregiver_two_hours_per_week = 0
+
+		minor_caregiver_on_case = 0
+
+		For person = 0 to UBound(CAREGIVER_ARRAY, 2)
+			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_one Then
+				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
+				CAREGIVER_ARRAY(orientation_needed_const, person) = True
+
+				If caregiver_one_req_cash = "Yes" Then CAREGIVER_ARRAY(cash_request_const, person) = True
+				If caregiver_one_req_cash <> "Yes" Then
+					CAREGIVER_ARRAY(cash_request_const, person) = False
+					CAREGIVER_ARRAY(orientation_needed_const, person) = False
+					CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+					CAREGIVER_ARRAY(exemption_reason_const, person) = "Caregiver Not on MFIP"
+					CAREGIVER_ARRAY(emps_exemption_code_const, person) = "NO"
+				End If
+				CAREGIVER_ARRAY(hours_per_week_const, person) = caregiver_one_hours_per_week
+
+				If CAREGIVER_ARRAY(hours_per_week_const, person) > 34 Then
+					CAREGIVER_ARRAY(orientation_needed_const, person) = False
+					CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+					CAREGIVER_ARRAY(exemption_reason_const, person) = "Employed 35+ hours per week"
+					CAREGIVER_ARRAY(emps_exemption_code_const, person) = "20"
+				ElseIf CAREGIVER_ARRAY(hours_per_week_const, person) > 19 Then
+					If caregiver_two <> "No Second Caregiver" AND caregiver_two_req_cash = "Yes" AND caregiver_two_hours_per_week > 34 Then
+						CAREGIVER_ARRAY(orientation_needed_const, person) = False
+						CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+						CAREGIVER_ARRAY(exemption_reason_const, person) = "2nd Caregiver Employed 20+ hours per week"
+						CAREGIVER_ARRAY(emps_exemption_code_const, person) = "21"
+					End If
+				End If
+				If CAREGIVER_ARRAY(memb_age_const, person) < 20 Then
+					minor_caregiver_on_case = minor_caregiver_on_case + 1
+					CAREGIVER_ARRAY(exempt_from_ed_const, person) = "No"
+					CAREGIVER_ARRAY(comply_with_ed_const, person) = "Yes"
+				End If
+
+			End If
+
+			If CAREGIVER_ARRAY(memb_name_const, person) = caregiver_two Then
+				CAREGIVER_ARRAY(memb_is_caregiver, person) = True
+				CAREGIVER_ARRAY(orientation_needed_const, person) = True
+
+				If caregiver_two_req_cash = "Yes" Then CAREGIVER_ARRAY(cash_request_const, person) = True
+				If caregiver_two_req_cash <> "Yes" Then
+					CAREGIVER_ARRAY(cash_request_const, person) = False
+					CAREGIVER_ARRAY(orientation_needed_const, person) = False
+					CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+					CAREGIVER_ARRAY(exemption_reason_const, person) = "Caregiver Not on MFIP"
+					CAREGIVER_ARRAY(emps_exemption_code_const, person) = "NO"
+				End If
+				CAREGIVER_ARRAY(hours_per_week_const, person) = caregiver_two_hours_per_week
+
+				If CAREGIVER_ARRAY(hours_per_week_const, person) > 34 Then
+					CAREGIVER_ARRAY(orientation_needed_const, person) = False
+					CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+					CAREGIVER_ARRAY(exemption_reason_const, person) = "Employed 35+ hours per week"
+					CAREGIVER_ARRAY(emps_exemption_code_const, person) = "20"
+				ElseIf CAREGIVER_ARRAY(hours_per_week_const, person) > 19 Then
+					If caregiver_one <> "No Second Caregiver" AND caregiver_one_req_cash = "Yes" AND caregiver_one_hours_per_week > 34 Then
+						CAREGIVER_ARRAY(orientation_needed_const, person) = False
+						CAREGIVER_ARRAY(orientation_exempt_const, person) = True
+						CAREGIVER_ARRAY(exemption_reason_const, person) = "2nd Caregiver Employed 20+ hours per week"
+						CAREGIVER_ARRAY(emps_exemption_code_const, person) = "21"
+					End If
+				End If
+				If CAREGIVER_ARRAY(memb_age_const, person) < 20 Then
+					minor_caregiver_on_case = minor_caregiver_on_case + 1
+					CAREGIVER_ARRAY(exempt_from_ed_const, person) = "No"
+					CAREGIVER_ARRAY(comply_with_ed_const, person) = "Yes"
+				End If
+			End If
+
+
+
+		Next
+
+		'IF A MINOR IS FOUND
+		If minor_caregiver_on_case > 0 Then
+			Do
+				err_msg = ""
+				dlg_len = 210
+				If minor_caregiver_on_case = 2 Then dlg_len = 290
+
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 551, dlg_len, "Assess for Caregiver MFIP Orientation Requirement"
+				  Text 10, 15, 200, 10, "Which Family Cash Program is this Application for? " & family_cash_program
+				  Text 10, 25, 500, 20, "Notes on Program Selection: " & famliy_cash_notes
+				  GroupBox 10, 50, 530, 40, "Who are the Caregivers"
+				  Text 20, 60, 190, 10, "Caregiver: " & caregiver_one
+				  Text 215, 60, 165, 10, "Is this caregiver requesting cash? " & caregiver_one_req_cash
+				  Text 385, 60, 90, 10, "Employed: " & caregiver_one_hours_per_week
+				  Text 465, 60, 50, 10, "hours/week"
+				  Text 20, 75, 190, 10, "Caregiver: " & caregiver_two
+				  Text 215, 75, 165, 10, "Is this caregiver requesting cash? " & caregiver_two_req_cash
+				  Text 385, 75, 90, 10, "Employed: " & caregiver_two_hours_per_week
+				  Text 465, 75, 50, 10, "hours/week"
+				  y_pos = 30
+				  For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
+					  If CAREGIVER_ARRAY(memb_is_caregiver, caregiver) = True and CAREGIVER_ARRAY(memb_age_const, caregiver) < 20 Then
+						  y_pos = y_pos + 70
+						  GroupBox 10, y_pos, 530, 65, CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  Text 20, y_pos + 10, 270, 10, "This caregiver appears to be a minor by MFIP program rules (under 20 years old)."
+						  Text 20, y_pos + 30, 195, 10, "Is this caregiver exempt from the Educational Requirement?"
+						  DropListBox 230, y_pos + 25, 40, 45, "No"+chr(9)+"Yes", CAREGIVER_ARRAY(exempt_from_ed_const, caregiver)
+						  Text 20, y_pos + 50, 205, 10, "Is this caregiver complying with the Educational Requirement?"
+						  DropListBox 230, y_pos + 45, 40, 45, "No"+chr(9)+"Yes", CAREGIVER_ARRAY(comply_with_ed_const, caregiver)
+					  End If
+				  Next
+				  Text 15, y_pos + 90, 450, 20, "These questions will identify if these caregivers need an MFIP orientation. See CM 05.12.12.06 to see the reasons that a caregiver would not need an MFIP Orientation. The script will use this information to determine if the MFIP Orientation Functionality should be run."
+				  ButtonGroup ButtonPressed
+					OkButton 490, y_pos + 90, 50, 15
+					PushButton 485, y_pos + 45, 50, 15, "CM 28.12", cm_28_12_btn
+					PushButton 260, y_pos + 87, 55, 10, "CM05.12.12.06", cm_05_12_12_06_btn
+				  Text 355, y_pos + 45, 125, 20, "See details about the educational requirement in the Combined Manual "
+				  Text 15, y_pos + 75, 100, 10, "Why is this being asked?"
+				EndDialog
+
+				dialog Dialog1
+				cancel_confirmation
+
+				If err_msg <> "" Then MsgBox err_msg
+
+			Loop until err_msg = ""
+
+			For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
+				If CAREGIVER_ARRAY(memb_is_caregiver, caregiver) = True and CAREGIVER_ARRAY(memb_age_const, caregiver) < 20 Then
+					If CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = "No" Then CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = False
+					If CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = "Yes" Then CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = True
+					If CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = "No" Then CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = False
+					If CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = "Yes" Then CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = True
+
+					If CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = False and CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = True Then
+						CAREGIVER_ARRAY(orientation_needed_const, caregiver) = False
+						CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True
+						CAREGIVER_ARRAY(exemption_reason_const, caregiver) = "Minor Caregiver meeting Educational Requirements"
+						CAREGIVER_ARRAY(emps_exemption_code_const, caregiver) = "22"
+					End If
+				Else
+					CAREGIVER_ARRAY(exempt_from_ed_const, caregiver) = False
+					CAREGIVER_ARRAY(comply_with_ed_const, caregiver) = False
+				End If
+			Next
+
+		End If
+
+		const mf_step_rights_resp 	= 1
+		const mf_step_time_limits	= 2
+		const mf_step_extension		= 3
+		const mf_step_dv			= 4
+		const mf_step_expectations	= 5
+		const mf_step_esp			= 6
+		const mf_step_compliance	= 7
+		const mf_step_ep			= 8
+		const mf_step_ccap			= 9
+		const mf_step_incentives	= 10
+		const mf_step_hc			= 11
+		const mf_completion			= 12
+
+		' mf_step_rights_resp_viewed = False
+		' mf_step_time_limits_viewed = False
+		' mf_step_extension_viewed = False
+		' mf_step_dv_viewed = False
+		' mf_step_expectations_viewed = False
+		' mf_step_esp_viewed = False
+		' mf_step_compliance_viewed = False
+		' mf_step_ep_viewed = False
+		' mf_step_ccap_viewed = False
+		' mf_step_incentives_viewed = False
+		' mf_step_hc_viewed = False
+		' mf_completion_viewed = False
+		'
+		' orientation_script_document_viewed = False
+		'
+		'FIRST - Participant Responsibilities and Rights'
+		'SECOND - MFIP Time Limits'
+		'THIRD - MFIp Extension Eligibility'
+		'FOURTH - Family Violence'
+		'FIFTH - Expectations'
+		'SIXTH - Choosing ESP'
+		'SEVENTH - Assignment and Compliance'
+		'EIGHTH - Developing an EP'
+		'NINTH - CCAP'
+		'TENTH - Incentives'
+		'ELEVENTH - Health Care'
+		' all_mfip_orientation_info_viewed = False
+		For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
+
+			If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then
+                Call Navigate_to_MAXIS_screen("STAT", "EMPS")
+    			If CAREGIVER_ARRAY(memb_ref_numb_const, caregiver) <> "" Then
+    				EMWriteScreen CAREGIVER_ARRAY(memb_ref_numb_const, caregiver), 20, 76
+    				transmit
+    			End If
+
+                MFIP_orientation_step = mf_step_rights_resp
+
+				mf_step_rights_resp_viewed = False
+				mf_step_time_limits_viewed = False
+				mf_step_extension_viewed = False
+				mf_step_dv_viewed = False
+				mf_step_expectations_viewed = False
+				mf_step_esp_viewed = False
+				mf_step_compliance_viewed = False
+				mf_step_ep_viewed = False
+				mf_step_ccap_viewed = False
+				mf_step_incentives_viewed = False
+				mf_step_hc_viewed = False
+				mf_completion_viewed = False
+
+				orientation_script_document_viewed = False
+
+				all_mfip_orientation_info_viewed = False
+
+				Do
+					err_msg = ""
+
+					Dialog1 = ""
+					BeginDialog Dialog1, 0, 0, 551, 385, "MFIP Orientation"
+					  ' GroupBox 10, 10, 450, 45, "Group1"
+					  ButtonGroup ButtonPressed
+					  	If MFIP_orientation_step <> mf_completion Then PushButton 495, 365, 50, 15, "NEXT", next_btn
+
+						'FIRST - Participant Responsibilities and Rights'
+						If MFIP_orientation_step = mf_step_rights_resp Then
+						  Text 10, 10, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  GroupBox 10, 30, 450, 130, "Participant Responsibilities and Rights"
+						  Text 20, 45, 370, 10, "As a program participant you have responsibilities and rights that were discussed during your intake interview."
+						  Text 20, 60, 430, 10, "Please keep a copy of the Client Responsibilities and Rights (DHS-4163) for your reference. Let us know if you have any questions."
+						  Text 20, 80, 335, 10, "Please remember it's important to report ANY changes that could affect your eligibility within 10 days."
+						  GroupBox 10, 75, 450, 15, ""
+						  Text 20, 100, 420, 20, "If your income decreases by at least 50% contact your financial worker right away!  You may be eligible for a significant change meaning a recalculation of your income which may result in an increase of your cash and/or food benefits."
+						  Text 20, 125, 335, 20, "If you do not meet program eligibility such as cash assistance, your financial worker will assess other program eligibility such as SNAP."
+						  PushButton 385, 160, 75, 15, "DHS - 4163", open_dhs_4163_btn
+
+						  mf_step_rights_resp_viewed = True
+						  'ADD BUTTON DHS 4163'
+						End If
+
+						'SECOND - MFIP Time Limits'
+						If MFIP_orientation_step = mf_step_time_limits Then
+						  GroupBox 10, 10, 450, 160, "MFIP Time-Limits"
+						  Text 20, 25, 430, 30, "The MFIP program is available to you for up to 60 months in your lifetime.  If you have used cash assistance in another state those months must be reported and may count toward your lifetime limit. There are some instances the months you use may be exempt, meaning the months do not count towards the 60-month lifetime limit."
+						  Text 20, 55, 55, 10, "These Include:"
+						  Text 30, 70, 125, 10, "1. Months you are over 60 years old"
+						  Text 30, 80, 310, 10, "2. Months you are living on a reservation where at least 50% of the adults were not employed"
+						  Text 30, 90, 360, 10, "3. Months when you are a victim of family violence AND have an approved family violence waiver plan"
+						  Text 30, 100, 335, 10, "4. Months you don't receive the cash portion of MFIP (*talk to your financial worker for more details)"
+						  Text 30, 110, 350, 10, "5. Months you are a parent under 18 years of age and complying with your school or social service plan"
+						  Text 30, 120, 395, 10, "6. Months you are 18 or 19 years old and do not have a high school diploma/GED AND complying with a school plan"
+						  Text 40, 135, 355, 25, "Note: If you are eligible for an exemption but you are not complying with program requirements and do not meet a good cause reason, those months will count toward the lifetime limit. If you have questions about possible good cause reasons, talk to a worker."
+							  Text 10, 175, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+
+						  mf_step_time_limits_viewed = True
+						End If
+
+						'THIRD - MFIp Extension Eligibility'
+						If MFIP_orientation_step = mf_step_extension Then
+						  GroupBox 10, 10, 450, 295, "MFIP Extension Eligibility"
+						  Text 20, 30, 165, 10, "You may be eligible for an MFIP Extension if:"
+						  Text 30, 45, 375, 10, "- You are a single or two parent household working the required number of hours that meet extension eligibility"
+						  Text 30, 55, 365, 10, "- Your health care provider states you are only able to work 20 hours per week due to an illness or disability"
+						  Text 20, 75, 380, 20, "A qualified professional verifies you have one or more of the conditions below that severely limits your ability to obtain or maintain suitable employment for 20 or more hours per week:"
+						  Text 30, 100, 165, 10, "- Developmentally Disabled or Mentally Ill"
+						  Text 30, 110, 95, 10, "- Learning Disability"
+						  Text 30, 120, 60, 10, "- IQ Below 80"
+						  Text 30, 130, 260, 10, "- You are ill/injured or incapacitated that's expected to last more than 30 days"
+						  Text 20, 145, 125, 10, "A qualified professional verifies:"
+						  Text 35, 160, 280, 15, "You are needed in the home to provide care for a family member or foster child in the household that is expected to continue for more than 30 days "
+						  Text 35, 185, 285, 35, "A child or adult in the home meets the Special Medical Criteria for home care services or a home and community-based waiver services program, severe emotional disturbance (SED diagnosed child) or serious and persistent mental illness (SPMI diagnosed adult)"
+						  Text 35, 225, 275, 20, "You have significant barriers to employment and determined Unemployable by a vocational specialist or other qualified professional designated by the county"
+						  Text 35, 250, 165, 10, "You are a victim of family violence"
+						  Text 20, 265, 415, 30, "If you believe you meet any of the criteria's above it's important to discuss with your financial worker AND your employment counselor. You may qualify for a modified employment plan prior to reaching your 60-month as well as receive an extension of your cash benefits."
+							  Text 10, 310, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+
+						  mf_step_extension_viewed = True
+						End If
+
+						'FOURTH - Family Violence'
+						If MFIP_orientation_step = mf_step_dv Then
+						  GroupBox 10, 10, 450, 75, "Family Violence Resources/Supports"
+						  Text 20, 30, 390, 10, "Your financial worker discussed and provided information regarding resources if you are a victim of family violence."
+						  Text 20, 45, 375, 35, " Please review that brochure if you need assistance with shelter and/or supports Domestic Violence Information (DHS 3477) and Family Violence Referral (DHS 3323). If you are a victim of domestic violence, you may choose to work with your assigned Employment Counselor to determine if you are eligible for a Family Violence Waiver to allow your family time and flexibility to focus on safety issues."
+							  Text 10, 90, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  PushButton 385, 90, 75, 15, "DHS - 3477", open_dhs_3477_btn
+						  PushButton 385, 105, 75, 15, "DHS - 3323", open_dhs_3323_btn
+
+						  mf_step_dv_viewed = True
+						  'ADD BUTTON DHS 3477
+						  'ADD BUTTON DHS 3323
+						End If
+
+						'FIFTH - Expectations'
+						If MFIP_orientation_step = mf_step_expectations Then
+						  GroupBox 10, 10, 450, 110, "Expectations of Participants Approved for the MFIP Program"
+						  Text 20, 30, 360, 20, "MFIP services focus on putting you on the most direct path to employment and other related steps that will support long-term economic stability."
+						  Text 20, 55, 375, 20, "While you are expected to work, look for work, or participate in activities to prepare for work, the steps toward economic stability look different for all families and participants."
+						  Text 20, 80, 405, 20, "Employment Services have a variety of tools to address the unique needs of each family. You will hear more about these tools and resources during your Employment Services Overview."
+							  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+
+						  mf_step_expectations_viewed = True
+						End If
+
+						'SIXTH - Choosing ESP'
+						If MFIP_orientation_step = mf_step_esp Then
+						  GroupBox 10, 10, 450, 155, "Choosing an MFIP Employment Service Provider (ESP)"
+						  Text 25, 25, 345, 10, "As part of the MFIP program you are required to work with an MFIP Employment Service Provider (ESP)."
+						  Text 25, 40, 410, 20, "There's a variety of providers available to help support your employment goals. On the MFIP ESP Choice Sheet, choose the top three providers you'd like to work with listing your top three choices with 1 being the provider you most want to work with."
+						  Text 25, 65, 330, 10, "We will do our best to refer you to one of your top three choices depending on available openings."
+						  Text 25, 85, 195, 10, "There are a few exceptions in choosing your provider:"
+						  Text 40, 100, 345, 10, "If you have worked with an MFIP ESP in the past ninety (90) days, you may be referred to that provider."
+						  Text 40, 115, 350, 20, "If you are under 18 and do not have a HS diploma/GED, you will be referred to Minnesota Visiting Nurse Association to discuss your education and employment options"
+						  Text 40, 140, 345, 20, "If you have used 60 months or more of your TANF time limit and granted an extension under a specific category you will be referred to an agency that specializes in that type of extension."
+							  Text 10, 170, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  ' PushButton 385, 170, 75, 15, "Choice Sheet", open_choice_sheet_btn
+
+						  mf_step_esp_viewed = True
+						  'ADD BUTTON - CHOICE SHEET ???'
+						End If
+
+						'SEVENTH - Assignment and Compliance'
+						If MFIP_orientation_step = mf_step_compliance Then
+						  GroupBox 10, 10, 450, 110, "Assignment and Compliance with MFIP Employment Services"
+						  Text 25, 30, 295, 10, "Once you are approved for MFIP you will be referred to an Employment Service Provider."
+						  Text 25, 45, 375, 20, "In Hennepin County, many of the Employment Services Providers are community based nonprofit organizations who partner with Hennepin County to deliver services."
+						  Text 25, 70, 410, 20, "The provider will send you a notice to attend an MFIP Employment Service Overview. You are required to attend the overview and work with your assigned employment service counselor."
+						  Text 25, 95, 400, 20, "If you choose not to comply with program requirements, your case may be sanctioned resulting in a reduction of your cash and/or food benefits."
+							  Text 10, 125, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+
+						  mf_step_compliance_viewed = True
+						End If
+
+						'EIGHTH - Developing an EP'
+						If MFIP_orientation_step = mf_step_ep Then
+						  GroupBox 10, 10, 450, 270, "Developing an Employment Plan (EP) with your MFIP Employment Counselor"
+						  Text 20, 25, 430, 25, "Program participants will work with their assigned Employment Counselor to develop an Employment Plan. Your Employment Plan will be based on your goals and will include activities that are intended to lead to employment and financial stability. On the path to stable employment, many different types of activities are available."
+						  Text 20, 55, 140, 10, "Some of the allowable activities include:"
+						  Text 30, 70, 260, 10, "- Job search (including participation in job clubs, workshops, and hiring events)"
+						  Text 30, 80, 260, 10, "- Employment"
+						  Text 30, 90, 260, 10, "- Self-employment"
+						  Text 30, 100, 260, 10, "- Community work experience and/or volunteer work"
+						  Text 30, 110, 260, 10, "- On the job training"
+						  Text 30, 120, 260, 10, "- English Language Learning (ELL and ESL) or Functional Work Literacy (FWL)"
+						  Text 30, 130, 260, 10, "- Adult Basic Education, GED preparation and Adult High School Diploma"
+						  Text 30, 140, 260, 10, "- Job skills training directly related to employment"
+						  Text 30, 150, 260, 10, "- Post-Secondary Training and Education"
+						  Text 30, 160, 415, 10, "- Other activities that are critical to your family's success in reaching your employment goals such as chemical dependency"
+						  Text 35, 170, 260, 10, "treatment, mental health services, social services, and parenting education."
+						  Text 20, 190, 430, 25, "You are required to follow through with the activities in your employment plan. If you are unable to complete the activities, contact your Employment Counselor right away to determine if your plan need to be updated. Good communication with your employment counselor can help prevent reduction in your grant (sanctions)."
+						  Text 20, 220, 425, 30, "Your Employment Counselor may conduct assessments with you to support you in selecting an education and training path that creates opportunities for long term economic stability. If you have more questions about education and training options, you can also see the Education and Training Brochure (DHS 3366)."
+						  Text 20, 255, 420, 20, "Work study programs under the higher education systems may also be available.  Your assigned employment counselor will discuss this opportunity in more detail."
+							  Text 10, 285, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  PushButton 385, 285, 75, 15, "DHS - 3366", open_dhs_3366_btn
+
+						  mf_step_ep_viewed = True
+						  'ADD BUTTON DHS 3366'
+						ENd If
+
+						'NINTH - CCAP'
+						If MFIP_orientation_step = mf_step_ccap Then
+						  GroupBox 10, 10, 450, 150, "Availability of Childcare Assistance"
+						  Text 25, 25, 425, 20, "There are several Childcare Assistance programs (CCAP) available to support your participation in employment, pre-employment activities, training, and/or educational programs"
+						  Text 40, 45, 120, 10, "- MFIP/DWP Childcare assistance"
+						  Text 40, 55, 120, 10, "- Transition Year Childcare assistance"
+						  Text 60, 65, 385, 25, "Many families continue to be eligible for childcare assistance when their MFIP case closes.  It's highly recommended that you speak to your assigned childcare worker to discuss eligibility details specific to your continued needs for assistance when MFIP closes"
+						  Text 40, 90, 170, 10, "- Transition Year Extension Childcare assistance"
+						  Text 40, 100, 170, 10, "- Basic sliding fee Childcare assistance"
+						  Text 60, 110, 215, 10, "If funds are not available, you may be put on a waiting list"
+						  Text 25, 125, 430, 10, "Contact your assigned Employment Counselor or Childcare Assistance Worker to discuss eligibility requirements in more detail."
+						  Text 25, 140, 395, 10, "If you need help locating childcare provider options, here's a great resource to contact Think Small or (651-641-0332)"
+						  GroupBox 10, 165, 450, 65, "Who to Contact about Childcare Assistance?"
+						  Text 25, 180, 420, 20, "If you are receiving MFIP your assigned Employment Counselor will work with you to determine how many childcare hours need to be approved based on the activities in your Employment Plan"
+						  Text 25, 205, 420, 20, "If you are receiving MFIP but have not been assigned to an Employment Counselor or if your MFIP has closed contact the childcare assistance line directly at 612-348-5937"
+						  GroupBox 10, 235, 450, 115, "Program Compliance and Unavailability of Childcare Assistance"
+						  Text 25, 250, 425, 20, "The county may NOT impose a sanction for failure to comply with program requirements if you have good cause because of the unavailability of childcare. The inability to obtain childcare does not exempt or extend your TANF time limit."
+						  Text 25, 275, 105, 10, "Some good cause reasons are:"
+						  Text 35, 285, 135, 10, "- Unavailability of appropriate childcare"
+						  Text 35, 295, 135, 10, "- Unreasonable distance to childcare provider"
+						  Text 35, 305, 235, 10, "- Provider does not meet health and safety standards for the child(ren)"
+						  Text 35, 315, 275, 10, "- The provider charges an excess amount above the maximum the county can pay"
+						  Text 25, 330, 335, 10, "Your Childcare Worker or Employment Counselor can discuss good cause reasons in more detail"
+							  Text 10, 365, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+
+						  mf_step_ccap_viewed = True
+						End If
+
+						'TENTH - Incentives'
+						If MFIP_orientation_step = mf_step_incentives Then
+						  GroupBox 10, 10, 450, 150, "Incentives and Tax Credits"
+						  Text 25, 30, 230, 10, "The MFIP program is designed to benefit you when you are working."
+						  Text 25, 45, 420, 35, "For example, your financial worker will not budget all your earned income when they calculate the amount of cash and food benefits you are eligible for. When determining your benefit amount, they will not count the first $65 of income you earn AND beyond that, they will only count half of your remaining gross earned income. Here is a link to explain how this works: Bulletin 21-11-01 - DHS Reissues 'Work Will Always Pay ... With MFIP'"
+						  Text 25, 85, 425, 10, "If you are working, when you file your taxes apply for the Earned Income Credit and the Minnesota Working Family Credit."
+						  Text 25, 100, 225, 10, "Getting a tax refund will NOT affect your eligibility for MFIP."
+						  Text 25, 115, 425, 35, "Have your taxes done for FREE! For a list of free tax preparation sites call the Minnesota Department of Revenue at 651-296-3781 or 1-800-652-9094. Neighborhood Volunteer Income Tax Assistance (VITA) sites are available throughout the state. They are open from February 1 through April 15. Some sites are open year around to help you file back taxes. Search for free tax preparation sites at Department of Revenue."
+							  Text 10, 165, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  PushButton 385, 165, 75, 15, "DHS Bulletin 21-11-01", open_dhs_bulletin_21_11_01_btn
+
+						  mf_step_incentives_viewed = True
+						  'ADD BUTTON BULLETIN 21-11-01'
+						End If
+
+						'ELEVENTH - Health Care'
+						If MFIP_orientation_step = mf_step_hc Then
+						  GroupBox 10, 10, 450, 90, "Health Care"
+						  Text 25, 30, 230, 10, "You may qualify for Minnesota Health Care programs."
+						  Text 25, 45, 410, 20, "You can apply for health care online at www.mnsure.org (for assistance completing an online application call 1-855-366-7873) or we can mail you a paper application (DHS 6696)."
+						  Text 25, 70, 425, 20, "For help with age-appropriate preventive health services check out the Child and Teen Checkup program at: http://edocs.dhs.state.mn.us/lfserver/public/DHS-1826-ENG"
+							  Text 10, 105, 145, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+						  PushButton 385, 105, 75, 15, "DHS - 1826", open_dhs_1826_btn
+
+						  mf_step_hc_viewed = True
+						  'ADD BUTTON DHS 1826'
+						End If
+
+						If MFIP_orientation_step = mf_completion Then
+						  GroupBox 10, 10, 450, 140, "Document MFIP Orientation Completion"
+						  Text 20, 30, 135, 10, "For " & CAREGIVER_ARRAY(memb_name_const, caregiver) & ":"
+						  Text 25, 50, 215, 10, "Did you verbally review all information in the MFIP Oreientation?"
+						  DropListBox 240, 45, 210, 45, "Select One..."+chr(9)+"Yes - all information has been reviewed"+chr(9)+"No - could not complete", CAREGIVER_ARRAY(orientation_done_const, caregiver)
+						  Text 25, 65, 240, 10, "Notes from any questions/conversation during the MFIP Orientation:"
+						  EditBox 25, 75, 425, 15, CAREGIVER_ARRAY(orientation_notes, caregiver)
+						  Text 25, 105, 125, 10, "IF COMPLETE - OPEN ECF NOW"
+						  Text 35, 120, 220, 10, "Complete the ESP Choice Sheet (D387) with the resident now."
+						  Text 35, 135, 175, 10, "Confirm Choice Sheet Completed and saved to ECF:"
+						  DropListBox 205, 130, 140, 45, "Select One..."+chr(9)+"Yes - Choice Sheet Saved to ECF"+chr(9)+"No - could not complete", CAREGIVER_ARRAY(choice_form_done_const, caregiver)
+						  Text 210, 155, 250, 25, "MFIP Orientation is now complete for this resident. If this case has a second caregiver that requires the MFIP Orientation, this dialog will reappear for the next caregiver as this is a person based process."
+						  PushButton 385, 180, 75, 15, "HSR Manual", open_hsr_manual_btn
+						  PushButton 385, 195, 75, 15, "CM 05.12.12.06", cm_05_12_12_06_btn
+
+						  mf_completion_viewed = True
+						End If
+
+						Text 470, 5, 80, 10, "MFIP Orientation Topics"
+						Text 10, 360, 190, 20, "The entire MFIP Orientation to Financial Serviews Script can be viewed on Sharepoint - Open Word Document here:"
+
+						If MFIP_orientation_step = mf_step_rights_resp Then 	Text 500, 18, 55, 10, "Rights / Resp"
+						If MFIP_orientation_step = mf_step_time_limits Then 	Text 504, 33, 55, 10, "Time Limits"
+						If MFIP_orientation_step = mf_step_extension Then 	Text 509, 48, 55, 10, "Extention"
+						If MFIP_orientation_step = mf_step_dv Then 			Text 497, 63, 55, 10, "Family Violence"
+						If MFIP_orientation_step = mf_step_expectations Then 	Text 503, 78, 55, 10, "Expectations"
+						If MFIP_orientation_step = mf_step_esp Then 			Text 508, 93, 55, 10, "MFIP ESP"
+						If MFIP_orientation_step = mf_step_compliance Then 	Text 497, 108, 55, 10, "ES Compliance"
+						If MFIP_orientation_step = mf_step_ep Then 			Text 505, 123, 55, 10, "Emplmt Plan"
+						If MFIP_orientation_step = mf_step_ccap Then 			Text 512, 138, 55, 10, "CCAP"
+						If MFIP_orientation_step = mf_step_incentives Then 	Text 506, 153, 55, 10, "Incentives"
+						If MFIP_orientation_step = mf_step_hc Then 			Text 505, 168, 55, 10, "Health Care"
+						If MFIP_orientation_step = mf_completion Then 		Text 502, 188, 55, 10, "Confirmation"
+
+
+					    If MFIP_orientation_step = mf_completion Then PushButton 495, 365, 50, 15, "DONE", done_btn
+
+
+					    If MFIP_orientation_step <> mf_step_rights_resp Then 	PushButton 495, 15, 55, 15, "Rights / Resp", button_one
+					    If MFIP_orientation_step <> mf_step_time_limits Then 	PushButton 495, 30, 55, 15, "Time Limits", button_two
+						If MFIP_orientation_step <> mf_step_extension Then 		PushButton 495, 45, 55, 15, "Extention", button_three
+					    If MFIP_orientation_step <> mf_step_dv Then 			PushButton 495, 60, 55, 15, "Family Violence", button_four
+					    If MFIP_orientation_step <> mf_step_expectations Then 	PushButton 495, 75, 55, 15, "Expectations", button_five
+					    If MFIP_orientation_step <> mf_step_esp Then 			PushButton 495, 90, 55, 15, "MFIP ESP", button_six
+					    If MFIP_orientation_step <> mf_step_compliance Then 	PushButton 495, 105, 55, 15, "ES Compliance", button_seven
+					    If MFIP_orientation_step <> mf_step_ep Then 			PushButton 495, 120, 55, 15, "Emplmt Plan", button_eight
+					    If MFIP_orientation_step <> mf_step_ccap Then 			PushButton 495, 135, 55, 15, "CCAP", button_nine
+					    If MFIP_orientation_step <> mf_step_incentives Then 	PushButton 495, 150, 55, 15, "Incentives", button_ten
+					    If MFIP_orientation_step <> mf_step_hc Then 			PushButton 495, 165, 55, 15, "Health Care", button_eleven
+					    If MFIP_orientation_step <> mf_completion Then 			PushButton 495, 185, 55, 15, "Confirmation", button_twelve
+
+					    ' PushButton 495, 195, 55, 15, "Button 2", Button13
+					    ' PushButton 495, 210, 55, 15, "Button 2", Button14
+					    ' PushButton 495, 225, 55, 15, "Button 2", Button15
+					    ' PushButton 495, 240, 55, 15, "Button 2", Button16
+						PushButton 205, 360, 135, 15, "MFIP Oriendation Document", mfip_orientation_word_doc_btn
+						' OkButton 495, 365, 50, 15
+
+					EndDialog
+
+					dialog Dialog1
+					cancel_confirmation
+
+					err_msg = ""
+
+					If ButtonPressed = next_btn Then MFIP_orientation_step = MFIP_orientation_step + 1
+					If ButtonPressed = button_one Then MFIP_orientation_step = mf_step_rights_resp
+					If ButtonPressed = button_two Then MFIP_orientation_step = mf_step_time_limits
+					If ButtonPressed = button_three Then MFIP_orientation_step = mf_step_extension
+					If ButtonPressed = button_four Then MFIP_orientation_step = mf_step_dv
+					If ButtonPressed = button_five Then MFIP_orientation_step = mf_step_expectations
+					If ButtonPressed = button_six Then MFIP_orientation_step = mf_step_esp
+					If ButtonPressed = button_seven Then MFIP_orientation_step = mf_step_compliance
+					If ButtonPressed = button_eight Then MFIP_orientation_step = mf_step_ep
+					If ButtonPressed = button_nine Then MFIP_orientation_step = mf_step_ccap
+					If ButtonPressed = button_ten Then MFIP_orientation_step = mf_step_incentives
+					If ButtonPressed = button_eleven Then MFIP_orientation_step = mf_step_hc
+					If ButtonPressed = button_twelve Then MFIP_orientation_step = mf_completion
+
+
+					If ButtonPressed = mfip_orientation_word_doc_btn Then
+						run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-es-manual/_layouts/15/Doc.aspx?sourcedoc=%7BCB2C8281-95F1-45EE-84D8-B2DF617AA62C%7D&file=MFIP%20Orientation%20to%20Financial%20Services.docx"
+						MFIP_orientation_step = mf_completion
+						orientation_script_document_viewed = True
+					End If
+					If ButtonPressed = open_dhs_4163_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-4163-ENG"
+					If ButtonPressed = open_dhs_3477_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG"
+					If ButtonPressed = open_dhs_3323_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3323-ENG"
+					If ButtonPressed = open_dhs_3366_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3366-ENG"
+					If ButtonPressed = open_dhs_bulletin_21_11_01_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=dhs-328254"
+					If ButtonPressed = open_dhs_1826_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-1826-ENG"
+
+					If ButtonPressed = open_hsr_manual_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
+					If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
+					' If ButtonPressed = cm_28_12_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_002812"
+
+
+
+
+					If mf_step_rights_resp_viewed = True and mf_step_time_limits_viewed = True and mf_step_extension_viewed = True and mf_step_dv_viewed = True and mf_step_expectations_viewed = True and mf_step_esp_viewed = True and mf_step_compliance_viewed = True and mf_step_ep_viewed = True and mf_step_ccap_viewed = True and mf_step_incentives_viewed = True and mf_step_hc_viewed = True and mf_completion_viewed = True Then all_mfip_orientation_info_viewed = True
+					If orientation_script_document_viewed = True and mf_completion_viewed = True Then all_mfip_orientation_info_viewed = True
+
+
+					' MsgBox "DONE? - " & CAREGIVER_ARRAY(orientation_done_const, caregiver) & vbCr & "CHOICE SHEET? - " & CAREGIVER_ARRAY(choice_form_done_const, caregiver)
+					If all_mfip_orientation_info_viewed = False and CAREGIVER_ARRAY(orientation_done_const, caregiver) = "No - could not complete" Then err_msg = err_msg & vbCr & "* You must review the entire MFIP Orientation before continuing."
+					If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP Orientation has been completed."
+					If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Yes - all information has been reviewed" and CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the MFIP ESP Choice Sheet has been completed in ECF."
+
+					If ButtonPressed = done_btn and err_msg <> "" Then MsgBox err_msg
+					' If ButtonPressed = done_btn Then MsgBox err_msg
+					If ButtonPressed <> done_btn Then err_msg = "HOLD"
+
+				Loop Until all_mfip_orientation_info_viewed = True and err_msg = ""
+			End If
+			If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "Yes - all information has been reviewed" Then CAREGIVER_ARRAY(orientation_done_const, caregiver) = True
+			If CAREGIVER_ARRAY(orientation_done_const, caregiver) = "No - could not complete" Then CAREGIVER_ARRAY(orientation_done_const, caregiver) = False
+			If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "Yes - Choice Sheet Saved to ECF" Then CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True
+			If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = "No - could not complete" Then CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False
+
+			'HERE WE HAVE A DIALOG TO GO TO EMPS AND GIVE INSTRUCTION ON HOW TO COMPLETE IT
+			If (CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True and CAREGIVER_ARRAY(orientation_done_const, caregiver) = True) or CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 281, 185, "Update EMPS Panel"
+				  ButtonGroup ButtonPressed
+				    PushButton 125, 135, 145, 15, "The EMPS Panel Update is Complete", emps_update_complete_btn
+				  Text 15, 10, 125, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+				  If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then Text 35, 20, 205, 10, "NEEDS an MFIP Orientation"
+				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 35, 20, 205, 10, "Is Exempt from having an MFIP Orientation"
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is Completed"
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 15, 35, 255, 10, "The MFIP Orientation to Financial Services is NOT Completed"
+				  If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is Completed"
+				  If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = False Then Text 15, 45, 255, 10, "The ESP Choice Sheet in ECF is NOT Completed"
+
+				  Text 15, 65, 260, 10, "This person has met the requirement for the MFIP Orientation."
+				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 20, 75, 260, 10, "Exemption Reason: " & CAREGIVER_ARRAY(exemption_reason_const, caregiver)
+				  GroupBox 15, 90, 255, 65, "Update EMPS Panel Now"
+				  Text 25, 105, 210, 10, "Update panel: EMPS for " & CAREGIVER_ARRAY(memb_name_const, caregiver)
+				  Text 30, 115, 45, 10, "Fin Orient Dt: "
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 115, 40, 10, date
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 115, 40, 10, "__ __ __"
+				  Text 45, 125, 35, 10, "Attended: "
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then Text 85, 125, 20, 10, "Y"
+				  If CAREGIVER_ARRAY(orientation_done_const, caregiver) = False Then Text 85, 125, 20, 10, "N"
+				  Text 30, 135, 45, 10, "Good Cause:"
+				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = False Then Text 85, 135, 20, 10, "__"
+				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 85, 135, 20, 10, CAREGIVER_ARRAY(emps_exemption_code_const, caregiver)
+				EndDialog
+
+				dialog Dialog1
+
+				Call start_a_blank_CASE_NOTE        'QUESTION - I believe we are going to lose the tie to the DAIL here - do we care? We could update the function 'navigat5e_to_MAXIS_screen' to support usng PF4 to get to CNOTE from STAT.
+
+				If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then
+					STATS_manualtime = STATS_manualtime + 300
+
+					Call write_variable_in_CASE_NOTE("MFIP Orientation completed with " & CAREGIVER_ARRAY(memb_name_const, caregiver))
+					Call write_bullet_and_variable_in_CASE_NOTE("Orientation Completed on", date)
+					Call write_bullet_and_variable_in_CASE_NOTE("Orientation Notes", CAREGIVER_ARRAY(orientation_notes, caregiver))
+					If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Call write_variable_in_CASE_NOTE("* ESP Choice Sheet: Completed in Case File.")
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation.")
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_variable_in_CASE_NOTE(worker_signature)
+
+				ElseIf CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then
+
+					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " is Exempt from MFIP Orientation")
+					Call write_bullet_and_variable_in_CASE_NOTE("Assessment Completed", date)
+					Call write_bullet_and_variable_in_CASE_NOTE("Exemption Reason", CAREGIVER_ARRAY(exemption_reason_const, caregiver))
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_variable_in_CASE_NOTE(worker_signature)
+				End If
+
+				PF3
+
+                'We leave the CNOTE becaose this runs in a loop and may have more than one note.
+                call back_to_SELF       'QUESTION This will definitely lose the tie to the DAIL - Again - do we care?'
+
+			End If
+			' MsgBox CAREGIVER_ARRAY(memb_name_const, caregiver) & " - DONE"
+		Next
+	End If
+	' MsgBox "STOP HERE"
 end function
 
 function confirm_docs_accepted_in_ecf(closing_msg)
@@ -5340,6 +6184,74 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 235 then script_end_procedure("This script is only able to assign excel columns to 234 distinct digits. You've exceeded this number, and this script cannot continue.")
 end function
 
+function create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
+'--- This function standardizes the creation and content for an application appointment letter notice.
+'~~~~~ application_date: Date of applicattion, must be in date format
+'~~~~~ interview_date: Date interview was conducted, must be in date format
+'~~~~~ last_contact_day: Date of last contact with resident, must be in date format
+'===== Keywords: MAXIS, ADMIN, NOTICE, Appointment, Application
+	Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
+	Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("You can complete interviews by phone. In-person support is available at several service center locations(M-F 8-4:30)")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" - 525  Portland Ave S (5th floor) Minneapolis 55415")
+  	CALL write_variable_in_SPEC_MEMO(" - 9600 Aldrich Ave S Bloomington 55420")
+  	Call write_variable_in_SPEC_MEMO(" ")
+	CALL digital_experience
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+	PF4
+end function
+
+
+function create_appointment_letter_notice_recertification(programs, intvw_programs, interview_end_date, last_day_of_recert)
+'--- This function standardizes the creation and content for a recertification appointment letter notice
+'~~~~~ programs: The variable to identify the programs applicable to the case
+'~~~~~ intvw_programs: The variable to identify the program identified during the interview (MFIP/SNAP, MFIP, SNAP)
+'~~~~~ interview_end_date: Last date an interview can be conducted within the recertification window, must be in date format
+'~~~~~ last_day_of_recert: Last day of recertification, must be in date format
+'===== Keywords: MAXIS, ADMIN, NOTICE, Appointment, Recertification
+	CALL write_variable_in_SPEC_MEMO("The Department of Human Services sent you a packet of paperwork. This paperwork is to renew your " & programs & " case.")
+	If len(programs) < 11 Then CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("Please sign, date and return the renewal paperwork by " & CM_plus_1_mo & "/08/" & CM_plus_1_yr & ". You must also complete an interview for your " & intvw_programs & " case to continue.")
+	CALL write_variable_in_SPEC_MEMO("")
+	Call write_variable_in_SPEC_MEMO("  *** Please complete your interview by " & interview_end_date & ". ***")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
+	CALL write_variable_in_SPEC_MEMO("")
+	If len(programs) < 11 Then
+		CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
+	ElseIf len(programs) > 14 Then
+		CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless")
+	ElseIf len(programs) > 10 Then
+		CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
+	End If
+	CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("You can complete interviews by phone. In-person support is available at several service center locations(M-F 8-4:30)")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" - 525  Portland Ave S (5th floor) Minneapolis 55415")
+	CALL write_variable_in_SPEC_MEMO(" - 9600 Aldrich Ave S Bloomington 55420")
+	CALL write_variable_in_SPEC_MEMO(" ")
+	Call digital_experience
+	CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
+	PF4         'Submit the MEMO
+end function
+
 Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
@@ -5418,28 +6330,138 @@ function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 	array_name = split(array_name)
 end function
 
-function create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type)
-'--- This function creates a mainframe friendly date. This can be used for both year formats and input spacing.
+function create_NOMI_application(application_date, appt_date, last_contact_day)
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) application notice.
+'~~~~~ application_date: Date CAF was received, must be in date format
+'~~~~~ appt_date: Date interview is to be conducted by, must be in date format. This is 7 days from the CAF date.
+'~~~~~ last_contact_day: Date resident has to contact the county, must be in date format. This is 30 days from the application date.
+	Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & application_date & ".")
+	Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & appt_date & ".")
+	Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+	Call write_variable_in_SPEC_MEMO(" ")
+	Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+	Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+	Call write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("You can complete interviews by phone. In-person support is available at several service center locations(M-F 8-4:30)")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" - 525  Portland Ave S (5th floor) Minneapolis 55415")
+	CALL write_variable_in_SPEC_MEMO(" - 9600 Aldrich Ave S Bloomington 55420")
+	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL digital_experience
+	PF4
+end function
+
+function create_NOMI_recertification(caf_date_as_of_today, last_day_of_recert)
+'--- This function standardizes the creation and content for a NOMI (Notice of Missed Interview) recertification notice.
+'~~~~~ caf_date_as_of_today: Date recertification paperwork was received if received, must be in date format.
+'~~~~~ last_day_of_recert: Last day to complete an interview in order to continue benefits, must be in date format.
+	if caf_date_as_of_today <> "" then CALL write_variable_in_SPEC_MEMO("We received your Recertification Paperwork on " & caf_date_as_of_today & ".")
+	if caf_date_as_of_today = "" then CALL write_variable_in_SPEC_MEMO("Your Recertification Paperwork has not yet been received.")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("You must have an interview by " & last_day_of_recert & " or your benefits will end. ")
+	CALL write_variable_in_SPEC_MEMO("")
+	Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+	Call write_variable_in_SPEC_MEMO("612-596-1300 between 9:00am and 3:00pm Monday thru Friday.")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("You can complete interviews by phone. In-person support is available at several service center locations(M-F 8-4:30)")
+	CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+	CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+	CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+	CALL write_variable_in_SPEC_MEMO(" - 525  Portland Ave S (5th floor) Minneapolis 55415")
+	CALL write_variable_in_SPEC_MEMO(" - 9600 Aldrich Ave S Bloomington 55420")
+	CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL digital_experience
+	CALL write_variable_in_SPEC_MEMO(" ")
+	CALL write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_day_of_recert & "  **")
+	CALL write_variable_in_SPEC_MEMO("  **   your benefits will end on " & last_day_of_recert & ".   **")
+	PF4         'Submit the MEMO
+end function
+
+
+function create_mainframe_friendly_date(date_variable, screen_row, screen_col, variable_length)
+'--- This function creates a mainframe friendly date. This can be used for all field lengths, spacings, and year formats in MAXIS and MMIS.
+'	 The function tabs through the date fields to determine formatting. Handles full dates with 2 or 4 digit year, as well as month/year fields.
 '~~~~~ date_variable: the name of the variable to output
 '~~~~~ screen_row: row to start writing date
 '~~~~~ screen_col: column to start writing date
-'~~~~~ year_type: formatting to export date year as "YY" or "YYYY"
+'~~~~~ variable length: the number of days to add to the date_variable for output.
+'      entering any non-numeric variable will result in 0 days added. This is for backward compatibility with scripts that used this variable for year format
 '===== Keywords: MAXIS, PRISM, MMIS, date, create
+'Year type is now variable length. This is a date offset calculation in days.
+	IF isnumeric(variable_length) = false THEN variable_length = 0 'This handles the old function, where this value was "YY or YYYY" for handling year.
+	date_variable = dateadd("d", variable_length, date_variable) 'adding the number of days to the date
+
+	'Formatting the parts of the Date to correct lengths
 	var_month = datepart("m", date_variable)
 	IF len(var_month) = 1 THEN var_month = "0" & var_month
-	EMWriteScreen var_month & "/", screen_row, screen_col
 	var_day = datepart("d", date_variable)
 	IF len(var_day) = 1 THEN var_day = "0" & var_day
-	EMWriteScreen var_day & "/", screen_row, screen_col + 3
-	If year_type = "YY" then
-		var_year = right(datepart("yyyy", date_variable), 2)
-	ElseIf year_type = "YYYY" then
-		var_year = datepart("yyyy", date_variable)
+	var_year = datepart("yyyy", date_variable)
+
+	'This section reads the location we're entering the date and determines format
+	EMREadScreen date_space, 14, screen_row, screen_col
+	EMReadScreen MMIS_check, 5, 1, 2
+	'This section determines what fields we're dealing with
+	EMSetCursor screen_row, screen_col
+	EMSendKey "<TAB>"
+	EMGetCursor row_two, column_two
+	EMSendKey "<TAB>"
+	EMGetCursor row_three, column_three
+	IF (row_two = screen_row AND column_two - screen_col > 6) OR screen_row <> row_two THEN 'This is a single field for the date
+		EMWriteScreen "_", screen_row, screen_col +8 'We're determining if this is a writeable field for year format. Have to write a char because MMIS doesn't mark fields
+		EMREadScreen year_field, 1, screen_row, screen_col +8
+		If year_field = "_" Then 'This is a 4 digit year space
+			EMWriteScreen var_month & "/" & var_day & "/" & var_year, screen_row, screen_col
+		Else '2 digit year
+			EMWriteScreen var_month & "/" & var_day & "/" & right(var_year, 2), screen_row, screen_col
+		End If
+	ElseIf row_three = screen_row AND column_two - screen_col = 5 AND column_three - column_two = 5 THEN 'This is 3 spaces between 3 date parts
+		EMWriteScreen var_month, screen_row, screen_col
+		EMWriteScreen var_day, screen_row, screen_col + 5
+		EMREadScreen year_field, 1, screen_row + 12
+		IF year_field = " " Then
+			EMWriteScreen right(var_year, 2), screen_row, column_three
+		Else
+			EMWriteScreen var_year, screen_row, column_three
+		End If
+	ElseIf (row_three = screen_row AND column_two - screen_col = 3 AND column_three - column_two = 3) OR (row_two = screen_row AND column_two - screen_col = 6) THEN 'This is 1 space between 3 date parts or center date is an "01" in system
+		EMWriteScreen var_month, screen_row, screen_col
+		EMWriteScreen var_day, screen_row, screen_col + 3
+		EMREadScreen year_field, 1, screen_row, screen_col + 8  'check for year format
+		If year_field = " " Then
+			EMWriteScreen right(var_year, 2), screen_row, screen_col + 6
+		Else
+			EMWriteScreen var_year, screen_row, screen_col + 6
+		End If
+	ElseIf column_two - screen_col = 3 AND (column_three - column_two > 3 OR row_three <> row_two) Then'Month, space, year
+		EMWriteScreen var_month, screen_row, screen_col
+		EMREadScreen year_field, 1, screen_row, screen_col + 6  'check for year format
+		If year_field = " " Then
+			EMWriteScreen right(var_year, 2), screen_row, screen_col + 3
+		Else
+			EMWriteScreen var_year, screen_row, screen_col + 3
+		End If
+	ElseIf column_two - screen_col = 5 AND (column_three - column_two > 5 OR row_three <> row_two) Then'3 spaces between month/year (TRAC)
+		EMWriteScreen var_month, screen_row, screen_col
+		EMREadScreen year_field, 1, screen_row, screen_col + 7  'check for year format
+		If year_field = " " Then
+			EMWriteScreen right(var_year, 2), screen_row, screen_col + 5
+		Else
+			EMWriteScreen var_year, screen_row, screen_col + 5
+		End If
 	Else
-		MsgBox "Year type entered incorrectly. Fourth parameter of function create_mainframe_friendly_date should read ""YYYY"" or ""YY"". The script will now stop."
-		StopScript
-	END IF
-	EMWriteScreen var_year, screen_row, screen_col + 6
+		MsgBox "Something went wrong. The script has encountered an unsupported date field or format."
+	End If
+
 end function
 
 function create_MAXIS_friendly_date(date_variable, variable_length, screen_row, screen_col)
@@ -5669,34 +6691,34 @@ Function create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL
             TIKL_mo = right("0" & DatePart("m",    TIKL_date), 2) 'Creating new month and year variables to determine which ten day cut off date to use
             TIKL_yr = right(      DatePart("yyyy", TIKL_date), 2)
 
-            IF TIKL_mo = "01" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #01/19/2023#
-            ELSEIF TIKL_mo = "02" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #02/16/2023#
-            ELSEIF TIKL_mo = "03" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #03/21/2023#
-            ELSEIF TIKL_mo = "04" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #04/20/2023#
-            ELSEIF TIKL_mo = "05" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #05/19/2023#
-            ELSEIF TIKL_mo = "06" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #06/20/2023#
-            ELSEIF TIKL_mo = "07" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #07/20/2023#
-            ELSEIF TIKL_mo = "08" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #08/21/2023#
-            ELSEIF TIKL_mo = "09" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #09/20/2023#
-            ELSEIF TIKL_mo = "10" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #10/19/2023#
+            IF TIKL_mo = "01" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #01/19/2024#
+            ELSEIF TIKL_mo = "02" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #02/16/2024#
+            ELSEIF TIKL_mo = "03" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #03/21/2024#
+            ELSEIF TIKL_mo = "04" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #04/18/2024#
+            ELSEIF TIKL_mo = "05" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #05/21/2024#
+            ELSEIF TIKL_mo = "06" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #06/20/2024#
+            ELSEIF TIKL_mo = "07" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #07/19/2024#
+            ELSEIF TIKL_mo = "08" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #08/21/2024#
+            ELSEIF TIKL_mo = "09" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #09/19/2024#
+            ELSEIF TIKL_mo = "10" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #10/21/2024#
+            ELSEIF TIKL_mo = "11" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #11/19/2024#
+            ELSEIF TIKL_mo = "12" AND TIKL_yr = "24" THEN
+                ten_day_cutoff = #12/19/2024#
             ELSEIF TIKL_mo = "11" AND TIKL_yr = "23" THEN
                 ten_day_cutoff = #11/20/2023#
             ELSEIF TIKL_mo = "12" AND TIKL_yr = "23" THEN
-                ten_day_cutoff = #12/20/2023#
-            ELSEIF TIKL_mo = "11" AND TIKL_yr = "22" THEN
-                ten_day_cutoff = #11/18/2022#
-            ELSEIF TIKL_mo = "12" AND TIKL_yr = "22" THEN
-                ten_day_cutoff = #12/21/2022#                                'last month of current year
+                ten_day_cutoff = #12/20/2023#                                'last month of current year
             ELSE
             	missing_date = True 'in case TIKL time spans exceed 10 day cut off calendar.
             END IF
@@ -5751,7 +6773,7 @@ function date_array_generator(initial_month, initial_year, date_array)
 end function
 
 function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
-'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP
+'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP. Info Source: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
 '~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
 '~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
@@ -5762,7 +6784,18 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
 		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then				'these are the associated amounts
+		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'these are the associated amounts
+			If hh_size = 1 Then fpg_130_percent = 1580
+			If hh_size = 2 Then fpg_130_percent = 2137
+			If hh_size = 3 Then fpg_130_percent = 2694
+			If hh_size = 4 Then fpg_130_percent = 3250
+			If hh_size = 5 Then fpg_130_percent = 3807
+			If hh_size = 6 Then fpg_130_percent = 4364
+			If hh_size = 7 Then fpg_130_percent = 4921
+			If hh_size = 8 Then fpg_130_percent = 5478
+
+			If hh_size > 8 Then fpg_130_percent = 5478 + (557 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
 			If hh_size = 1 Then fpg_130_percent = 1473
 			If hh_size = 2 Then fpg_130_percent = 1984
 			If hh_size = 3 Then fpg_130_percent = 2495
@@ -5773,19 +6806,123 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 			If hh_size = 8 Then fpg_130_percent = 5052
 
 			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1396
-			If hh_size = 2 Then fpg_130_percent = 1888
-			If hh_size = 3 Then fpg_130_percent = 2379
-			If hh_size = 4 Then fpg_130_percent = 2871
-			If hh_size = 5 Then fpg_130_percent = 3363
-			If hh_size = 6 Then fpg_130_percent = 3855
-			If hh_size = 7 Then fpg_130_percent = 4347
-			If hh_size = 8 Then fpg_130_percent = 4839
-
-			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
 		End If
 	End If
+end function
+
+function determine_200_percent_of_FPG(program_determination, application_date_variable, hh_size_variable, fpg_200_percent)
+'--- This function outputs the dollar amount (as a number) of 200% FPG based on program, application date, and HH size for EA, EGA, and SNAP. Info Source for SNAP: CM0019.06 Gross Income Limits - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906. Info source for EA/EGA: CM0016.18.01 - 200 PERCENT OF FEDERAL POVERTY GUIDELINES - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=cm_00161801
+'~~~~~ program_determination: Enter the program variable - must be 'SNAP', 'EA', or 'EGA'
+'~~~~~ application_date_variable: Enter the application date variable. If there is no application date or no application date variable, the function will default to the current year's 200% FPG guidelines for the indicated program
+'~~~~~ hh_size_variable: Enter the household size variable or the household size number in the unit
+'~~~~~ fpg_200_percent: NUMBER - this will output a number with the amount of 200% FPG based on the program, application date, and HH Size
+'===== Keywords: SNAP, EA, EGA, calculation, Income Test, FPG
+
+    'Date determination for 'EGA' and 'SNAP'. Must be updated each year in April
+    If program_determination = "EGA" Then
+        If IsDate(application_date_variable) = True Then
+            application_date_variable_diff = (DateDiff("d", #4/1/2024#, application_date_variable))
+        Else
+            no_application_date_variable = True
+        End If
+    ElseIf program_determination = "SNAP" Then
+        If IsDate(application_date_variable) = True Then
+            application_date_variable_diff = (DateDiff("d", #10/1/2023#, application_date_variable))
+        Else
+            no_application_date_variable = True
+        End If
+    End If
+
+    'Determine the 200% FPG amounts depending on the program determination
+    If program_determination = "EA" Then
+        'If today's date is 04/01/24 or after 04/01/24 then use the April 2024 200% FPG
+        If (DateDiff("d", #4/1/2024#, date)) >= 0 Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2510
+            If hh_size_variable = 2 Then fpg_200_percent = 3407
+            If hh_size_variable = 3 Then fpg_200_percent = 4303
+            If hh_size_variable = 4 Then fpg_200_percent = 5200
+            If hh_size_variable = 5 Then fpg_200_percent = 6097
+            If hh_size_variable = 6 Then fpg_200_percent = 6993
+            If hh_size_variable = 7 Then fpg_200_percent = 7890
+            If hh_size_variable = 8 Then fpg_200_percent = 8787
+            If hh_size_variable = 9 Then fpg_200_percent = 9683
+            If hh_size_variable = 10 Then fpg_200_percent = 10580
+            If hh_size_variable > 10 Then fpg_200_percent = 10580 + ((hh_size_variable - 10) * 897)
+
+        'Otherwise use the April 2023 200% FPG
+        Else
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+        End If
+    ElseIf program_determination = "SNAP" Then
+        'If application date is 10/1/23 or after 10/01/23 or there is no application date then use October 2023 200% FPG
+        If application_date_variable_diff >= 0 OR no_application_date_variable = True Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+
+        'If application date is before 10/1/23 then use the October 2022 200% FPG
+        ElseIf application_date_variable_diff < 0 Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2265
+            If hh_size_variable = 2 Then fpg_200_percent = 3052
+            If hh_size_variable = 3 Then fpg_200_percent = 3838
+            If hh_size_variable = 4 Then fpg_200_percent = 4625
+            If hh_size_variable = 5 Then fpg_200_percent = 5412
+            If hh_size_variable = 6 Then fpg_200_percent = 6198
+            If hh_size_variable = 7 Then fpg_200_percent = 6985
+            If hh_size_variable = 8 Then fpg_200_percent = 7772
+            If hh_size_variable = 9 Then fpg_200_percent = 8558
+            If hh_size_variable = 10 Then fpg_200_percent = 9345
+            If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+        End If
+    ElseIf program_determination = "EGA" Then
+
+        'If application date is 4/1/24 or after 04/01/24 OR there is no application date AND today's date is 4/1/24 or after 4/1/24 then use April 2023 200% FPG
+        If application_date_variable_diff >= 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2024#, date)) >= 0) Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2430
+            If hh_size_variable = 2 Then fpg_200_percent = 3287
+            If hh_size_variable = 3 Then fpg_200_percent = 4143
+            If hh_size_variable = 4 Then fpg_200_percent = 5000
+            If hh_size_variable = 5 Then fpg_200_percent = 5857
+            If hh_size_variable = 6 Then fpg_200_percent = 6713
+            If hh_size_variable = 7 Then fpg_200_percent = 7570
+            If hh_size_variable = 8 Then fpg_200_percent = 8427
+            If hh_size_variable = 9 Then fpg_200_percent = 9283
+            If hh_size_variable = 10 Then fpg_200_percent = 10140
+            If hh_size_variable > 10 Then fpg_200_percent = 10140 + ((hh_size_variable - 10) * 857)
+
+        'If application date is before 4/1/24 OR there is no application date AND today's date is before 4/1/24 then use April 2022 200% FPG
+        ElseIf application_date_variable_diff < 0 OR (no_application_date_variable = True and (DateDiff("d", #4/1/2024#, date)) < 0) Then
+            If hh_size_variable = 1 Then fpg_200_percent = 2265
+            If hh_size_variable = 2 Then fpg_200_percent = 3052
+            If hh_size_variable = 3 Then fpg_200_percent = 3838
+            If hh_size_variable = 4 Then fpg_200_percent = 4625
+            If hh_size_variable = 5 Then fpg_200_percent = 5412
+            If hh_size_variable = 6 Then fpg_200_percent = 6198
+            If hh_size_variable = 7 Then fpg_200_percent = 6985
+            If hh_size_variable = 8 Then fpg_200_percent = 7772
+            If hh_size_variable = 9 Then fpg_200_percent = 8558
+            If hh_size_variable = 10 Then fpg_200_percent = 9345
+            If hh_size_variable > 10 Then fpg_200_percent = 9345 + ((hh_size_variable - 10) * 787)
+        End If
+    End If
 end function
 
 function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
@@ -6218,7 +7355,6 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 			list_active_programs = list_active_programs & "EGA, "
         End If
         If ega_status = "PENDING" Then
-            dwp_case = TRUE
             emer_case = TRUE
             case_pending = TRUE
 			list_pending_programs = list_pending_programs & "EGA, "
@@ -6280,6 +7416,17 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 	list_pending_programs = trim(list_pending_programs)  'trims excess spaces of list_pending_programs
 	If right(list_pending_programs, 1) = "," THEN list_pending_programs = left(list_pending_programs, len(list_pending_programs) - 1)
 End Function
+
+
+function digital_experience()
+'--- This function standardizes the digital experience coding information so that we only have to update it in one location.
+'===== Keywords: MAXIS, MEMO, WCOM
+	CALL write_variable_in_SPEC_MEMO("*** Options for Submitting Documents ***")
+	CALL write_variable_in_SPEC_MEMO("- Upload documents to case with infokeep.hennepin.us.")
+	CALL write_variable_in_SPEC_MEMO("- You can submit documents online at MNBenefits.mn.gov.")
+	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers.")
+end function
+
 
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 '--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
@@ -7415,43 +8562,80 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 '~~~~~ version_result: outputs the ELIG/INELIG information for the approved version
 '~~~~~ approval_found: BOOLEAN - If an appoved version was found
 '===== Keywords: MAXIS, find, ELIG
+	EMReadScreen msa_elig_check, 3, 2, 30							'capturing information about the approval to handle for weird MSA functionality
+	EMReadScreen curr_footer_month, 2, 20, 56
+	EMReadScreen curr_footer_year, 2, 20, 59
+	skip_99_window = False											'allows for the function to skip entering the 99 code because sometimes it doesn't work.
 	Call write_value_and_transmit("99", cmd_row, cmd_col)			'opening the pop-up with all versions listed.
-	approval_found = True											'default the approval to being found
+	If msa_elig_check = "MSA" Then									'we only need to check this issue for MSA at this time
+		EMReadScreen msa_elig_double_check, 3, 2, 30				'if we are still in MSA with the code 99 - it will still display MSA at the top
+		If msa_elig_double_check <> "MSA" Then						'if MSA is not displayed - MAXIS kicked us out of the elig information
+			skip_99_window = True
+			Call navigate_to_MAXIS_screen("ELIG", "MSA ")			'go to MSA
+			EMWriteScreen curr_footer_month, 20, 56					'get to the right footer month
+			EMWriteScreen curr_footer_year, 20, 59
+			EMWriteScreen "MSA", 20, 71
+			transmit
+			Do
+				EMReadScreen approval_status, 8, 3, 3				'read the approval status and version
+				EMReadScreen elig_version, 2, 2, 11
+				If approval_status = "APPROVED" Then				'If approved, we can leave the loop and grab the informaiton from ELIG/MSA screen
+					EMReadScreen elig_date, 8, 3, 14
+					version_date = elig_date
+					version_number = elig_version
+					version_result = approval_status
+					approval_found = True
+					Exit Do
+				ElseIf elig_version = "01" Then						'If not approved and we are at version 1 - there is no approval
+					approval_found = False
+					Exit Do
+				Else												'otherwise try to get to a new approval.
+					elig_version = elig_version*1
+					prev_version = elig_version-1
+					prev_version = right("00"&prev_version, 2)
+					Call write_value_and_transmit(prev_version, 20, 79)
+				End If
+			Loop
+		End If
+	End If
+	If skip_99_window = False Then
+		approval_found = True											'default the approval to being found
 
-	row = 7															'this is  the first row of the pop-up'
-	Do
-		EMReadScreen elig_version, 2, row, 22						'reading the information about the version
-		EMReadScreen elig_date, 8, row, 26
-		EMReadScreen elig_result, 10, row, 37
-		EMReadScreen approval_status, 10, row, 50
+		row = 7															'this is  the first row of the pop-up'
+		Do
+			EMReadScreen elig_version, 2, row, 22						'reading the information about the version
+			EMReadScreen elig_date, 8, row, 26
+			EMReadScreen elig_result, 10, row, 37
+			EMReadScreen approval_status, 10, row, 50
 
-		elig_version = trim(elig_version)
-		elig_result = trim(elig_result)
-		approval_status = trim(approval_status)
+			elig_version = trim(elig_version)
+			elig_result = trim(elig_result)
+			approval_status = trim(approval_status)
 
-		If approval_status = "APPROVED" Then Exit Do				'If it was 'APPROVED' this is the most recent version that is appoved and we have all the information
+			If approval_status = "APPROVED" Then Exit Do				'If it was 'APPROVED' this is the most recent version that is appoved and we have all the information
 
-		row = row + 1												'go to the next row'
-	Loop until approval_status = ""									'once we hit a blank, there are no more vversions
+			row = row + 1												'go to the next row'
+		Loop until approval_status = ""									'once we hit a blank, there are no more vversions
 
-	Call clear_line_of_text(18, 54)									''erasing the version entry as it defaults when the pop-up opens
-	If approval_status = "" Then									'if no APPROVAL was found, then we leave without navigating and changing the found to false
-		approval_found = false
-		PF3
-	Else
-		Call write_value_and_transmit(elig_version, 18, 54)			'if an approval was found, we navigate to it and save the information to the output variables.
-		version_number = "0" & elig_version
-		version_date = elig_date
-		version_result = elig_result
-
-		row = 1
-		col = 1
-		EMSearch "Auto-Closed", row, col
-		If row <> 0 Then
+		Call clear_line_of_text(18, 54)									''erasing the version entry as it defaults when the pop-up opens
+		If approval_status = "" Then									'if no APPROVAL was found, then we leave without navigating and changing the found to false
 			approval_found = false
-			version_date = ""
-			version_result = ""
 			PF3
+		Else
+			Call write_value_and_transmit(elig_version, 18, 54)			'if an approval was found, we navigate to it and save the information to the output variables.
+			version_number = "0" & elig_version
+			version_date = elig_date
+			version_result = elig_result
+
+			row = 1
+			col = 1
+			EMSearch "Auto-Closed", row, col
+			If row <> 0 Then
+				approval_found = false
+				version_date = ""
+				version_result = ""
+				PF3
+			End If
 		End If
 	End If
 end function
@@ -8397,91 +9581,6 @@ function get_state_name_from_state_code(state_code, state_name, include_state_co
     If include_state_code = TRUE Then state_name = state_code & " " & state_name	'This adds the code to the state name if seelected
 end function
 
-function get_this_script_started(script_index, end_script, month_to_use)
-'--- WORK IN PROGRESS - This function has the primary functionality needed at the begining of an individual script run.
-'~~~~~ script_index: this should just be 'script_index' and indicates the number of the script in the COMPLETE LIST OF SCRIPTS.
-'~~~~~ end_script: If NOT in MAXIS (passworded out) should the script end.
-'~~~~~ month_to_use: default value of the footer month and year - Options: 'MAXIS MONTH', 'CM', 'CM PLUS 1', 'CM PLUS 2', 'CM MINUS 1', 'CM MINUS 2'
-'~~~~~
-'===== Keywords: MAXIS, dialog,
-	EMConnect ""
-	Call check_for_MAXIS(end_script)
-	Call MAXIS_case_number_finder(MAXIS_case_number)
-
-	month_to_use = UCase(month_to_use)
-	If month_to_use = "MAXIS MONTH" Then Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-	If month_to_use = "CM" Then
-		MAXIS_footer_month = CM_mo
-		MAXIS_footer_year = CM_yr
-	End If
-	If month_to_use = "CM PLUS 1" Then
-		MAXIS_footer_month = CM_plus_1_mo
-		MAXIS_footer_year = CM_plus_1_yr
-	End If
-	If month_to_use = "CM PLUS 2" Then
-		MAXIS_footer_month = CM_plus_2_mo
-		MAXIS_footer_year = CM_plus_2_yr
-	End If
-	If month_to_use = "CM MINUS 1" Then
-		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
-		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
-	End If
-	If month_to_use = "CM MINUS 2" Then
-		MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -2, date)            ), 2)
-		MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -2, date)            ), 2)
-	End If
-
-	' MsgBox "The script running is:" & vbCR & "Category - " & script_array(script_index).category & vbCr & "Name - " & script_array(script_index).script_name
-
-	'Showing the case number dialog
-	Do
-		DO
-			err_msg = ""
-
-			'Initial dialog to gather case number and footer month.
-			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 236, 195, "Case number dialog"
-			  EditBox 70, 105, 65, 15, MAXIS_case_number
-			  EditBox 70, 125, 20, 15, MAXIS_footer_month
-			  EditBox 95, 125, 20, 15, MAXIS_footer_year
-			  EditBox 70, 145, 160, 15, Worker_signature
-			  ButtonGroup ButtonPressed
-				OkButton 125, 175, 50, 15
-				CancelButton 180, 175, 50, 15
-				PushButton 165, 85, 60, 10, "INSTRUCTIONS", instructions_btn
-				PushButton 115, 160, 115, 10, "SAVE MY WORKER SIGNATURE", save_worker_sig
-			  GroupBox 10, 5, 220, 95, "Currently Running "
-			  Text 20, 20, 210, 10, "Script: " & script_array(script_index).script_name
-			  Text 30, 30, 195, 10, "from the " & script_array(script_index).category & " category"
-			  Text 20, 45, 50, 10, "Description:"
-			  Text 25, 55, 200, 25, script_array(script_index).description
-			  Text 20, 110, 45, 10, "Case number:"
-			  Text 20, 130, 45, 10, "Footer Month:"
-			  Text 10, 150, 60, 10, "Worker Signature"
-			  Text 125, 130, 25, 10, "mm/yy"
-			EndDialog
-
-			Dialog Dialog1
-			cancel_without_confirmation
-
-			If ButtonPressed = instructions_btn Then
-				err_msg = "LOOP"
-				call open_URL_in_browser(script_array(script_index).SharePoint_instructions_URL)
-			ElseIf ButtonPressed = save_worker_sig Then
-				err_msg = "LOOP"
-			Else
-				' MsgBox MAXIS_case_number
-		        Call validate_MAXIS_case_number(err_msg, "*")
-		        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-		        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-			End If
-		LOOP UNTIL err_msg = ""
-		call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-	LOOP UNTIL are_we_passworded_out = false
-
-end function
-
 Function get_to_RKEY()
 '--- This function will get the user back to the main MMIS selection screen RKEY. You will need to already be in MMIS. Navigate_to_MMIS_region
 '~~~~~ HH_member_array: leave blank
@@ -8553,16 +9652,16 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
 '~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
 '~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
 '===== Keywords: MAXIS, member, array, dialog
-    If DateDiff("d",date_variable,#10/01/2022#) <= 0 then
-        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+    If DateDiff("d",date_variable,#10/01/2023#) <= 0 then
+        'October 2023 -- Amounts for applications on or AFTER 10/01/2023
+        heat_AC_amt = 651
+        electric_amt = 213
+        phone_amt = 54
+    Elseif DateDiff("d",date_variable,#10/01/2023#) > 0 then
+        'October 2022 -- Amounts for applications BEFORE 10/01/2023
         heat_AC_amt = 586
         electric_amt = 185
         phone_amt = 55
-    Elseif DateDiff("d",date_variable,#10/01/2022#) > 0 then
-        'October 2021 -- Amounts for applications BEFORE 10/01/2022
-        heat_AC_amt = 488
-        electric_amt = 149
-        phone_amt = 56
     End if
 End Function
 
@@ -9858,6 +10957,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 		If row <> 0 then
 			EMReadScreen MAXIS_function, 4, row, col + 10
 			EMReadScreen STAT_note_check, 4, 2, 45
+			EMReadScreen EA_history_panel_check, 7, 2, 28
 			row = 1
 			col = 1
 			EMSearch "Case Nbr: ", row, col
@@ -9883,7 +10983,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 		End if
 
 		If already_at_the_correct_screen = False Then
-			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to and STAT_note_check <> "NOTE" and at_correct_footer_month = True then
+			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to and STAT_note_check <> "NOTE" and EA_history_panel_check <> "Date EA" and at_correct_footer_month = True then
 				row = 1
 				col = 1
 				EMSearch "Command: ", row, col
@@ -10177,7 +11277,6 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "MEMB:SSN VER HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMB:WRITTEN LANGUAGE HAS BEEN CHANGED FROM") OR _
         instr(dail_msg, "MEMI: HAS BEEN DELETED BY THE PMI MERGE PROCESS") OR _
-        instr(dail_msg, "NOT ACCESSED FOR 300 DAYS,SPEC NOT") OR _
         instr(dail_msg, "PMI MERGED") OR _
         instr(dail_msg, "THIS APPLICATION WILL BE AUTOMATICALLY DENIED") OR _
         instr(dail_msg, "THIS CASE IS ERROR PRONE") OR _
@@ -10189,21 +11288,30 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "PERSON HAS A RENEWAL OR HRF DUE. STAT UPDATES") OR _
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
+        instr(dail_msg, "GA: HRF DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS PENDING - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS REIN OR SUSPEND - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
         instr(dail_msg, "GRH: APPROVED VERSION EXISTS FOR JANUARY - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS") OR _
+        instr(dail_msg, "MFIP HRF DUE - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "MFIP IN PENDING STATUS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "MFIP RECERT DUE - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "MSA HRF DUE - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "MSA IN REIN STATUS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "MSA RECERT DUE - NOT AUTO") or _
         instr(dail_msg, "MSA IN PENDING STATUS - NOT AUTO") or _
         instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _
-        instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
         instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _
         instr(dail_msg, "SDNH NEW JOB DETAILS FOR MEMB 00") OR _
-        instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
-        instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") OR _
+        instr(dail_msg, "SNAP: HRF DUE - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "SNAP: NEW PENDING VERSION EXISTS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
+        instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
+        instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "SNAP: RECERTIFICATION DUE - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SSN DIFFERS W/ CS RECORDS") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED AN UNUSUAL INCREASE") OR _
         instr(dail_msg, "MFIP MASS CHANGE AUTO-APPROVED CASE WITH SANCTION") OR _
@@ -10217,6 +11325,17 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "SSI UPDATED - (REF") OR _
         instr(dail_msg, "SNAP ABAWD ELIGIBILITY HAS EXPIRED, APPROVE NEW ELIG RESULTS") then
             actionable_dail = False
+        '----------------------------------------------------------------------------------------------------Removing older specific INFO messages
+    Elseif dail_type = "INFO" then
+        If instr(dail_msg, "FOR MEDI PART B REIMBURSEMENT") OR _
+           instr(dail_msg, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") OR _
+           instr(dail_msg, "PARENT MAY BE ELIG TO ALLOCATE UNMET NEED FOR CHILD - IF SO,") then
+            If dail_month = this_month then
+                actionable_dail = True
+            Else
+                actionable_dail = False ' delete the old messages
+            End if
+        End if
         '----------------------------------------------------------------------------------------------------STAT EDITS older than Current Date
     Elseif dail_type = "STAT" or instr(dail_msg, "NEW FIAT RESULTS EXIST") then
         EmReadscreen stat_date, 8, dail_row, 39     'Stat date location
@@ -10233,16 +11352,32 @@ Function non_actionable_dails(actionable_dail)
                 actionable_dail = True
             End if
         End if
-    '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM or CM + 1
+    '----------------------------------------------------------------------------------------------------REMOVING PEPR messages not CM
     Elseif dail_type = "PEPR" then
-        if dail_month = this_month or dail_month = next_month then
+        'These two PEPR's effective 01/24 require action for workers and cannot be deleted outright.
+        If instr(dail_msg, "AGE 21. REDETERMINE HEALTH CARE ELIGIBILITY") OR _
+            instr(dail_msg, "FOSTER CARE/KINSHIP OPEN FOR 1 YEAR. DO HC DESK REVIEW.") then
             actionable_dail = True
         Else
-            actionable_dail = False ' delete the old messages
+            If dail_month = this_month or dail_month = next_month then
+                actionable_dail = True
+            Else
+                actionable_dail = False ' delete the old messages
+            End if
         End if
     '----------------------------------------------------------------------------------------------------clearing ELIG messages older than CM
-    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") then
-        if dail_month = this_month or dail_month = next_month then
+    Elseif instr(dail_msg, "OVERPAYMENT POSSIBLE") or _
+        instr(dail_msg, "DISBURSE EXPEDITED SERVICE FS") or _
+        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED") or _
+        instr(dail_msg, "APPROVE NEW ELIG RESULTS RECOUPMENT HAS INCREASED") or _
+        instr(dail_msg, "PERSON/S REQD FS NOT IN FS UNIT") or _
+        instr(dail_msg, "PERSON IS ON ANOTHER PENDING CASE") or _
+        instr(dail_msg, "NEW VERSION MUST BE APPROVED. FUNDING TYPE HAS CHANGED") or _
+        instr(dail_msg, "TRANSFERRED CASE IS WF1 ELIGIBLE - APPROVE NEW RESULTS TO") or _
+        instr(dail_msg, "NEW FS VERSION MUST BE APPROVED. FUNDING TYPE HAS CHANGED") or _
+        instr(dail_msg, "UNKNOWN RESULTS - CANNOT APPROVE") or _
+        instr(dail_msg, "HAS EARNED INCOME GREATER THAN ZERO BUT NO TRAC PANEL") then
+        if dail_month = this_month then
             actionable_dail = True
         Else
             actionable_dail = False ' delete the old messages
@@ -10300,9 +11435,9 @@ Function non_actionable_dails(actionable_dail)
                 actionable_dail = False 'Deletes all Ex Parte TIKL's then that are not from the current month. Ex 07/01/2023 TIKLS start deleting on 08/01/2023.
             End if
         Else
-            six_months = DateAdd("M", -6, date)
-            If cdate(six_months) => cdate(dail_month) then
-                actionable_dail = False     'Will delete any TIKL over 6 months old
+            date_minus_90 = dateadd("d", date, -90)
+            If date_minus_90 => cdate(dail_month) then
+                actionable_dail = False     'Will delete any TIKL over 90 days old to align with ECF Next Notification retention schedule.
             Else
                 actionable_dail = True
             End if
@@ -11437,12 +12572,15 @@ function script_end_procedure(closing_message)
 '--- This function is how all user stats are collected when a script ends.
 '~~~~~ closing_message: message to user in a MsgBox that appears once the script is complete. Example: "Success! Your actions are complete."
 '===== Keywords: MAXIS, MMIS, PRISM, end, script, statistics, stopscript
-	stop_time = timer
-	script_run_end_time = time
-	script_run_end_date = date
+	stop_time = timer				'TODO - delete when the new data recording function is in place
+	script_run_end_time = time		'TODO - delete when the new data recording function is in place
+	script_run_end_date = date		'TODO - delete when the new data recording function is in place
 	If closing_message <> "" AND left(closing_message, 3) <> "~PT" then MsgBox closing_message '"~PT" forces the message to "pass through", i.e. not create a pop-up, but to continue without further diversion to the database, where it will write a record with the message
 	script_run_time = stop_time - start_time
 	If is_county_collecting_stats  = True then
+
+		' function collect_script_usage_data(name_of_script, closing_message, start_time)		'TODO - uncomment and remove the rest of the information in the if statement when we are ready to use the new functionality
+
 		'Getting user name
 		Set objNet = CreateObject("WScript.NetWork")
 		user_ID = objNet.UserName
@@ -11684,6 +12822,14 @@ function script_end_procedure_with_error_report(closing_message)
 					End if
 				End With
 			End If
+			If name_of_script = "ACTIONS - EARNED INCOME BUDGETING.vbs" Then
+				local_earned_income_save_work_path = user_myDocs_folder & "earned-income-detail-" & MAXIS_case_number & "-info.txt"
+				With objFSO
+					If .FileExists(local_earned_income_save_work_path) = True then
+						attachment_here = local_earned_income_save_work_path
+					End if
+				End With
+			End If
 			Call create_outlook_email("", bzt_email, "", "", subject_of_email, 1, False, "", "", False, "", full_text, True, attachment_here, True)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
@@ -11880,23 +13026,35 @@ function start_a_blank_CASE_NOTE()
 	call navigate_to_MAXIS_screen("CASE", "NOTE")
 	DO
 		PF9
-		EMReadScreen case_note_check, 17, 2, 33
-		EMReadScreen mode_check, 1, 20, 09
-		If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then
-            'msgbox "The script can't open a case note. Reasons may include:" & vbnewline & vbnewline & "* You may be in inquiry" & vbnewline & "* You may not have authorization to case note this case (e.g.: out-of-county case)" & vbnewline & vbnewline & "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            BeginDialog Inquiry_Dialog, 0, 0, 241, 115, "CASE NOTE Cannot be Started"
-              ButtonGroup ButtonPressed
-                OkButton 185, 95, 50, 15
-              Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
-              Text 20, 25, 80, 10, "* You may be in inquiry"
-              Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
-              Text 5, 70, 225, 20, "Check MAXIS and/or navigate to CASE/NOTE, and try again. You can press the STOP SCRIPT button on the power pad to stop the script."
-            EndDialog
+		EMReadScreen case_note_open_check, 8, 1, 72
+		If case_note_open_check <> "FMCAMAM2" then
+            EMReadScreen mode_error_check, 1, 20, 9
+			EMReadScreen PW_error_check, 7, 21, 14
+			EMReadScreen error_message_check, 79, 24, 2
+			error_message_check = trim(error_message_check)
+
+			BeginDialog Inquiry_Dialog, 0, 0, 241, 195, "CASE NOTE Cannot be Started"
+			ButtonGroup ButtonPressed
+				OkButton 185, 110, 50, 15
+				PushButton 180, 175, 50, 15, "Report Error", report_error_button
+			Text 10, 10, 190, 10, "The script can't open a case note. Reasons may include:"
+			Text 20, 25, 80, 10, "* You may be in inquiry"
+			Text 20, 40, 185, 20, "* You may not have authorization to case note this case (e.g.: out-of-county case)"
+			Text 5, 70, 225, 35, "Ensure you are in MAXIS Production and navigate to CASE/NOTE. Once you have done this, press 'OK' below to try again. You can also press the STOP SCRIPT button on the power pad to stop the script."
+			Text 5, 135, 225, 35, "If you have confirmed you are in MAXIS Production and have navigated to CASE/NOTE, but the script is still unable to open the CASE/NOTE then click 'Report Error' below to end the script and send an error report."
+			EndDialog
             Do
                 Dialog Inquiry_Dialog
-            Loop until ButtonPressed = -1
+            Loop until ButtonPressed = -1 or ButtonPressed = report_error_button
+			If ButtonPressed = report_error_button Then
+				script_run_lowdown = script_run_lowdown & vbCr & "The screen code was: " & case_note_open_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
+				script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
+			End If
         End If
-	Loop until (mode_check = "A" or mode_check = "E")
+	Loop until (case_note_open_check = "FMCAMAM2" or ButtonPressed = report_error_button)
 end function
 
 function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, end_script)
@@ -12768,61 +13926,86 @@ function write_variable_in_SPEC_MEMO(variable)
 '--- This function writes a variable in SPEC/MEMO
 '~~~~~ variable: information to be entered into SPEC/MEMO
 '===== Keywords: MAXIS, SPEC, MEMO
-    EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    memo_col = 15										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-    'The following figures out if we need a new page
-    Do
-        EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
-        line_test = trim(line_test)
-        'MsgBox line_test
-        If line_test <> "" OR memo_row >= 18 Then
-            memo_row = memo_row + 1
+	EMReadScreen in_memo, 24, 2, 30
+	EMReadScreen in_wcom, 27, 2, 28
+	ready_to_write = False
+	If in_memo = "Client Memo Input Screen" Then ready_to_write = True
+	If in_wcom = "Worker Comment Input Screen" Then ready_to_write = True
+	If ready_to_write = True Then
+		EMGetCursor memo_row, memo_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+		memo_col = 17										'The memo col should always be 15 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+		'The following figures out if we need a new page
+		Do
+			EMReadScreen line_test, 60, memo_row, memo_col 	'Reads a single character at the memo row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond memo range).
+			line_test = trim(line_test)
+			'MsgBox line_test
+			If line_test <> "" OR memo_row >= 18 Then
+				memo_row = memo_row + 1
 
-            'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-            If memo_row >= 18 then
-                PF8
-                memo_row = 3					'Resets this variable to 3
-            End if
-        End If
+				'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+				If memo_row >= 18 then
+					PF8
+					memo_row = 3					'Resets this variable to 3
+				End if
+			End If
 
-        EMReadScreen page_full_check, 12, 24, 2
-        'MsgBox page_full_check
-        If page_full_check = "END OF INPUT" Then script_end_procedure("The WCOM/MEMO area is already full and no additional informaion can be added. This script should be run prior to adding manual wording.")
+			EMReadScreen page_full_check, 12, 24, 2
+			'MsgBox page_full_check
+			If page_full_check = "END OF INPUT" Then
+				If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+					script_end_procedure("The WCOM/MEMO area is already full and no additional informaion can be added. This script should be run prior to adding manual wording.")
+				Else
+					PF10
+					PF3
+					PF3
+				End If
+			End If
 
-    Loop until line_test = ""
+		Loop until line_test = ""
 
-    'Each word becomes its own member of the array called variable_array.
-    variable_array = split(variable, " ")
+		'Each word becomes its own member of the array called variable_array.
+		variable_array = split(variable, " ")
 
-    For each word in variable_array
-        'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
-        If len(word) + memo_col > 74 then
-            memo_row = memo_row + 1
-            memo_col = 15
-        End if
+		For each word in variable_array
+			'If the length of the word would go past col 74 (you can't write to col 74), it will kick it to the next line
+			If len(word) + memo_col > 76 then
+				memo_row = memo_row + 1
+				memo_col = 17
+			End if
 
-        'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
-        If memo_row >= 18 then
-            PF8
-            memo_row = 3					'Resets this variable to 3
-        End if
+			'If we get to row 18 (which can't be written to), it will go to the next page of the memo (PF8).
+			If memo_row >= 18 then
+				PF8
+				memo_row = 3					'Resets this variable to 3
+			End if
 
-        EMReadScreen page_full_check, 12, 24, 2
-        'MsgBox page_full_check
-        If page_full_check = "END OF INPUT" Then
-            PF10
-            end_msg = "The WCOM/MEMO area is already full and no additional informaion can be added. The wording that was not added and the script ended on is:" & vbNewLine & vbNewLine & variable & vbNewLine & vbNewLine & "**This script should be run prior to adding manual wording.**"
-            script_end_procedure(end_msg)
-        End If
-        'Writes the word and a space using EMWriteScreen
-        EMWriteScreen word & " ", memo_row, memo_col
+			EMReadScreen page_full_check, 12, 24, 2
+			'MsgBox page_full_check
+			If page_full_check = "END OF INPUT" Then
+				PF10
+				If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+					end_msg = "The WCOM/MEMO area is already full and no additional informaion can be added. The wording that was not added and the script ended on is:" & vbNewLine & vbNewLine & variable & vbNewLine & vbNewLine & "**This script should be run prior to adding manual wording.**"
+					script_end_procedure(end_msg)
+				Else
+					PF3
+					PF3
+				End If
+			End If
+			'Writes the word and a space using EMWriteScreen
+			EMWriteScreen word & " ", memo_row, memo_col
 
-        'Increases memo_col the length of the word + 1 (for the space)
-        memo_col = memo_col + (len(word) + 1)
-    Next
+			'Increases memo_col the length of the word + 1 (for the space)
+			memo_col = memo_col + (len(word) + 1)
+		Next
 
-    'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
-    EMSetCursor memo_row + 1, 15
+		'After the array is processed, set the cursor on the following row, in col 15, so that the user can enter in information here (just like writing by hand).
+		EMSetCursor memo_row + 1, 15
+	Else
+		If name_of_script <> "BULK - APPLICATIONS.vbs" Then
+			end_msg = "It does not appear that the script is currently in a SPEC/MEMO or SPEC/WCOM and information cannot be added to a notice. The line that was attempted to be added was: " & vbCr & vbCr & variable
+			script_end_procedure(end_msg)
+		End If
+	End If
 end function
 
 function write_variable_in_TIKL(variable)

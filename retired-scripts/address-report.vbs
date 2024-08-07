@@ -1,8 +1,8 @@
 'Required for statistical purposes===============================================================================
-name_of_script = "BULK - ADDRESS REPORT.vbs"
+name_of_script = "ADMIN - ADDRESS REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 36                               'manual run time in seconds
+STATS_manualtime = 20                               'manual run time in seconds
 STATS_denomination = "I"       'I is for each Item
 'END OF stats block==============================================================================================
 
@@ -44,72 +44,58 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("12/15/2016", "Adding column to excel file for homeless code, and checking MAXIS for homeless code.", "Charles Potter, DHS")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("02/22/2024", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
-
-'Custom function----------------------------------------------------------------------------------------------------
-FUNCTION find_MAXIS_worker_number(x_number)
-	EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
-	IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
-		EMReadScreen x_number, 7, 22, 8
-	ELSE
-		Call find_variable("PW: ", x_number, 7)	'if not, then the PW: variable is searched to find the worker #
-		If isnumeric(MAXIS_worker_number) = true then 	 'making sure that the worker # is a number
-			MAXIS_worker_number = x_number				'delcares the MAXIS_worker_number to be the x_number
-		End if
-	END if
-END FUNCTION
-
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""
-
+get_county_code 'Checks for county info from global variables, or asks if it is not already defined.
 CALL check_for_MAXIS(True)
-Call find_MAXIS_worker_number(x_number)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 176, 140, "x1 Number"
-  EditBox 55, 45, 65, 15, x_number
-  CheckBox 20, 65, 140, 10, "Check here to run for the entire county.", all_workers_check
+BeginDialog Dialog1, 0, 0, 266, 105, "Address Report Dialog"
+  GroupBox 10, 5, 250, 55, "Using the Address Report Script:"
+  Text 20, 20, 235, 35, "This script will pull the resident and mailing addresses for residents open on SNAP and/or Cash programs effort to ensure that residents are getting their mail after an initial need to get an EBT card through a Hennepin County building address."
+  Text 15, 70, 60, 10, "Worker number(s):"
+  EditBox 80, 65, 180, 15, worker_number
+  CheckBox 15, 90, 135, 10, "Check here to process for all workers.", all_workers_check
   ButtonGroup ButtonPressed
-    OkButton 30, 115, 50, 15
-    CancelButton 85, 115, 50, 15
-  Text 10, 15, 155, 25, "Please enter the x1 number of the caseload you wish to check (NOTE: please enter the entire 7-digit number):"
-  Text 20, 80, 145, 25, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+    OkButton 155, 85, 50, 15
+    CancelButton 210, 85, 50, 15
 EndDialog
-DO
+
+Do
 	Do
-		Dialog Dialog1 
-		cancel_without_confirmation
-		'looping logic that makes the worker select either worker # or full agency
-		If x_number = "" and all_workers_check = 0 THEN MsgBox "You need to enter your worker number OR check to run the entire agency."
-	LOOP until x_number <> "" OR all_workers_check = 1
-	If x_number <> "" and all_workers_check = 1 THEN MsgBox "You need to enter your worker number OR check to run the entire agency, not both options."
-LOOP until (x_number = "" AND all_workers_check = 1) OR (x_number <> "" AND all_workers_check = 0)
+  		err_msg = ""
+  		dialog Dialog1
+  		cancel_without_confirmation
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+  	  	If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+  	LOOP until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-	x1s_from_dialog = split(x_number, ",")	'Splits the worker array based on commas
-
+	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
 	'Need to add the worker_county_code to each one
 	For each x1_number in x1s_from_dialog
 		If worker_array = "" then
-			worker_array = x_number
+			worker_array = trim(ucase(x1_number))		'replaces worker_county_code if found in the typed x1 number
 		Else
-			worker_array = worker_array & ", " & x_number 'replaces worker_county_code if found in the typed x1 number
+			worker_array = worker_array & "," & trim(ucase(x1_number)) 'replaces worker_county_code if found in the typed x1 number
 		End if
 	Next
-
 	'Split worker_array
-	worker_array = split(worker_array, ", ")
+	worker_array = split(worker_array, ",")
 End if
 
 'Opening the Excel file
@@ -119,157 +105,158 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Creating columns
-objExcel.Cells(1, 1).Value = "WORKER NUMBER"
-objExcel.Cells(1, 1).Font.Bold = True
-objExcel.Cells(1, 2).Value = "CASE NUMBER"
-objExcel.Cells(1, 2).Font.Bold = True
-objExcel.Cells(1, 3).Value = "APPLICANT NAME"
-objExcel.Cells(1, 3).Font.Bold = True
+objExcel.Cells(1, 1).Value = "X NUMBER"
+objExcel.Cells(1, 2).Value = "CASE #"
+objExcel.Cells(1, 3).Value = "RESIDENT NAME"
 objExcel.Cells(1, 4).Value = "ADDRESS LINE 1"
-objExcel.Cells(1, 4).Font.Bold = True
 objExcel.Cells(1, 5).Value = "ADDRESS LINE 2"
-objExcel.Cells(1, 5).Font.Bold = True
 objExcel.Cells(1, 6).Value = "CITY"
-objExcel.Cells(1, 6).Font.Bold = True
 objExcel.Cells(1, 7).Value = "STATE"
-objExcel.Cells(1, 7).Font.Bold = True
 objExcel.Cells(1, 8).Value = "ZIP CODE"
-objExcel.Cells(1, 8).Font.Bold = True
 objExcel.Cells(1, 9).Value = "MAILING ADDRESS LINE 1"
-objExcel.Cells(1, 9).Font.Bold = True
 objExcel.Cells(1, 10).Value = "MAILING ADDRESS LINE 2"
-objExcel.Cells(1, 10).Font.Bold = True
 objExcel.Cells(1, 11).Value = "MAILING CITY"
-objExcel.Cells(1, 11).Font.Bold = True
 objExcel.Cells(1, 12).Value = "MAILING STATE"
-objExcel.Cells(1, 12).Font.Bold = True
 objExcel.Cells(1, 13).Value = "MAILING ZIP CODE"
-objExcel.Cells(1, 13).Font.Bold = True
 objExcel.Cells(1, 14).Value = "HOMELESS"
-objExcel.Cells(1, 14).Font.Bold = True
+objExcel.Cells(1, 15).Value = "ADDR EFFECTIVE DATE"
+
+FOR i = 1 to 15		'formatting the cells'
+	objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+	objExcel.Columns(i).AutoFit()				'sizing the columns'
+NEXT
 
 excel_row = 2
+back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
+Call navigate_to_MAXIS_screen("REPT", "ACTV")
 
 For each worker in worker_array
-	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "actv")
-	EMWriteScreen worker, 21, 13
-	transmit
-	EMReadScreen user_worker, 7, 21, 71		'
-	EMReadScreen p_worker, 7, 21, 13
-	IF user_worker = p_worker THEN PF7		'If the user is checking their own REPT/ACTV, the script will back up to page 1 of the REPT/ACTV
-
-	'Skips workers with no info
-	EMReadScreen has_content_check, 1, 7, 8
+    Call write_value_and_transmit(worker, 21, 13)
+	EMReadScreen has_content_check, 1, 7, 8     	'Skips workers with no info
 	If has_content_check <> " " then
-
-		'Grabbing each case number on screen
-		Do
-			'Set variable for next do...loop
-			MAXIS_row = 7
-
-			'Checking for the last page of cases.
-			EMReadScreen last_page_check, 21, 24, 2	'because on REPT/ACTV it displays right away, instead of when the second F8 is sent
+		Do                          
+			MAXIS_row = 7  			'Set variable for next do...loop
+			EMReadScreen last_page_check, 21, 24, 2		'Checking for the last page of cases because on REPT/ACTV it displays right away, instead of when the second F8 is sent
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12		'Reading case number
-				EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name
+				MAXIS_case_number = trim(MAXIS_case_number)
+                If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
+                capture_case = False 
+                EMReadScreen cash_program, 1, MAXIS_row, 54
+                EmReadScreen cash_program_2, 1, MAXIS_row, 59
+                EMReadScreen SNAP_program, 1, MAXIS_row, 61
+                
+                If cash_program = "A" then capture_case = True 
+                If cash_program_2 = "A" then capture_case = True 
+                If SNAP_program = "A" then capture_case = True 
 
-				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
-				'If trim(MAXIS_case_number) <> "" and instr(all_case_numbers_array, MAXIS_case_number) <> 0 then exit do
-				'all_case_numbers_array = trim(all_case_numbers_array & " " & MAXIS_case_number)
-
-				If MAXIS_case_number = "        " then exit do			'Exits do if we reach the end
-
-				ObjExcel.Cells(excel_row, 1).Value = worker
-				ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
-				ObjExcel.Cells(excel_row, 3).Value = client_name
-				excel_row = excel_row + 1
-
+                If capture_case = True then 
+                    EMReadScreen client_name, 21, MAXIS_row, 21		'Reading client name    
+				    ObjExcel.Cells(excel_row, 1).Value = worker
+				    ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
+				    ObjExcel.Cells(excel_row, 3).Value = trim(client_name)
+				    excel_row = excel_row + 1
+                End if 
 				MAXIS_row = MAXIS_row + 1
 				MAXIS_case_number = ""			'Blanking out variable
+                STATS_counter = STATS_counter + 1
 			Loop until MAXIS_row = 19
 			PF8
-
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
-next
-
-excel_row = 2
-Do
-	'Assign case number from Excel
-	MAXIS_case_number = ObjExcel.Cells(excel_row, 2)
-
-	'Exiting if the case number is blank
-	If MAXIS_case_number = "" then exit do
-
-	'Navigate to stat/addr to grab address
-	call navigate_to_MAXIS_screen("STAT", "ADDR")
-	EMReadScreen priv_check, 4, 2, 50
-	If priv_check = "SELF" then
-		objExcel.Cells(excel_row, 4) = "Privileged"
-	Else
-		'Reading and cleaning up Residence address
-		EMReadScreen addr_line_1, 22, 6, 43
-		EMReadScreen addr_line_2, 22, 7, 43
-		EMReadScreen city, 15, 8, 43
-		EMReadScreen State, 2, 8, 66
-		EMReadScreen Zip_code, 5, 9, 43
-		addr_line_1 = replace(addr_line_1, "_", "")
-		addr_line_2 = replace(addr_line_2, "_", "")
-		city = replace(city, "_", "")
-		State = replace(State, "_", "")
-		Zip_code = replace(Zip_code, "_", "")
-		'Reading homeless code
-		EMReadScreen homeless_code, 1, 10, 43
-		'Reading and cleaning up mailing address
-		EMReadScreen mailing_addr_line_1, 22, 13, 43
-		EMReadScreen mailing_addr_line_2, 22, 14, 43
-		EMReadScreen mailing_city, 15, 15, 43
-		EMReadScreen mailing_State, 2, 16, 43
-		EMReadScreen mailing_Zip_code, 5, 16, 52
-		mailing_addr_line_1 = replace(mailing_addr_line_1, "_", "")
-		mailing_addr_line_2 = replace(mailing_addr_line_2, "_", "")
-		mailing_city = replace(mailing_city, "_", "")
-		mailing_State = replace(mailing_State, "_", "")
-		mailing_Zip_code = replace(mailing_Zip_code, "_", "")
-		'Writing both addresses into excel
-		objExcel.Cells(excel_row, 4) = addr_line_1
-		objExcel.Cells(excel_row, 5) = addr_line_2
-		objExcel.Cells(excel_row, 6) = city
-		objExcel.Cells(excel_row, 7) = State
-		objExcel.Cells(excel_row, 8) = Zip_code
-		objExcel.Cells(excel_row, 9) = mailing_addr_line_1
-		objExcel.Cells(excel_row, 10) = mailing_addr_line_2
-		objExcel.Cells(excel_row, 11) = mailing_city
-		objExcel.Cells(excel_row, 12) = mailing_State
-		objExcel.Cells(excel_row, 13) = mailing_Zip_code
-		objExcel.Cells(excel_row, 14) = homeless_code
-	End IF
-
-	'Clearing variables for next loop.
-	addr_line_1 = ""
-	addr_line_2 = ""
-	city = ""
-	State = ""
-	Zip_code = ""
-	mailing_addr_line_1 = ""
-	mailing_addr_line_2 = ""
-	mailing_city = ""
-	mailing_State = ""
-	mailing_Zip_code = ""
-	homeless_code = ""
-
-	excel_row = excel_row + 1
-	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-Loop until MAXIS_case_number = ""
+Next
 
 'formatting excel columns to fit
-FOR i = 1 to 14
+FOR i = 1 to 15
 	objExcel.Columns(i).AutoFit()
 NEXT
 
-'making excel document visible.
-objExcel.Visible = True
+'Filling in STAT/ADDR information for SNAP and/or Cash programs that are in an active status. 
+excel_row = 2
+Do
+	MAXIS_case_number = ObjExcel.Cells(excel_row, 2)    'Assign case number from Excel
+	If MAXIS_case_number = "" then exit do  	'Exiting if the case number is blank
+	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)  'Navigate to stat/addr to grab address - checking for PRIV
+    If is_this_priv = True then
+        objExcel.Cells(excel_row, 4).Value = "Privileged"
+        excel_row = excel_row + 1
+	Else
+        Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+		
+        If instr(resi_line_one, "300 SOUTH SIXTH ST") or instr(mail_line_one, "300 SOUTH SIXTH ST") then 
+            'Writing both addresses into excel
+		    objExcel.Cells(excel_row, 4) = resi_line_one
+		    objExcel.Cells(excel_row, 5) = resi_line_two
+		    objExcel.Cells(excel_row, 6) = resi_city
+		    objExcel.Cells(excel_row, 7) = resi_state
+		    objExcel.Cells(excel_row, 8) = resi_zip
+		    objExcel.Cells(excel_row, 9) = mail_line_one
+		    objExcel.Cells(excel_row, 10) = mail_line_two
+		    objExcel.Cells(excel_row, 11) = mail_city
+		    objExcel.Cells(excel_row, 12) = mail_state
+		    objExcel.Cells(excel_row, 13) = mail_zip
+		    objExcel.Cells(excel_row, 14) = addr_homeless
+            objExcel.Cells(excel_row, 15) = addr_eff_date
+            excel_row = excel_row + 1
+        Else 
+            'deleting row if not the county mailing ADDR
+            SET objRange = objExcel.Cells(excel_row, 1).EntireRow
+            objRange.Delete
+        End if 
+	END IF        
+    STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+Loop until MAXIS_case_number = ""
+
+'formatting excel columns to fit
+FOR i = 1 to 15
+	objExcel.Columns(i).AutoFit()
+NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success!!")
+script_end_procedure_with_error_report("Success! Your list has been generated.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/22/2024
+'--Tab orders reviewed & confirmed----------------------------------------------02/22/2024
+'--Mandatory fields all present & Reviewed--------------------------------------02/22/2024
+'--All variables in dialog match mandatory fields-------------------------------02/22/2024
+'Review dialog names for content and content fit in dialog----------------------02/22/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/22/2024------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/22/2024------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/22/2024------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-02/22/2024------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/22/2024  
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/22/2024------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------02/22/2024
+'--Out-of-County handling reviewed----------------------------------------------02/22/2024------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/22/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------02/22/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/22/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/22/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------02/22/2024
+'--Denomination reviewed -------------------------------------------------------02/22/2024
+'--Script name reviewed---------------------------------------------------------02/22/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------02/22/2024
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/22/2024
+'--comment Code-----------------------------------------------------------------02/22/2024
+'--Update Changelog for release/update------------------------------------------02/22/2024
+'--Remove testing message boxes-------------------------------------------------02/22/2024
+'--Remove testing code/unnecessary code-----------------------------------------02/22/2024
+'--Review/update SharePoint instructions----------------------------------------02/22/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/22/2024------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/22/2024
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/22/2024
+'--Complete misc. documentation (if applicable)---------------------------------02/22/2024
+'--Update project team/issue contact (if applicable)----------------------------02/22/2024

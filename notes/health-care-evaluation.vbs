@@ -51,6 +51,16 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2024", "Updated the script to handle ex parte phase 1 for households with 3 or more members on health care.", "Dave Courtright, Hennepin County")
+call changelog_update("07/02/2024", "Added Asset total by member to case note.", "Megan Geissler, Hennepin County")
+call changelog_update("04/15/2024", "Updated the script to handle changes to STAT/REVW HC popup and STAT/HCMI.", "Dave Courtright, Hennepin County")
+call changelog_update("03/01/2024", "Ex Parte Processing Support with notes about Mixed Housholds.", "Casey Love, Hennepin County")
+call changelog_update("01/26/2024", "Added the form 'Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)' to the form selection options in the script as this form can be used for Health Care processing.", "Casey Love, Hennepin County")
+call changelog_update("01/23/2024", "BUG FIX - updated the handling for LTC Application cases to better handle in dealing with the baseline date and lookback period.", "Casey Love, Hennepin County")
+call changelog_update("12/15/2023", "BUG FIX - previously if the dialog review was 'Complete' but then selected 'No' to return, the script would ask after every button push to 'Complete' updated to stop this from happening until 'Complete' is pressed again.", "Casey Love, Hennepin County")
+call changelog_update("11/28/2023", "Added field to capture member specific HC recertification date.", "Megan Geissler, Hennepin County")
+call changelog_update("10/31/2023", "Fixed inhibiting bug related to IMIG panel for both members on case and/or applying for Health Care.##~##", "Dave Courtright, Hennepin County")
+call changelog_update("09/15/2023", "There was an error on Health Care Evaluation when a case either does not have Health Care on it or a household member with Health Care is not selected. The script will now stop if the case is missing a HCRE panel and will force the selection of a member to process on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/31/2023", "Updated NOTES - Health Care Evaluation to include and reflect ex parte review process.", "Mark Riegel, Hennepin County")
 call changelog_update("05/30/2023", "Updated NOTES - Health Care Evaluation to support recertification processing.##~####~##Added the MN Health Care Programs Renewal form as an option to select.##~##'Recertification' can be selected for each person with HC being processed.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/28/2023", "Updates to the script funcationality to support:##~## ##~## - PBEN infomration for the requirment of other programs.##~## - Indicate for a requirement to apply for Medicare.##~## - Selection of Major Program wlong with Basis of Eligibility.##~## - Additional fields for LTC specific information.##~## - Place to provide details of the AVS steps taken.##~## - If only one person on the case, the script will no longer require you select the household members.##~##", "Casey Love, Hennepin County")
@@ -174,14 +184,16 @@ end function
 
 function check_for_errors(eval_questions_clear)
 'This is a function specific to this script to see if there are dialog errors that prevent us from moving forward in the script.
-	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'maandatory fields related to specific persons on the case from the first dialog
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'mandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being cmopleted for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being completed for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) = (IsNumeric(HC_recertification_month) = False) or (LEN(HC_recertification_month) <> 2)Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Month (MM) is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb) = (IsNumeric(HC_recertification_year) = False) or (LEN(HC_recertification_year) <> 2) Then err_msg = err_msg & "~!~" & "" & "1 ^* HC Recertification Year (YY) is required " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligibility of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) <> "None" Then
-				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligibility of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			End If
 			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) = "None" and HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) = "None" Then err_msg = err_msg & "~!~" & "1 ^* HC/MSP Basis of Eligibility##~##   - At least one Major Program needs to be selected for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ", indicate if MA/EMA/or a MSP is being assessed.##~##"
 		End If
@@ -189,10 +201,13 @@ function check_for_errors(eval_questions_clear)
 	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then		'handling for mandatory fields ONLY if MA-BC is being processed
 		If trim(ma_bc_authorization_form) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Select authorization form needed##~##   - Select the form name needed for MA-BC Eligibility.##~##"
 		If ma_bc_authorization_form_missing_checkbox = checked and IsDate(ma_bc_authorization_form_date) = True Then err_msg = err_msg & "~!~" & "1 ^* Check here if the form is NOT received and still required.##~##   - You checked the box indicating that the MA-BC authorization form was missing but entered a date for when the form was received."
-		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authoriazation Form)##~##   - Enter the date the form for MA-BC Authorization was received."
+		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authorization Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
-
+	baseline_date = trim(baseline_date)
+	If baseline_date  <> "" Then
+		If IsDate(baseline_date) = False Then  err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* The baseline date should be a date if information is entered. Leave blank if it is not relevant to the case."
+	End If
 	'last page errors
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
@@ -200,11 +215,26 @@ function check_for_errors(eval_questions_clear)
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - Indicate the status of the Health Care Evaluation for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
-			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verificaitons" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
+			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - need additional verifications" and verifs_needed = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - You have indicated that the Health Care Evaluation for  MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " is incomplete pending verifications but no verifications have been indicated. ##~##- Either update the status or press 'Update Verification' to document the details of the verifications needed.##~##"
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Incomplete - other" and trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) = "" Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Evaluation Notes##~##   - Explain the details of the Health Care Evaluation Status for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " as you have selected 'Other'.##~##- Add notes to 'Evaluation Notes' for further explanation.##~##"
 		End if
 	Next
 end function
+
+Function check_HCMI_for_members()
+'This function reads the info from each HCMI panel into the MEMBER_INFO_ARRAY so it can be used for error checks
+
+	For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+		'Navigate to each member's HCMI panel
+		Call navigate_to_MAXIS_screen("STAT", "HCMI")
+		call write_value_and_transmit(MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb), 20, 76)
+		'Read info into the array
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_panel_exists, this_memb), 1, 2, 78 'This will be '1' if the panel exists for this member, '0' if not
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_ex_parte_status, this_memb), 1, 12, 57
+		EMReadScreen MEMBER_INFO_ARRAY(HCMI_ex_parte_month, this_memb), 8, 13, 57
+	Next
+End Function
+
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 'function specific to this script that can display the errors in the err string with headers that identify the dialog page.
@@ -303,8 +333,11 @@ function define_main_dialog()
 			GroupBox 10, 45, 465, 310, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
 			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
-			Text 300, 60, 80, 10, "Health Care Eval is at "
-			DropListBox 380, 55, 85, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			Text 155, 60, 80, 10, "Health Care Eval is at "
+			DropListBox 230, 55, 90, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			EditBox 420, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_month, selected_memb)
+ 			EditBox 445, 55, 20, 15, HEALTH_CARE_MEMBERS(HC_recertification_year, selected_memb)
+ 			Text 330, 60, 85, 10, "HC Recertification MM/YY"
 			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
 			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
 			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
@@ -656,7 +689,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from a job that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO JOBS, add any notes here that are relevant:"
@@ -789,7 +822,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from self employment that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO SELF EMPLOYMENT, add any notes here that are relevant:"
@@ -922,7 +955,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there is income from an unearned income source that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO UNEARNED INCOME, add any notes here that are relevant:"
@@ -1111,7 +1144,7 @@ function define_main_dialog()
 				'TODO - DEAL WITH OTHR panel
 			Next
 			If y_pos = 90 Then
-				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1122,6 +1155,12 @@ function define_main_dialog()
 				EditBox 20, y_pos, 440, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes)
 				y_pos = y_pos + 20
 			End If
+
+			For each asset_item in asset_total_array	'Writing Asset total in dialog
+				Text 20, y_pos, 390, 10, asset_item
+				y_pos = y_pos + 10
+			Next
+			y_pos = y_pos + 25
 
 			grp_len = y_pos
 			grp_len = grp_len - 80
@@ -1212,7 +1251,7 @@ function define_main_dialog()
 				End If
 			Next
 			If y_pos = 25 Then
-				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1273,7 +1312,7 @@ function define_main_dialog()
 			Next
 
 			If y_pos = start_y_pos Then
-				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1285,6 +1324,11 @@ function define_main_dialog()
 			EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes)
 			y_pos = y_pos + 25
 
+			For each asset_item in asset_total_array	'Writing Asset total in dialog
+				Text 20, y_pos, 390, 10, asset_item
+				y_pos = y_pos + 10
+			Next
+			y_pos = y_pos + 25
 
 			' grp_len = 10
 
@@ -1450,7 +1494,7 @@ function define_main_dialog()
 			GroupBox 10, 10, 465, grp_len, "Expenses"
 
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the csae file for the selected members."
+				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the case file for the selected members."
 				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				Text 20, 50, 350, 20, "If there are expenses that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
 
@@ -1555,7 +1599,6 @@ function define_main_dialog()
 					' y_pos = y_pos + 5
 
 				End If
-				'TODO - add Excluded Time detail from SPEC if in FACI
 				'TODO - advise if GRH faci is open and if NO BILS panel exists or BILS panel exists with NO 27 SERV type are listed. This is to support remembering about Remedial Care
 			Next
 			If faci_exists = True Then
@@ -1573,7 +1616,7 @@ function define_main_dialog()
 			If acci_exists = False and insa_exists = False and faci_exists = False Then
 				grp_len = grp_len + 75
 
-				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the csae file for the selected members."
+				Text 20, y_pos, 350, 10, "NO ACCI/INSA/FACI panels have been entered in the case file for the selected members."
 				y_pos = y_pos + 10
 				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
 				y_pos = y_pos + 15
@@ -1617,23 +1660,33 @@ function define_main_dialog()
 			'TODO - SPON
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
-					y_pos = y_pos + 10
-					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 200, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
-					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 275, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
-					y_pos = y_pos + 10
-					Text 25, y_pos+5, 50, 10, "IMIG Notes:"
-					EditBox 60, y_pos, 385, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
-					y_pos = y_pos + 25
+				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True THEN
+					match = ""
+					For match_search = 0 to Ubound(HEALTH_CARE_MEMBERS, 2) 'This loop checks the two arrays - HH members and HC members, and links the member numbers together
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, match_search) THEN
+						match = match_search
+						End If
+					Next
+					If match <> "" Then
+						If HEALTH_CARE_MEMBERS(show_hc_detail_const, match) = True Then 'If the member number matches, and that member number indicates we show HC info
+							Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
+							y_pos = y_pos + 10
+							Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 200, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
+							If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 275, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 150, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
+							y_pos = y_pos + 10
+							Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
+							y_pos = y_pos + 10
+							Text 25, y_pos+5, 50, 10, "IMIG Notes:"
+							EditBox 60, y_pos, 385, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
+							y_pos = y_pos + 25
+						End If
+					End If
 				End If
 			Next
 			grp_len = y_pos-10
@@ -1641,7 +1694,7 @@ function define_main_dialog()
 		ElseIf page_display = retro_page Then															'RETRO Page - this page displays only if there is a RETRO request
 			y_pos = 25
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True Then
 					Text 15, y_pos, 300, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, hc_memb) & " retro request to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb)
 					y_pos = y_pos + 15
 				End If
@@ -1689,7 +1742,7 @@ function define_main_dialog()
 			y_pos = 30
 			ltc_info_in_stat = False
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-				If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+				If HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True Then
 					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
 							If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, hc_memb) <> "" OR (STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True) Then
@@ -1726,7 +1779,7 @@ function define_main_dialog()
 				Text 20, y_pos, 400, 10, "NO Waiver or FACI information found for any Members you selected to process HC in this script run."
 				y_pos = y_pos + 20
 			End If
-			Text 20, y_pos, 70, 10, "LTC Eligiblity Notes:"
+			Text 20, y_pos, 70, 10, "LTC Eligibility Notes:"
 			y_pos = y_pos + 10
 			EditBox 20, y_pos, 445, 15, ltc_elig_notes
 			y_pos = y_pos + 25
@@ -1796,7 +1849,7 @@ function define_main_dialog()
 					Text 335, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 75, 10, "Health Care Eval: "
-					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
+					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verifications"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 70, 10, "Evaluation Notes:"
 					EditBox 95, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)
@@ -1810,7 +1863,7 @@ function define_main_dialog()
 			' y_pos = y_pos + 15
 			y_pos = y_pos + 15
 			Text 15, y_pos, 150, 10, "Additional Case Details:"
-			EditBox 15, y_pos+10, 530, 15, case_details_notes
+			EditBox 15, y_pos+10, 460, 15, case_details_notes
 			y_pos = y_pos + 30
 
 			CheckBox 15, y_pos, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
@@ -1857,6 +1910,117 @@ function define_main_dialog()
 			Text 250, y_pos, 220, 20, "Pressing this button will remove all verifications from the list. You will need to press 'Update Verifications' to add verif information back."
 			y_pos = y_pos + 20
 			PushButton 350, y_pos, 120, 15, "Clear Verifs List", clear_verifs_btn
+
+		ElseIf page_display = ltc_intake_page Then
+			GroupBox 10, 5, 465, 125, "LTC Intake Information"
+			Text 325, 5, 150, 10, "Health Care Application Date: " & hc_application_date
+			Text 20, 20, 60, 10, "Month MA to start:"
+			EditBox 85, 15, 45, 15, month_MA_starts
+			Text 135, 20, 110, 10, "Is the client is in the community?"
+			DropListBox 245, 15, 45, 45, "No"+chr(9)+"Yes", clt_in_community
+			Text 300, 20, 85, 10, "If LTCC, enter LTCC date:"
+			EditBox 385, 15, 45, 15, LTCC_date
+
+			Text 10, 40, 80, 10, "Month MA-LTC to start:"
+			EditBox 85, 35, 45, 15, month_MA_LTC_starts
+		 	Text 135, 40, 50, 10, "Baseline date*: "
+			EditBox 185, 35, 45, 15, baseline_date
+  			GroupBox 240, 35, 235, 70, "*Per HCPM 19.40.15: "
+			Text 245, 45, 220, 10, "The baseline date is the date in which the following conditions are met: "
+			Text 250, 55, 220, 40, "1. A person is residing in an LTCF or, for a person requesting services through a home and community-based waiver program, the date a screening occurred that indicated a need for services provided through a home and community-based services waiver program. AND"
+			Text 250, 90, 220, 10, "2. The person's initial request month for MA payment of LTC services."
+
+			If county_of_financial_responsibility <> "" Then
+				Text 240, 110, 200, 10, "CFR: " & county_of_financial_responsibility
+			Else
+				Text 240, 110, 200, 10, "CFR: 27"
+			End If
+
+			faci_exists = False
+			disa_exists = False
+			y_pos = 60
+
+			For each_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+				If HEALTH_CARE_MEMBERS(DISA_exists_const, each_memb) = True Then
+					disa_exists = True
+					Text 20, y_pos, 200, 10, "DISA    -    MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, each_memb) & ": Start date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, each_memb) & "   -   End Date: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, each_memb)
+					y_pos = y_pos + 10
+					Text 55, y_pos, 175, 10, "HC DISA Status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, each_memb)
+					y_pos = y_pos + 10
+					If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, each_memb) <> "" Then
+						Text 55, y_pos, 175, 10, "LTC Waiver: " & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, each_memb)
+					Else
+						Text 55, y_pos, 175, 10, "NO Waiver indicated."
+					End If
+					y_pos = y_pos + 10
+
+				End If
+			Next
+			If disa_exists = False Then
+				Text 20, y_pos, 215, 20, "NO DISA Panel for any Member."
+				y_pos = y_pos + 10
+			End If
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then
+					faci_exists = True
+					Text 15, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 200, 10, "FACI   -   Resident in a Facility. In Date: " & STAT_INFORMATION(month_ind).stat_faci_date_in(each_memb)
+					y_pos = y_pos + 10
+					Text 55, y_pos, 150, 10, "Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
+					y_pos = y_pos + 10
+					Text 55, y_pos, 150, 10, "Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
+					y_pos = y_pos + 10
+					If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
+						Text 55, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
+						Text 55, y_pos, 150, 10, "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
+			If faci_exists = False Then
+				Text 20, y_pos, 215, 20, "NO FACI Panel for any Member, or NO FACI panel indicating currently IN a facility."
+				y_pos = y_pos + 15
+			End If
+
+			GroupBox 10, 130, 465, 65, "LTC Form Information"
+
+			GroupBox 15, 140, 140, 50, "Received:"
+			Text 20, 155, 75, 10, "DHS-5181 Received:"
+			EditBox 90, 150, 50, 15, recvd_date_5181
+			Text 20, 175, 75, 10, "DHS-5103 Received:"
+			EditBox 90, 170, 50, 15, recvd_date_5103
+
+			GroupBox 160, 140, 310, 50, "Sent:"
+			Text 165, 155, 95, 10, "     DHS-3050/1503 Sent:"
+			EditBox 250, 150, 50, 15, sent_date_3050
+			Text 165, 175, 95, 10, "DHS-3203/Lien Doc Sent:"
+			EditBox 250, 170, 50, 15, sent_date_3203
+			Text 310, 155, 95, 10, "Asset Transfer Memo Sent:"
+			EditBox 400, 150, 50, 15, sent_date_asset_transfer
+
+			GroupBox 10, 195, 465, 90, "Asset Information"
+			Text 15, 210, 65, 10, "Annuity (LTC) PRB:"
+			EditBox 80, 205, 385, 15, annuity_LTC_PRB
+		 	Text 15, 230, 60, 10, "Home equity limit:"
+			DropListBox 75, 225, 75, 15, "N/A"+chr(9)+"Within limit"+chr(9)+"Beyond limit", home_equity_limit
+			Text 160, 230, 50, 10, "Transfer:"
+			EditBox 205, 225, 260, 15, transfer_notes
+			GroupBox 15, 245, 455, 35, "LTC Partnership Insurance"
+			Text 20, 260, 95, 10, "Is there LTC Partnership?"
+			DropListBox 110, 255, 45, 45, "No"+chr(9)+"Yes", ltcp_exists
+			Text 165, 260, 75, 10, "LTC Partnership Notes:"
+			EditBox 240, 255, 225, 15, ltc_partnership_notes
+
+			Text 10, 295, 75, 10, "LTC Intake Notes:"
+			EditBox 80, 290, 455, 15, ltc_intake_notes
+
+			Text 10, 350, 175, 10, "Which CASE/NOTEs should be entered on this case?"
+			DropListBox 185, 345, 350, 45, "Both CASE/NOTEs - MA-LTC Intake Info NOTE & Main HC Eval NOTE"+chr(9)+"MA-LTC Intake Info NOTE ONLY"+chr(9)+"Main HC Eval NOTE ONLY", ltc_app_case_note_option
 
 		' ElseIf page_display =  Then
 
@@ -1920,7 +2084,16 @@ function define_main_dialog()
 			If page_display =  ltc_page 	Then Text 500, btn_pos+2, 55, 13, "LTC Details"
 			btn_pos = btn_pos + 15
 			btn_count = btn_count + 1
+
+			If processing_an_application = True Then
+				Text 485, btn_pos + 2, 10, 10, btn_count
+				If page_display <> ltc_intake_page 	Then PushButton 495, btn_pos, 55, 13, "LTC Intake", ltc_intake_page_btn
+				If page_display =  ltc_intake_page 	Then Text 500, btn_pos+2, 55, 13, "LTC Intake"
+				btn_pos = btn_pos + 15
+				btn_count = btn_count + 1
+			End If
 		End If
+
 
 		Text 485, btn_pos + 2, 10, 10, btn_count
 		last_page_numb = btn_count
@@ -2227,6 +2400,7 @@ function dialog_movement()
 	If ButtonPressed = imig_btn Then page_display = imig_page
 	If ButtonPressed = retro_btn Then page_display = retro_page
 	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
+	If ButtonPressed = ltc_intake_page_btn Then page_display = ltc_intake_page
 	If ButtonPressed = ltc_page_btn Then page_display = ltc_page
 	If ButtonPressed = last_btn Then page_display = last_page
 
@@ -2680,6 +2854,916 @@ function write_header_and_detail_in_CASE_NOTE(header, variable)
 	End if
 end function
 
+'function to enter person into the NOTE (this is in a function because there are 2 different notes that need Person Details)
+function write_person_details_in_NOTE()
+	Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+			If trim(HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb)) <> "" and trim(HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) <> "" Then
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & (HEALTH_CARE_MEMBERS(HC_recertification_month, the_memb) & "/" & HEALTH_CARE_MEMBERS(HC_recertification_year, the_memb)) & " " &  HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			Else
+				Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
+			End If
+			If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
+			If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
+				Call write_variable_in_CASE_NOTE("     No Health Care Program.")
+			Else
+				Call write_variable_in_CASE_NOTE("     " & HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) & " Basis: " & HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb))
+				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb) = "Breast/Cervical Cancer" Then
+					Call write_variable_in_CASE_NOTE("               MA-BC uses Method X Budgeting.")
+					Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
+					If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
+				End If
+			End If
+			If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb))
+			If HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb) = "None" Then
+				Call write_variable_in_CASE_NOTE("     No Medicare Savings Program.")
+			Else
+				Call write_variable_in_CASE_NOTE("     MSP Program: " & HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb))
+				Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
+			End If
+			If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb))
+			If HEALTH_CARE_MEMBERS(member_has_retro_request, the_memb) = True Then
+				Call write_variable_in_CASE_NOTE("     RETRO Request back to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, the_memb))
+			End If
+			'TODO - add MEMB/MEMI information
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) Then
+					If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
+						imig_string = ""
+						imig_string = "This resident is a non-citizen; Immigration Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb) & ", Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb) & "; "
+						If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then imig_string = imig_string & "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb) & "; "
+						imig_string = imig_string & "Verif: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb) & "; "
+						If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))) <> "" Then imig_string = imig_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
+
+						Call write_header_and_detail_in_CASE_NOTE("Immigration", imig_string)
+					End If
+				End If
+			Next
+
+
+			If HEALTH_CARE_MEMBERS(DISA_exists_const, the_memb) = True Then
+				disa_string = ""
+				disa_string = "HC DISA status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, the_memb)
+				disa_string = disa_string & ", DISA Start Date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, the_memb)
+				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, the_memb) <> "" Then disa_string = disa_string & ", Cert Date Start Date: " & HEALTH_CARE_MEMBERS(DISA_cert_start_const, the_memb)
+				disa_string = disa_string & "; "
+				If HEALTH_CARE_MEMBERS(DISA_end_date_const, the_memb) <> "" Then disa_string = disa_string & "Disability End Date:: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, the_memb)
+				If HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb) <> "" Then
+					If right(disa_string, 2) = "; " Then disa_string = disa_string & "Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
+					If right(disa_string, 2) <> "; " Then disa_string = disa_string & ", Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
+				End If
+				disa_string = disa_string & "Verif: " & HEALTH_CARE_MEMBERS(DISA_hc_verif_info_const, the_memb) & "; "
+				If trim(HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb)) <> "" Then disa_string = disa_string & "Notes: " & HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb) & "; "
+				If right(disa_string, 2) <> "; " Then disa_string = disa_string & "; "
+				Call write_header_and_detail_in_CASE_NOTE("Disability", disa_string)
+
+				waiver_string = ""
+				If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) <> "" Then waiver_string = waiver_string & "" & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) & "; "
+				If trim(HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)) <> "" Then waiver_string = waiver_string & "LTC Notes: " & HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)
+				If waiver_string <> "" Then
+					If right(waiver_string, 2) <> "; " Then waiver_string = waiver_string & "; "
+					Call write_header_and_detail_in_CASE_NOTE("Waiver", waiver_string)
+				End If
+			End If
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) Then
+					If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
+						emma_string = ""
+						emma_string = emma_string & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb) & "; "
+						emma_string = emma_string & "Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb) & "; "
+						emma_string = emma_string & "Verif: " & STAT_INFORMATION(month_ind).stat_emma_verif_info(each_memb) & "; "
+						emma_string = emma_string & "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb)
+						If STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb) <> "" Then emma_string = emma_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb)
+						emma_string = emma_string & "; "
+						If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_emma_notes(each_memb))) <> "" Then emma_string = emma_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_emma_notes(each_memb))
+						Call write_header_and_detail_in_CASE_NOTE("Medical Emergency", emma_string)
+					End If
+				End If
+			Next
+
+			If HEALTH_CARE_MEMBERS(PREG_exists_const, the_memb) = True Then
+				preg_string = ""
+				preg_string = "Due Date: " & HEALTH_CARE_MEMBERS(PREG_due_date_const, the_memb) & ", Verif:" &  HEALTH_CARE_MEMBERS(PREG_due_date_verif_const, the_memb)
+				If HEALTH_CARE_MEMBERS(PREG_multiple_const, the_memb) <> "" Then preg_string = preg_string & ", Multiples: " & HEALTH_CARE_MEMBERS(PREG_multiple_const, the_memb)
+				preg_string = preg_string & "; "
+				If HEALTH_CARE_MEMBERS(PREG_end_date_const, the_memb) <> "" Then preg_string = preg_string & "Pregnancy End Date: " & HEALTH_CARE_MEMBERS(PREG_end_date_const, the_memb) & ", Verif:" &  HEALTH_CARE_MEMBERS(PREG_end_date_verif_const, the_memb)
+				If trim(HEALTH_CARE_MEMBERS(PREG_notes_const, the_memb)) <> "" Then preg_string = preg_string & "Notes: " & HEALTH_CARE_MEMBERS(PREG_notes_const, the_memb)
+				Call write_header_and_detail_in_CASE_NOTE("Pregnancy", preg_string)
+			End If
+
+			If HEALTH_CARE_MEMBERS(PARE_exists_const, the_memb) = True Then
+				pare_string = ""
+				pare_string = "Listed as a parent of:" & HEALTH_CARE_MEMBERS(PARE_list_of_children_const, the_memb)
+				If trim(HEALTH_CARE_MEMBERS(PARE_notes_const, the_memb)) <> "" Then pare_string = pare_string & "; Notes: " & HEALTH_CARE_MEMBERS(PARE_notes_const, the_memb)
+				Call write_header_and_detail_in_CASE_NOTE("Parent", pare_string)
+			End If
+
+			If HEALTH_CARE_MEMBERS(MEDI_exists_const, the_memb) = True Then
+				medi_string = ""
+				If HEALTH_CARE_MEMBERS(MEDI_part_A_start_const, the_memb) <> "" Then
+					medi_string = medi_string & "Part A Premium: $ " & HEALTH_CARE_MEMBERS(MEDI_part_A_premium_const, the_memb) & ", Start Date: " & HEALTH_CARE_MEMBERS(MEDI_part_A_start_const, the_memb) & "; "
+					medi_string = medi_string & "Part A End Date: " & HEALTH_CARE_MEMBERS(MEDI_part_A_end_const, the_memb) & "; "
+				End If
+				If HEALTH_CARE_MEMBERS(MEDI_part_B_start_const, the_memb) <> "" Then
+					medi_string = medi_string & "Part B Premium: $ " & HEALTH_CARE_MEMBERS(MEDI_part_B_premium_const, the_memb) & ", Start Date: " & HEALTH_CARE_MEMBERS(MEDI_part_B_start_const, the_memb) & "; "
+					medi_string = medi_string & "Part B End Date: " & HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, the_memb) & "; "
+				End If
+
+				If trim(HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)) <> "" Then medi_string = medi_string & "Notes: " & HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)
+				Call write_header_and_detail_in_CASE_NOTE("Medicare", medi_string)
+			Else
+				If HEALTH_CARE_MEMBERS(MEDI_application_requred_checkbox_const, the_memb) = checked Then
+					If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) <> "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required, referral date: " & HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) & ".")
+					If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) = "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required.")
+				End If
+			End If
+		End If
+	Next
+End Function
+
+'function to enter income into the NOTE (this is in a function because there are 2 different notes that need Person Details)
+function write_income_details_in_NOTE()
+	Call write_variable_in_CASE_NOTE("============================== INCOME ==============================")
+	income_detail_entered = False
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb))
+			jobs_string = ""
+			jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_one_health_care_income_pay_day(each_memb) & " per pay date"
+			jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_jobs_one_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_one_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_one_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_one_inc_end_date(each_memb)
+			jobs_string = jobs_string & "; "
+
+			If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+				jobs_string = jobs_string & "No Verification Received; "
+			Else
+				jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_one_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
+		End If
+
+		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb))
+			jobs_string = ""
+			jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_two_health_care_income_pay_day(each_memb) & " per pay date"
+			jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_jobs_two_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_two_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_two_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_two_inc_end_date(each_memb)
+			jobs_string = jobs_string & "; "
+
+			If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+				jobs_string = jobs_string & "No Verification Received; "
+			Else
+				jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_two_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
+		End If
+
+		If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb))
+			jobs_string = ""
+			jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_three_health_care_income_pay_day(each_memb) & " per pay date"
+			jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_jobs_three_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_three_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_three_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_three_inc_end_date(each_memb)
+			jobs_string = jobs_string & "; "
+
+			If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+				jobs_string = jobs_string & "No Verification Received; "
+			Else
+				jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_three_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
+		End If
+
+		If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb))
+			jobs_string = ""
+			jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_four_health_care_income_pay_day(each_memb) & " per pay date"
+			jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_jobs_four_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_four_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_four_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_four_inc_end_date(each_memb)
+			jobs_string = jobs_string & "; "
+
+			If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+				jobs_string = jobs_string & "No Verification Received; "
+			Else
+				jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_four_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
+		End If
+
+		If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb))
+			jobs_string = ""
+			jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_five_health_care_income_pay_day(each_memb) & " per pay date"
+			jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_jobs_five_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_five_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_five_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_five_inc_end_date(each_memb)
+			jobs_string = jobs_string & "; "
+
+			If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+				jobs_string = jobs_string & "No Verification Received; "
+			Else
+				jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_five_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
+		End If
+
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Job Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_general_notes))
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb))
+			busi_string = ""
+
+			If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "" Then
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb) Then
+					busi_string = busi_string & "HC Calculation Method: A and B; "
+				Else
+					busi_string = busi_string & "HC Calculation Method: B; "
+				End If
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb) & "; "
+			Else
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				busi_string = busi_string & "HC Calculation Method: A; "
+
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_income_verif_info(each_memb) & "; "
+			End if
+
+			busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb)
+			busi_string = busi_string & "; "
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
+
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb))
+			busi_string = ""
+
+			If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) <> "" Then
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb) Then
+					busi_string = busi_string & "HC Calculation Method: A and B; "
+				Else
+					busi_string = busi_string & "HC Calculation Method: B; "
+				End If
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_income_verif_info(each_memb) & "; "
+			Else
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				busi_string = busi_string & "HC Calculation Method: A; "
+
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_income_verif_info(each_memb) & "; "
+			End if
+
+			busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_two_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb)
+			busi_string = busi_string & "; "
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
+
+		End If
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb))
+			busi_string = ""
+
+			If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) <> "" Then
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb) Then
+					busi_string = busi_string & "HC Calculation Method: A and B; "
+				Else
+					busi_string = busi_string & "HC Calculation Method: B; "
+				End If
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_income_verif_info(each_memb) & "; "
+			Else
+				busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb)
+				busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_gross_inc(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_expenses(each_memb)
+				busi_string = busi_string & "); "
+				busi_string = busi_string & "HC Calculation Method: A; "
+
+				busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_income_verif_info(each_memb) & "; "
+			End if
+
+			busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_three_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb)
+			busi_string = busi_string & "; "
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
+
+		End If
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Selt Emp Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_general_notes))
+
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb))
+			unea_string = ""
+			unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_one_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb)
+			unea_string = unea_string & "; "
+			If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+				unea_string = unea_string & "No Verification Received; "
+			Else
+				unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_one_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb))
+			unea_string = ""
+			unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_two_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb)
+			unea_string = unea_string & "; "
+			If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+				unea_string = unea_string & "No Verification Received; "
+			Else
+				unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_two_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb))
+			unea_string = ""
+			unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_three_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb)
+			unea_string = unea_string & "; "
+			If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+				unea_string = unea_string & "No Verification Received; "
+			Else
+				unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_three_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb))
+			unea_string = ""
+			unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_four_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb)
+			unea_string = unea_string & "; "
+			If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+				unea_string = unea_string & "No Verification Received; "
+			Else
+				unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_four_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+			income_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb))
+			unea_string = ""
+			unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_five_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_start_date(each_memb)
+			If STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb)
+			unea_string = unea_string & "; "
+			If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+				unea_string = unea_string & "No Verification Received; "
+			Else
+				unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_five_verif_info(each_memb) & "; "
+			End If
+
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))
+			Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
+		End If
+
+
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Unearned Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_general_notes))
+	Call write_bullet_and_variable_in_CASE_NOTE("RETRO Income Notes", retro_income_detail)
+	If income_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Income for this Case.")
+
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_pben_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Potential Benefits")
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_one(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_one(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_one(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_one(each_memb) & "; " & date_detail)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_two(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_two(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_two(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_two(each_memb) & "; " & date_detail)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_three(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_three(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_three(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_three(each_memb) & "; " & date_detail)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_four(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_four(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_four(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_four(each_memb) & "; " & date_detail)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_five(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_five(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_five(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_five(each_memb) & "; " & date_detail)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pben_type_code_six(each_memb) <> "" Then
+				date_detail = ""
+				If STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) & ", "
+				If STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) & ", "
+				date_detail = left(date_detail, len(date_detail)-2)
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_six(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_six(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_six(each_memb) & "; " & date_detail)
+			End If
+			Call write_header_and_detail_in_CASE_NOTE("PBEN Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_pben_notes(each_memb)))
+
+		End If
+	Next
+End Function
+
+'function to enter assets into the NOTE (this is in a function because there are 2 different notes that need Person Details)
+function write_asset_details_in_NOTE()
+	Call write_variable_in_CASE_NOTE("============================== ASSETS ==============================")
+	If (avs_form_status <> "Select One..." and avs_form_status <> "") OR trim(avs_form_notes) <> "" OR trim(avs_portal_notes) <> "" Then
+		Call write_variable_in_CASE_NOTE("-----------------------------------------------------AVS Information")
+		If avs_form_status <> "Select One..." Then Call write_bullet_and_variable_in_CASE_NOTE("AVS Authorization Form", avs_form_status)
+		Call write_bullet_and_variable_in_CASE_NOTE("Notes", avs_form_notes)
+		Call write_bullet_and_variable_in_CASE_NOTE("Actions/Details", avs_portal_notes)
+		Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------")
+	End If
+	asset_detail_entered = False
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
+			asset_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
+
+			If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then Call write_header_and_detail_in_CASE_NOTE("Cash", "Amount $ "& STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
+
+			If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
+				acct_string = ""
+				' acct_string = acct_string &
+				If STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)
+				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_one_as_of_date(each_memb)
+				acct_string = acct_string & "; "
+				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_one_verif_info(each_memb) & ";"
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " Account", acct_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
+				acct_string = ""
+				' acct_string = acct_string &
+				If STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)
+				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_two_as_of_date(each_memb)
+				acct_string = acct_string & "; "
+				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_two_verif_info(each_memb) & ";"
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb) & " Account", acct_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
+				acct_string = ""
+				' acct_string = acct_string &
+				If STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)
+				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_three_as_of_date(each_memb)
+				acct_string = acct_string & "; "
+				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_three_verif_info(each_memb) & ";"
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " Account", acct_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
+				acct_string = ""
+				' acct_string = acct_string &
+				If STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)
+				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_four_as_of_date(each_memb)
+				acct_string = acct_string & "; "
+				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_four_verif_info(each_memb) & ";"
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " Account", acct_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
+				acct_string = ""
+				' acct_string = acct_string &
+				If STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb)
+				acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)
+				acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_five_as_of_date(each_memb)
+				acct_string = acct_string & "; "
+				acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_five_verif_info(each_memb) & ";"
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb) & " Account", acct_string)
+			End If
+
+			If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
+				secu_string = ""
+				secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_one_name(each_memb) & "; "
+
+				If STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb)
+				secu_string = secu_string & "; "
+				If STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb) & "; "
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_one_type_detail(each_memb), secu_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
+				secu_string = ""
+				secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_two_name(each_memb) & "; "
+
+				If STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb)
+				secu_string = secu_string & "; "
+				If STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb) & "; "
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_two_type_detail(each_memb), secu_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
+				secu_string = ""
+				secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_three_name(each_memb) & "; "
+
+				If STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb)
+				secu_string = secu_string & "; "
+				If STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) & "; "
+				secu_string = secu_string & "Verif: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb) & "; "
+
+				Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_three_type_detail(each_memb), secu_string)
+			End If
+			Call write_header_and_detail_in_CASE_NOTE("Liquid Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_asset_notes(each_memb)))
+		End If
+	Next
+	If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Liquid Assets for this Case.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes))
+
+	asset_detail_entered = False
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
+			asset_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
+
+			If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+				cars_string = ""
+				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_one_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_model(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Value: "
+				If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_one_own_verif_info(each_memb) & "; "
+				Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+				cars_string = ""
+				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_two_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_model(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Value: "
+				If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_two_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_two_value_source_info(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_two_own_verif_info(each_memb) & "; "
+
+				Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+				cars_string = ""
+				cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_three_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_model(each_memb)
+				cars_string = cars_string & " Use: " & STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Value: "
+				If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb)
+				If STAT_INFORMATION(month_ind).stat_cars_three_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_three_value_source_info(each_memb)
+				cars_string = cars_string & "; "
+				cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_three_own_verif_info(each_memb) & "; "
+
+				Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
+			End If
+
+		End if
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Vehicle Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_cars_notes))
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
+			asset_detail_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
+
+			If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
+				rest_string = ""
+				rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_one_type_info(each_memb)
+				rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) & "; "
+				rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_property_ownership_info(each_memb) & "; "
+				If STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) <> "" Then
+					rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_value_verif_info(each_memb) & "; "
+				End If
+				If STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) <> "" Then
+					rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_owed_verif_info(each_memb) & "; "
+				End If
+
+				Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
+				rest_string = ""
+				rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_two_type_info(each_memb)
+				rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) & "; "
+				rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_property_ownership_info(each_memb) & "; "
+				If STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) <> "" Then
+					rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_value_verif_info(each_memb) & "; "
+				End If
+				If STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) <> "" Then
+					rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_owed_verif_info(each_memb) & "; "
+				End If
+
+				Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
+				rest_string = ""
+				rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_three_type_info(each_memb)
+				rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) & "; "
+				rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_property_ownership_info(each_memb) & "; "
+				If STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) <> "" Then
+					rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_value_verif_info(each_memb) & "; "
+				End If
+				If STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) <> "" Then
+					rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
+					rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_owed_verif_info(each_memb) & "; "
+				End If
+
+				Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
+			End If
+		End If
+	Next
+
+	For each asset_case_note in asset_total_array	' 'Writing Asset total in casenote for each member
+		Call write_variable_in_CASE_NOTE(asset_case_note)
+	Next
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Real Estate Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes))
+	Call write_bullet_and_variable_in_CASE_NOTE("RETRO Asset Notes", retro_asset_detail)
+	If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No vehicles or real estate for this Case.")
+End Function
+
+'function to enter expense into the NOTE (this is in a function because there are 2 different notes that need Person Details)
+Function write_expense_details_in_NOTE()
+	Call write_variable_in_CASE_NOTE("===================== EXPENSES and DEDUCTIONS ======================")
+	expense_info_entered = False
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_pded_exists(each_memb) = True Then
+			expense_info_entered = True
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Program Deductions")
+			If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) <> "_" Then
+				pickle_string = ""
+				If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "1" then pickle_string = pickle_string & "Eligible: "
+				If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "2" then pickle_string = pickle_string & "POTENTIALLY Eligible: "
+				pickle_string = pickle_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " Disregard Amount; "
+				pickle_string = pickle_string & "Current RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_curr_RSDI(each_memb) & " less Threshold RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_RSDI(each_memb) & "; "
+				pickle_string = pickle_string & "Based on Threshold Date: " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_date(each_memb) & "; "
+				Call write_header_and_detail_in_CASE_NOTE("PICKLE Disregard", pickle_string)
+			End If
+
+			other_ded_string = ""
+			If STAT_INFORMATION(month_ind).stat_pded_disa_widow_deducation_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Disabled Widow/ers Deduction Applied; "
+			If STAT_INFORMATION(month_ind).stat_pded_disa_adult_child_disregard_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Disabled Adult Child Disregard applied; "
+			If STAT_INFORMATION(month_ind).stat_pded_widow_deducation_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Widow/ers Deduction applied; "
+			If STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) <> "" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) & " Unearned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_reason(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) <> "" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) & " Earned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_reason(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_amt(each_memb) & " Blind/Disabled Student Child Disregard; "
+			Call write_header_and_detail_in_CASE_NOTE("Other Deductions", other_ded_string)
+
+			If STAT_INFORMATION(month_ind).stat_pded_extend_ma_epd_limits_yn(each_memb) = "Y" Then Call write_variable_in_CASE_NOTE("     MA-EPD Income/Asset Limits Extended")
+			If STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb) <> "" Then
+				pass_string = ""
+				pass_string = pass_string & "Begin Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb)
+				If STAT_INFORMATION(month_ind).stat_pded_PASS_end_date(each_memb) <> "" Then pass_string = pass_string & " - End Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_end_date(each_memb)
+				pass_string = pass_string & "; "
+				If STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) & " - Earned Income Excluded; "
+				If STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) & " - Unearned Income Excluded; "
+				If STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) & " - Assets Excluded; "
+				Call write_header_and_detail_in_CASE_NOTE("PASS Plan", pass_string)
+			End If
+			If STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) & " Guardianship Fee reduced from income.")
+			If STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) & " Rep Payee Fee reduced from income.")
+		End If
+	Next
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_coex_exists(each_memb) = True Then
+			expense_info_entered = True
+
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Court Ordered Expenses")
+			coex_string = ""
+			coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_total_prosp_amt(each_memb) & " TOTAL Expense; "
+			If STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) & " SUPPORT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_support_verif_info(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) & " ALIMONY Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_alimony_verif_info(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) & " TAX DEPENDENT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_verif_info(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) & " OTHER Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_other_verif_info(each_memb) & "; "
+			Call write_header_and_detail_in_CASE_NOTE("COEX Info", coex_string)
+		End If
+	Next
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_dcex_exists(each_memb) = True Then
+			expense_info_entered = True
+
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Dependent Care Expenses")
+			dcex_string = ""
+			dcex_string = dcex_string & "Provider: " &  STAT_INFORMATION(month_ind).stat_dcex_provider(each_memb) & " - Reason: " & STAT_INFORMATION(month_ind).stat_dcex_reason_info(each_memb) & "; "
+			If InStr(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb), ",") <> 0 Then
+				dcex_child_array = split(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb), ",")
+				dcex_amount_array = split(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb), ",")
+				dcex_verif_array = split(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb), ",")
+			Else
+				dcex_child_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb))
+				dcex_amount_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb))
+				dcex_verif_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb))
+			End If
+			For dcex_child = 0 to UBound(dcex_child_array)
+				dcex_string = dcex_string & "$ " & dcex_amount_array(dcex_child) & " for MEMB " & dcex_child_array(dcex_child) & ", Verif: " & dcex_verif_array(dcex_child) & "; "
+			Next
+			dcex_child_array = ""
+			dcex_amount_array = ""
+			dcex_verif_array = ""
+			Call write_header_and_detail_in_CASE_NOTE("DCEX Info", dcex_string)
+		End If
+	Next
+	If expense_info_entered = False Then Call write_variable_in_CASE_NOTE("* No expenses or deductions for this Case.")
+	Call write_bullet_and_variable_in_CASE_NOTE("RETRO Expense Notes", retro_expense_detail)
+	Call write_bullet_and_variable_in_CASE_NOTE("Expense Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_expenses_general_notes))
+End Function
+
+'function to enter other/misc into the NOTE (this is in a function because there are 2 different notes that need Person Details)
+Function write_other_details_in_NOTE()
+	Call write_variable_in_CASE_NOTE("=========================== OTHER INFO =============================")
+	Call write_bullet_and_variable_in_CASE_NOTE("RETRO Notes", retro_notes)
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_acci_exists(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Accident Information")
+			acci_string = ""
+			acci_string = acci_string & "Injury Date " & STAT_INFORMATION(month_ind).stat_acci_injury_date(each_memb) & ". Medical cooperation: " & STAT_INFORMATION(month_ind).stat_acci_med_coop_yn(each_memb) & "; "
+			acci_string = acci_string & "Accident Type: " & STAT_INFORMATION(month_ind).stat_acci_type_info(each_memb) & ". Involving MEMBS " & STAT_INFORMATION(month_ind).stat_acci_ref_numbers_list(each_memb)
+			Call write_header_and_detail_in_CASE_NOTE("Details", acci_string)
+		End If
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Accident Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acci_notes))
+
+	For each_panel = 0 to UBound(STAT_INFORMATION(month_ind).stat_insa_exists)
+		If STAT_INFORMATION(month_ind).stat_insa_exists(each_panel) = True Then
+			Call write_variable_in_CASE_NOTE("Other Health Insurance at " & STAT_INFORMATION(month_ind).stat_insa_insurance_co(each_panel) & " coop with OHI: " & STAT_INFORMATION(month_ind).stat_insa_coop_OHI_yn(each_panel) & " CEHI coop: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel))
+			Call write_header_and_detail_in_CASE_NOTE("Covered MEMBS", STAT_INFORMATION(month_ind).stat_insa_covered_pers_list(each_panel))
+			If STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "_" And STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "N" Then
+				Call write_header_and_detail_in_CASE_NOTE("Good Cause", STAT_INFORMATION(month_ind).stat_insa_good_cause_info(each_panel) & " - Claim Date: " & STAT_INFORMATION(month_ind).stat_insa_good_cause_claim_date(each_panel) & " - Evidence: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel))
+			End If
+		End If
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Insurance Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_insa_notes))
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " is in a facility")
+			faci_string = ""
+			faci_string = faci_string & "Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
+			faci_string = faci_string & ", Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
+			faci_string = faci_string & ", In Date: " & STAT_INFORMATION(month_ind).stat_faci_date_in(each_memb) & "; "
+			If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
+				faci_string = faci_string & "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) & "; "
+			End If
+			If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
+				faci_string = faci_string & "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) & "; "
+			End If
+			Call write_header_and_detail_in_CASE_NOTE("Facility Info", faci_string)
+
+			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
+					Call write_header_and_detail_in_CASE_NOTE("LTC FACI Notes", HEALTH_CARE_MEMBERS(LTC_facility_notes_const, hc_memb))
+				End If
+			Next
+
+			If excluded_time_case = True Then
+				Call write_variable_in_CASE_NOTE("* EXCLUDED TIME CASE - County of Financial Responsibility: " & county_of_financial_responsibility)
+			End If
+		End If
+	Next
+	Call write_bullet_and_variable_in_CASE_NOTE("Facility Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_faci_notes))
+	Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_other_general_notes))
+
+	If bils_exist = True Then
+		Call write_variable_in_CASE_NOTE("Medical Bill Information exists on case.")
+		first_bil = True
+		For each_bil = 0 to UBound(BILS_ARRAY, 2)
+			If BILS_ARRAY(bils_checkbox, each_bil) = checked Then
+				If first_bil = True Then
+					Call write_variable_in_CASE_NOTE("  Person  Date     Gross     Service          Type Verif")
+					first_bil = False
+				End If
+				bill_line = ""
+				bill_line = "  MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil)
+				bill_line = bill_line & " " & BILS_ARRAY(bils_date_const, each_bil)
+				bill_line = bill_line & " $ " & right(space(7)&BILS_ARRAY(bils_gross_amt_const, each_bil), 7)
+				bill_line = bill_line & " " & left(BILS_ARRAY(bils_service_info_short_const, each_bil)&space(16), 16)
+				bill_line = bill_line & " " & BILS_ARRAY(bils_expense_type_code_const, each_bil)
+				bill_line = bill_line & "    " & left(BILS_ARRAY(bils_verif_info_const, each_bil)&space(25), 25)
+				Call write_variable_in_CASE_NOTE(bill_line)
+			End If
+		Next
+		Call write_bullet_and_variable_in_CASE_NOTE("Bills Notes",bils_notes)
+		If first_bil = False Then call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+	End If
+
+	If arep_name <> "" Then
+		arep_string = arep_name & ", Notices to AREP: " & forms_to_arep & ", MMIS Mail to AREP: " & mmis_mail_to_arep
+		Call write_bullet_and_variable_in_CASE_NOTE("Authorized Rep", arep_string)
+	End If
+
+	If swkr_name <> "" Then
+		swkr_string = swkr_name & ", Notices to SWKR: " & notices_to_swkr_yn
+		Call write_bullet_and_variable_in_CASE_NOTE("Social Worker", swkr_string)
+	End If
+End Function
+
 'END FUNCTIONS BLOCK =======================================================================================================
 
 'DECLARATIONS ==============================================================================================================
@@ -2766,7 +3850,9 @@ Const HC_major_prog_const				= 74
 Const MSP_major_prog_const				= 75
 Const LTC_waiver_notes_const			= 76
 Const LTC_facility_notes_const			= 77
-Const last_const						= 78
+Const HC_recertification_month			= 78
+Const HC_recertification_year			= 79
+Const last_const						= 80
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
@@ -2814,6 +3900,7 @@ form_selection_options = form_selection_options+chr(9)+"MNsure Application for H
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal (DHS-3418)"
 form_selection_options = form_selection_options+chr(9)+"Combined Annual Renewal for Certain Populations (DHS-3727)"
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
+form_selection_options = form_selection_options+chr(9)+"Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)"
 form_selection_options = form_selection_options+chr(9)+"Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
@@ -2867,26 +3954,28 @@ imig_page 			= 9
 retro_page			= 10
 verifs_page 		= 11
 ltc_page			= 12
-last_page 			= 13
+ltc_intake_page 	= 13
+last_page 			= 14
 
 'BUTTON definitions
 'START AT 1000 OR ABOVE. Person buttons start at 500
-Const hc_memb_btn 	= 1010
-Const jobs_inc_btn 	= 1011
-Const busi_inc_btn 	= 1012
-Const unea_inc_btn 	= 1013
-Const assets_btn 	= 1014
-Const cars_rest_btn	= 1015
-Const expenses_btn 	= 1016
-Const other_btn 	= 1017
-Const bils_btn		= 2018
-Const imig_btn 		= 2019
-Const verifs_page_btn 	= 2020
-Const retro_btn		= 2021
-Const ltc_page_btn	= 2022
-Const last_btn		= 2030
-Const verif_button	= 2500
-Const clear_verifs_btn = 2510
+Const hc_memb_btn 			= 1010
+Const jobs_inc_btn 			= 1011
+Const busi_inc_btn 			= 1012
+Const unea_inc_btn 			= 1013
+Const assets_btn 			= 1014
+Const cars_rest_btn			= 1015
+Const expenses_btn 			= 1016
+Const other_btn 			= 1017
+Const bils_btn				= 2018
+Const imig_btn 				= 2019
+Const verifs_page_btn 		= 2020
+Const retro_btn				= 2021
+Const ltc_page_btn			= 2022
+Const ltc_intake_page_btn 	= 2023
+Const last_btn				= 2030
+Const verif_button			= 2500
+Const clear_verifs_btn 		= 2510
 
 Const completed_hc_eval_btn = 3000
 Const next_btn				= 3010
@@ -2901,13 +3990,18 @@ Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox,
 Dim last_page_numb
 Dim retro_income_detail, retro_asset_detail, retro_expense_detail, ltc_elig_notes, ltc_info_still_needed
 Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
-Dim avs_form_status, avs_form_notes, avs_portal_notes
+Dim avs_form_status, avs_form_notes, avs_portal_notes, county_of_financial_responsibility
+Dim month_MA_starts, clt_in_community, LTCC_date, month_MA_LTC_starts, baseline_date
+Dim recvd_date_5181, recvd_date_5103, sent_date_3050, sent_date_3203, sent_date_asset_transfer
+Dim annuity_LTC_PRB, home_equity_limit, transfer_notes, ltcp_exists, ltc_partnership_notes, ltc_intake_notes
+Dim ltc_app_case_note_option
 
 'THE SCRIPT =====================================================================================================
 EMConnect ""								'connect to BlueZone
 Call check_for_MAXIS(False)					'Make sure we are in MAXIS
 Call get_county_code						'Checking for the county
 Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the CASE Number
+ltc_app_case_note_option = "Both CASE/NOTEs - MA-LTC Intake Info NOTE & Main HC Eval NOTE"		'defaulting the note optionto case note all the note options. This can only be changed with MA-LTC cases at application
 
 If MAXIS_case_number <> "" Then				'If we know the CASE Number, we can attempt to read the form date
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
@@ -3030,6 +4124,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Const hc_prog_3				= 11
 	Const hc_type_3				= 12
 	Const memb_smi_numb_const	= 13
+	Const Memb_ex_parte_status  = 14
 
 	Const MEDI_expt_exists_const= 20
 	Const MEDI_update_date		= 21
@@ -3077,6 +4172,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Const PDED_PICKLE_dsrgd_amt		= 77
 	Const PDED_DAC_exists 			= 78
 
+	Const HCMI_ex_parte_status      = 80
+	Const HCMI_ex_parte_month	    = 81
+	Const HCMI_panel_exists			= 82
 
 	Const memb_last_const 		= 90
 
@@ -3090,9 +4188,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 	Call back_to_SELF
 	EMReadScreen MX_region, 10, 22, 48
 	MX_region = trim(MX_region)
+	phase_1_SQL_month = "20" & CM_plus_2_yr & "-" & CM_plus_2_mo & "-01"		'defining month in the format used in SQL for the REVW month for each of the Ex Parte phases
+	phase_2_SQL_month = "20" & CM_plus_1_yr & "-" & CM_plus_1_mo & "-01"		'This is used to pull ad update the correct information form SQL
 	If MX_region <> "TRAINING" Then
 		'declare the SQL statement that will query the database
-		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
+		'Searching for the specific case number and revw month.
+		objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "' and (HCEligReviewDate = '" & phase_2_SQL_month & "' or HCEligReviewDate = '" & phase_1_SQL_month & "')"
 
 		'Creating objects for Access
 		Set objConnection = CreateObject("ADODB.Connection")
@@ -3163,6 +4264,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 	If ex_parte_phase = "Phase 1" Then
 		phase_1_review_month = er_month & "/" & er_year
+		correct_ex_parte_revw_month_code = right("00" & er_month, 2) & " 20" & right(er_year, 2)
 		start_of_prep_month = DateAdd("m", -4, review_month_from_SQL)
 
 		Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
@@ -3818,77 +4920,213 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		policy_3_button = 1030
 
 		If NO_HC_EXISTS = True Then ex_parte_determination = "Health Care has been Closed"
-
-		Dialog1 = ""
-
-		BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Evaluation"
-			GroupBox 10, 280, 505, 85, "Ex Parte Evaluation"
-			Text 20, 295, 80, 10, "Ex Parte Evaluation:"
-			DropListBox 100, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
-			Text 235, 295, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
-			Text 15, 315, 90, 10, "Not Ex Parte Explanation:"
-			ComboBox 100, 310, 400, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Not all household members on HC meed an ABD basis.", ex_parte_denial_select
-			Text 20, 335, 80, 10, "Not Ex Parte Notes:"
-			EditBox 100, 330, 400, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
-			Text 15, 350, 495, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total character limit is 255 for the combination of all information."
-			Text 15, 365, 70, 10, "Worker Signature:"
-			EditBox 80, 360, 110, 15, worker_signature
-			' GroupBox 10, 0, 455, 25, "Case Information"
-			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
-			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
-			' Text 65, 10, 70, 10, MAXIS_case_number
-			Text 375, 5, 75, 10, "Review Month: " & phase_1_review_month
-			Text 280, 15, 125, 10, "SNAP Status: " & snap_status
-			Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
-			ButtonGroup ButtonPressed
-				OkButton 440, 365, 50, 15
-				CancelButton 500, 365, 50, 15
-				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-				PushButton 475, 15, 80, 15, "Instructions", instructions_button
-				Text 495, 40, 45, 10, "--- POLICY ---"
-				PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
-				' PushButton 490, 65, 55, 15, policy_2, policy_2_button
-				' PushButton 490, 80, 55, 15, policy_3, policy_3_button
-				Text 490, 105, 55, 10, "--- NAVIGATE ---"
-				PushButton 485, 117, 25, 10, "ACCI", acci_button
-				PushButton 515, 117, 25, 10, "BILS", bils_button
-				PushButton 485, 130, 25, 10, "BUDG", budg_button
-				PushButton 515, 130, 25, 10, "BUSI", busi_button
-				PushButton 485, 143, 25, 10, "DISA", disa_button
-				PushButton 515, 143, 25, 10, "EMMA", emma_button
-				PushButton 485, 156, 25, 10, "FACI", faci_button
-				PushButton 515, 156, 25, 10, "HCMI", hcmi_button
-				PushButton 485, 169, 25, 10, "IMIG", imig_button
-				PushButton 515, 169, 25, 10, "INSA", insa_button
-				PushButton 485, 182, 25, 10, "JOBS", jobs_button
-				PushButton 515, 182, 25, 10, "LUMP", lump_button
-				PushButton 485, 195, 25, 10, "MEDI", medi_button
-				PushButton 515, 195, 25, 10, "MEMB", memb_button
-				PushButton 485, 208, 25, 10, "MEMI", memi_button
-				PushButton 515, 208, 25, 10, "PBEN", pben_button
-				PushButton 485, 221, 25, 10, "PDED", pded_button
-				PushButton 515, 221, 25, 10, "REVW", revw_button
-				PushButton 485, 234, 25, 10, "SPON", spon_button
-				PushButton 515, 234, 25, 10, "STWK", stwk_button
-				PushButton 485, 247, 25, 10, "UNEA", unea_button
+		'Get a count of members with HC for dialog
+		total_members = 0
+		dialog_member_count = 0
+		memb_with_hc_list = " "
+		For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then total_members = total_members + 1
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then memb_with_hc_list = memb_with_hc_list & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " "
+		Next
+		If total_members > 3 Then 'If we have more than 3 members on HC, this puts the first 3 on their own dialog, before displaying final.
+			Dialog1 = ""
+			dialog_width = 556
+			If total_members > 4 Then dialog_width = 705
+			membs_in_dialog = 0 'This variable tracks the number of members displayed so we can start the next dialog when needed
+			BeginDialog Dialog1, 0, 0, dialog_width, 385, "Phase 1 - Ex Parte Evaluation"
 
 			If NO_HC_EXISTS = True Then
 				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
 			Else
 				y_pos = 10
 				If all_update_dates_are_current = False Then
-					Text 15, y_pos, 255, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURRING PREP MONTH * * * *"
+					Text 15, y_pos+10, 450, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURING PREP MONTH * * * *     * * * * Manual Review of this case is important. * * * *"
+					' Text 55, y_pos+10, 185, 10, ""
+					y_pos = y_pos + 25
+				Else
+					y_pos = 15
+				End If
+				x_pos = 10
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If y_pos > 35 Then y_pos = 35
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+						membs_in_dialog = membs_in_dialog + 1
+						If (total_members = 4 AND membs_in_dialog < 3) OR (total_members > 4 AND membs_in_dialog < 4) Then
+							dialog_member_count = dialog_member_count + 1
+							memb_grp_x = x_pos
+							memb_grp_y = y_pos
+							x_pos = x_pos + 10
+							y_pos = y_pos +10
+
+							Text x_pos+100, y_pos, 65, 10, "PMI: " & MEMBER_INFO_ARRAY(memb_pmi_numb_const, each_memb)
+							Text x_pos, y_pos, 150, 10, "Health Care Programs:"
+							y_pos = y_pos + 10
+							If MEMBER_INFO_ARRAY(hc_prog_1, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_1, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_1, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(hc_prog_2, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_2, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_2, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(hc_prog_3, each_memb) <> "" Then
+								Text x_pos+10, y_pos, 65, 10, MEMBER_INFO_ARRAY(hc_prog_3, each_memb) & " - " & MEMBER_INFO_ARRAY(hc_type_3, each_memb)
+								y_pos = y_pos + 10
+							End If
+							y_pos = y_pos + 5
+
+							Text x_pos, y_pos, 200, 10, "DISA:        " & MEMBER_INFO_ARRAY(DISA_HC_status_info, each_memb)
+							y_pos = y_pos + 10
+							If MEMBER_INFO_ARRAY(DISA_end_date, each_memb) <> "" Then
+								Text x_pos+35, y_pos, 100, 10, "End Date: " & MEMBER_INFO_ARRAY(DISA_end_date, each_memb)
+								y_pos = y_pos + 10
+							ElseIf MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb) <> "" Then
+								Text x_pos+35, y_pos, 100, 10, "CERT End Date: " & MEMBER_INFO_ARRAY(DISA_cert_end_date, each_memb)
+								y_pos = y_pos + 10
+							End If
+							y_pos = y_pos + 5
+							Text x_pos, y_pos, 100, 10, "Waiver:     " & MEMBER_INFO_ARRAY(DISA_waiver_info, each_memb)
+							y_pos = y_pos + 15
+							If MEMBER_INFO_ARRAY(MEDI_expt_exists_const, each_memb) = True Then
+								MEDI_part_a = ""
+								If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then
+									If MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb) <> "" Then MEDI_part_a = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_A_begin, each_memb)
+									If MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb) <> "" Then MEDI_part_a = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_A_end, each_memb)
+									If left(MEDI_part_a, 1) = "," Then MEDI_part_a = right(MEDI_part_a, len(MEDI_part_a)-2)
+								End If
+								MEDI_part_b = ""
+								If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" or MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then
+									If MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb) <> "" Then MEDI_part_b = "Start: " & MEMBER_INFO_ARRAY(MEDI_Part_B_begin, each_memb)
+									If MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb) <> "" Then MEDI_part_b = MEDI_part_b & ", End: " & MEMBER_INFO_ARRAY(MEDI_Part_B_end, each_memb)
+									If left(MEDI_part_b, 1) = "," Then MEDI_part_b = right(MEDI_part_b, len(MEDI_part_b)-2)
+								End If
+								Text x_pos, y_pos, 200, 10, "MEDI Info: Part A: " & MEDI_part_a
+								Text x_pos+35, y_pos+10, 200, 10, " Part B: " & MEDI_part_b
+								y_pos = y_pos + 25
+							Else
+								Text x_pos, y_pos, 200, 10, "NO MEDI Panel entered for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+								y_pos = y_pos + 10
+							End If
+
+							If MEMBER_INFO_ARRAY(Currently_in_FACI, each_memb) = True then
+								Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - currently in a facility"
+								Text x_pos+10, y_pos+10, 200, 10, "Facility Name: " & MEMBER_INFO_ARRAY(FACI_name, each_memb)
+								Text x_pos+20, y_pos+20, 150, 10, "Entry Date: " & MEMBER_INFO_ARRAY(FACI_date_in, each_memb)
+								Text x_pos+14, y_pos+30, 200, 10,"Facility Type: " & MEMBER_INFO_ARRAY(FACI_type_info, each_memb)
+								y_pos = y_pos + 45
+							Else
+								Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - Does not appear to be in a facility"
+								y_pos = y_pos + 10
+							End If
+
+							If MEMBER_INFO_ARRAY(PDED_PICKLE_exists, each_memb) = True Then
+								Text x_pos, y_pos, 200, 10, "PICKLE Disregard of $ " & MEMBER_INFO_ARRAY(PDED_PICKLE_dsrgd_amt, each_memb)
+								y_pos = y_pos + 10
+							End If
+							If MEMBER_INFO_ARRAY(PDED_DAC_exists , each_memb) = True Then
+								Text x_pos, y_pos, 200, 10, "DAC Disregard Exists"
+								y_pos = y_pos + 10
+							End If
+
+							' If all_update_dates_are_current = True Then
+								first_income = True
+								For each_income = 0 to UBound(INCOME_ARRAY, 2)
+									If INCOME_ARRAY(inc_ref_numb, each_income) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) Then
+										If first_income = True Then
+											y_pos = y_pos + 10
+											Text x_pos, y_pos, 200, 10, "INCOME for MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+											y_pos = y_pos + 10
+											first_income = False
+										End If
+										Text x_pos+5, y_pos, 150, 10, INCOME_ARRAY(inc_panel_name, each_income) & " Income - " & INCOME_ARRAY(inc_type_info, each_income)
+										Text x_pos+160, y_pos, 50, 10, "Verif: " & INCOME_ARRAY(inc_verif, each_income)
+										Text x_pos+10, y_pos+10, 100, 10, "Gross Income $ " & INCOME_ARRAY(inc_prosp_amt, each_income)
+										y_pos = y_pos + 20
+										If INCOME_ARRAY(inc_end, each_income) <> "" Then
+											Text x_pos+10, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+											y_pos = y_pos + 10
+										End If
+									End If
+								Next
+							' End If
+							If last_y_pos = "" Then
+								last_y_pos = y_pos
+							Else
+								If y_pos > last_y_pos Then last_y_pos = y_pos
+							End If
+							DropListBox x_pos + 85, y_pos, 115, 10, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be processed as Ex Parte"+chr(9)+"Health Care closed for member", MEMBER_INFO_ARRAY(Memb_ex_parte_status, each_memb)
+  							Text x_pos, y_pos+5, 80, 10, "Member Ex Parte Status:"
+
+							GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+20, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+							x_pos = x_pos + 225
+						End If
+					End If
+				Next
+
+				first_income = True
+				y_pos = last_y_pos + 20
+				For each_income = 0 to UBound(INCOME_ARRAY, 2)
+					If InStr(memb_with_hc_list, INCOME_ARRAY(inc_ref_numb, each_income)) = 0 Then
+						If first_income = True Then
+							grp_box_start = y_pos
+							y_pos = y_pos + 15
+							first_income = False
+						End If
+						Text 20, y_pos, 200, 10, "MEMB " & INCOME_ARRAY(inc_ref_numb, each_income) & " - " & INCOME_ARRAY(inc_panel_name, each_income) & " Income - Gross Amount $ " & INCOME_ARRAY(inc_prosp_amt, each_income) & " - Verif: " & INCOME_ARRAY(inc_verif, each_income)
+						y_pos = y_pos + 10
+						If INCOME_ARRAY(inc_end, each_income) <> "" Then
+							Text 30, y_pos, 200, 10, "Income has ended as of " & INCOME_ARRAY(inc_end, each_income)
+							y_pos = y_pos + 10
+						End If
+					End If
+				Next
+				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
+				ButtonGroup ButtonPressed
+				OkButton dialog_width-115, 365, 50, 15
+				CancelButton dialog_width-55, 365, 50, 15
+				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+				PushButton 475, 15, 80, 15, "Instructions", instructions_button
+				Text 10, 5, 450, 10, "***Initial household member dialog. Select ex-parte status for each member shown and press OK to view remaining HC members."
+			End If
+			Do
+				err_msg = ""
+				Dialog Dialog1
+				cancel_confirmation
+				'Verify status selected for all members
+				current_memb = 0
+				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
+						current_memb = current_memb + 1
+						If current_memb <= membs_in_dialog Then
+							If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "" Then err_msg = err_msg & vbCr & "* You must select each member's ex parte status." & vbCr & "  - MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " assessment is missing."
+						End if
+					End If
+				Next
+				IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			Loop until err_msg = "" AND ButtonPressed = -1
+			EndDialog
+		End If
+		'Normal dialog, final dialog for more than 3 members
+		Dialog1 = ""
+		dialog_width = 556
+		If total_members = 3 or total_members = 6 Then dialog_width = 705
+		BeginDialog Dialog1, 0, 0, dialog_width, 385, "Phase 1 - Ex Parte Evaluation"
+
+			If NO_HC_EXISTS = True Then
+				Text 15, 25, 200, 10, "No Health Care Programs Active or Pending."
+			Else
+				y_pos = 10
+				If all_update_dates_are_current = False Then
+					Text 15, y_pos, 255, 10, "* * * * INCOME HAS NOT BEEN UPDATED DURING PREP MONTH * * * *"
 					Text 55, y_pos+10, 185, 10, "* * * * Manual Review of this case is important. * * * *"
 					y_pos = y_pos + 25
 				Else
 					y_pos = 15
 				End If
 				x_pos = 10
-				memb_with_hc_list = " "
-				For each_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				For each_memb = dialog_member_count to UBound(MEMBER_INFO_ARRAY, 2)
 					If y_pos > 35 Then y_pos = 35
 					If MEMBER_INFO_ARRAY(memb_active_hc_const, each_memb) = True Then
-						memb_with_hc_list = memb_with_hc_list & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " "
 						memb_grp_x = x_pos
 						memb_grp_y = y_pos
 						x_pos = x_pos + 10
@@ -3990,8 +5228,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						Else
 							If y_pos > last_y_pos Then last_y_pos = y_pos
 						End If
-						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+5, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
-						x_pos = x_pos + 230
+						DropListBox x_pos + 85, y_pos, 115, 10, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be processed as Ex Parte"+chr(9)+"Health Care closed for member", MEMBER_INFO_ARRAY(Memb_ex_parte_status, each_memb)
+  						Text x_pos, y_pos+5, 80, 10, "Member Ex Parte Status:"
+
+						GroupBox memb_grp_x, memb_grp_y, 220, y_pos-memb_grp_y+20, "MEMB " & MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb) & " - " & MEMBER_INFO_ARRAY(memb_name_const, each_memb)
+						x_pos = x_pos + 225
 					End If
 				Next
 
@@ -4012,9 +5253,62 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						End If
 					End If
 				Next
-				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Houeshold Members not on HC on this case"
+				If first_income = False Then GroupBox 10, grp_box_start, 450, y_pos-grp_box_start+5, "INCOME for Household Members not on HC on this case"
 
 			End If
+			Text 100, 325, 425, 10, "If 'Not Ex Parte' you must enter Explanation and/or Notes. You do not have to enter both. The total combined character limit is 255."
+			GroupBox 10, 280, 540, 80, "Ex Parte Evaluation"
+			Text 15, 295, 30, 10, "Eval:"
+			DropListBox 45, 290, 130, 45, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte"+chr(9)+"Health Care has been Closed"+chr(9)+"Case Transfered Out of County", ex_parte_determination
+			Text 225, 280, 200, 10, "Identifying a case as NOT Ex Parte requires explanation."
+			Text 180, 295, 45, 10, "Explanation:"
+			ComboBox 225, 290, 315, 45, "Select or Enter Reason for NOT Ex Parte"+chr(9)+"No spenddown currently approved and Income indicates a spenddown may be required."+chr(9)+"Income cannot be verified without resident interaction."+chr(9)+"Case has assets that cannot be verified without resident interaction."+chr(9)+ "Verified/reported assets are not reasonably compatible."+chr(9)+"Resident is not in compliance with SSA."+chr(9)+"Resident is not in compliance with OMB/PBEN.", ex_parte_denial_select
+			Text 20, 315, 80, 10, "Not Ex Parte Notes:"
+			EditBox 100, 310, 440, 15, ex_parte_denial_notes 'ex_parte_denial_explanation
+			Text 20, 345, 100, 10, "Notes about Mixed Household"
+			EditBox 120, 340, 420, 15, mixed_household_notes
+			Text 15, 370, 70, 10, "Worker Signature:"
+			EditBox 80, 365, 110, 15, worker_signature
+			' GroupBox 10, 0, 455, 25, "Case Information"
+			If current_case_pw <> "X127" Then Text 10, 5, 150, 10, "CASE IS NOT IN HENNEPIN COUNTY - (" & right(current_case_pw, 2) & ")"
+			Text 275, 5, 75, 10, "Case Number: " & MAXIS_case_number
+			' Text 65, 10, 70, 10, MAXIS_case_number
+			Text 375, 5, 75, 10, "Review Month: " & phase_1_review_month
+			Text 280, 15, 125, 10, "SNAP Status: " & snap_status
+			Text 283, 25, 125, 10, "MFIP Status: " & mfip_status
+			ButtonGroup ButtonPressed
+				OkButton 440, 365, 50, 15
+				CancelButton 500, 365, 50, 15
+				Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+				PushButton 475, 15, 80, 15, "Instructions", instructions_button
+				If total_members < 3 Then
+					Text 495, 40, 45, 10, "--- POLICY ---"
+					PushButton 475, 50, 80, 15, "DHS #23-21-18", policy_1_button
+					' PushButton 490, 65, 55, 15, policy_2, policy_2_button
+					' PushButton 490, 80, 55, 15, policy_3, policy_3_button
+					Text 490, 105, 55, 10, "--- NAVIGATE ---"
+					PushButton 485, 117, 25, 10, "ACCI", acci_button
+					PushButton 515, 117, 25, 10, "BILS", bils_button
+					PushButton 485, 130, 25, 10, "BUDG", budg_button
+					PushButton 515, 130, 25, 10, "BUSI", busi_button
+					PushButton 485, 143, 25, 10, "DISA", disa_button
+					PushButton 515, 143, 25, 10, "EMMA", emma_button
+					PushButton 485, 156, 25, 10, "FACI", faci_button
+					PushButton 515, 156, 25, 10, "HCMI", hcmi_button
+					PushButton 485, 169, 25, 10, "IMIG", imig_button
+					PushButton 515, 169, 25, 10, "INSA", insa_button
+					PushButton 485, 182, 25, 10, "JOBS", jobs_button
+					PushButton 515, 182, 25, 10, "LUMP", lump_button
+					PushButton 485, 195, 25, 10, "MEDI", medi_button
+					PushButton 515, 195, 25, 10, "MEMB", memb_button
+					PushButton 485, 208, 25, 10, "MEMI", memi_button
+					PushButton 515, 208, 25, 10, "PBEN", pben_button
+					PushButton 485, 221, 25, 10, "PDED", pded_button
+					PushButton 515, 221, 25, 10, "REVW", revw_button
+					PushButton 485, 234, 25, 10, "SPON", spon_button
+					PushButton 515, 234, 25, 10, "STWK", stwk_button
+					PushButton 485, 247, 25, 10, "UNEA", unea_button
+				End If
 		EndDialog
 
 		'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
@@ -4030,9 +5324,22 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				ex_parte_denial_explanation = trim(replace(ex_parte_denial_select, "Select or Enter Reason for NOT Ex Parte", ""))
 				ex_parte_denial_explanation = ex_parte_denial_explanation & " " & trim(ex_parte_denial_notes)
 				ex_parte_denial_explanation = trim(ex_parte_denial_explanation)
-				' MsgBox ex_parte_denial_explanation & vbCr & vbCr & len(ex_parte_denial_explanation)
 
+				'Count up the ex_parte members to determine if mixed household
+				exparte_membs = 0
 
+				For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+
+					If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then
+						If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "Appears Ex Parte"  Then exparte_membs = exparte_membs + 1
+						If MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb) = "" Then err_msg = err_msg & vbCr & "* You must select each member's ex parte status."
+					End If
+				Next
+				If exparte_membs > 0 AND exparte_membs <> total_members Then mixed_household = True
+				'Add validation for mixed households field
+				If mixed_household = true Then
+					If mixed_household_notes = "" Then err_msg = err_msg & vbCr & "* This is a mixed household. You must enter mixed household notes to explain which members are not ex parte and why."
+				End if
 				'Add placeholder link to script instructions - To DO - update with correct link
 				If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION%20-%20EX%20PARTE%20PROCESS.docx"
 
@@ -4040,7 +5347,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_FILE&RevisionSelectionMethod=LatestReleased&Rendition=Primary&allowInterrupt=1&noSaveAs=1&dDocName=mndhs-062948"
 				' If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
 				' If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-
+				'Add validation for each HC member having ex parte stats entered
 
 				'Add validation to ensure ex parte determination is made
 				If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
@@ -4062,8 +5369,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			'Add to all dialogs where you need to work within BLUEZONE
 			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 		LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+		mixed_household_notes = trim(mixed_household_notes)
 		'End dialog section-----------------------------------------------------------------------------------------------
-
 
 		'Checks to see if in MAXIS
 		Call check_for_MAXIS(False)
@@ -4079,32 +5386,29 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 			'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 			'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
-			EMReadScreen income_renewal_date, 8, 7, 27
+			EMReadScreen income_renewal_date, 8, 8, 27
 			' EMReadScreen elig_renewal_date, 8, 8, 27
 			elig_renewal_date = review_month_from_SQL
-			EMReadScreen HC_ex_parte_determination, 1, 9, 27
-			EMReadScreen income_asset_renewal_date, 8, 7, 71
-			EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-			EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
-
+			EMReadScreen income_asset_renewal_date, 8, 8, 71
+			EMReadScreen exempt_6_mo_ir_form, 1, 9, 71
+			'maybe do the dialog below with a HH_member list and checks - then check/update ex_parte accordingly???
 			'Dialog and review of HC renewal for approval of ex parte
-			If ex_parte_determination = "Appears Ex Parte" Then
-
+			If ex_parte_determination = "Appears Ex Parte" and mixed_household <> True Then
 				Dialog1 = "" 'blanking out dialog name
 
-				BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Appears Ex Parte"
-				ButtonGroup ButtonPressed
-					PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
-				Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
-				Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
-				Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
-				Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
-				Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 95, 145, 10, "- ExParte: Enter Y"
-				Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
-				EndDialog
-
+					BeginDialog Dialog1, 0, 0, 331, 170, "Health Care Renewal Updates - Appears Ex Parte"
+					ButtonGroup ButtonPressed
+						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+					Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
+					Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+					Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
+					Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
+					Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+					Text 10, 100, 225, 10, "Update the following on STAT/HCMI for each member renewing HC:"
+					Text 10, 115, 255, 10, "- ExParte (Y/N): Enter Y for each member on HC."
+					Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
+					EndDialog
 
 				DO
 					Do
@@ -4138,16 +5442,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							CALL write_value_and_transmit("X", 5, 71)
 						End If
 
-						' CALL back_to_SELF()
-						' CALL navigate_to_MAXIS_screen("STAT", "REVW")
-						' CALL write_value_and_transmit("X", 5, 71)
-						' EMReadScreen check_income_renewal_date, 8, 7, 27
-						EMReadScreen check_elig_renewal_date, 8, 8, 27
-						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
@@ -4166,18 +5465,24 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
 						'TO DO - determine how to determine if meets spenddown?
 						' If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN
-						If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
+						'If check_income_asset_renewal_date <> check_elig_renewal_date Then err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
 						'TODO - put back the funcitonality for spenddowns
 
 						'Validate that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+						'Now run through HCMI and check coding
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "Y" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'Y' on HCMI panel."
 
-						'Validate that ExParte field updated to Y
-						If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
-
-						'Validate that ExParte Renewal Month is correct
-						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-						If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+								If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+							End If
+						Next
 
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -4186,21 +5491,109 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 			End If
+			If ex_parte_determination = "Appears Ex Parte" and mixed_household = true Then 'This is the mixed household section
+				Dialog1 = ""
+				BeginDialog Dialog1, 0, 0, 331, 170, "Health Care Renewal Updates - Mixed Household"
+					ButtonGroup ButtonPressed
+						PushButton 205, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+					Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
+					Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+					Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+					Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
+					Text 10, 115, 255, 10, "- ExParte (Y/N): Enter Y/N accordingly for each member"
+					Text 10, 130, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month."
+				EndDialog
+				DO
+					Do
+						err_msg = ""    'This is the error message handling
+						Dialog Dialog1
+						cancel_confirmation
 
+						EMReadScreen stat_check, 4, 20, 21
+						EMReadScreen revw_panel_check, 4, 2, 46
+						EMReadScreen hc_revw_pop_up_check, 20, 4, 32
+
+						If hc_revw_pop_up_check <> "HEALTH CARE RENEWALS" Then
+							If hc_revw_pop_up_check = "REVW" Then
+								EMReadScreen pop_up_open, 1, 4, 22
+								If pop_up_open <> "*" Then PF3
+								' Call write_value_and_transmit({"X", 5, 71)
+							ElseIf stat_check = "STAT" Then
+								Call write_value_and_transmit("REVW", 20, 71)
+								' Call write_value_and_transmit({"X", 5, 71)
+							Else
+								Call MAXIS_background_check
+								CALL navigate_to_MAXIS_screen("STAT", "REVW")
+							End If
+							CALL write_value_and_transmit("X", 5, 71)
+						End If
+
+						EMReadScreen check_income_renewal_date, 8, 8, 27
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
+
+						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
+						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
+						elig_renewal_date = replace(elig_renewal_date, " ", "/")
+						' income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+
+						check_elig_renewal_date = DateAdd("d", 0, check_elig_renewal_date)
+						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
+						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
+						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
+
+						'Now run through HCMI and check coding
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(memb_ex_parte_status, memb) = "Appears Ex Parte" Then
+									If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "Y" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'Y' on HCMI panel."
+									If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+								Else ' non ex parte members
+									If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel."
+									If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+								End If
+							End If
+						Next
+
+						'Validation to ensure that elig renewal date has not changed
+						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
+
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed - removing for now due to problems with incorrectly coded cases in maxis
+						'If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+
+						'Validation to ensure that Exempt from 6 Mo IR is set to N
+						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
+
+						'Error message handling
+						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+					Loop until err_msg = ""
+						'Add to all dialogs where you need to work within BLUEZONE
+						CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+				LOOP UNTIL are_we_passworded_out = false
+			End If
 			'Dialog and review of HC renewal for denial of ex parte
 			If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
 
 				Dialog1 = ""
 
-				BeginDialog Dialog1, 0, 0, 331, 120, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
+				BeginDialog Dialog1, 0, 0, 331, 140, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
 				ButtonGroup ButtonPressed
-					PushButton 205, 100, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+					PushButton 205, 115, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 				Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
 				Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
 				Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
 				Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-				Text 10, 65, 145, 10, "- ExParte: Enter N"
-				Text 10, 80, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+				Text 10, 65, 300, 10, "Update the following on STAT/HCMI for each member on HC:"
+				Text 10, 80, 145, 10, "- ExParte (Y/N): Enter N"
+				Text 10, 95, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
 				EndDialog
 
 
@@ -4234,13 +5627,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							CALL write_value_and_transmit("X", 5, 71)
 						End If
 
-						EMReadScreen check_income_renewal_date, 8, 7, 27
-						EMReadScreen check_elig_renewal_date, 8, 8, 27
-						EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-						EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 7, 27
-						EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-						EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+						EMReadScreen check_income_renewal_date, 8, 8, 27
+						EMReadScreen check_elig_renewal_date, 8, 9, 27
+						EMReadScreen check_income_asset_renewal_date, 8, 8, 71
+						If check_income_asset_renewal_date = "__ 01 __" Then EMReadScreen check_income_asset_renewal_date, 8, 8, 27
+						EMReadScreen check_exempt_6_mo_ir_form, 1, 9, 71
 
 						check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
 						check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
@@ -4251,22 +5642,31 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						check_income_asset_renewal_date = DateAdd("d", 0, check_income_asset_renewal_date)
 						elig_renewal_date = DateAdd("d", 0, elig_renewal_date)
 						' income_asset_renewal_date = DateAdd("d", 0, income_asset_renewal_date)
-
+						'Now run through HCMI and check coding
+						Call check_HCMI_for_members()
+						'Need to step through member array and read each individual's status
+						For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+							If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+								'Make sure active member has a panel that exists
+								If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+								'Check that status/month are coded correctly
+								If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel."
+								If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_ex_parte_revw_month_code) Then err_msg = err_msg & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_ex_parte_revw_month_code
+							End If
+						Next
 						'Validation to ensure that elig renewal date has not changed
 						If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
-						'Validation for Income/Asset Renewal Date to ensure that information has not changed
-						If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
+						'Validation for Income/Asset Renewal Date to ensure that information has not changed - removing for now, causes problems with cases originally coded wrong in maxis
+						'If check_income_asset_renewal_date <> check_elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
 						'Validation to ensure that Exempt from 6 Mo IR is set to N
 						If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
 
-						'Validation to ensure that ExParte field updated to N
-						If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte."
-
 						'Validate that ExParte Renewal Month is correct
-						'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-						If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+						'TO DO - look at potentially checking this for members individually as future enhancement.
+						'If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+						'If check_ex_parte_renewal_month_year <> correct_ex_parte_revw_month_code Then err_msg = err_msg & vbCr & "* The ExParte Renewal Month on REVW should be " & correct_ex_parte_revw_month_code & "."
 
 						'Error message handling
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -4288,7 +5688,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
 				' MsgBox "STOP - YOU ARE GOING TO UPDATE"
 				sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET SelectExParte = '" & appears_ex_parte & "', Phase1HSR = '" & user_ID_for_validation & "', ExParteAfterPhase1 = '" & ex_parte_determination & "', Phase1ExParteCancelReason = '" & sql_format_ex_parte_denial_explanation & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_1_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4301,6 +5701,26 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				MsgBox "This is where the update would happen" & vbCr & vbCr & "appears_ex_parte - " & appears_ex_parte & vbCr& "user_ID_for_validation - " & user_ID_for_validation & vbCr & "ex_parte_determination - " & ex_parte_determination & vbCr & "ex_parte_denial_explanation - " & ex_parte_denial_explanation
 			End If
 		End If
+
+		If mixed_household_notes <> "" Then
+			email_from = ""
+			email_recip = "ben.teskey@hennepin.us"
+			email_recip_CC = ""
+			email_recip_bcc = ""
+			email_subject = "Ex Parte Mixed Household Case - " & MAXIS_case_number
+			email_importance = 1
+			include_flag = False
+			email_flag_text = ""
+			email_flag_days = ""
+			email_flag_reminder = False
+			email_flag_reminder_days = ""
+			email_body = "This case has been indicated to have notes about a Mixed Household when evaluated in Ex Parte Phase 1." & vbCr & vbCr & "Notes:" & vbCr & mixed_household_notes
+			include_email_attachment = ""
+			email_attachment_array = ""
+			send_email = True
+			Call create_outlook_email(email_from, email_recip, email_recip_CC, email_recip_bcc, email_subject, email_importance, include_flag, email_flag_text, email_flag_days, email_flag_reminder, email_flag_reminder_days, email_body, include_email_attachment, email_attachment_array, send_email)
+		End If
+
 		' MsgBox "About to CASE NOTE AND TIKL"
 		'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 		If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided.", 0, DateAdd("M", -1, elig_renewal_date), False, TIKL_note_text)
@@ -4315,7 +5735,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		'For ex parte approval, write information to case note
 		If ex_parte_determination = "Appears Ex Parte" Then
 			CALL write_variable_in_case_note(TIKL_note_text)
-			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the information provided. The case meets one of the criteria below.")
+			CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and appears to be ex parte on the current case information.")
 			CALL write_variable_in_case_note("MA-ABD enrollees will be Ex Parte renewed if their income can be verified electronically without the need for residents to provide verifications.")
 		End If
 
@@ -4329,6 +5749,14 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		If ex_parte_determination = "Health Care has been Closed" Then
 			CALL write_variable_in_case_note("No renewal required on case as the Health Care is no longer active.")
 		End If
+		'Noting individual HH member statuses
+		call write_variable_in_case_note("HH Members active on HC and member ex parte status:")
+		For this_memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+			If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then
+			Call write_variable_in_CASE_NOTE("MEMB" & MEMBER_INFO_ARRAY(memb_ref_numb_const, this_memb) & " " & MEMBER_INFO_ARRAY(memb_name_const, this_memb) & ": " & MEMBER_INFO_ARRAY(memb_ex_parte_status, this_memb))
+			End If
+		Next
+		CALL write_bullet_and_variable_in_case_note("Details about Mixed Household Ex parte", mixed_household_notes)
 
 		'Add worker signature
 		CALL write_variable_in_case_note("---")
@@ -4337,6 +5765,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		'Script end procedure
 		script_end_procedure("Success! The ex parte review information has been added to the CASE NOTE")
 	End If
+
 
 	If ex_parte_phase = "Phase 2" Then
 		Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, ex_parte_renewal_month, ex_parte_renewal_year)
@@ -4418,15 +5847,16 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					PushButton 190, 150, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
 				Text 10, 10, 230, 20, "To reschedule the Renewal Month for a standard Renewal, the STAT/REVW panel should be reviewed and updated correctly."
 				Text 10, 40, 210, 10, "This is what the STAT/REVW HC Pop-Up should look like:"
-				GroupBox 10, 55, 280, 55, "HEALTH CARE RENEWALS"
+				GroupBox 10, 55, 280, 40, "HEALTH CARE RENEWALS"
 				Text 20, 70, 110, 10, "Income Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 150, 70, 125, 10, "Income/Asset Renewal Date: __ __ __"
 				Text 30, 80, 110, 10, "Elig Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 175, 80, 85, 10, "Exempt from 6 Mo IR: N"
-				Text 45, 90, 60, 10, "ExParte (Y/N): N"
-				Text 165, 90, 120, 10, "ExParte Renewal Month: " & ex_parte_renewal_month & " 20" & ex_parte_renewal_year
-				Text 15, 120, 265, 10, "If these fields are different, CHANGE THEM NOW, while this dialog is displayed."
-				Text 15, 130, 200, 10, "(IR and AR coding can be switched based on case scenario.)"
+				Text 20, 100, 260, 10, "Update ExParte fields on STAT/HCMI for each individual renewing as follows:"
+				Text 45, 110, 60, 10, "ExParte (Y/N): N"
+				Text 165, 110, 120, 10, "ExParte Renewal Month: " & updated_hc_renewal_month & " 20" & updated_hc_renewal_year
+				Text 15, 125, 265, 10, "If these fields are different, CHANGE THEM NOW, while this dialog is displayed."
+				Text 15, 135, 200, 10, "(IR and AR coding can be switched based on case scenario.)"
 			EndDialog
 
 			DO
@@ -4455,8 +5885,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					End If
 
 					'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
-					EMReadScreen income_renewal_date, 8, 7, 27
-					EMReadScreen income_asset_renewal_date, 8, 7, 71
+					EMReadScreen income_renewal_date, 8, 8, 27
+					EMReadScreen income_asset_renewal_date, 8, 8, 71
 					If income_renewal_date <> "__ __ __" Then
 						sr_date = income_renewal_date
 					ElseIf	income_asset_renewal_date <> "__ __ __" Then
@@ -4464,12 +5894,12 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					End If
 					sr_month = left(sr_date, 2)
 					sr_year = right(sr_date, 2)
-					EMReadScreen elig_renewal_month, 2, 8, 27
-					EMReadScreen elig_renewal_year, 2, 8, 33
-					EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-					EMReadScreen HC_ex_parte_determination, 1, 9, 27
-					EMReadScreen REVW_ex_parte_renewal_month, 2, 9, 71
-					EMReadScreen REVW_ex_parte_renewal_year, 2, 9, 76
+					EMReadScreen elig_renewal_month, 2, 9, 27
+					EMReadScreen elig_renewal_year, 2, 9, 33
+					EMReadScreen exempt_6_mo_ir_form, 1, 9, 71
+					'TODO - Future update needed - We're removing these reads for now - ex parte fields have moved to HCMI panel
+
+
 
 					revw_panel_err = ""
 
@@ -4484,14 +5914,28 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 						If sr_month <> updated_hc_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_month & " listed as the month."
 						If sr_year <> updated_hc_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The month for the IR/AR is incorrect, the panel has " & sr_year & " listed as the month."
 					End If
+					'TODO - Future update needed - better handling of HCMI panel to check members and dates
+					correct_hcmi_ex_parte_date = updated_hc_renewal_month & " 20" & updated_hc_renewal_year
 
-					If HC_ex_parte_determination = "Y" Then revw_panel_err = revw_panel_err & vbCr & "* Update the Ex Parte yes/no indicator to 'N', since you are recording that you cannot process as Ex Parte."
+					Call check_HCMI_for_members()
 
-					If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
-						revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
-						If REVW_ex_parte_renewal_month <> ex_parte_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has " & REVW_ex_parte_renewal_month & " entered."
-						If REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has 20" & REVW_ex_parte_renewal_year & " entered."
-					End If
+					For memb = 0 to ubound(MEMBER_INFO_ARRAY, 2)
+						If MEMBER_INFO_ARRAY(memb_active_hc_const, memb) = true Then
+							'Make sure active member has a panel that exists
+							If MEMBER_INFO_ARRAY(HCMI_panel_exists, memb) = 0 Then revw_panel_err = revw_panel_err & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " does not have an HCMI panel. Add one for this active HC member."
+							'Check that status/month are coded correctly
+							If MEMBER_INFO_ARRAY(HCMI_ex_parte_status, memb) <> "N" Then revw_panel_err = revw_panel_err & vbCr & "* Member: " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " should be coded as Ex Parte 'N' on HCMI panel if being rescheduled for paper renewal."
+
+							If trim(MEMBER_INFO_ARRAY(HCMI_ex_parte_month, memb)) <> trim(correct_hcmi_ex_parte_date) Then revw_panel_err = revw_panel_err & vbCr & "* Member " & MEMBER_INFO_ARRAY(memb_ref_numb_const, memb) & " has an incorrect ex parte date on HCMI. The correct date should be: " & correct_hcmi_ex_parte_date
+						End If
+					Next
+
+
+					'If REVW_ex_parte_renewal_month <> ex_parte_renewal_month or REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then
+					'	revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte Renewal month should be left coded with the month that was evaluated (" & ex_parte_renewal_month & "/" & ex_parte_renewal_year & ") for recording the Ex Parte work."
+					'	If REVW_ex_parte_renewal_month <> ex_parte_renewal_month Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has " & REVW_ex_parte_renewal_month & " entered."
+					'	If REVW_ex_parte_renewal_year <> ex_parte_renewal_year Then revw_panel_err = revw_panel_err & vbCr & "* The Ex Parte month is incorrect, the panel has 20" & REVW_ex_parte_renewal_year & " entered."
+					'End If
 
 					'Error message handling
 					IF revw_panel_err <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & revw_panel_err & vbNewLine
@@ -4504,9 +5948,9 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 		ex_parte_determination = "Cannot be Processed as Ex Parte"
 
 		If MX_region <> "TRAINING" Then
-			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" Then
+			If user_ID_for_validation <> "CALO001" AND user_ID_for_validation <> "MARI001" AND user_ID_for_validation <> "DACO003" Then
 				sql_format_phase_2_denial_reason = replace(phase_1_changes_summary, "'", "")
-				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "'"
+				objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = '" & ex_parte_after_phase_2 & "', Phase2ExParteCancelReason = '" & sql_format_phase_2_denial_reason & "' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & phase_2_SQL_month & "'"
 
 				'Creating objects for Access
 				Set objUpdateConnection = CreateObject("ADODB.Connection")
@@ -4616,6 +6060,7 @@ Do
 		If last_page = "LAST PAGE" Then Exit Do
 	End If
 Loop until hcre_ref_numb = "  "
+If hc_memb = 0 Then script_end_procedure_with_error_report("There is no member listed on HCRE, indicating there has not been anyone on HC and no HC request exists. The script will now end.")
 
 'Now we go read STAT/MEMB for all of the persons listed on HCRE
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -4760,7 +6205,7 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 		Do
 			err_msg = ""
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligiblity"
+			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligibility"
   			  ButtonGroup ButtonPressed
 				DropListBox 195, 10, 180, 45, case_memb_list, ma_bc_member
 				EditBox 310, 30, 65, 15, temp_ma_auth_form_date
@@ -4769,12 +6214,12 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 				EditBox 10, 190, 365, 15, ma_bc_tikls
 				OkButton 270, 215, 50, 15
 				CancelButton 325, 215, 50, 15
-				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligiubility:"
+				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligibility:"
 				Text 10, 35, 300, 10, "Enter the date the Temporary Medical Assistance Authorization (DHS-3525B) was received:"
 				Text 10, 55, 350, 10, HC_form_name & " received on " & form_date
 				Text 10, 70, 115, 10, "Case Information for CASE/NOTE:"
 				Text 20, 85, 315, 10, "Breast Cancer application if Health Care is still needed after 2 months of Presumptive Care."
-				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligbility."
+				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligibility."
 				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe &"  and " & next_month_pe & "."
 				Text 10, 150, 85, 10, "Additional Case Details:"
 				Text 10, 180, 85, 10, "Additional TIKLs Set"
@@ -4813,14 +6258,14 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 
 	Call write_variable_in_CASE_NOTE("MEMB " & ma_bc_member & " approved for MA-BC Presumptive Care.")
 	Call write_variable_in_CASE_NOTE("  Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & ".")
-	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
+	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligibility.")
 	Call write_variable_in_CASE_NOTE("* Identity verified using medical document - " & short_form & ".")
 	Call write_variable_in_CASE_NOTE("* Citizenship and Immigration information are not requested or required.")
 
 	If ma_bc_notes <> "" OR ma_bc_tikls <> "" OR MA_BC_PE_end_TIKL_note_text <> "" Then Call write_variable_in_CASE_NOTE("============================== NOTES ===============================")
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
 	MA_BC_PE_end_TIKL_note_text = replace(MA_BC_PE_end_TIKL_note_text, ", 0 day return", "")
-	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Preseumtive Eligibility.")
+	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Presumptive Eligibility.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Additional TIKLs", ma_bc_tikls)
 
 	Call write_variable_in_case_note("---")
@@ -4883,31 +6328,101 @@ Else
 		If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = checked
 	NEXT
 
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-		Text 10, 5, 205, 10, "Select Household Members to capture information about."
-		Text 10, 15, 205, 10, "Check all members: "
-		Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
-		Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
-		Text 10, 55, 100, 10, "Count Income/Assets"
-		Text 200, 55, 100, 10, "Processing Health Care"
-		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-			IF all_clients_array(i, 0) <> "" THEN
-				checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-				ref_numb = left(all_clients_array(i, 0),2)
-				If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+	Do
+		err_msg = ""
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+			Text 10, 5, 205, 10, "Select Household Members to capture information about."
+			Text 10, 15, 205, 10, "Check all members: "
+			Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
+			Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
+			Text 10, 55, 100, 10, "Count Income/Assets"
+			Text 200, 55, 100, 10, "Processing Health Care"
+			FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+				IF all_clients_array(i, 0) <> "" THEN
+					checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+					ref_numb = left(all_clients_array(i, 0),2)
+					If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
 
-			End If
-		NEXT
-		ButtonGroup ButtonPressed
-		OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
-		CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
-	EndDialog
+				End If
+			NEXT
+			ButtonGroup ButtonPressed
+			OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
+			CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
+		EndDialog
 
-	Dialog Dialog1
-	Cancel_without_confirmation
+		Dialog Dialog1
+		Cancel_without_confirmation
+
+		member_checked_to_process = False
+		FOR i = 0 to total_clients
+			IF all_clients_array(i, process_checkbox) = 1 THEN member_checked_to_process = True
+		Next
+		If member_checked_to_process = False Then err_msg = err_mag & vbCr & "* You must select at least one household member for whom you are processing health care eligibility."
+		If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
 	check_for_maxis(False)
 End If
+
+'Determining if there are any HC status codes on the case for CM + 1 through, and including, CM - 4.
+'Setting hc_status_code_past_4_months to False initially
+hc_status_code_past_4_months = False
+
+'Set footer month and year to CM + 1, will be reviewing CM + 1 up to and including CM - 4
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
+MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+'Navigating to STAT/REVW for CM + 1
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+'Reads STAT/REVW to determine if there is a status code
+EMReadScreen HC_status_code, 1, 7, 73
+
+'If status_code is not blank, then set HC eval process to recertification for all HH members requesting HC access
+If HC_status_code <> "_" Then
+    hc_status_code_past_4_months = True
+Else
+    'Since starting at CM + 1, looking back 6 months from this footer month/year. Set date that is 6 months before CM (which is CM + 1) in footer month format ("04 23"), this is where script should stop as it iterates backward
+    MAXIS_footer_month_year_lookback = right("0" & DatePart("m", DateAdd("m", -6, MAXIS_footer_month_year)), 2) & " " & right(DatePart("yyyy",DateAdd("m", -6, MAXIS_footer_month_year)), 2)
+
+    Do
+        'Head back to SELF panel
+        Call back_to_SELF
+
+        'Subtract 1 from footer month/year
+        MAXIS_footer_month = right("0" & DatePart("m",DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
+        MAXIS_footer_year = right(DatePart("yyyy", DateAdd("m", -1, MAXIS_footer_month_year_date_format)), 2)
+        MAXIS_footer_month_year = MAXIS_footer_month & " " & MAXIS_footer_year
+        MAXIS_footer_month_year_date_format = replace(MAXIS_footer_month_year, " ", "/")
+
+        'Perform check to determine if it matches CM - 5 or "07 23"
+        If MAXIS_footer_month_year = "06 23" OR MAXIS_footer_month_year = MAXIS_footer_month_year_lookback Then
+            hc_status_code_past_4_months = False
+            Exit Do
+        Else
+            Call navigate_to_MAXIS_screen("STAT", "REVW")
+            'Check if errored on footer month/year
+            EmReadScreen HC_case_invalid_check, 25, 24, 2
+            If Instr(HC_case_invalid_check, "INVALID") Then
+                Call back_to_SELF
+                Exit Do
+            End If
+
+            EMReadScreen HC_status_code, 1, 7, 73
+            If HC_status_code <> "_" Then
+                'To do - update the process on how this will work
+                hc_status_code_past_4_months = True
+                Exit Do
+            End If
+        End If
+    Loop
+End If
+
+'Resetting MAXIS footer month and year to CM as earlier in script
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
 selected_memb = ""
 List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
@@ -4922,6 +6437,7 @@ FOR i = 0 to total_clients
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
 					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
+					If hc_status_code_past_4_months = True Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					' If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then HEALTH_CARE_MEMBERS(HC_eval_process_const, hc_memb) = "Recertification"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If
@@ -5195,6 +6711,106 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 Next
 If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed)-2)		'formatting the verifs_needed
 
+'Defining Asset total for dialog and casenote
+Dim asset_total_array()
+ReDim asset_total_array(0)
+asset_count = 0
+
+For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)	'Totaling Assets
+	total_cash 			= 0
+	total_accounts 		= 0
+	total_secu 			= 0
+	total_cars 			= 0
+	car_1_total 		= 0
+	car_2_total 		= 0
+	car_3_total 		= 0
+	total_sum 			= 0
+	maxVal				= 0
+	car_count			= 0
+	rest_total 			= 0
+	rest_owed_total 	= 0
+	total_real_estate 	= 0
+	total_assets 		= 0
+
+	total_cash = round(STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
+	total_accounts = round(STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)) + round(STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb))
+	total_secu = round(STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)) + round(STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb))
+
+	If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) = 0
+	If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = "________" Then STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb) <> "Used as Home" Then
+			car_1_total = round(STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If
+
+	If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb) <> "Used as Home" Then
+			car_2_total = round(STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If
+
+	If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Income Producing" AND STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb) <> "Used as Home" Then
+			car_3_total = round(STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)) - round(STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb))
+			car_count = car_count + 1
+		End If
+	End If
+
+	total_sum = car_1_total + car_2_total + car_3_total
+
+	'Removing highest value vehicle if more than 1 vehicle
+	car_value = Array(car_1_total, car_2_total, car_3_total)
+	If car_count > 1 Then
+		For value = 0 to Ubound(car_value)
+			If car_value(value) >maxVal THen
+				maxVal = car_value(value)
+			End If
+		Next
+		total_cars = total_sum - maxVal
+	Else
+		total_cars = 0
+	End If
+
+	IF STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) = 0
+
+	IF STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) = 0
+	IF STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = "__________" Then STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) = 0
+
+	If STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) <> "Home Residence" Then
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) <> "Home Residence" Then
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) <> "Home Residence" Then
+		rest_total = rest_total + STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
+		rest_owed_total = rest_owed_total + STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
+	End If
+
+	total_real_estate = rest_total - rest_owed_total
+	total_assets = total_cash + total_accounts + total_cars + total_secu + total_real_estate
+	'msgbox "Total Cash: " & total_cash & vbcr & "Total acct: " & total_accounts & vbcr & "Total secu: " & total_secu & vbcr & "Total Cars: " & total_cars & vbcr & "First rest: " & rest_total & vbcr & "First owed: " & rest_owed_total & vbcr & "First equity: " & total_real_estate & vbcr & vbcr & "Second rest: " & rest_total & vbcr & "Second owed: " & rest_owed_total & vbcr & "Second equity: " & total_real_estate & vbcr & vbcr &  "Third owed: " & rest_total & vbcr & "Third owed: " & rest_owed_total & vbcr & "Third equity: " & total_real_estate & vbcr & vbcr & "Total Assets" & total_assets
+
+	string_total_asset_by_member = "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - TOTAL ASSETS: $ " & total_assets
+	ReDim Preserve asset_total_array(asset_count)
+	asset_total_array(asset_count) = string_total_asset_by_member
+	asset_count = asset_count + 1
+Next
+
 'This array is to hold notes entered in the dialog BUT because we can't use class parameters to fill information in a dialog, we need to connect them to an array (or a variable)
 'This is a bit of a workaround
 'The array will hold the information
@@ -5358,6 +6974,16 @@ Do
 				dialog Dialog1					'show the actual dialog
 
 				cancel_confirmation				'this cancels the script if the worker presses 'cancel' or 'ESC'
+
+				processing_an_application = False
+				processing_a_recert = False
+				For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+					If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+						If HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb) = "Application" Then processing_an_application = True
+						If HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb) = "Recertification" Then processing_a_recert = True
+					End If
+				Next
+
 				Call verification_dialog		'show the verification dialog if the verifs button is pressed.
 				Call check_for_errors(eval_questions_clear)								'review entered information to see if there are dialog errors
 				Call display_errors(err_msg, False, show_err_msg_during_movement)		'show the error if any exist
@@ -5371,6 +6997,7 @@ Do
 								 "Press 'Yes' to confinue to the final part of the interivew (forms)." & vbCr &_
 								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Health Care Evaluation?")
 		If proceed_confirm = vbCancel then cancel_confirmation
+		If proceed_confirm = vbNo Then leave_loop = False			'if the worker presses no, we need to reset to not try to leave the loop above every time.
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)			'make sure we are not passworded out
 Loop until are_we_passworded_out = FALSE
@@ -5408,71 +7035,6 @@ If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 		client_delay_check = 0
 	End if
 End if
-
-'if this application was 4/1/23 or after, we need to ask about STANDARD vs PROTECTED Policy
-'For cases that are at recert, we do not need to complete this process during the processing as a bulk script will create this CASE/NOTE
-If applied_after_03_23 = True and processing_an_application = True and processing_a_recert = False Then
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
-	DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
-	DropListBox 160, 215, 275, 35, "Applied on or after 4/1/2023 and no Non-Retro coverage existed in 03/2023.", policy_selection_reason
-	ButtonGroup ButtonPressed
-		OkButton 360, 260, 50, 15
-		CancelButton 415, 260, 50, 15
-		PushButton 340, 135, 95, 15, "One Source - COVID", one_source_covid_btn
-		PushButton 360, 170, 75, 15, "Knowledge Now", qi_kn_btn
-	GroupBox 10, 10, 455, 245, "Policy to Apply to HC Case"
-	Text 35, 30, 400, 10, "******************************************************************************************************************************************************************************************************************************************************************************************************"
-	Text 180, 40, 105, 10, "*  *  *   SELECT POLICY *  *  *"
-	Text 150, 55, 200, 10, "IDENTIFY IF STANDARD OR PROTECTED POLICY APPLY"
-	Text 35, 70, 400, 10, "******************************************************************************************************************************************************************************************************************************************************************************************************"
-	Text 35, 90, 345, 20, "Since 03/2020 health care eligibility has been maintained under Continuous Coverage rules due to the Public Health Emergency (PHE). With the PHE ending, applied policy will need to be determined for each case."
-	Text 35, 115, 290, 20, "If anyone on this case has Non-Retro MA coverage in 03/2023, Protected Policy applies until the first renewal after the end of the PHE."
-	Text 90, 140, 250, 10, "Full details of determining which policy applies can be found on One Source"
-	Text 35, 160, 275, 10, "Review the case to determine if Standard or Protected Policy Coverage Apply"
-	Text 75, 175, 280, 10, "If you need additional support on making this determination, contact Knowledge Now."
-	Text 35, 200, 125, 10, "Select the correct policy that applies:"
-	Text 65, 220, 95, 10, "Reason to Apply this Policy:"
-	Text 100, 235, 265, 10, "This script will create a CASE/NOTE for any case that has Standard Policy Apply."
-	EndDialog
-
-	Do
-		Do
-			err_msg = ""
-
-			dialog Dialog1
-			cancel_confirmation
-
-			If policy_to_apply = "Select One..." Then err_msg = err_msg & vbCr & "* Select which policy applies to the members on this case."
-			If ButtonPressed = one_source_covid_btn or ButtonPressed = qi_kn_btn Then err_msg = "LOOP" & err_msg
-			If ButtonPressed = one_source_covid_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=covidhome"
-			If ButtonPressed = qi_kn_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Quality-Improvement-(QI)-Team.aspx"
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = False
-
-	'creating a case note for cases that have STANDARD Policy apply
-	If policy_to_apply = "Standard Policy - Changes and Reported information can be acted on" Then
-		end_msg = end_msg & vbCr & vbCr & "STANDARD POLICY Now applies to this case." & vbCr & "A CASE/NOTE has been entered to identify the case uses standard policy."
-		Call start_a_blank_CASE_NOTE
-
-		Call write_variable_in_CASE_NOTE("~*~*~ MA STANDARD POLICY APPLIES TO THIS CASE ~*~*~")
-		Call write_variable_in_CASE_NOTE(policy_selection_reason)' = "Applied on or after 4/1/2023 and no Non-Retro coverage existed in 03/2023."
-		Call write_variable_in_CASE_NOTE("**************************************************************************")
-		Call write_variable_in_CASE_NOTE("Any future changes or CICs reported can be acted on,")
-		Call write_variable_in_CASE_NOTE("even if they result in negative action for Health Care eligibility.")
-		Call write_variable_in_CASE_NOTE("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-		Call write_variable_in_CASE_NOTE("Continuous Coverage no longer applies to this case.")
-		Call write_variable_in_CASE_NOTE("**************************************************************************")
-		Call write_variable_in_CASE_NOTE("Details about this determination can be found in")
-		Call write_variable_in_CASE_NOTE("        ONESource in the COVID-19 Page.")
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE(worker_signature)
-
-		PF3
-	    Call back_to_SELF
-	End If
-End If
 
 'If there are verifs_needed listed, we are going to create a CASE/NOTE about verifications needed.
 If trim(verifs_needed) <> "" Then
@@ -5534,12 +7096,77 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	End If
 Next
 
+'LTC Cases at application have the possiblity of creating a MA LTC Intake note
+'The variable ltc_app_case_note_option can be used to determine which of the notes (this or the main one) is entered in these situations
+If ltc_waiver_request_yn = "Yes" and processing_an_application = True and InStr(ltc_app_case_note_option, "MA-LTC Intake Info NOTE") <> 0 Then
+	If hc_application_date <> "" then
+		lookback_period = dateadd("d", -1, dateadd("m", -60, cdate(hc_application_date))) & ""
+		end_of_lookback = dateadd("d", -1, cdate(hc_application_date)) & ""
+	End If
+	If baseline_date <> "" then
+		lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
+		end_of_lookback = dateadd("d", -1, cdate(baseline_date)) & ""
+	End if
+
+	'LTC Intake CASE/NOTE
+	start_a_blank_CASE_NOTE
+	Call write_variable_in_case_note("--- MA-LTC INTAKE DETAIL ---")
+
+	Call write_variable_in_CASE_NOTE("====================== MA & LTC Date Details =======================")
+
+	call write_bullet_and_variable_in_CASE_NOTE("Application date", hc_application_date)
+	call write_bullet_and_variable_in_CASE_NOTE("LTCC date", LTCC_date)
+	call write_bullet_and_variable_in_CASE_NOTE("Month MA starts", month_MA_starts)
+	call write_bullet_and_variable_in_CASE_NOTE("Month MA-LTC starts", month_MA_LTC_starts)
+	Call write_bullet_and_variable_in_case_note("Baseline Date", baseline_date)
+	Call write_bullet_and_variable_in_case_note("Lookback period", lookback_period & "-" & end_of_lookback)
+
+	Call write_variable_in_CASE_NOTE("==================== Forms and Status Details ======================")
+	call write_bullet_and_variable_in_case_note("Client is in the community", clt_in_community)
+	call write_bullet_and_variable_in_CASE_NOTE("CFR", county_of_financial_responsibility)
+	If recvd_date_5181 <> "" or recvd_date_5103 <> "" Then Call write_variable_in_case_note("Forms Received:")
+	call write_bullet_and_variable_in_CASE_NOTE("DHS-5181 received", recvd_date_5181)
+	call write_bullet_and_variable_in_CASE_NOTE("DHS-1503 received", recvd_date_5103)
+
+	If sent_date_3050 <> "" or sent_date_3203 <> "" or sent_date_asset_transfer <> "" Then Call write_variable_in_case_note("Forms Sent:")
+	call write_bullet_and_variable_in_CASE_NOTE("DHS-3050 or DHS-1503 sent", sent_date_3050)
+	call write_bullet_and_variable_in_CASE_NOTE("DHS-3203 or Lien Doc sent", sent_date_3203)
+	call write_bullet_and_variable_in_CASE_NOTE("Asset Transfer Memo sent", sent_date_asset_transfer)
+
+
+	call write_bullet_and_variable_in_CASE_NOTE("LTC Partnership Exists on this case", ltcp_exists)
+	call write_bullet_and_variable_in_CASE_NOTE("LTC Partnership Notes", ltc_partnership_notes)
+	call write_bullet_and_variable_in_CASE_NOTE("Annuity (LTC) PRB", annuity_LTC_PRB)
+	call write_bullet_and_variable_in_CASE_NOTE("Home equity limit", home_equity_limit)
+	call write_bullet_and_variable_in_CASE_NOTE("Transfer", transfer)
+
+	Call write_person_details_in_NOTE
+	Call write_income_details_in_NOTE
+	Call write_asset_details_in_NOTE
+	Call write_expense_details_in_NOTE
+	Call write_other_details_in_NOTE
+
+
+	call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE(worker_signature)
+	If InStr(ltc_app_case_note_option, "Main HC Eval NOTE") <> 0 Then PF3		'if the note slection option includes the main note then we need to save this CASE/NOTE
+
+End If
+
+'If the case note selection option does not include the main NOTE, the script will end here without entering the main CASE/NOTE.
+'This should ONLY happen if an LTC case at application is being processed.
+If InStr(ltc_app_case_note_option, "Main HC Eval NOTE") = 0 Then
+	end_msg = "Health Care Evaluation has entered a CASE/NOTE about MA-LTC Intake Information." & vbCr & vbCr & "The primary CASE/NOTE from Health Care Evaluation has NOT been entered." & vbCr & end_msg
+	Call script_end_procedure_with_error_report(end_msg)
+End If
+
 'creating a name that is easier to read
 If HC_form_name = "Health Care Programs Application for Certain Populations (DHS-3876)" Then short_form = "HC Certain Pops App"
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
-If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal"
+If HC_form_name = "Health Care Programs Renewal (DHS-3418)" Then short_form = "HC Renewal Form"
 If HC_form_name = "Combined Annual Renewal for Certain Populations (DHS-3727)" Then short_form = "Combined AR"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
+If HC_form_name = "Health Care Programs Renewal for Families, Children, and Adults (DHS-8262)" Then short_form = "HC Renewal Form for Families"
 If HC_form_name = "Renewal for People Receiving Medical Assistance for Long-Term Care Services (DHS-2128)" Then short_form = "LTC Renewal"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"
@@ -5552,7 +7179,6 @@ CALL write_variable_in_case_note(form_date & " " & short_form & ": " & hc_case_d
 Call write_bullet_and_variable_in_CASE_NOTE("Form Recvd", HC_form_name)
 If ltc_waiver_request_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* This application can be used to request LTC/Waiver services.")
 Call write_bullet_and_variable_in_CASE_NOTE("Date Recvd", form_date)
-If policy_to_apply = "Protected Policy - Continuous Coverage applies and not negative action can be taken" Then Call write_variable_in_CASE_NOTE("* PROTECTED POLICY from Public Health Emergency still apply at this time.")
 
 If ma_bc_authorization_form_missing_checkbox = unchecked Then
 	Call write_bullet_and_variable_in_CASE_NOTE("MA-BC Form Recvd", ma_bc_authorization_form)
@@ -5564,893 +7190,11 @@ If trim(ltc_elig_notes) <> "" or trim(ltc_info_still_needed) <> "" Then
 	Call write_bullet_and_variable_in_CASE_NOTE("ELIG Notes", ltc_elig_notes)
 	Call write_bullet_and_variable_in_CASE_NOTE("Info Still Needed", ltc_info_still_needed)
 End If
-Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
-For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-		Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
-		Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
-		If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
-		If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
-			Call write_variable_in_CASE_NOTE("     No Health Care Program.")
-		Else
-			Call write_variable_in_CASE_NOTE("     " & HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) & " Basis: " & HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb))
-			If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb) = "Breast/Cervical Cancer" Then
-				Call write_variable_in_CASE_NOTE("               MA-BC uses Method X Budgeting.")
-				Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
-				If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
-			End If
-		End If
-		If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb))
-		If HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb) = "None" Then
-			Call write_variable_in_CASE_NOTE("     No Medicare Savings Program.")
-		Else
-			Call write_variable_in_CASE_NOTE("     MSP Program: " & HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb))
-			Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
-		End If
-		If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb))
-		If HEALTH_CARE_MEMBERS(member_has_retro_request, the_memb) = True Then
-			Call write_variable_in_CASE_NOTE("     RETRO Request back to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, the_memb))
-		End If
-		'TODO - add MEMB/MEMI information
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) Then
-				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
-					imig_string = ""
-					imig_string = "This resident is a non-citizen; Immigration Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb) & ", Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb) & "; "
-					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then imig_string = imig_string & "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb) & "; "
-					imig_string = imig_string & "Verif: " & STAT_INFORMATION(month_ind).stat_imig_status_verif_info(each_memb) & "; "
-					If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))) <> "" Then imig_string = imig_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
-
-					Call write_header_and_detail_in_CASE_NOTE("Immigration", imig_string)
-				End If
-			End If
-		Next
-
-
-		If HEALTH_CARE_MEMBERS(DISA_exists_const, the_memb) = True Then
-			disa_string = ""
-			disa_string = "HC DISA status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, the_memb)
-			disa_string = disa_string & ", DISA Start Date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, the_memb)
-			If HEALTH_CARE_MEMBERS(DISA_cert_start_const, the_memb) <> "" Then disa_string = disa_string & ", Cert Date Start Date: " & HEALTH_CARE_MEMBERS(DISA_cert_start_const, the_memb)
-			disa_string = disa_string & "; "
-			If HEALTH_CARE_MEMBERS(DISA_end_date_const, the_memb) <> "" Then disa_string = disa_string & "Disability End Date:: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, the_memb)
-			If HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb) <> "" Then
-				If right(disa_string, 2) = "; " Then disa_string = disa_string & "Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
-				If right(disa_string, 2) <> "; " Then disa_string = disa_string & ", Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
-			End If
-			disa_string = disa_string & "Verif: " & HEALTH_CARE_MEMBERS(DISA_hc_verif_info_const, the_memb) & "; "
-			If trim(HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb)) <> "" Then disa_string = disa_string & "Notes: " & HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb) & "; "
-			If right(disa_string, 2) <> "; " Then disa_string = disa_string & "; "
-			Call write_header_and_detail_in_CASE_NOTE("Disability", disa_string)
-
-			waiver_string = ""
-			If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) <> "" Then waiver_string = waiver_string & "" & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) & "; "
-			If trim(HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)) <> "" Then waiver_string = waiver_string & "LTC Notes: " & HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)
-			If waiver_string <> "" Then
-				If right(waiver_string, 2) <> "; " Then waiver_string = waiver_string & "; "
-				Call write_header_and_detail_in_CASE_NOTE("Waiver", waiver_string)
-			End If
-		End If
-
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) Then
-				If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
-					emma_string = ""
-					emma_string = emma_string & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb) & "; "
-					emma_string = emma_string & "Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb) & "; "
-					emma_string = emma_string & "Verif: " & STAT_INFORMATION(month_ind).stat_emma_verif_info(each_memb) & "; "
-					emma_string = emma_string & "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb)
-					If STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb) <> "" Then emma_string = emma_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb)
-					emma_string = emma_string & "; "
-					If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_emma_notes(each_memb))) <> "" Then emma_string = emma_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_emma_notes(each_memb))
-					Call write_header_and_detail_in_CASE_NOTE("Medical Emergency", emma_string)
-				End If
-			End If
-		Next
-
-		If HEALTH_CARE_MEMBERS(PREG_exists_const, the_memb) = True Then
-			preg_string = ""
-			preg_string = "Due Date: " & HEALTH_CARE_MEMBERS(PREG_due_date_const, the_memb) & ", Verif:" &  HEALTH_CARE_MEMBERS(PREG_due_date_verif_const, the_memb)
-			If HEALTH_CARE_MEMBERS(PREG_multiple_const, the_memb) <> "" Then preg_string = preg_string & ", Multiples: " & HEALTH_CARE_MEMBERS(PREG_multiple_const, the_memb)
-			preg_string = preg_string & "; "
-			If HEALTH_CARE_MEMBERS(PREG_end_date_const, the_memb) <> "" Then preg_string = preg_string & "Pregnancy End Date: " & HEALTH_CARE_MEMBERS(PREG_end_date_const, the_memb) & ", Verif:" &  HEALTH_CARE_MEMBERS(PREG_end_date_verif_const, the_memb)
-			If trim(HEALTH_CARE_MEMBERS(PREG_notes_const, the_memb)) <> "" Then preg_string = preg_string & "Notes: " & HEALTH_CARE_MEMBERS(PREG_notes_const, the_memb)
-			Call write_header_and_detail_in_CASE_NOTE("Pregnancy", preg_string)
-		End If
-
-		If HEALTH_CARE_MEMBERS(PARE_exists_const, the_memb) = True Then
-			pare_string = ""
-			pare_string = "Listed as a parent of:" & HEALTH_CARE_MEMBERS(PARE_list_of_children_const, the_memb)
-			If trim(HEALTH_CARE_MEMBERS(PARE_notes_const, the_memb)) <> "" Then pare_string = pare_string & "; Notes: " & HEALTH_CARE_MEMBERS(PARE_notes_const, the_memb)
-			Call write_header_and_detail_in_CASE_NOTE("Parent", pare_string)
-		End If
-
-		If HEALTH_CARE_MEMBERS(MEDI_exists_const, the_memb) = True Then
-			medi_string = ""
-			If HEALTH_CARE_MEMBERS(MEDI_part_A_start_const, the_memb) <> "" Then
-				medi_string = medi_string & "Part A Premium: $ " & HEALTH_CARE_MEMBERS(MEDI_part_A_premium_const, the_memb) & ", Start Date: " & HEALTH_CARE_MEMBERS(MEDI_part_A_start_const, the_memb) & "; "
-				medi_string = medi_string & "Part A End Date: " & HEALTH_CARE_MEMBERS(MEDI_part_A_end_const, the_memb) & "; "
-			End If
-			If HEALTH_CARE_MEMBERS(MEDI_part_B_start_const, the_memb) <> "" Then
-				medi_string = medi_string & "Part B Premium: $ " & HEALTH_CARE_MEMBERS(MEDI_part_B_premium_const, the_memb) & ", Start Date: " & HEALTH_CARE_MEMBERS(MEDI_part_B_start_const, the_memb) & "; "
-				medi_string = medi_string & "Part B End Date: " & HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, the_memb) & "; "
-			End If
-
-			If trim(HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)) <> "" Then medi_string = medi_string & "Notes: " & HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)
-			Call write_header_and_detail_in_CASE_NOTE("Medicare", medi_string)
-		Else
-			If HEALTH_CARE_MEMBERS(MEDI_application_requred_checkbox_const, the_memb) = checked Then
-				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) <> "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required, referral date: " & HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) & ".")
-				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) = "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required.")
-			End If
-		End If
-	End If
-Next
-
-Call write_variable_in_CASE_NOTE("============================== INCOME ==============================")
-income_detail_entered = False
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb))
-		jobs_string = ""
-		jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_one_health_care_income_pay_day(each_memb) & " per pay date"
-		jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_jobs_one_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_one_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_jobs_one_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_one_inc_end_date(each_memb)
-		jobs_string = jobs_string & "; "
-
-		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-			jobs_string = jobs_string & "No Verification Received; "
-		Else
-			jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_one_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
-	End If
-
-	If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb))
-		jobs_string = ""
-		jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_two_health_care_income_pay_day(each_memb) & " per pay date"
-		jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_jobs_two_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_two_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_jobs_two_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_two_inc_end_date(each_memb)
-		jobs_string = jobs_string & "; "
-
-		If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-			jobs_string = jobs_string & "No Verification Received; "
-		Else
-			jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_two_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
-	End If
-
-	If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb))
-		jobs_string = ""
-		jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_three_health_care_income_pay_day(each_memb) & " per pay date"
-		jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_jobs_three_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_three_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_jobs_three_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_three_inc_end_date(each_memb)
-		jobs_string = jobs_string & "; "
-
-		If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-			jobs_string = jobs_string & "No Verification Received; "
-		Else
-			jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_three_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
-	End If
-
-	If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb))
-		jobs_string = ""
-		jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_four_health_care_income_pay_day(each_memb) & " per pay date"
-		jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_jobs_four_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_four_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_jobs_four_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_four_inc_end_date(each_memb)
-		jobs_string = jobs_string & "; "
-
-		If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-			jobs_string = jobs_string & "No Verification Received; "
-		Else
-			jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_four_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
-	End If
-
-	If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " job at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb))
-		jobs_string = ""
-		jobs_string = jobs_string & "Pay Amount: $ " & STAT_INFORMATION(month_ind).stat_jobs_five_health_care_income_pay_day(each_memb) & " per pay date"
-		jobs_string = jobs_string & ", Pay Frequency: " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_jobs_five_inc_start_date(each_memb) <> "__ __ __" Then jobs_string = jobs_string & "Start date: " & STAT_INFORMATION(month_ind).stat_jobs_five_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_jobs_five_inc_end_date(each_memb) <> "" Then jobs_string = jobs_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_jobs_five_inc_end_date(each_memb)
-		jobs_string = jobs_string & "; "
-
-		If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-			jobs_string = jobs_string & "No Verification Received; "
-		Else
-			jobs_string = jobs_string & "Verif: " & STAT_INFORMATION(month_ind).stat_jobs_five_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))) <> "" Then jobs_string = jobs_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Job Detail", jobs_string)
-	End If
-
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Job Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_general_notes))
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb))
-		busi_string = ""
-
-		If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "" Then
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb) Then
-				busi_string = busi_string & "HC Calculation Method: A and B; "
-			Else
-				busi_string = busi_string & "HC Calculation Method: B; "
-			End If
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb) & "; "
-		Else
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			busi_string = busi_string & "HC Calculation Method: A; "
-
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_income_verif_info(each_memb) & "; "
-		End if
-
-		busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb)
-		busi_string = busi_string & "; "
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
-
-	End If
-	If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb))
-		busi_string = ""
-
-		If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) <> "" Then
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb) Then
-				busi_string = busi_string & "HC Calculation Method: A and B; "
-			Else
-				busi_string = busi_string & "HC Calculation Method: B; "
-			End If
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_income_verif_info(each_memb) & "; "
-		Else
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			busi_string = busi_string & "HC Calculation Method: A; "
-
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_income_verif_info(each_memb) & "; "
-		End if
-
-		busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_two_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb)
-		busi_string = busi_string & "; "
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
-
-	End If
-		If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb))
-		busi_string = ""
-
-		If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) <> "" Then
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb) Then
-				busi_string = busi_string & "HC Calculation Method: A and B; "
-			Else
-				busi_string = busi_string & "HC Calculation Method: B; "
-			End If
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_income_verif_info(each_memb) & "; "
-		Else
-			busi_string = busi_string & "Monthly Income: Net $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb)
-			busi_string = busi_string & "(Gross: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_gross_inc(each_memb)
-			If STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_expenses(each_memb) <> "" Then busi_string = busi_string & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_expenses(each_memb)
-			busi_string = busi_string & "); "
-			busi_string = busi_string & "HC Calculation Method: A; "
-
-			busi_string = busi_string & "Verif: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_income_verif_info(each_memb) & "; "
-		End if
-
-		busi_string = busi_string & "Start date: " & STAT_INFORMATION(month_ind).stat_busi_three_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) <> "" Then busi_string = busi_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb)
-		busi_string = busi_string & "; "
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))) <> "" Then busi_string = busi_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Self Emp Detail", busi_string)
-
-	End If
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Selt Emp Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_general_notes))
-
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb))
-		unea_string = ""
-		unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_one_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb)
-		unea_string = unea_string & "; "
-		If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-			unea_string = unea_string & "No Verification Received; "
-		Else
-			unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_one_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
-	End If
-	If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb))
-		unea_string = ""
-		unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_two_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb)
-		unea_string = unea_string & "; "
-		If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-			unea_string = unea_string & "No Verification Received; "
-		Else
-			unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_two_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
-	End If
-	If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb))
-		unea_string = ""
-		unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_three_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb)
-		unea_string = unea_string & "; "
-		If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-			unea_string = unea_string & "No Verification Received; "
-		Else
-			unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_three_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
-	End If
-	If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb))
-		unea_string = ""
-		unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_four_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb)
-		unea_string = unea_string & "; "
-		If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-			unea_string = unea_string & "No Verification Received; "
-		Else
-			unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_four_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
-	End If
-	If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-		income_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb))
-		unea_string = ""
-		unea_string = unea_string & "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_five_inc_start_date(each_memb) <> "__/__/__" Then unea_string = unea_string & ", Start date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_start_date(each_memb)
-		If STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) <> "" Then unea_string = unea_string & ", End Date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb)
-		unea_string = unea_string & "; "
-		If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-			unea_string = unea_string & "No Verification Received; "
-		Else
-			unea_string = unea_string & "Verif: " & STAT_INFORMATION(month_ind).stat_unea_five_verif_info(each_memb) & "; "
-		End If
-
-		If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))) <> "" Then unea_string = unea_string & "Notes: " & EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))
-		Call write_header_and_detail_in_CASE_NOTE("Unearned Detail", unea_string)
-	End If
-
-
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Unearned Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_general_notes))
-Call write_bullet_and_variable_in_CASE_NOTE("RETRO Income Notes", retro_income_detail)
-If income_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Income for this Case.")
-
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_pben_exists(each_memb) = True Then
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Potential Benefits")
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_one(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_one(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_one(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_one(each_memb) & "; " & date_detail)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_two(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_two(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_two(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_two(each_memb) & "; " & date_detail)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_three(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_three(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_three(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_three(each_memb) & "; " & date_detail)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_four(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_four(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_four(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_four(each_memb) & "; " & date_detail)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_five(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_five(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_five(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_five(each_memb) & "; " & date_detail)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pben_type_code_six(each_memb) <> "" Then
-			date_detail = ""
-			If STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) & ", "
-			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) & ", "
-			date_detail = left(date_detail, len(date_detail)-2)
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_six(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_six(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_six(each_memb) & "; " & date_detail)
-		End If
-		Call write_header_and_detail_in_CASE_NOTE("PBEN Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_pben_notes(each_memb)))
-
-	End If
-Next
-
-Call write_variable_in_CASE_NOTE("============================== ASSETS ==============================")
-If (avs_form_status <> "Select One..." and avs_form_status <> "") OR trim(avs_form_notes) <> "" OR trim(avs_portal_notes) <> "" Then
-	Call write_variable_in_CASE_NOTE("-----------------------------------------------------AVS Information")
-	If avs_form_status <> "Select One..." Then Call write_bullet_and_variable_in_CASE_NOTE("AVS Authorization Form", avs_form_status)
-	Call write_bullet_and_variable_in_CASE_NOTE("Notes", avs_form_notes)
-	Call write_bullet_and_variable_in_CASE_NOTE("Actions/Details", avs_portal_notes)
-	Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------")
-End If
-asset_detail_entered = False
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
-		asset_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
-
-		If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then Call write_header_and_detail_in_CASE_NOTE("Cash", "Amount $ "& STAT_INFORMATION(month_ind).stat_cash_balance(each_memb))
-
-		If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
-			acct_string = ""
-			' acct_string = acct_string &
-			If STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb)
-			acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)
-			acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_one_as_of_date(each_memb)
-			acct_string = acct_string & "; "
-			acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_one_verif_info(each_memb) & ";"
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb) & " Account", acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
-			acct_string = ""
-			' acct_string = acct_string &
-			If STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb)
-			acct_string = acct_string & ", alance: " & STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)
-			acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_two_as_of_date(each_memb)
-			acct_string = acct_string & "; "
-			acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_two_verif_info(each_memb) & ";"
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb) & " Account", acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
-			acct_string = ""
-			' acct_string = acct_string &
-			If STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb)
-			acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)
-			acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_three_as_of_date(each_memb)
-			acct_string = acct_string & "; "
-			acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_three_verif_info(each_memb) & ";"
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb) & " Account", acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
-			acct_string = ""
-			' acct_string = acct_string &
-			If STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb)
-			acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)
-			acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_four_as_of_date(each_memb)
-			acct_string = acct_string & "; "
-			acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_four_verif_info(each_memb) & ";"
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb) & " Account", acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
-			acct_string = ""
-			' acct_string = acct_string &
-			If STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb) <> "" Then acct_string = acct_string & "At " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb)
-			acct_string = acct_string & ", Balance: " & STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)
-			acct_string = acct_string & " as of " & STAT_INFORMATION(month_ind).stat_acct_five_as_of_date(each_memb)
-			acct_string = acct_string & "; "
-			acct_string = acct_string & "Verif: " & STAT_INFORMATION(month_ind).stat_acct_five_verif_info(each_memb) & ";"
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb) & " Account", acct_string)
-		End If
-
-		If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
-			secu_string = ""
-			secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_one_name(each_memb) & "; "
-
-			If STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb)
-			secu_string = secu_string & "; "
-			If STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb) & "; "
-			secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_one_type_detail(each_memb), acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
-			secu_string = ""
-			secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_two_name(each_memb) & "; "
-
-			If STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb)
-			secu_string = secu_string & "; "
-			If STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb) & "; "
-			secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_two_type_detail(each_memb), acct_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
-			secu_string = ""
-			secu_string = secu_string & "Name: " & STAT_INFORMATION(month_ind).stat_secu_three_name(each_memb) & "; "
-
-			If STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb) <> "" Then secu_string = secu_string & "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb) <> "" Then secu_string = secu_string & "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb)
-			secu_string = secu_string & "; "
-			If STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) <> "__/__/__" Then secu_string = secu_string & "Value as of " & STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb) & "; "
-			secu_string = secu_string & " Verif: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_secu_three_type_detail(each_memb), acct_string)
-		End If
-
-		Call write_header_and_detail_in_CASE_NOTE("Liquid Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_asset_notes(each_memb)))
-	End If
-Next
-If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Liquid Assets for this Case.")
-Call write_bullet_and_variable_in_CASE_NOTE("Asset Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes))
-
-asset_detail_entered = False
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
-		asset_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
-
-		If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
-			cars_string = ""
-			cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_one_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_model(each_memb)
-			cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Value: "
-			If STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_one_own_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
-			cars_string = ""
-			cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_two_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_model(each_memb)
-			cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Value: "
-			If STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_two_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_two_value_source_info(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_two_own_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
-			cars_string = ""
-			cars_string = cars_string & STAT_INFORMATION(month_ind).stat_cars_three_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_model(each_memb)
-			cars_string = cars_string & "Use: " & STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb) <> "" Then cars_string = cars_string & ", HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Value: "
-			If STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb) <> "" Then cars_string = cars_string & "Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb) <> "" Then cars_string = cars_string & ", Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb)
-			If STAT_INFORMATION(month_ind).stat_cars_three_value_source_info(each_memb) <> "" Then cars_string = cars_string & ", Source: " & STAT_INFORMATION(month_ind).stat_cars_three_value_source_info(each_memb)
-			cars_string = cars_string & "; "
-			cars_string = cars_string & "Verif: " & STAT_INFORMATION(month_ind).stat_cars_three_own_verif_info(each_memb) & "; "
-
-			Call write_header_and_detail_in_CASE_NOTE("Vehicle", cars_string)
-		End If
-
-	End if
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Vehicle Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_cars_notes))
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
-		asset_detail_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb))
-
-		If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
-			rest_string = ""
-			rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_one_type_info(each_memb)
-			rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb) & "; "
-			rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_property_ownership_info(each_memb) & "; "
-			If STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb) <> "" Then
-				rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_value_verif_info(each_memb) & "; "
-			End If
-			If STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb) <> "" Then
-				rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_owed_verif_info(each_memb) & "; "
-			End If
-
-			Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
-			rest_string = ""
-			rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_two_type_info(each_memb)
-			rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb) & "; "
-			rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_property_ownership_info(each_memb) & "; "
-			If STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb) <> "" Then
-				rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_value_verif_info(each_memb) & "; "
-			End If
-			If STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb) <> "" Then
-				rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_owed_verif_info(each_memb) & "; "
-			End If
-
-			Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
-			rest_string = ""
-			rest_string = rest_string & STAT_INFORMATION(month_ind).stat_rest_three_type_info(each_memb)
-			rest_string = rest_string & ", Property Status: " & STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) & "; "
-			rest_string = rest_string & "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_property_ownership_info(each_memb) & "; "
-			If STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb) <> "" Then
-				rest_string = rest_string & "Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_value_verif_info(each_memb) & "; "
-			End If
-			If STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb) <> "" Then
-				rest_string = rest_string & "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
-				rest_string = rest_string & ", Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_owed_verif_info(each_memb) & "; "
-			End If
-
-			Call write_header_and_detail_in_CASE_NOTE("Real Estate", rest_string)
-		End If
-
-	End If
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Real Estate Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes))
-Call write_bullet_and_variable_in_CASE_NOTE("RETRO Asset Notes", retro_asset_detail)
-If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No vehicles or real estate for this Case.")
-
-Call write_variable_in_CASE_NOTE("===================== EXPENSES and DEDUCTIONS ======================")
-expense_info_entered = False
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_pded_exists(each_memb) = True Then
-		expense_info_entered = True
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Program Deductions")
-		If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) <> "_" Then
-			pickle_string = ""
-			If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "1" then pickle_string = pickle_string & "Eligible: "
-			If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "2" then pickle_string = pickle_string & "POTENTIALLY Eligible: "
-			pickle_string = pickle_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " Disregard Amount; "
-			pickle_string = pickle_string & "Current RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_curr_RSDI(each_memb) & " less Threshold RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_RSDI(each_memb) & "; "
-			pickle_string = pickle_string & "Based on Threshold Date: " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_date(each_memb) & "; "
-			Call write_header_and_detail_in_CASE_NOTE("PICKLE Disregard", pickle_string)
-		End If
-
-		other_ded_string = ""
-		If STAT_INFORMATION(month_ind).stat_pded_disa_widow_deducation_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Disabled Widow/ers Deduction Applied; "
-		If STAT_INFORMATION(month_ind).stat_pded_disa_adult_child_disregard_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Disabled Adult Child Disregard applied; "
-		If STAT_INFORMATION(month_ind).stat_pded_widow_deducation_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "Widow/ers Deduction applied; "
-		If STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) <> "" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) & " Unearned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_reason(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) <> "" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) & " Earned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_reason(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_yn(each_memb) = "Y" Then other_ded_string = other_ded_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_amt(each_memb) & " Blind/Disabled Student Child Disregard; "
-		Call write_header_and_detail_in_CASE_NOTE("Other Deductions", other_ded_string)
-
-		If STAT_INFORMATION(month_ind).stat_pded_extend_ma_epd_limits_yn(each_memb) = "Y" Then Call write_variable_in_CASE_NOTE("     MA-EPD Income/Asset Limits Extended")
-		If STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb) <> "" Then
-			pass_string = ""
-			pass_string = pass_string & "Begin Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb)
-			If STAT_INFORMATION(month_ind).stat_pded_PASS_end_date(each_memb) <> "" Then pass_string = pass_string & " - End Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_end_date(each_memb)
-			pass_string = pass_string & "; "
-			If STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) & " - Earned Income Excluded; "
-			If STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) & " - Unearned Income Excluded; "
-			If STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) & " - Assets Excluded; "
-			Call write_header_and_detail_in_CASE_NOTE("PASS Plan", pass_string)
-		End If
-		If STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) & " Guardianship Fee reduced from income.")
-		If STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) & " Rep Payee Fee reduced from income.")
-	End If
-Next
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_coex_exists(each_memb) = True Then
-		expense_info_entered = True
-
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Court Ordered Expenses")
-		coex_string = ""
-		coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_total_prosp_amt(each_memb) & " TOTAL Expense; "
-		If STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) & " SUPPORT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_support_verif_info(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) & " ALIMONY Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_alimony_verif_info(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) & " TAX DEPENDENT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_verif_info(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) <> "" Then coex_string = coex_string & "$ " & STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) & " OTHER Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_other_verif_info(each_memb) & "; "
-		Call write_header_and_detail_in_CASE_NOTE("COEX Info", coex_string)
-	End If
-Next
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_dcex_exists(each_memb) = True Then
-		expense_info_entered = True
-
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Dependent Care Expenses")
-		dcex_string = ""
-		dcex_string = dcex_string & "Provider: " &  STAT_INFORMATION(month_ind).stat_dcex_provider(each_memb) & " - Reason: " & STAT_INFORMATION(month_ind).stat_dcex_reason_info(each_memb) & "; "
-		If InStr(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb), ",") <> 0 Then
-			dcex_child_array = split(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb), ",")
-			dcex_amount_array = split(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb), ",")
-			dcex_verif_array = split(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb), ",")
-		Else
-			dcex_child_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb))
-			dcex_amount_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb))
-			dcex_verif_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb))
-		End If
-		For dcex_child = 0 to UBound(dcex_child_array)
-			dcex_string = dcex_string & "$ " & dcex_amount_array(dcex_child) & " for MEMB " & dcex_child_array(dcex_child) & ", Verif: " & dcex_verif_array(dcex_child) & "; "
-		Next
-		dcex_child_array = ""
-		dcex_amount_array = ""
-		dcex_verif_array = ""
-		Call write_header_and_detail_in_CASE_NOTE("DCEX Info", dcex_string)
-	End If
-Next
-If expense_info_entered = False Then Call write_variable_in_CASE_NOTE("* No expenses or deductions for this Case.")
-Call write_bullet_and_variable_in_CASE_NOTE("RETRO Expense Notes", retro_expense_detail)
-Call write_bullet_and_variable_in_CASE_NOTE("Expense Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_expenses_general_notes))
-
-Call write_variable_in_CASE_NOTE("=========================== OTHER INFO =============================")
-Call write_bullet_and_variable_in_CASE_NOTE("RETRO Notes", retro_notes)
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_acci_exists(each_memb) = True Then
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Accident Information")
-		acci_string = ""
-		acci_string = acci_string & "Injury Date " & STAT_INFORMATION(month_ind).stat_acci_injury_date(each_memb) & ". Medical cooperation: " & STAT_INFORMATION(month_ind).stat_acci_med_coop_yn(each_memb) & "; "
-		acci_string = acci_string & "Accident Type: " & STAT_INFORMATION(month_ind).stat_acci_type_info(each_memb) & ". Involving MEMBS " & STAT_INFORMATION(month_ind).stat_acci_ref_numbers_list(each_memb)
-		Call write_header_and_detail_in_CASE_NOTE("Details", acci_string)
-	End If
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Accident Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acci_notes))
-
-For each_panel = 0 to UBound(STAT_INFORMATION(month_ind).stat_insa_exists)
-	If STAT_INFORMATION(month_ind).stat_insa_exists(each_panel) = True Then
-		Call write_variable_in_CASE_NOTE("Other Health Insurance at " & STAT_INFORMATION(month_ind).stat_insa_insurance_co(each_panel) & " coop with OHI: " & STAT_INFORMATION(month_ind).stat_insa_coop_OHI_yn(each_panel) & " CEHI coop: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel))
-		Call write_header_and_detail_in_CASE_NOTE("Covered MEMBS", STAT_INFORMATION(month_ind).stat_insa_covered_pers_list(each_panel))
-		If STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "_" And STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "N" Then
-			Call write_header_and_detail_in_CASE_NOTE("Good Cause", STAT_INFORMATION(month_ind).stat_insa_good_cause_info(each_panel) & " - Claim Date: " & STAT_INFORMATION(month_ind).stat_insa_good_cause_claim_date(each_panel) & " - Evidence: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel))
-		End If
-	End If
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Insurance Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_insa_notes))
-
-For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	If STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then
-		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " is in a facility")
-		faci_string = ""
-		faci_string = faci_string & "Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
-		faci_string = faci_string & ", Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
-		faci_string = faci_string & ", In Date: " & STAT_INFORMATION(month_ind).stat_faci_date_in(each_memb) & "; "
-		If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
-			faci_string = faci_string & "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) & "; "
-		End If
-		If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
-			faci_string = faci_string & "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) & "; "
-		End If
-		Call write_header_and_detail_in_CASE_NOTE("Facility Info", faci_string)
-
-		For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
-				Call write_header_and_detail_in_CASE_NOTE("LTC FACI Notes", HEALTH_CARE_MEMBERS(LTC_facility_notes_const, hc_memb))
-			End If
-		Next
-
-		If excluded_time_case = True Then
-			Call write_variable_in_CASE_NOTE("* EXCLUDED TIME CASE - County of Financial Responsibility: " & county_of_financial_responsibility)
-		End If
-	End If
-Next
-Call write_bullet_and_variable_in_CASE_NOTE("Facility Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_faci_notes))
-Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_other_general_notes))
-
-If bils_exist = True Then
-	Call write_variable_in_CASE_NOTE("Medical Bill Information exists on case.")
-	first_bil = True
-	For each_bil = 0 to UBound(BILS_ARRAY, 2)
-		If BILS_ARRAY(bils_checkbox, each_bil) = checked Then
-			If first_bil = True Then
-				Call write_variable_in_CASE_NOTE("  Person  Date     Gross     Service          Type Verif")
-				first_bil = False
-			End If
-			bill_line = ""
-			bill_line = "  MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil)
-			bill_line = bill_line & " " & BILS_ARRAY(bils_date_const, each_bil)
-			bill_line = bill_line & " $ " & right(space(7)&BILS_ARRAY(bils_gross_amt_const, each_bil), 7)
-			bill_line = bill_line & " " & left(BILS_ARRAY(bils_service_info_short_const, each_bil)&space(16), 16)
-			bill_line = bill_line & " " & BILS_ARRAY(bils_expense_type_code_const, each_bil)
-			bill_line = bill_line & "    " & left(BILS_ARRAY(bils_verif_info_const, each_bil)&space(25), 25)
-			Call write_variable_in_CASE_NOTE(bill_line)
-		End If
-	Next
-	Call write_bullet_and_variable_in_CASE_NOTE("Bills Notes",bils_notes)
-	If first_bil = False Then call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
-End If
-
-If arep_name <> "" Then
-	arep_string = arep_name & ", Notices to AREP: " & forms_to_arep & ", MMIS Mail to AREP: " & mmis_mail_to_arep
-	Call write_bullet_and_variable_in_CASE_NOTE("Authorized Rep", arep_string)
-End If
-
-If swkr_name <> "" Then
-	swkr_string = swkr_name & ", Notices to SWKR: " & notices_to_swkr_yn
-	Call write_bullet_and_variable_in_CASE_NOTE("Social Worker", swkr_string)
-End If
+Call write_person_details_in_NOTE
+Call write_income_details_in_NOTE
+Call write_asset_details_in_NOTE
+Call write_expense_details_in_NOTE
+Call write_other_details_in_NOTE
 
 If app_sig_status = "Yes - All required signatures are on the application" Then
 	Call write_variable_in_CASE_NOTE("* Application correctly signed and dated.")

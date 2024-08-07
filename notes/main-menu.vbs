@@ -40,6 +40,13 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/27/2024", "Three scripts:##~## - NOTES - APPROVED PROGRAMS##~## - NOTES - CLOSED PROGRAMS##~## - NOTES - DENIED PROGRAMS##~## have been retired and are no longer available.##~## ##~##All approvals are now handled by NOTES - Eligibility Summary. This script has a direct button on the power pad for easy access.##~##", "Casey Love, Hennepin County")
+call changelog_update("06/03/2024", "The script, NOTES - APPLICATION CHECK, has been retired.", "Ilse Ferris, Hennepin County")
+call changelog_update("01/02/2024", "A new script is available: SNAP Waived Interview supports screening a SNAP application for the application interview waiver and documenting any information needed. Process information is available on sharepoint under temporary program changes for SNAP.", "Dave Courtright, Hennepin County")
+call changelog_update("11/20/2023", "The LTC button has been removed from the menu. LTC: 5181, Asset Assessment, Hospice Form Received and Transfer Penalty are now found under the standard alpha menus with other note scripts.", "Megan Geissler, Hennepin County")
+call changelog_update("11/07/2023", "Retired the scripts:##~##NOTES - LTC Intake Approval##~## This functionality is now contained in NOTES - HC Evaluation.", "Dave Courtright, Hennepin County")
+call changelog_update("10/16/2023", "Retired the scripts:##~##NOTES - LTC COLA Summary##~##NOTES - LTC MA Approval##~##", "Casey Love, Hennepin County")
+call changelog_update("10/03/2023", "The IMIG button has been removed from the menu. Immigration Status and Sponsor Income scripts are now found under the standard alpha menus with other note scripts.", "Dave Courtright, Hennepin County")
 call changelog_update("06/16/2023", "NOTES - ABAWD TRACKING RECORD is back! NOTES - ABAWD WAIVED APPROVAL is now retired.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/11/2023", "Retired the scripts:##~## NOTES - HCAPP##~## NOTES - IMIG - EMA##~## NOTES - LTC - Application Received##~## ##~## The functionality of this script is supported by NOTES - Health Care Evaluation.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Retired HC Renewal and LTC-Rennewal scripts. These scripts will be enhanced prior to renewals starting again. Health Care renewals remain paused during the PHE.", "Ilse Ferris, Hennepin County")
@@ -82,8 +89,6 @@ Function declare_main_menu_dialog(script_category)
 	' 	End if
 	'
 	' Next
-	show_ltc_btn = True
-	show_imig_btn = True
 	show_0_c_btn = True
 	show_d_f_btn = True
 	show_g_l_btn = True
@@ -95,13 +100,7 @@ Function declare_main_menu_dialog(script_category)
     For current_script = 0 to ubound(script_array)
         script_array(current_script).show_script = FALSE
         If ucase(script_array(current_script).category) = ucase(script_category) then
-            If ButtonPressed = menu_ltc_button Then
-                If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = TRUE
-				show_ltc_btn = False
-            ElseIf ButtonPressed = menu_imig_button Then
-                If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = TRUE
-				show_imig_btn = False
-            ElseIf ButtonPressed = menu_0_to_c_button Then
+			If ButtonPressed = menu_0_to_c_button Then
                 If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "A" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "B" Then script_array(current_script).show_script = TRUE
@@ -119,8 +118,6 @@ Function declare_main_menu_dialog(script_category)
                 If left(script_array(current_script).script_name, 1) = "J" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "K" Then script_array(current_script).show_script = TRUE
                 If left(script_array(current_script).script_name, 1) = "L" Then script_array(current_script).show_script = TRUE
-                If left(script_array(current_script).script_name, 4) = "IMIG" Then script_array(current_script).show_script = FALSE
-                If left(script_array(current_script).script_name, 3) = "LTC" Then script_array(current_script).show_script = FALSE
 				show_g_l_btn = False
             ElseIf ButtonPressed = menu_M_to_Q_button Then
                 If left(script_array(current_script).script_name, 1) = "M" Then script_array(current_script).show_script = TRUE
@@ -150,7 +147,6 @@ Function declare_main_menu_dialog(script_category)
             If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
         End If
     next
-	If ButtonPressed = menu_imig_button Then dlg_len = dlg_len + 10
 
 	BeginDialog Dialog1, 0, 0, 650, dlg_len, script_category & " scripts main menu dialog"
 	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
@@ -186,16 +182,6 @@ Function declare_main_menu_dialog(script_category)
         	PushButton 		205,                    20, 					50, 		15, 			" R - Z ", 					menu_R_to_Z_button
 		Else
 			Text 			220,                    23, 					40, 		15, 			" R - Z "
-		End If
-		If show_ltc_btn = True Then
-        	PushButton 		255,                    20, 					50, 		15, 			"  LTC  ", 					menu_ltc_button
-		Else
-			Text 			270,                    23, 					40, 		15, 			" LTC  "
-		End If
-		If show_imig_btn = True  Then
-        	PushButton 		305,                    20, 					50, 		15, 			" IMIG ", 					menu_imig_button
-		Else
-			Text 			320,                    23, 					40, 		15, 			" IMIG "
 		End If
 
 
@@ -244,8 +230,6 @@ menu_D_to_F_button          = 120
 menu_G_to_L_button          = 130
 menu_M_to_Q_button          = 140
 menu_R_to_Z_button          = 150
-menu_ltc_button             = 160
-menu_imig_button            = 170
 
 'Other pre-loop and pre-function declarations
 subcategory_array = array()

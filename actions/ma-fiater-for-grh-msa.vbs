@@ -45,6 +45,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/23/2024", "BUG FIX: When operating a case that has deeming income the script had a 'glitchy' member selection and the dialog displays were not always correctly sized. Updates to the deeming functionality should resolve these issues.", "Casey Love, Hennepin County")
+call changelog_update("12/15/2023", "BUG FIX: MA FIATer for MSA/GRH cases was erroring when dealing the SSI income, which is excluded as it also tried to add COLA. This has been resolved, however if there are other types of excluded income with COLA amounts, the script may error again, please send a report to us with the case number for review.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -625,10 +627,12 @@ FUNCTION calculate_income(input_array)
 	number_deemed_incomes = 0
 
 	FOR i = 0 TO number_of_incomes
-		IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
-			number_client_incomes = number_client_incomes + 1
-		ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
-			number_deemed_incomes = number_deemed_incomes + 1
+		If IsObject(income_array(i)) = True Then
+			IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
+				number_client_incomes = number_client_incomes + 1
+			ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
+				number_deemed_incomes = number_deemed_incomes + 1
+			END IF
 		END IF
 	NEXT
 
@@ -641,41 +645,50 @@ FUNCTION calculate_income(input_array)
 	END IF
 
 	FOR i = 0 TO number_of_incomes
-	  IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
-		  deemed_income_exists = TRUE
-	  ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
-	  	  non_deemed_income_exists = TRUE
-	  END IF
+		If IsObject(income_array(i)) = True Then
+			IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
+				deemed_income_exists = TRUE
+			ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
+				non_deemed_income_exists = TRUE
+			END IF
+		END IF
 	NEXT
 
 	dlg_height = 55 + (20 * height_multiplier)
+	If height_multiplier = 0 Then dlg_height = dlg_height + 20
 
-	If deemed_income_exists = TRUE Then dlg_width = 460
+	grp_hgt = (20 + (number_client_incomes * 20))
+	If grp_hgt = 20 then grp_hgt = 45
+
 	dlg_width = 250
+	If deemed_income_exists = TRUE Then dlg_width = 500
     BeginDialog Dialog1, 0, 0, dlg_width, dlg_height, "Monthly Income"
 	  client_incomes_row = 25
 	  deemed_incomes_row = 25
 	  FOR i = 0 TO number_of_incomes
-		IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
-	        Text 15, client_incomes_row, 45, 10, "Income Type:"
-			Text 60, client_incomes_row, 40, 10, input_array(i).income_category
-			Text 105, client_incomes_row, 50, 10, input_array(i).income_type
-			Text 160, client_incomes_row, 40, 10, FormatCurrency(input_array(i).monthly_income_amt)
-			Text 190, client_incomes_row, 40, 10, input_array(i).budget_month
-			client_incomes_row = client_incomes_row + 20
-		ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
-	        Text 225, deemed_incomes_row, 45, 10, "Income Type:"
-			Text 275, deemed_incomes_row, 75, 10, input_array(i).income_category
-			Text 355, deemed_incomes_row, 60, 10, input_array(i).income_type
-			Text 420, deemed_incomes_row, 40, 10, FormatCurrency(input_array(i).monthly_income_amt)
-			deemed_incomes_row = deemed_incomes_row + 20
+		If IsObject(income_array(i)) = True Then
+			IF InStr(input_array(i).income_category, "DEEMED") = 0 THEN
+				Text 15, client_incomes_row, 45, 10, "Income Type:"
+				Text 60, client_incomes_row, 40, 10, input_array(i).income_category
+				Text 105, client_incomes_row, 50, 10, input_array(i).income_type
+				Text 160, client_incomes_row, 40, 10, FormatCurrency(input_array(i).monthly_income_amt)
+				Text 190, client_incomes_row, 40, 10, input_array(i).budget_month
+				client_incomes_row = client_incomes_row + 20
+			ELSEIF InStr(input_array(i).income_category, "DEEMED") <> 0 THEN
+				Text 255, deemed_incomes_row, 45, 10, "Income Type:"
+				Text 305, deemed_incomes_row, 75, 10, input_array(i).income_category
+				Text 385, deemed_incomes_row, 60, 10, input_array(i).income_type
+				Text 450, deemed_incomes_row, 40, 10, FormatCurrency(input_array(i).monthly_income_amt)
+				deemed_incomes_row = deemed_incomes_row + 20
+			END IF
 		END IF
 	  NEXT
+	  If height_multiplier = 0 Then Text 15, 25, 200, 10, "No Income counted for MEMB " & hc_memb & "."
       ButtonGroup ButtonPressed
         OkButton dlg_width - 110, (dlg_height - 20), 50, 15
         CancelButton dlg_width - 60, (dlg_height - 20), 50, 15
-      GroupBox 5, 5, 240, (20 + (number_client_incomes * 20)), "Client Income"
-      IF number_deemed_incomes <> 0 THEN GroupBox 220, 5, 240, (20 + (number_deemed_incomes * 20)), "Deemed Income"
+      GroupBox 5, 5, 240, grp_hgt, "Client Income"
+      IF number_deemed_incomes <> 0 THEN GroupBox 250, 5, 240, (20 + (number_deemed_incomes * 20)), "Deemed Income"
     EndDialog
 
 	Do
@@ -710,7 +723,6 @@ BeginDialog Dialog1, 0, 0, 171, 95, "Enter Case Number"
   Text 10, 50, 75, 20, "Initial footer month of HC span:"
 EndDialog
 
-testing_run = TRUE
 ' ================ the script ====================
 EMConnect ""
 
@@ -735,9 +747,11 @@ Do
 Loop until are_we_passworded_out = FALSE														' }
 
 Call back_to_SELF
+Dim client_array
 
 DO
 	' Getting the individual on the case
+	client_array = ""
 	CALL HH_member_custom_dialog(HH_member_array)
 	IF ubound(HH_member_array) <> 0 THEN MsgBox "Please pick one and only one person for this."
 LOOP UNTIL ubound(HH_member_array) = 0
@@ -1081,16 +1095,66 @@ call check_for_MAXIS(false)
 IF is_there_income_deeming = vbCancel THEN
 	script_end_procedure("Script cancelled.")
 ELSEIF is_there_income_deeming = vbYes THEN
+	testing_run = TRUE
 	' grabbing the ref num of the deeming individual
 	' and confirming it is not the same as the applicant
+
+	'The client_array is defined during the HH_member_custom_dialog function call earlier in the script since it is dimmed before the function call it will be defined in the function and pass back to the script
+	client_array = TRIM(client_array)
+	test_array = split(client_array, "|")
+	total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+	DIM all_client_array()
+	ReDim all_clients_array(total_clients, 1)
+
+	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+		Interim_array = split(client_array, "|")
+		all_clients_array(x, 0) = Interim_array(x)
+		all_clients_array(x, 1) = 0
+		If left(all_clients_array(i, 0), 2) <> hc_memb Then all_clients_array(x, 1) = 1
+	NEXT
+
+	' Getting the individual on the case
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "Deeming Member Selection"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+		Text 10, 5, 105, 10, "Whose Income Deems?"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			If left(all_clients_array(i, 0), 2) = hc_memb Then
+				Text 21, (20 + (i * 15)), 160, 10, all_clients_array(i, 0)
+			Else
+				IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			End If
+		NEXT
+		ButtonGroup ButtonPressed
+			OkButton 185, 10, 50, 15
+			CancelButton 185, 30, 50, 15
+	EndDialog
+
 	DO
 		DO
-			' Getting the individual on the case
-			CALL HH_member_custom_dialog(HH_member_array)
-			IF ubound(HH_member_array) <> 0 THEN MsgBox "Please pick one and only one person for this."
-		LOOP UNTIL ubound(HH_member_array) = 0
 
-		FOR EACH person in HH_member_array
+			'runs the dialog that has been dynamically created. Streamlined with new functions.
+			Dialog Dialog1
+			Cancel_without_confirmation
+			check_for_maxis(True)
+
+			DEEMING_member_array = ""
+
+			FOR i = 0 to total_clients
+				IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+					IF all_clients_array(i, 1) = 1 and left(all_clients_array(i, 0), 2) <> hc_memb THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+						DEEMING_member_array = DEEMING_member_array & left(all_clients_array(i, 0), 2) & " "
+					END IF
+				END IF
+			NEXT
+
+			DEEMING_member_array = TRIM(DEEMING_member_array)							'Cleaning up array for ease of use.
+			DEEMING_member_array = SPLIT(DEEMING_member_array, " ")
+
+			IF ubound(DEEMING_member_array) <> 0 THEN MsgBox "Please pick one and only one person for this."
+		LOOP UNTIL ubound(DEEMING_member_array) = 0
+
+		FOR EACH person in DEEMING_member_array
 			deem_memb = left(person, 2)
 			EXIT FOR
 		NEXT
@@ -1159,10 +1223,13 @@ END IF
 
 ' assigning values to the ttl_whatever variables for to FIAT the budget
 FOR i = 0 to ubound(income_array)
-	IF income_array(i).income_category = "UNEARNED" 		THEN ttl_unearned_amt = ttl_unearned_amt + (income_array(i).monthly_income_amt * 1)
-	IF income_array(i).income_category = "EARNED" 			THEN ttl_earned_amt = ttl_earned_amt + (income_array(i).monthly_income_amt * 1)
-	IF income_array(i).income_category = "DEEMED UNEARNED" 	THEN ttl_unearned_deemed = ttl_unearned_deemed + (income_array(i).monthly_income_amt * 1)
-	IF income_array(i).income_category = "DEEMED EARNED" 	THEN ttl_earned_deemed = ttl_earned_deemed + (income_array(i).monthly_income_amt * 1)
+	If IsObject(income_array(i)) = True Then
+
+		IF income_array(i).income_category = "UNEARNED" 		THEN ttl_unearned_amt = ttl_unearned_amt + (income_array(i).monthly_income_amt * 1)
+		IF income_array(i).income_category = "EARNED" 			THEN ttl_earned_amt = ttl_earned_amt + (income_array(i).monthly_income_amt * 1)
+		IF income_array(i).income_category = "DEEMED UNEARNED" 	THEN ttl_unearned_deemed = ttl_unearned_deemed + (income_array(i).monthly_income_amt * 1)
+		IF income_array(i).income_category = "DEEMED EARNED" 	THEN ttl_earned_deemed = ttl_earned_deemed + (income_array(i).monthly_income_amt * 1)
+	End if
 NEXT
 
 ' putting all of our income information into a lovely dialog
@@ -1235,10 +1302,12 @@ transmit
 'First step through the income array and look for non-deemed SSI.  If SSI is found, all income of applicant is excluded'
 income_exclusion_code = "N" 'set income exclusion to N by default '
 FOR goat = 0 TO ubound(income_array)
-	IF income_array(goat).income_category = "UNEARNED" THEN
-		IF income_array(goat).income_type_code = "03" THEN
-			IF income_array(goat).monthly_income_amt > 0 THEN income_exclusion_code = "Y" 'We exclude all income if they receive SSI
-		END If
+	If IsObject(income_array(goat)) = True Then
+		IF income_array(goat).income_category = "UNEARNED" THEN
+			IF income_array(goat).income_type_code = "03" THEN
+				IF income_array(goat).monthly_income_amt > 0 THEN income_exclusion_code = "Y" 'We exclude all income if they receive SSI
+			END If
+		END IF
 	END IF
 NEXT
 
@@ -1251,84 +1320,90 @@ FOR i = 0 TO ubound(income_array)
 
 	'first check which month we're budgeting
 	EMReadScreen current_budg_month, 5, 6, 11
-	current_budg_month = cdate(left(current_budg_month, 3) & "01/" & right(current_budg_month, 2)) 'convert to a date'
-	if income_array(i).budget_month = current_budg_month and income_array(i).monthly_income_amt <> 0 THEN 'only write values from the month we're in
-	IF income_array(i).income_category = "UNEARNED" THEN
-		CALL write_value_and_transmit("X", 8, 3)
-		fiat_unea_row = 8
-		DO
-			EMReadScreen blank_space_for_writing, 2, fiat_unea_row, 8
-			IF blank_space_for_writing = "__" THEN EXIT DO
-			fiat_unea_row = fiat_unea_row + 1
-		LOOP
-		EMWriteScreen income_array(i).income_type_code, fiat_unea_row, 8
-		EMWriteScreen income_array(i).monthly_income_amt, fiat_unea_row, 43
-		EMWriteScreen income_exclusion_code, fiat_unea_row, 58
-		transmit
-		PF3
-		'Write the COLA if appropriate'
-		IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 THEN
-			EMWriteScreen "X", 11, 3
-			transmit
-			EMWriteScreen income_array(i).COLA_amount, 14, 43
-			transmit
-			PF3
+	' MsgBox "current_budg_month - " & current_budg_month & vbCr & InStr(current_budg_month, "/")
+	If InStr(current_budg_month, "/") = 3 Then
+		' MsgBox "budg month appears to be date"
+		current_budg_month = cdate(left(current_budg_month, 3) & "01/" & right(current_budg_month, 2)) 'convert to a date'
+		If IsObject(income_array(i)) = True Then
+			if income_array(i).budget_month = current_budg_month and income_array(i).monthly_income_amt <> 0 THEN 'only write values from the month we're in
+			IF income_array(i).income_category = "UNEARNED" THEN
+				CALL write_value_and_transmit("X", 8, 3)
+				fiat_unea_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_unea_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_unea_row = fiat_unea_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_unea_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_unea_row, 43
+				EMWriteScreen income_exclusion_code, fiat_unea_row, 58
+				transmit
+				PF3
+				'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+				IF income_array(i).COLA_amount > 0 AND datepart("M", current_budg_month) < 7 and income_exclusion_code = "N" THEN
+					EMWriteScreen "X", 11, 3
+					transmit
+					EMWriteScreen income_array(i).COLA_amount, 14, 43
+					transmit
+					PF3
+				END IF
+			ELSEIF income_array(i).income_category = "EARNED" THEN
+				CALL write_value_and_transmit("X", 8, 43)
+				fiat_earn_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_earn_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_earn_row = fiat_earn_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_earn_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_earn_row, 43
+				EMWriteScreen income_exclusion_code, fiat_earn_row, 59
+				transmit
+				PF3
+			ELSEIF income_array(i).income_category = "DEEMED EARNED" THEN
+				CALL write_value_and_transmit("X", 9, 43)
+				fiat_deem_earn_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_deem_earn_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_deem_earn_row = fiat_deem_earn_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_deem_earn_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_earn_row, 43
+				EMWriteScreen "N", fiat_deem_earn_row, 59
+				transmit
+				PF3
+			ELSEIF income_array(i).income_category = "DEEMED UNEARNED" THEN
+				CALL write_value_and_transmit("X", 9, 3)
+				fiat_deem_unea_row = 8
+				DO
+					EMReadScreen blank_space_for_writing, 2, fiat_deem_unea_row, 8
+					IF blank_space_for_writing = "__" THEN EXIT DO
+					fiat_deem_unea_row = fiat_deem_unea_row + 1
+				LOOP
+				EMWriteScreen income_array(i).income_type_code, fiat_deem_unea_row, 8
+				EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_unea_row, 43
+				IF income_array(i).income_type_code = "03" THEN
+					EMWriteScreen "Y", fiat_deem_unea_row, 58 'If this is SSI, code excluded'
+				ELSE
+				EMWriteScreen "N", fiat_deem_unea_row, 58
+				END IF
+				transmit
+				PF3
+				'Write the COLA if appropriate - which is not if the income is going to be excluded because there is ssi (that is what the 'income_exclusion_code' is for)
+				IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 and income_exclusion_code = "N" THEN
+					EMWriteScreen "X", 11, 3
+					transmit
+					EMWriteScreen income_array(i).COLA_amount, 14, 43
+					transmit
+					PF3
+				END IF
+			END IF
+			END IF
 		END IF
-	ELSEIF income_array(i).income_category = "EARNED" THEN
-		CALL write_value_and_transmit("X", 8, 43)
-		fiat_earn_row = 8
-		DO
-			EMReadScreen blank_space_for_writing, 2, fiat_earn_row, 8
-			IF blank_space_for_writing = "__" THEN EXIT DO
-			fiat_earn_row = fiat_earn_row + 1
-		LOOP
-		EMWriteScreen income_array(i).income_type_code, fiat_earn_row, 8
-		EMWriteScreen income_array(i).monthly_income_amt, fiat_earn_row, 43
-		EMWriteScreen income_exclusion_code, fiat_earn_row, 59
-		transmit
-		PF3
-	ELSEIF income_array(i).income_category = "DEEMED EARNED" THEN
-		CALL write_value_and_transmit("X", 9, 43)
-		fiat_deem_earn_row = 8
-		DO
-			EMReadScreen blank_space_for_writing, 2, fiat_deem_earn_row, 8
-			IF blank_space_for_writing = "__" THEN EXIT DO
-			fiat_deem_earn_row = fiat_deem_earn_row + 1
-		LOOP
-		EMWriteScreen income_array(i).income_type_code, fiat_deem_earn_row, 8
-		EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_earn_row, 43
-		EMWriteScreen "N", fiat_deem_earn_row, 59
-		transmit
-		PF3
-	ELSEIF income_array(i).income_category = "DEEMED UNEARNED" THEN
-		CALL write_value_and_transmit("X", 9, 3)
-		fiat_deem_unea_row = 8
-		DO
-			EMReadScreen blank_space_for_writing, 2, fiat_deem_unea_row, 8
-			IF blank_space_for_writing = "__" THEN EXIT DO
-			fiat_deem_unea_row = fiat_deem_unea_row + 1
-		LOOP
-		EMWriteScreen income_array(i).income_type_code, fiat_deem_unea_row, 8
-		EMWriteScreen income_array(i).monthly_income_amt, fiat_deem_unea_row, 43
-		IF income_array(i).income_type_code = "03" THEN
-		 	EMWriteScreen "Y", fiat_deem_unea_row, 58 'If this is SSI, code excluded'
-		ELSE
-		 EMWriteScreen "N", fiat_deem_unea_row, 58
-		END IF
-		transmit
-		PF3
-		'Write the COLA if appropriate'
-		IF income_array(i).COLA_amount > 0 AND datepart("M", budg_month) < 7 THEN
-			EMWriteScreen "X", 11, 3
-			transmit
-			EMWriteScreen income_array(i).COLA_amount, 14, 43
-			transmit
-			PF3
-		END IF
-	END IF
-	END IF
+	End If
 NEXT
-transmit
+If IsDate(current_budg_month) = True Then transmit
 
 NEXT 'closing out the chicken loop'
 

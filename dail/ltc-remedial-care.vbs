@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/05/2024", "Updated remedial care amount to $278.00 for July 2024.", "Ilse Ferris, Hennepin County")
+call changelog_update("12/03/2023", "Updated remedial care amount to $275.00 for January 2024.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("06/06/2023", "Updated remedial care amount to $271.00 for July 2023.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("06/17/2022", "Updated remedial care amount to $234.00 for July 2022.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("01/03/2022", "Updated remedial care amount to $195.00 for January 2022.", "Ilse Ferris, Hennepin County")
@@ -61,15 +63,15 @@ changelog_display
 
 EMConnect ""
 'EPM Reference for Remedial Care: http://hcopub.dhs.state.mn.us/epm/appendix_f.htm?rhhlterm=remedial%20care&rhsearch=remedial%20care
-remedial_care_amt = "271.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "07/01/2023" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
+remedial_care_amt = "278.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "07/01/2024" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
 ButtonGroup ButtonPressed
 OkButton 165, 45, 40, 15
 CancelButton 210, 45, 40, 15
-Text 10, 15, 240, 20, "This script will update the STAT/BILS panel(s) if remedial care (27) entries exist The rate will update to the current deduction stanard of $" & remedial_care_amt &"."
+Text 10, 15, 240, 20, "This script will update the STAT/BILS panel(s) if remedial care (27) entries exist The rate will update to the current deduction standard of $" & remedial_care_amt &"."
 GroupBox 5, 5, 245, 35, "About the Script:"
 EndDialog
 
@@ -82,11 +84,11 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 Call write_value_and_transmit("S", 6, 3)
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
+EMReadscreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
 Call write_value_and_transmit("BILS", 20, 71)
-
 PF9 'into edit mode
 
 Do
@@ -97,8 +99,8 @@ Loop until page_number = " 1"
 
 updates_made = 0 'Setting the variable count
 bils_row = 6
+
 Do
-    'msgbox bils_row
     EMReadScreen BILS_line, 54, bils_row, 26    'Reading BILS line from 'Ref Nbr' through 'Dpd Ind'
     BILS_line = replace(BILS_line, "$", " ")
     BILS_line = split(BILS_line, "  ") 'splitting elements into an array
@@ -109,7 +111,7 @@ Do
         '3 = Gross ($ amt)
         '4 = Third Payments
         '5 = Ver (code)
-    BILS_line(1) = replace(BILS_line(1), " ", "/") 'changing format to be recongized as a date
+    BILS_line(1) = replace(BILS_line(1), " ", "/") 'changing format to be recognized as a date
     If IsDate(BILS_line(1)) = False then exit do
 
     If datediff("d", target_date, BILS_line(1)) => 0 and BILS_line(2) = 27 and BILS_line(5) <> remedial_care_amt then

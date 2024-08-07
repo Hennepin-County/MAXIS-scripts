@@ -41,6 +41,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/16/2023", "Updated Enrollment script with the Enrollment cutoff dates for 2024 so the script is ready for next year processing.", "Casey Love, Hennepin County")
+call changelog_update("10/11/2023", "Open Enrollment Dates updated for 2024.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Updates for AHPS for 2023, updating the enrollment year selection for processing AHPS.##~####~##No changes to plans or capitation dates at this time.", "Casey Love, Hennepin County")
 call changelog_update("03/03/2022", "The script is not able to process enrollments for every recipient, this is particularly dependent on which exclusion the receiptient is currently on. Right now the script is only programed to handle 'YY', 'HH', and 'AA' exclusions. If a recipient has any other exclusion, the enrollment should be processed manually.##~## ##~##The script will now display the fact that it is unable to process these enrollments in the dialog with each individual's enrollment details. It will be clear if an enrollment is not able to be automated by the script before attempting the enrollment to better communicate the script capabilities.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/18/2022", "Medica Plan will no longer default to the contract code of 'MA 30'##~## ##~##All plans will default to the contract code of 'MA 12' and if this selection is not changed manually during the script run, the script will enter the enrollment(s) as 'MA 12'.##~##", "Casey Love, Hennepin County")
@@ -152,7 +154,7 @@ End If
 
 open_enrollment_case = FALSE
 ask_about_oe = FALSE
-nov_cut_off_date = #11/17/2022#
+nov_cut_off_date = #11/17/2023#
 If Month(date) = 10 OR Month(date) = 11 Then
 	If DateDiff("d", date, nov_cut_off_date) >= 0 Then ask_about_oe = TRUE
 End If
@@ -161,7 +163,7 @@ If ask_about_oe = TRUE Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
-		enrollment_year = "23"
+		enrollment_year = "24"
 		open_enrollment_case = TRUE
 		case_open_enrollment_yn = "Yes"
 	End If
@@ -175,31 +177,31 @@ IF open_enrollment_case = FALSE Then
 	this_year = year(date)
 	Select Case this_month
 	    Case "January"
-			cut_off_date = #01/20/2023#
+			cut_off_date = #01/22/2024#
 	    Case "February"
-			cut_off_date = #02/16/2023#
+			cut_off_date = #02/20/2024#
 	    Case "March"
-			cut_off_date = #03/22/2023#
+			cut_off_date = #03/20/2024#
 	    Case "April"
-			cut_off_date = #04/19/2023#
+			cut_off_date = #04/19/2024#
 	    Case "May"
-			cut_off_date = #05/19/2023#
+			cut_off_date = #05/21/2024#
 	    Case "June"
-			cut_off_date = #06/21/2023#
+			cut_off_date = #06/18/2024#
 	    Case "July"
-			cut_off_date = #07/20/2023#
+			cut_off_date = #07/22/2024#
 	    Case "August"
-			cut_off_date = #08/22/2023#
+			cut_off_date = #08/21/2024#
 	    Case "September"
-			cut_off_date = #09/20/2023#
+			cut_off_date = #09/19/2024#
 	    Case "October"
-			cut_off_date = #10/20/2023#
+			cut_off_date = #10/22/2024#
 	    Case "November"
-			if this_year = 2022 Then cut_off_date = #11/17/2022#
 			if this_year = 2023 Then cut_off_date = #11/17/2023#
+			if this_year = 2024 Then cut_off_date = #11/18/2024#
 	    Case "December"
-			if this_year = 2022 Then cut_off_date = #12/20/2022#
 			if this_year = 2023 Then cut_off_date = #12/19/2023#
+			if this_year = 2024 Then cut_off_date = #12/19/2024#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
@@ -247,7 +249,7 @@ Do
 	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 	If case_open_enrollment_yn = "Yes" Then
 		enrollment_month = "01"
-		enrollment_year = "23"
+		enrollment_year = "24"
 		open_enrollment_case = TRUE
 	Else
 		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
@@ -1653,7 +1655,7 @@ Next
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
 If create_case_note = TRUE Then
 	If open_enrollment_case = TRUE Then
-		CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2022 selection")
+		CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 20" & enrollment_year & " selection")
 		If enrollment_source = "Morning Letters" Then
 		ElseIf enrollment_source = "Phone" Then
 			CALL write_variable_in_MMIS_NOTE ("Enrollment requested by " & caller_rela & " via " & enrollment_source)

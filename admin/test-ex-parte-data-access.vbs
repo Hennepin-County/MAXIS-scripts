@@ -221,19 +221,161 @@ ReDim UC_INCOME_ARRAY(va_last_const, 0)
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
+
+
+'===================== STAGE TESTING FOR USAGE LOG
+'Getting user name
+Set objNet = CreateObject("WScript.NetWork")
+user_ID = objNet.UserName
+
+' MsgBox "user_ID - " & user_ID
+If user_ID = "CALO001" Then
+	MsgBox "Selected"
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	SQL_table = "SELECT * from usage_log WHERE SDATE > '2024-01-01'"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	count = 0
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		MsgBox "TABLE INFORMATION: " & vbCr & vbCr &_
+		"USERNAME - " & objRecordSet("USERNAME") & vbCr &_
+		"SDATE - " & objRecordSet("SDATE") & vbCr &_
+		"STIME - " & objRecordSet("STIME") & vbCr &_
+		"SCRIPT_NAME - " & objRecordSet("SCRIPT_NAME") & vbCr &_
+		"SRUNTIME - " & objRecordSet("SRUNTIME") & vbCr &_
+		"CLOSING_MSGBOX - " & objRecordSet("CLOSING_MSGBOX") & vbCr &_
+		"STATS_COUNTER - " & objRecordSet("STATS_COUNTER") & vbCr &_
+		"STATS_MANUALTIME - " & objRecordSet("STATS_MANUALTIME") & vbCr &_
+		"STATS_DENOMINATION - " & objRecordSet("STATS_DENOMINATION") & vbCr &_
+		"WORKER_COUNTY_CODE - " & objRecordSet("WORKER_COUNTY_CODE") & vbCr &_
+		"SCRIPT_SUCCESS - " & objRecordSet("SCRIPT_SUCCESS") & vbCr &_
+		"CASE_NUMBER - " & objRecordSet("CASE_NUMBER") & vbCr & vbCr &_
+		"Count - " & count
+		count = count + 1
+
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+End If
+
+'THIS WAS FOR TESTING THE StaffHeirarchy Table
+' const hsr_name_const 	= 0
+' const hsr_mx_id_const 	= 1
+' const hsr_hc_id_const	= 2
+' const hsr_email_const 	= 3
+' const hss_name_const 	= 4
+' const hss_email_const 	= 6
+' const pm_name_const 	= 7
+' const pm_email_const 	= 9
+
+' 'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
+' Dim WORKER_ARRAY()
+' ReDim WORKER_ARRAY(pm_email_const, 0)
+
+
+' 'Creating objects for Access
+' Set objConnection = CreateObject("ADODB.Connection")
+' Set objRecordSet = CreateObject("ADODB.Recordset")
+
+' SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"				'identifying the table that stores the ES Staff user information
+
+' 'This is the file path the data tables
+' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+' Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+' 	ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
+
+' 	WORKER_ARRAY(hsr_name_const, worker_count) 		= trim(objRecordSet("EmpFullName"))
+' 	WORKER_ARRAY(hsr_mx_id_const, worker_count) 	= trim(objRecordSet("EmpStateLogOnID"))
+' 	WORKER_ARRAY(hsr_hc_id_const, worker_count) 	= trim(objRecordSet("EmpLogOnID"))
+' 	WORKER_ARRAY(hsr_email_const, worker_count) 	= trim(objRecordSet("EmployeeEmail"))
+' 	WORKER_ARRAY(hss_name_const, worker_count) 		= trim(objRecordSet("L1Manager"))
+' 	WORKER_ARRAY(pm_name_const, worker_count) 		= trim(objRecordSet("L2Manager"))
+
+' 	worker_count = worker_count + 1
+
+' 	objRecordSet.MoveNext											'Going to the next row in the table
+' Loop
+
+' 'Now we disconnect from the table and close the connections
+' objRecordSet.Close
+' objConnection.Close
+' Set objRecordSet=nothing
+' Set objConnection=nothing
+
+' Randomize
+' each_wrkr = rnd
+' each_wrkr = each_wrkr*1000
+' each_wrkr = int(each_wrkr)
+
+' MsgBox "This is the information for a random person:" & vbCr &_
+' 		"hsr_name_const - " & WORKER_ARRAY(hsr_name_const, each_wrkr) & vbCr &_
+' 		"hsr_mx_id_const - " & WORKER_ARRAY(hsr_mx_id_const, each_wrkr) & vbCr &_
+' 		"hsr_hc_id_const - " & WORKER_ARRAY(hsr_hc_id_const, each_wrkr) & vbCr &_
+' 		"hsr_email_const - " & WORKER_ARRAY(hsr_email_const, each_wrkr) & vbCr &_
+' 		"hss_name_const - " & WORKER_ARRAY(hss_name_const, each_wrkr) & vbCr &_
+' 		"hss_email_const - " & WORKER_ARRAY(hss_email_const, each_wrkr) & vbCr &_
+' 		"pm_name_const - " & WORKER_ARRAY(pm_name_const, each_wrkr) & vbCr &_
+' 		"pm_email_const - " & WORKER_ARRAY(pm_email_const, each_wrkr)
+
+' Call script_end_procedure("Test is complete, access appears to be sufficient")
+
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call check_for_MAXIS(False)
 
-ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 3, date)), 2)
-ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 3, date)), 2)
+ep_revw_mo = right("00" & DatePart("m",	DateAdd("m", 2, date)), 2)
+ep_revw_yr = right(DatePart("yyyy",	DateAdd("m", 2, date)), 2)
+' ep_revw_mo = "07"
+' ep_revw_yr = "23"
 
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 va_count = 0
 uc_count = 0
 review_date = ep_revw_mo & "/1/" & ep_revw_yr
 review_date = DateAdd("d", 0, review_date)
 
+' 'declare the SQL statement that will query the database
+' objSQL = "SELECT * FROM ES.ES_ExParte_CaseList"' WHERE [HCEligReviewDate] = '" & review_date & "' and [CaseNumber] = '" & MAXIS_case_number & "'"
+' ' objSQL = "SELECT COUNT(*) FROM ES.ES_ExParte_CaseList"
+
+' 'Creating objects for Access
+' Set objConnection = CreateObject("ADODB.Connection")
+' Set objRecordSet = CreateObject("ADODB.Recordset")
+
+' 'This is the file path for the statistics Access database.
+' ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' 'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+' objRecordSet.Open objSQL, objConnection
+' ' row_count = objRecordSet(0).value
+
+' ' MsgBox "row_count - " & row_count
+
+' count = 0
+' Do While NOT objRecordSet.Eof
+' 	If count > 4500 Then
+' 		MsgBox "Case Number - " & objRecordSet("CaseNumber") & vbCr &_
+' 			"HCEligReviewDate - " & objRecordSet("HCEligReviewDate") & vbCr &_
+' 			"count - " & count
+' 	End If
+' 	count = count + 1
+' Loop
+
+' MAXIS_case_number = "124312"
 'Initial Dialog - Case number
 Dialog1 = ""                                        'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 190, 85, "Application Received"
@@ -259,7 +401,54 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+'============== DBO USEAGE LOG TEST ==================================
+
+' stop_time = timer				'TODO - delete when the new data recording function is in place
+' script_run_end_time = time		'TODO - delete when the new data recording function is in place
+' script_run_end_date = date		'TODO - delete when the new data recording function is in place
+' script_run_time = stop_time - start_time
+' trial_name_of_script = "TEST - Database Access Test.vbs"
+' closing_message = "Test complete"
+
+
+' 'Setting constants
+' Const adOpenStatic = 3
+' Const adLockOptimistic = 3
+
+' 'Defaulting script success to successful
+' SCRIPT_success = -1
+
+' 'Creating objects for Access
+' Set objConnection = CreateObject("ADODB.Connection")
+' Set objRecordSet = CreateObject("ADODB.Recordset")
+
+' 'Fixing a bug when the script_end_procedure has an apostrophe (this interferes with Access)
+' closing_message = replace(closing_message, "'", "")
+
+' 'Opening DB
+' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+' objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & stats_database_path & ""
+
+' objRecordSet.Open "INSERT INTO usage_log (USERNAME, SDATE, STIME, SCRIPT_NAME, SRUNTIME, CLOSING_MSGBOX, STATS_COUNTER, STATS_MANUALTIME, STATS_DENOMINATION, WORKER_COUNTY_CODE, SCRIPT_SUCCESS, CASE_NUMBER)" &  _
+' "VALUES ('" & user_ID & "', '" & script_run_end_date & "', '" & script_run_end_time & "', '" & trial_name_of_script & "', " & abs(script_run_time) & ", '" & closing_message & "', " & abs(STATS_counter) & ", " & abs(STATS_manualtime) & ", '" & STATS_denomination & "', '" & worker_county_code & "', " & SCRIPT_success & ", '" & MAXIS_CASE_NUMBER & "')", objConnection, adOpenStatic, adLockOptimistic
+
+' 'Closing the connection
+' objConnection.Close
+
+' Call find_user_name(assigned_worker)
+
+' email_subject = "Database Access Test Completed for " & assigned_worker
+' email_body = "The test was successful."
+
+' Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+
+' Call script_end_procedure("Test Complete.")
+
+
+'======== EX PARTE FUNCTIONALITY ======================================================
+
 MAXIS_case_number = right("00000000" & MAXIS_case_number, 8)
+MsgBox "review_date - " & review_date & vbCr & "MAXIS_case_number - " & MAXIS_case_number
 
 'declare the SQL statement that will query the database
 objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [HCEligReviewDate] = '" & review_date & "' and [CaseNumber] = '" & MAXIS_case_number & "'"
@@ -270,54 +459,95 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
 ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+'THIS USES THE STAGE AREA - NOT PRODUCTION
 objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 objRecordSet.Open objSQL, objConnection
-original_select_ex_parte = objRecordSet("SelectExParte")
 
-all_hc_is_ABD = ""
-SSA_income_exists = ""
-JOBS_income_exists = ""
-VA_income_exists = ""
-BUSI_income_exists = ""
-case_has_no_income = ""
-case_has_EPD = ""
+Do While NOT objRecordSet.Eof
 
-appears_ex_parte = True
-all_hc_is_ABD = True
-case_has_EPD = False
-case_is_in_henn = False
+	original_select_ex_parte = objRecordSet("SelectExParte")
 
-ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
-memb_count = 0
+	all_hc_is_ABD = ""
+	SSA_income_exists = ""
+	JOBS_income_exists = ""
+	VA_income_exists = ""
+	BUSI_income_exists = ""
+	case_has_no_income = ""
+	case_has_EPD = ""
 
-objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
+	appears_ex_parte = True
+	all_hc_is_ABD = True
+	case_has_EPD = False
+	case_is_in_henn = False
 
-'Creating objects for Access
-Set objELIGConnection = CreateObject("ADODB.Connection")
-Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+	ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
+	memb_count = 0
 
-'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-objELIGRecordSet.Open objELIGSQL, objELIGConnection
+	objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & MAXIS_case_number & "'"
 
-Do While NOT objELIGRecordSet.Eof
-	' MsgBox "TABLE PROG - " & objELIGRecordSet("MajorProgram") & vbCr & "TABLE ELIG - " & objELIGRecordSet("EligType")
-' If objELIGRecordSet("MajorProgram") = NULL
-	memb_known = False
-	For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-		If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
-			memb_known = True
-			If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
-				MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
-				MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
-			ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
-				MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= objELIGRecordSet("MajorProgram")
-				MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= objELIGRecordSet("EligType")
-			ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
-				MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
-				MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
+	'Creating objects for Access
+	Set objELIGConnection = CreateObject("ADODB.Connection")
+	Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	'THIS USES THE STAGE AREA - NOT PRODUCTION
+	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objELIGRecordSet.Open objELIGSQL, objELIGConnection
+
+	Do While NOT objELIGRecordSet.Eof
+		' MsgBox "TABLE PROG - " & objELIGRecordSet("MajorProgram") & vbCr & "TABLE ELIG - " & objELIGRecordSet("EligType")
+	' If objELIGRecordSet("MajorProgram") = NULL
+		memb_known = False
+		For known_membs = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+			If trim(objELIGRecordSet("PMINumber")) = MEMBER_INFO_ARRAY(memb_pmi_numb_const, known_membs) Then
+				memb_known = True
+				If MEMBER_INFO_ARRAY(table_prog_1, known_membs) = "" Then
+					MEMBER_INFO_ARRAY(table_prog_1, known_membs) 		= objELIGRecordSet("MajorProgram")
+					MEMBER_INFO_ARRAY(table_type_1, known_membs) 		= objELIGRecordSet("EligType")
+				ElseIf MEMBER_INFO_ARRAY(table_prog_2, known_membs) = "" Then
+					MEMBER_INFO_ARRAY(table_prog_2, known_membs) 		= objELIGRecordSet("MajorProgram")
+					MEMBER_INFO_ARRAY(table_type_2, known_membs) 		= objELIGRecordSet("EligType")
+				ElseIf MEMBER_INFO_ARRAY(table_prog_3, known_membs) = "" Then
+					MEMBER_INFO_ARRAY(table_prog_3, known_membs) 		= objELIGRecordSet("MajorProgram")
+					MEMBER_INFO_ARRAY(table_type_3, known_membs) 		= objELIGRecordSet("EligType")
+				End If
+				If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "DP" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "CK" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "CX" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "CB" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "CM" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "13" Then appears_ex_parte = False 	'TYMA
+				If objELIGRecordSet("EligType") = "14" Then appears_ex_parte = False 	'TYMA
+				If objELIGRecordSet("EligType") = "09" Then appears_ex_parte = False 	'Adoption Assistance
+				If objELIGRecordSet("EligType") = "11" Then appears_ex_parte = False 	'Auto Newborn
+				If objELIGRecordSet("EligType") = "10" Then appears_ex_parte = False 	'Adoption Assistance
+				If objELIGRecordSet("EligType") = "25" Then appears_ex_parte = False 	'Foster Care
+				If objELIGRecordSet("EligType") = "PX" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
+				If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
+
+				If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False
+				If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True
+				If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
 			End If
+		Next
+
+		If memb_known = False Then
+			ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+
+			MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
+			MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
+			MEMBER_INFO_ARRAY(memb_name_const, memb_count) 		= trim(objELIGRecordSet("Name"))
+			MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
+			MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))
+			MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
+
+			' MsgBox "MEMBER_INFO_ARRAY(table_prog_1, memb_count) - " & MEMBER_INFO_ARRAY(table_prog_1, memb_count) & vbCr & "MEMBER_INFO_ARRAY(table_type_1, memb_count) - " & MEMBER_INFO_ARRAY(table_type_1, memb_count)
 			If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
 			If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
 			If objELIGRecordSet("EligType") = "DP" Then appears_ex_parte = False
@@ -338,118 +568,88 @@ Do While NOT objELIGRecordSet.Eof
 			If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False
 			If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True
 			If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
+
+			memb_count = memb_count + 1
+		End if
+		objELIGRecordSet.MoveNext
+	Loop
+	objELIGRecordSet.Close
+	objELIGConnection.Close
+	Set objELIGRecordSet=nothing
+	Set objELIGConnection=nothing
+
+
+	SSA_income_exists = False
+	RR_income_exists = False
+	VA_income_exists = False
+	UC_income_exists = False
+	PRISM_income_exists = False
+	Other_UNEA_income_exists = False
+	JOBS_income_exists = False
+	BUSI_income_exists = False
+
+	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
+
+	'Creating objects for Access
+	Set objIncomeConnection = CreateObject("ADODB.Connection")
+	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	'objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	'THIS USES THE STAGE AREA - NOT PRODUCTION
+	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+
+	Do While NOT objIncomeRecordSet.Eof
+		If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
+			If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "16" Then SSA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
+
+			If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
+
+			If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
+			If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
 		End If
-	Next
+		If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True
+		If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
 
-	If memb_known = False Then
-		ReDim Preserve MEMBER_INFO_ARRAY(memb_last_const, memb_count)
+		objIncomeRecordSet.MoveNext
+	Loop
+	objIncomeRecordSet.Close
+	objIncomeConnection.Close
+	Set objIncomeRecordSet=nothing
+	Set objIncomeConnection=nothing
 
-		MEMBER_INFO_ARRAY(memb_pmi_numb_const, memb_count) 	= trim(objELIGRecordSet("PMINumber"))
-		MEMBER_INFO_ARRAY(memb_ssn_const, memb_count) 		= trim(objELIGRecordSet("SocialSecurityNbr"))
-		MEMBER_INFO_ARRAY(memb_name_const, memb_count) 		= trim(objELIGRecordSet("Name"))
-		MEMBER_INFO_ARRAY(memb_active_hc_const, memb_count)	= True
-		MEMBER_INFO_ARRAY(table_prog_1, memb_count) 		= trim(objELIGRecordSet("MajorProgram"))
-		MEMBER_INFO_ARRAY(table_type_1, memb_count) 		= trim(objELIGRecordSet("EligType"))
-
-		' MsgBox "MEMBER_INFO_ARRAY(table_prog_1, memb_count) - " & MEMBER_INFO_ARRAY(table_prog_1, memb_count) & vbCr & "MEMBER_INFO_ARRAY(table_type_1, memb_count) - " & MEMBER_INFO_ARRAY(table_type_1, memb_count)
-		If objELIGRecordSet("EligType") = "AX" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "AA" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "DP" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "CK" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "CX" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "CB" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "CM" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "13" Then appears_ex_parte = False 	'TYMA
-		If objELIGRecordSet("EligType") = "14" Then appears_ex_parte = False 	'TYMA
-		If objELIGRecordSet("EligType") = "09" Then appears_ex_parte = False 	'Adoption Assistance
-		If objELIGRecordSet("EligType") = "11" Then appears_ex_parte = False 	'Auto Newborn
-		If objELIGRecordSet("EligType") = "10" Then appears_ex_parte = False 	'Adoption Assistance
-		If objELIGRecordSet("EligType") = "25" Then appears_ex_parte = False 	'Foster Care
-		If objELIGRecordSet("EligType") = "PX" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "PC" Then appears_ex_parte = False
-		If objELIGRecordSet("EligType") = "BC" Then appears_ex_parte = False
-
-		If appears_ex_parte = False AND objELIGRecordSet("EligType") <> "DP" Then all_hc_is_ABD = False
-		If objELIGRecordSet("EligType") = "DP" Then case_has_EPD = True
-		If objELIGRecordSet("MajorProgram") = "EH" Then appears_ex_parte = False
-
-		memb_count = memb_count + 1
-	End if
-	objELIGRecordSet.MoveNext
+	Exit Do
 Loop
-objELIGRecordSet.Close
-objELIGConnection.Close
-Set objELIGRecordSet=nothing
-Set objELIGConnection=nothing
-
-
-SSA_income_exists = False
-RR_income_exists = False
-VA_income_exists = False
-UC_income_exists = False
-PRISM_income_exists = False
-Other_UNEA_income_exists = False
-JOBS_income_exists = False
-BUSI_income_exists = False
-
-objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
-
-'Creating objects for Access
-Set objIncomeConnection = CreateObject("ADODB.Connection")
-Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
-
-'This is the file path for the statistics Access database.
-' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
-objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
-
-Do While NOT objIncomeRecordSet.Eof
-	If objIncomeRecordSet("IncExpTypeCode") = "UNEA" Then
-		If objIncomeRecordSet("IncomeTypeCode") = "01" Then SSA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "02" Then SSA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "03" Then SSA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "16" Then SSA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "11" Then VA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "12" Then VA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "13" Then VA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "38" Then VA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "14" Then UC_income_exists = True
-
-		If objIncomeRecordSet("IncomeTypeCode") = "36" Then PRISM_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "37" Then PRISM_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "39" Then PRISM_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "40" Then PRISM_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "36" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "37" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "39" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "40" Then Other_UNEA_income_exists = True
-
-		If objIncomeRecordSet("IncomeTypeCode") = "06" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "15" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "17" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "18" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "23" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "24" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "25" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "26" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "27" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "28" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "29" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "08" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "35" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "43" Then Other_UNEA_income_exists = True
-		If objIncomeRecordSet("IncomeTypeCode") = "47" Then Other_UNEA_income_exists = True
-	End If
-	If objIncomeRecordSet("IncExpTypeCode") = "JOBS" Then JOBS_income_exists = True
-	If objIncomeRecordSet("IncExpTypeCode") = "BUSI" Then BUSI_income_exists = True
-
-	objIncomeRecordSet.MoveNext
-Loop
-objIncomeRecordSet.Close
-objIncomeConnection.Close
-Set objIncomeRecordSet=nothing
-Set objIncomeConnection=nothing
-
 
 If appears_ex_parte = True Then
 
@@ -589,7 +789,17 @@ Set objUpdateConnection = CreateObject("ADODB.Connection")
 Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
 'This is the file path for the statistics Access database.
+
+'objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+'THIS USES THE STAGE AREA - NOT PRODUCTION
 objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+
+Call find_user_name(assigned_worker)
+
+email_subject = "Ex Parte Access Test Completed for " & assigned_worker
+email_body = "The test was successful."
+
+Call create_outlook_email("", "hsph.ews.bluezonescripts@hennepin.us", "", "", email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 Call script_end_procedure("Test review complete")

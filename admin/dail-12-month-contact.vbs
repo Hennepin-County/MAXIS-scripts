@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
 call changelog_update("06/26/2023", "Resolved issue with exit functionality when a case load doesn't have a specific DAIL message type.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/07/2022", "Resolved bug for privileged cases failing.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/02/2022", "Resolved bug in reading the Case Number if more than one TIKL message on a case.", "Ilse Ferris, Hennepin County")
@@ -92,6 +93,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False)
+Call check_MAXIS_environment("PRODUCTION", false)
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -290,11 +292,7 @@ For item = 0 to Ubound(DAIL_array, 2)
         Call write_variable_in_SPEC_MEMO("************************************************************")
         Call write_variable_in_SPEC_MEMO("This notice is to remind you to report changes to your county worker by the 10th of the month following the month of the change. Changes that must be reported are address, people in your household, income, shelter costs and other changes such as legal obligation to pay child support. If you don't know whether to report a change, contact your county worker.")
 		CALL write_variable_in_SPEC_MEMO("")
-		CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-		CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-		CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-		CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
-		CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
+		CALL digital_experience
         Call write_variable_in_SPEC_MEMO("************************************************************")
         PF4
         EmReadscreen memo_confirmation, 26, 24, 2

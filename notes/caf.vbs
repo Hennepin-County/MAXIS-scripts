@@ -50,6 +50,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/23/2024", "Added 'Pregnant' FSET status and 'ABAWD Banked Months' ABAWD status to TLR/ABAWD Dialog.", "Ilse Ferris, Hennepin County")
+call changelog_update("10/11/2023", "Bug Fix - sometimes there was an issue if the NOTES - CAF script found a program at application and recertification with dealing with potential multiple forms and dates. This update should resolve any errors in these rare situations.", "Casey Love, Hennepin County")
 call changelog_update("07/28/2023", "Two updates to this script:##~####~##1. Added the form DHS-2128 (Renewal for People Receiving MA-LTC) as an option. Be aware the script will not work if SNAP or  cash programs other than GRH are at recertification.##~##2. The script can redirect to the script NOTES - Health Care Evaluation if there is no CAF process found and there is Health Care on the case, and the form can be used on Health Care.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 Call changelog_update("07/11/2023", "The CAF script will no longer allow for the selection of programs, MAXIS program status will inform which programs are included in the review of the case. ##~## ##~##It is vital that MAXIS is updated entirely before using the CAF script. In particular, the script will not operate if the CAF/Form Dates and Interview Dates have not been entered in the correct fields of MAXIS. ##~## ##~##It is best practice to run the CAF script PRIOR to any 'APP' as MAXIS updates are still possible and the display during the script run can support a secondary review of case details.##~##", "Casey Love, Hennepin County")
@@ -3357,6 +3359,7 @@ function read_BUSI_panel()
     If income_type = "07" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "07 - In Home Daycare"
     If income_type = "08" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "08 - Rental Income"
     If income_type = "09" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "09 - Other"
+    If income_type = "09" Then ALL_BUSI_PANELS_ARRAY(busi_type, busi_count) = "10 - Lived Experience"
     ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, busi_count) = trim(retro_rpt_hrs)
     ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, busi_count) = trim(prosp_rpt_hrs)
     ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, busi_count) = trim(retro_min_wg_hrs)
@@ -4887,7 +4890,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     te_02_10_01_btn					= 510
 
     hsr_manual_expedited_snap_btn 	= 1000
-    hsr_snap_applications_btn		= 1100
+    hsr_applications_btn	    	= 1100
     ryb_exp_identity_btn			= 1200
     ryb_exp_timeliness_btn			= 1300
     sir_exp_flowchart_btn			= 1400
@@ -4969,7 +4972,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     				' GroupBox 5, 220, 390, 100, "Supports"
     				' Text 15, 235, 260, 10, "If you need support in handling for expedited, please access these resources:"
     			    ' PushButton 25, 250, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-    				' PushButton 25, 265, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+    				' PushButton 25, 265, 150, 13, "HSR Manual - Applications", hsr_applications_btn
     				' PushButton 25, 280, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
     				' PushButton 25, 295, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
     			    ' PushButton 180, 250, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
@@ -5100,7 +5103,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     			End If
     			GroupBox 5, 295, 470, 60, "If you need support in handling for expedited, please access these resources:"
     			PushButton 15, 305, 150, 13, "HSR Manual - Expedited SNAP", hsr_manual_expedited_snap_btn
-    			PushButton 15, 320, 150, 13, "HSR Manual - SNAP Applications", hsr_snap_applications_btn
+    			PushButton 15, 320, 150, 13, "HSR Manual - Applications", hsr_applications_btn
     			PushButton 15, 335, 150, 13, "SIR - SNAP Expedited Flowchart", sir_exp_flowchart_btn
     			PushButton 165, 305, 150, 13, "Retrain Your Brain - Expedited - Identity", ryb_exp_identity_btn
     			PushButton 165, 320, 150, 13, "Retrain Your Brain - Expedited - Timeliness", ryb_exp_timeliness_btn
@@ -5242,7 +5245,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
 
     		If ButtonPressed >= 1000 Then
     			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
-    			If ButtonPressed = hsr_snap_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/SNAP_Applications.aspx"
+    			If ButtonPressed = hsr_applications_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx"
     			If ButtonPressed = ryb_exp_identity_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%201%20-%20Identity.mp4"
     			If ButtonPressed = ryb_exp_timeliness_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/Retrain_Your_Brain/SNAP%20Expedited%202%20-%20Timeliness.mp4"
     			If ButtonPressed = sir_exp_flowchart_btn Then resource_URL = "https://www.dhssir.cty.dhs.state.mn.us/MAXIS/Documents/SNAP%20Expedited%20Service%20Flowchart.pdf"
@@ -5599,8 +5602,6 @@ If vars_filled = False Then
 	EMReadScreen case_name_for_data_table, 25, 21, 40
 	case_name_for_data_table = trim(case_name_for_data_table)
 
-	CM_minus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
-	CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
 	cash_terminated_revw_date = ""
 	grh_terminated_revw_date = ""
 	snap_terminated_revw_date = ""
@@ -6259,6 +6260,7 @@ If vars_filled = False Then
 					Text 20, y_pos, 200, 10, "SNAP benefit is a part of MFIP Grant"
 					y_pos = y_pos + 15
 				End If
+
 				If SNAP_checkbox = checked Then
 					If snap_with_mfip = False Then Text 15, y_pos + 5, 20, 10, "SNAP"
 					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
@@ -6267,6 +6269,7 @@ If vars_filled = False Then
 					If allow_SNAP_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack SNAP", untrack_snap_btn
 					y_pos = y_pos + 20
 				End If
+
 				If HC_checkbox = checked Then
 					Text 15, y_pos + 5, 40, 10, "Health Care"
 					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Recertification", the_process_for_hc
@@ -6275,6 +6278,7 @@ If vars_filled = False Then
 					If allow_HC_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack HC", untrack_hc_btn
 					y_pos = y_pos + 20
 				End If
+
 				If EMER_checkbox = checked Then
 					Text 15, y_pos+5, 40, 10, "EMER"
 					DropListBox 35, y_pos, 45, 45, "Select"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
@@ -6392,6 +6396,70 @@ If vars_filled = False Then
 
 			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
 
+			'This part of the script will reset the CAF date and Interview date and reassess if there are multiple dates for the next loop.
+			'This way if a program is untracked - it won't force date information or form information for a program process that is not being handled with the script run
+			If err_msg = "LOOP" Then
+				RECERT_being_assessed = False			'default these to false
+				APPL_being_assessed = False
+
+				'assess each program and process to determine if we are looking at RECERTS or APPLs
+				If CASH_checkbox = checked Then
+					If the_process_for_cash = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_cash = "Application" Then APPL_being_assessed = True
+				End If
+				If GRH_checkbox = checked Then
+					If the_process_for_grh = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_grh = "Application" Then APPL_being_assessed = True
+				End If
+				If SNAP_checkbox = checked Then
+					If the_process_for_snap = "Recertification" Then RECERT_being_assessed = True
+					If the_process_for_snap = "Application" Then APPL_being_assessed = True
+				End If
+				If EMER_checkbox = checked Then APPL_being_assessed = True
+
+				'If there is neither recert of appl process, the script will 'recheck' the program and loop back
+				If RECERT_being_assessed = False and APPL_being_assessed = False Then
+					err_msg = err_msg & vbCr & "* No programs appear to be selected. The script can only operate if at least one program is selected. The script has NOT 'untracked' the selected program."
+					If ButtonPressed = untrack_cash_btn Then CASH_checkbox = checked
+					If ButtonPressed = untrack_grh_btn Then GRH_checkbox = checked
+					If ButtonPressed = untrack_snap_btn Then SNAP_checkbox = checked
+					If ButtonPressed = untrack_snap_btn Then original_snap_with_mfip = snap_with_mfip
+					If ButtonPressed = untrack_hc_btn Then HC_checkbox = checked
+					If ButtonPressed = untrack_emer_btn Then EMER_checkbox = checked
+				Else
+					'if there is recert or appl, the script here will reset the dates.
+					multiple_CAF_dates = False				'default multiple dates to false
+					multiple_interview_dates = False
+
+					'If both recert and appl programs, the script will determine which date is older to assign it to the CAF and Interview date
+					If RECERT_being_assessed = True and APPL_being_assessed = True Then
+						If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
+							CAF_datestamp = REVW_CAF_datestamp
+							If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
+							multiple_CAF_dates = True
+						Else
+							If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
+							If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
+						End If
+
+						If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
+							interview_date = REVW_interview_date
+							If DateDiff("d", PROG_interview_date, REVW_interview_date) Then interview_date = PROG_interview_date
+							multiple_interview_dates = True
+						Else
+							If PROG_interview_date <> "" Then interview_date = PROG_interview_date
+							If REVW_interview_date <> "" Then interview_date = REVW_interview_date
+						End If
+					ElseIf RECERT_being_assessed = True Then		'set if only recert
+						CAF_datestamp = REVW_CAF_datestamp
+						interview_date = REVW_interview_date
+					Else											'set if only APPL
+						CAF_datestamp = PROG_CAF_datestamp
+						interview_date = PROG_interview_date
+					End If
+				End If
+
+			End If
 
 			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -8269,9 +8337,9 @@ Do
                                       GroupBox 5, y_pos, 540, 95, "Member " & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " - " & ALL_MEMBERS_ARRAY(clt_name, each_member)
                                       y_pos = y_pos + 20
                                       Text 15, y_pos, 70, 10, "FSET WREG Status:"
-                                      DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
+                                      DropListBox 90, y_pos - 5, 130, 45, " "+chr(9)+"03  Unfit for Employment"+chr(9)+"04  Responsible for Care of Another"+chr(9)+"05  Age 60+"+chr(9)+"06  Under Age 16"+chr(9)+"07  Age 16-17, live w/ parent"+chr(9)+"08  Care of Child <6"+chr(9)+"09  Employed 30+ hrs/wk"+chr(9)+"10  Matching Grant"+chr(9)+"11  Unemployment Insurance"+chr(9)+"12  Enrolled in School/Training"+chr(9)+"13  CD Program"+chr(9)+"14  Receiving MFIP"+chr(9)+"20  Pend/Receiving DWP"+chr(9)+"15  Age 16-17 not live w/ Parent"+chr(9)+"16  50-59 Years Old"+chr(9)+"21  Care child < 18"+chr(9)+"17  Receiving RCA or GA"+chr(9)+"23  Pregnant"+chr(9)+"30  FSET Participant"+chr(9)+"02  Fail FSET Coop"+chr(9)+"33  Non-coop being referred"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_wreg_status, each_member)
                                       Text 230, y_pos, 55, 10, "ABAWD Status:"
-                                      DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
+                                      DropListBox 285, y_pos - 5, 110, 45, " "+chr(9)+"01  WREG Exempt"+chr(9)+"02  Under Age 18"+chr(9)+"03  Age 50+"+chr(9)+"04  Caregiver of Minor Child"+chr(9)+"05  Pregnant"+chr(9)+"06  Employed 20+ hrs/wk"+chr(9)+"07  Work Experience"+chr(9)+"08  Other E and T"+chr(9)+"09  Waivered Area"+chr(9)+"10  ABAWD Counted"+chr(9)+"11  Second Set"+chr(9)+"12  RCA or GA Participant"+chr(9)+"13  ABAWD Banked Months"+chr(9)+"Blank", ALL_MEMBERS_ARRAY(clt_abawd_status, each_member)
                                       CheckBox 405, y_pos - 5, 130, 10, "Check here if this person is the PWE", ALL_MEMBERS_ARRAY(pwe_checkbox, each_member)
                                       y_pos = y_pos + 20
                                       Text 15, y_pos, 145, 10, "Number of ABAWD months used in past 36:"
@@ -10449,88 +10517,5 @@ END IF
 end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Eligibility Summary script if results have been approved in MAXIS ('APP' completed)."
 
 save_your_work
-
-revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
-If unknown_cash_pending = True Then revw_pending_table = True                   'case should be pending cash or snap and NOT have SNAP active
-If ga_status = "PENDING" Then revw_pending_table = True
-If msa_status = "PENDING" Then revw_pending_table = True
-If mfip_status = "PENDING" Then revw_pending_table = True
-If dwp_status = "PENDING" Then revw_pending_table = True
-If grh_status = "PENDING" Then revw_pending_table = True
-If snap_status = "PENDING" Then revw_pending_table = True
-If snap_status = "ACTIVE" Then revw_pending_table = False
-
-'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
-If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
-	MAXIS_case_number = trim(MAXIS_case_number)
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
-
-    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
-
-    If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
-    If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
-    If ma_status = "REIN" Then hc_stat_code = "R"
-    If ma_status = "PENDING" Then hc_stat_code = "P"
-    If msp_status = "INACTIVE" Or msp_status = "APP CLOSE" Then hc_stat_code = "I"
-    If msp_status = "ACTIVE" Or msp_status = "APP OPEN" Then hc_stat_code = "A"
-    If msp_status = "REIN" Then hc_stat_code = "R"
-    If msp_status = "PENDING" Then hc_stat_code = "P"
-    If unknown_hc_pending = True Then hc_stat_code = "P"
-
-    If ga_status = "PENDING" Then ga_stat_code = "P"
-    If ga_status = "REIN" Then ga_stat_code = "R"
-    If ga_status = "ACTIVE" Or ga_status = "APP OPEN" Then ga_stat_code = "A"
-    If ga_status = "INACTIVE" Or ga_status = "APP CLOSE" Then ga_stat_code = "I"
-
-    If grh_status = "PENDING" Then grh_stat_code = "P"
-    If grh_status = "REIN" Then grh_stat_code = "R"
-    If grh_status = "ACTIVE" Or grh_status = "APP OPEN" Then grh_stat_code = "A"
-    If grh_status = "INACTIVE" Or grh_status = "APP CLOSE" Then grh_stat_code = "I"
-
-    If emer_status = "PENDING" Then emer_stat_code = "P"
-    If emer_status = "REIN" Then emer_stat_code = "R"
-    If emer_status = "ACTIVE" Or emer_status = "APP OPEN" Then emer_stat_code = "A"
-    If emer_status = "INACTIVE" Or emer_status = "APP CLOSE" Then emer_stat_code = "I"
-
-    If mfip_status = "PENDING" Then mfip_stat_code = "P"
-    If mfip_status = "REIN" Then mfip_stat_code = "R"
-    If mfip_status = "ACTIVE" Or mfip_status = "APP OPEN" Then mfip_stat_code = "A"
-    If mfip_status = "INACTIVE" Or mfip_status = "APP CLOSE" Then mfip_stat_code = "I"
-
-    If snap_status = "PENDING" Then snap_stat_code = "P"
-    If snap_status = "REIN" Then snap_stat_code = "R"
-    If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
-    If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
-
-    appears_expedited_for_data_table = 1                                        'Setting if case is Expedited or not based on information in the Determination.
-    If is_elig_XFS = False Then appears_expedited_for_data_table = 0
-
-    If IsDate(CAF_datestamp) = True Then CAF_datestamp = DateAdd("d", 0, CAF_datestamp)     'make sure that CAF date is formatted as a date
-
-    'Setting constants
-    Const adOpenStatic = 3
-    Const adLockOptimistic = 3
-
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-    'delete a record if the case number matches
-    objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-
-    'if one was found we are going to delete that record
-    If current_case_record_found = True Then objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-
-    'Add a new record with this case information'
-    objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & CAF_datestamp & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & appears_expedited_for_data_table & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
-
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-End If
 
 script_end_procedure_with_error_report(end_msg)

@@ -172,6 +172,9 @@ function declare_tabbed_menu(tab_selected)
                                     ' MsgBox "Tag matched - " & tag_matched
                                 Next
                                 If tag_matched = FALSE Then script_array(current_script).show_script = FALSE
+								If IsDate(script_array(current_script).retirement_date) = TRUE Then
+									If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+								End If
                                 ' If tag_matched = TRUE Then MsgBox script_array(current_script).script_name & vbNewLine & "list this script - " & list_this_script
                             Else
                                 script_array(current_script).show_script = FALSE

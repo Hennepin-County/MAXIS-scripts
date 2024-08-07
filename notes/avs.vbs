@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/27/2024", "Updated the name of AVS to Asset Verification Service.", "Dave Courtright, Hennepin County")
+call changelog_update("02/22/2024", "Enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/26/2023", "Disabled renewal option due to asset diregard through 05/31/2024.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/01/2023", "Updated AVS Portal Case Review reminder for 11th day after submitting an Ad-Hoc request.", "Mark Riegel, Hennepin County")
 call changelog_update("03/20/2023", "Added Change in Basis option, and enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
@@ -68,7 +70,7 @@ If MAXIS_case_number = "" then
     If DAIL_panel = "DAIL" then
         EmReadscreen MAXIS_case_number, 8, 5, 73
         MAXIS_case_number = trim(MAXIS_case_number)
-        'Defauling initial option based on the dail message.
+        'Defaulting initial option based on the dail message.
         EMReadScreen full_message, 60, 6, 20
         full_message = trim(full_message)
         If Instr(full_message, "AVS 10-DAY CHECK IS DUE") then
@@ -81,8 +83,8 @@ End if
 
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
-"The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
-"If a resident is already on a MHCP with an asset test or a MHCP with an asset test isn't being applied for then the AVS should not be run. This verification is not meant for any other public assistance programs besides health care."
+"The Asset Verification Service (AVS) is a web-based service that provides information and verification of some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test. It is also used at renewal to verify certain assets." & vbNewLine & vbNewLine & _
+"If a resident is applying for an MHCP without an asset test then the AVS should not be run. This verification is not meant for any other public assistance programs besides health care."
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
@@ -90,8 +92,7 @@ BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
   ButtonGroup ButtonPressed
   PushButton 135, 10, 10, 15, "!", initial_help_button
   DropListBox 75, 30, 105, 15, "Select one..."+chr(9)+"AVS Forms"+chr(9)+"AVS Submission/Results", initial_option
-  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis", HC_process
-  'DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   ButtonGroup ButtonPressed
     OkButton 75, 65, 40, 15
     CancelButton 120, 65, 40, 15
@@ -120,7 +121,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-If is_this_priv = True then script_end_procedure("This case is privilged, and you do not have access. The script will now end.")
+If is_this_priv = True then script_end_procedure("This case is privileged, and you do not have access. The script will now end.")
 
 EmReadscreen county_code, 4, 21, 21
 If county_code <> UCASE(worker_county_code) then script_end_procedure("This case is an out-of-county case, and cannot be case noted. The script will now end.")
@@ -129,7 +130,7 @@ If county_code <> UCASE(worker_county_code) then script_end_procedure("This case
 'Setting up main array
 avs_membs = 0       'incrementor for array
 Dim avs_members_array()
-ReDim avs_members_array(additional_info_const, 0)   'redimmied to the size of the last constant
+ReDim avs_members_array(additional_info_const, 0)   'redimmed to the size of the last constant
 const member_number_const      = 0
 const member_info_const        = 1
 const member_name_const        = 2
@@ -180,7 +181,7 @@ DO
     End if
 
     If add_to_array = True then
-        ReDim Preserve avs_members_array(additional_info_const, avs_membs)  'redimmied to the size of the last constant
+        ReDim Preserve avs_members_array(additional_info_const, avs_membs)  'redimmed to the size of the last constant
         avs_members_array(member_info_const,    avs_membs) = ref_nbr & " " & last_name & first_name
         avs_members_array(member_number_const,  avs_membs) = ref_nbr
         avs_members_array(member_name_const,    avs_membs) = first_name & "" & last_name
@@ -194,7 +195,7 @@ DO
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
-'Handling in case no members are idenified as needing the form. Helping to reduce errors for workers.
+'Handling in case no members are identified as needing the form. Helping to reduce errors for workers.
 If avs_membs = 0 then script_end_procedure_with_error_report("No members on this case are required by policy to sign the AVS form. Please review case if necessary.")
 
 Call navigate_to_MAXIS_screen("STAT", "MEMI")   'Finding marital status to add to array
@@ -287,7 +288,7 @@ Do
         "- People who are applying for or enrolled in MA for people who are age 65 or older, blind or have a disability," & vbNewLine & vbNewLine & _
         "- The person's spouse, unless the person is applying for or enrolled in MA-EPD, or the person has one of the following waivers: Brain Injury (BI), Community Alternative Care (CAC), Community Access for Disability Inclusion (CADI), and Developmental Disabilities (DD)." & vbNewLine & vbNewLine & _
         "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country." & vbNewLine & vbNewLine & _
-        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)."
+        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Asset Verification Service (AVS)."
 
         help_button_2_text = "*** What date should I enter here? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
         "The Form Status will determine what you will enter in this field." & vbNewLine & vbNewLine & _
@@ -305,7 +306,7 @@ Do
         "- People who are applying for or enrolled in MA for people who are age 65 or older, blind or have a disability," & vbNewLine & vbNewLine & _
         "- The person's spouse, unless the person is applying for or enrolled in MA-EPD, or the person has one of the following waivers: Brain Injury (BI), Community Alternative Care (CAC), Community Access for Disability Inclusion (CADI), and Developmental Disabilities (DD)." & vbNewLine & vbNewLine & _
         "- The sponsor of the person or the person's spouse. A sponsor is someone who signed an Affidavit of Support (USCIS I-864) as a condition of the person's or his or her spouse's entry to the country." & vbNewLine & vbNewLine & _
-        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Account Validation Service (AVS)."
+        "Information Source: DHS-7823 Form - Authorization to Obtain Financial Information from the Asset Verification Service (AVS)."
 
         help_button_2_text = "*** What date should I enter here? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
         "The AVS Status will determine what you will enter in this field. These will usually be the current date." & vbNewLine & vbNewLine & _
@@ -347,7 +348,7 @@ Do
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-    'Reziing the array based on who was selected in the previous dialog. Revaluing the array if selected or checked in the previous dialog.
+    'Resizing the array based on who was selected in the previous dialog. Revaluing the array if selected or checked in the previous dialog.
     resize_counter = 0
     For item = 0 to UBound(avs_members_array, 2)
         If avs_members_array(checked_const, item) = 1 Then
@@ -452,7 +453,7 @@ Do
     For item = 0 to ubound(avs_members_array, 2)
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then
             STATS_counter = STATS_counter + 1
-            'avs results information if any mambers meets review resutls or results after decision
+            'avs results information if any members meets review results or results after decision
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 351, 110, "Asset Information Dialog"
                 GroupBox 5, 5, 340, 80, avs_members_array(avs_status_const, item) & " for "  & avs_members_array(member_info_const, item) & ":"
@@ -558,7 +559,7 @@ Do
         Next
     End if
 
-    'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
     If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 11, date, False, TIKL_note_text)
     If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
@@ -604,7 +605,7 @@ Do
             End if
             Call write_bullet_and_variable_in_CASE_NOTE("AVS Forms " & forms_text & " Date", avs_members_array(avs_date_const, item))
         End if
-        'AVS Submission/Resutls selections
+        'AVS Submission/Results selections
         If initial_option = "AVS Submission/Results" then
             Call write_bullet_and_variable_in_CASE_NOTE("Request Type", avs_members_array(request_type_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE("AVS Status", avs_members_array(avs_status_const, item))

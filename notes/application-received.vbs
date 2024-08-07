@@ -53,6 +53,12 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("05/23/2024", "Added contracted caseload selection for HCMC and North Memorial.", "Casey Love, Hennepin County.")
+Call changelog_update("04/29/2024", "Enhanced SPEC/XFER reminder when ransferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
+Call changelog_update("04/27/2024", "Added reminder option prior to SPEC/XFER about transferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
+call changelog_update("03/25/2024", "Update to alight with Caseload Assignment and Transfer Process updates. This functionality supports a large number of Caseloads and reduces the transfering of cases within the county. There is also support to reduce the number of caseloads with PND2 display limits.", "Casey Love, Hennepin County")
+call changelog_update("01/22/2023", "BUG FIX - the script would error anytime an apostrophe (') was in the case name when loading into a data table at the very end. This fix will resolve this error by substituting a dash in place of the apostrophe.", "Casey Love, Hennepin County")
+call changelog_update("09/22/2023", "Updated format of appointment notice and digital experience in SPEC/MEMO", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 CALL changelog_update("04/24/2023", "Changed the CASE/NOTE for the Expedited Screening to a standard number format and align for easier viewing.", "Casey Love, Hennepin County")
 call changelog_update("03/22/2023", "Updated form names and simplified selections for how an application is received by the Case Assignment team. Updated email verbiage on a response to the 'Request for APPL' form. These updates are meant to align the script to official language and information.", "Casey Love, Hennepin County")
@@ -120,25 +126,370 @@ CALL changelog_update("08/07/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+set caseload_info = CreateObject("Scripting.Dictionary")
+
+caseload_info.add "X127FA5", "YET"
+' caseload_info.add "X127F3P", "Families - General"		- this is MAEPD
+caseload_info.add "X127ES1", "Families - General"
+caseload_info.add "X127ES2", "Families - General"
+caseload_info.add "X127ES3", "Families - General"
+caseload_info.add "X127ES4", "Families - General"
+caseload_info.add "X127ES5", "Families - General"
+caseload_info.add "X127ES6", "Families - General"
+caseload_info.add "X127ES7", "Families - General"
+caseload_info.add "X127ES8", "Families - General"
+caseload_info.add "X127ES9", "Families - General"
+caseload_info.add "X127ET1", "Families - General"
+caseload_info.add "X127ET2", "Families - General"
+caseload_info.add "X127ET3", "Families - General"
+caseload_info.add "X127ET4", "Families - General"
+caseload_info.add "X127ET5", "Families - General"
+caseload_info.add "X127ET6", "Families - General"
+caseload_info.add "X127ET7", "Families - General"
+caseload_info.add "X127ET8", "Families - General"
+caseload_info.add "X127ET9", "Families - General"
+caseload_info.add "X127EZ1", "Families - General"
+caseload_info.add "X127EY9", "Families - Cash"
+' caseload_info.add "X127EY8", "Families - Cash"		removed from assignment selection until additional process clarification can be identified. There are concerns with all cases being entered into a single basket with pending status.
+caseload_info.add "X127EN6", "TEFRA"
+caseload_info.add "X127FG1", "Foster Care / IV-E"
+caseload_info.add "X127EW6", "Foster Care / IV-E"
+caseload_info.add "X1274EC", "Foster Care / IV-E"
+caseload_info.add "X127FG2", "Foster Care / IV-E"
+caseload_info.add "X127EW4", "Foster Care / IV-E"
+caseload_info.add "X127EE1", "Adults - General"
+caseload_info.add "X127EE2", "Adults - General"
+caseload_info.add "X127EE3", "Adults - General"
+caseload_info.add "X127EE4", "Adults - General"
+caseload_info.add "X127EE5", "Adults - General"
+caseload_info.add "X127EE6", "Adults - General"
+caseload_info.add "X127EE7", "Adults - General"
+caseload_info.add "X127EL1", "Adults - General"
+caseload_info.add "X127EL2", "Adults - General"
+caseload_info.add "X127EL3", "Adults - General"
+caseload_info.add "X127EL4", "Adults - General"
+caseload_info.add "X127EL5", "Adults - General"
+caseload_info.add "X127EL6", "Adults - General"
+caseload_info.add "X127EL7", "Adults - General"
+caseload_info.add "X127EL8", "Adults - General"
+caseload_info.add "X127EL9", "Adults - General"
+caseload_info.add "X127EN1", "Adults - General"
+caseload_info.add "X127EN2", "Adults - General"
+caseload_info.add "X127EN3", "Adults - General"
+caseload_info.add "X127EN4", "Adults - General"
+caseload_info.add "X127EN5", "Adults - General"
+caseload_info.add "X127EN7", "Adults - General"
+caseload_info.add "X127EN8", "Adults - General"
+caseload_info.add "X127EN9", "Adults - General"
+' caseload_info.add "X127EP6", "Adults - General"
+caseload_info.add "X127EQ1", "Adults - General"
+caseload_info.add "X127EQ2", "Adults - General"
+caseload_info.add "X127EQ4", "Adults - General"
+caseload_info.add "X127EQ5", "Adults - General"
+caseload_info.add "X127EQ6", "Adults - General"
+caseload_info.add "X127EQ7", "Adults - General"
+caseload_info.add "X127EQ8", "Adults - General"
+caseload_info.add "X127EQ9", "Adults - General"
+caseload_info.add "X127EX1", "Adults - General"
+caseload_info.add "X127EX2", "Adults - General"
+caseload_info.add "X127EX3", "Adults - General"
+caseload_info.add "X127EX4", "Adults - General"
+caseload_info.add "X127EX5", "Adults - General"
+caseload_info.add "X127EX7", "Adults - General"
+caseload_info.add "X127EX8", "Adults - General"
+caseload_info.add "X127EX9", "Adults - General"
+caseload_info.add "X127EM8", "GRH / HS"
+caseload_info.add "X127EG4", "MIPPA"
+caseload_info.add "X127F3D", "MA - BC"
+caseload_info.add "X127EK4", "LTC+ - General"
+caseload_info.add "X127EK9", "LTC+ - General"
+caseload_info.add "X127EF8", "1800 - Team 160"
+caseload_info.add "X127EF9", "1800 - Team 160"
+caseload_info.add "X1275H5", "Privileged Cases"
+caseload_info.add "X127FAT", "Privileged Cases"
+caseload_info.add "X127F3H", "Privileged Cases"
+caseload_info.add "X127FF5", "Contracted - North Ridge Facilities"
+caseload_info.add "X127FG7", "Contracted - Monarch Facilities Contract"
+caseload_info.add "X127EM4", "Contracted - A Villa Facilities Contract"
+caseload_info.add "X127EW8", "Contracted - Ebenezer Care Center/ Martin Luther Care Center"
+
+caseload_info.add "X127FF8", "Contracted - North Memorial"
+caseload_info.add "X127FF6", "Contracted - HCMC"
+caseload_info.add "X127FF7", "Contracted - HCMC"
+
+caseload_info.add "X127FI1", "METS Retro Request"
+
+' MsgBox "The caseload type of Families - General is " & join(caseload_info.item("Families - General"), ", ")
+' MsgBox "The caseload type of Families - General is ~" & caseload_info.item("Families - General") & "~"
+function select_random_index(ubound_of_array, index_selection)
+	If ubound_of_array = 0 Then
+		index_selection = 0
+	Else
+		options = ubound_of_array + 1
+		Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
+		rnd_nbr = rnd
+		size_up = rnd_nbr * options
+		index_selection = int(size_up)
+	End If
+end function
+
+' For i = 1 to 10
+' 	call select_random_index(9, select_out_of_10)
+' 	call select_random_index(4, select_out_of_5)
+' 	call select_random_index(19, select_out_of_20)
+' 	call select_random_index(99, select_out_of_100)
+' 	call select_random_index(1, select_out_of_2)
+' 	call select_random_index(34, select_out_of_35)
+' 	call select_random_index(16, select_out_of_17)
+' 	MsgBox "Select out of 10:  " & select_out_of_10 & vbCr &_
+' 			"Select out of 5: " & select_out_of_5 & vbCr &_
+' 			"Select out of 20: " & select_out_of_20 & vbCr &_
+' 			"Select out of 100: " & select_out_of_100 & vbCr &_
+' 			"Select out of 2: " & select_out_of_2 & vbCr &_
+' 			"Select out of 35: " & select_out_of_35 & vbCr &_
+' 			"Select out of 17: " & select_out_of_17
+' Next
+
+' MsgBox "That's all"
+
+' MsgBox "The caseload type of X127EX9 is " & caseload_info.item("X127EX9")
+
+' Call get_caseload_array_by_type("Families - General", test_array)
+
+' MsgBox join(test_array, ", ")
+
+function get_caseload_array_by_type(caseload_type, available_caseload_array)
+	all = caseload_info.items
+	things = caseload_info.keys
+
+	Dim temp_array()
+	ReDim temp_array(0)
+	counter = 0
+
+	for i = 0 to UBound(all)
+		If all(i) = caseload_type Then
+			ReDim preserve temp_array(counter)
+			temp_array(counter) = things(i)
+			counter = counter + 1
+		End If
+	Next
+	available_caseload_array = temp_array
+end function
+
+function gather_current_caseload(current_caseload, secondary_caseload, find_previous_pw, previous_pw)
+	call navigate_to_MAXIS_screen("CASE", "CURR")
+	EMReadScreen current_caseload, 7, 21, 14
+	EMReadScreen secondary_caseload, 7, 21, 26
+	current_caseload = trim(current_caseload)
+	secondary_caseload = trim(secondary_caseload)
+	If find_previous_pw = True Then
+		call navigate_to_MAXIS_screen("SPEC", "XFER")
+		call write_value_and_transmit("X", 5, 16)
+		EMReadScreen previous_pw, 7, 18, 28
+		PF3
+		call navigate_to_MAXIS_screen("CASE", "CURR")
+	End If
+end function
+
+function find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_form, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+	transfer_needed = True
+
+	current_caseload_type = caseload_info.item(current_caseload)		'this could be blank if the basket is not identified in the dictionary
+
+	'TODO - handle for cases that were automatically transferred by MAXIS when APPLd to see if they should be transferred back to wthe INAC basket
+	'QUESTION - do we care how long ago that was?
+	pended_from_inactive = False
+	If current_caseload = user_x_number Then pended_from_inactive = True
+
+	If current_caseload_type = "Privileged Cases" or current_caseload_type = "Foster Care / IV-E" or current_caseload_type = "1800 - Team 160" or left(current_caseload_type, 10) = "Contracted" Then
+		transfer_needed = False
+		correct_caseload_type = current_caseload_type
+		new_caseload = current_caseload
+	End If
+
+	'   DropListBox 85, 80, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+
+	'   "SNAP App for Seniors - 5223F"+chr(9)+
+	'   "MNsure App for HC - 6696"+chr(9)+
+	'   "MHCP App for Certain Populations - 3876"+chr(9)+
+	'   "App for MA for LTC - 3531"+chr(9)+
+	'   "MHCP App for B/C Cancer - 3523"+chr(9)+
+	'   "EA/EGA Application"+chr(9)+
+	'   "No Application Required", application_type
+
+
+	alpha_split_one_a_l = "ABCDEFGHIJKL"
+	alpha_split_two_m_z = "MNOPQRSTUVWXYZ"
+
+
+	If transfer_needed = True Then
+		If application_form = "MHCP App for B/C Cancer - 3523" Then
+			correct_caseload_type = "MA - BC"
+			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+		End If
+		If application_form = "No Application Required" and METS_retro_checkbox = checked Then
+			correct_caseload_type = "METS Retro Request"
+			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+		End If
+	End If
+
+	If correct_caseload_type = "" Then
+		If caseload_contract_facility <> "None of the facilities list on Application" Then
+			correct_caseload_type = "Contracted - " & caseload_contract_facility
+		End If
+	End If
+
+	If correct_caseload_type = "" Then
+		If unknown_hc_pending = True or ma_status <> "INACTIVE" or msp_status <> "INACTIVE" Then
+			If appears_ltc_checkbox = checked Then
+				correct_caseload_type = "LTC+ - General"
+				'MsgBox left(case_name, 1) & vbCr & InStr(alpha_split_two_m_z, left(case_name, 1))
+				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EK4"
+				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EK9"
+				If current_caseload = new_caseload Then transfer_needed = False
+			End If
+		End If
+	End If
+
+	population = ""
+	If correct_caseload_type = "" Then
+		If grh_status = "ACTIVE" or grh_status = "PENDING" Then
+			correct_caseload_type = "GRH / HS"
+			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+			If addr_on_1800_faci_list = True Then
+				correct_caseload_type = "1800 - Team 160"
+				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EF8"
+				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
+				If new_caseload <> "" and current_caseload <> new_caseload Then transfer_needed = True
+			End If
+			population = "Adults"
+		End If
+	End If
+
+	If correct_caseload_type = "" Then
+		If application_form = "MHCP App for Certain Populations - 3876" or application_form = "MNsure App for HC - 6696" or application_form = "No Application Required" Then
+			If age_of_memb_01 < 18 Then
+				correct_caseload_type = "TEFRA"
+				If correct_caseload_type = current_caseload_type Then transfer_needed = False
+			End If
+		End If
+	End If
+
+	If correct_caseload_type = "" Then
+		If dwp_status = "PENDING" or mfip_status = "PENDING" Then
+			correct_caseload_type = "Families - Cash"
+			If age_of_memb_01 < 20 Then correct_caseload_type = "YET"
+			population = "Families"
+		ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" Then
+			If case_has_child_under_19 = True or preg_person_on_case = True Then
+				correct_caseload_type = "Families - Cash"
+				If age_of_memb_01 < 20 Then correct_caseload_type = "YET"
+				population = "Families"
+			Else
+				correct_caseload_type = "Adults - General"
+				population = "Adults"
+			End If
+		ElseIf emer_status = "PENDING" Then
+			If age_of_memb_01 < 20 Then
+				correct_caseload_type = "YET"
+				population = "Families"
+			ElseIf emer_type = "EGA" Then
+				correct_caseload_type = "Adults - General"
+				population = "Adults"
+			ElseIf emer_type = "EA" Then
+				correct_caseload_type = "Families - General"
+				population = "Families"
+			End If
+		End If
+	End If
+
+	If correct_caseload_type = "" Then
+		If age_of_memb_01 < 20 Then
+			correct_caseload_type = "YET"
+			population = "Families"
+		ElseIf case_has_child_under_19 = True Then
+			correct_caseload_type = "Families - General"
+			population = "Families"
+		ElseIf (case_has_child_under_22 = False or case_has_guardian = False) and preg_person_on_case = False Then
+			correct_caseload_type = "Adults - General"
+			population = "Adults"
+		Else
+			correct_caseload_type = "Families - General"
+			population = "Families"
+		End If
+	End If
+	If correct_caseload_type = current_caseload_type Then transfer_needed = False
+	' MsgBox "correct_caseload_type - " & correct_caseload_type & vbCr & "current_caseload_type - " & current_caseload_type & vbCr & "transfer_needed - " & transfer_needed
+	' MsgBox "current_caseload_type - " & current_caseload_type & vbCr & "current_caseload - " & current_caseload & vbCr & "correct_caseload_type - " & correct_caseload_type & vbCr & "transfer_needed - " & transfer_needed
+
+
+	' case_has_child_under_19
+	' case_has_guardian
+	' age_of_memb_01
+	' case_has_child_under_22
+	' addr_on_1800_faci_list
+	' case_name
+
+	' unknown_cash_pending
+	' unknown_hc_pending
+	' ga_status
+	' msa_status
+	' mfip_status
+	' dwp_status
+	' grh_status
+	' snap_status
+	' ma_status
+	' msp_status
+	' msp_type
+	' emer_status
+	' emer_type
+	If transfer_needed = True and new_caseload = "" Then
+
+		Call get_caseload_array_by_type(correct_caseload_type, available_caseload_array)
+		number_of_options = UBound(available_caseload_array)
+
+		Do
+			pnd2_limit_issue = False
+			call select_random_index(number_of_options, caseload_index)
+			new_caseload = available_caseload_array(caseload_index)
+			If number_of_options = 0 Then Exit Do
+			call navigate_to_MAXIS_screen("REPT", "PND2")
+			Call write_value_and_transmit(new_caseload, 21, 13)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then
+				pnd2_limit_issue = True
+			Else
+				EMReadScreen total_pages, 2, 3, 79
+				total_pages = trim(total_pages)
+				total_pages = total_pages * 1
+				if total_pages > 34 Then pnd2_limit_issue = True
+			End If
+
+
+		Loop until pnd2_limit_issue = False
+	End If
+end function
+
 '---------------------------------------------------------------------------------------The script
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
 call Check_for_MAXIS(false)                         'Ensuring we are not passworded out
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
+EMReadScreen user_x_number, 7, 22, 8
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
 'Initial Dialog - Case number
 Dialog1 = ""                                        'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 191, 135, "Application Received"
+BeginDialog Dialog1, 0, 0, 191, 150, "Application Received"
   EditBox 60, 35, 45, 15, MAXIS_case_number
+  If running_from_ca_menu = True Then CheckBox 60, 55, 105, 10, "Check here if case is PRIV", priv_case_checkbox
   ButtonGroup ButtonPressed
-    PushButton 90, 95, 95, 15, "Script Instructions", script_instructions_btn
-    OkButton 80, 115, 50, 15
-    CancelButton 135, 115, 50, 15
+    PushButton 90, 110, 95, 15, "Script Instructions", script_instructions_btn
+    OkButton 80, 130, 50, 15
+    CancelButton 135, 130, 50, 15
   Text 5, 10, 185, 20, "Multiple CASE:NOTEs will be entered with this script run to document the actions for pending new applications."
   Text 5, 40, 50, 10, "Case Number:"
-  Text 5, 55, 185, 10, "This case should be in PND2 status for this script to run."
-  Text 5, 65, 185, 30, "If the programs requested on the application are not yet pending in MAXIS, cancel this script run, pend the case to PND2 status and run the script again."
+  Text 5, 70, 185, 10, "This case should be in PND2 status for this script to run."
+  Text 5, 80, 185, 30, "If the programs requested on the application are not yet pending in MAXIS, cancel this script run, pend the case to PND2 status and run the script again."
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -164,11 +515,13 @@ IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is
 MAXIS_background_check      'Making sure we are out of background.
 EMReadScreen initial_pw_for_data_table, 7, 21, 17
 EMReadScreen case_name_for_data_table, 20, 21, 46
+case_name_for_data_table = replace(case_name_for_data_table, "'", "-")
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
 EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
+Call gather_current_caseload(current_caseload, secondary_caseload, True, previous_pw)
 
 Call navigate_to_MAXIS_screen("CASE", "PERS")               'Getting client eligibility of HC from CASE PERS
 pers_row = 10                                               'This is where client information starts on CASE PERS
@@ -210,7 +563,7 @@ End If
 
 call back_to_SELF           'resetting
 EMReadScreen mx_region, 10, 22, 48
-
+mx_region = trim(mx_region)
 If mx_region = "INQUIRY DB" Then
     ' continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
     ' If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
@@ -238,11 +591,47 @@ EMReadScreen HC_1_code, 1, pnd2_row, 65
 EMReadScreen EA_1_code, 1, pnd2_row, 68
 EMReadScreen GR_1_code, 1, pnd2_row, 72
 
-EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
-If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+'This section checks to see if the case has multiple application dates
+'it will ignore any dates that are for CCAP only as those are not pertinent to our work.
+EMReadScreen additional_application_check_one, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+EMReadScreen additional_app_one_hc, 1, pnd2_row + 1, 65
+EMReadScreen additional_app_one_ccap, 27, pnd2_row + 1, 54
+If additional_application_check_one = "ADDITIONAL APP" Then
+	EMReadScreen additional_application_check_two, 14, pnd2_row + 2, 17                 'looking to see if this case has a third application date entered
+	EMReadScreen additional_app_two_hc, 1, pnd2_row + 2, 65
+	EMReadScreen additional_app_two_ccap, 27, pnd2_row + 2, 54
+End If
+
+'Once we have read the lines of REPT/PND2, we need to determine if the additional application should be considered
+additional_es_application = False
+additional_app_row = ""
+If additional_application_check_one = "ADDITIONAL APP" Then
+	If additional_app_one_hc = "P" Then											'secondary application is for HC - we count it
+		additional_es_application = True
+		additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+	ElseIf additional_app_one_ccap <> "_       _     _   _       P" Then		'secondary application is for CCAP only - we do NOT count it
+		additional_es_application = True
+		additional_app_row = pnd2_row + 1										'set the row to read for secondary application date
+	End If
+	If additional_application_check_two = "ADDITIONAL APP" Then
+		If additional_app_two_hc = "P" Then										'third application is for HC - we count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+		ElseIf additional_app_two_ccap <> "_       _     _   _       P" Then	'third application is for CCAP only - we do NOT count it
+			additional_es_application = True
+			additional_app_row = pnd2_row + 2									'set the row to read for secondary application date
+		End If
+	End If
+End If
+
+If additional_es_application = True THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+
+
+' EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
+' If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
     multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 
-    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
+    EMReadScreen additional_application_date, 8, additional_app_row, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
     newest_app_date = additional_application_date
     EMReadScreen CA_2_code, 1, pnd2_row, 54                                     'reading the pending codes by program for the second application date line.
@@ -379,7 +768,7 @@ If app_recvd_note_found = True Then
                 err_msg = ""
 
                 Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 321, 135, "On Demand Applications Dashboard"
+                BeginDialog Dialog1, 0, 0, 321, 135, "Application Date Information"
                   DropListBox 215, 60, 95, 45, "Select One..."+chr(9)+"Health Care Programs"+chr(9)+"CAF Based Programs", processing_application_program
                   DropListBox 215, 85, 95, 45, "Select One..."+chr(9)+"Health Care Programs"+chr(9)+"CAF Based Programs", other_application_program
                   ButtonGroup ButtonPressed
@@ -453,9 +842,77 @@ Call back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadscreen last_name, 25, 6, 30
 EMReadscreen first_name, 12, 6, 63
+EMReadScreen age_of_memb_01, 3, 8, 76
 last_name = replace(last_name, "_", "")
 first_name = replace(first_name, "_", "")
 case_name = last_name & ", " & first_name
+age_of_memb_01 = trim(age_of_memb_01)
+If age_of_memb_01 = "" Then age_of_memb_01 = 0
+age_of_memb_01 = age_of_memb_01*1
+
+case_has_child_under_19 = False
+case_has_child_under_22 = False
+case_has_guardian = False
+Do
+	EMReadScreen memb_age, 3, 8, 76
+	memb_age = trim(memb_age)
+	If memb_age = "" Then memb_age = 0
+	memb_age = memb_age*1
+
+	If memb_age < 22 Then
+		case_has_child_under_22 = True
+		If memb_age < 19 Then case_has_child_under_19 = True
+	End If
+
+	EMReadScreen rel_to_applicant, 2, 10, 42
+	If rel_to_applicant = "03" Then case_has_guardian = True
+	If rel_to_applicant = "04" Then case_has_guardian = True
+	If rel_to_applicant = "18" Then case_has_guardian = True
+	If rel_to_applicant = "08" Then case_has_guardian = True
+	If rel_to_applicant = "09" Then case_has_guardian = True
+	If rel_to_applicant = "10" Then case_has_guardian = True
+	If rel_to_applicant = "11" Then case_has_guardian = True
+	If rel_to_applicant = "12" Then case_has_guardian = True
+	If rel_to_applicant = "13" Then case_has_guardian = True
+	If rel_to_applicant = "15" Then case_has_guardian = True
+	If rel_to_applicant = "16" Then case_has_guardian = True
+
+	transmit
+	EMReadScreen end_of_MEMB, 7, 24, 2
+Loop until end_of_MEMB = "ENTER A"
+
+preg_person_on_case = False
+Call navigate_to_MAXIS_screen("STAT", "PREG")
+Do
+	EMReadScreen preg_exists, 1, 2, 73
+	If preg_exists = "1" Then preg_person_on_case = True
+	transmit
+	EMReadScreen end_of_MEMB, 7, 24, 2
+Loop until end_of_MEMB = "ENTER A"
+
+Call navigate_to_MAXIS_screen("STAT", "PARE")
+EMReadScreen pare_exists, 1, 2, 73
+If pare_exists = "1" Then case_has_guardian = True
+
+
+child_under_19_question = "No"
+If case_has_child_under_19 = True Then child_under_19_question = "Yes"
+child_under_22_question = "No"
+If case_has_child_under_22 = True Then child_under_22_question = "Yes"
+guardian_question = "No"
+If case_has_guardian = True Then guardian_question = "Yes"
+pregnant_question = "No"
+If preg_person_on_case = True Then pregnant_question = "Yes"
+faci_1800_question = "No"
+
+cash_hh_definition_applies = False
+If emer_status = "PENDING" Then cash_hh_definition_applies = True
+If dwp_status = "PENDING" Then cash_hh_definition_applies = True
+If mfip_status = "PENDING" Then cash_hh_definition_applies = True
+If msa_status = "PENDING" Then cash_hh_definition_applies = True
+If ga_status = "PENDING" Then cash_hh_definition_applies = True
+If unknown_cash_pending = True Then cash_hh_definition_applies = True
+
 Call navigate_to_MAXIS_screen("STAT", "PROG")           'going here because this is a good background for the dialog to display against.
 
 IF IsDate(application_date) = False THEN
@@ -467,96 +924,195 @@ IF IsDate(application_date) = False THEN
     Call script_end_procedure_with_error_report(stop_early_msg)
 End If
 
+'Application form list for dialog
+app_form_list = chr(9)+"CAF - 5223"
+app_form_list = app_form_list+chr(9)+"MNbenefits CAF - 5223"
+app_form_list = app_form_list+chr(9)+"SNAP App for Seniors - 5223F"
+app_form_list = app_form_list+chr(9)+"MNsure App for HC - 6696"
+app_form_list = app_form_list+chr(9)+"MHCP App for Certain Populations - 3876"
+app_form_list = app_form_list+chr(9)+"App for MA for LTC - 3531"
+app_form_list = app_form_list+chr(9)+"MHCP App for B/C Cancer - 3523"
+app_form_list = app_form_list+chr(9)+"EA/EGA Application"
+If running_from_ca_menu = True Then app_form_list = app_form_list+chr(9)+"Form other than Application"
+app_form_list = app_form_list+chr(9)+"No Application Required"
+
+
+app_facilities = "North Ridge Facilities"
+app_facilities = app_facilities+chr(9)+"Monarch Facilities Contract"		'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Bloomington "			'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Chateau"					'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at Excelsior"				'MONARCH
+app_facilities = app_facilities+chr(9)+"Estates at St. Louis Park"			'MONARCH
+app_facilities = app_facilities+chr(9)+"A Villa Facilities Contract"		'VILLA
+app_facilities = app_facilities+chr(9)+"Brookview"							'VILLA
+app_facilities = app_facilities+chr(9)+"Park Health and Rehab"				'VILLA
+app_facilities = app_facilities+chr(9)+"Richfield Villa Center/ Rehab"		'VILLA
+app_facilities = app_facilities+chr(9)+"Robbinsdale Rehab and Care Center"	'VILLA
+app_facilities = app_facilities+chr(9)+"Texas Terrace"						'VILLA
+app_facilities = app_facilities+chr(9)+"Villa at Bryn Mawr"					'VILLA
+app_facilities = app_facilities+chr(9)+"Villa at Osseo"						'VILLA
+app_facilities = app_facilities+chr(9)+"Villa at St. Louis Park"			'VILLA
+app_facilities = app_facilities+chr(9)+"Ebenezer Care Center/ Martin Luther Care Center"	'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Ebenezer Care Center"				'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Ebenezer Loren on Park"				'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Martin Luther Care Center"			'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"Meadow Woods"						'EBENEZER/MARTIN LUTHER
+app_facilities = app_facilities+chr(9)+"North Memorial"
+app_facilities = app_facilities+chr(9)+"HCMC"
+
 'since this dialog has different displays for SNAP cases vs non-snap cases - there are differences in the dialog size
-dlg_len = 220
-If snap_status = "PENDING" Then dlg_len = 330
+dlg_len = 190
+If snap_status = "PENDING" Then dlg_len = 280
 
 'This is the dialog with the application information.
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
-  GroupBox 5, 5, 255, 120, "Application Information"
-  DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
-  DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-  DropListBox 85, 80, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"SNAP App for Seniors - 5223F"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"EA/EGA Application"+chr(9)+"No Application Required", application_type
-  EditBox 85, 105, 105, 15, confirmation_number
-  Text 15, 25, 65, 10, "Date of Application:"
-  Text 85, 25, 60, 10, application_date
-  Text 185, 15, 65, 10, "Pending Programs:"
-  y_pos = 25
+'265 - previous dlg width
+BeginDialog Dialog1, 0, 0, 515, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
+  GroupBox 5, 5, 255, 115, "Application Information"
+  DropListBox 85, 30, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
+  DropListBox 85, 50, 170, 45, "Select One:"+app_form_list, application_type
+  EditBox 85, 75, 105, 15, confirmation_number
+  CheckBox 85, 95, 160, 10, "Check here if LTC or a Waiver is indicated.", appears_ltc_checkbox
+  CheckBox 85, 110, 85, 10, "METS Retro Coverage", METS_retro_checkbox
+
+
+  '   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
+  Text 15, 20, 65, 10, "Date of Application:"
+  Text 85, 20, 60, 10, application_date
+
+  y_pos = 15
   If unknown_cash_pending = True Then
-    Text 195, y_pos, 50, 10, "Cash"
+    Text 275, y_pos, 50, 10, "Cash"
     y_pos = y_pos + 10
   End If
   If ga_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "GA"
+    Text 275, y_pos, 50, 10, "GA"
     y_pos = y_pos + 10
   End If
   If msa_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "MSA"
+    Text 275, y_pos, 50, 10, "MSA"
     y_pos = y_pos + 10
   End If
   If mfip_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "MFIP"
+    Text 275, y_pos, 50, 10, "MFIP"
     y_pos = y_pos + 10
   End If
   If dwp_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "DWP"
+    Text 275, y_pos, 50, 10, "DWP"
     y_pos = y_pos + 10
   End If
   If ive_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "IV-E"
+    Text 275, y_pos, 50, 10, "IV-E"
     y_pos = y_pos + 10
   End If
   If grh_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "GRH"
+    Text 275, y_pos, 50, 10, "GRH"
     y_pos = y_pos + 10
   End If
   If snap_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "SNAP"
+    Text 275, y_pos, 50, 10, "SNAP"
     y_pos = y_pos + 10
   End If
   If emer_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, emer_type
+    Text 275, y_pos, 50, 10, emer_type
     y_pos = y_pos + 10
   End If
   If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True OR clt_hc_is_pending = True Then
-    Text 195, y_pos, 50, 10, "HC"
+    Text 275, y_pos, 50, 10, "HC"
     y_pos = y_pos + 10
   End If
-  Text 10, 45, 70, 10, "Application Received:"
-  Text 10, 65, 70, 10, "Population/Specialty"
-  Text 15, 85, 65, 10, "Type of Application:"
-  Text 85, 95, 50, 10, "Confirmation #:"
+
+  GroupBox 265, 5, 70, y_pos, "Pending Programs:"
+
+  Text 10, 35, 70, 10, "Application Received:"
+'   Text 10, 65, 70, 10, "Population/Specialty"
+  Text 15, 55, 65, 10, "Type of Application:"
+  Text 85, 65, 50, 10, "Confirmation #:"
+
+  y_pos = 5
+  y_pos = y_pos + 10
+  Text 345, y_pos, 125, 10, "Age of MEMB 01: " & age_of_memb_01	'"age_of_memb_01 - " & age_of_memb_01
+
+  y_pos = y_pos + 10
+  Text 345, y_pos, 200, 10, "Case Name: " & case_name	'"case_name - " & case_name
+
+  If cash_hh_definition_applies = True Then
+	y_pos = y_pos + 10
+	If case_has_child_under_19 = False Then y_pos = y_pos + 5
+	Text 345, y_pos, 100, 10, "Case has a child under 19: " 	'"case_has_child_under_19 - " & case_has_child_under_19
+	If case_has_child_under_19 = False Then DropListBox 445, y_pos-5, 30, 15, "Yes"+chr(9)+"No", child_under_19_question
+	If case_has_child_under_19 = True Then Text 445, y_pos, 30, 15, child_under_19_question
+  Else
+	y_pos = y_pos + 10
+	If case_has_child_under_22 = False Then y_pos = y_pos + 5
+	Text 345, y_pos, 100, 10, "Case has a member under 22: "	'"case_has_child_under_22 - " & case_has_child_under_22
+	If case_has_child_under_22 = False Then DropListBox 445, y_pos-5, 30, 15, "Yes"+chr(9)+"No", child_under_22_question
+	If case_has_child_under_22 = True Then Text 445, y_pos, 30, 15, child_under_22_question
+
+	y_pos = y_pos + 10
+	If case_has_guardian = False Then y_pos = y_pos + 5
+	Text 345, y_pos, 100, 10, "Case has a guardian (parent): "	'"case_has_guardian - " & case_has_guardian
+	If case_has_guardian = False Then DropListBox 445, y_pos-5, 30, 15, "Yes"+chr(9)+"No", guardian_question
+	If case_has_guardian = True Then Text 445, y_pos, 30, 15, guardian_question
+  End If
+
+  y_pos = y_pos + 10
+  If preg_person_on_case = False Then y_pos = y_pos + 5
+  Text 345, y_pos, 100, 10, "Case has a pregnant person: "	'"case_has_guardian - " & case_has_guardian
+  If preg_person_on_case = False Then DropListBox 445, y_pos-5, 30, 15, "Yes"+chr(9)+"No", pregnant_question
+  If preg_person_on_case = True Then Text 445, y_pos, 30, 15, pregnant_question
+
+  If grh_case = True Then
+	y_pos = y_pos + 10
+	Text 345, y_pos+5, 135, 20, "Is the ADDR on the 1800 FACI List: "	'"addr_on_1800_faci_list - " & addr_on_1800_faci_list
+	DropListBox 465, y_pos, 30, 15, "Yes"+chr(9)+"No", faci_1800_question
+	y_pos = y_pos + 5
+  End If
+  GroupBox 340, 5, 165, y_pos+10, "Population Questions"
+
+  y_pos = y_pos + 15
+  Text 275, y_pos, 250, 10, "Contracted Facilities (if written on the application, indicate which):"
+  DropListBox 275, y_pos+10, 190, 45, "None of the facilities list on Application"+chr(9)+app_facilities, contracted_facility
+
+  If dlg_len = 280 Then Text 300, y_pos+40, 200, 40, "The population questions are used to determine if a case needs to be transferred and which Caseload (X-Number) the case should be in. The script has attempted to identify and answer these questions from STAT inofmraiton, but additional details may only be on the application form."
+  	' case_has_child_under_19
+	' case_has_guardian
+	' age_of_memb_01
+	' case_has_child_under_22
+	' addr_on_1800_faci_list
+	' case_name
+
   y_pos = 130
   If snap_status = "PENDING" Then
-      GroupBox 5, 130, 255, 105, "Expedited Screening"
-      EditBox 130, 145, 50, 15, income
-      EditBox 130, 165, 50, 15, assets
-      EditBox 130, 185, 50, 15, rent
-      CheckBox 15, 215, 55, 10, "Heat (or AC)", heat_AC_check
-      CheckBox 85, 215, 45, 10, "Electricity", electric_check
-      CheckBox 140, 215, 35, 10, "Phone", phone_check
-      Text 25, 150, 95, 10, "Income received this month:"
-      Text 30, 170, 95, 10, "Cash, checking, or savings: "
-      Text 30, 190, 90, 10, "AMT paid for rent/mortgage:"
-      GroupBox 10, 205, 170, 25, "Utilities claimed (check below):"
-      GroupBox 185, 140, 70, 65, "**IMPORTANT**"
-      Text 190, 155, 60, 45, "The income, assets and shelter costs fields will default to $0 if left blank. "
-      y_pos = 240
+      GroupBox 5, 120, 270, 95, "Expedited Screening"
+      EditBox 130, 130, 50, 15, income
+      EditBox 130, 150, 50, 15, assets
+      EditBox 130, 170, 50, 15, rent
+      CheckBox 200, 150, 55, 10, "Heat (or AC)", heat_AC_check
+      CheckBox 200, 160, 45, 10, "Electricity", electric_check
+      CheckBox 200, 170, 35, 10, "Phone", phone_check
+      Text 35, 135, 90, 10, "Income received this month:"
+      Text 35, 155, 90, 10, "Cash, checking, or savings:"
+      Text 35, 175, 90, 10, "AMT paid for rent/mortgage:"
+      GroupBox 190, 130, 75, 60, "Utilities claimed "
+	  Text 195, 138, 60, 10, "(check below):"
+      Text 25, 190, 100, 10, "**IMPORTANT**"'" The income, assets and shelter costs fields will default to $0 if left blank."
+      Text 25, 200, 230, 10, "The income, assets and shelter costs fields will default to $0 if left blank. "
+      y_pos = 220
   End If
   CheckBox 15, y_pos, 220, 10, "Check here if a HH Member is active on another MAXIS Case.", hh_memb_on_active_case_checkbox
+'   y_pos = y_pos + 15
+  CheckBox 250, y_pos, 220, 10, "Check here if only CAF1 is completed on the application.", only_caf1_recvd_checkbox
   y_pos = y_pos + 15
-  CheckBox 15, y_pos, 220, 10, "Check here if only CAF1 is completed on the application.", only_caf1_recvd_checkbox
-  y_pos = y_pos + 15
-  EditBox 55, y_pos, 205, 15, other_notes
-  Text 5, y_pos + 5, 45, 10, "Other Notes:"
+  EditBox 70, y_pos, 430, 15, other_notes
+  Text 25, y_pos + 5, 45, 10, "Other Notes:"
   y_pos = y_pos + 20
   EditBox 70, y_pos, 190, 15, worker_signature
   Text 5, y_pos + 5, 60, 10, "Worker Signature:"
-  y_pos = y_pos + 20
+'   y_pos = y_pos + 20
   ButtonGroup ButtonPressed
-    OkButton 155, y_pos, 50, 15
-    CancelButton 210, y_pos, 50, 15
+    OkButton 400, y_pos, 50, 15
+    CancelButton 455, y_pos, 50, 15
 EndDialog
 
 'Displaying the dialog
@@ -620,36 +1176,74 @@ IF income = "" THEN income = 0
 IF assets = "" THEN assets = 0
 IF rent   = "" THEN rent   = 0
 
+If child_under_19_question = "No" Then case_has_child_under_19 = False
+If child_under_19_question = "Yes" Then case_has_child_under_19 = True
+
+If child_under_22_question = "No" Then case_has_child_under_22 = False
+If child_under_22_question = "Yes" Then case_has_child_under_22 = True
+
+If guardian_question = "No" Then case_has_guardian = False
+If guardian_question = "Yes" Then case_has_guardian = True
+
+If pregnant_question = "No" Then preg_person_on_case = False
+If pregnant_question = "Yes" Then preg_person_on_case = True
+
+If faci_1800_question = "No" Then addr_on_1800_faci_list = False
+If faci_1800_question = "Yes" Then addr_on_1800_faci_list = True
+
+caseload_contract_facility = contracted_facility
+If caseload_contract_facility = "Estates at Bloomington " Then caseload_contract_facility = "Monarch Facilities Contract"
+If caseload_contract_facility = "Estates at Chateau " Then caseload_contract_facility = "Monarch Facilities Contract"
+If caseload_contract_facility = "Estates at Excelsior" Then caseload_contract_facility = "Monarch Facilities Contract"
+If caseload_contract_facility = "Estates at St. Louis Park" Then caseload_contract_facility = "Monarch Facilities Contract"
+
+If caseload_contract_facility = "Brookview" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Park Health and Rehab" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Richfield Villa Center/ Rehab" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Robbinsdale Rehab and Care Center" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Texas Terrace" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Villa at Bryn Mawr" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Villa at Osseo" Then caseload_contract_facility = "A Villa Facilities Contract"
+If caseload_contract_facility = "Villa at St. Louis Park" Then caseload_contract_facility = "A Villa Facilities Contract"
+
+If caseload_contract_facility = "Ebenezer Care Center" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
+If caseload_contract_facility = "Ebenezer Loren on Park" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
+If caseload_contract_facility = "Martin Luther Care Center" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
+If caseload_contract_facility = "Meadow Woods" Then caseload_contract_facility = "Ebenezer Care Center/ Martin Luther Care Center"
+
+If application_type = "App for MA for LTC - 3531" Then appears_ltc_checkbox = checked
+call find_correct_caseload(current_caseload, secondary_caseload, user_x_number, previous_pw, transfer_needed, correct_caseload_type, new_caseload, application_type, appears_ltc_checkbox, METS_retro_checkbox, caseload_contract_facility, case_has_child_under_19, case_has_guardian, age_of_memb_01, case_has_child_under_22, preg_person_on_case, addr_on_1800_faci_list, case_name, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type)
+
 'Calculates expedited status based on above numbers - only for snap pending cases
 If snap_status = "PENDING" Then
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
-        If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
-        If population_of_case = "Adults" Then
-            'making sure that Adults EXP baskets are not at limit
-            EX1_basket_available = True
-            Call navigate_to_MAXIS_screen("REPT", "PND2")
-            Call write_value_and_transmit("EX1", 21, 17)
-            EMReadScreen pnd2_disp_limit, 13, 6, 35
-            If pnd2_disp_limit = "Display Limit" Then EX1_basket_available = False
+        ' If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
+        ' If population_of_case = "Adults" Then
+        '     'making sure that Adults EXP baskets are not at limit
+        '     EX1_basket_available = True
+        '     Call navigate_to_MAXIS_screen("REPT", "PND2")
+        '     Call write_value_and_transmit("EX1", 21, 17)
+        '     EMReadScreen pnd2_disp_limit, 13, 6, 35
+        '     If pnd2_disp_limit = "Display Limit" Then EX1_basket_available = False
 
-            EX2_basket_available = True
-            Call navigate_to_MAXIS_screen("REPT", "PND2")
-            Call write_value_and_transmit("EX2", 21, 17)
-            EMReadScreen pnd2_disp_limit, 13, 6, 35
-            If pnd2_disp_limit = "Display Limit" Then EX2_basket_available = False
+        '     EX2_basket_available = True
+        '     Call navigate_to_MAXIS_screen("REPT", "PND2")
+        '     Call write_value_and_transmit("EX2", 21, 17)
+        '     EMReadScreen pnd2_disp_limit, 13, 6, 35
+        '     If pnd2_disp_limit = "Display Limit" Then EX2_basket_available = False
 
-            If (EX1_basket_available = True and EX2_basket_available = False) then
-                transfer_to_worker = "EX1"
-            ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
-                transfer_to_worker = "EX2"
-            Else
-            'Do all the randomization here
-                Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
-                random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
-                If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
-                If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
-            End if
-        End If
+        '     If (EX1_basket_available = True and EX2_basket_available = False) then
+        '         transfer_to_worker = "EX1"
+        '     ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
+        '         transfer_to_worker = "EX2"
+        '     Else
+        '     'Do all the randomization here
+        '         Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
+        '         random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
+        '         If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
+        '         If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
+        '     End if
+        ' End If
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
@@ -689,42 +1283,64 @@ IF send_appt_ltr = TRUE THEN
     interview_date = interview_date & ""                                        'turns interview date into string for variable
 End If
 
-If population_of_case = "Families" Then                                         'families cases that have cash pending need to to to these specific baskets
-    If unknown_cash_pending = True Then transfer_to_worker = "EY9"
-    If mfip_status = "PENDING" Then transfer_to_worker = "EY9"
-    If dwp_status = "PENDING" Then transfer_to_worker = "EY9"
-End if
+' If population_of_case = "Families" Then                                         'families cases that have cash pending need to to to these specific baskets
+'     If unknown_cash_pending = True Then transfer_to_worker = "EY9"
+'     If mfip_status = "PENDING" Then transfer_to_worker = "EY9"
+'     If dwp_status = "PENDING" Then transfer_to_worker = "EY9"
+' End if
 
-'The familiy cash basket has a backup if it has hit the display limit.
-If transfer_to_worker = "EY9" Then
-    Call navigate_to_MAXIS_screen("REPT", "PND2")
-    EMWriteScreen "EY9", 21, 17
-    transmit
-    EMReadScreen pnd2_disp_limit, 13, 6, 35
-    If pnd2_disp_limit = "Display Limit" Then transfer_to_worker = "EY8"
-End If
+' 'The familiy cash basket has a backup if it has hit the display limit.
+' If transfer_to_worker = "EY9" Then
+'     Call navigate_to_MAXIS_screen("REPT", "PND2")
+'     EMWriteScreen "EY9", 21, 17
+'     transmit
+'     EMReadScreen pnd2_disp_limit, 13, 6, 35
+'     If pnd2_disp_limit = "Display Limit" Then transfer_to_worker = "EY8"
+' End If
 
-'TODO - add more defaults to the transfer_to_worker as we confirm procedure
 
 dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
-IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 95
+IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 85
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
 
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
+If priv_case_checkbox = checked Then transfer_needed = False
+If mx_region = "TRAINING" Then transfer_needed = False
+transfer_to_worker = right(new_caseload, 3)
+If transfer_needed = False Then
+	no_transfer_checkbox = checked
+	transfer_to_worker = ""
+End If
+
+
 'defining the actions dialog
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
-  EditBox 95, 15, 30, 15, transfer_to_worker
-  CheckBox 20, 35, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
-  If expedited_status = "Client Appears Expedited" Then Text 130, 20, 130, 10, "This case screened as EXPEDITED."
-  If expedited_status = "Client Does Not Appear Expedited" Then Text 130, 20, 130, 10, "Case screened as NOT EXPEDITED."
-  GroupBox 5, 5, 255, 45, "Transfer Information"
-  Text 10, 20, 85, 10, "Transfer the case to x127"
+BeginDialog Dialog1, 0, 0, 325, dlg_len, "Actions in MAXIS"
+  Text 15, 15, 310, 10, "Case appears to be of the caseload type " & correct_caseload_type
+  If mx_region = "TRAINING" Then
+	Text 25, 30, 250, 10, "TRAINING Region case - will not transfer."
+	Text 25, 40, 250, 10, "Correct caseload - " & new_caseload
+  ElseIf transfer_needed = True Then
+	Text 25, 30, 250, 10, "** Case will be transferred to " & new_caseload
+    Text 35, 45, 135, 10, "Case has been transferred in ECF Next?"
+    DropListBox 170, 40, 65, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", ECF_transfer_confirmation
+  Else
+	Text 25, 30, 250, 10, "** Case is currently in " & current_caseload & ", which is the correct caseload."
+	Text 30, 40, 250, 10, "The case will not be transferred."
+  End If
+
+	'   "TESTING OVERRIDE - review caseload assignments if changing."
+	'   EditBox 95, 15, 30, 15, transfer_to_worker
+	'   CheckBox 20, 35, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
+	'   '   If expedited_status = "Client Appears Expedited" Then Text 130, 20, 130, 10, "This case screened as EXPEDITED."
+	'   '   If expedited_status = "Client Does Not Appear Expedited" Then Text 130, 20, 130, 10, "Case screened as NOT EXPEDITED."
+	'   Text 10, 20, 85, 10, "Transfer the case to x127"
+  GroupBox 5, 5, 315, 50, "Transfer Information"
   y_pos = 55
   IF send_appt_ltr = TRUE THEN
-      GroupBox 5, 55, 255, 90, "Appointment Notice"
+      GroupBox 5, 55, 315, 80, "Appointment Notice"
       y_pos = y_pos + 15
       Text 15, y_pos, 35, 10, "CAF date:"
       Text 50, y_pos, 55, 15, application_date
@@ -733,15 +1349,15 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
       y_pos = y_pos + 15
       Text 50, y_pos, 195, 10, "The NOTICE cannot be cancelled or changed from this script."
       y_pos = y_pos + 10
-      Text 50, y_pos, 190, 20, "An Eligibility Worker can make changes/cancellations to the notice in MAXIS."
-      y_pos = y_pos + 20
+      Text 50, y_pos, 250, 10, "An Eligibility Worker can make changes/cancellations to the notice in MAXIS."
+      y_pos = y_pos + 10
       Text 50, y_pos, 200, 10, "This script follows the requirements for the On Demand Waiver."
       y_pos = y_pos + 10
       odw_btn_y_pos = y_pos
       y_pos = y_pos + 25
   End If
   IF how_application_rcvd = "Request to APPL Form" THEN
-      GroupBox 5, y_pos, 255, 75, "Request to APPL Information"
+      GroupBox 5, y_pos, 315, 75, "Request to APPL Information"
       y_pos = y_pos + 10
       reset_y = y_pos
       EditBox 85, y_pos, 45, 15, request_date
@@ -763,8 +1379,8 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
       y_pos = y_pos + 25
   End If
   ButtonGroup ButtonPressed
-    OkButton 155, y_pos, 50, 15
-    CancelButton 210, y_pos, 50, 15
+    OkButton 215, y_pos, 50, 15
+    CancelButton 270, y_pos, 50, 15
     IF send_appt_ltr = TRUE THEN PushButton 50, odw_btn_y_pos, 125, 13, "HSR Manual - On Demand Waiver", on_demand_waiver_button
 EndDialog
 'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
@@ -803,9 +1419,9 @@ Do
         err_msg = ""
         Dialog Dialog1
         cancel_confirmation
-        IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transferred by the script or check that no transfer is needed."
-        IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
-        IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
+        ' IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transferred by the script or check that no transfer is needed."
+        ' IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
+        ' IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
         IF send_appt_ltr = TRUE THEN
             If IsDate(interview_date) = False Then err_msg = err_msg & vbNewLine & "* The Interview Date needs to be entered as a valid date."
         End If
@@ -814,6 +1430,9 @@ Do
             IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
             IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg &  vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
         End If
+        If transfer_needed = True Then
+            If ECF_transfer_confirmation = "Select one..." then err_msg = err_msg & vbNewLine & "* This case needs to be transferred in ECF Next first. Transfer the case in ECF Next now."
+        End if
         If ButtonPressed = on_demand_waiver_button Then
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx"
             err_msg = "LOOP"
@@ -999,32 +1618,7 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an appoint
 
 	'Navigating to SPEC/MEMO and opening a new MEMO
 	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
-    Call write_variable_in_SPEC_MEMO("You applied for assistance in Hennepin County on " & application_date & "")
-    Call write_variable_in_SPEC_MEMO("and an interview is required to process your application.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("** The interview must be completed by " & interview_date & ". **")
-    Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-    Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-    Call write_variable_in_SPEC_MEMO(" ")
-    Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-    Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-    Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-    CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-    CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-    CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-    CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-    CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-    CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-    CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-    CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-    CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-    Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
-
-	PF4
+    Call create_appointment_letter_notice_application(application_date, interview_date, last_contact_day)
 
     'now we are going to read if a MEMO was created.
     spec_row = 7
@@ -1060,85 +1654,6 @@ END IF
 '  	CALL write_variable_in_CASE_NOTE (worker_signature)
 '	PF3
 'END IF
-
-revw_pending_table = False                                           'Determining if we should be adding this case to the CasesPending SQL Table
-If unknown_cash_pending = True Then revw_pending_table = True       'case should be pending cash or snap and NOT have SNAP active
-If ga_status = "PENDING" Then revw_pending_table = True
-If msa_status = "PENDING" Then revw_pending_table = True
-If mfip_status = "PENDING" Then revw_pending_table = True
-If dwp_status = "PENDING" Then revw_pending_table = True
-If grh_status = "PENDING" Then revw_pending_table = True
-If snap_status = "PENDING" Then revw_pending_table = True
-If snap_status = "ACTIVE" Then revw_pending_table = False
-If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
-
-If revw_pending_table = True Then
-	MAXIS_case_number = trim(MAXIS_case_number)
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
-
-	If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
-
-    If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
-    If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
-    If ma_status = "REIN" Then hc_stat_code = "R"
-    If ma_status = "PENDING" Then hc_stat_code = "P"
-    If msp_status = "INACTIVE" Or msp_status = "APP CLOSE" Then hc_stat_code = "I"
-    If msp_status = "ACTIVE" Or msp_status = "APP OPEN" Then hc_stat_code = "A"
-    If msp_status = "REIN" Then hc_stat_code = "R"
-    If msp_status = "PENDING" Then hc_stat_code = "P"
-    If unknown_hc_pending = True Then hc_stat_code = "P"
-
-    If ga_status = "PENDING" Then ga_stat_code = "P"
-    If ga_status = "REIN" Then ga_stat_code = "R"
-    If ga_status = "ACTIVE" Or ga_status = "APP OPEN" Then ga_stat_code = "A"
-    If ga_status = "INACTIVE" Or ga_status = "APP CLOSE" Then ga_stat_code = "I"
-
-    If grh_status = "PENDING" Then grh_stat_code = "P"
-    If grh_status = "REIN" Then grh_stat_code = "R"
-    If grh_status = "ACTIVE" Or grh_status = "APP OPEN" Then grh_stat_code = "A"
-    If grh_status = "INACTIVE" Or grh_status = "APP CLOSE" Then grh_stat_code = "I"
-
-    If emer_status = "PENDING" Then emer_stat_code = "P"
-    If emer_status = "REIN" Then emer_stat_code = "R"
-    If emer_status = "ACTIVE" Or emer_status = "APP OPEN" Then emer_stat_code = "A"
-    If emer_status = "INACTIVE" Or emer_status = "APP CLOSE" Then emer_stat_code = "I"
-
-    If mfip_status = "PENDING" Then mfip_stat_code = "P"
-    If mfip_status = "REIN" Then mfip_stat_code = "R"
-    If mfip_status = "ACTIVE" Or mfip_status = "APP OPEN" Then mfip_stat_code = "A"
-    If mfip_status = "INACTIVE" Or mfip_status = "APP CLOSE" Then mfip_stat_code = "I"
-
-    If snap_status = "PENDING" Then snap_stat_code = "P"
-    If snap_status = "REIN" Then snap_stat_code = "R"
-    If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
-    If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
-
-    If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
-    If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
-    If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
-
-    'Setting constants
-    Const adOpenStatic = 3
-    Const adLockOptimistic = 3
-
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-
-    'delete a record if the case number matches
-    ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-    'Add a new record with this case information'
-    objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
-
-    'close the connection and recordset objects to free up resources
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-End If
 
 'Now we create some messaging to explain what happened in the script run.
 end_msg = "Application Received has been noted."

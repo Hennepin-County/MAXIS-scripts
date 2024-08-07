@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/20/2023", "Added handling to ensure the script can only be run in MAXIS production.", "Mark Riegel, Hennepin County")
 call changelog_update("01/12/2023", "Removed HH member selection as this script supports case-based actions.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Removed PMI merge requests from script. As of 10/2021 all PMI merge requests need to go through a SIR webform.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Removed MFIP New Spouse Income supports from script. PF11 is no longer needed for NSI cases.", "Ilse Ferris, Hennepin County")
@@ -60,6 +61,9 @@ changelog_display
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
+CALL back_to_SELF() 'Returns to SELF to check the MAXIS environment
+EMReadScreen MX_environment, 7, 22, 48  'Read the MAXIS environment to check if in INQUIRY or TRAINING
+If MX_environment <> "PRODUCT" Then script_end_procedure("The PF11 Actions script only works in MAXIS production. You are not currently in production so the script will now end. Switch to production and run the script again.")  'Script can only be run in production. Script ends if not in production
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""

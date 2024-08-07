@@ -57,8 +57,11 @@ function find_hot_topic_name(ht_link, ht_name)
 	ht_name = replace(ht_name, ".aspx", "")
 	ht_name = replace(ht_name, "-%E2%80%93-", "   ")
 	ht_name = replace(ht_name, "-%e2%80%93-", "   ")
+	ht_name = replace(ht_name, "%20%E2%80%93%20", " - ")
 	ht_name = replace(ht_name, "-", " ")
 	ht_name = replace(ht_name, "   ", " - ")
+	ht_name = replace(ht_name, "%20", " ")
+	ht_name = replace(ht_name, "20%", " ")
 end function
 
 'declaring some constants for the array of the hot topic articles we are going to use
@@ -73,10 +76,10 @@ Const multiple_scripts_TF	= 7
 Const run_script_btn 		= 8
 Const add_to_favorites_btn	= 9
 Const script_displayed 		= 10
-Const hot_topic_name_const 	= 12
-Const script_instructions_url_const 	= 13
-Const script_url_const 		= 14
-Const last_ht_const 			= 15
+Const hot_topic_name_const 	= 11
+Const script_instructions_url_const = 12
+Const script_url_const 		= 13
+Const last_ht_const 		= 14
 
 'declaring the array
 Dim HOT_TOPIC_ARRAY()
@@ -161,6 +164,34 @@ ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Power-Pad-and-Health-Care-Script-Updates.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/18/2023#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+'This is script specific but another HT for this script came out
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/SNAP-Interview-Waiver---New-Applications.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #01/02/2024#
+HOT_TOPIC_ARRAY(script_category_const, article_count) = "NOTES"											'save the script category associated with the HT Article
+HOT_TOPIC_ARRAY(script_name_const, article_count) = "SNAP Waived Interview"											'save the script name associated with the HT Article
+HOT_TOPIC_ARRAY(script_instructions_url_const, article_count) = "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20SNAP%20WAIVED%20INTERVIEW.docx?"
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+'This is script specific but another HT for this script came out
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES-%e2%80%93-Client-Contact-is-Changing.aspx?"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #12/19/2023#
+HOT_TOPIC_ARRAY(script_category_const, article_count) = "NOTES"											'save the script category associated with the HT Article
+HOT_TOPIC_ARRAY(script_name_const, article_count) = "Client Contact"											'save the script name associated with the HT Article
+HOT_TOPIC_ARRAY(script_instructions_url_const, article_count) = "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CLIENT%20CONTACT.docx?"
 HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
 HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
 HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count

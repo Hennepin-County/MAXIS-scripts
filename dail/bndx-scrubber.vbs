@@ -84,39 +84,12 @@ EmReadscreen MAXIS_footer_year, 2, 6, 14
 EmReadscreen original_bndx_dail, 40, 6, 20
 original_bndx_dail = trim(original_bndx_dail)
 
-EMReadScreen MEMB_check, 7, 6, 20
-If left(MEMB_check, 4) = "MEMB" then
-    member_number = right(MEMB_check, 2)
-    SSN_present = False
-    'Grabbibng the SSN for the member
-    EmReadscreen member_number, 2, 6, 25
-    CALL write_value_and_transmit("S", 6, 3)
-    'PRIV Handling
-    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-    EMWriteScreen "MEMB", 20, 71
-    Call write_value_and_transmit(member_number, 20, 76)
-    EmReadscreen client_SSN, 11, 7, 42
-    trimmed_client_SSN = replace(client_SSN, " ", "")
-    PF3 ' back to the DAIL
-Else
-    'DAIL messages that have the SSN already present don't need to enter the MEMB panel to gather the SSN
-    SSN_present = True
-    EMReadScreen cl_ssn, 9, 6, 20
-    ssn_first = left(cl_ssn, 3)
-    ssn_first = ssn_first & " "
-    ssn_mid = right(left(cl_ssn, 5), 2)
-    ssn_mid = ssn_mid & " "
-    ssn_end = right(cl_ssn, 4)
-    client_SSN = ssn_first & ssn_mid & ssn_end
-End if
-
 'Navigating deeper into the match interface
 CALL write_value_and_transmit("I", 6, 3)
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-EMWriteScreen trimmed_client_SSN, 3, 63
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is privileged. The script will now end.")
+EMReadScreen client_SSN, 9, 3, 63
 
 'Ensuring that we're on the right footer month/year as the DAIL message. Otherwise errors can occur.
 EmReadscreen bndx_month, 2, 20, 55
@@ -180,6 +153,7 @@ Call write_value_and_transmit("MEMB", 20, 71)
 
 DO
 	EMReadScreen memb_ssn, 11, 7, 42
+	memb_ssn = replace(memb_ssn, " ", "")
 	IF client_SSN = memb_ssn THEN
 		EMReadScreen member_number, 2, 4, 33
 	ELSE
@@ -335,7 +309,7 @@ DIALOG Dialog1
 		END IF
 ELSE
 	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
-	MSGBox error_message
+	script_end_procedure(error_message)
 END IF
 
 script_end_procedure("")

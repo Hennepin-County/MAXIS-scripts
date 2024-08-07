@@ -71,6 +71,8 @@ Function declare_main_menu_dialog(script_category)
 			' MsgBox script_array(current_script).script_name & vbCr & "see_the_button - " & see_the_button & vbCr & "Show_sript - " & script_array(current_script).show_script
         End if
     next
+	dlg_len = dlg_len * 1
+
 
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
@@ -116,6 +118,8 @@ End function
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
 button_placeholder 			    = 24601
+dlg_len = ""
+Dialog1 = ""
 
 'Displays the dialog
 Do
@@ -147,6 +151,7 @@ Do
 	Next
 
     ' MsgBox script_to_run
+	Dialog1 = ""
 Loop until ready_to_exit_loop = true
 
 call run_from_GitHub(script_to_run)

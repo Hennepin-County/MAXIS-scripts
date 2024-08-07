@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/06/2024", "Updated SSN in body of email to match Vet SSN. ", "Megan Geissler, Hennepin County")
 call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
 call changelog_update("11/25/2020", "Inital Version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -180,7 +181,7 @@ DO   'loop for the HH member does need to re-read jsut need to allow us to chose
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     'Creating the email
-    VA_info = "Name of Veteran:  " & vet_member & vbcr & "SSN of Veteran: " & client_SSN & vbcr
+    VA_info = "Name of Veteran:  " & vet_member & vbcr & "SSN of Veteran: " & vet_ssn & vbcr
 
     If trim(VA_file_number) <> "" THEN VA_info = VA_info & "VA File # (if known): " & VA_file_number & vbcr
     If trim(spouse_child_name) <> "" THEN VA_info = VA_info & "Name of Spouse/Child receiving VA benefit(if applicable): " & trim(spouse_child_name) & vbcr

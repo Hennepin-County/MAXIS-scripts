@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/17/2024", "Reverted language for BO-Other selection to pre-pandemic language.", "Mark Riegel, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "Resolved bug in excel row incrementor which was previously skipping cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
@@ -526,7 +527,7 @@ For item = 0 to UBound(match_based_array, 2)
     	        IF IULB_notes = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
     	        IF IULB_notes = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
     	        IF IULB_notes = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
-    	        IF IULB_notes = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
+    	        IF IULB_notes = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
     	        CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     	        CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 				CALL write_variable_in_case_note(worker_signature)

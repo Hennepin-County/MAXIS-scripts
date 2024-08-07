@@ -78,3 +78,7 @@ attachment_here = Array("C:\Users\MARI001\Downloads\Minnesota-Digital-Government
 Call create_outlook_email("", "bzt_email", "", "", "subject_of_email", 1, False, "", "", False, "", "full_text", True, attachment_here, false)
 
 ' email_attachment_array = Split(email_attachment_array, ",")
+
+'Stage 1 test
+
+'Stage 2 test

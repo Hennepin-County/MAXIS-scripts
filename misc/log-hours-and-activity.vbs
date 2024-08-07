@@ -133,6 +133,13 @@ If user_ID_for_validation = "MARI001" Then
 	bz_member = "Mark Riegel"
 	' leave_request_type = "PTO"
 End If
+If user_ID_for_validation = "DACO003" Then
+	t_drive_excel_file_path = excel_file_path & "\Dave Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Dave Time Tracking.xlsx"
+	bz_member = "Dave Courtright"
+	' leave_request_type = "PTO"
+End If
+
 
 If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
 If objFSO.FileExists(my_docs_excel_file_path) = False Then Call script_end_procedure("We have not set up your Time Tracking Worksheet yet!")
@@ -922,6 +929,6 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 End If
 
 objWorkbook.Save									'saving the file to 'My Documents'
-objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+If user_ID_for_validation <> "DACO003" Then objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 ObjExcel.Quit										'closing the Excel File'
 call script_end_procedure(end_msg)
