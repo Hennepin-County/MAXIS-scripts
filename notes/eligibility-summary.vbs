@@ -5412,7 +5412,7 @@ function mfip_special_diet_case_note()
 	If MFIP_ELIG_APPROVALS(elig_select).MFSD_diet_info_missing = True Then
 		Call write_variable_in_CASE_NOTE("* Not all diet details are listed on STAT/DIET.")
 		If MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note <> "" Then
-			Call write_variable_in_CASE_NOTE("  Additional DIET Detials: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note)
+			Call write_variable_in_CASE_NOTE("  Additional DIET Details: " & MFIP_ELIG_APPROVALS(elig_select).MFSD_missing_diet_note)
 		End If
 	End If
 
