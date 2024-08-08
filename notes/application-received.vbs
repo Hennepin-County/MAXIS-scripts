@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+Call changelog_update("08/08/2024", "Update to the CA Transfer process to transfer GRH/HS cases less often to maintain the caseload structure the GRH team uses. Additionally adds a separation of adult vs family GRH cases.", "Casey Love, Hennepin County.")
 Call changelog_update("05/23/2024", "Added contracted caseload selection for HCMC and North Memorial.", "Casey Love, Hennepin County.")
 Call changelog_update("04/29/2024", "Enhanced SPEC/XFER reminder when ransferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
 Call changelog_update("04/27/2024", "Added reminder option prior to SPEC/XFER about transferring cases in ECF Next prior to transferring the case in MAXIS.", "Ilse Ferris, Hennepin County.")
@@ -198,7 +199,16 @@ caseload_info.add "X127EX5", "Adults - General"
 caseload_info.add "X127EX7", "Adults - General"
 caseload_info.add "X127EX8", "Adults - General"
 caseload_info.add "X127EX9", "Adults - General"
-caseload_info.add "X127EM8", "GRH / HS"
+caseload_info.add "X127EM8", "GRH / HS - Adults Pending"
+caseload_info.add "X127EZ2", "GRH / HS - Families Pending"
+caseload_info.add "X127EM2", "GRH / HS - Maintenance"
+caseload_info.add "X127EH9", "GRH / HS - Maintenance"
+caseload_info.add "X127FE6", "GRH / HS - Maintenance"
+caseload_info.add "X127EJ4", "GRH / HS - Maintenance"
+caseload_info.add "X127EH2", "GRH / HS - Maintenance"
+caseload_info.add "X127EP4", "GRH / HS - Maintenance"
+caseload_info.add "X127EK5", "GRH / HS - Maintenance"
+caseload_info.add "X127EG5", "GRH / HS - Maintenance"
 caseload_info.add "X127EG4", "MIPPA"
 caseload_info.add "X127F3D", "MA - BC"
 caseload_info.add "X127EK4", "LTC+ - General"
@@ -352,16 +362,22 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 
 	population = ""
 	If correct_caseload_type = "" Then
-		If grh_status = "ACTIVE" or grh_status = "PENDING" Then
+		If grh_status = "ACTIVE" or grh_status = "PENDING" or grh_status = "REIN" Then
 			correct_caseload_type = "GRH / HS"
-			If correct_caseload_type = current_caseload_type Then transfer_needed = False
+			If correct_caseload_type = left(current_caseload_type, 8) Then transfer_needed = False
+			population = "Adults"
 			If addr_on_1800_faci_list = True Then
 				correct_caseload_type = "1800 - Team 160"
 				If InStr(alpha_split_one_a_l, left(case_name, 1)) <> 0 Then new_caseload = "X127EF8"
 				If InStr(alpha_split_two_m_z, left(case_name, 1)) <> 0 Then new_caseload = "X127EF9"
 				If new_caseload <> "" and current_caseload <> new_caseload Then transfer_needed = True
+			ElseIf transfer_needed = True Then
+				correct_caseload_type = "GRH / HS - Adults Pending"
+				If case_has_child_under_19 = True or preg_person_on_case = True Then
+					correct_caseload_type = "GRH / HS - Families Pending"
+					population = "Families"
+				End If
 			End If
-			population = "Adults"
 		End If
 	End If
 
