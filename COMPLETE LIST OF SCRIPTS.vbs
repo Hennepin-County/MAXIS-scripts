@@ -1451,7 +1451,7 @@ ReDim Preserve script_array(script_num)			'Resets the array to add one more elem
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "DAIL Unclear Information"
 ' script_array(script_num).description 			= "Evaluates HIRE and CSES messages in the DAIL to remove messages that fall under unclear information."
-script_array(script_num).category               = "BULK"
+script_array(script_num).category               = "ADMIN"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("SNAP")
 script_array(script_num).dlg_keys               = array("Ex", "Ev", "Ex", "Up")
