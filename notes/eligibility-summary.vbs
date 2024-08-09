@@ -24467,7 +24467,7 @@ If (user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" or 
 ' developer_mode = True
 
 Call MAXIS_background_check				'we are adding a background check to make sure the case is through background before attempting to read ELIG.
-If MAXIS_case_number = "493723" Then allow_late_note = True
+' If MAXIS_case_number = "493723" Then allow_late_note = True
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 ex_parte_approval = False
@@ -25372,15 +25372,11 @@ For each footer_month in MONTHS_ARRAY
 		End If
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today = True Then
 			diets_running_total = 0
-			For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
-				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
-					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
-						If STAT_INFORMATION(month_count).stat_diet_exists(each_stat_memb) = True Then
-							diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_one(each_stat_memb)
-							diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_two(each_stat_memb)
-						End If
-					End If
-				Next
+			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_count).stat_diet_exists(each_stat_memb) = True Then
+					diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_one(each_stat_memb)
+					diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_two(each_stat_memb)
+				End If
 			Next
 			diets_running_total = FormatNumber(diets_running_total, 2, -1, 0, -1)
 
