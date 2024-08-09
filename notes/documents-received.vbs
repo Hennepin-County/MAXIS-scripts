@@ -45,6 +45,11 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+test_reason = " any issues related to navigation, field requirements and any other script functionality." & vbcr & vbcr &  "Updates:" & vbcr & "-Restructured format to be form-based instead of free-text based." & vbcr & "-Forms include: Assets, ATR, AREP, Change, EVF, Hospice, IAA, LTC1503, MOF, MTAF, PSN, Shelter, Special Diet, Other (for forms not listed)." & vbcr & "-Unique document date for each form received"
+		
+file_path = "notes/documents-received-testing.vbs"
+Call select_testing_file("ALL", "", file_path, "master", TRUE, FALSE)
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
