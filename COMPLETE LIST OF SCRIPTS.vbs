@@ -57,7 +57,7 @@ class script_bowie
 	public used_for_elig
 	public policy_references		'ARRAY of all policy references the script supports - use spaces between the 3 items the name should have underscores in place of spaces'
 									'CM Section_Name XX.XX.XX
-									'TE Section_Name XX.XX.XX
+									'TE Section_Name XX.XX.XX		
 									'SHAREPOINT Site_Name URL
 									'SIR Ref_Name URL
 									'ONESOURCE Section_Name URL
@@ -735,7 +735,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04","CM Applications 05","CM Application_-_Pending_Cases 05.09.12","TE Notice_of_Interview/Missed_Interview_(NOMI) 02.05.15","TE Expedited_Food_Support_Tip_Sheet 13.031", "SHAREPOINT Applications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx")						'SEE Line 58 for format')						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04","CM Applications 05","CM Application_-_Pending_Cases 05.09.12","TE Notice_of_Interview/Missed_Interview_(NOMI) 02.05.15", "SHAREPOINT Applications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx")						'SEE Line 58 for format')						'SEE Line 58 for format'
 script_array(script_num).specialty_redirect		= "CA"
 
 script_num = script_num + 1						'Increment by one
@@ -1110,7 +1110,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM SNAP_Electronic_Disqualified_Recipient_System 25.24.08", "TE SNAP_EDRS 02.08.093")
+script_array(script_num).policy_references		= array("CM SNAP_Electronic_Disqualified_Recipient_System 25.24.08", "TE CASE_NOTE_I___INTRO/HH_COMP 02.08.093")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1140,7 +1140,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_and_Immg_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_&_Immig_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1172,7 +1172,7 @@ script_array(script_num).hot_topic_date         = #01/30/2024#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/SNAP-Waived-Interview-Now-Handles-Return-Contacts.aspx?"
 
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("TE CASE_NOTE_I_INTRO_HH_COMP 02.08.093", "SHAREPOINT CASE_NOTE_GUIDELINES_AND_FORMAT https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Casenote_Guidelines_and_Format.aspx")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE CASE_NOTE_I___INTRO/HH_COMP 02.08.093", "SHAREPOINT CASE_NOTE_GUIDELINES_AND_FORMAT https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Casenote_Guidelines_and_Format.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
@@ -1686,7 +1686,7 @@ script_array(script_num).release_date           = #03/05/2019#
 script_array(script_num).hot_topic_date			= #08/26/2023#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Updates-to-ACTIONS-%E2%80%93-Earned-Income-Budgeting.aspx"
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM Determining_Gross_Income 17", "TE Student_Income 02.08.087", "TE AmeriCorps 02.05.34", "TE SNAP_Benefits_-_2nd_30_Days_Applicant_Delay 02.05.107", "TE CASE_NOTE_II_Assets_Income 02.08.094", "TE Determining_MFIP_Initial/Ongoing_Eligibilty 02.05.80", "TE Budget_Cycle/Monthly_Reporting_Changes 02.80.32", "SHAREPOINT Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Income.aspx", "SHAREPOINT Earned_Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Earned_Income.aspx")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Determining_Gross_Income 17", "TE Student_Income 02.08.087", "TE AmeriCorps 02.05.34", "TE SNAP_Benefits_-_2nd_30_Days_Applicant_Delay 02.05.107", "TE CASE_NOTE_II___Assets_Income 02.08.094", "TE Determining_MFIP_Initial/Ongoing_Eligibility 02.05.80", "TE Budget_Cycle_Monthly_Reporting_Changes 02.08.032", "SHAREPOINT Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Income.aspx", "SHAREPOINT Earned_Income https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Earned_Income.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1701,7 +1701,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #06/18/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("TE Replacing_Stolen_EBT_Food_Client_Notification 02.11.126", "TE Replacing_Stolen_EBT_Food_Client_Reports 02.11.127", "TE Replacing_Stolen_EBT_Food_Case-Note 02.11.128")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE EBT_Stolen_Benefits_-_Client_Notification 02.11.126", "TE EBT_Stolen_Benefits_-_Client_Reports 02.11.127", "TE EBT_Stolen_Benefits_-_Case_Note 02.11.128")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1716,7 +1716,7 @@ script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM SNAP_Electronic_Disqualified_Recipient_System 25.24.08", "TE SNAP_EDRS 02.08.093")
+script_array(script_num).policy_references		= array("CM SNAP_Electronic_Disqualified_Recipient_System 25.24.08", "TE CASE_NOTE_I___INTRO/HH_COMP 02.08.093")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1910,7 +1910,7 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #08/31/2021#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Scripts-Available-September-1-for-Interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_Food_Support_Tip_Sheet 13.031", "TE Expedited_SNAP_W_Pending_Verif's 02.10.01", "TE WREG_Expedited_SNAP_Postponed_Verifs 02.05.70.01", "TE QTIP_#152_-_Expedited_Food_Support 19.152", "TE EBT_-_Expedited_Food_Support 16.09", "TE Expedited_FS_2nd_Month_Eligibility 02.10.79", "TE Asset_Coding_for_Food_Support 02.08.185", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")
+script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_SNAP_W/_Postponed_Verifs 02.10.01", "TE WREG_Expedited_SNAP_Postponed_Verifs 02.05.70.01", "TE Expedited_FS_2nd_Month_Eligibility 02.10.79", "TE Asset_Coding_for_Expedited_SNAP 02.08.185", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -1956,7 +1956,7 @@ script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_Food_Support_Tip_Sheet 13.031")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2668,7 +2668,7 @@ script_array(script_num).subcategory            = array("LTC")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("EPM Lookback_Period_and_Transfer_Date http://hcopub.dhs.state.mn.us/epm/2_4_1_3_1.htm?rhhlterm=baseline%20date&rhsearch=baseline%20date", "EPM Transfer_Penalty http://hcopub.dhs.state.mn.us/epm/2_4_1_3_2.htm?rhhlterm=ltc&rhsearch=LTC", "TE Uncompensated_Asset/Income_Transfers-MA-Poli/Temp 02.14.27")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("EPM Lookback_Period_and_Transfer_Date http://hcopub.dhs.state.mn.us/epm/2_4_1_3_1.htm?rhhlterm=baseline%20date&rhsearch=baseline%20date", "EPM Transfer_Penalty http://hcopub.dhs.state.mn.us/epm/2_4_1_3_2.htm?rhhlterm=ltc&rhsearch=LTC", "TE Uncompensated_Asset_Income_Transfers_-_MA 02.14.27")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -2819,7 +2819,7 @@ script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references      = array("","","","","","","","", "")
 script_array(script_num).policy_references(0)   = "CM INCOME_AND_ELIGIBILTY_VERIFICATION_SYSTEM 10.24"
-script_array(script_num).policy_references(1)   = "TE IEVS_WAGE_MATCH_EARNER_DISCREPANCY 02.12.10"
+script_array(script_num).policy_references(1)   = "TE IEVS_WAGE_MATCH___EARNER_DISCREPANCY 02.12.10"
 script_array(script_num).policy_references(2)   = "TE QTIP_#64_IVES_MATCH_USING_BC_CLOSED_CASE 19.164"
 script_array(script_num).policy_references(4)   = "TE IEVS_DAIL_MESSAGES 02.08.083"
 script_array(script_num).policy_references(5)   = "TE ACCESSING_INFORMATION_ABOUT_IEVS_MATCHES 02.08.084"
@@ -2929,7 +2929,7 @@ script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("TE HC_RETRO 09.18", "TE FIAT_HC 09.17.02","SHAREPOINT Retroactive_Medical_Assistance https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Retroactive_MA.aspx", "SHAREPOINT MAXIS_and_MMIS_Action_for_Retroactive_MA https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MAXIS_and_MMIS_Action_for_Retroactive_MA.aspx", "SHAREPOINT Retro_Flow_Chart https://hennepin.sharepoint.com/teams/hs-es-manual/MNsure%20Documents/Forms/AllItems.aspx?id=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents%2FRetro%20flow%20chart%2Epdf&parent=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents", "EPM 1.2.5_MHCP_Retroactive_Eligibility http://hcopub.dhs.state.mn.us/epm/1_2_5.htm?rhhlterm=retroactive&rhsearch=retroactve")
+script_array(script_num).policy_references		= array("TE HC_-_RETRO 09.18", "TE FIAT_-_HC 09.17.02","SHAREPOINT Retroactive_Medical_Assistance https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Retroactive_MA.aspx", "SHAREPOINT MAXIS_and_MMIS_Action_for_Retroactive_MA https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MAXIS_and_MMIS_Action_for_Retroactive_MA.aspx", "SHAREPOINT Retro_Flow_Chart https://hennepin.sharepoint.com/teams/hs-es-manual/MNsure%20Documents/Forms/AllItems.aspx?id=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents%2FRetro%20flow%20chart%2Epdf&parent=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents", "EPM 1.2.5_MHCP_Retroactive_Eligibility http://hcopub.dhs.state.mn.us/epm/1_2_5.htm?rhhlterm=retroactive&rhsearch=retroactve")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -3223,10 +3223,10 @@ script_array(script_num).policy_references      = array("","","","","","","","",
 script_array(script_num).policy_references(0)       = "CM Benefit_Adjustment_and_Recovery 25"
 script_array(script_num).policy_references(1)       = "TE Claim_Entry_Initiates_Transaction 02.09.07"
 script_array(script_num).policy_references(2)       = "TE CLAIM_REFERRAL_TRACKING 02.09.47"
-script_array(script_num).policy_references(3)       = "TE CASE_AND_PERSON-BASED_CLRA 02.09.02"
-script_array(script_num).policy_references(4)       = "TE CORRECT_MISTAKE_ON_A_CLAIM_ALREADY_ENTERED 02.09.05"
+script_array(script_num).policy_references(3)       = "TE CASE_AND_PERSON_CLRA_PANELS 02.09.02"
+script_array(script_num).policy_references(4)       = "TE CORRECT_MISTAKES_ON_CLAIM_ALREADY_ENTERED 02.09.05"
 script_array(script_num).policy_references(5)       = "TE DEMAND_LETTERS_FOR_OVERPAYMENTS 02.09.00"
-script_array(script_num).policy_references(6)       = "TE CASE_NOTE_III_CLAIMS/SYSTEMS/TRANSFER 02.08.095"
+script_array(script_num).policy_references(6)       = "TE CASE_NOTE_III:___CLAIMS/SYSTEMS/TRANSFERS 02.08.095"
 script_array(script_num).policy_references(7)       = "TE MCE 02.09.41"
 script_array(script_num).policy_references(8)       = "TE MCE_PAYMENTS_AND_CONTACT_INFORMATION 02.09.41.03"
 script_array(script_num).policy_references(9)       = "SHAREPOINT CLAIMS_AND_UNDERPAYMENTS_POLICY https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Underpayments_Policy.aspx"
@@ -3781,7 +3781,7 @@ script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("TE QTIP_#118_ASTERISK_ON_REPT/REVW 19.118", "TE HC_6-MONTH_RENEWALS 09.42","SHAREPOINT Medical_Assistance_(MA)_Renewals https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Medical-Assistance-(MA)-Renewals.aspx")
+script_array(script_num).policy_references		= array("TE QTIP_#118_-_ASTERISK_ON_REPT_REVW 19.118", "TE HC_6-MONTH_RENEWALS 09.42","SHAREPOINT Medical_Assistance_(MA)_Renewals https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Medical-Assistance-(MA)-Renewals.aspx")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -4616,7 +4616,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_and_Immg_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
+script_array(script_num).policy_references      = array("CM Mandatory_Verifications 10.18", "CM Citizenship_and_Immigration_Status 11.03", "TE Citizenship_&_Immig_Ver._For_MA_APPL 02.08.166", "SHAREPOINT Acceptable_Verifications https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Acceptable_Verification.aspx")                   'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
@@ -4854,7 +4854,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references      = array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_Food_Support_Tip_Sheet 13.031", "TE Expedited_SNAP_W_Pending_Verif's 02.10.01", "TE WREG_Expedited_SNAP_Postponed_Verifs 02.05.70.01")
+script_array(script_num).policy_references      = array("CM Emergency_Aid_Eligibility_-_SNAP/Expedited_Food 04.04", "TE Expedited_SNAP_W/_Postponed_Verifs 02.10.01", "TE WREG_Expedited_SNAP_Postponed_Verifs 02.05.70.01")
 
 
 script_num = script_num + 1						'Increment by one
