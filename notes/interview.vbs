@@ -2802,6 +2802,27 @@ function display_expedited_dialog()
 	page_display = show_pg_last
 end function
 
+Function display_exemptions() 'A message box showing exemptions from SNAP work rules
+	wreg_exemptions = msgbox("Individuals in your household may not have to follow these General Work Rules if [you/they] are:" & vbCr & vbCr &_
+				  "* Younger than 16 or older than 59," & vbCr &_
+	     		  "* Taking care of a child younger than 6 or someone who needs helps caring for themselves, " & vbCr &_
+	     		  "* Already working at least 30 hours a week," & vbCr &_
+	     		  "* Already earning $217.50 or more per week," & vbCr &_
+	     		  "* Receiving unemployment benefits, or you applied for unemployment benefits," & vbCr &_
+	     		  "* Not working because of a physical illness, injury, disability, or surgery recovery," & vbCr &_
+	     		  "* Not working due to a mental health illness, disorder, or health condition," & vbCr &_
+				  "* Are homeless," & vbCr &_
+				  "* A victim of domestic violence," & vbCr &_
+				  "* Going to school, college, or a training program at least half time," & vbCr &_
+				  "* Meeting the work rules for Minnesota Family Investment Program (MFIP) or DWP (Divisionary Work Program (DWP)," & vbCr &_
+				  "* Not working due to a substance use disorder or addiction dependency, or" & vbCr &_
+				  "* Participating in a drug or alcohol addiction treatment program." & vbCr & vbCr &_
+				  "Press yes if you reviewed exemptions with the resident, press no to return to the previous dialog without review." & vbCr &_
+				  "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Work Rules Reviewed")
+		If wreg_exemptions = vbCancel then cancel_confirmation
+	If wreg_exemptions = vbYes then work_exemptions_reviewed = true
+End Function
+
 function evaluate_for_expedited(app_month_income, app_month_assets, app_month_housing_cost, heat_checkbox, air_checkbox, electric_checkbox, phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 	If heat_checkbox = checked OR air_checkbox = checked Then
         app_month_utilities_cost = heat_AC_amt
@@ -6328,7 +6349,7 @@ function write_interview_CASE_NOTE()
 	If left(confirm_mfip_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2647 -2929 -3323"
 	If left(confirm_mfip_cs_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -3393 -3163B -2338 -5561"
 	If left(confirm_minor_mfip_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2961 -2887 -3238"
-	If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2625 -2707 -7635"
+	If left(confirm_snap_forms_read, 4) = "YES!" Then forms_reviewed = forms_reviewed & " -2625 -7635"
 	If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed DHS Forms", forms_reviewed)
 	If left(confirm_snap_forms_read, 4) = "YES!" Then
@@ -10514,27 +10535,31 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 				  Text 15, 45, 75, 10, "This case is subject to "
 				  Text 200, 45, 40, 10, "reporting."
 				  Text 15, 60, 95, 10, "Your next renewal will be for "
-				  Text 160, 60, 310, 10, ". Which means you will need to complete the required form and process in the month before."
+				  Text 160, 60, 310, 10, " Which means you will need to complete the required form and process in the month before."
 				  Text 15, 75, 185, 10, "Explain reporting details based on the reporter type."
 				  Text 15, 100, 395, 10, "Timely reporting of changes means the change is reported by the 10th of the month following the month of the change."
-				  GroupBox 10, 125, 530, 105, "Facts on Voluntarily Quitting Your Job If You Are on SNAP (DHS-2707)"
-				  Text 15, 140, 505, 10, "If you or someone else in your household has a job and quits without a good reason, your household might not get SNAP benefits."
-				  Text 15, 150, 505, 20, "The penalty does not apply if the person who quit a job: "
-				  Text 25, 160, 505, 20, "- Was fired, or forced to leave the job, or had hours cut back by the employer - Was self-employed - Left a job that was less than 30 hours per week"
-				  Text 15, 170, 505, 10, "The penalty also does not apply if you can prove the person had 'good reason' to quit the job. The form has some examples of 'good reasons'."
-				  GroupBox 10, 225, 530, 105, "Work Registration Notice (DHS-7635)"
-				  Text 15, 240, 505, 10, "In order to be eligible for benefits you must cooperate in any efforts regarding work registration. "
-				  Text 15, 250, 505, 10, "If you do not follow any of the work requirements listed above your benefits may end."
+				  GroupBox 10, 125, 530, 220, "SNAP General Work Rules"
 				  ButtonGroup ButtonPressed
 				    PushButton 465, 365, 80, 15, "Continue", continue_btn
 				    PushButton 430, 20, 100, 15, "Open DHS 2625", open_cs_2625_doc
-					PushButton 25, 85, 90, 13, "Six Month Reporting", explain_six_month_rept
-					PushButton 115, 85, 90, 13, "Change Reporting", explain_change_rept
-					PushButton 205, 85, 90, 13, "Monthly Reporting", explain_monthly_rept
-				    PushButton 430, 120, 100, 15, "Open DHS 2707", open_cs_2707_doc
-				    PushButton 430, 220, 100, 15, "Open DHS 7635", open_cs_7635_doc
+				    PushButton 25, 85, 90, 15, "Six Month Reporting", explain_six_month_rept
+				    PushButton 115, 85, 90, 15, "Change Reporting", explain_change_rept
+				    PushButton 205, 85, 90, 15, "Monthly Reporting", explain_monthly_rept
+					PushButton 325, 130, 210, 15, "Press here for a list of exemptions from work rules.", exemptions_button
 				  Text 10, 370, 210, 10, "Confirm you have reviewed SNAP Specific Information:"
+				  Text 15, 135, 310, 10, "Explain to the resident which members of the household are subject to the work rules."
+				  Text 15, 150, 305, 10, "To follow the general work rules, these members must:"
+				  Text 15, 170, 450, 10, "* Accept any job offer received, unless there is a good reason they can't. "
+				  Text 15, 185, 490, 20, "* If they have a job, don't quit or choose to work less than 30 hours each week without having a good reason. Good reasons could be getting sick, being discriminated against, or not getting paid."
+				  Text 15, 210, 450, 10, "* You may lose your SNAP benefits if you don't follow these work rules without having a good reason."
+				  Text 15, 230, 450, 10, "It is important for you to know that there are consequences if you/they don't follow these General Work Rules: "
+				  Text 15, 245, 450, 20, "The first time [you/they] don't follow these rules, and you don't have a good reason, you can't get SNAP benefits for 1 month."
+				  Text 15, 260, 450, 10, "The second time [you/they] don't follow these rules, you can't get SNAP benefits for 3 months."
+				  Text 15, 275, 450, 10, "The third time, and any time after that, [you/they] can't get SNAP benefits for 6 months."
+				  
+				    
 				EndDialog
+
 
 				dialog Dialog1
 				cancel_confirmation
@@ -10552,7 +10577,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 					If ButtonPressed = open_cs_7635_doc Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://edocs.dhs.state.mn.us/lfserver/Public/DHS-7635-ENG"
 				End If
 
-				If ButtonPressed = explain_six_month_rept OR ButtonPressed = explain_change_rept OR ButtonPressed = explain_monthly_rept Then
+				If ButtonPressed = explain_six_month_rept OR ButtonPressed = explain_change_rept OR ButtonPressed = explain_monthly_rept OR ButtonPressed = exemptions_button Then
 					err_msg = "LOOP"
 					If ButtonPressed = explain_six_month_rept Then MsgBox "SIX MONTH REPORTING" & vbCr & vbCR &_
 																		  "There are only TWO changes that are required to be reported:" & vbCr &_
@@ -10595,6 +10620,7 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 																	    "As a Monthly Reporter, you are certified for twelve months at a time, which means you will have a review within twelve months." & vbCr &_
 																		"However the system will close your benefits if the monthly Household Report Form is not received, processed, and all verifications attached."
 
+					If ButtonPressed = exemptions_button Then call display_exemptions()
 				End If
 
 				IF err_msg <> "" AND err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
