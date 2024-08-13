@@ -313,16 +313,6 @@ total_paid_by_household 	= 100
 total_paid_by_others 		= 0
 'END ADDR/SHEL/HEST
 
-'Verification booleans for FEST/ABAWD Codes
-fset_abawd_comparison_top_section 	= FALSE 	'If FSET = Top section, then ABAWD should be 01
-fset_abawd_comparison_15_02			= FALSE		'If FSET = 15, then ABAWD should be 02
-fset_abawd_comparison_16_03 		= FALSE 	'If FSET = 16, then ABAWD should be 03
-fset_abawd_comparison_21_04 		= FALSE 	'If FSET = 21, then ABAWD should be 04
-fset_abawd_comparison_17_12 		= FALSE 	'If FSET = 17, then ABAWD should be 12
-fset_abawd_comparison_23_05 		= FALSE 	'If FSET = 23, then ABAWD should be 05
-fset_abawd_comparison_30 			= FALSE 	'If FSET = 30, then ABAWD should NOT be 01-08
-
-
 
 'FUNCTIONS DEFINED===========================================================================
 'ASSET CODE-START
@@ -1562,12 +1552,12 @@ function asset_dialog()
 	End If
 
 	If acct_panels = 0 AND cars_panels = 0 AND secu_panels = 0 AND cash_panels = 0 Then 
-		Text 60, 70, 250 , 10, "~~~NO CURRENT ACCT, SECU, CARS or CASH PANELS~~~"
-		Text 85, 85, 250 , 10, "~~~Complete the fields below~~~"
+	y_pos = y_pos + 15
+		Text 60, y_pos, 250 , 10, "~~~NO CURRENT ACCT, SECU, CARS or CASH PANELS~~~"
 	End If
 
 	Text 340, 5, 55, 10, "Document Date:"
-	y_pos = y_pos + 15
+	y_pos = y_pos + 25
 	Text 15, y_pos, 45, 10, "Action Taken:"
 	EditBox 60, (y_pos - 5), 295, 15, actions_taken
 	y_pos = y_pos + 15
@@ -2016,51 +2006,53 @@ Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults,
 function addr_shel_hest_panel_dialog()
 	If err_msg = "" Then 
 		If sf_update_addr_shel_hest_checkbox = checked Then
-			Do
-				err_msg = ""
+			Do 
+				Do
+					err_msg = ""
 
-				BeginDialog Dialog1, 0, 0, 555, 385, "Housing Expense Detail"
+					BeginDialog Dialog1, 0, 0, 555, 385, "Housing Expense Detail"
 
-				ButtonGroup ButtonPressed
-					If page_to_display = ADDR_dlg_page Then
-						Text 506, 12, 60, 10, "ADDR"
-						Call display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
-					End If
+					ButtonGroup ButtonPressed
+						If page_to_display = ADDR_dlg_page Then
+							Text 506, 12, 60, 10, "ADDR"
+							Call display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
+						End If
 
-					If page_to_display = SHEL_dlg_page Then 
-						Text 506, 27, 60, 10, "SHEL"
-						Call display_SHEL_information(update_shel, show_totals, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, paid_to, percent_paid_by_household, percent_paid_by_others,  total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, memb_btn_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
-					End If
-					
-					If page_to_display = HEST_dlg_page Then 
-						Text 507, 42, 60, 10, "HEST"
-						Call display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest, update_information_btn, save_information_btn)
-					End If
+						If page_to_display = SHEL_dlg_page Then 
+							Text 506, 27, 60, 10, "SHEL"
+							Call display_SHEL_information(update_shel, show_totals, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, paid_to, percent_paid_by_household, percent_paid_by_others,  total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, memb_btn_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
+						End If
+						
+						If page_to_display = HEST_dlg_page Then 
+							Text 507, 42, 60, 10, "HEST"
+							Call display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest, update_information_btn, save_information_btn)
+						End If
 
-					If page_to_display <> ADDR_dlg_page Then PushButton 485, 10, 65, 13, "ADDR", ADDR_page_btn
-					If page_to_display <> SHEL_dlg_page Then PushButton 485, 25, 65, 13, "SHEL", SHEL_page_btn
-					If page_to_display <> HEST_dlg_page Then PushButton 485, 40, 65, 13, "HEST", HEST_page_btn
+						If page_to_display <> ADDR_dlg_page Then PushButton 485, 10, 65, 13, "ADDR", ADDR_page_btn
+						If page_to_display <> SHEL_dlg_page Then PushButton 485, 25, 65, 13, "SHEL", SHEL_page_btn
+						If page_to_display <> HEST_dlg_page Then PushButton 485, 40, 65, 13, "HEST", HEST_page_btn
 
-					OkButton 450, 365, 50, 15
-					CancelButton 500, 365, 50, 15
+						OkButton 450, 365, 50, 15
+						CancelButton 500, 365, 50, 15
 
-				EndDialog
+					EndDialog
 
 
-				Dialog Dialog1
-				cancel_confirmation
+					Dialog Dialog1
+					cancel_confirmation
 
-				If page_to_display = ADDR_dlg_page Then Call navigate_ADDR_buttons(update_addr, err_msg, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, mail_street_full, mail_city, mail_state, mail_zip, phone_one, phone_two, phone_three, type_one, type_two, type_three)
-				If page_to_display = SHEL_dlg_page Then Call navigate_SHEL_buttons(update_shel, show_totals, err_var, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, attempted_update_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
+					If page_to_display = ADDR_dlg_page Then Call navigate_ADDR_buttons(update_addr, err_msg, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, mail_street_full, mail_city, mail_state, mail_zip, phone_one, phone_two, phone_three, type_one, type_two, type_three)
+					If page_to_display = SHEL_dlg_page Then Call navigate_SHEL_buttons(update_shel, show_totals, err_var, ALL_SHEL_PANELS_ARRAY, member_selection, shel_ref_number_const, shel_exists_const, hud_sub_yn_const, shared_yn_const, paid_to_const, rent_retro_amt_const, rent_retro_verif_const, rent_prosp_amt_const, rent_prosp_verif_const, lot_rent_retro_amt_const, lot_rent_retro_verif_const, lot_rent_prosp_amt_const, lot_rent_prosp_verif_const, mortgage_retro_amt_const, mortgage_retro_verif_const, mortgage_prosp_amt_const, mortgage_prosp_verif_const, insurance_retro_amt_const, insurance_retro_verif_const, insurance_prosp_amt_const, insurance_prosp_verif_const, tax_retro_amt_const, tax_retro_verif_const, tax_prosp_amt_const, tax_prosp_verif_const, room_retro_amt_const, room_retro_verif_const, room_prosp_amt_const, room_prosp_verif_const, garage_retro_amt_const, garage_retro_verif_const, garage_prosp_amt_const, garage_prosp_verif_const, subsidy_retro_amt_const, subsidy_retro_verif_const, subsidy_prosp_amt_const, subsidy_prosp_verif_const, update_information_btn, save_information_btn, memb_btn_const, attempted_update_const, clear_all_btn, view_total_shel_btn, update_household_percent_button)
 
-				If page_to_display = HEST_dlg_page Then Call navigate_HEST_buttons(update_hest, err_msg, update_information_btn, save_information_btn, choice_date, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date)
-				If err_msg <> "" then MsgBox "Please Resolve:" & vbCr & err_msg
+					If page_to_display = HEST_dlg_page Then Call navigate_HEST_buttons(update_hest, err_msg, update_information_btn, save_information_btn, choice_date, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date)
+					If err_msg <> "" then MsgBox "Please Resolve:" & vbCr & err_msg
 
-				If ButtonPressed = ADDR_page_btn Then page_to_display = ADDR_dlg_page
-				If ButtonPressed = SHEL_page_btn Then page_to_display = SHEL_dlg_page
-				If ButtonPressed = HEST_page_btn Then page_to_display = HEST_dlg_page
-			Loop until ButtonPressed = -1
-		
+					If ButtonPressed = ADDR_page_btn Then page_to_display = ADDR_dlg_page
+					If ButtonPressed = SHEL_page_btn Then page_to_display = SHEL_dlg_page
+					If ButtonPressed = HEST_page_btn Then page_to_display = HEST_dlg_page
+				Loop until ButtonPressed = -1
+				CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+			Loop until are_we_passworded_out = false					'loops until user passwords back in
 			'Creates a new variable with MAXIS_footer_month and MAXIS_footer_year concatenated into a single date starting on the 1st of the month.
 			footer_month_as_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
 
@@ -2403,7 +2395,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 								ButtonGroup ButtonPressed
 									PushButton 80, 50, 50, 15, "Yes", psn_yes_btn
 									PushButton 135, 50, 50, 15, "No", psn_no_btn
-								Text 5, 5, 200, 10, "Are you sure you want to code FEST and ABAWD as follows?"
+								Text 5, 5, 200, 10, "Are you sure you want to code FSET and ABAWD as follows?"
 								Text 15, 20, 240, 10, "FSET Work Reg Status: " & psn_wreg_work_wreg_status
 								Text 15, 30, 240, 10, "ABAWD Status: " & psn_wreg_abawd_status
 							EndDialog
@@ -2562,7 +2554,7 @@ Do
 	DO
 		err_msg = ""
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 246, 105, "NOTES - Docs Received " & MAXIS_case_number
+		BeginDialog Dialog1, 0, 0, 246, 105, "NOTES - Docs Received Initial Dialog"
 			EditBox 70, 5, 50, 15, MAXIS_case_number
 			EditBox 70, 25, 20, 15, MAXIS_footer_month
 			EditBox 100, 25, 20, 15, MAXIS_footer_year
@@ -3417,6 +3409,14 @@ form_count = 0
 Do
 	Do
 		Do
+			'Verification booleans for FSET/ABAWD Codes
+			fset_abawd_comparison_top_section 	= FALSE 	'If FSET = Top section, then ABAWD should be 01
+			fset_abawd_comparison_15_02			= FALSE		'If FSET = 15, then ABAWD should be 02
+			fset_abawd_comparison_16_03 		= FALSE 	'If FSET = 16, then ABAWD should be 03
+			fset_abawd_comparison_21_04 		= FALSE 	'If FSET = 21, then ABAWD should be 04
+			fset_abawd_comparison_17_12 		= FALSE 	'If FSET = 17, then ABAWD should be 12
+			fset_abawd_comparison_23_05 		= FALSE 	'If FSET = 23, then ABAWD should be 05
+			fset_abawd_comparison_30 			= FALSE 	'If FSET = 30, then ABAWD should NOT be 01-08
 			Dialog1 = "" 'Blanking out previous dialog detail
 			BeginDialog Dialog1, 0, 0, 456, 300, "Documents Received - Case #" & MAXIS_case_number
 				If form_type_array(form_type_const, form_count) = asset_form_name then 
@@ -4755,6 +4755,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, each_case_note) = asset_form_name then 		'Asset Statement Case Notes
+		the_asset = 0
 		verifs_case_note = TRUE
 		Call start_a_blank_case_note
 		CALL write_variable_in_case_note("*** ASSET STATEMENT RECEIVED ***")
