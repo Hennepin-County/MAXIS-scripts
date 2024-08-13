@@ -752,8 +752,9 @@ Do
 									reference_name = "CM " & details_array(2) & " - " & reference_name
 									reference_link = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00" & replace(details_array(2), ".", "")
 								Case "TE"
-									reference_name = "TE " & details_array(2) & " - " & reference_name
-									reference_link = "NULL"
+									details_array(1) = replace(details_array(1), "/", "%20")
+                                    reference_name = "TE" & details_array(2) & " - " & reference_name
+                                    reference_link = "https://hennepin.sharepoint.com/:b:/r/sites/hs-es-poli-temp/Documents%203/TE%20" & details_array(2) & "%20" & replace(details_array(1), "_", "%20") &  ".pdf"
 								Case "SHAREPOINT"
 									reference_name = reference_name & " - Henn Co Sharepoint"
 									reference_link = details_array(2)
