@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/13/2024", "Added COLA message evaluation as part of the DAIL CCD process.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
 call changelog_update("03/11/2024", "Fixed bug in navigation and autosave", "Ilse Ferris, Hennepin County")
 call changelog_update("02/16/2024", "Updated background code to streamline processing, added searching PEPR messages, and added aged SNAP benefit message.", "Ilse Ferris, Hennepin County")
@@ -60,8 +61,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-dail_to_decimate = "INFO and PEPR"    'defaults to all. Some x-numbers don't select the DAIL hence the default.
-all_workers_check = 1   'checked
+ all_workers_check = 1   'checked - defaults to all.
 
 'Finding the right folder to automatically save the file
 month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date)
@@ -120,7 +120,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - " & dail_to_decimate
+ObjExcel.ActiveSheet.Name = "Deleted DAILS COLA-INFO-PEPR"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
@@ -146,6 +146,7 @@ CALL navigate_to_MAXIS_screen("DAIL", "PICK")
 EMReadscreen pick_confirmation, 26, 4, 29
 If pick_confirmation = "View/Pick Selection (PICK)" then
     'selecting the type of DAIl message
+    EMWriteScreen "X",  8, 39   'COLA Messages 
     EMWriteScreen "X", 13, 39   'INFO Messages 
 	EMWriteScreen "X", 18, 39   'PEPR Messages 
 	transmit
@@ -195,7 +196,15 @@ For each worker in worker_array
 
             If instr(dail_msg, "SDX MATCH - PBEN UPDATED - MAXIS INTERFACED IAA DATE TO SSA") OR _
                instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
-   			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") then
+   			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") OR _
+               instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
+               instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
+               instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") or _
+               instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
+               instr(dail_msg, "RCA MASS CHANGE AUTO-APPROVED") or _
+               instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
+               instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") or _
+               instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then
                add_to_excel = TRUE
             elseif instr(dail_msg, "CANCELLED DUE TO AGING") or instr(dail_msg, "NOT ACCESSED FOR 229 DAYS,SPEC NOT") then
                 if left(dail_msg, 2) = "$0" then
@@ -206,7 +215,6 @@ For each worker in worker_array
             elseif instr(dail_msg, "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA") then
                 EmReadscreen case_name, 56, dail_row - 1, 5
                 dail_msg = dail_msg & " " & replace(case_name,"-", "")
-                'msgbox dail_msg
                 add_to_excel = true
             else
 			    add_to_excel = False
@@ -265,6 +273,7 @@ Do
             Call start_a_blank_CASE_NOTE
             CALL write_variable_in_case_note(dail_msg)
             CALL write_variable_in_case_note("")
+            If instr(dail_msg, "AUTO-APPROVED") then CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
             PF3 ' save message
             objExcel.Cells(excel_row, 6).Value = "Case note created."
         End if
