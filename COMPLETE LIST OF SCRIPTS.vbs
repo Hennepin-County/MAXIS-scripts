@@ -1230,6 +1230,7 @@ script_array(script_num).tags                   = array("BZ", "Adult Cash", "HS/
 script_array(script_num).dlg_keys               = array("Ex", "Up", "Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #08/13/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
