@@ -1924,7 +1924,7 @@ function dialog_movement()
 	If ButtonPressed = add_verif_23_btn Then Call verif_details_dlg(23)
 	If ButtonPressed = add_verif_24_btn Then Call verif_details_dlg(24)
 
-	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/To_Another_County.aspx"
+	If ButtonPressed = open_hsr_manual_transfer_page_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Case-Transfers.aspx"
 	If ButtonPressed = add_job_btn Then
 		another_job = ""
 		count = 0
