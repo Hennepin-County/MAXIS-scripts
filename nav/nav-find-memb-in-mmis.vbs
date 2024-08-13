@@ -1,9 +1,9 @@
 'STATS GATHERING=============================================================================================================
 name_of_script = "NAV - FIND MEMB IN MMIS.vbs"       'REPLACE TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the anctual manualtime based on time study
-STATS_denomination = "C"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation appliable to your script.
+STATS_counter = 0               'sets the stats counter at one
+STATS_manualtime = 120            'manual run time in seconds  -----REPLACE STATS_MANUALTIME = 1 with the anctual manualtime based on time study
+STATS_denomination = "P"        'C is for each case; I is for Instance, M is for member; REPLACE with the denomonation appliable to your script.
 'END OF stats block==========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -218,6 +218,8 @@ function find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_na
 	MEMB_PMI_ARRAY = split(PMIs_String)
 End Function
 
+STATS_counter = UBound(MEMB_PMI_ARRAY)+1
+
 const MMIS_case_numb_const 		= 0
 const MMIS_pmi_const 			= 1
 const DUPLICATE_pmi_const		= 2
@@ -322,6 +324,7 @@ End Function
 Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
 dlg_len = 30 + 50*(UBound(MMIS_HC_SPANS_ARRAY,2)+1)
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 341, dlg_len, "NAV - Find MEMB in MMIS Case Number Dialog"
 	Text 10, 10, 260, 10, "Member: MEMB " & MEMB_ref_numb & " - " & MEMB_last_name & ", " & MEMB_first_name & " - MAXIS PMI: " & MEMB_pmi
 	ButtonGroup ButtonPressed
@@ -348,4 +351,50 @@ dialog Dialog1
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
 script_end_procedure("")
 
-'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 05/23/2024
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/13/2024
+'--Tab orders reviewed & confirmed----------------------------------------------08/13/2024
+'--Mandatory fields all present & Reviewed--------------------------------------08/13/2024
+'--All variables in dialog match mandatory fields-------------------------------08/13/2024
+'Review dialog names for content and content fit in dialog----------------------08/13/2024
+'--FIRST DIALOG--NEW EFF 5/23/2024----------------------------------------------
+'--Include script category and name somewhere on first dialog-------------------08/13/2024
+'--Create a button to reference instructions------------------------------------08/13/2024
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/13/2024
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------08/13/2024
+'--Out-of-County handling reviewed----------------------------------------------08/13/2024
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/13/2024
+'--BULK - review output of statistics and run time/count (if applicable)--------08/13/2024
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------08/13/2024
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/13/2024
+'--Incrementors reviewed (if necessary)-----------------------------------------08/13/2024
+'--Denomination reviewed -------------------------------------------------------08/13/2024
+'--Script name reviewed---------------------------------------------------------08/13/2024
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/13/2024
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------08/13/2024
+'--comment Code-----------------------------------------------------------------08/13/2024
+'--Update Changelog for release/update------------------------------------------08/13/2024
+'--Remove testing message boxes-------------------------------------------------08/13/2024
+'--Remove testing code/unnecessary code-----------------------------------------08/13/2024
+'--Review/update SharePoint instructions----------------------------------------08/13/2024
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
