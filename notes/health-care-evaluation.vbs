@@ -212,6 +212,10 @@ function check_for_errors(eval_questions_clear)
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
 
+	If bils_exist = true and bils_viewed <> True Then
+		err_msg = err_msg & "~!~" & " " & bils_btn_count & "^* You must review the BILS panel within the dialog." & ".##~##"
+	End If
+
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(hc_eval_status, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Health Care Eval##~##   - Indicate the status of the Health Care Evaluation for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
@@ -249,8 +253,9 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 	            current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing = trim(current_listing)
 	            If current_listing <> msg_header Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
-	                If current_listing = "1"  					Then tagline = ": HC MEMBs"        'Adding a specific tagline to the header for the errors
+					If current_listing = "1"  					Then tagline = ": HC MEMBs"        'Adding a specific tagline to the header for the errors
 	                If current_listing = last_page_numb & ""  	Then tagline = ": App Info"
+	                If current_listing = bils_btn_count & "" 	Then tagline = ": BILS"
 	                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 	            End If
 	            if msg_header = "" Then back_to_dialog = current_listing
@@ -2055,6 +2060,7 @@ function define_main_dialog()
 			If page_display <> bils_page 	Then PushButton 495, btn_pos, 55, 13, "BILS", bils_btn
 			If page_display =  bils_page 	Then Text 515, btn_pos+2, 55, 13, "BILS"
 			btn_pos = btn_pos + 15
+			bils_btn_count = btn_count
 			btn_count = btn_count + 1
 		End If
 		If imig_exists = True Then
@@ -2381,6 +2387,7 @@ function dialog_movement()
 	Next
 	If ButtonPressed = next_btn Then page_display = page_display + 1					'incrementing the page to display as these are numeric
 	If page_display = bils_page and bils_exist = False Then page_display = page_display + 1
+	If page_display = bils_page and bils_exist = True Then bils_viewed = True
 	If page_display = imig_page and imig_exists = False Then page_display = page_display + 1
 	If page_display = retro_page and case_has_retro_request = False Then page_display = page_display + 1
 	If page_display = verifs_page and verifs_needed = "" Then page_display = page_display + 1
@@ -2396,7 +2403,10 @@ function dialog_movement()
 	If ButtonPressed = cars_rest_btn Then page_display = show_cars_rest_page
 	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
 	If ButtonPressed = other_btn Then page_display = show_other_page
-	If ButtonPressed = bils_btn Then page_display = bils_page
+	If ButtonPressed = bils_btn Then 
+		page_display = bils_page
+		bils_viewed = True
+	End If
 	If ButtonPressed = imig_btn Then page_display = imig_page
 	If ButtonPressed = retro_btn Then page_display = retro_page
 	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
@@ -3894,6 +3904,8 @@ MAXIS_footer_year = CM_yr
 health_care_pending = False
 health_care_active = False
 hc_application_date = ""
+bils_viewed = ""
+bils_btn_count = ""
 
 form_selection_options = form_selection_options+chr(9)+"Health Care Programs Application for Certain Populations (DHS-3876)"
 form_selection_options = form_selection_options+chr(9)+"MNsure Application for Health Coverage and Help paying Costs (DHS-6696)"
