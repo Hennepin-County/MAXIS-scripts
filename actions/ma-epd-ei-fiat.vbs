@@ -328,6 +328,12 @@ script_run_lowdown = script_run_lowdown & vbCr & "Footer Month - " & MAXIS_foote
 Original_MAXIS_footer_month = MAXIS_footer_month
 Original_MAXIS_footer_year = MAXIS_footer_year
 
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = True then call script_end_procedure("Case appears to be privileged and this script cannot update or access the case information. The script will now end.")
+Call write_value_and_transmit(memb_number, 20, 76)
+EMReadScreen memb_last_name, 2, 6, 30
+memb_search = memb_number & "  " & memb_last_name
+
 Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
 EMWriteScreen memb_number, 20, 76
 EMWriteScreen "01", 20, 79
@@ -820,7 +826,7 @@ Call navigate_to_MAXIS_screen("ELIG", "HC__")       'Going to ELIG/HC
 'Finding the member in the list of all members on ELIG/HC
 row = 1
 col = 1
-EMSearch memb_number & " ", row, col 'finding the member number
+EMSearch memb_search, row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 'Opening the eligibility span of the client
@@ -1064,7 +1070,7 @@ Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
 row = 1
 col = 1
-EMSearch memb_number & " ", row, col 'finding the member number
+EMSearch memb_search, row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 EMWriteScreen "X", row, 26
