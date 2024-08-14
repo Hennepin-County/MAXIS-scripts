@@ -189,13 +189,11 @@ Do
         err_msg = ""
 
         Dialog Dialog1
-        Cancel_confirmation
+        cancel_without_confirmation
 
-        If MAXIS_case_number = "" Then                                             err_msg = err_msg & vbNewLine & "* Enter a case number to continue."
-        If IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "* Case number appears to be invalid. Check the case number and fix."
+		call validate_MAXIS_case_number(err_msg, "*")
         If memb_number = "" Then                                                   err_msg = err_msg & vbNewLine & "* Enter a reference number for the member on MA-EPD."
         If case_status = "Select One..." Then                                      err_msg = err_msg & vbNewLine & "* Identify if approval is update or initial."
-        'If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then                  err_msg = err_msg & vbNewLine & "* Enter the MAXIS footer month and year that has the best income information in it."
 
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
     Loop until err_msg = ""
