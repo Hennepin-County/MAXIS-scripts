@@ -212,8 +212,110 @@ function check_for_errors(eval_questions_clear)
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
 
+	busi_income_note_added = ""
+	jobs_income_note_added = ""
+	unea_income_note_added = ""
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))) = "" then 
+				busi_income_note_added = busi_income_note_added & "*empty"
+			Else
+				busi_income_note_added = busi_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))) = "" then 
+				busi_income_note_added = busi_income_note_added & "*empty"
+			Else
+				busi_income_note_added = busi_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))) = "" then 
+				busi_income_note_added = busi_income_note_added & "*empty"
+			Else
+				busi_income_note_added = busi_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))) = "" then 
+				jobs_income_note_added = jobs_income_note_added & "*empty"
+			Else
+				jobs_income_note_added = jobs_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))) = "" then 
+				jobs_income_note_added = jobs_income_note_added & "*empty"
+			Else
+				jobs_income_note_added = jobs_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))) = "" then 
+				jobs_income_note_added = jobs_income_note_added & "*empty"
+			Else
+				jobs_income_note_added = jobs_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))) = "" then 
+				jobs_income_note_added = jobs_income_note_added & "*empty"
+			Else
+				jobs_income_note_added = jobs_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))) = "" then 
+				jobs_income_note_added = jobs_income_note_added & "*empty"
+			Else
+				jobs_income_note_added = jobs_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))) = "" then 
+				unea_income_note_added = unea_income_note_added & "*empty"
+			Else
+				unea_income_note_added = unea_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))) = "" then 
+				unea_income_note_added = unea_income_note_added & "*empty"
+			Else
+				unea_income_note_added = unea_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))) = "" then 
+				unea_income_note_added = unea_income_note_added & "*empty"
+			Else
+				unea_income_note_added = unea_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))) = "" then 
+				unea_income_note_added = unea_income_note_added & "*empty"
+			Else
+				unea_income_note_added = unea_income_note_added & "*updated"
+			End if
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))) = "" then 
+				unea_income_note_added = unea_income_note_added & "*empty"
+			Else
+				unea_income_note_added = unea_income_note_added & "*updated"
+			End if
+		End If
+	Next
+
+	If instr(busi_income_note_added, "updated") = 0 and busi_income_note_added <> "" Then err_msg = err_msg & "~!~" & " 2" & "^* You must enter information in at least one of the Notes fields for the BUSI panels" & ".##~##"
+	If instr(jobs_income_note_added, "updated") = 0 and jobs_income_note_added <> "" Then err_msg = err_msg & "~!~" & " 3" & "^* You must enter information in at least one of the Notes fields for the JOBS panels" & ".##~##"
+	If instr(unea_income_note_added, "updated") = 0 and unea_income_note_added <> "" Then err_msg = err_msg & "~!~" & " 4" & "^* You must enter information in at least one of the Notes fields for the UNEA panels" & ".##~##"
+
 	If bils_exist = true and bils_viewed <> True Then
-		err_msg = err_msg & "~!~" & " " & bils_btn_count & "^* You must review the BILS panel within the dialog." & ".##~##"
+		err_msg = err_msg & "~!~" & " " & bils_btn_count & "^* You must review the BILS panel within the dialog" & ".##~##"
 	End If
 
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
@@ -256,6 +358,9 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 					If current_listing = "1"  					Then tagline = ": HC MEMBs"        'Adding a specific tagline to the header for the errors
 	                If current_listing = last_page_numb & ""  	Then tagline = ": App Info"
 	                If current_listing = bils_btn_count & "" 	Then tagline = ": BILS"
+	                If current_listing = 2 & "" 				Then tagline = ": BUSI"
+	                If current_listing = 3 & "" 				Then tagline = ": JOBS"
+	                If current_listing = 4 & "" 				Then tagline = ": UNEA"
 	                error_message = error_message & vbNewLine & vbNewLine & "----- Dialog " & current_listing & tagline & " -------"    'This is the header verbiage being added to the message text.
 	            End If
 	            if msg_header = "" Then back_to_dialog = current_listing
