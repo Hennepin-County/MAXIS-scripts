@@ -174,13 +174,8 @@ If testing_status = True Then msgbox "current jobs" & hh_memb_and_current_jobs
 
 'Job Change Selection Dialog 
 Dialog1 = ""
-<<<<<<< HEAD
-BeginDialog Dialog1, 0, 0, 385, 125, "Job Change Selection - Case: " & MAXIS_case_number
-  DropListBox 140, 10, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
-=======
 BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_case_number
   DropListBox 140, 5, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
->>>>>>> f650d72de28f2b9bf1f09faa4986652808ea793e
   DropListBox 220, 30, 140, 15, HH_Memb_DropDown, hh_memb_with_new_job
   DropListBox 70, 50, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
   ComboBox 285, 50, 90, 15, list_of_all_hh_members, person_who_reported_job
@@ -190,21 +185,12 @@ BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_cas
   ButtonGroup ButtonPressed
     OkButton 265, 105, 50, 15
     CancelButton 325, 105, 50, 15
-<<<<<<< HEAD
-  Text 230, 70, 55, 10, "Date reported:"
-  Text 10, 30, 210, 10, "If 'No JOBS Panel Exists', select Member for new JOBS panel:"
-  Text 10, 10, 130, 10, "Member(s) with JOBS Panel(s) on case:"
-  Text 10, 50, 60, 10, "Job Change Type:"
-  Text 230, 50, 55, 10, "Who reported?"
-  Text 10, 70, 90, 10, "How was the job reported?"
-=======
   Text 230, 75, 55, 10, "Date reported:"
   Text 10, 35, 210, 10, "If no matching JOBS panel, select Member to create JOBS panel:"
   Text 10, 10, 130, 10, "Select Member/JOBS Panel impacted:"
   Text 10, 55, 60, 10, "Job Change Type:"
   Text 230, 55, 55, 10, "Who reported?"
   Text 10, 75, 90, 10, "How was the job reported?"
->>>>>>> f650d72de28f2b9bf1f09faa4986652808ea793e
 EndDialog
 
 Do
@@ -599,15 +585,7 @@ Select Case job_change_type                                         'here we are
         CALL convert_date_into_MAXIS_footer_month(job_end_income_end_date, MAXIS_footer_month, MAXIS_footer_year)
 End Select
 
-<<<<<<< HEAD
-
-msgbox "MAXIS_footer_month " & MAXIS_footer_month           'We are going to loop through months, so we need to set the initial footer month so we remember it later
-msgbox "MAXIS_footer_year " & MAXIS_footer_year
-
-If conversation_with_person = "Type or Select" Then conversation_with_person = ""
-=======
 If conversation_with_person = "Select or Type" Then conversation_with_person = ""
->>>>>>> f650d72de28f2b9bf1f09faa4986652808ea793e
 
 'TODO: Is this back in effect?
 'VOLUNTARY QUIT functionality needs TESTING when this policy goes back into effect
@@ -702,43 +680,12 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
         If second_loop = TRUE Then                          'If we are past the first loop, we know the job member and instance so we can naviage directly there
             EMWriteScreen "JOBS", 20, 71                    'go to JOBS
-<<<<<<< HEAD
-            EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76                   'go to the right member
-            EMWriteScreen job_instance, 20, 79
-=======
             EMWriteScreen ref_nbr, 20, 76                   'go to the right member
->>>>>>> f650d72de28f2b9bf1f09faa4986652808ea793e
             transmit
-
-            MsgBox "Left(hh_memb_with_job_change, 2) " & Left(hh_memb_with_job_change, 2)
-            MsgBox "job_instance " & job_instance
 
             EMReadScreen panel_exists, 14, 24, 13
 
             If panel_exists = "DOES NOT EXIST" Then
-<<<<<<< HEAD
-                EMWriteScreen "JOBS", 20, 71                                        'go to JOBS
-                Left(hh_memb_with_job_change, 2) = left(hh_memb_with_job_change, 2)
-                MsgBox "Left(hh_memb_with_job_change, 2) " & Left(hh_memb_with_job_change, 2)
-                EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76                                       'go to the right member
-                EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
-                transmit
-
-                EMReadScreen this_instance, 1, 2, 73                                'Reading the instance because we need it on the next loop
-                job_instance = "0" & this_instance
-
-                MsgBox "job_instance " & job_instance
-            Else
-                EMReadScreen this_panel_job, 30, 7, 42          'reading the name of job
-
-                MsgBox "this_panel_job " & this_panel_job
-                MsgBox "original_full_jobs_name " & original_full_jobs_name
-
-                If this_panel_job <> original_full_jobs_name Then       'if the panel name isn't what we read earlier then we have a problem
-                MsgBox "They don't match!" & vbNewLine & "THIS PANEL-" & this_panel_job & "-" & vbNewLine & "ORIGINAL-" & original_full_jobs_name & "-"
-                Else
-                PF9         'If they match - put it in edit mode
-=======
                 ref_nbr = left(hh_memb_with_job_change, 2) 
                 EMWriteScreen ref_nbr, 20, 76                                       'go to the right member
                 EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
@@ -797,7 +744,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                     job_instance = "0" & job_instance
                     ref_nbr = Left(hh_memb_with_job_change, 2)  'defining this variable so that when we update the next month we have this value
                     If testing_status = TRUE Then msgbox "Did we successfully create a new panel for: " & ref_nbr & "with instance: " & job_instance
->>>>>>> f650d72de28f2b9bf1f09faa4986652808ea793e
                 End If
             End If
 
@@ -1170,7 +1116,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
         If script_update_stat = "Yes - Update an existing JOBS Panel" OR script_update_stat = "Yes - Create a new JOBS Panel" Then      'If we are updating
             If job_change_type = "Job Ended" Then                                                                                       'and we are coding a job end change type
                 Call navigate_to_MAXIS_screen("STAT", "STWK")                   'We also have to code end of employmnt on STWK
-                EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76                                   'navigate to STWK for the right person
+                EMWriteScreen ref_nbr, 20, 76                                   'navigate to STWK for the right person
                 transmit
 
                 EMReadScreen version_of_stwk, 1, 2, 73                          'Seeing if there is already a STWK panel in existence
@@ -1198,7 +1144,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                 If grh_case = TRUE Then EMWriteScreen good_cause_yn, 12, 60
                 If snap_case = TRUE Then EMWriteScreen good_cause_yn, 12, 67
 
-                If pwe_ref = Left(hh_memb_with_job_change, 2) Then           'Entering if the member is PWE based on WREG
+                If pwe_ref = ref_nbr Then           'Entering if the member is PWE based on WREG
                     EMWriteScreen "Y", 14, 46
                 Else
                     EMWriteScreen "N", 14, 46
@@ -1213,7 +1159,7 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
             If code_disq = TRUE Then        'This will code a DISQ panel in the case of Voluntary Quit
                 Call navigate_to_MAXIS_screen("STAT", "DISQ")
-                EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76
+                EMWriteScreen ref_nbr, 20, 76
                 transmit
 
                 'TODO - add functionality to update DISQ once vol quit is a thing again.'
