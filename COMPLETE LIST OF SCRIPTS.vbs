@@ -57,7 +57,7 @@ class script_bowie
 	public used_for_elig
 	public policy_references		'ARRAY of all policy references the script supports - use spaces between the 3 items the name should have underscores in place of spaces'
 									'CM Section_Name XX.XX.XX
-									'TE Section_Name XX.XX.XX		
+									'TE Section_Name XX.XX.XX
 									'SHAREPOINT Site_Name URL
 									'SIR Ref_Name URL
 									'ONESOURCE Section_Name URL
@@ -1999,6 +1999,21 @@ script_array(script_num).tags                   = array("Health Care", "Reports"
 script_array(script_num).dlg_keys               = array("Ex", "Ev")
 script_array(script_num).subcategory            = array("ENHANCED LISTS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Find MEMB in MMIS"
+' script_array(script_num).description 			= ""
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation", "Utility")
+script_array(script_num).dlg_keys               = array("Health Care")
+script_array(script_num).subcategory            = array("MAXIS", "TOOL")
+script_array(script_num).release_date           = #08/19/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -4960,6 +4975,21 @@ script_array(script_num).tags                   = array("Navigation")
 script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Find MEMB in MMIS"
+' script_array(script_num).description 			= ""
+script_array(script_num).category               = "NAV"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #08/19/2024#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
