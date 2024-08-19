@@ -189,6 +189,11 @@ function find_mmis_pmis_for_memb(MEMB_ref_numb, MEMB_ssn, MEMB_pmi, MEMB_last_na
 				If search_count = 1 Then
 					EMReadScreen check_ssn, 9, rsel_row, 48
 					If check_ssn <> MMIS_SSN Then capture_pmi = False
+				ElseIf search_count = 2 Then
+					EMReadScreen check_ssn, 9, rsel_row, 48
+					EMReadScreen check_first_name, 13, rsel_row, 33
+					check_first_name = trim(check_first_name)
+					If check_ssn <> MMIS_SSN and check_first_name <> MEMB_first_name Then capture_pmi = False
 				End If
 
 				If capture_pmi = True Then
@@ -323,28 +328,43 @@ function find_mmis_spans_past_4_months(MEMB_PMI_ARRAY, MMIS_case_numb_const, MMI
 End Function
 Call navigate_to_MAXIS(MX_environment)                          'going back to MAXIS
 
-dlg_len = 30 + 50*(UBound(MMIS_HC_SPANS_ARRAY,2)+1)
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 341, dlg_len, "NAV - Find MEMB in MMIS Case Number Dialog"
-	Text 10, 10, 260, 10, "Member: MEMB " & MEMB_ref_numb & " - " & MEMB_last_name & ", " & MEMB_first_name & " - MAXIS PMI: " & MEMB_pmi
-	ButtonGroup ButtonPressed
-		OkButton 285, 5, 50, 15
+If MMIS_HC_SPANS_ARRAY(MMIS_name_const, 0) <> "" Then
+	dlg_len = 30 + 50*(UBound(MMIS_HC_SPANS_ARRAY,2)+1)
+	BeginDialog Dialog1, 0, 0, 385, dlg_len, "MEMB " & MEMB_ref_numb & " - MMIS Span Information"
+		Text 10, 10, 260, 10, "Member: MEMB " & MEMB_ref_numb & " - " & MEMB_last_name & ", " & MEMB_first_name & " - MAXIS PMI: " & MEMB_pmi
+		ButtonGroup ButtonPressed
+			OkButton 330, 5, 50, 15
 
-	y_pos = 25
-	For each_hc_span = 0 to UBound(MMIS_HC_SPANS_ARRAY, 2)
-		GroupBox 10, y_pos, 325, 45, MMIS_HC_SPANS_ARRAY(MMIS_hc_prog_const, each_hc_span) & " - " & MMIS_HC_SPANS_ARRAY(MMIS_hc_elig_type_const, each_hc_span) & " on Case Number: " & MMIS_HC_SPANS_ARRAY(MMIS_case_numb_const, each_hc_span)
-		If MMIS_HC_SPANS_ARRAY(DUPLICATE_pmi_const, each_hc_span) <> "" Then Text 200, y_pos, 150, 10, "DUPLICATE PMI: " & MMIS_HC_SPANS_ARRAY(DUPLICATE_pmi_const, each_hc_span)
-		y_pos = y_pos + 15
-		Text 25, y_pos, 85, 10, "Start Date: " & MMIS_HC_SPANS_ARRAY(MMIS_span_start_date_const, each_hc_span)
-		Text 115, y_pos, 85, 10, "End Date: " & MMIS_HC_SPANS_ARRAY(MMIS_span_end_date_const, each_hc_span)
-		Text 210, y_pos, 85, 10, "Status: " & MMIS_HC_SPANS_ARRAY(MMIS_span_status_const, each_hc_span)
-		y_pos = y_pos + 15
-		Text 25, y_pos, 70, 10, "PMI: " & MMIS_HC_SPANS_ARRAY(MMIS_pmi_const, each_hc_span)
-		Text 95, y_pos, 80, 10, "SSN: " & MMIS_HC_SPANS_ARRAY(MMIS_ssn_const, each_hc_span)
-		Text 185, y_pos, 140, 10, "Name: " & MMIS_HC_SPANS_ARRAY(MMIS_name_const, each_hc_span)
-		y_pos = y_pos + 20
-	Next
-EndDialog
+		y_pos = 25
+		For each_hc_span = 0 to UBound(MMIS_HC_SPANS_ARRAY, 2)
+			GroupBox 10, y_pos, 375, 45, MMIS_HC_SPANS_ARRAY(MMIS_hc_prog_const, each_hc_span) & " - " & MMIS_HC_SPANS_ARRAY(MMIS_hc_elig_type_const, each_hc_span) & " on Case Number: " & MMIS_HC_SPANS_ARRAY(MMIS_case_numb_const, each_hc_span)
+			If MMIS_HC_SPANS_ARRAY(DUPLICATE_pmi_const, each_hc_span) <> "" Then Text 200, y_pos, 150, 10, "DUPLICATE PMI: " & MMIS_HC_SPANS_ARRAY(DUPLICATE_pmi_const, each_hc_span)
+			y_pos = y_pos + 15
+			Text 25, y_pos, 85, 10, "Start Date: " & MMIS_HC_SPANS_ARRAY(MMIS_span_start_date_const, each_hc_span)
+			Text 115, y_pos, 85, 10, "End Date: " & MMIS_HC_SPANS_ARRAY(MMIS_span_end_date_const, each_hc_span)
+			Text 210, y_pos, 85, 10, "Status: " & MMIS_HC_SPANS_ARRAY(MMIS_span_status_const, each_hc_span)
+			y_pos = y_pos + 15
+			Text 25, y_pos, 70, 10, "PMI: " & MMIS_HC_SPANS_ARRAY(MMIS_pmi_const, each_hc_span)
+			Text 115, y_pos, 80, 10, "SSN: " & MMIS_HC_SPANS_ARRAY(MMIS_ssn_const, each_hc_span)
+			Text 210, y_pos, 140, 10, "Name: " & MMIS_HC_SPANS_ARRAY(MMIS_name_const, each_hc_span)
+			y_pos = y_pos + 20
+		Next
+	EndDialog
+Else
+	dlg_len = 40 + 10*(UBound(MMIS_HC_SPANS_ARRAY,2)+1)
+	BeginDialog Dialog1, 0, 0, 385, dlg_len, "MEMB " & MEMB_ref_numb & " - MMIS Span Information"
+		Text 10, 10, 260, 10, "Member: MEMB " & MEMB_ref_numb & " - " & MEMB_last_name & ", " & MEMB_first_name & " - MAXIS PMI: " & MEMB_pmi
+		Text 10, 25, 260, 10, "No HC Information found in MMIS. PMI(s) searched:"
+		ButtonGroup ButtonPressed
+			OkButton 330, 5, 50, 15
+		y_pos = 35
+		For each memb_pmi in MEMB_PMI_ARRAY
+			Text 15, y_pos, 100, 10, " - " & memb_pmi
+			y_pos = y_pos + 10
+		Next
+	EndDialog
+End If
 
 dialog Dialog1
 
