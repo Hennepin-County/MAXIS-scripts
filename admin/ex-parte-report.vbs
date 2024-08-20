@@ -875,7 +875,7 @@ If ex_parte_function = "Ex Parte Eval Case Review" Then
 	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
 	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
 	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
-	If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
+	If user_ID_for_validation = "DACO003" Then allow_admin_use = True
 
 	'Ending the script run if someone else tries to run it
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
@@ -1371,7 +1371,7 @@ If ex_parte_function = "ADMIN Review" Then
 	If user_ID_for_validation = "LALA004" Then allow_admin_use = True
 	If user_ID_for_validation = "WFX901" Then allow_admin_use = True
 	If user_ID_for_validation = "BETE001" Then allow_admin_use = True
-	If user_ID_for_validation = "DACO003" Then allow_bulk_run_use = True
+	If user_ID_for_validation = "DACO003" Then allow_admin_use = True
 
 	If allow_admin_use = False Then script_end_procedure("ADMIN function for reviewing Ex Parte Functionality is locked. The script will now end.")
 

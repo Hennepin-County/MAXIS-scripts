@@ -450,12 +450,50 @@ Do
                 avs_members_array(status_msg_const, this_memb) = "Check ECF Case file for valid authorization for member, update below or send forms if needed."
             End If 
         End If 
+    'TODO - figure out how to do stats_manual_time for this
     Next 
     
     '---------------------------------------------Check STAT/AVSA for current info on each person
-    For this_memb = 0 to UBound(avs_members_array, 2)
-        Call navigate_to_MAXIS_screen("STAT", "AVSA")
-    Next
+   ' memb_avsa_array codes and array position for each role
+   ' const enrollee         = 1
+   ' const spouse           = 2
+   ' const sponsor          = 3
+   ' const sponsor_spouse   = 4
+   ' const sponsor_2        = 5
+   ' const sponsor_spouse_2 = 6
+
+   'For this_memb = 0 to UBound(avs_members_array, 2)
+   '    Call navigate_to_MAXIS_screen("STAT", "AVSA")
+   '    EMReadScreen panel_exists, 1, 2, 78
+   '    If panel_exists <> 0 Then
+   '        'Create the individual signers array
+   '        ReDim memb_avsa_array(6, 2)
+   '        signers = 0
+   '        'Loop through all lines on AVSA to create member's array of signers
+   '        For line_to_read = 10 to 16
+   '            EMReadScreen signer_role, 1, line_to_read, coordinateneeded
+   '            If signer_role <> "_" Then 
+   '                memb_avsa_array(avsa_line, signer_role) = line_to_read
+   '                EMReadScreen memb_avsa_array(avsa_role, signer_role)
+   '                EMReadScreen memb_avsa_array(avsa_signer_role, signer_role)
+   '                EMReadScreen memb_avsa_array(avsa_pers_status, signer_role)
+   '            End If 
+   '        Next
+   '        'Now go into the popup for members to find avsa status
+   '        For this_pers = 0 to ubound(memb_avsa_array, 2)
+   '            EmWriteScreen "X", coordinateneeded, memb_avsa_array(avsa_line, this_memb)
+   '            transmit
+   '            EMReadScreen memb_avsa_array(avsa_auth_date, this_memb), coordinateneeded
+   '            EMReadScreen memb_avsa_array(avsa_form_status, this_memb), coordinateneeded
+   '            EMReadScreen memb_avsa_array(avsa_invalid_reason, this_memb), coordinateneeded
+   '            PF3
+   '        Next 
+   '    End If 
+   'stats_manual_time = stats_manual_time + 120
+   'Next
+    '------------Compare values from table and avsa
+    
+
 
     '----------------------------------------------------------------------------------------------------Adding in information about the AVS Members selected
     If HC_process = "Renewal" Then
