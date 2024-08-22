@@ -18422,17 +18422,20 @@ class hc_eligibility_detail
 												EMReadScreen spenddown_header, 75, 3, 2
 												spenddown_header = trim(spenddown_header)
 												If spenddown_header = "Community Spenddown Results (SPDN)" Then
-													EMReadScreen hc_prog_elig_spdn_option(hc_prog_count), 	2, 4, 59
-													EMReadScreen hc_prog_elig_spdn_type(hc_prog_count), 		1, 5, 14
-													EMReadScreen hc_prog_elig_spdn_method(hc_prog_count), 	1, 5, 45
-													EMReadScreen hc_prog_elig_spdn_covered_pop(hc_prog_count), 1, 5, 68
 
-													If hc_prog_elig_spdn_type(hc_prog_count) <> "_" Then
+													EMReadScreen check_spdwn_type, 1, 5, 14
+													If check_spdwn_type <> "_" Then
 														mobl_col = 21
 														Do
 															EMReadScreen mobl_mo, 2, 7, mobl_col
-															EMReadScreen mobl_yr, 2, 7, mobl_col
-															If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+															EMReadScreen mobl_yr, 2, 7, mobl_col+3
+															EMReadScreen mobl_orig, 8, 8, mobl_col-3
+															mobl_orig = trim(mobl_orig)
+															If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year and mobl_orig <> "0.00"Then
+																EMReadScreen hc_prog_elig_spdn_option(hc_prog_count), 	2, 4, 59
+																EMReadScreen hc_prog_elig_spdn_type(hc_prog_count), 		1, 5, 14
+																EMReadScreen hc_prog_elig_spdn_method(hc_prog_count), 	1, 5, 45
+																EMReadScreen hc_prog_elig_spdn_covered_pop(hc_prog_count), 1, 5, 68
 																community_spenddown_exists(hc_prog_count) = True
 																hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False
 
@@ -18501,8 +18504,8 @@ class hc_eligibility_detail
 													mobl_col = 21
 													Do
 														EMReadScreen mobl_mo, 2, 11, mobl_col
-														EMReadScreen mobl_yr, 2, 11, mobl_col
-														If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+														EMReadScreen mobl_yr, 2, 11, mobl_col+3
+														If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year Then
 															EW_spenddown_exists(hc_prog_count) = True
 
 															EMReadScreen hc_prog_elig_ew_spdn_type_code(hc_prog_count), 		1, 9, 18
@@ -18526,43 +18529,43 @@ class hc_eligibility_detail
 													Loop until mobl_col = 87
 
 												ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
-													LTC_spenddown_exists(hc_prog_count) = True
-
-													EMReadScreen spenddown_to_read, 1, 6, 21
-													EMReadScreen second_spenddown_to_read, 1, 6, 21
-													If spenddown_to_read <> "_" Then
-														EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 6, 21
-														EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 6, 23
-														EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 6, 43
-														EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 6, 45
-														EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 6, 69
-														EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 6, 71
-
-														hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
-														hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
-														hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
-													End If
-													' If second_spenddown_to_read <> "_" Then
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 14, 21
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 14, 23
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 14, 42
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 14, 44
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 14, 68
-													' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 14, 70
-													'
-													' 	hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
-													' 	hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
-													' 	hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
-													' End If
-
-
 
 													mobl_col = 19
 													Do
 														EMReadScreen mobl_mo, 2, 7, mobl_col
 														EMReadScreen mobl_yr, 2, 7, mobl_col+3
-														If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year Then
+														EMReadScreen mobl_orig, 8, 8, mobl_col-1
+														mobl_orig = trim(mobl_orig)
+														If mobl_mo = elig_footer_month AND mobl_yr = elig_footer_year and mobl_orig <> "0.00" Then
 															LTC_spenddown_exists(hc_prog_count) = True
+
+															EMReadScreen spenddown_to_read, 1, 6, 21
+															EMReadScreen second_spenddown_to_read, 1, 6, 21
+															If spenddown_to_read <> "_" Then
+																EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 6, 21
+																EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 6, 23
+																EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 6, 43
+																EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 6, 45
+																EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 6, 69
+																EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 6, 71
+
+																hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
+																hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
+																hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
+															End If
+															' If second_spenddown_to_read <> "_" Then
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_type_code(hc_prog_count), 		1, 14, 21
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_type_info(hc_prog_count), 		11, 14, 23
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_method_code(hc_prog_count), 	1, 14, 42
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_method_info(hc_prog_count), 	13, 14, 44
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_code(hc_prog_count), 1, 14, 68
+															' 	EMReadScreen hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count), 8, 14, 70
+															'
+															' 	hc_prog_elig_ltc_spdn_type_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_type_info(hc_prog_count))
+															' 	hc_prog_elig_ltc_spdn_method_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_method_info(hc_prog_count))
+															' 	hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count) =  trim(hc_prog_elig_ltc_spdn_covered_pop_info(hc_prog_count))
+															' End If
+
 															If spenddown_to_read <> "_" Then
 																EMReadScreen hc_prog_elig_ltc_spdn_amount(hc_prog_count), 9, 8, mobl_col-2
 																EMReadScreen hc_prog_elig_ltc_spdn_total_liability(hc_prog_count), 9, 9, mobl_col-2
@@ -18578,7 +18581,6 @@ class hc_eligibility_detail
 														End If
 														mobl_col = mobl_col + 11
 													Loop until mobl_col = 85
-
 												Else
 													' MsgBox spenddown_header
 												End If
