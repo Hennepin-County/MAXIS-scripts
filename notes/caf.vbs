@@ -5457,7 +5457,7 @@ Dim adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo,
 Dim the_process_for_grh, grh_recert_mo, grh_recert_yr, the_process_for_emer, type_of_emer, multiple_CAF_dates, multiple_interview_dates
 Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, application_processing, recert_processing, CAF_datestamp, interview_date, case_details_and_notes_about_process, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
 Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
-Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
+Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, note_interview_date, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five, appt_notc_sent_on
 Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_county, homeless_yn, reservation_yn, addr_verif, living_situation, addr_eff_date, addr_future_date, mail_line_one
@@ -6034,7 +6034,7 @@ If vars_filled = False Then
 		If REVW_interview_date <> "" Then interview_date = REVW_interview_date
 	End If
 
-	If IsDate(CAF_datestamp) = True and interview_date = "" Then
+	If IsDate(CAF_datestamp) = True Then
 
 		Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
 		too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
@@ -6078,6 +6078,7 @@ If vars_filled = False Then
 
 							interview_date = left(whole_note_line, position)                        'interview date is to the left of the dividing point'
 							interview_date = trim(interview_date)
+							note_interview_date = interview_date
 						End If
 						in_note_row = in_note_row + 1
 						If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
@@ -6456,6 +6457,9 @@ If vars_filled = False Then
 					Else											'set if only APPL
 						CAF_datestamp = PROG_CAF_datestamp
 						interview_date = PROG_interview_date
+					End If
+					If interview_date = "" Then
+						If note_interview_date <> "" Then interview_date = note_interview_date
 					End If
 				End If
 
