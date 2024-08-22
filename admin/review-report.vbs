@@ -2204,6 +2204,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	objStatsExcel.columns(output_headers).AutoFit()
 	objStatsExcel.columns(output_data).AutoFit()
 
+	objStatsExcel.ActiveWorkbook.SaveAs "C:\Users\" & user_ID_for_validation & "\Hennepin County\Data & Analytics - BZ Scripts\Recertification Statistics\" & report_date & " Renewal Data.xlsx"
 	objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Recertification Statistics\" & report_date & " Renewal Data.xlsx"
 	If last_day_checkbox = checked Then objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Recertification Statistics\Data\Last Processing Day for " & report_date & " Renewal Data.xlsx"
 
