@@ -143,7 +143,11 @@ hh_memb_5_jobs_panels = "*"
 
 'looping through all the reference numbers so that we can compile a list of members and respective JOBS panels.
 For i = 1 to ubound(client_name_array) 	
-	Call Navigate_to_MAXIS_screen("STAT", "JOBS")                       'Go to JOBS
+    Do 
+    	Call Navigate_to_MAXIS_screen("STAT", "JOBS")                       'Go to JOBS
+        EMReadScreen nav_check, 4, 2, 45
+        EMWaitReady 0, 0
+    Loop until nav_check = "JOBS"
 	EMWriteScreen left(client_name_array(i), 2), 20, 76                 'Enter the reference for the clients in turn to check each.
 	EMWriteScreen "01", 20, 79
 	transmit
@@ -174,22 +178,23 @@ If testing_status = True Then msgbox "current jobs" & hh_memb_and_current_jobs
 
 'Job Change Selection Dialog 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 386, 125, "Job Change Selection - Case: " & MAXIS_case_number
-  DropListBox 140, 5, 220, 15, "Select One ..."+chr(9) + "No JOBS Panel Exists" + hh_memb_and_current_jobs, hh_member_current_jobs
-  DropListBox 220, 30, 140, 15, HH_Memb_DropDown, hh_memb_with_new_job
+
+BeginDialog Dialog1, 0, 0, 411, 135, "Job Change Selection - Case: " & MAXIS_case_number
+  DropListBox 140, 5, 265, 15, "Select One ..."+chr(9)+"No JOBS Panel Exists"+ hh_memb_and_current_jobs, hh_member_current_jobs
+  DropListBox 295, 25, 110, 15, HH_Memb_DropDown, hh_memb_with_new_job
   DropListBox 70, 50, 140, 15, "Select One ..."+chr(9)+"New Job Reported"+chr(9)+"Income/Hours Change for Current Job"+chr(9)+"Job Ended", job_change_type
-  ComboBox 285, 50, 90, 15, list_of_all_hh_members, person_who_reported_job
+  ComboBox 295, 50, 110, 15, list_of_all_hh_members, person_who_reported_job
   ComboBox 100, 70, 110, 15, "Type or Select"+chr(9)+"phone call"+chr(9)+"Change Report Form"+chr(9)+"office visit"+chr(9)+"mailing"+chr(9)+"fax"+chr(9)+"ES counselor"+chr(9)+"CCA worker"+chr(9)+"scanned document", job_report_type
-  EditBox 285, 70, 55, 15, reported_date
+  EditBox 295, 70, 55, 15, reported_date
   CheckBox 10, 90, 275, 10, "Check here if the employee gave verbal authorization to check the Work Number", work_number_verbal_checkbox
   ButtonGroup ButtonPressed
-    OkButton 265, 105, 50, 15
-    CancelButton 325, 105, 50, 15
-  Text 230, 75, 55, 10, "Date reported:"
-  Text 10, 35, 210, 10, "If no matching JOBS panel, select Member to create JOBS panel:"
+    OkButton 295, 115, 50, 15
+    CancelButton 355, 115, 50, 15
+  Text 245, 75, 50, 10, "Date reported:"
+  Text 35, 30, 260, 10, "If 'No JOBS Panel Exists' selected above, select member to create JOBS panel:"
   Text 10, 10, 130, 10, "Select Member/JOBS Panel impacted:"
   Text 10, 55, 60, 10, "Job Change Type:"
-  Text 230, 55, 55, 10, "Who reported?"
+  Text 245, 55, 50, 10, "Who reported?"
   Text 10, 75, 90, 10, "How was the job reported?"
 EndDialog
 
@@ -206,15 +211,21 @@ Do
 		If person_who_reported_job = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Select who reported the job change"
 		If job_report_type = "Type or Select" Then err_msg = err_msg & vbNewLine & "* Select how the job was reported"
 		If IsDate(reported_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter valid date reported." 
-		If instr(hh_memb_5_jobs_panels, hh_memb_with_new_job) then Call script_end_procedure("Script is unable to add another JOBS panel for " & hh_memb_with_new_job & " as there are 5 JOBS panels already. The script will now end." & vbcr & vbcr &  "Please delete a JOBS panel for the Household Member and then restart the script.")
         If err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = "" 
+    If instr(hh_memb_5_jobs_panels, hh_memb_with_new_job) then Call script_end_procedure("Script is unable to add another JOBS panel for " & hh_memb_with_new_job & " as there are 5 JOBS panels already. The script will now end." & vbcr & vbcr &  "Please delete a JOBS panel for the Household Member and then restart the script.")
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
+
+
 If hh_member_current_jobs <> "No JOBS Panel Exists" Then            'Reading JOBS panel details for the job selected in the JOb Selection Dialog 
-	Call navigate_to_MAXIS_screen("STAT", "JOBS")      
+    Do 
+    	Call Navigate_to_MAXIS_screen("STAT", "JOBS")                       'Go to JOBS
+        EMReadScreen nav_check, 4, 2, 45
+        EMWaitReady 0, 0
+    Loop until nav_check = "JOBS"
 	EmWriteScreen left(hh_member_current_jobs, 2), 20, 76
     job_version_only = left(hh_member_current_jobs, Len(hh_member_current_jobs) - 1)    'Pulling out job instance from hh_member_current_jobs
 	call write_value_and_transmit(right(job_version_only, 2), 20, 79)
@@ -319,8 +330,11 @@ case_appl_date = DateAdd("d", 0, case_appl_date)
 
 If job_change_type = "Job Ended" Then
     For i = 1 to Ubound(client_name_array)                         'Now we are going to check WREG for the PWE
-
-        Call Navigate_to_MAXIS_screen("STAT", "WREG")              'Go to WREG for each client on the case in turn
+        Do 
+            Call Navigate_to_MAXIS_screen("STAT", "WREG")                       'Go to JOBS
+            EMReadScreen nav_check, 4, 2, 48
+            EMWaitReady 0, 0
+        Loop until nav_check = "WREG"
         EMWriteScreen left(client_name_array(i), 2), 20, 76
         transmit
 
@@ -531,13 +545,12 @@ Do                      'Showing the main dialog
                 If IsDate(first_pay_date_of_change) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the change will be reflected in income (the first paycheck that will be affected by this change)."
 
             Case "Job Ended"
-                If IsDate(date_work_ended) = FALSE OR IsNumeric(last_pay_amount) = FALSE OR  IsDate(job_end_income_end_date) = FALSE OR stwk_verif = "Select One..." OR vol_quit_yn = "?" OR (vol_quit_yn = "Yes" AND good_cause_yn = "No" ) OR (vol_quit_yn = "Yes" AND good_cause_yn = "?") OR refused_empl_yn = "Yes" AND IsDate(refused_empl_date) = FALSE Then err_msg = err_msg & vbNewLine & "UPDATE REPORTED SECTION"
+                If IsDate(date_work_ended) = FALSE OR IsNumeric(last_pay_amount) = FALSE OR  IsDate(job_end_income_end_date) = FALSE OR stwk_verif = "Select One..." OR vol_quit_yn = "?" OR (vol_quit_yn = "Yes" AND good_cause_yn = "?") OR refused_empl_yn = "Yes" AND IsDate(refused_empl_date) = FALSE Then err_msg = err_msg & vbNewLine & "UPDATE REPORTED SECTION"
                 If IsDate(date_work_ended) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date the client last worked."
                 If IsNumeric(last_pay_amount) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the amount of the last pay. This can be an estimate amount."
                 If IsDate(job_end_income_end_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of the last paycheck."
                 If stwk_verif = "Select One..." Then err_msg = err_msg & vbNewLine & "* Enter the verification code for the STWK Panel."
                 If vol_quit_yn = "?" Then err_msg = err_msg & vbNewLine & "* Select Voluntary Quit information - Yes or No"
-                If vol_quit_yn = "Yes" AND good_cause_yn = "No" Then err_msg = err_msg & vbNewLine & "* Currently there voluntary quit sanctions and processing is suspended due to COVID-19. If the client quit voluntarily, code good cause as 'Yes'."            'This is here because good cause is always true - COVID WAIVER
                 If vol_quit_yn = "Yes" AND good_cause_yn = "?" Then err_msg = err_msg & vbNewLine & "* Since this job has ended voluntarily, indicate if this voluntary quit meets good cause."
                 If refused_empl_yn = "Yes" AND IsDate(refused_empl_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Since you indicated that the client refused employment, you must enter the date employment was refused as a valid date."
         End Select
@@ -559,7 +572,9 @@ Do                      'Showing the main dialog
             If TIKL_checkbox = checked Then err_msg = err_msg & vbNewLine & "* You have requested to TIKL for the verification request return but no verification request date has been entered. Either update the verifications request date or uncheck the TIKL for return box."
             If requested_CEI_OHI_docs_checkbox = checked Then err_msg = err_msg & vbNewLine & "* You have indicated that CEI/OHI documents are being requested but have not indicated when the verification request form was sent. Either update the verification request date or uncheck the CEI/OHI box."
         End If
-        If script_update_stat = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the script should update the STAT panels or not."
+        If job_change_type = "New Job Reported" AND script_update_stat = "Yes - Update an existing JOBS Panel" Then err_msg = err_msg & vbNewLine & "* You selected 'New Job Reported' on the initial dialog, update 'Have Script Update Panel' to 'Yes - Create a new JOBS Panel'"
+        If job_change_type = "Income/Hours Change for Current Job" AND script_update_stat = "Yes - Create a new JOBS Panel" Then err_msg = err_msg & vbNewLine & "* You selected update an existing job on the initial dialog, update 'Have Script Update Panel' to 'Yes - Update an existing JOBS Panel'"
+
         If trim(verif_time_frame) <> "" AND IsDate(verif_form_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valid date for the date the verification request form has been sent."
 
         If err_msg = vbNewLine & vbNewLine & vbNewLine Then err_msg = ""
@@ -587,7 +602,6 @@ End Select
 
 If conversation_with_person = "Select or Type" Then conversation_with_person = ""
 
-'TODO: Is this back in effect?
 'VOLUNTARY QUIT functionality needs TESTING when this policy goes back into effect
 review_vol_quit = FALSE                     'this is a a defaulted variable to indicate if we need to review more detail about possible voluntary quit
 If job_change_type = "Income/Hours Change for Current Job" Then                 'Job change does not have a vol quit option but can still meet vol quit/reduction
@@ -605,39 +619,42 @@ If vol_quit_yn = "Yes" Then         'job end has vol quit field that if indicate
     review_vol_quit = TRUE
     Vol_quit_type = "Quit Job"
 End If
-review_vol_quit = FALSE         'This is going to false now because there is no voluntary quit right now - COVID WAIVER
+
+'review_vol_quit = FALSE         'This is going to false now because there is no voluntary quit right now - COVID WAIVER
 code_disq = FALSE               'defaulting this variable before the additional vol quit detail
 'This functionality provides additional information gathering about Volundary Quit and the ability to take action/create seperate notes
 If review_vol_quit = TRUE Then
     If mfip_case = TRUE Then mfip_vol_quit_checkbox = checked           'Autochecking the program boxes based upon which programs were found to be active
     If dwp_case = TRUE Then dwp_vol_quit_checkbox = checked
     If snap_case = TRUE Then snap_vol_quit_checkbox = checked
-    'TODO - If SNAP then we need to go to DISQ to determine if we can tell which sanction it is.
     Do
         Do
             err_msg = ""
 
             Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 236, 210, "Voluntary Quit Detail"
-              DropListBox 120, 25, 105, 45, "Select One..."+chr(9)+"Quit Job"+chr(9)+"Hours Reduction", vol_quit_type
-              DropListBox 170, 45, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
-              DropListBox 170, 65, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
-              EditBox 15, 100, 210, 15, vol_quit_reason
-              CheckBox 35, 150, 30, 10, "MFIP", mfip_vol_quit_checkbox
-              CheckBox 75, 150, 30, 10, "DWP", dwp_vol_quit_checkbox
-              CheckBox 120, 150, 30, 10, "SNAP", snap_vol_quit_checkbox
-              DropListBox 130, 170, 95, 45, "Zelect One..."+chr(9)+"First Sanction      - 1st"+chr(9)+"Second Sanction - 2nd"+chr(9)+"Third Sanction     - 3rd"+chr(9)+"More than Three", snap_vol_quit_occurance
-              ButtonGroup ButtonPressed
-                OkButton 130, 190, 50, 15
-                CancelButton 185, 190, 50, 15
-              Text 10, 10, 255, 10, "This case appears to have or potentially have a voluntary quit situation."
-              Text 15, 30, 105, 10, "What kind of action was taken? "
-              Text 15, 50, 150, 10, "Was this voluntary on the part of the Client?"
-              Text 15, 70, 120, 10, "If  voluntary, is there  good cause?"
-              Text 15, 90, 135, 10, "Explain the cuase as provided by client:"
-              Text 90, 120, 135, 10, "Explain if client meets good cause or not."
-              GroupBox 15, 135, 140, 30, "Program Impacted by Voluntary Quit"
-              Text 15, 175, 110, 10, "If SNAP, what occurance is this?"
+            BeginDialog Dialog1, 0, 0, 186, 265, "Voluntary Quit Detail"
+                DropListBox 95, 25, 70, 45, "Select One..."+chr(9)+"Quit Job"+chr(9)+"Hours Reduction", vol_quit_type
+                DropListBox 110, 45, 55, 45, "?"+chr(9)+"Yes"+chr(9)+"No", vol_quit_yn
+                DropListBox 135, 65, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", good_cause_yn
+                EditBox 50, 100, 115, 15, vol_quit_reason
+                CheckBox 40, 140, 30, 10, "MFIP", mfip_vol_quit_checkbox
+                CheckBox 40, 150, 30, 10, "DWP", dwp_vol_quit_checkbox
+                CheckBox 40, 160, 30, 10, "SNAP", snap_vol_quit_checkbox
+                DropListBox 90, 175, 75, 45, "Select One..."+chr(9)+"1st Sanction"+chr(9)+"2nd Sanction"+chr(9)+"3rd+ Sanctions", snap_vol_quit_occurance
+                EditBox 90, 195, 75, 15, disq_begin_date
+                EditBox 90, 215, 75, 15, disq_end_date
+                ButtonGroup ButtonPressed
+                    OkButton 75, 245, 50, 15
+                    CancelButton 130, 245, 50, 15
+                Text 10, 10, 255, 10, "This case appears to have a voluntary quit situation."
+                Text 20, 30, 75, 10, "Type of action taken?"
+                Text 20, 50, 90, 10, "Resident voluntarily quit?"
+                Text 20, 70, 110, 10, "If voluntary, is there good cause?"
+                Text 20, 90, 140, 10, "Explain the cause/if they meet good cause:"
+                Text 20, 125, 140, 10, "Programs Impacted by Voluntary Quit"
+                Text 20, 180, 70, 10, "If SNAP, occurance:"
+                Text 20, 200, 60, 10, "Disq Begin Date:"
+                Text 20, 220, 50, 10, "Disq End Date:"
             EndDialog
 
             dialog Dialog1
@@ -647,9 +664,11 @@ If review_vol_quit = TRUE Then
             If vol_quit_yn = "?" Then err_msg = err_msg & vbNewLine & "* Indicate if the job was voluntarily quit/hours reduced."
             If vol_quit_yn = "Yes" Then
                 If vol_quit_type = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate if the job was voluntarily ended or voluntarily reduced hours."
-                If len(vol_quit_reason) < 20 Then err_msg = err_msg & vbNewLine & "* Enter full detail of information about the reason the job was ended. IF the client has not provided a reason, list that here and indicate how we are going to determine possible good cause."
-                If snap_vol_quit_checkbox = checked AND snap_vol_quit_occurance = "Select One..." Then err_msg = err_msg & vbNewLine & "* Since this voluntary quit impacts the SNAP program, indicate which occurance of this type of sanction this client is on."
+                If len(vol_quit_reason) < 20 Then err_msg = err_msg & vbNewLine & "* Enter full detail of information about the reason the job was ended. If the resident has not provided a reason, list that here and indicate how we are going to determine possible good cause."
+                If snap_vol_quit_checkbox = checked AND snap_vol_quit_occurance = "Select One..." Then err_msg = err_msg & vbNewLine & "* This voluntary quit impacts the SNAP program, therefore indicate which occurance of this type of sanction this resident is on."
             End If
+            If IsDate(disq_begin_date) = False then err_msg = err_msg & vbNewLine & "* Enter XX/XX/XX date for Disq begin date"
+            If IsDate(disq_end_date) = False then err_msg = err_msg & vbNewLine & "* Enter XX/XX/XX date for Disq end date"
             If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
         Loop until err_msg = ""
@@ -672,7 +691,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
     Do
         EMWriteScreen "SUMM", 20, 71                'Getting into STAT
         transmit
-
         EMReadScreen MAXIS_footer_month, 2, 20, 55          'Setting the right month and year
         EMReadScreen MAXIS_footer_year, 2, 20, 58
 
@@ -750,7 +768,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
         ElseIf script_update_stat = "Yes - Update an existing JOBS Panel" Then          'if we are in the first loop then the action is going to change based on the the update detail
             'Navigate to STAT/JOBS
             EMReadScreen total_jobs, 1, 2, 78                               'Reading the number of jobs that are on this case for this member
-
             If total_jobs = "0" Then                                        'If there are none and the worker indicated to update an existing panel, thes cript will end.
                 Call script_end_procedure("Update and Note NOT Completed. There are no jobs for Memb " & hh_memb_with_job_change & " listed in MAXIS and you have selected to have the script Update and existing JOBS panel.")
             Else    
@@ -765,7 +782,11 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             PF9     'placing JOBS panel in edit mode
 
         ElseIf script_update_stat = "Yes - Create a new JOBS Panel" Then
-            Call navigate_to_MAXIS_screen("STAT", "JOBS") 'Navigate to STAT/JOBS
+            Do 
+                Call Navigate_to_MAXIS_screen("STAT", "JOBS")                       'Go to JOBS
+                EMReadScreen nav_check, 4, 2, 45
+                EMWaitReady 0, 0
+            Loop until nav_check = "JOBS"
             EMWriteScreen Left(hh_memb_with_job_change, 2), 20, 76               'go to the right member
             EMWriteScreen "NN", 20, 79                                          'create new JOBS panel
             transmit
@@ -852,7 +873,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             Loop until jobs_row = 17
             EMWriteScreen "   ", 18, 43                      'blanking out hours
             EMWriteScreen "   ", 18, 72
-
             Select Case job_change_type                 'What we enter and how we enter is baed upon what change type is reported.
                 'This doesn't actually do the updates but sets up all the variables so we can use the same update code
                 Case "New Job Reported"
@@ -965,8 +985,13 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                     jobs_row = jobs_row + 1                     'going to the next row down
                 Else                                        'If the job IS ended
                     EMWriteScreen last_pay_amount, jobs_row, 67 'Enter the last gross pay
-                    prosp_hours = last_pay_amount/job_hourly_wage
-                    jobs_row = jobs_row - 1                     'go to the next row above
+                    If job_hourly_wage = "" or job_hourly_wage = "0.00" Then 
+                        prosp_hours = 0 
+                        jobs_row = jobs_row - 1  
+                    Else 
+                        prosp_hours = last_pay_amount/job_hourly_wage
+                        jobs_row = jobs_row - 1                     'go to the next row above
+                    End If
                 End If
             End If
             next_month_mo = ""      'blanking out the next footer month
@@ -1027,7 +1052,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                         End If
                     Else
                         EMWriteScreen pay_amt, jobs_row, 67
-                        'TODO: should this enter 0 for new jobs? 
                         prosp_hours = prosp_hours + new_hours_per_check
                     End If
                     If end_of_pay = "99/99/99" Then                 'going to the next row
@@ -1035,9 +1059,14 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                     Else
                         jobs_row = jobs_row - 1                         'go up one for job IS ended
                         pay_amt = pay_amt * 1                           'This determines how many hours to put on the panel if job has ended - We need to calculate for each pay amount
-                        job_hourly_wage = job_hourly_wage * 1
-                        hours_of_pay = pay_amt/job_hourly_wage
-                        prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here
+                        If job_hourly_wage = "" or job_hourly_wage = "0.00" Then 
+                            hours_of_pay = 0 
+                            prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here 
+                        Else 
+                            job_hourly_wage = job_hourly_wage * 1
+                            hours_of_pay = pay_amt/job_hourly_wage
+                            prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here
+                        End If
                     End If
                 End If
                 If pay_date_two_mo = MAXIS_footer_month AND pay_date_two_yr = MAXIS_footer_year Then        'Same functionality for a second pay date - this is used for semi monthly pay frequesny
@@ -1056,9 +1085,14 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                     Else
                         jobs_row = jobs_row - 1
                         pay_amt = pay_amt * 1
-                        job_hourly_wage = job_hourly_wage * 1
-                        hours_of_pay = pay_amt/job_hourly_wage
-                        prosp_hours = prosp_hours + hours_of_pay
+                        If job_hourly_wage = "" or job_hourly_wage = "0.00" Then 
+                            hours_of_pay = 0 
+                            prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here 
+                        Else 
+                            job_hourly_wage = job_hourly_wage * 1
+                            hours_of_pay = pay_amt/job_hourly_wage
+                            prosp_hours = prosp_hours + hours_of_pay        'totaling the hours calculated here
+                        End If
                     End If
                 End If
                 the_last_pay_date = the_pay_date        'setting the variable that stores the previous pay date for the next loop
@@ -1079,7 +1113,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
             If job_change_type = "Job Ended" AND prosp_hours = 0 Then prosp_hours = ""
             EMWriteScreen "   ", 18, 72             'blanking out hours and entering the new ones
             EMWriteScreen prosp_hours, 18, 72
-            'TODO: why would we want to enter 0 for prosp hours for a new job?
 
             'Now we update the PIC
             If snap_case = TRUE Then
@@ -1106,16 +1139,39 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                 End Select
                 transmit
                 PF3
+                EMWaitReady 0, 0
+                EMReadScreen warning_popup, 69, 6, 7
+                If warning_popup = "WARNING: PROSPECTIVE EARNINGS EXIST WITH NO HOURS OR HOURS EXIST WITH" then 
+                    warning_check = MsgBox("Warning: Prospective earnings exist with no hours or hours exist with no prospective earnings. Is this correct for this job?", vbYesNo) 
+                    If warning_check = vbYes Then 
+                        EMWriteScreen "Y", 9, 58
+                        transmit 
+                    ElseIf warning_check = vbNo Then 
+                        EMWriteScreen "N", 9, 58
+                        transmit
+                    End If
+                End If
+                EMWaitReady 0, 0
+                EMWaitReady 0, 0
+                EMReadScreen error_warning, 20, 6, 43
+                If error_warning = "Error Prone Warnings" Then
+                    PF3
+                End If
             End If
         End If
         transmit        'saving the panel information
+
         If testing_status = TRUE Then msgbox "JOBS saved"
 
         If original_full_jobs_name = "" Then EMReadScreen original_full_jobs_name, 30, 7, 42             'read the employer name as it originally exists on the panel
 
         If script_update_stat = "Yes - Update an existing JOBS Panel" OR script_update_stat = "Yes - Create a new JOBS Panel" Then      'If we are updating
             If job_change_type = "Job Ended" Then                                                                                       'and we are coding a job end change type
-                Call navigate_to_MAXIS_screen("STAT", "STWK")                   'We also have to code end of employmnt on STWK
+                Do 
+                    Call navigate_to_MAXIS_screen("STAT", "STWK")                   'We also have to code end of employmnt on STWK
+                    EMReadScreen nav_check, 4, 2, 45
+                    EMWaitReady 0, 0
+                Loop until nav_check = "STWK"
                 EMWriteScreen ref_nbr, 20, 76                                   'navigate to STWK for the right person
                 transmit
 
@@ -1155,20 +1211,39 @@ If developer_mode = FALSE Then                      'If we are in developer mode
 
                 If refused_empl_yn = "" Then refused_empl_yn = "?"
                 If good_cause_yn = "" Then good_cause_yn = "?"
-            End If
 
-            If code_disq = TRUE Then        'This will code a DISQ panel in the case of Voluntary Quit
-                Call navigate_to_MAXIS_screen("STAT", "DISQ")
-                EMWriteScreen ref_nbr, 20, 76
-                transmit
-
-                'TODO - add functionality to update DISQ once vol quit is a thing again.'
+                disq_updated = FALSE 
+                If code_disq = TRUE Then        'This will code a DISQ panel in the case of Voluntary Quit
+                    Call convert_date_into_MAXIS_footer_month(disq_begin_date, disq_footer_month, disq_footer_year)
+                    If MAXIS_footer_month = disq_footer_month AND MAXIS_footer_year = disq_footer_year Then 
+                        Do 
+                            Call navigate_to_MAXIS_screen("STAT", "DISQ")                   'We also have to code end of employmnt on STWK
+                            EMReadScreen nav_check, 4, 2, 48
+                            EMWaitReady 0, 0
+                        Loop until nav_check = "DISQ"
+                        EMWriteScreen ref_nbr, 20, 76
+                        transmit
+                        EMReadScreen disq_total, 1 , 2, 78
+                        If disq_total < "5" Then 
+                            EMWriteScreen "NN", 20, 79
+                            transmit
+                            EMWriteScreen "FS", 6, 54
+                            EMWriteScreen "11", 6, 64
+                            Call create_MAXIS_friendly_date_with_YYYY(disq_begin_date, 0, 8, 64)
+                            Call create_MAXIS_friendly_date_with_YYYY(disq_end_date, 0, 9, 64)
+                            transmit 
+                            disq_updated = TRUE 
+                        Else 
+                            code_disq = FALSE 
+                            disq_updated = FALSE
+                            msgbox "DISQ panel is maxed out, unable to update. Manually update after script run"
+                        End If 
+                    End If
+                End If
             End If
         End If
-        
         transmit 
         CALL write_value_and_transmit("BGTX", 20, 71)   'Now we send the case through background and go to STAT/WRAP
-
         Do 
             EMReadScreen wrap_check, 4, 2, 46
             If wrap_check <> "WRAP" Then 
@@ -1197,7 +1272,6 @@ If developer_mode = FALSE Then                      'If we are in developer mode
         End If
         transmit
         If testing_status = TRUE Then msgbox "Pause here - should be in the next month."
-        
         second_loop = TRUE                  'setting this veriable to knkow we aren't in the first go round any more
     Loop until MAXIS_footer_month = CM_plus_1_mo AND MAXIS_footer_year = CM_plus_1_yr
 Else            'If we are in developer mode, we will go here to allow for some display and output options.
@@ -1330,8 +1404,12 @@ Else            'If we are in developer mode, we will go here to allow for some 
                 email_body = email_body & "* Quit details:" & vbCr
                 email_body = email_body & " - Employee refused employment: " & refused_empl_yn & vbCr
                 email_body = email_body & " - Was this a voluntary quit? " & vol_quit_yn & vbCr
+                email_body = email_body & " - Voluntary quit reason: " & vol_quit_reason & vbCr
                 If trim(stwk_reason) <> "" Then email_body = email_body & " - Reason for STWK: " & stwk_reason & vbCr
                 email_body = email_body & " - Meets good cause? " & good_cause_yn & vbCr
+                If disq_updated = TRUE then 
+                     email_body = email_body & " - DISQ panel updated for " & disq_begin_date & "-" & disq_end_date & vbCr
+                End If
         End Select
         email_body = email_body & vbCr
         email_body = email_body & "Impact on WREG/ABAWD: " & wreg_abawd_notes & vbCr
@@ -1449,9 +1527,13 @@ If developer_mode = TRUE Then
               y_pos = y_pos + 10
               Text 10, y_pos, 530, 10, " - Was this a voluntary quit? " & vol_quit_yn
               y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, " - Voluntary quit reason " & vol_quit_reason
+              y_pos = y_pos + 10
               Text 10, y_pos, 530, 10, " - Reason for STWK: " & stwk_reason
               y_pos = y_pos + 10
               Text 10, y_pos, 530, 10, "    - Meets good cause? " & good_cause_yn
+              y_pos = y_pos + 10
+              Text 10, y_pos, 530, 10, " - DISQ panel updated " & DISQ_updated
       End Select
       y_pos = y_pos + 15
       Text 10, y_pos, 530, 10, "* Impact on WREG/ABAWD: " & wreg_abawd_notes
@@ -1554,8 +1636,10 @@ If developer_mode = TRUE Then
                 objSelection.TypeText "* Quit details:" & vbCr
                 objSelection.TypeText " - Employee refused employment: " & refused_empl_yn & vbCr
                 objSelection.TypeText " - Was this a voluntary quit? " & vol_quit_yn & vbCr
+                objSelection.TypeText " - Voluntary quit reason: " & vol_quit_reason & vbCr
                 If trim(stwk_reason) <> "" Then objSelection.TypeText " - Reason for STWK: " & stwk_reason & vbCr
                 objSelection.TypeText " - Meets good cause? " & good_cause_yn & vbCr
+                If disq_updated = TRUE Then objSelection.TypeText " - DISQ panel updated for " & disq_begin_date & "-" & disq_end_date & vbCr
         End Select
         objSelection.TypeText "* Impact on WREG/ABAWD: " & wreg_abawd_notes & vbCr
         If conversation_with_person <> "" Then
@@ -1612,8 +1696,11 @@ Else        'If we are NOT in developer mode the script will create a CASE:NOTE 
             Call write_variable_in_CASE_NOTE("* Quit details:")
             Call write_variable_with_indent_in_CASE_NOTE("Employee refused employment: " & refused_empl_yn)
             Call write_variable_with_indent_in_CASE_NOTE("Was this a voluntary quit? " & vol_quit_yn)
+            Call write_variable_with_indent_in_CASE_NOTE("Voluntary quit reason: " & vol_quit_reason)
             If trim(stwk_reason) <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Reason for STWK: " & stwk_reason)
             Call write_variable_with_indent_in_CASE_NOTE("Meets good cause? " & good_cause_yn)
+            If disq_updated = TRUE Then Call write_variable_with_indent_in_CASE_NOTE("DISQ panel updated for: " & disq_begin_date & "-" & disq_end_date)
+            Call write_variable_with_indent_in_CASE_NOTE("Sanction Occurance: " & snap_vol_quit_occurance)
     End Select
     Call write_variable_in_CASE_NOTE("* Impact on WREG/ABAWD: " & wreg_abawd_notes)
     If conversation_with_person <> "" Then
