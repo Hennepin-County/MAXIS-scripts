@@ -1747,7 +1747,7 @@ function iaa_dialog()
 	CheckBox 25, 45, 110, 10, "Check here if IAA form received", iaa_form_received_checkbox
 	DropListBox 260, 40, 95, 15, ""+chr(9)+"Initial claim"+chr(9)+"Post-eligibility", iaa_type_assistance
 	CheckBox 25, 70, 125, 10, "Check here if IAA-SSI form received", iaa_ssi_form_received_checkbox
-	DropListBox 260, 65, 95, 15, ""+chr(9)+"General Assistance (GA)"+chr(9)+"Housing Support (HS)", iaa_ssi_type_assistance
+	DropListBox 260, 65, 95, 15, ""+chr(9)+"General Assistance (GA)"+chr(9)+"Housing Support (HS)"+chr(9)+"GA and HS", iaa_ssi_type_assistance
 	EditBox 65, 95, 145, 15, iaa_benefits_1
 	EditBox 65, 115, 145, 15, iaa_benefits_2
 	EditBox 235, 95, 145, 15, iaa_benefits_3
@@ -1917,7 +1917,7 @@ function psn_dialog()
 	EditBox 95, 120, 120, 15, psn_cert_prof
 	EditBox 250, 120, 125, 15, psn_facility	
 	CheckBox 5, 150, 185, 10, "Check here to have script update WREG/DISA panels", psn_udpate_wreg_disa_checkbox
-	CheckBox 210, 150, 165, 10, "Check here to set a TIKL to update form annually", psn_tikl_checkbox
+	CheckBox 210, 150, 165, 10, "Check to set a TIKL to request updated form", psn_tikl_checkbox
 	Text 5, 5, 130, 10, psn_form_name
 	Text 340, 5, 55, 10, "Document Date:"
 	Text 15, 20, 30, 10, "Member"
@@ -2097,31 +2097,31 @@ function diet_dialog()
 	EditBox 395, 0, 45, 15, diet_date_received		
 	DropListBox 50, 35, 120, 15, HH_Memb_DropDown, diet_member_number 
 	DropListBox 55, 70, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_1_dropdown
-	DropListBox 185, 70, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_1_dropdown
+	DropListBox 185, 70, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_1_dropdown
 	DropListBox 290, 70, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_1_dropdown
 	DropListBox 55, 85, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_2_dropdown
-	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_2_dropdown
+	DropListBox 185, 85, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_2_dropdown
  	DropListBox 290, 85, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_2_dropdown
 	DropListBox 55, 100, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_3_dropdown
-	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_3_dropdown
+	DropListBox 185, 100, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_3_dropdown
 	DropListBox 290, 100, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_3_dropdown
 	DropListBox 55, 115, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_4_dropdown
-	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_4_dropdown
+	DropListBox 185, 115, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_4_dropdown
 	DropListBox 290, 115, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_4_dropdown
 	DropListBox 55, 130, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_5_dropdown
-	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_5_dropdown
+	DropListBox 185, 130, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_5_dropdown
 	DropListBox 290, 130, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_5_dropdown
 	DropListBox 55, 145, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_6_dropdown
-	DropListBox 185, 145, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_6_dropdown
+	DropListBox 185, 145, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_6_dropdown
 	DropListBox 290, 145, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_6_dropdown
 	DropListBox 55, 160, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_7_dropdown
-	DropListBox 185, 160, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_7_dropdown
+	DropListBox 185, 160, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_7_dropdown
 	DropListBox 290, 160, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_7_dropdown
 	DropListBox 55, 175, 115, 20, ""+chr(9)+"01-High Protein"+chr(9)+"02-Controlled protein 40-60 grams"+chr(9)+"03-Controlled protein <40 grams"+chr(9)+"04-Low cholesterol"+chr(9)+"05-High residue"+chr(9)+"06-Pregnancy/Lactation"+chr(9)+"07-Gluten free"+chr(9)+"08-Lactose free"+chr(9)+"09-Anti-dumping"+chr(9)+"10-Hypoglycemic"+chr(9)+"11-Ketogenic", diet_8_dropdown
-	DropListBox 185, 175, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive", diet_relationship_8_dropdown
+	DropListBox 185, 175, 90, 15, ""+chr(9)+"N/A - Only 1 diet"+chr(9)+"Non-Overlapping"+chr(9)+"Overlapping"+chr(9)+"Mutually Exclusive"+chr(9)+"Blank", diet_relationship_8_dropdown
 	DropListBox 290, 175, 30, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_verif_8_dropdown
 	EditBox 75, 195, 55, 15, diet_date_last_exam
-	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No", diet_treatment_plan_dropdown			
+	DropListBox 135, 215, 35, 15, ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank", diet_treatment_plan_dropdown			
 	EditBox 270, 215, 55, 15, diet_length_diet
 	DropListBox 55, 235, 60, 15, ""+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", diet_status_dropdown 
 	CheckBox 125, 235, 195, 10, "Check here to set TIKL for renewal", diet_tikl_checkbox
@@ -2299,7 +2299,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 				If iaa_member_dropdown = "Select" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select the resident from the dropdown."
 				If iaa_form_received_checkbox = unchecked and iaa_ssi_form_received_checkbox = unchecked Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Must select which type(s) of IAA received"
 				If iaa_form_received_checkbox = Checked and iaa_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select Type of interim assistance for IAA"
-				If iaa_ssi_form_received_checkbox = Checked and iaa_ssi_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select AG or HS interim assistance for IAA-SSI"
+				If iaa_ssi_form_received_checkbox = Checked and iaa_ssi_type_assistance = "" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Select Type of interim assistance for IAA-SSI"
 				If iaa_update_pben_checkbox = checked and iaa_ssi_form_received_checkbox = Checked and iaa_form_received_checkbox = unchecked and iaa_benefit_type <> "02-SSI" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Benefit type does not align with IAA form selection"
 				If iaa_update_pben_checkbox = checked and iaa_form_received_checkbox = Checked and iaa_ssi_form_received_checkbox = unchecked and iaa_benefit_type = "02-SSI" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Benefit type does not align with IAA form selection"
 				If iaa_update_pben_checkbox = checked and iaa_form_received_checkbox = Checked and iaa_ssi_form_received_checkbox = Checked and iaa_benefit_type = "02-SSI" Then iaa_err_msg = iaa_err_msg & vbNewLine & "* Enter benefit type for IAA form. IAA-SSI benefit type is already accounted for."
@@ -2499,8 +2499,6 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 			If form_type_array(form_type_const, form_errors) = other_form_name then 'Error handling for Other Form 
 				IF IsDate(other_date_received) = FALSE THEN other_err_msg = other_err_msg & vbCr & "* Enter a valid Document Date."
 				If Trim(other_list_form_names) = ""  THEN other_err_msg = other_err_msg & vbCr & "* Specify name of form(s)"
-				If Trim(other_doc_notes) = "" THEN other_err_msg = other_err_msg & vbCr &  "* Specify details for each form"
-				If Trim(other_action_taken) = "" THEN other_err_msg = other_err_msg & vbCr &  "* Specify actions taken"
 			End If
 		Next
 	End If
@@ -4546,8 +4544,8 @@ End If
 PF3
 
 If psn_tikl_checkbox = checked then 'PSN
-	Call create_TIKL("Resident's PSN is now 12 months old and no longer valid. Take appropriate action.", 365, psn_date_received, False, TIKL_note_text)
-	end_msg = end_msg & vbNewLine & "PSN: TIKL has been sent for a year from now to request an updated form."
+	Call create_TIKL("Resident's PSN is now 10 months old and will not be valid in 2 months. Take appropriate action.", 305, psn_date_received, False, TIKL_note_text)
+	end_msg = end_msg & vbNewLine & "PSN: TIKL has been sent for 10 months from now to request an updated form."
 End If
 PF3
 
@@ -5059,7 +5057,7 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 	If form_type_array(form_type_const, each_case_note) = other_form_name Then 		'Other Case Notes
 		verifs_case_note = TRUE
 		Call start_a_blank_case_note
-		CALL write_variable_in_case_note("*** Other forms received: " & other_list_form_names)	
+		CALL write_variable_in_case_note("*** Docs Rec'd: " & other_list_form_names)	
 		CALL write_bullet_and_variable_in_case_note("Date Received", other_date_received)
 		CALL write_bullet_and_variable_in_case_note("Document Notes", other_doc_notes)
 		CALL write_bullet_and_variable_in_case_note("Verifications Received", other_verif_received)
