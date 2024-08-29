@@ -352,8 +352,7 @@ function read_case_details_for_review_report(incrementor_var)
 	Else
 		EmReadscreen worker_prefix, 4, 21, 14
 		If worker_prefix <> "X127" then
-			review_array(notes_const, i) = "Out-of-County: " & right(worker_prefix, 2)
-			review_array(notes_const, incrementor_var) = "PRIV Case."
+			review_array(notes_const, incrementor_var) = "Out-of-County: " & right(worker_prefix, 2)
 			review_array(interview_const, incrementor_var) = ""
 			review_array(no_interview_const, incrementor_var) = ""
 			review_array(current_SR_const, incrementor_var) = ""
@@ -1645,6 +1644,8 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 		ObjExcel.columns(7).AutoFit()
 		ObjExcel.columns(8).AutoFit()
+	    objExcel.worksheets(report_date & " Review Report").Activate  'Activates the review worksheet so that the stats worksheet is in the expected place.
+
 	End If
 
 	'Going to another sheet, to enter statistics for the entire Renewal load
