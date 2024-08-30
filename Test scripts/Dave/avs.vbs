@@ -165,9 +165,8 @@ const ad_hoc_reviewed_date_const = 30
 const ad_hoc_closed_date_const = 31
 const ad_hoc_status_const      = 32
 const memb_age_const           = 33
-const avsa_role                = 34
-const avsa_signer_role         = 35
-const avsa_pers_status         = 36
+const memb_avsa_array          = 34
+const record_exists_const      = 35 
 const memb_array_last_const    = 40
 add_to_array = False    'defaulting to false
 DO
@@ -343,7 +342,7 @@ Do
         ButtonGroup ButtonPressed
         PushButton 170, 0, 10, 15, "!", help_button
         For items= 0 to UBound(avs_members_array, 2)									'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-            If avs_members_array(checked_const, item) = 1 then checkbox 15, (20 + (items* 20)), 130, 15, avs_members_array(member_info_const, item), avs_members_array(checked_const, item)
+            If avs_members_array(checked_const, items) = 1 then checkbox 15, (20 + (items* 20)), 130, 15, avs_members_array(member_info_const, items), avs_members_array(checked_const, items)
         Next
         ButtonGroup ButtonPressed
         OkButton 85, (30 + (items * 20)), 45, 15
@@ -374,26 +373,26 @@ Do
     'Resizing the array based on who was selected in the previous dialog. Revaluing the array if selected or checked in the previous dialog.
     resize_counter = 0
     For items = 0 to UBound(avs_members_array, 2)
-        If avs_members_array(checked_const, item) = 1 Then
-            avs_members_array(member_number_const     , resize_counter) = avs_members_array(member_number_const     , item)
-            avs_members_array(member_info_const       , resize_counter) = avs_members_array(member_info_const       , item)
-            avs_members_array(member_name_const       , resize_counter) = avs_members_array(member_name_const       , item)
-            avs_members_array(marital_status_const    , resize_counter) = avs_members_array(marital_status_const    , item)
-            avs_members_array(checked_const           , resize_counter) = avs_members_array(checked_const           , item)
-            avs_members_array(hc_applicant_const      , resize_counter) = avs_members_array(hc_applicant_const      , item)
-            avs_members_array(applicant_type_const    , resize_counter) = avs_members_array(applicant_type_const    , item)
-            avs_members_array(forms_status_const      , resize_counter) = avs_members_array(forms_status_const      , item)
-            avs_members_array(avs_status_const        , resize_counter) = avs_members_array(avs_status_const        , item)
-            avs_members_array(request_type_const      , resize_counter) = avs_members_array(request_type_const      , item)
-            avs_members_array(avs_results_const       , resize_counter) = avs_members_array(avs_results_const       , item)
-            avs_members_array(avs_returned_notes_const, resize_counter) = avs_members_array(avs_returned_notes_const, item)
-            avs_members_array(avs_date_const          , resize_counter) = avs_members_array(avs_date_const          , item)
-            avs_members_array(accounts_verified_const , resize_counter) = avs_members_array(accounts_verified_const , item)
-            avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , item)
-            avs_members_array(ECF_const               , resize_counter) = avs_members_array(ECF_const               , item)
-            avs_members_array(additional_info_const   , resize_counter) = avs_members_array(additional_info_const   , item)
-            avs_members_array(memb_smi_const          , resize_counter) = avs_members_array(memb_smi_const          , item)
-            avs_members_array(memb_age_const          , resize_counter) = avs_members_array(memb_age_const          , item)
+        If avs_members_array(checked_const, items) = 1 Then
+            avs_members_array(member_number_const     , resize_counter) = avs_members_array(member_number_const     , items)
+            avs_members_array(member_info_const       , resize_counter) = avs_members_array(member_info_const       , items)
+            avs_members_array(member_name_const       , resize_counter) = avs_members_array(member_name_const       , items)
+            avs_members_array(marital_status_const    , resize_counter) = avs_members_array(marital_status_const    , items)
+            avs_members_array(checked_const           , resize_counter) = avs_members_array(checked_const           , items)
+            avs_members_array(hc_applicant_const      , resize_counter) = avs_members_array(hc_applicant_const      , items)
+            avs_members_array(applicant_type_const    , resize_counter) = avs_members_array(applicant_type_const    , items)
+            avs_members_array(forms_status_const      , resize_counter) = avs_members_array(forms_status_const      , items)
+            avs_members_array(avs_status_const        , resize_counter) = avs_members_array(avs_status_const        , items)
+            avs_members_array(request_type_const      , resize_counter) = avs_members_array(request_type_const      , items)
+            avs_members_array(avs_results_const       , resize_counter) = avs_members_array(avs_results_const       , items)
+            avs_members_array(avs_returned_notes_const, resize_counter) = avs_members_array(avs_returned_notes_const, items)
+            avs_members_array(avs_date_const          , resize_counter) = avs_members_array(avs_date_const          , items)
+            avs_members_array(accounts_verified_const , resize_counter) = avs_members_array(accounts_verified_const , items)
+            avs_members_array(unreported_assets_const , resize_counter) = avs_members_array(unreported_assets_const , items)
+            avs_members_array(ECF_const               , resize_counter) = avs_members_array(ECF_const               , items)
+            avs_members_array(additional_info_const   , resize_counter) = avs_members_array(additional_info_const   , items)
+            avs_members_array(memb_smi_const          , resize_counter) = avs_members_array(memb_smi_const          , items)
+            avs_members_array(memb_age_const          , resize_counter) = avs_members_array(memb_age_const          , items)
             resize_counter = resize_counter + 1
             STATS_counter = STATS_counter + 1
         End If
@@ -414,6 +413,7 @@ Do
         
         objRecordSet.Open objSQL, objConnection
             If Not objRecordSet.bof Then 'If we have an existing record for this member, read the values
+                avs_members_array(record_exists_const, this_memb)          = True
                 avs_members_array(auth_date_const, this_memb)              = objRecordSet("AVSFormDate")
                 avs_members_array(form_type_const , this_memb)  		   = objRecordSet("AVSFormType")
                 avs_members_array(form_valid_const, this_memb)             = objRecordSet("AVSFormValid")
@@ -423,6 +423,8 @@ Do
                 avs_members_array(ad_hoc_sent_date_const, this_memb)       = objRecordSet("AdHocSentDate")
                 avs_members_array(ad_hoc_reviewed_date_const, this_memb)   = objRecordSet("AdHocReviewedWorker") 
                 avs_members_array(ad_hoc_closed_date_const, this_memb)     = objRecordSet("AdHocClosedDate")
+            Else
+                avs_members_array(record_exists_const, this_memb) = False
             End If 
         ObjRecordSet.Close
     Next 
@@ -443,9 +445,10 @@ Do
                 avs_members_array(status_msg_const, this_memb) = "Check ECF Case file for valid authorization for member, update below or send forms if needed."
             End If 
         Else 'No sent date for Ad hoc
+        'TODO include logic for renewal / application form dates to encourage review.
             avs_members_array(ad_hoc_status_const, this_memb) = "Process not started."
             If avs_members_array(form_valid_const, this_memb) = "1" Then 
-                avs_members_array(status_msg_const, this_memb) = "Valid forms on file. Send AVS ad hoc request(s) for this member."  
+                avs_members_array(status_msg_const, this_memb) = "Valid forms recorded on file. Review forms if needed and send AVS ad hoc request(s) for this member."  
             Else 
                 avs_members_array(status_msg_const, this_memb) = "Check ECF Case file for valid authorization for member, update below or send forms if needed."
             End If 
@@ -500,30 +503,29 @@ Do
         Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 575, (55 + (checked_count * 65)), "AVS At Renewal"
         y_pos = 10
+        For this_memb = 0 to UBound(avs_members_array, 2)	
+            Text 45, y_pos + 10, 340, 10, avs_members_array(status_msg_const, this_memb) '"Check case file for existing authorizations and complete below with status of any authorization on file."
+               'TODO 
+            GroupBox 10, y_pos, 560, 65, avs_members_array(member_number_const, this_memb) & " " & avs_members_array(member_name_const, this_memb)
+            Text 15, y_pos+30, 55, 10, "AVS Form Type: "
+            DropListBox 70, y_pos+25, 75, 15, ""+chr(9)+"DHS-7823 Auth Form"+chr(9)+"HCAPP"+chr(9)+"HC Renewal", avs_members_array(form_type_const, this_memb)
+            EditBox 190, y_pos+25, 45, 15, avs_members_array(auth_date_const, this_memb)
+            Text 150, y_pos+30, 40, 10, "Form Date:"
+            DropListBox 265, y_pos+25, 75, 15, ""+chr(9)+"Valid form on file"+chr(9)+"Form is invalid"+chr(9)+"No form on file", avs_members_array(form_valid_const, this_memb)
+            Text 240, y_pos+30, 25, 10, "Status:"
+            Text 350, y_pos+25, 70, 20, "Auth form sent,     must be signed by:"
+            EditBox 415, y_pos+25, 150, 15, avs_members_array(sigs_needed_const, this_memb)
 
-         For this_memb = 0 to UBound(avs_members_array, 2)	
-          Text 45, y_pos + 10, 340, 10, avs_members_array(status_msg_const, this_memb) '"Check case file for existing authorizations and complete below with status of any authorization on file."
-            'TODO 
-         GroupBox 10, y_pos, 560, 65, avs_members_array(member_number_const, this_memb) & " " & avs_members_array(member_name_const, this_memb)
-         Text 15, y_pos+30, 55, 10, "AVS Form Type: "
-         DropListBox 70, y_pos+25, 75, 15, ""+chr(9)+"DHS-7823 Auth Form"+chr(9)+"HCAPP"+chr(9)+"HC Renewal", avs_members_array(form_type_const, this_memb)
-         EditBox 190, y_pos+25, 45, 15, avs_members_array(auth_date_const, this_memb)
-         Text 150, y_pos+30, 40, 10, "Form Date:"
-         DropListBox 265, y_pos+25, 75, 15, ""+chr(9)+"Valid form on file"+chr(9)+"Form is invalid"+chr(9)+"No form on file", avs_members_array(form_valid_const, this_memb)
-         Text 240, y_pos+30, 25, 10, "Status:"
-         Text 350, y_pos+25, 70, 20, "Auth form sent,     must be signed by:"
-         EditBox 415, y_pos+25, 150, 15, avs_members_array(sigs_needed_const, this_memb)
-
-         Text 15, y_pos+50, 50, 10, "Ad Hoc status:"
-         DropListBox 190, y_pos+45, 50, 10, ""+chr(9)+"Submitted"+chr(9)+"Reviewed "+chr(9)+"Closed", avs_members_array(avs_action_const, this_memb)
-         Text 70, y_pos+50, 80, 10, avs_members_array(ad_hoc_status_const, this_memb)
-         Text 155, y_pos+50, 30, 10, "Action:"
-         Text 245, y_pos+50, 15, 10, "For:"
-         DropListBox 265, y_pos+45, 125, 15, member_list, avs_members_array(first_submitted_const, this_memb)
-         DropListBox 400, y_pos+45, 115, 15, member_list, avs_members_array(second_submitted_const, this_memb)
-         ButtonGroup ButtonPressed
-           PushButton 520, y_pos+45, 45, 10, "Sponsors", Button5
-        y_pos = y_pos + 70
+            Text 15, y_pos+50, 50, 10, "Ad Hoc status:"
+            DropListBox 190, y_pos+45, 50, 10, ""+chr(9)+"Submitted"+chr(9)+"Reviewed "+chr(9)+"Closed", avs_members_array(avs_action_const, this_memb)
+            Text 70, y_pos+50, 80, 10, avs_members_array(ad_hoc_status_const, this_memb)
+            Text 155, y_pos+50, 30, 10, "Action:"
+            Text 245, y_pos+50, 15, 10, "For:"
+            DropListBox 265, y_pos+45, 125, 15, member_list, avs_members_array(first_submitted_const, this_memb)
+            DropListBox 400, y_pos+45, 115, 15, member_list, avs_members_array(second_submitted_const, this_memb)
+            ButtonGroup ButtonPressed
+            PushButton 520, y_pos+45, 45, 10, "Sponsors", Button5
+            y_pos = y_pos + 70
         Next
          y_pos = y_pos + 10
          Text 15, y_pos+5, 45, 15, "Other Notes:"
@@ -599,7 +601,7 @@ Do
             
             'AVS Form updates
 
-        msgbox "what?"
+       
 
             'AVS sent updates
             If objRecordSet("AdHocSentDate") <> avs_members_array(ad_hoc_sent_date_const, this_memb) Then
