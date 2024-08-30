@@ -5403,7 +5403,7 @@ function mfip_special_diet_case_note()
 	If MFIP_ELIG_APPROVALS(elig_select).MFSD_check_count > 1 Then Call write_variable_in_CASE_NOTE("* Amount issued in " & MFIP_ELIG_APPROVALS(elig_select).MFSD_check_count & " checks.")
 	Call write_variable_in_CASE_NOTE("* Check Issued For:")
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
-		If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then
+		If STAT_INFORMATION(month_select).stat_mfip_diet_exists(each_memb) = True Then
 			Call write_variable_in_CASE_NOTE("  - MEMB " & STAT_INFORMATION(month_select).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_select).stat_memb_full_name_no_initial(each_memb))
 		End If
 	Next
@@ -11571,7 +11571,10 @@ class mfip_eligibility_detail
 				inqd_issue_date = trim(inqd_issue_date)
 
 				Call convert_date_into_MAXIS_footer_month(inqd_issue_date, check_footer_month, check_footer_year)
-				If check_footer_month = elig_footer_month and check_footer_year = elig_footer_year Then
+				EMReadScreen check_elig_month, 2, inqd_row, 62
+				EMReadScreen check_elig_year, 2, inqd_row, 68
+
+				If check_elig_month = elig_footer_month and check_elig_year = elig_footer_year Then
 					MFSD_check_issue_date = inqd_issue_date
 					MFSD_check_found = True
 					MFSD_check_count = MFSD_check_count + 1
@@ -19704,6 +19707,7 @@ class stat_detail
 	Public stat_faci_approval_county()
 
 	public stat_diet_exists()
+	public stat_mfip_diet_exists()
 	public stat_diet_mf_type_code_one()
 	public stat_diet_mf_type_info_one()
 	public stat_diet_mf_verif_one()
@@ -20516,6 +20520,7 @@ class stat_detail
 		ReDim stat_faci_approval_county(0)
 
 		ReDim stat_diet_exists(0)
+		ReDim stat_mfip_diet_exists(0)
 		ReDim stat_diet_mf_type_code_one(0)
 		ReDim stat_diet_mf_type_info_one(0)
 		ReDim stat_diet_mf_verif_one(0)
@@ -21194,6 +21199,7 @@ class stat_detail
 			ReDim preserve stat_faci_approval_county(memb_count)
 
 			ReDim preserve stat_diet_exists(memb_count)
+			ReDim preserve stat_mfip_diet_exists(memb_count)
 			ReDim preserve stat_diet_mf_type_code_one(memb_count)
 			ReDim preserve stat_diet_mf_type_info_one(memb_count)
 			ReDim preserve stat_diet_mf_verif_one(memb_count)
@@ -23968,6 +23974,7 @@ class stat_detail
 			transmit
 			EMReadScreen existance_check, 1, 2, 73
 			stat_diet_exists(each_memb) = True
+			stat_mfip_diet_exists(each_memb) = False
 			If existance_check = "0" Then stat_diet_exists(each_memb) = False
 
 			If stat_diet_exists(each_memb) = True Then
@@ -24029,6 +24036,8 @@ class stat_detail
 				If stat_diet_mf_type_code_two(each_memb) = "10" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
 				If stat_diet_mf_type_code_two(each_memb) = "09" Then stat_diet_mf_amount_two(each_memb) = thrifty_food_plan_for_diet*0.15
 
+				If stat_diet_mf_type_code_one(each_memb) <> "" Then stat_mfip_diet_exists(each_memb) = True
+				If stat_diet_mf_type_code_two(each_memb) <> "" Then stat_mfip_diet_exists(each_memb) = True
 			End If
 		Next
 
@@ -25400,14 +25409,15 @@ For each footer_month in MONTHS_ARRAY
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_approved_today = True Then
 			diets_running_total = 0
 			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_count).stat_diet_exists(each_stat_memb) = True Then
+				If STAT_INFORMATION(month_count).stat_mfip_diet_exists(each_stat_memb) = True Then
 					diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_one(each_stat_memb)
 					diets_running_total = diets_running_total + STAT_INFORMATION(month_count).stat_diet_mf_amount_two(each_stat_memb)
 				End If
 			Next
 
-			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount < diets_running_total Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_overlap_exists = True
-			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount > diets_running_total Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_diet_info_missing = True
+			difference_in_diet_amount = MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_check_transaction_amount - diets_running_total
+			If difference_in_diet_amount < 0 Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_overlap_exists = True
+			If difference_in_diet_amount > 0 Then MFIP_ELIG_APPROVALS(mfip_elig_months_count).MFSD_diet_info_missing = True
 
 			SPECIAL_PROCESSES_BY_MONTH(MFIP_special_diet_const, month_count) = True
 			SPECIAL_PROCESSES_BY_MONTH(MF_elig_index, month_count) = mfip_elig_months_count
@@ -29939,9 +29949,7 @@ If special_diet_check_exists = True Then
 			for stat_month = 0 to UBound(STAT_INFORMATION)
 				If SPECIAL_PROCESSES_BY_MONTH(MX_foot_mo_const, info_month)  = STAT_INFORMATION(stat_month).footer_month and SPECIAL_PROCESSES_BY_MONTH(MX_foot_yr_const, info_month) = STAT_INFORMATION(stat_month).footer_year Then month_select = stat_month
 			next
-			for each_memb = 0 to UBound(STAT_INFORMATION(month_select).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_select).stat_diet_exists(each_memb) = True Then memb_select = each_memb
-			next
+
 			STATS_manualtime = STATS_manualtime + 90			'1.5 minutes for each CASE/NOTE entered - with the detail and formatting would take 4 minutes on average
 
 			Call mfip_special_diet_case_note
