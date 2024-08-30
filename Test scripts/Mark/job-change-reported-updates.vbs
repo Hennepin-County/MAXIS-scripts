@@ -44,11 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/04/2024", "Updated Dialogs and fixed bugs.", "Mark Riegel and Megan Geissler, Hennepin County")
-call changelog_update("07/21/2023", "Updated function that sends an email through Outlook", "Mark Riegel, Hennepin County")
-call changelog_update("01/12/2023", "BUG FIX to handle for New Jobs that started prior to the initial application for the case. The script would get stuck trying to go too far in the past. The script will now initially try to update only starting in the application month.", "Casey Love, Hennepin County")
-call changelog_update("05/28/2020", "Added virtual drop box information to SPEC/MEMO.", "MiKayla Handley, Hennepin County")
-call changelog_update("04/24/2020", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("05/24/2024", "Initial version.", "Mark Riegel and Megan Geissler, Hennepin County")
+
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -478,22 +475,22 @@ BeginDialog Dialog1, 0, 0, 521, 370, "Job Change Details Dialog"
         ' ComboBox 80, 260, 125, 45, "Select One..."+chr(9)+"1 - Employers Statement"+chr(9)+"2 - Seperation Notice"+chr(9)+"3 - Collateral Statement"+chr(9)+"4 - Other Document"+chr(9)+"N - No Verif Provided", stwk_verif
   End Select
 
-    EditBox 120, 275, 75, 15, verif_form_date
-    EditBox 120, 295, 75, 15, verif_time_frame
-    DropListBox 100, 315, 145, 15, "No - Update of JOBS not needed"+chr(9)+"Yes - Update an existing JOBS Panel"+chr(9)+"Yes - Create a new JOBS Panel", script_update_stat
-    CheckBox 270, 275, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
-    CheckBox 270, 290, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
-    CheckBox 270, 305, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
-    CheckBox 270, 320, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
-    EditBox 40, 345, 340, 15, notes
-    ButtonGroup ButtonPressed
-        OkButton 405, 345, 50, 15
-        CancelButton 460, 345, 50, 15
-    GroupBox 5, 265, 505, 75, "Actions"
-    Text 10, 280, 105, 10, "Date verification Request Sent:"
-    Text 10, 300, 105, 10, "Time frame of verifs requested:"
-    Text 10, 320, 90, 10, "Have Script Update Panel:"
-    Text 10, 350, 25, 10, "Notes:"
+  GroupBox 5, 265, 505, 75, "Actions"
+  Text 10, 280, 105, 10, "Date verification Request Sent:"
+  Text 10, 300, 105, 10, "Time frame of verifs requested:"
+  Text 10, 320, 90, 10, "Have Script Update Panel:"
+  Text 10, 350, 25, 10, "Notes:"
+  EditBox 120, 275, 75, 15, verif_form_date
+  EditBox 120, 295, 75, 15, verif_time_frame
+  CheckBox 270, 275, 105, 10, "Check here to TIKL for return.", TIKL_checkbox
+  CheckBox 270, 320, 165, 10, "Check here if you are requesting CEI/OHI docs.", requested_CEI_OHI_docs_checkbox
+  DropListBox 100, 315, 145, 15, "No - Update of JOBS not needed" +chr(9)+ "Yes - Update an existing JOBS Panel" +chr(9)+ "Yes - Create a new JOBS Panel", script_update_stat
+  CheckBox 270, 305, 165, 10, "Check here if you sent a status update to CCA.", CCA_checkbox
+  CheckBox 270, 290, 160, 10, "Check here if you sent a status update to ES.", ES_checkbox
+  EditBox 40, 345, 340, 15, notes
+  ButtonGroup ButtonPressed
+    OkButton 405, 345, 50, 15
+    CancelButton 460, 345, 50, 15
 EndDialog
 
 Do                      'Showing the main dialog
@@ -1739,49 +1736,3 @@ If script_update_stat = "Yes - Create a new JOBS Panel" Then end_msg = end_msg &
 If TIKL_checkbox = checked and developer_mode = FALSE Then end_msg = end_msg & "TIKL set for return of verification." & vbNewLine
 
 call script_end_procedure_with_error_report(end_msg)
-
-
-'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
-'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
-'
-'------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------08/27/2024
-'--Tab orders reviewed & confirmed----------------------------------------------08/27/2024
-'--Mandatory fields all present & Reviewed--------------------------------------08/27/2024
-'--All variables in dialog match mandatory fields-------------------------------08/27/2024
-'Review dialog names for content and content fit in dialog----------------------08/27/2024
-'
-'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------08/27/2024
-'--CASE:NOTE Header doesn't look funky------------------------------------------08/27/2024
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/27/2024
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------08/27/2024
-'
-'-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/27/2024
-'--MAXIS_background_check reviewed (if applicable)------------------------------08/27/2024
-'--PRIV Case handling reviewed -------------------------------------------------08/27/2024
-'--Out-of-County handling reviewed----------------------------------------------08/27/2024
-'--script_end_procedures (w/ or w/o error messaging)----------------------------08/27/2024
-'--BULK - review output of statistics and run time/count (if applicable)--------NA
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------08/27/2024
-'
-'-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------08/27/2024
-'--Incrementors reviewed (if necessary)-----------------------------------------08/27/2024
-'--Denomination reviewed -------------------------------------------------------08/27/2024
-'--Script name reviewed---------------------------------------------------------08/27/2024
-'--BULK - remove 1 incrementor at end of script reviewed------------------------NA
-
-'-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------08/27/2024
-'--comment Code-----------------------------------------------------------------08/27/2024
-'--Update Changelog for release/update------------------------------------------08/27/2024
-'--Remove testing message boxes-------------------------------------------------08/27/2024
-'--Remove testing code/unnecessary code-----------------------------------------08/27/2024
-'--Review/update SharePoint instructions----------------------------------------08/27/2024
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/27/2024
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/27/2024
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------08/27/2024
-'--Complete misc. documentation (if applicable)---------------------------------08/27/2024
-'--Update project team/issue contact (if applicable)----------------------------08/27/2024
