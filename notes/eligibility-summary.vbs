@@ -89,6 +89,8 @@ QCR_SNAP_ABAWD_30_09_Eligible = True
 QCR_SNAP_ABAWD_30_10_All = False
 QCR_SNAP_Homeless_SHELTER_Expense_All = True
 	SNAP_Homeless_SHELTER_Expense_Min = 179.66
+QCR_HC_with_Remedial_Care_Deduction = True
+	QCR_HC_Remedial_Care_Review_Needed = False
 ' ------------------------------------------------------------------------------
 
 
@@ -28744,10 +28746,22 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 								If STAT_INFORMATION(stat_year).footer_month = HC_ELIG_APPROVALS(approval).elig_footer_month and STAT_INFORMATION(stat_year).footer_year = HC_ELIG_APPROVALS(approval).elig_footer_year Then
 									For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
 										If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
-											If (HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True ) and HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = False and STAT_INFORMATION(stat_year).stat_bils_remedial_care_entered = False and STAT_INFORMATION(stat_year).stat_faci_is_grh(stat_memb) = True and grh_status = "INACTIVE" Then
+											warn_about_remedial_care = False
+											If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then warn_about_remedial_care = True
+											If HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = True  Then warn_about_remedial_care = False
+											If STAT_INFORMATION(stat_year).stat_bils_remedial_care_entered = True Then warn_about_remedial_care = False
+											If STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) <> "55" and STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) <> "56" Then warn_about_remedial_care = False
+
+											'The initial review of these cases will be triggered only for HC cases with a FACI of type 55 or 56.
+											'This will need to be updated once review of this functionality is confirmed.
+											If QCR_HC_with_Remedial_Care_Deduction = True Then
+												If STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) = "55" or STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) = "56" Then QCR_HC_Remedial_Care_Review_Needed = True
+											End If
+
+											If warn_about_remedial_care = True Then
 												' MsgBox "HC Should Cancel or maybe allow for permission"
 												Dialog1 = ""
-												BeginDialog Dialog1, 0, 0, 291, 175, "Review Budget for MEMB in GRH with NO GHR Program"
+												BeginDialog Dialog1, 0, 0, 291, 175, "Review HC Budget for MEMB in Facility with a Spenddown"
 													DropListBox 15, 120, 265, 45, "Select One..."+chr(9)+"No, stop the script so ELIG can be updated and ReApproved."+chr(9)+"No, continue with the script but do NOT CASE/NOTE the HC Approval"+chr(9)+"Yes, this case does not require Remedial Care Amount be in Bills.", budget_without_remedial_care
 													ButtonGroup ButtonPressed
 														OkButton 230, 150, 50, 15
@@ -28771,7 +28785,21 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 												Loop until budget_without_remedial_care <> "Select One..." and budget_without_remedial_care <> ""
 
-												If budget_without_remedial_care = "No, stop the script so ELIG can be updated and ReApproved." Then script_end_procedure_with_error_report("Eligibility Summary has ended because you have indicated the HC Budget needs to be Repaired to include a Remedial Care amount.")
+												If budget_without_remedial_care = "No, stop the script so ELIG can be updated and ReApproved." Then
+													If QCR_HC_Remedial_Care_Review_Needed = True Then
+														email_subject = "TEST - HC Case in FACI Type (55 or 56): " & MAXIS_case_number
+														email_body = "A case was processed that appears to have Health Care and an OPEN FACI of Type 55 or 56."
+														email_body = email_body & vbCr & "budget_without_remedial_care: " & budget_without_remedial_care
+														email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+														email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+														email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+
+														email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+														email_recip_CC = ""
+														Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+													End If
+													script_end_procedure_with_error_report("Eligibility Summary has ended because you have indicated the HC Budget needs to be Repaired to include a Remedial Care amount.")
+												End If
 												If budget_without_remedial_care = "No, continue with the script but do NOT CASE/NOTE the HC Approval" Then
 													enter_CNOTE_for_HC = False
 													end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals because the budget needs to be reviewed and reappoved, based on user input. Particular issue is Remedial Care for a Member that is in a GRH Facility." & vbCr
@@ -31087,6 +31115,19 @@ If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pendin
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
 end_msg_info = end_msg_info & "Eligibility Approvals review and documentation script run is complete."
+
+If QCR_HC_Remedial_Care_Review_Needed = True Then
+	email_subject = "TEST - HC Case in FACI Type (55 or 56): " & MAXIS_case_number
+	email_body = "A case was processed that appears to have Health Care and an OPEN FACI of Type 55 or 56."
+	email_body = email_body & vbCr & "budget_without_remedial_care: " & budget_without_remedial_care
+	email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+	email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+	email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+
+	email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+	email_recip_CC = ""
+	Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+End If
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
 
