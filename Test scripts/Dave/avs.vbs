@@ -57,6 +57,17 @@ call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'functions
+
+sub check_month 'checks for error message created when footer month is prior to 09/24
+    EMReadScreen avsa_check, 8, 24, 35
+    If avsa_check = "09/01/24" Then
+        maxis_footer_month = "09"   
+        maxis_footer_year = "24"
+        call navigat5e_to_MAXIS_screen("STAT", "AVSA")
+    End If 
+end sub
+
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -168,6 +179,16 @@ const memb_age_const           = 33
 const memb_avsa_array          = 34
 const record_exists_const      = 35 
 const memb_array_last_const    = 40
+'memb_avsa_array constants
+const avsa_role                = 1
+const avsa_signer_role         = 2
+const avsa_pers_status         = 3
+const avsa_auth_date           = 4
+const avsa_form_status         = 5
+const avsa_invalid_reason      = 6
+const fill_button              = 7
+const avsa_line                = 8
+
 add_to_array = False    'defaulting to false
 DO
 	EMReadscreen ref_nbr, 2, 4, 33
@@ -458,42 +479,126 @@ Do
     
     '---------------------------------------------Check STAT/AVSA for current info on each person
    ' memb_avsa_array codes and array position for each role
-   ' const enrollee         = 1
-   ' const spouse           = 2
-   ' const sponsor          = 3
-   ' const sponsor_spouse   = 4
-   ' const sponsor_2        = 5
-   ' const sponsor_spouse_2 = 6
+    const enrollee         = 1
+    const spouse           = 2
+    const sponsor          = 3
+    const sponsor_spouse   = 4
+    const sponsor_2        = 5
+    const sponsor_spouse_2 = 6
+    
+   For this_memb = 0 to UBound(avs_members_array, 2)
+       Call navigate_to_MAXIS_screen("STAT", "AVSA")
+       check_month
+       EMReadScreen panel_exists, 1, 2, 78
+       If panel_exists <> 0 Then
+           'Create the individual signers array
+           ReDim memb_avsa_array(8, 6)
+           signers = 0
+           'Loop through all lines on AVSA to create member's array of signers
+           For line_to_read = 10 to 16
+               EMReadScreen signer_role, 1, line_to_read, 62
+               If signer_role <> "_" Then 
+                   memb_avsa_array(avsa_line, signer_role) = line_to_read
+                   EMReadScreen memb_avsa_array(avsa_role, signer_role)
+                   EMReadScreen memb_avsa_array(avsa_signer_role, signer_role)
+                   EMReadScreen memb_avsa_array(avsa_pers_status, signer_role)
+               End If 
+           Next
+           'Now go into the popup for members to find avsa status
+           For this_pers = 0 to ubound(memb_avsa_array, 2)
+               EmWriteScreen "X", memb_avsa_array(avsa_line, this_memb), 25
+               transmit
+               EMReadScreen memb_avsa_array(avsa_auth_date, this_memb), coordinateneeded
+               EMReadScreen memb_avsa_array(avsa_form_status, this_memb), coordinateneeded
+               EMReadScreen memb_avsa_array(avsa_invalid_reason, this_memb), coordinateneeded
+               PF3
+           Next 
+       End If 
+   stats_manual_time = stats_manual_time + 120
+   Next
 
-   'For this_memb = 0 to UBound(avs_members_array, 2)
-   '    Call navigate_to_MAXIS_screen("STAT", "AVSA")
-   '    EMReadScreen panel_exists, 1, 2, 78
-   '    If panel_exists <> 0 Then
-   '        'Create the individual signers array
-   '        ReDim memb_avsa_array(6, 2)
-   '        signers = 0
-   '        'Loop through all lines on AVSA to create member's array of signers
-   '        For line_to_read = 10 to 16
-   '            EMReadScreen signer_role, 1, line_to_read, coordinateneeded
-   '            If signer_role <> "_" Then 
-   '                memb_avsa_array(avsa_line, signer_role) = line_to_read
-   '                EMReadScreen memb_avsa_array(avsa_role, signer_role)
-   '                EMReadScreen memb_avsa_array(avsa_signer_role, signer_role)
-   '                EMReadScreen memb_avsa_array(avsa_pers_status, signer_role)
-   '            End If 
-   '        Next
-   '        'Now go into the popup for members to find avsa status
-   '        For this_pers = 0 to ubound(memb_avsa_array, 2)
-   '            EmWriteScreen "X", coordinateneeded, memb_avsa_array(avsa_line, this_memb)
-   '            transmit
-   '            EMReadScreen memb_avsa_array(avsa_auth_date, this_memb), coordinateneeded
-   '            EMReadScreen memb_avsa_array(avsa_form_status, this_memb), coordinateneeded
-   '            EMReadScreen memb_avsa_array(avsa_invalid_reason, this_memb), coordinateneeded
-   '            PF3
-   '        Next 
-   '    End If 
-   'stats_manual_time = stats_manual_time + 120
-   'Next
+   'AVSA does not exist - must update
+    Function fill_avsa_fields(member, signer)
+    'Member is an array with avsa status
+        memb_role = stuff
+        first_name = stuff
+        last_name = stuff
+        signer_ssn = left(3, ssn) & " " & mid(4,2,ssn) & " " & right(4, ssn) 'TODO: remove space and dash from SSN elsewhere
+        'TODO - dim these
+        Call navigate_to_MAXIS_screen("STAT", "AVSA")
+        'check if exists
+        EMWriteScreen member, 20, 76 'TODO - see how this works with 1 member existing, does it still show 0 or should we read error below?
+        Transmit
+        EMReadScreen panel_exists, 1, 2, 78
+        If panel_exists = 0 Then
+            EmWriteScreen member & " nn", 20, 76
+            transmit
+            EMReadScreen auth_screen_check, 5, 1, 33
+            If auth_screen_check = "AVS A" Then
+                If ref_number_exists = true Then
+                    EmWriteScreen ref_number, 6, 55
+                    Transmist
+                Else
+                    EmWriteScreen memb_role, 6, 14
+                    EMWriteScreen last_name, 7, 14
+                    EmWriteScreen first_name, 7, 53
+                    call create_mainframe_friendly_date(birthdate, 8, 19, 0)
+                    EmWriteScreen signer_SSN, 8, 51
+                End If 
+                EMWriteScreen signer_role, 13, 14
+                If signer_role <> "4" Then 
+                    EMWriteScreen signer_last_name, 14, 14
+                    EMWriteScreen signer_first_name, 14, 53
+                End If 
+                Call create_mainframe_friendly_date(form_date, 17, 28)
+                EMWriteScreen form_status, 18, 28
+                If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
+                Transmit
+            End If 
+        End If 
+    End Function
+'TODO middle initials????
+'TODO ALias handling??????????
+    BeginDialog Dialog1, 0, 0, 576, 170, "Dialog"
+    ButtonGroup ButtonPressed
+    OkButton 460, 150, 50, 15
+    CancelButton 515, 150, 50, 15
+    Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
+    'TODO - create Y_pos math, add the lines
+    For this_memb = 0 to UBound(avs_members_array, 2)
+        GroupBox 5, 20, 565, 125, "Member Number & Name"
+        Text 15, 30, 90, 20, "Select member and press arrow to prefill"
+        DropListBox 15, 50, 90, 15, "", member_list
+        EditBox 135, 50, 70, 15, first_name
+        EditBox 210, 50, 100, 15, last_name
+        EditBox 315, 50, 45, 15, signer_ssn
+        Text 135, 35, 20, 10, "First"
+        Text 225, 35, 20, 10, "Last"
+        Text 330, 35, 20, 10, "SSN"
+        DropListBox 415, 50, 45, 15, "", member_role
+        DropListBox 365, 50, 45, 15, "", Signer_role_1
+        DropListBox 465, 50, 35, 15, "", signer_status_1
+        Text 370, 35, 20, 10, "Role"
+        Text 415, 35, 40, 10, "Signer Role"
+        Text 465, 35, 20, 10, "Status"
+        ButtonGroup ButtonPressed
+          PushButton 110, 50, 20, 10, "-->", avs_members_array(this_memb, memb_avsa_array)(fill_button, 1)
+        EditBox 505, 50, 45, 15, form_date
+        Text 505, 35, 35, 10, "Form Date"
+    Next
+    ButtonGroup ButtonPressed
+    PushButton 500, 5, 70, 15, "AVSA Instructions", Button6
+    EndDialog
+    'Display AVSA dialog
+    Do
+        Dialog Dialog1
+        For members = 0 to UBound(avs_members_array, 2)
+            For signer_line = 1 to 6
+                If ButtonPressed = avs_members_array(this_memb, memb_avsa_array)(fill_button, signer_line) Then call fill_avsa_fields(members, signer_line)
+            Next
+        Next
+        
+    Loop Until ButtonPressed <> -1
     '------------Compare values from table and avsa
     
 
