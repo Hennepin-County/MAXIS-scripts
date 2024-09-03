@@ -2474,11 +2474,11 @@ function define_grh_elig_dialog()
 		Else
 			month_display = GRH_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(last_mo_const, approval_selected)
 		End if
-		Text 15, 25, 430, 10, "*-*-*-* Resident: MEMB " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name & " is " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result & " for Housing Support (GRH) for " & month_display & " *-*-*-*"
+		Text 15, 22, 430, 10, "*-*-*-* Resident: MEMB " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name & " is " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result & " for Housing Support (GRH) for " & month_display & " *-*-*-*"
 
 		y_pos = 10
 		If GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then budget_grp_bx_len = 95
+			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then budget_grp_bx_len = 100
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "MFIP" Then budget_grp_bx_len = 85
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Blind" OR GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Aged" OR GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Adult" Then budget_grp_bx_len = 120
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Disabled" Then budget_grp_bx_len = 130
@@ -2496,9 +2496,10 @@ function define_grh_elig_dialog()
 				Text 20, y_pos, 185, 10, "SSI Standard (FBR) .  .  . + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr
 				Text 20, y_pos+10, 185, 10, "Other PA Grant .  .  .  .  .  + $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_other_countable_PA_grant
 
-				Text 15, y_pos+25, 150, 10, "COUNTABLE INCOME"
-				Text 20, y_pos+35, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
-				Text 20, y_pos+45, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
+				Text 15, y_pos+20, 150, 10, "COUNTABLE INCOME"
+				Text 20, y_pos+30, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
+				Text 20, y_pos+40, 185, 10, "Supp. Hsg Disregard   .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard
+				Text 20, y_pos+50, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
 
 				Text 230, y_pos, 185, 10, "PASS Disregard .  .  .  .  .  . - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_PASS_disregard
 				Text 230, y_pos+10, 185, 10, "Personal Needs .  .  .  .  .  .  - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs
@@ -2521,9 +2522,10 @@ function define_grh_elig_dialog()
 				Text 20, y_pos+20, 185, 10, "Earned  .  .  .  .  .  .  .  .+ $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_earned_income
 				Text 20, y_pos+30, 185, 10, "Total Income  .  .  .  .  .= $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_income
 
-				Text 15, y_pos+45, 150, 10, "COUNTABLE INCOME"
-				Text 20, y_pos+55, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
-				Text 20, y_pos+65, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
+				Text 15, y_pos+40, 150, 10, "COUNTABLE INCOME"
+				Text 20, y_pos+50, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
+				Text 20, y_pos+60, 185, 10, "Supp. Hsg Disregard   .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard
+				Text 20, y_pos+70, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
 
 				ded_y_pos = 45
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Disabled" OR GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Blind" Then
@@ -6696,6 +6698,7 @@ function grh_elig_case_note()
 				Call write_variable_in_CASE_NOTE("  PASS Disregard            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_PASS_disregard, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
+				Call write_variable_in_CASE_NOTE("  Supportive Hsg Disrgrd    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard, 8) & "      |")
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "MFIP" Then
 
 				Call write_variable_in_CASE_NOTE("  Personal Needs            $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_personal_needs, 8) & "      |")
@@ -6712,6 +6715,7 @@ function grh_elig_case_note()
 				Call write_variable_in_CASE_NOTE("  Child Unmet Need          $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_child_unmet_need, 8) & "      |")
 				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "Aged" Then Call write_variable_in_CASE_NOTE("  EW Spousal Allocation     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_EW_spousal_allocation, 8) & "      |")
 				Call write_variable_in_CASE_NOTE("  Prior Income Reduction    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_prior_inc_reduce, 8) & "      |")
+				Call write_variable_in_CASE_NOTE("  Supportive Hsg Disrgrd    $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard, 8) & "      |")
 			End if
 			Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "      |     Counted Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income, 8))
 		End If
@@ -14372,6 +14376,7 @@ class grh_eligibility_detail
 	public grh_elig_budg_inc_unavail_1st_month
 	public grh_elig_budg_total_deductions
 	public grh_elig_budg_counted_income
+	public grh_elig_supp_hsg_disregard
 	public grh_elig_budg_total_income
 
 	public grh_elig_budg_SSI_standard_fbr
@@ -14537,6 +14542,10 @@ class grh_eligibility_detail
 		approved_today = False
 		approved_version_found = False
 		skip_budget = False
+		supportive_housing_disregard_applies_to_this_month = False
+		footer_month_date = elig_footer_month & "/1/" & elig_footer_year
+		footer_month_date = DateAdd("d", 0, footer_month_date)
+		If DateDiff("d", #10/1/24#, footer_month_date) >= 0 Then supportive_housing_disregard_applies_to_this_month = True
 
 		call navigate_to_MAXIS_screen("ELIG", "GRH ")
 		EMWriteScreen elig_footer_month, 20, 55
@@ -14689,8 +14698,11 @@ class grh_eligibility_detail
 					EMReadScreen grh_elig_budg_inc_unavail_1st_month, 	8, 13, 29
 
 					EMReadScreen grh_elig_budg_total_deductions, 		8, 16, 29
-					EMReadScreen grh_elig_budg_counted_income,	 		8, 17, 29
-
+					If supportive_housing_disregard_applies_to_this_month = False Then EMReadScreen grh_elig_budg_counted_income, 8, 17, 29
+					If supportive_housing_disregard_applies_to_this_month = True Then
+						EMReadScreen grh_elig_supp_hsg_disregard, 		8, 17, 29
+						EMReadScreen grh_elig_budg_counted_income, 		8, 18, 29
+					End If
 
 					grh_elig_budg_SSI_standard_fbr = replace(grh_elig_budg_SSI_standard_fbr, "_", "")
 					grh_elig_budg_other_countable_PA_grant = replace(grh_elig_budg_other_countable_PA_grant, "_", "")
@@ -14699,6 +14711,7 @@ class grh_eligibility_detail
 					grh_elig_budg_personal_needs = replace(grh_elig_budg_personal_needs, "_", "")
 					grh_elig_budg_prior_inc_reduce = replace(grh_elig_budg_prior_inc_reduce, "_", "")
 					grh_elig_budg_inc_unavail_1st_month = replace(grh_elig_budg_inc_unavail_1st_month, "_", "")
+					grh_elig_supp_hsg_disregard = replace(grh_elig_supp_hsg_disregard, "_", "")
 
 					grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
 					grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
@@ -14736,11 +14749,19 @@ class grh_eligibility_detail
 					End If
 
 					If grh_elig_memb_elig_type_info = "Adult" Then
-						EMReadScreen grh_elig_budg_total_deductions, 	8, 14, 27
-						EMReadScreen grh_elig_budg_counted_income, 		8, 15, 27
+						EMReadScreen grh_elig_budg_total_deductions, 		8, 14, 27
+						If supportive_housing_disregard_applies_to_this_month = False Then EMReadScreen grh_elig_budg_counted_income, 		8, 15, 27
+						If supportive_housing_disregard_applies_to_this_month = True Then
+							EMReadScreen grh_elig_supp_hsg_disregard, 		8, 15, 27
+							EMReadScreen grh_elig_budg_counted_income, 		8, 16, 27
+						End If
 					Else
-						EMReadScreen grh_elig_budg_total_deductions, 	8, 15, 27
-						EMReadScreen grh_elig_budg_counted_income, 		8, 16, 27
+						EMReadScreen grh_elig_budg_total_deductions, 		8, 15, 27
+						If supportive_housing_disregard_applies_to_this_month = False Then EMReadScreen grh_elig_budg_counted_income, 		8, 16, 27
+						If supportive_housing_disregard_applies_to_this_month = True Then
+							EMReadScreen grh_elig_supp_hsg_disregard, 		8, 16, 27
+							EMReadScreen grh_elig_budg_counted_income, 		8, 17, 27
+						End If
 					End If
 
 					EMReadScreen grh_elig_budg_standard_EI_disregard, 			8, 8, 70
@@ -14806,6 +14827,7 @@ class grh_eligibility_detail
 					grh_elig_budg_EW_spousal_allocation = replace(grh_elig_budg_EW_spousal_allocation, "_", "")
 					grh_elig_budg_prior_inc_reduce = replace(grh_elig_budg_prior_inc_reduce, "_", "")
 					grh_elig_budg_inc_unavail_1st_month = replace(grh_elig_budg_inc_unavail_1st_month, "_", "")
+					grh_elig_supp_hsg_disregard = replace(grh_elig_supp_hsg_disregard, "_", "")
 				End If
 
 				If grh_elig_memb_elig_type_info = "Residential Treatment" Then
@@ -28348,6 +28370,7 @@ If enter_CNOTE_for_GRH = True Then
 	last_elig_result = ""
 	last_elig_type = ""
 	last_total_deductions = ""
+	last_supp_hsg_disregard = ""
 	last_counted_income = ""
 	last_personal_needs = ""
 	last_vendor_number_one = ""
@@ -28381,6 +28404,7 @@ If enter_CNOTE_for_GRH = True Then
 				last_elig_result = GRH_ELIG_APPROVALS(approval).grh_elig_eligibility_result
 				last_elig_type = GRH_ELIG_APPROVALS(approval).grh_elig_memb_elig_type_info
 				last_total_deductions = GRH_ELIG_APPROVALS(approval).grh_elig_budg_total_deductions
+				last_supp_hsg_disregard = GRH_ELIG_APPROVALS(approval).grh_elig_supp_hsg_disregard
 				last_counted_income = GRH_ELIG_APPROVALS(approval).grh_elig_budg_counted_income
 				last_personal_needs = GRH_ELIG_APPROVALS(approval).grh_elig_budg_personal_needs
 				last_vendor_number_one = GRH_ELIG_APPROVALS(approval).grh_elig_budg_vendor_number_one
@@ -28403,6 +28427,7 @@ If enter_CNOTE_for_GRH = True Then
 				If last_elig_result <> GRH_ELIG_APPROVALS(approval).grh_elig_eligibility_result Then match_last_benefit_amounts = False
 				If last_elig_type <> GRH_ELIG_APPROVALS(approval).grh_elig_memb_elig_type_info Then match_last_benefit_amounts = False
 				If last_total_deductions <> GRH_ELIG_APPROVALS(approval).grh_elig_budg_total_deductions Then match_last_benefit_amounts = False
+				If last_supp_hsg_disregard <> GRH_ELIG_APPROVALS(approval).grh_elig_supp_hsg_disregard Then match_last_benefit_amounts = False
 				If last_counted_income <> GRH_ELIG_APPROVALS(approval).grh_elig_budg_counted_income Then match_last_benefit_amounts = False
 				If last_personal_needs <> GRH_ELIG_APPROVALS(approval).grh_elig_budg_personal_needs Then match_last_benefit_amounts = False
 				If last_vendor_number_one <> GRH_ELIG_APPROVALS(approval).grh_elig_budg_vendor_number_one Then match_last_benefit_amounts = False
@@ -28435,6 +28460,7 @@ If enter_CNOTE_for_GRH = True Then
 					last_elig_result = GRH_ELIG_APPROVALS(approval).grh_elig_eligibility_result
 					last_elig_type = GRH_ELIG_APPROVALS(approval).grh_elig_memb_elig_type_info
 					last_total_deductions = GRH_ELIG_APPROVALS(approval).grh_elig_budg_total_deductions
+				last_supp_hsg_disregard = GRH_ELIG_APPROVALS(approval).grh_elig_supp_hsg_disregard
 					last_counted_income = GRH_ELIG_APPROVALS(approval).grh_elig_budg_counted_income
 					last_personal_needs = GRH_ELIG_APPROVALS(approval).grh_elig_budg_personal_needs
 					last_vendor_number_one = GRH_ELIG_APPROVALS(approval).grh_elig_budg_vendor_number_one
