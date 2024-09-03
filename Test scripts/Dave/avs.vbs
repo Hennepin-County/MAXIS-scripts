@@ -518,87 +518,130 @@ Do
    Next
 
    'AVSA does not exist - must update
-    Function fill_avsa_fields(member, signer)
-    'Member is an array with avsa status
-        memb_role = stuff
-        first_name = stuff
-        last_name = stuff
-        signer_ssn = left(3, ssn) & " " & mid(4,2,ssn) & " " & right(4, ssn) 'TODO: remove space and dash from SSN elsewhere
-        'TODO - dim these
-        Call navigate_to_MAXIS_screen("STAT", "AVSA")
-        'check if exists
-        EMWriteScreen member, 20, 76 'TODO - see how this works with 1 member existing, does it still show 0 or should we read error below?
-        Transmit
-        EMReadScreen panel_exists, 1, 2, 78
-        If panel_exists = 0 Then
-            EmWriteScreen member & " nn", 20, 76
-            transmit
-            EMReadScreen auth_screen_check, 5, 1, 33
-            If auth_screen_check = "AVS A" Then
-                If ref_number_exists = true Then
-                    EmWriteScreen ref_number, 6, 55
-                    Transmist
-                Else
-                    EmWriteScreen memb_role, 6, 14
-                    EMWriteScreen last_name, 7, 14
-                    EmWriteScreen first_name, 7, 53
-                    call create_mainframe_friendly_date(birthdate, 8, 19, 0)
-                    EmWriteScreen signer_SSN, 8, 51
-                End If 
-                EMWriteScreen signer_role, 13, 14
-                If signer_role <> "4" Then 
-                    EMWriteScreen signer_last_name, 14, 14
-                    EMWriteScreen signer_first_name, 14, 53
-                End If 
-                Call create_mainframe_friendly_date(form_date, 17, 28)
-                EMWriteScreen form_status, 18, 28
-                If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
-                Transmit
-            End If 
-        End If 
-    End Function
+    'Function fill_avsa_fields(member, signer)
+    ''Member is an array with avsa status
+    '    memb_role = stuff
+    '    first_name = stuff
+    '    last_name = stuff
+    '    signer_ssn = left(3, ssn) & " " & mid(4,2,ssn) & " " & right(4, ssn) 'TODO: remove space and dash from SSN elsewhere
+    '    'TODO - dim these
+    '    Call navigate_to_MAXIS_screen("STAT", "AVSA")
+    '    'check if exists
+    '    EMWriteScreen member, 20, 76 'TODO - see how this works with 1 member existing, does it still show 0 or should we read error below?
+    '    Transmit
+    '    EMReadScreen panel_exists, 1, 2, 78
+    '    If panel_exists = 0 Then
+    '        EmWriteScreen member & " nn", 20, 76
+    '        transmit
+    '        EMReadScreen auth_screen_check, 5, 1, 33
+    '        If auth_screen_check = "AVS A" Then
+    '            If ref_number_exists = true Then
+    '                EmWriteScreen ref_number, 6, 55
+    '                Transmist
+    '            Else
+    '                EmWriteScreen memb_role, 6, 14
+    '                EMWriteScreen last_name, 7, 14
+    '                EmWriteScreen first_name, 7, 53
+    '                call create_mainframe_friendly_date(birthdate, 8, 19, 0)
+    '                EmWriteScreen signer_SSN, 8, 51
+    '            End If 
+    '            EMWriteScreen signer_role, 13, 14
+    '            If signer_role <> "4" Then 
+    '                EMWriteScreen signer_last_name, 14, 14
+    '                EMWriteScreen signer_first_name, 14, 53
+    '            End If 
+    '            Call create_mainframe_friendly_date(form_date, 17, 28)
+    '            EMWriteScreen form_status, 18, 28
+    '            If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
+    '            Transmit
+    '        End If 
+    '    End If 
+    'End Function
 'TODO middle initials????
 'TODO ALias handling??????????
-    BeginDialog Dialog1, 0, 0, 576, 170, "Dialog"
-    ButtonGroup ButtonPressed
-    OkButton 460, 150, 50, 15
-    CancelButton 515, 150, 50, 15
-    Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
+    call convert_array_to_droplist_items(HH_member_array, member_droplist)
+       
     'TODO - create Y_pos math, add the lines
     For this_memb = 0 to UBound(avs_members_array, 2)
-        GroupBox 5, 20, 565, 125, "Member Number & Name"
-        Text 15, 30, 90, 20, "Select member and press arrow to prefill"
-        DropListBox 15, 50, 90, 15, "", member_list
-        EditBox 135, 50, 70, 15, first_name
-        EditBox 210, 50, 100, 15, last_name
-        EditBox 315, 50, 45, 15, signer_ssn
-        Text 135, 35, 20, 10, "First"
-        Text 225, 35, 20, 10, "Last"
-        Text 330, 35, 20, 10, "SSN"
-        DropListBox 415, 50, 45, 15, "", member_role
-        DropListBox 365, 50, 45, 15, "", Signer_role_1
-        DropListBox 465, 50, 35, 15, "", signer_status_1
-        Text 370, 35, 20, 10, "Role"
-        Text 415, 35, 40, 10, "Signer Role"
-        Text 465, 35, 20, 10, "Status"
-        ButtonGroup ButtonPressed
-          PushButton 110, 50, 20, 10, "-->", avs_members_array(this_memb, memb_avsa_array)(fill_button, 1)
-        EditBox 505, 50, 45, 15, form_date
-        Text 505, 35, 35, 10, "Form Date"
-    Next
-    ButtonGroup ButtonPressed
-    PushButton 500, 5, 70, 15, "AVSA Instructions", Button6
-    EndDialog
-    'Display AVSA dialog
-    Do
-        Dialog Dialog1
-        For members = 0 to UBound(avs_members_array, 2)
-            For signer_line = 1 to 6
-                If ButtonPressed = avs_members_array(this_memb, memb_avsa_array)(fill_button, signer_line) Then call fill_avsa_fields(members, signer_line)
+        dim signer_array(9, 6)
+        BeginDialog Dialog1, 0, 0, 576, 170, "Dialog"
+         Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
+         ButtonGroup ButtonPressed
+         OkButton 460, 150, 50, 15
+         CancelButton 515, 150, 50, 15
+       
+         GroupBox 5, 20, 565, 125, "Member Number & Name"
+         Text 15, 30, 90, 20, "Select member and press arrow to prefill"
+         Text 135, 35, 20, 10, "First"
+         Text 225, 35, 20, 10, "Last"
+         Text 330, 35, 20, 10, "SSN"
+         Text 370, 35, 20, 10, "Role"
+         Text 415, 35, 40, 10, "Signer Role"
+         Text 465, 35, 20, 10, "Status"
+         Text 505, 35, 35, 10, "Form Date"
+         y_pos = 50
+         For signer_line = 1 to 6
+            DropListBox 15, y_pos, 90, 15, member_droplist, signer_array(signer_line, member_drop)
+            PushButton 110, y_pos, 20, 10, "-->", signer_array(signer_line, fill_button)
+            EditBox 135, y_pos, 70, 15, signer_array(signer_line, first_name)
+            EditBox 210, y_pos, 100, 15, signer_array(signer_line, last_name)
+            EditBox 315, y_pos, 45, 15, signer_array(signer_line, signer_ssn)
+            DropListBox 415, y_pos, 45, 15, "1 Enrollee"+Chr9+"2 Spouse"+chr9+"3 Sponsor"+Chr9+"4 Sponsor's Spouse"+cHr9+"Sponsor #2"+chr9+"Sponsor's Spouse #2", signer_array(signer_line, member_role)
+            DropListBox 365, y_pos, 45, 15, "1 AREP"+cHr9+"2 POA"+cHr9+"3 Guardian"+chr9+"4 Self", signer_array(signer_line, signer_role)
+            DropListBox 465, y_pos, 35, 15, "R Requested"+cHr9+"I Invalid"+cHr9+"V Valid"+cHr9+"E Spouse Exempt (not living together)"+cHr9+"W Spouse Exempt Waiver", signer_array(signer_line, signer_status)               
+            EditBox 505, y_pos, 45, 15, signer_array(signer_line, form_date)
+            y_pos = y_pos + 20
+         next 
+        'DropListBox 15, 70, 90, 15, member_droplist, member_select_2
+        'PushButton 110, 70, 20, 10, "-->", fill_button_2
+        'EditBox 135, 70, 70, 15, first_name_2
+        'EditBox 210, 70, 100, 15, last_name_2
+        'EditBox 315, 70, 45, 15, signer_ssn_2
+        'DropListBox 415, 70, 45, 15, "", member_role_2
+        'DropListBox 365, 70, 45, 15, "", Signer_role_2
+        'DropListBox 465, 70, 35, 15, "", signer_status_2               
+        'EditBox 505, 70, 45, 15, form_date_2
+        'DropListBox 15, 90, 90, 15, member_droplist, member_select_3
+        'PushButton 110, 90, 20, 10, "-->", fill_button_3
+        'EditBox 135, 90, 70, 15, first_name_3
+        'EditBox 210, 90, 100, 15, last_name_3
+        'EditBox 315, 90, 45, 15, signer_ssn_3
+        'DropListBox 415, 90, 45, 15, "", member_role_3
+        'DropListBox 365, 90, 45, 15, "", Signer_role_3
+        'DropListBox 465, 90, 35, 15, "", signer_status_3               
+        'EditBox 505, 90, 45, 15, form_date_3
+        'DropListBox 15, 110, 90, 15, member_droplist, member_select_4
+        'PushButton 110, 110, 20, 10, "-->", fill_button_4
+        'EditBox 135, 110, 70, 15, first_name_4
+        'EditBox 210, 110, 100, 15, last_name_4
+        'EditBox 315, 110, 45, 15, signer_ssn_4
+        'DropListBox 415, 110, 45, 15, "", member_role_4
+        'DropListBox 365, 110, 45, 15, "", Signer_role_4
+        'DropListBox 465, 110, 35, 15, "", signer_status_4               
+        'EditBox 505, 110, 45, 15, form_date_4
+
+         
+         PushButton 500, 5, 70, 15, "AVSA Instructions", Button6
+        EndDialog
+    
+
+    'Display AVSA dialog for member
+        Do
+            Dialog Dialog1
+            For members = 0 to UBound(avs_members_array, 2)
+                For signer_line = 1 to 6
+                    If ButtonPressed = member_select_1 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = member_select_2 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = member_select_3 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = member_select_4 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = member_select_5 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = member_select_6 Then call fill_avsa_fields(members, signer_line)
+                Next
             Next
-        Next
-        
-    Loop Until ButtonPressed <> -1
+
+        Loop Until ButtonPressed <> -1
+
+    Next
     '------------Compare values from table and avsa
     
 
@@ -824,6 +867,7 @@ Do
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     '----------------------------------------------------------------------------------------------------ASSET DIALOG: for AVS Submission/Results members who have returned AVS results.
+    'TODO: go through here, review policy compliance, probably remove the verification stuff.
     For items= 0 to ubound(avs_members_array, 2)
         If avs_members_array(avs_status_const, item) = "Review Results" or avs_members_array(avs_status_const, item) = "Results After Decision" then
             STATS_counter = STATS_counter + 1
