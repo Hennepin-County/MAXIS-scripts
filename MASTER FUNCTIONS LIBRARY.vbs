@@ -6784,7 +6784,18 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
 		hh_size = hh_size*1
-		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'these are the associated amounts
+		If DateDiff("d", #10/1/2024#, month_to_review) >= 0 Then
+			If hh_size = 1 Then fpg_130_percent = 1632
+			If hh_size = 2 Then fpg_130_percent = 2215
+			If hh_size = 3 Then fpg_130_percent = 2798
+			If hh_size = 4 Then fpg_130_percent = 3380
+			If hh_size = 5 Then fpg_130_percent = 3963
+			If hh_size = 6 Then fpg_130_percent = 4546
+			If hh_size = 7 Then fpg_130_percent = 5129
+			If hh_size = 8 Then fpg_130_percent = 5712
+
+			If hh_size > 8 Then fpg_130_percent = 5712 + (583 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'these are the associated amounts
 			If hh_size = 1 Then fpg_130_percent = 1580
 			If hh_size = 2 Then fpg_130_percent = 2137
 			If hh_size = 3 Then fpg_130_percent = 2694
@@ -6795,17 +6806,7 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 			If hh_size = 8 Then fpg_130_percent = 5478
 
 			If hh_size > 8 Then fpg_130_percent = 5478 + (557 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1473
-			If hh_size = 2 Then fpg_130_percent = 1984
-			If hh_size = 3 Then fpg_130_percent = 2495
-			If hh_size = 4 Then fpg_130_percent = 3007
-			If hh_size = 5 Then fpg_130_percent = 3518
-			If hh_size = 6 Then fpg_130_percent = 4029
-			If hh_size = 7 Then fpg_130_percent = 4541
-			If hh_size = 8 Then fpg_130_percent = 5052
 
-			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
 		End If
 	End If
 end function
@@ -9652,16 +9653,16 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
 '~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
 '~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
 '===== Keywords: MAXIS, member, array, dialog
-    If DateDiff("d",date_variable,#10/01/2023#) <= 0 then
+    If DateDiff("d",date_variable,#10/01/2024#) <= 0 then
+        'October 2024 -- Amounts for applications on or AFTER 10/01/2024
+        heat_AC_amt = 649
+        electric_amt = 229
+        phone_amt = 60
+    Elseif DateDiff("d",date_variable,#10/01/2024#) > 0 then
         'October 2023 -- Amounts for applications on or AFTER 10/01/2023
         heat_AC_amt = 651
         electric_amt = 213
         phone_amt = 54
-    Elseif DateDiff("d",date_variable,#10/01/2023#) > 0 then
-        'October 2022 -- Amounts for applications BEFORE 10/01/2023
-        heat_AC_amt = 586
-        electric_amt = 185
-        phone_amt = 55
     End if
 End Function
 
