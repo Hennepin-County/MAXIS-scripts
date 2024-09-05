@@ -28774,18 +28774,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 									For stat_memb = 0 to UBound(STAT_INFORMATION(stat_year).stat_memb_ref_numb)
 										If HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) = STAT_INFORMATION(stat_year).stat_memb_ref_numb(stat_memb) Then
 											warn_about_remedial_care = False
-											If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True or HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then warn_about_remedial_care = True
+											If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True or (HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True and HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member) <> "0.00") or HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then warn_about_remedial_care = True
 											If HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_remedial_care(hc_prog_count) = True  Then warn_about_remedial_care = False
 											If STAT_INFORMATION(stat_year).stat_bils_remedial_care_entered = True Then warn_about_remedial_care = False
 											If STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) <> "55" and STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) <> "56" Then warn_about_remedial_care = False
 
-											'The initial review of these cases will be triggered only for HC cases with a FACI of type 55 or 56.
-											'This will need to be updated once review of this functionality is confirmed.
-											If QCR_HC_with_Remedial_Care_Deduction = True Then
-												If STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) = "55" or STAT_INFORMATION(stat_year).stat_faci_type_code(stat_memb) = "56" Then QCR_HC_Remedial_Care_Review_Needed = True
-											End If
-
 											If warn_about_remedial_care = True Then
+												QCR_HC_Remedial_Care_Review_Needed = True				'Triggers the QCR review of HC Remedial Care Cases.
 												' MsgBox "HC Should Cancel or maybe allow for permission"
 												Dialog1 = ""
 												BeginDialog Dialog1, 0, 0, 291, 175, "Review HC Budget for MEMB in Facility with a Spenddown"
@@ -28821,7 +28816,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 														email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
 														email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
-														email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+														email_recip = "ben.teskey@hennepin.us"
 														email_recip_CC = ""
 														Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 													End If
@@ -29144,205 +29139,207 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	End If
 End If
 
-If ex_parte_approval = True and wcom_exception <> "--" Then
-	Dim memo_array()
-	ReDim memo_array(0)
-	memo_count = 0
-	memo_ref_numb_string = " "
-	month_ind = UBound(STAT_INFORMATION)
+If cancel_out_of_hc = False Then
+	If ex_parte_approval = True and wcom_exception <> "--" Then
+		Dim memo_array()
+		ReDim memo_array(0)
+		memo_count = 0
+		memo_ref_numb_string = " "
+		month_ind = UBound(STAT_INFORMATION)
 
-	For approval = 0 to UBound(HC_ELIG_APPROVALS)
-		For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
-			If HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" and InStr(wcom_exception, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) <> 0 Then
-				If InStr(memo_ref_numb_string, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then
-					memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
-					ReDim preserve memo_array(memo_count)
-					income_string = ""
-					spenddown_type = ""
-					spenddown_amount = ""
+		For approval = 0 to UBound(HC_ELIG_APPROVALS)
+			For member = 0 to UBOUND(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+				If HC_ELIG_APPROVALS(approval).hc_prog_elig_eligibility_result(member) = "ELIGIBLE" and InStr(wcom_exception, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) <> 0 Then
+					If InStr(memo_ref_numb_string, HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member)) = 0 Then
+						memo_ref_numb_string = memo_ref_numb_string & HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & " "
+						ReDim preserve memo_array(memo_count)
+						income_string = ""
+						spenddown_type = ""
+						spenddown_amount = ""
 
-					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 
-						If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-							income_info = STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb) & "."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+								income_info = STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb) & "."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-							income_info = STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb) & "."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+								income_info = STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb) & "."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-							income_info = STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb) & "."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+								income_info = STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb) & "."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-							income_info = STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb) & "."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+								income_info = STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb) & "."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-							income_info = STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb) & "."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+								income_info = STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb) & "."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
-						End If
 
 
-						If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
-							income_info = STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
+							If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+								income_info = STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
 							End If
+							If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
+								income_info = STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+							If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
+								income_info = STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+							If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
+								income_info = STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+							If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
+								income_info = STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+
+							If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+								income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+							If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+								income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+							If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+								income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) & " monthly."
+								If Instr(income_string, income_info) = 0 Then
+									income_string = income_string & "~" & income_info
+								End If
+							End If
+						Next
+
+						If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True Then
+							spenddown_type = "Spenddown"
+							spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member)
 						End If
-						If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
-							income_info = STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
+						If HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True Then
+							spenddown_type = "Waiver Obligation"
+							spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member)
 						End If
-						If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
-							income_info = STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
-							income_info = STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
-							income_info = STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
+						If HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then
+							spenddown_type = "LTC Obligation"
+							spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ltc_spdn_amount(member)
 						End If
 
-						If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
-							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
-						End If
-						If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-							income_info = "Self-employment (" & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & ") - $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) & " monthly."
-							If Instr(income_string, income_info) = 0 Then
-								income_string = income_string & "~" & income_info
-							End If
-						End If
-					Next
+						If left(income_string, 1) = "~" Then income_string = right(income_string, len(income_string)-1)
 
-					If HC_ELIG_APPROVALS(approval).community_spenddown_exists(member) = True Then
-						spenddown_type = "Spenddown"
-						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_monthly_spdn_recipient_amount(member)
+						memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & income_string & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & spenddown_type & "~&~&~" & spenddown_amount & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+
+						'HC_ELIG_APPROVALS(approval).hc_elig_full_name(member)
+						memo_count = memo_count + 1
+					Else
+						for each memo_to_send in memo_array
+							If left(memo_to_send, 2) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) Then
+								memo_array(memo_count-1) = memo_array(memo_count-1) & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+							End If
+						next
 					End If
-					If HC_ELIG_APPROVALS(approval).EW_spenddown_exists(member) = True Then
-						spenddown_type = "Waiver Obligation"
-						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ew_spdn_obligation(member)
-					End If
-					If HC_ELIG_APPROVALS(approval).LTC_spenddown_exists(member) = True Then
-						spenddown_type = "LTC Obligation"
-						spenddown_amount = HC_ELIG_APPROVALS(approval).hc_prog_elig_ltc_spdn_amount(member)
-					End If
+				End If
+			Next
+		Next
 
-					If left(income_string, 1) = "~" Then income_string = right(income_string, len(income_string)-1)
+		for each memo_to_send in memo_array
+			this_memo_array = ""
+			this_memo_array = split(memo_to_send, "~&~&~")
 
-					memo_array(memo_count) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_elig_full_name(member) & "~&~&~" & income_string & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_hh_size(member) & "~&~&~" & spenddown_type & "~&~&~" & spenddown_amount & "~&~&~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
+			memo_memb_ref = this_memo_array(0)
+			memo_memb_name = this_memo_array(1)
+			memo_income = this_memo_array(2)
+			memo_hh_size = this_memo_array(3)
+			spenddown_type = this_memo_array(4)
+			spenddown_amount = this_memo_array(5)
+			memo_hc_progs = this_memo_array(6)
 
-					'HC_ELIG_APPROVALS(approval).hc_elig_full_name(member)
-					memo_count = memo_count + 1
+
+			MSP_memo_success = True		'TODO - add a way to make sure the memo was created
+			If memo_income <> "" Then
+				temp_array = ""
+				If InStr(memo_income, "~") <> 0 Then
+					temp_array = split(memo_income, "~")
 				Else
-					for each memo_to_send in memo_array
-						If left(memo_to_send, 2) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) Then
-							memo_array(memo_count-1) = memo_array(memo_count-1) & "~" & HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member)
-						End If
-					next
+					temp_array = Array(memo_income)
 				End If
 			End If
-		Next
-	Next
-
-	for each memo_to_send in memo_array
-		this_memo_array = ""
-		this_memo_array = split(memo_to_send, "~&~&~")
-
-		memo_memb_ref = this_memo_array(0)
-		memo_memb_name = this_memo_array(1)
-		memo_income = this_memo_array(2)
-		memo_hh_size = this_memo_array(3)
-		spenddown_type = this_memo_array(4)
-		spenddown_amount = this_memo_array(5)
-		memo_hc_progs = this_memo_array(6)
-
-
-		MSP_memo_success = True		'TODO - add a way to make sure the memo was created
-		If memo_income <> "" Then
-			temp_array = ""
-			If InStr(memo_income, "~") <> 0 Then
-				temp_array = split(memo_income, "~")
+			progs_temp_array = ""
+			If InStr(memo_hc_progs, "~") <> 0 Then
+				progs_temp_array = split(memo_hc_progs, "~")
 			Else
-				temp_array = Array(memo_income)
+				progs_temp_array = Array(memo_hc_progs)
 			End If
-		End If
-		progs_temp_array = ""
-		If InStr(memo_hc_progs, "~") <> 0 Then
-			progs_temp_array = split(memo_hc_progs, "~")
-		Else
-			progs_temp_array = Array(memo_hc_progs)
-		End If
-		STATS_manualtime = STATS_manualtime + 120			'2 minutes to create a SPEC/MEMO and copy information into it if the notice failed from the E Parte approval
+			STATS_manualtime = STATS_manualtime + 120			'2 minutes to create a SPEC/MEMO and copy information into it if the notice failed from the E Parte approval
 
-		'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-16013
-		Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
+			'OneSource Policy: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-16013
+			Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)  ' start the memo writing process
 
-		Call write_variable_in_SPEC_MEMO(memo_memb_name & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following:")
+			Call write_variable_in_SPEC_MEMO(memo_memb_name & "'s health care coverage has been automatically renewed effective " & CM_plus_1_mo & "/01/" & CM_plus_1_yr & " for the following:")
 
-		Call write_variable_in_SPEC_MEMO("")
-		For i = 0 to Ubound(progs_temp_array)
-			Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i))
-		Next
-
-		Call write_variable_in_SPEC_MEMO("")
-		If memo_income <> "" Then
-			Call write_variable_in_SPEC_MEMO("You have been renewed because your income was able to be verified from electronic sources.")
 			Call write_variable_in_SPEC_MEMO("")
-			Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
-			For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
-				Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+			For i = 0 to Ubound(progs_temp_array)
+				Call write_variable_in_SPEC_MEMO("  - " & progs_temp_array(i))
 			Next
-		Else
-			Call write_variable_in_SPEC_MEMO("You have been renewed because you do not have income that is counted for determining health care benefits.")
-		End If
+
 			Call write_variable_in_SPEC_MEMO("")
-		Call write_variable_in_SPEC_MEMO("Household size: " & memo_hh_size)
+			If memo_income <> "" Then
+				Call write_variable_in_SPEC_MEMO("You have been renewed because your income was able to be verified from electronic sources.")
+				Call write_variable_in_SPEC_MEMO("")
+				Call write_variable_in_SPEC_MEMO("---Counted Income (All Amounts are Per Month)---")
+				For i = 0 to Ubound(temp_array)'MSP INCOME ARRAY
+					Call write_variable_in_SPEC_MEMO("  * " & temp_array(i) & ".")
+				Next
+			Else
+				Call write_variable_in_SPEC_MEMO("You have been renewed because you do not have income that is counted for determining health care benefits.")
+			End If
+				Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("Household size: " & memo_hh_size)
 
-		'Input the spenddown information
-		If spenddown_type <> "" Then
-			Call write_variable_in_SPEC_MEMO("Your " & spenddown_type & " is $ " & spenddown_amount & " monthly, which you are responsible to pay before the state will pay. This portion of your medical bills will not be paid by the state. You will receive an Explanation of Medical Benefits to tell you what bills to pay.")
-			testing_run = True
-		End If
+			'Input the spenddown information
+			If spenddown_type <> "" Then
+				Call write_variable_in_SPEC_MEMO("Your " & spenddown_type & " is $ " & spenddown_amount & " monthly, which you are responsible to pay before the state will pay. This portion of your medical bills will not be paid by the state. You will receive an Explanation of Medical Benefits to tell you what bills to pay.")
+				testing_run = True
+			End If
 
-		Call write_variable_in_SPEC_MEMO("")
-		Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
-		Call write_variable_in_SPEC_MEMO("")
-		Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
-		Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
-		PF4 'Exits the MEMO
-	next
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("(42 CFR 435.916, MN Statutes 256B.056 & 256B.057)")
+			Call write_variable_in_SPEC_MEMO("")
+			Call write_variable_in_SPEC_MEMO("If any information on this notice is wrong, please contact the county at the phone number listed on the notice.")
+			Call write_variable_in_SPEC_MEMO("Visit www.mn.gov/dhs/abdautorenew for more information about your automatic renewal.")
+			PF4 'Exits the MEMO
+		next
+	End If
 End If
 
 If enter_CNOTE_for_EMER = True Then
@@ -30344,66 +30341,68 @@ If enter_CNOTE_for_GRH = True Then
 	Next
 End If
 
-If complete_ex_parte_as_closed = True Then
-	sql_review_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
-	sql_review_date = DateAdd("d", 0, sql_review_date)
-	'sql_review_date
-	If developer_mode = True Then
-		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
-	Else
-		end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
+If cancel_out_of_hc = False Then
+	If complete_ex_parte_as_closed = True Then
+		sql_review_date = CM_plus_1_mo & "/1/" & CM_plus_1_yr			'This sets a date as the review date to compare it to information in the data list and make sure it's a date
+		sql_review_date = DateAdd("d", 0, sql_review_date)
+		'sql_review_date
+		If developer_mode = True Then
+			MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Closed HC" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+		Else
+			end_msg_info = end_msg_info & vbCr & "*** THIS IS AN EX PARTE CASE ***" & vbCr & vbCr & "The data table has been updated to complete the Phase 2 steps so this case does not get reassigned." & vbCr & vbCr
 
-		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
+			sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Closed HC' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
-		'Creating objects for Access
-		Set objUpdateConnection = CreateObject("ADODB.Connection")
-		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
 
-		'This is the file path for the statistics Access database.
-		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
-	End If
-End If
-
-If ex_parte_approval = True Then
-	STATS_manualtime = STATS_manualtime + 180			'3 minutes for Ex parte Note and data update
-
-	If developer_mode = True Then
-		MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
-	Else
-		sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
-		objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
-
-		'Creating objects for Access
-		Set objUpdateConnection = CreateObject("ADODB.Connection")
-		Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
-
-		'This is the file path for the statistics Access database.
-		objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-		objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+		End If
 	End If
 
-	Call start_a_blank_CASE_NOTE
+	If ex_parte_approval = True Then
+		STATS_manualtime = STATS_manualtime + 180			'3 minutes for Ex parte Note and data update
 
-	Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
-	Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
-	Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
-	Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
-	Call write_variable_in_CASE_NOTE("-------------------------------------------------")
-	Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
-	If MSP_approvals_only = True and MSP_memo_success = True Then
-		Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
-	End If
-	Call write_variable_in_CASE_NOTE("---")
-	Call write_variable_in_CASE_NOTE(worker_signature)
+		If developer_mode = True Then
+			MsgBox "This is where the SQL update would happen" & vbCr & vbCr & "appears_ex_parte - Approved as Ex Parte" & vbCr& "user_ID_for_validation - " & user_ID_for_validation
+		Else
+			sql_format_ex_parte_denial_explanation = replace(ex_parte_denial_explanation, "'", "")
+			objUpdateSQL = "UPDATE ES.ES_ExParte_CaseList SET Phase2HSR = '" & user_ID_for_validation & "', ExParteAfterPhase2 = 'Approved as Ex Parte' WHERE CaseNumber = '" & SQL_Case_Number & "' and HCEligReviewDate = '" & sql_review_date & "'"
 
-	If developer_mode = True Then
-		MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
-		PF10
-		MsgBox "Ex Parte note Gone?"
+			'Creating objects for Access
+			Set objUpdateConnection = CreateObject("ADODB.Connection")
+			Set objUpdateRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			objUpdateConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objUpdateRecordSet.Open objUpdateSQL, objUpdateConnection
+		End If
+
+		Call start_a_blank_CASE_NOTE
+
+		Call write_variable_in_CASE_NOTE(CM_plus_1_mo & "/" & CM_plus_1_yr & " Ex Parte Renewal Complete - HEALTH CARE")
+		Call write_variable_in_CASE_NOTE("Approved HC for " & CM_plus_1_mo & "/" & CM_plus_1_yr & " renewal.")
+		Call write_variable_in_CASE_NOTE("Renewal was completed using the Ex Parte process.")
+		Call write_variable_in_CASE_NOTE("   - This is also known as an 'Auto Renewal'.")
+		Call write_variable_in_CASE_NOTE("-------------------------------------------------")
+		Call write_variable_in_CASE_NOTE("All eligibility details are in a previous NOTE.")
+		If MSP_approvals_only = True and MSP_memo_success = True Then
+			Call write_variable_in_CASE_NOTE("MEMO sent to resident with Approval Information.")
+		End If
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+
+		If developer_mode = True Then
+			MsgBox "Ex Parte NOTE REVIEW"			'TESTING OPTION'
+			PF10
+			MsgBox "Ex Parte note Gone?"
+		End If
+		PF3
 	End If
-	PF3
 End If
 
 If enter_CNOTE_for_HC = True Then
@@ -31151,7 +31150,7 @@ If QCR_HC_Remedial_Care_Review_Needed = True Then
 	email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
 	email_body = email_body & vbCr & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
-	email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+	email_recip = "ben.teskey@hennepin.us"
 	email_recip_CC = ""
 	Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 End If
