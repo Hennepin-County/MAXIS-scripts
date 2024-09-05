@@ -818,6 +818,7 @@ End Function
 
 Function nav_back_to_dail_check(testing_status)
     'Assumes script has just attempted to PF3 back to DAIL
+    'Will attempt to PF3 three times before sending a msgbox
     EMReadScreen dail_panel_check, 8, 2, 46
     If InStr(dail_panel_check, "DAIL") = 0 Then 
         If testing_status = True then msgbox "Testing -- did not return to DAIL. It will PF3 again"
@@ -4195,7 +4196,6 @@ If HIRE_messages = 1 Then
                                     IF infc_case_number = full_dail_msg_case_number_only THEN
                                         EMReadScreen infc_employer, 20, row, 36
                                         infc_employer = trim(infc_employer)
-                                        IF trim(infc_employer) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
                                         IF infc_employer = full_dail_employer_full_name THEN
                                             EMReadScreen known_by_agency, 1, row, 61
                                             IF known_by_agency = " " THEN
@@ -4307,7 +4307,6 @@ If HIRE_messages = 1 Then
                                     IF infc_case_number = full_dail_msg_case_number_only THEN
                                         EMReadScreen infc_employer, 20, row, 36
                                         infc_employer = trim(infc_employer)
-                                        IF trim(infc_employer) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
                                         IF infc_employer = full_dail_employer_full_name THEN
                                             EMReadScreen known_by_agency, 1, row, 61
                                             IF known_by_agency = " " THEN
