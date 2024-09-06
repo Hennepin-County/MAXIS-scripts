@@ -68,6 +68,16 @@ sub check_month 'checks for error message created when footer month is prior to 
     End If 
 end sub
 
+function fill_avsa_fields(signer_line)
+   for memb = 0 to ubound(all_members_array, 2)
+       If left(signer_array(signer_line, signer_member_drop), 2) = all_members_array(member_number_const,  member) Then
+           signer_array(signer_line, signer_last_name) = all_members_array(last_name_const, memb)
+           signer_array(signer_line, signer_first_name) = all_members_array(first_name_const, memb)
+           signer_array(signer_line, signer_ssn) = all_members_array(client_ssn_const, memb)
+       End If 
+   Next 
+End function
+
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -141,6 +151,7 @@ If county_code <> UCASE(worker_county_code) then script_end_procedure("This case
 'Setting up main array
 avs_membs = 0       'incrementor for array
 Dim avs_members_array()
+Dim all_members_array()
 ReDim avs_members_array(memb_array_last_const, 0)   'redimmed to the size of the last constant
 const member_number_const      = 0
 const member_info_const        = 1
@@ -186,8 +197,22 @@ const avsa_pers_status         = 3
 const avsa_auth_date           = 4
 const avsa_form_status         = 5
 const avsa_invalid_reason      = 6
-const fill_button              = 7
+
 const avsa_line                = 8
+
+const signer_member_drop = 1
+const signer_fill_button = 2
+const signer_first_name = 3 
+Const signer_last_name = 4
+Const signer_ssn = 5
+Const signer_role = 6
+const signer_status = 7
+const signer_form_status = 8
+
+const last_name_const  = 1
+const first_name_const = 2
+const client_ssn_const = 3
+
 
 add_to_array = False    'defaulting to false
 DO
@@ -220,6 +245,14 @@ DO
     ElseIf client_age < 21 then
         add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
     End if
+    'Add memb to all_members_array for drop downs
+    Redim Preserve all_members_array(5, avs_membs)
+    Redim Preserve all_members_dropdown_array(avs_membs)
+    all_members_dropdown_array(avs_membs) = ref_nbr & " " & first_name & last_name
+    all_members_array(member_number_const,  avs_membs) = ref_nbr
+    all_members_array(last_name_const,      avs_membs) = last_name
+    all_members_array(first_name_const,     avs_membs) = first_name
+    all_members_array(client_ssn_const,     avs_membs) = client_ssn
 
     If add_to_array = True then
         ReDim Preserve avs_members_array(memb_array_last_const, avs_membs)  'redimmed to the size of the last constant
@@ -559,16 +592,15 @@ Do
     'End Function
 'TODO middle initials????
 'TODO ALias handling??????????
-    call convert_array_to_droplist_items(HH_member_array, member_droplist)
+    call convert_array_to_droplist_items(all_members_dropdown_array, member_droplist)
        
     'TODO - create Y_pos math, add the lines
     For this_memb = 0 to UBound(avs_members_array, 2)
-        dim signer_array(9, 6)
-        BeginDialog Dialog1, 0, 0, 576, 170, "Dialog"
+        dim signer_array(6, 9)
+        BeginDialog Dialog1, 0, 0, 576, 220, "Dialog"
          Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
          ButtonGroup ButtonPressed
-         OkButton 460, 150, 50, 15
-         CancelButton 515, 150, 50, 15
+         
        
          GroupBox 5, 20, 565, 125, "Member Number & Name"
          Text 15, 30, 90, 20, "Select member and press arrow to prefill"
@@ -581,17 +613,19 @@ Do
          Text 505, 35, 35, 10, "Form Date"
          y_pos = 50
          For signer_line = 1 to 6
-            DropListBox 15, y_pos, 90, 15, member_droplist, signer_array(signer_line, member_drop)
-            PushButton 110, y_pos, 20, 10, "-->", signer_array(signer_line, fill_button)
-            EditBox 135, y_pos, 70, 15, signer_array(signer_line, first_name)
-            EditBox 210, y_pos, 100, 15, signer_array(signer_line, last_name)
+            DropListBox 15, y_pos, 90, 15, member_droplist, signer_array(signer_line, signer_member_drop)
+            PushButton 110, y_pos, 20, 10, "-->", signer_array(signer_line, signer_fill_button)
+            EditBox 135, y_pos, 70, 15, signer_array(signer_line, signer_first_name)
+            EditBox 210, y_pos, 100, 15, signer_array(signer_line, signer_last_name)
             EditBox 315, y_pos, 45, 15, signer_array(signer_line, signer_ssn)
-            DropListBox 415, y_pos, 45, 15, "1 Enrollee"+Chr9+"2 Spouse"+chr9+"3 Sponsor"+Chr9+"4 Sponsor's Spouse"+cHr9+"Sponsor #2"+chr9+"Sponsor's Spouse #2", signer_array(signer_line, member_role)
-            DropListBox 365, y_pos, 45, 15, "1 AREP"+cHr9+"2 POA"+cHr9+"3 Guardian"+chr9+"4 Self", signer_array(signer_line, signer_role)
-            DropListBox 465, y_pos, 35, 15, "R Requested"+cHr9+"I Invalid"+cHr9+"V Valid"+cHr9+"E Spouse Exempt (not living together)"+cHr9+"W Spouse Exempt Waiver", signer_array(signer_line, signer_status)               
-            EditBox 505, y_pos, 45, 15, signer_array(signer_line, form_date)
+            DropListBox 415, y_pos, 45, 15, ""+chr(9)+"1 Enrollee"+chr(9)+"2 Spouse"+chr(9)+"3 Sponsor"+chr(9)+"4 Sponsor's Spouse"+chr(9)+"Sponsor #2"+chr(9)+"Sponsor's Spouse #2", signer_array(signer_line, signer_role)
+            DropListBox 365, y_pos, 45, 15, ""+chr(9)+"1 AREP"+chr(9)+"2 POA"+chr(9)+"3 Guardian"+chr(9)+"4 Self", signer_array(signer_line, signer_role)
+            DropListBox 465, y_pos, 35, 15, ""+chr(9)+"R Requested"+chr(9)+"I Invalid"+chr(9)+"V Valid"+chr(9)+"E Spouse Exempt (not living together)"+chr(9)+"W Spouse Exempt Waiver", signer_array(signer_line, signer_status)               
+            EditBox 505, y_pos, 45, 15, signer_array(signer_line, signer_form_date)
             y_pos = y_pos + 20
          next 
+
+
         'DropListBox 15, 70, 90, 15, member_droplist, member_select_2
         'PushButton 110, 70, 20, 10, "-->", fill_button_2
         'EditBox 135, 70, 70, 15, first_name_2
@@ -620,26 +654,26 @@ Do
         'DropListBox 465, 110, 35, 15, "", signer_status_4               
         'EditBox 505, 110, 45, 15, form_date_4
 
-         
-         PushButton 500, 5, 70, 15, "AVSA Instructions", Button6
+         OkButton 460, 200, 50, 15
+         CancelButton 515, 200, 50, 15
+         PushButton 500, 5, 70, 15, "AVSA Instructions", avsa_instructions_button
         EndDialog
     
 
     'Display AVSA dialog for member
         Do
+            err_msg = "" 
             Dialog Dialog1
-            For members = 0 to UBound(avs_members_array, 2)
+            'For members = 0 to UBound(avs_members_array, 2)
                 For signer_line = 1 to 6
-                    If ButtonPressed = member_select_1 Then call fill_avsa_fields(members, signer_line)
-                    If ButtonPressed = member_select_2 Then call fill_avsa_fields(members, signer_line)
-                    If ButtonPressed = member_select_3 Then call fill_avsa_fields(members, signer_line)
-                    If ButtonPressed = member_select_4 Then call fill_avsa_fields(members, signer_line)
-                    If ButtonPressed = member_select_5 Then call fill_avsa_fields(members, signer_line)
-                    If ButtonPressed = member_select_6 Then call fill_avsa_fields(members, signer_line)
+                    If ButtonPressed = signer_array(signer_line, signer_fill_button) Then 
+                        err_msg = "LOOP"
+                        call fill_avsa_fields(signer_line)
+                    End If 
                 Next
-            Next
+            'Next
 
-        Loop Until ButtonPressed <> -1
+        Loop Until err_msg = ""
 
     Next
     '------------Compare values from table and avsa
