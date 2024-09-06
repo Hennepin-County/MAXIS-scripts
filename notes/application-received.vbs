@@ -396,9 +396,11 @@ function find_correct_caseload(current_caseload, secondary_caseload, user_x_numb
 			If age_of_memb_01 < 20 Then correct_caseload_type = "YET"
 			population = "Families"
 		ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" Then
-			If case_has_child_under_19 = True or preg_person_on_case = True Then
+			If age_of_memb_01 < 20 Then
+				correct_caseload_type = "YET"
+				population = "Families"
+			ElseIf case_has_child_under_19 = True or preg_person_on_case = True Then
 				correct_caseload_type = "Families - Cash"
-				If age_of_memb_01 < 20 Then correct_caseload_type = "YET"
 				population = "Families"
 			Else
 				correct_caseload_type = "Adults - General"
