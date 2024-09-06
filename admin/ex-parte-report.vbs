@@ -2922,6 +2922,73 @@ If ex_parte_function = "Prep 1" Then
 				Call navigate_to_MAXIS_screen("STAT", "MEMB")		'now we go find all the HH members
 				Call get_list_of_members
 			End if
+						'This updates AVS SQL table for each member's status
+			'Connect to the table
+
+			'Step through each household member 
+			For this_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
+				If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then 'only need AVS entries for active HC peeps
+				'set member's AVS need status based on age
+					If trim(MEMBER_INFO_ARRAY(memb_age_const, this_memb)) = "" Then MEMBER_INFO_ARRAY(memb_age_const, this_memb) = 0 'convert blank age into a number
+					If MEMBER_INFO_ARRAY(memb_age_const, this_memb) >= 21 Then
+						memb_asset_test = 1
+					Else
+						memb_asset_test = 0
+					End If 
+					member_smi = MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb)
+					this_month = datepart("M", date)
+					If len(this_month) = 1 Then this_month = "0" & this_month
+					year_month = datepart("YYYY", date) & this_month
+					'Check the table for existing member line, update asset_test if found. 
+					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
+					Set objAVSConnection = CreateObject("ADODB.Connection")
+
+					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					objAVSlist = "SELECT * FROM ES.ES_AVSList"
+
+					objAVSRecordSet.Open objAVSList, objConnection
+					found_on_sql = False
+					Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
+						sql_case_number = objAVSRecordSet("CaseNumber")
+						sql_smi = objAVSRecordSet("SMI")
+						If MAXIS_case_number = sql_case_number and sql_smi = memb_smi Then							'if we find the case number from Excel in SQL, we will update some information on the Excel
+							found_on_sql = True
+							Exit Do
+						End If
+						objAVSRecordSet.MoveNext
+					Loop
+
+					objAVSRecordSet.Close			'Closing all the data connections
+					'objConnection.Close
+					If found_on_sql = True Then 'Existing case record
+
+						'Creating objects for Access
+						'Set objConnection = CreateObject("ADODB.Connection")
+						Set objupdateRecordSet = CreateObject("ADODB.Recordset")
+						'Set the value of asset_test to true (1) for any member found over 21.
+						objUpdateAVS = "UPDATE ES.ES_AVSList SET AssetTest = '" & memb_asset_test & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
+
+						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objupdateRecordSet.Open objUpdateAVS, objConnection
+						'objupdateRecordSet.Close
+					Else'If not found, enter new line in database
+						objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "')"
+										' MsgBox "STOP - YOU ARE GOING TO UPDATE"
+								'Creating objects for Access
+						'Set objUpdateConnection = CreateObject("ADODB.Connection")
+						Set objinsertRecordSet = CreateObject("ADODB.Recordset")
+
+						'Opening and inserting the values
+						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+						objinsertRecordSet.Open objAVSinsert, objUpdateConnection	
+						'MsGbox "Updated " & MAXIS_case_number & " " & Member_SMI
+						'objinsertRecordSet.Close
+					End If 
+				End If 
+			Next
+
+
+
 
 			'Now we are going to start looking at income information to remove any cases that have income thant disqualifies it from Ex parte
 			SSA_income_exists = False				'setting these variables to false at the beginning of each loop through
@@ -3187,70 +3254,7 @@ If ex_parte_function = "Prep 1" Then
 
 			Call back_to_SELF				'getting back to base
 
-			'This updates AVS SQL table for each member's status
-			'Connect to the table
 
-			'Step through each household member 
-			For this_memb = 0 to UBound(MEMBER_INFO_ARRAY, 2)
-				If MEMBER_INFO_ARRAY(memb_active_hc_const, this_memb) = True Then 'only need AVS entries for active HC peeps
-				'set member's AVS need status based on age
-					If trim(MEMBER_INFO_ARRAY(memb_age_const, this_memb)) = "" Then MEMBER_INFO_ARRAY(memb_age_const, this_memb) = 0 'convert blank age into a number
-					If MEMBER_INFO_ARRAY(memb_age_const, this_memb) >= 21 Then
-						memb_asset_test = 1
-					Else
-						memb_asset_test = 0
-					End If 
-					member_smi = MEMBER_INFO_ARRAY(memb_smi_numb_const, this_memb)
-					this_month = datepart("M", date)
-					If len(this_month) = 1 Then this_month = "0" & this_month
-					year_month = datepart("YYYY", date) & this_month
-					'Check the table for existing member line, update asset_test if found. 
-					Set objAVSRecordSet = CreateObject("ADODB.Recordset")
-					Set objAVSConnection = CreateObject("ADODB.Connection")
-
-					objAVSConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-					objAVSlist = "SELECT * FROM ES.ES_AVSList"
-
-					objAVSRecordSet.Open objAVSList, objConnection
-					found_on_sql = False
-					Do While NOT objAVSRecordSet.Eof											'Loop through all of the cases on SQL
-						sql_case_number = objAVSRecordSet("CaseNumber")
-						sql_smi = objAVSRecordSet("SMI")
-						If MAXIS_case_number = sql_case_number and sql_smi = memb_smi Then							'if we find the case number from Excel in SQL, we will update some information on the Excel
-							found_on_sql = True
-							Exit Do
-						End If
-						objAVSRecordSet.MoveNext
-					Loop
-
-					objAVSRecordSet.Close			'Closing all the data connections
-					'objConnection.Close
-					If found_on_sql = True Then 'Existing case record
-
-						'Creating objects for Access
-						'Set objConnection = CreateObject("ADODB.Connection")
-						Set objupdateRecordSet = CreateObject("ADODB.Recordset")
-						'Set the value of asset_test to true (1) for any member found over 21.
-						objUpdateAVS = "UPDATE ES.ES_AVSList SET AssetTest = '" & memb_asset_test & "' WHERE CaseNumber = '" & MAXIS_case_number & "' and SMI = '" & member_smi & "'"
-
-						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						objupdateRecordSet.Open objUpdateAVS, objConnection
-						'objupdateRecordSet.Close
-					Else'If not found, enter new line in database
-						objAVSinsert =  "INSERT INTO ES.ES_AVSList (YearMonth, SMI, CaseNumber, AssetTest) VALUES ('" & year_month & "', '" & member_smi & "', '" & MAXIS_case_number & "', '" & memb_asset_test & "')"
-										' MsgBox "STOP - YOU ARE GOING TO UPDATE"
-								'Creating objects for Access
-						'Set objUpdateConnection = CreateObject("ADODB.Connection")
-						Set objinsertRecordSet = CreateObject("ADODB.Recordset")
-
-						'Opening and inserting the values
-						'objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-						objinsertRecordSet.Open objAVSinsert, objUpdateConnection	
-						'MsGbox "Updated " & MAXIS_case_number & " " & Member_SMI
-						'objinsertRecordSet.Close
-					End If 
-				End If 
-			Next
 			'objConnection.Close
 			'Now we are going to update the case list with the Ex parte evaluation done. This also removes the 'In Progress' marker
 			prep_status = date														'prep status should be a date
