@@ -56,6 +56,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -72,13 +73,15 @@ DO
 	DO
 		err_msg = ""
 		Dialog dialog1
-        cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		cancel_without_confirmation
+
+		Call validate_MAXIS_case_number(err_msg, "*")
 		IF THV_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a trial home visit option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 If THV_option = "Begins" then
     dialog1 = ""
@@ -114,7 +117,7 @@ If THV_option = "Begins" then
 		DO
 			err_msg = ""
 			Dialog dialog1
-			cancel_without_confirmation
+			cancel_confirmation
 
 			TIKL_text = trim(TIKL_text)
 
@@ -134,8 +137,9 @@ If THV_option = "Begins" then
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
+ 		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	Call check_for_MAXIS(False)
 
 	If TIKL_text <> "" Then
 		'Creating the TIKL message
@@ -186,6 +190,7 @@ If THV_option = "Ends" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_confirmation
+
 			IF reason_ending = "" then err_msg = err_msg & vbNewLine & "* Enter the ending reason."
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
 			IF court_ordered = "Select one..." then err_msg = err_msg & vbNewLine & "* Was the trial home visit court ordered?"
@@ -197,6 +202,7 @@ If THV_option = "Ends" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	Call check_for_MAXIS(False)
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit ends~~")
@@ -211,11 +217,5 @@ END IF
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE (worker_signature)
-
-If dail_checkbox = 1 then
-    PF3     'to save the case note
-    Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-    msgbox "Please enter your DAIL message and date now."
-END IF
 
 script_end_procedure("")
