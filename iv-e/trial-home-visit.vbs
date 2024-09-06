@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/06/2024", "Updated the script to enter the TIKL as a part of the script run.", "Casey Love, Hennepin County")
 call changelog_update("09/06/2024", "Remove Change Option as it is no longer required.", "Casey Love, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -81,45 +82,69 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If THV_option = "Begins" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 291, 160, "Trial home visit begins"
-      EditBox 65, 10, 90, 15, effective_date
-      DropListBox 215, 10, 70, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", court_ordered
-      EditBox 65, 30, 220, 15, THV_verif
-      EditBox 65, 50, 220, 15, SSIS
-      DropListBox 65, 70, 90, 15, "Select one..."+chr(9)+"Yes "+chr(9)+"No", basic_IVE
-      EditBox 215, 70, 70, 15, reim_ended
-      EditBox 65, 90, 220, 15, other_notes
-      CheckBox 65, 110, 60, 10, "MEMI updated", MEMI_checkbox
-      CheckBox 135, 110, 145, 10, "Navigate to DAIL/WRIT after case note", dail_checkbox
-      EditBox 65, 130, 110, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 180, 130, 50, 15
-        CancelButton 235, 130, 50, 15
-      Text 5, 135, 60, 10, "Worker signature: "
-      Text 20, 95, 40, 10, "Other notes: "
-      Text 15, 15, 50, 10, "Effective date:"
-      Text 10, 35, 45, 10, "How verified:"
-      Text 160, 15, 50, 10, "Court ordered:"
-      Text 45, 55, 20, 10, "SSIS:"
-      Text 20, 75, 40, 10, "Basic IV-E?:"
-      Text 165, 75, 50, 10, "Reimb. ended:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 291, 215, "Trial home visit begins"
+		EditBox 65, 10, 90, 15, effective_date
+		DropListBox 215, 10, 70, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", court_ordered
+		EditBox 65, 30, 220, 15, THV_verif
+		EditBox 65, 50, 220, 15, SSIS
+		DropListBox 65, 70, 90, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", basic_IVE
+		EditBox 215, 70, 70, 15, reim_ended
+		EditBox 65, 90, 220, 15, other_notes
+		CheckBox 65, 110, 140, 10, "Check here if you have updated MEMI.", MEMI_checkbox
+		EditBox 65, 150, 40, 15, TIKL_date
+		EditBox 65, 170, 215, 15, TIKL_text
+		EditBox 65, 195, 110, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 180, 195, 50, 15
+			CancelButton 235, 195, 50, 15
+		Text 15, 15, 50, 10, "Effective date:"
+		Text 160, 15, 50, 10, "Court ordered:"
+		Text 10, 35, 45, 10, "How verified:"
+		Text 45, 55, 20, 10, "SSIS:"
+		Text 20, 75, 40, 10, "Basic IV-E?:"
+		Text 165, 75, 50, 10, "Reimb. ended:"
+		Text 20, 95, 40, 10, "Other notes: "
+		GroupBox 5, 125, 280, 65, "Create TIKL"
+		Text 15, 135, 250, 10, "To have the script set a TIKL, enter the TIKL date and text for the TIKL here:"
+		Text 25, 155, 35, 10, "TIKL Date:"
+		Text 10, 175, 50, 10, "TIKL Message:"
+		Text 5, 200, 60, 10, "Worker signature: "
+	EndDialog
 	DO
 		DO
 			err_msg = ""
 			Dialog dialog1
 			cancel_without_confirmation
+
+			TIKL_text = trim(TIKL_text)
+
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
             IF court_ordered = "Select one..." then err_msg = err_msg & vbNewLine & "* Was the trial home visit court ordered?"
 			If THV_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the trial home visit verification."
 			If SSIS = "" then err_msg = err_msg & vbNewLine & "* Enter the SSIS information."
 			IF basic_IVE = "Select one..." then err_msg = err_msg & vbNewLine & "* Is this Basic IV-E?"
 			If isDate(reim_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid reimbursement end date."
+			If TIKL_text <> "" Then
+				If IsDate(TIKL_date) = False Then
+					err_msg = err_msg & vbNewLine & "* TIKL message has been entered but no valid date provided, add a date for the TIKL for the script to continue."
+				Else
+					If DateDiff("d", date, TIKL_date) < 0 Then err_msg = err_msg & vbNewLine & "* TIKL date appears to be in the past. Enter a future date for a TIKL."
+				End If
+			End If
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  	Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
+	If TIKL_text <> "" Then
+		'Creating the TIKL message
+		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
+		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
+		Call write_variable_in_TIKL(TIKL_text)
+		PF3 'to save & exit
+	End If
+
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("~~Trial home visit begins~~")
@@ -130,7 +155,7 @@ If THV_option = "Begins" then
     Call write_bullet_and_variable_in_CASE_NOTE("SSIS", SSIS)
     Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement ended", reim_ended)
     If MEMI_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MEMI has been updated.")
-    If dail_checkbox = 1 then Call write_variable_in_CASE_NOTE("* TIKL created to recheck case.")
+    If TIKL_text <> "" Then Call write_variable_in_CASE_NOTE("* TIKL created for " & TIKL_date & ".")
 END IF
 
 If THV_option = "Ends" then
