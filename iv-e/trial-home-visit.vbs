@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/06/2024", "Remove Change Option as it is no longer required.", "Casey Love, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -59,7 +60,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select a trial home visit option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
-  DropListBox 95, 30, 60, 10, "Select one.."+chr(9)+"Begins"+chr(9)+"Change"+chr(9)+"Ends", THV_option
+  DropListBox 95, 30, 60, 10, "Select one.."+chr(9)+"Begins"+chr(9)+"Ends", THV_option
   ButtonGroup ButtonPressed
     OkButton 50, 50, 50, 15
     CancelButton 105, 50, 50, 15
@@ -130,44 +131,6 @@ If THV_option = "Begins" then
     Call write_bullet_and_variable_in_CASE_NOTE("Reimbursement ended", reim_ended)
     If MEMI_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MEMI has been updated.")
     If dail_checkbox = 1 then Call write_variable_in_CASE_NOTE("* TIKL created to recheck case.")
-END IF
-
-If THV_option = "Change" then
-    dialog1 = ""
-    BeginDialog dialog1, 0, 0, 301, 115, "Trial home visit change"
-      EditBox 75, 10, 220, 15, change_reason
-      EditBox 75, 30, 80, 15, effective_date
-      EditBox 75, 50, 220, 15, actions_taken
-      EditBox 75, 70, 220, 15, other_notes
-      EditBox 75, 90, 110, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 190, 90, 50, 15
-        CancelButton 245, 90, 50, 15
-      Text 20, 35, 50, 10, "Effective date:"
-      Text 20, 55, 50, 10, "Actions taken:"
-      Text 10, 95, 60, 10, "Worker signature: "
-      Text 5, 15, 65, 10, "Reason for change:"
-      Text 30, 75, 40, 10, "Other notes: "
-    EndDialog
-	DO
-		DO
-			err_msg = ""
-			Dialog dialog1
-			cancel_confirmation
-			IF change_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the trial home visit change reason."
-			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
-			If actions_taken = "" then err_msg = err_msg & vbNewLine & "* Enter the actions taken."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
- 		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-    Call write_variable_in_CASE_NOTE("~~Trial home visit changed~~")
-    Call write_bullet_and_variable_in_CASE_NOTE("Reason for change", change_reason)
-    Call write_bullet_and_variable_in_CASE_NOTE("Effective date", effective_date)
-    Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", actions_taken)
 END IF
 
 If THV_option = "Ends" then
