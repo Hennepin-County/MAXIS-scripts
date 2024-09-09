@@ -143,10 +143,7 @@ If THV_option = "Begins" then
 
 	If TIKL_text <> "" Then
 		'Creating the TIKL message
-		Call navigate_to_MAXIS_screen("DAIL", "WRIT")
-		call create_MAXIS_friendly_date(TIKL_date, 0, 5, 18)    '0 is the date as all the adjustments are already determined.
-		Call write_variable_in_TIKL(TIKL_text)
-		PF3 'to save & exit
+		Call create_TIKL(TIKL_text, 0, TIKL_date, False, TIKL_note_text)
 	End If
 
 
