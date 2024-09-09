@@ -62,7 +62,6 @@ BeginDialog dialog1, 0, 0, 341, 345, "IV-E eligibility review"
   EditBox 70, 10, 55, 15, MAXIS_case_number
   EditBox 70, 30, 55, 15, review_month
   EditBox 275, 10, 55, 15, child_age
-  EditBox 275, 30, 55, 15, school_verif
   EditBox 70, 50, 260, 15, AFDC_receipt
   EditBox 70, 70, 260, 15, Rule_five
   EditBox 70, 105, 110, 15, earned_income
@@ -85,7 +84,7 @@ BeginDialog dialog1, 0, 0, 341, 345, "IV-E eligibility review"
     OkButton 225, 325, 50, 15
     CancelButton 280, 325, 50, 15
   Text 20, 35, 50, 10, "Review month: "
-  GroupBox 10, 90, 325, 60, "Child's income:"
+  GroupBox 10, 95, 325, 55, "Child's income:"
   Text 5, 200, 65, 10, "Title IV-E basic elig:"
   Text 15, 160, 50, 10, "Child's assets:"
   Text 5, 330, 60, 10, "Worker signature: "
@@ -104,7 +103,6 @@ BeginDialog dialog1, 0, 0, 341, 345, "IV-E eligibility review"
   Text 195, 130, 20, 10, "Other:"
   Text 15, 240, 85, 10, "Title IV-E reimburseable: "
   Text 5, 55, 60, 10, "In receipt of AFDC: "
-  Text 170, 35, 105, 10, "If 18, list the school verification:"
 EndDialog
 DO
 	DO
@@ -142,7 +140,6 @@ If right(child_income, 1) = "," THEN child_income = left(child_income, len(child
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 Call write_variable_in_CASE_NOTE("**TITLE IV-E eligibilty review for " & review_month & "**")
 Call write_bullet_and_variable_in_CASE_NOTE("Age of child at end of review period", child_age)
-Call write_bullet_and_variable_in_CASE_NOTE("Child is 18, school verification", school_verif)
 Call write_bullet_and_variable_in_CASE_NOTE("In receipt of AFDC", AFDC_receipt)
 call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five)
 Call write_bullet_and_variable_in_CASE_NOTE("Child's income", child_income)
