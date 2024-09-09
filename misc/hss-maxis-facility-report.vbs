@@ -124,6 +124,7 @@ Call MAXIS_footer_month_confirmation    'Ensuring we're in the right footer mont
 
 Dim faci_array()                        'Delcaring array
 ReDim faci_array(faci_out_const, 0)     'Resizing the array to size of last const
+Dim item
 
 const vendor_number_const   = 0         'creating array constants
 const faci_name_const       = 1

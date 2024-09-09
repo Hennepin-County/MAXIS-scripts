@@ -110,6 +110,7 @@ objExcel.Columns(27).ColumnWidth = 120		'sizing the last column
 
 Dim adjustment_array()                        'Delcaring array
 ReDim adjustment_array(rr_status_const, 0)     'Resizing the array to size of last const
+Dim item
 
 const recip_PMI_const               = 0         'creating array constants
 const case_number_const             = 1
