@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2024", "Changed the phrasing from Cancelled to Placement Ended, removed the TIKL for the 18th Birthday. Additionally removed the phrasing around updating the Case File.", "Casey Love, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/25/2019", "Updated backend functionality, changlog, and removed cancel confirmation option.", "Ilse Ferris, Hennepin County")
@@ -56,6 +57,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -74,12 +76,14 @@ DO
 		err_msg = ""
 		Dialog dialog1
         cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+
+		call validate_MAXIS_case_number(err_msg, "*")
 		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select an Adoption Assistance option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 If action_option = "Placement Ended" then
     dialog1 = ""
@@ -111,6 +115,7 @@ If action_option = "Placement Ended" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -148,6 +153,7 @@ If action_option = "Child in placement" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_without_confirmation
+
 			If isDate(placement_begins) = False then err_msg = err_msg & vbNewLine & "* Enter a valid eligibility date."
 			If Rule_five = "" then err_msg = err_msg & vbNewLine & "* Enter the Rule 5 information."
 			If placed = "" then err_msg = err_msg & vbNewLine & "* Enter the placement information."
@@ -158,6 +164,7 @@ If action_option = "Child in placement" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -195,6 +202,7 @@ If action_option = "Closed" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_without_confirmation
+
 			If isDate(placement_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid placement ending date."
 			If actions_taken = "" then err_msg = err_msg & vbNewLine & "* Enter the actions taken on the case."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
@@ -202,6 +210,7 @@ If action_option = "Closed" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -251,6 +260,7 @@ If action_option = "Opened" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_without_confirmation
+
 			If isDate(app_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid application date."
 			If isDate(case_closed) = False then err_msg = err_msg & vbNewLine & "* Enter a valid date the IV-E/Non IV-E case closed."
 			If isDate(finalization_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid finalization date."
@@ -264,6 +274,7 @@ If action_option = "Opened" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
