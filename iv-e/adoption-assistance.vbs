@@ -173,43 +173,36 @@ END IF
 
 If action_option = "Closed" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 291, 170, "Adoption Assistance closed"
-      EditBox 115, 5, 170, 15, placement_ended
-      CheckBox 5, 30, 200, 10, "Set TIKL for client 18th birthday. If checked, add date here:", TIKL_checkbox
-      EditBox 210, 25, 75, 15, birthday_TIKL
-      EditBox 70, 50, 215, 15, actions_taken
-      EditBox 70, 70, 215, 15, other_notes
-      CheckBox 70, 105, 90, 10, "Transferred case to FG1", transferred_checkbox
-      CheckBox 180, 105, 70, 10, "Deleted FC panels", deleted_FC_checkbox
-      CheckBox 70, 120, 95, 10, "Deleted AREP and ADDR", deleted_panels_checkbox
-      CheckBox 180, 120, 55, 10, "Updated ECF", ECF_checkbox
-      EditBox 70, 145, 105, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 180, 145, 50, 15
-        CancelButton 235, 145, 50, 15
-      Text 25, 75, 40, 10, "Other notes:"
-      Text 5, 10, 110, 10, "AREP reported placement ended:"
-      Text 20, 55, 50, 10, "Actions taken:"
-      Text 5, 150, 60, 10, "Worker signature:"
-      GroupBox 5, 90, 280, 50, "Check each action that was completed:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 291, 140, "Adoption Assistance closed"
+		EditBox 115, 5, 170, 15, placement_ended
+		EditBox 70, 25, 215, 15, actions_taken
+		EditBox 70, 45, 215, 15, other_notes
+		CheckBox 70, 80, 90, 10, "Transferred case to FG1", transferred_checkbox
+		CheckBox 180, 80, 70, 10, "Deleted FC panels", deleted_FC_checkbox
+		CheckBox 70, 95, 95, 10, "Deleted AREP and ADDR", deleted_panels_checkbox
+		CheckBox 180, 95, 55, 10, "Updated ECF", ECF_checkbox
+		EditBox 70, 120, 105, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 180, 120, 50, 15
+			CancelButton 235, 120, 50, 15
+		Text 25, 50, 40, 10, "Other notes:"
+		Text 5, 10, 110, 10, "AREP reported placement ended:"
+		Text 20, 30, 50, 10, "Actions taken:"
+		Text 5, 125, 60, 10, "Worker signature:"
+		GroupBox 5, 65, 280, 50, "Check each action that was completed:"
+	EndDialog
 	DO
 		DO
 			err_msg = ""
 			Dialog dialog1
 			cancel_without_confirmation
 			If isDate(placement_ended) = False then err_msg = err_msg & vbNewLine & "* Enter a valid placement ending date."
-			If TIKL_checkbox = 1 and isdate(birthday_TIKL) = False then err_msg = err_msg & vbNewLine & "* Enter a valid 18th birthday for the client."
 			If actions_taken = "" then err_msg = err_msg & vbNewLine & "* Enter the actions taken on the case."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-    'writing the TIKL for the client's 18th birthday
-    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -219,44 +212,42 @@ If action_option = "Closed" then
 	If deleted_FC_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted FC panels.")
 	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted AREP and ADDR panels.")
 	If ECF_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated Case file.")
-    If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for client's 18th birthday on " & birthday_TIKL & ".")
 END IF
 
 If action_option = "Opened" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 321, 230, "Adoption Assistance opened"
-      EditBox 80, 10, 60, 15, app_date
-      EditBox 250, 10, 60, 15, case_closed
-      EditBox 80, 30, 60, 15, finalization_date
-      EditBox 250, 30, 60, 15, effective_date
-      EditBox 80, 50, 230, 15, AREP
-      EditBox 80, 70, 230, 15, insa
-      EditBox 80, 90, 230, 15, spec_adpt
-      CheckBox 50, 115, 200, 10, "Set TIKL for client 18th birthday. If checked, add date here:", TIKL_checkbox
-      EditBox 250, 110, 60, 15, birthday_TIKL
-      DropListBox 80, 135, 60, 15, "Select one..."+chr(9)+"No"+chr(9)+"Yes", PMI_merge
-      DropListBox 250, 135, 60, 15, "Select one..."+chr(9)+"No"+chr(9)+"Yes", priv_request
-      EditBox 80, 160, 60, 15, AA_monies
-      CheckBox 150, 160, 160, 10, "Request sent to verify Social Security Number", SSN_verif_checkbox
-      CheckBox 150, 170, 160, 10, "Request sent to verify other health insurance", OHI_checkbox
-      EditBox 80, 185, 230, 15, other_notes
-      EditBox 80, 210, 120, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 205, 210, 50, 15
-        CancelButton 260, 210, 50, 15
-      Text 20, 35, 60, 10, "Finalization date:"
-      Text 50, 55, 25, 10, "AREP:"
-      Text 5, 165, 70, 10, "AA rec'd per month: $"
-      Text 20, 15, 60, 10, "Application date:"
-      Text 40, 190, 40, 10, "Other notes:"
-      Text 155, 15, 90, 10, "IV-E/Non IV-E case closed:"
-      Text 160, 140, 85, 10, "PRIV/Block request done: "
-      Text 5, 95, 75, 10, "SPEC/ADPT function:"
-      Text 55, 75, 20, 10, "INSA:"
-      Text 40, 140, 40, 10, "PMI merge:"
-      Text 20, 215, 60, 10, "Worker signature:"
-      Text 160, 35, 85, 10, "09-X/10-X App'd effective:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 316, 205, "Adoption Assistance opened"
+		EditBox 80, 10, 60, 15, app_date
+		EditBox 250, 10, 60, 15, case_closed
+		EditBox 80, 30, 60, 15, finalization_date
+		EditBox 250, 30, 60, 15, effective_date
+		EditBox 80, 50, 230, 15, AREP
+		EditBox 80, 70, 230, 15, insa
+		EditBox 80, 90, 230, 15, spec_adpt
+		DropListBox 80, 110, 60, 15, "Select one..."+chr(9)+"No"+chr(9)+"Yes", PMI_merge
+		DropListBox 250, 110, 60, 15, "Select one..."+chr(9)+"No"+chr(9)+"Yes", priv_request
+		EditBox 80, 135, 60, 15, AA_monies
+		CheckBox 150, 130, 160, 10, "Request sent to verify Social Security Number", SSN_verif_checkbox
+		CheckBox 150, 140, 160, 10, "Request sent to verify other health insurance", OHI_checkbox
+		EditBox 80, 160, 230, 15, other_notes
+		EditBox 80, 185, 120, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 205, 185, 50, 15
+			CancelButton 260, 185, 50, 15
+		Text 20, 35, 60, 10, "Finalization date:"
+		Text 50, 55, 25, 10, "AREP:"
+		Text 5, 140, 70, 10, "AA rec'd per month: $"
+		Text 20, 15, 60, 10, "Application date:"
+		Text 40, 165, 40, 10, "Other notes:"
+		Text 155, 15, 90, 10, "IV-E/Non IV-E case closed:"
+		Text 160, 115, 85, 10, "PRIV/Block request done: "
+		Text 5, 95, 75, 10, "SPEC/ADPT function:"
+		Text 55, 75, 20, 10, "INSA:"
+		Text 40, 115, 40, 10, "PMI merge:"
+		Text 20, 190, 60, 10, "Worker signature:"
+		Text 160, 35, 85, 10, "09-X/10-X App'd effective:"
+	EndDialog
+
 	DO
 		DO
 			err_msg = ""
@@ -267,7 +258,6 @@ If action_option = "Opened" then
 			If isDate(finalization_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid finalization date."
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid 09-X/10-X effective date."
 			If spec_adpt = "" then err_msg = err_msg & vbNewLine & "* Enter the SPEC/ADPT function information."
-			If TIKL_checkbox = 1 and isdate(birthday_TIKL) = False then err_msg = err_msg & vbNewLine & "* Enter a valid 18th birthday for the client."
 			If PMI_merge = "Select one..." then err_msg = err_msg & vbNewLine & "* Has there a PMI merge?"
 			If priv_request = "Select one..." then err_msg = err_msg & vbNewLine & "* Has a priv/block request been done?"
 			If IsNumeric(AA_monies) = False then err_msg = err_msg & vbNewLine & "* Enter a valid AA amount received."
@@ -276,10 +266,6 @@ If action_option = "Opened" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-    'writing the TIKL for the client's 18th birthday
-    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -296,7 +282,6 @@ If action_option = "Opened" then
 	Call write_bullet_and_variable_in_CASE_NOTE("Amt of AA monies rec'd per month", AA_monies)
     If SSN_verif_checkbox = 1 then call write_variable_in_CASE_NOTE("* Sent verification request to verify client's SSN.")
 	If OHI_checkbox = 1 then call write_variable_in_CASE_NOTE("* Sent verification request to verify other health insurance.")
-    If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for client's 18th birthday on " & birthday_TIKL & ".")
 END IF
 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
