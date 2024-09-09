@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2024", "Consolidated to a single Approved option. Additionally removed language around 'final reveiw to cover' and 'eligibility months/6 month'.", "Casey Love, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -54,6 +55,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -72,73 +74,76 @@ DO
 		err_msg = ""
 		Dialog dialog1
         cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+
+		call validate_MAXIS_case_number(err_msg, "*")
 		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select an IV-E option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 If action_option = "Approved" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 386, 310, "IV-E Approved"
-      EditBox 70, 10, 55, 15, app_date
-      EditBox 180, 10, 55, 15, elig_month
-      EditBox 325, 10, 55, 15, date_pet_filed
-      EditBox 70, 30, 55, 15, MA_app
-      CheckBox 160, 35, 60, 10, "SSIS checked", SSIS_checkbox
-      EditBox 325, 30, 55, 15, placement_date
-      EditBox 325, 50, 55, 15, hearing_date
-      EditBox 125, 70, 255, 15, placement_gaps
-      EditBox 65, 95, 110, 15, best_interest
-      EditBox 65, 115, 110, 15, resonable_efforts
-      EditBox 270, 95, 110, 15, mother_info
-      EditBox 270, 115, 110, 15, father_info
-      EditBox 65, 140, 100, 15, HH_income
-      EditBox 240, 140, 100, 15, income_verif
-      EditBox 65, 160, 100, 15, HH_assets
-      EditBox 240, 160, 100, 15, asset_verif
-      EditBox 65, 180, 100, 15, HH_comp
-      EditBox 240, 180, 100, 15, HH_verif
-      EditBox 65, 200, 100, 15, rule_five
-      EditBox 240, 200, 100, 15, overpayments
-      EditBox 240, 220, 100, 15, county_transfer
-      EditBox 75, 240, 265, 15, results
-      EditBox 75, 260, 265, 15, other_notes
-      EditBox 75, 280, 150, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 235, 280, 50, 15
-        CancelButton 290, 280, 50, 15
-      Text 5, 70, 115, 20, "Explain reasons for gaps between court order and placement:"
-      Text 5, 145, 60, 10, "AFDC HH income:"
-      Text 140, 15, 40, 10, "Elig month:"
-      Text 15, 100, 50, 10, "Best interest:"
-      Text 260, 15, 60, 10, "Date petition filed:"
-      Text 190, 185, 50, 10, "HH comp verif:"
-      Text 35, 15, 35, 10, "Appl date:"
-      Text 190, 100, 75, 10, "Mother's name/Case #:"
-      Text 10, 185, 55, 10, "AFDC HH comp:"
-      Text 190, 120, 75, 10, "Father's name/Case #:"
-      Text 15, 285, 60, 10, "Worker signature: "
-      Text 5, 120, 60, 10, "Resonable efforts:"
-      Text 195, 145, 45, 10, "Income verif:"
-      Text 35, 205, 25, 10, "Rule 5:"
-      Text 45, 245, 30, 10, "Results:"
-      Text 185, 205, 50, 10, "Overpayments:"
-      Text 35, 265, 40, 10, "Other notes: "
-      Text 35, 35, 35, 10, "MA App'd:"
-      Text 200, 165, 40, 10, "Asset verif:"
-      Text 5, 165, 60, 10, "AFDC HH assets:"
-      Text 110, 225, 125, 10, "Custody of child transferred to county:"
-      Text 240, 55, 85, 10, "Court order hearing date:"
-      Text 240, 35, 85, 10, "Physical placement date:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 436, 315, "IV-E Approved"
+		EditBox 65, 10, 55, 15, app_date
+		EditBox 180, 10, 55, 15, elig_month
+		EditBox 290, 10, 55, 15, MA_app
+		CheckBox 370, 15, 60, 10, "SSIS checked", SSIS_checkbox
+		EditBox 65, 30, 55, 15, date_pet_filed
+		EditBox 220, 30, 55, 15, placement_date
+		EditBox 370, 30, 55, 15, hearing_date
+		EditBox 65, 65, 360, 15, placement_gaps
+		EditBox 65, 90, 110, 15, best_interest
+		EditBox 65, 110, 110, 15, resonable_efforts
+		EditBox 315, 90, 110, 15, mother_info
+		EditBox 315, 110, 110, 15, father_info
+		EditBox 65, 140, 195, 15, HH_income
+		EditBox 315, 140, 110, 15, income_verif
+		EditBox 65, 160, 195, 15, HH_assets
+		EditBox 315, 160, 110, 15, asset_verif
+		EditBox 65, 180, 195, 15, HH_comp
+		EditBox 315, 180, 110, 15, HH_verif
+		EditBox 65, 210, 100, 15, rule_five
+		EditBox 315, 210, 110, 15, overpayments
+		EditBox 315, 230, 110, 15, county_transfer
+		EditBox 65, 250, 360, 15, results
+		EditBox 65, 270, 360, 15, other_notes
+		EditBox 65, 290, 150, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 320, 290, 50, 15
+			CancelButton 375, 290, 50, 15
+		Text 65, 55, 230, 10, "Explain reasons for gaps between court order and placement:"
+		Text 5, 145, 60, 10, "AFDC HH income:"
+		Text 140, 15, 40, 10, "Elig month:"
+		Text 15, 95, 50, 10, "Best interest:"
+		Text 5, 35, 60, 10, "Date petition filed:"
+		Text 265, 185, 50, 10, "HH comp verif:"
+		Text 30, 15, 35, 10, "Appl date:"
+		Text 235, 95, 75, 10, "Mother's name/Case #:"
+		Text 10, 185, 55, 10, "AFDC HH comp:"
+		Text 235, 115, 75, 10, "Father's name/Case #:"
+		Text 5, 295, 60, 10, "Worker signature: "
+		Text 5, 115, 60, 10, "Resonable efforts:"
+		Text 270, 145, 45, 10, "Income verif:"
+		Text 35, 215, 25, 10, "Rule 5:"
+		Text 35, 255, 30, 10, "Results:"
+		Text 260, 215, 50, 10, "Overpayments:"
+		Text 25, 275, 40, 10, "Other notes: "
+		Text 255, 15, 35, 10, "MA App'd:"
+		Text 275, 165, 40, 10, "Asset verif:"
+		Text 5, 165, 60, 10, "AFDC HH assets:"
+		Text 185, 235, 125, 10, "Custody of child transferred to county:"
+		Text 285, 35, 85, 10, "Court order hearing date:"
+		Text 135, 35, 85, 10, "Physical placement date:"
+	EndDialog
 
 	DO
 		DO
 			err_msg = ""
 			Dialog dialog1
 			cancel_confirmation
+
             If isDate(app_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid application date."
 			If elig_month = "" then err_msg = err_msg & vbNewLine & "* Enter the eligibilty month."
 			If isDate(date_pet_filed) = False then err_msg = err_msg & vbNewLine & "* Enter a valid date the petition was filed."
@@ -160,6 +165,7 @@ If action_option = "Approved" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -222,6 +228,7 @@ If action_option = "Closing" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -291,6 +298,7 @@ If action_option = "Denied" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
