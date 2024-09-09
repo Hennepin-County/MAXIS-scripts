@@ -180,7 +180,6 @@ If action_option = "Closed" then
 		CheckBox 70, 80, 90, 10, "Transferred case to FG1", transferred_checkbox
 		CheckBox 180, 80, 70, 10, "Deleted FC panels", deleted_FC_checkbox
 		CheckBox 70, 95, 95, 10, "Deleted AREP and ADDR", deleted_panels_checkbox
-		CheckBox 180, 95, 55, 10, "Updated ECF", ECF_checkbox
 		EditBox 70, 120, 105, 15, worker_signature
 		ButtonGroup ButtonPressed
 			OkButton 180, 120, 50, 15
@@ -211,7 +210,6 @@ If action_option = "Closed" then
 	If transferred_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to FG1.")
 	If deleted_FC_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted FC panels.")
 	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted AREP and ADDR panels.")
-	If ECF_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated Case file.")
 END IF
 
 If action_option = "Opened" then
