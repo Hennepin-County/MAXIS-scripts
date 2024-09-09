@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2024", "Added GA Mass Change message evaluation as part of the DAIL CCD process.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/13/2024", "Added COLA message evaluation as part of the DAIL CCD process.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/12/2024", "Added a check to make sure the script is running in production region.", "Dave Courtright, Hennepin County")
 call changelog_update("03/11/2024", "Fixed bug in navigation and autosave", "Ilse Ferris, Hennepin County")
@@ -198,6 +199,7 @@ For each worker in worker_array
                instr(dail_msg, "MEMBER HAS TURNED 60 - FSET:WORK REG HAS BEEN UPDATED") OR _
    			   instr(dail_msg, "SDX MATCH - MAXIS INTERFACED IAA DATE TO SSA") OR _
                instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
+               instr(dail_msg, "GA: NEW VERSION AUTO-APPROVED") or _
                instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
                instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") or _
                instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
