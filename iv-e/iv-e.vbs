@@ -60,7 +60,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 181, 75, "Select a IV-E option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
-  DropListBox 95, 30, 75, 15, "Select one..."+chr(9)+"Approved 1"+chr(9)+"Approved 2"+chr(9)+"Closing"+chr(9)+"Denied", action_option
+  DropListBox 95, 30, 75, 15, "Select one..."+chr(9)+"Approved"+chr(9)+"Closing"+chr(9)+"Denied", action_option
   ButtonGroup ButtonPressed
     OkButton 65, 50, 50, 15
     CancelButton 120, 50, 50, 15
@@ -79,115 +79,9 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-If action_option = "Approved 1" then
+If action_option = "Approved" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 386, 310, "IV-E approved one"
-      EditBox 70, 10, 55, 15, app_date
-      EditBox 180, 10, 55, 15, elig_month
-      EditBox 325, 10, 55, 15, date_pet_filed
-      EditBox 70, 30, 55, 15, MA_app
-      CheckBox 160, 40, 160, 10, "Out of home placement IV-E order. Date heard:", out_home_placement_checkbox
-      EditBox 325, 35, 55, 15, order_date
-      CheckBox 160, 60, 130, 10, "Detention hearing order. Date heard:", detention_checkbox
-      EditBox 325, 55, 55, 15, detention_hearing
-      CheckBox 70, 55, 60, 10, "SSIS checked", SSIS_checkbox
-      EditBox 125, 75, 255, 15, placement_gaps
-      EditBox 65, 100, 110, 15, best_interest
-      EditBox 270, 100, 110, 15, mother_info
-      EditBox 65, 120, 110, 15, resonable_efforts
-      EditBox 270, 120, 110, 15, father_info
-      EditBox 65, 145, 100, 15, HH_income
-      EditBox 240, 145, 100, 15, income_verif
-      EditBox 65, 165, 100, 15, HH_assets
-      EditBox 240, 165, 100, 15, asset_verif
-      EditBox 65, 185, 100, 15, HH_comp
-      EditBox 240, 185, 100, 15, HH_verif
-      EditBox 65, 205, 100, 15, rule_five
-      EditBox 240, 205, 100, 15, overpayments
-      EditBox 240, 225, 100, 15, county_transfer
-      EditBox 75, 245, 265, 15, results
-      EditBox 75, 265, 265, 15, other_notes
-      EditBox 75, 285, 150, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 235, 285, 50, 15
-        CancelButton 290, 285, 50, 15
-      Text 5, 75, 115, 20, "Explain reasons for gaps between court order and placement:"
-      Text 5, 150, 60, 10, "AFDC HH income:"
-      Text 140, 15, 40, 10, "Elig month:"
-      Text 15, 105, 50, 10, "Best interest:"
-      Text 260, 15, 60, 10, "Date petition filed:"
-      Text 190, 190, 50, 10, "HH comp verif:"
-      Text 35, 15, 35, 10, "Appl date:"
-      Text 190, 105, 75, 10, "Mother's name/Case #:"
-      Text 10, 190, 55, 10, "AFDC HH comp:"
-      Text 190, 125, 75, 10, "Father's name/Case #:"
-      Text 15, 290, 60, 10, "Worker signature: "
-      Text 5, 125, 60, 10, "Resonable efforts:"
-      Text 195, 150, 45, 10, "Income verif:"
-      Text 35, 210, 25, 10, "Rule 5:"
-      Text 45, 250, 30, 10, "Results:"
-      Text 185, 210, 50, 10, "Overpayments:"
-      Text 35, 270, 40, 10, "Other notes: "
-      Text 35, 35, 35, 10, "MA App'd:"
-      Text 200, 170, 40, 10, "Asset verif:"
-      Text 5, 170, 60, 10, "AFDC HH assets:"
-      Text 110, 230, 125, 10, "Custody of child transferred to county:"
-    EndDialog
-
-	DO
-		DO
-			err_msg = ""
-			Dialog dialog1
-			cancel_confirmation
-            If isDate(app_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid application date."
-			If elig_month = "" then err_msg = err_msg & vbNewLine & "* Enter the eligibilty month."
-			If isDate(date_pet_filed) = False then err_msg = err_msg & vbNewLine & "* Enter a valid date the petition was filed."
-			If isDate(MA_app) = False then err_msg = err_msg & vbNewLine & "* Enter a valid MA approved date."
-            If out_home_placement_checkbox = 1 and order_date = "" then err_msg = err_msg & vbnewline & "* Enter the out of home place order date."
-            If detention_checkbox = 1 and detention_hearing = "" then err_msg = err_msg & vbnewline & "* Enter the detention hearing date."
-            If placement_gaps = "" then err_msg = err_msg & vbnewline & "* Enter the gaps in placement information."
-            If best_interest = "" then err_msg = err_msg & vbnewline & "* Enter the best interest information."
-            If resonable_efforts = "" then err_msg = err_msg & vbnewline & "* Enter the reasonable effort information."
-            If mother_info = "" then err_msg = err_msg & vbnewline & "* Enter the mother's information."
-            If father_info = "" then err_msg = err_msg & vbnewline & "* Enter the father's information."
-            If HH_income <> "" and income_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the income verification."
-            If HH_assets <> "" and asset_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the asset verification."
-            If HH_comp <> "" and HH_verif = "" then err_msg = err_msg & vbNewLine & "* Enter the HH comp verification."
-            If rule_five = "" then err_msg = err_msg & vbNewLine & "* Enter the Rule 5 information."
-            If results = "" then err_msg = err_msg & vbNewLine & "* Enter the results information."
-			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		LOOP UNTIL err_msg = ""
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-	'The case note
-    start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**IV-E approved (correction) on " & IVE_app & "**")
-	Call write_bullet_and_variable_in_CASE_NOTE("Application date", app_date)
-	Call write_bullet_and_variable_in_CASE_NOTE("Elig month", elig_month)
-    Call write_bullet_and_variable_in_CASE_NOTE("Date petition filed", date_pet_filed)
-    Call write_bullet_and_variable_in_CASE_NOTE("MA approved", MA_app)
-    If out_home_placement_checkbox = 1 then Call write_bullet_and_variable_in_CASE_NOTE("Out of home placement IV-E order, date heard", order_date)
-    If detention_checkbox = 1 then Call write_bullet_and_variable_in_CASE_NOTE("Detention hearing order, date heard", detention_hearing)
-    Call write_bullet_and_variable_in_CASE_NOTE("Reason for gaps between court order and placement", placement_gaps)
-    Call write_bullet_and_variable_in_CASE_NOTE("Best interest", best_interest)
-    Call write_bullet_and_variable_in_CASE_NOTE("Reasonable efforts", resonable_efforts)
-    Call write_bullet_and_variable_in_CASE_NOTE("Mother's name/case #", mother_info)
-	Call write_bullet_and_variable_in_CASE_NOTE("Father's name/case #", father_info)
-    Call write_variable_in_CASE_NOTE("* HH income: " & HH_income & ". Verif: " & income_verif)
-    Call write_variable_in_CASE_NOTE("* HH assets: " & HH_assets & ". Verif: " & asset_verif)
-    Call write_variable_in_CASE_NOTE("* HH comp: " & HH_comp & ". Verif: " & HH_verif)
-    call write_bullet_and_variable_in_CASE_NOTE("Rule 5", rule_five)
-	Call write_bullet_and_variable_in_CASE_NOTE("Overpayments", Overpayments)
-    Call write_bullet_and_variable_in_CASE_NOTE("Custody of child transferred to county", county_transfer)
-    Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
-    If SSIS_checkbox = 1 then Call write_variable_in_CASE_NOTE("* SSIS checked.")
-END IF
-
-If action_option = "Approved 2" then
-    dialog1 = ""
-    BeginDialog dialog1, 0, 0, 386, 310, "IV-E approved two"
+    BeginDialog dialog1, 0, 0, 386, 310, "IV-E Approved"
       EditBox 70, 10, 55, 15, app_date
       EditBox 180, 10, 55, 15, elig_month
       EditBox 325, 10, 55, 15, date_pet_filed
@@ -269,7 +163,7 @@ If action_option = "Approved 2" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**IV-E approved (correction) on " & app_date & "**")
+	Call write_variable_in_CASE_NOTE("**IV-E Approved on " & app_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("Application date", app_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Elig month", elig_month)
     Call write_bullet_and_variable_in_CASE_NOTE("Date petition filed", date_pet_filed)
