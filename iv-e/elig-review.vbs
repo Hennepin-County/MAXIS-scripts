@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2024", "Removed information around 18 and in school.", "Casey Love, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -54,6 +55,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -109,7 +111,8 @@ DO
 		err_msg = ""
 		Dialog dialog1
         cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+
+		call validate_MAXIS_case_number(err_msg, "*")
 		IF review_month = "" then err_msg = err_msg & vbNewLine & "* Enter the review month."
         If IsNumeric(child_age) = False then err_msg = err_msg & vbNewLine & "* Enter a valid age for child."
         If AFDC_receipt = "" then err_msg = err_msg & vbNewLine & "* Enter AFDC information."
@@ -124,6 +127,7 @@ DO
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 'creating incremental variable for income for the case note
 child_income = ""
