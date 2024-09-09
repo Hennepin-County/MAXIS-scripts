@@ -209,7 +209,6 @@ If action_option = "Open" then
       EditBox 45, 135, 245, 15, placed
       EditBox 45, 155, 245, 15, results
       EditBox 45, 175, 115, 15, Rule_five
-      EditBox 205, 175, 85, 15, due_date
       EditBox 45, 195, 245, 15, other_notes
       EditBox 70, 215, 110, 15, worker_signature
       ButtonGroup ButtonPressed
@@ -228,7 +227,6 @@ If action_option = "Open" then
       Text 15, 140, 25, 10, "Placed: "
       Text 15, 35, 50, 10, "Effective date:"
       Text 20, 120, 20, 10, "AREP:"
-      Text 170, 180, 35, 10, "Due date:"
     EndDialog
 	DO
 		DO
@@ -244,7 +242,6 @@ If action_option = "Open" then
             If placed = "" then err_msg = err_msg & vbNewLine & "* Enter the placement information."
 			If Results = "" then err_msg = err_msg & vbNewLine & "* Enter the results information."
 			If Rule_five = "" then err_msg = err_msg & vbNewLine & "* Enter the Rule 5 information."
-			If isDate(due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid due date."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
@@ -264,7 +261,6 @@ If action_option = "Open" then
     call write_bullet_and_variable_in_CASE_NOTE("Placed", Placed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
     Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five)
-	Call write_bullet_and_variable_in_CASE_NOTE("Due date", due_date)
     If TPL_updated = 1 then Call write_variable_in_CASE_NOTE("* TPL updated.")
 END IF
 
