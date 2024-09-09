@@ -234,44 +234,42 @@ END IF
 
 If action_option = "Denied" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 341, 240, "IV-E denied"
-      EditBox 100, 10, 55, 15, IVE_denied_date
-      EditBox 205, 10, 55, 15, app_date
-      CheckBox 275, 15, 60, 10, "SSIS checked", SSIS_checkbox
-      EditBox 100, 30, 230, 15, denial_reason
-      EditBox 100, 50, 230, 15, elig_months
-      EditBox 100, 70, 55, 15, date_pet_filed
-      EditBox 275, 70, 55, 15, court_date
-      EditBox 100, 90, 55, 15, placement_date
-      EditBox 70, 110, 100, 15, HH_income
-      EditBox 230, 110, 100, 15, income_verif
-      EditBox 70, 130, 100, 15, HH_assets
-      EditBox 230, 130, 100, 15, asset_verif
-      EditBox 70, 150, 100, 15, HH_comp
-      EditBox 230, 150, 100, 15, HH_verif
-      EditBox 70, 175, 260, 15, results
-      EditBox 70, 195, 260, 15, other_notes
-      EditBox 70, 215, 150, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 225, 215, 50, 15
-        CancelButton 280, 215, 50, 15
-      Text 10, 220, 60, 10, "Worker signature: "
-      Text 165, 15, 35, 10, "App date:"
-      Text 185, 115, 45, 10, "Income verif:"
-      Text 40, 180, 30, 10, "Results:"
-      Text 10, 135, 60, 10, "AFDC HH assets:"
-      Text 10, 55, 90, 10, "Elig month/6 months prior:"
-      Text 190, 135, 40, 10, "Asset verif:"
-      Text 10, 115, 60, 10, "AFDC HH income:"
-      Text 15, 155, 55, 10, "AFDC HH comp:"
-      Text 30, 200, 40, 10, "Other notes: "
-      Text 180, 155, 50, 10, "HH comp verif:"
-      Text 35, 75, 60, 10, "Date petition filed:"
-      Text 10, 95, 85, 10, "Physical placement date:"
-      Text 40, 15, 60, 10, "Date IV-E denied:"
-      Text 190, 75, 85, 10, "Court order hearing date:"
-      Text 30, 35, 70, 10, "Reason IV-E denied:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 341, 220, "IV-E denied"
+		EditBox 100, 10, 55, 15, IVE_denied_date
+		EditBox 205, 10, 55, 15, app_date
+		CheckBox 275, 15, 60, 10, "SSIS checked", SSIS_checkbox
+		EditBox 100, 30, 230, 15, denial_reason
+		EditBox 100, 50, 55, 15, date_pet_filed
+		EditBox 275, 50, 55, 15, court_date
+		EditBox 100, 70, 55, 15, placement_date
+		EditBox 70, 90, 100, 15, HH_income
+		EditBox 230, 90, 100, 15, income_verif
+		EditBox 70, 110, 100, 15, HH_assets
+		EditBox 230, 110, 100, 15, asset_verif
+		EditBox 70, 130, 100, 15, HH_comp
+		EditBox 230, 130, 100, 15, HH_verif
+		EditBox 70, 155, 260, 15, results
+		EditBox 70, 175, 260, 15, other_notes
+		EditBox 70, 195, 150, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 225, 195, 50, 15
+			CancelButton 280, 195, 50, 15
+		Text 10, 200, 60, 10, "Worker signature: "
+		Text 165, 15, 35, 10, "App date:"
+		Text 185, 95, 45, 10, "Income verif:"
+		Text 40, 160, 30, 10, "Results:"
+		Text 10, 115, 60, 10, "AFDC HH assets:"
+		Text 190, 115, 40, 10, "Asset verif:"
+		Text 10, 95, 60, 10, "AFDC HH income:"
+		Text 15, 135, 55, 10, "AFDC HH comp:"
+		Text 30, 180, 40, 10, "Other notes: "
+		Text 180, 135, 50, 10, "HH comp verif:"
+		Text 35, 55, 60, 10, "Date petition filed:"
+		Text 10, 75, 85, 10, "Physical placement date:"
+		Text 40, 15, 60, 10, "Date IV-E denied:"
+		Text 190, 55, 85, 10, "Court order hearing date:"
+		Text 30, 35, 70, 10, "Reason IV-E denied:"
+	EndDialog
 
 	DO
 		DO
@@ -281,7 +279,6 @@ If action_option = "Denied" then
 			If isDate(IVE_denied_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid IV-E denied date."
             If isDate(app_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid application date."
 			If denial_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the denial reason."
-			If elig_months = "" then err_msg = err_msg & vbNewLine & "* Enter the elig month/6 months prior information."
 			If date_pet_filed = "" then err_msg = err_msg & vbNewLine & "* Enter the date the petition was filed."
             If isdate(court_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid court order hearing date."
             If isdate(placement_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid physical placement date."
@@ -300,7 +297,6 @@ If action_option = "Denied" then
     Call write_variable_in_CASE_NOTE("<<IV-E denied effective " & IVE_denied_date & ">>")
     Call write_bullet_and_variable_in_CASE_NOTE("Application date", app_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s) for closure", denial_reason)
-    Call write_bullet_and_variable_in_CASE_NOTE("Elig months/6 months prior", elig_months)
     Call write_bullet_and_variable_in_CASE_NOTE("Date petition filed", date_pet_filed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Court order hearing date", court_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Physical placement date", placement_date)
