@@ -187,27 +187,26 @@ END IF
 
 If action_option = "Closing" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 341, 150, "IV-E closing"
-      EditBox 115, 5, 60, 15, IVE_closure_date
-      EditBox 275, 5, 60, 15, MA_closure_date
-      EditBox 115, 25, 220, 15, reason_closing
-      EditBox 115, 45, 220, 15, notified_by
-      EditBox 115, 65, 220, 15, final_review
-      EditBox 115, 85, 220, 15, reim_months
-      EditBox 115, 105, 220, 15, other_notes
-      EditBox 115, 125, 110, 15, worker_signature
-      ButtonGroup ButtonPressed
-        OkButton 230, 125, 50, 15
-        CancelButton 285, 125, 50, 15
-      Text 25, 10, 90, 10, "IV-E closure effective date:"
-      Text 185, 10, 90, 10, "MA closure effective date:"
-      Text 45, 30, 65, 10, "Reason for closing:"
-      Text 5, 70, 105, 10, "Final review requested to cover:"
-      Text 50, 130, 60, 10, "Worker signature:"
-      Text 5, 90, 110, 10, "Checked reimbursability months:"
-      Text 70, 50, 40, 10, "Notified by:"
-      Text 70, 110, 40, 10, "Other notes:"
-    EndDialog
+	BeginDialog dialog1, 0, 0, 341, 125, "IV-E closing"
+		EditBox 115, 5, 60, 15, IVE_closure_date
+		EditBox 275, 5, 60, 15, MA_closure_date
+		EditBox 115, 25, 220, 15, reason_closing
+		EditBox 115, 45, 220, 15, notified_by
+		EditBox 115, 65, 220, 15, reim_months
+		EditBox 115, 85, 220, 15, other_notes
+		EditBox 115, 105, 110, 15, worker_signature
+		ButtonGroup ButtonPressed
+			OkButton 230, 105, 50, 15
+			CancelButton 285, 105, 50, 15
+		Text 25, 10, 90, 10, "IV-E closure effective date:"
+		Text 185, 10, 90, 10, "MA closure effective date:"
+		Text 45, 30, 65, 10, "Reason for closing:"
+		Text 50, 110, 60, 10, "Worker signature:"
+		Text 5, 70, 110, 10, "Checked reimbursability months:"
+		Text 70, 50, 40, 10, "Notified by:"
+		Text 70, 90, 40, 10, "Other notes:"
+	EndDialog
+
 	DO
 		DO
 			err_msg = ""
@@ -217,7 +216,6 @@ If action_option = "Closing" then
 			If isDate(MA_closure_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid MA closure date."
             IF reason_closing = "" then err_msg = err_msg & vbNewLine & "* Enter the reason the IV-E is closing."
 			If notified_by = "" then err_msg = err_msg & vbNewLine & "* Enter the notified by information."
-			If final_review = "" then err_msg = err_msg & vbNewLine & "* Enter final review inforamtion."
             If reim_months = "" then err_msg = err_msg & vbNewLine & "* Enter the reimbursability information."
             If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -231,7 +229,6 @@ If action_option = "Closing" then
     Call write_bullet_and_variable_in_CASE_NOTE("MA closing date", MA_closure_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s) for closure", reason_closing)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by)
-    Call write_bullet_and_variable_in_CASE_NOTE("Final review requested to cover", final_review)
     Call write_bullet_and_variable_in_CASE_NOTE("Check reimbursability months", reim_months)
 END IF
 
