@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - IV-E-MA NEEDY CHILD"
+name_of_script = "NOTES - IV-E-NON IV-E MEDICAL CHILD"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds
@@ -60,7 +60,7 @@ Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog dialog1, 0, 0, 181, 75, "Select a MA needy child option"
+BeginDialog dialog1, 0, 0, 181, 75, "Select a Non IV-E Medical child option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 60, 10, "Select one..."+chr(9)+"Close"+chr(9)+"ER"+chr(9)+"Open", action_option
   ButtonGroup ButtonPressed
@@ -78,7 +78,7 @@ DO
         cancel_without_confirmation
 
 		call validate_MAXIS_case_number(err_msg, "*")
-		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a MA needy child option."
+		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a Non IV-E Medical child option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -87,7 +87,7 @@ Call check_for_MAXIS(False)
 
 If action_option = "Close" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 291, 195, "MA needy child closed"
+    BeginDialog dialog1, 0, 0, 291, 195, "Non IV-E Medical child closed"
       EditBox 65, 10, 70, 15, effective_date
       CheckBox 165, 5, 115, 10, "MAXIS/ECF case to closed files", closed_files_checkbox
       CheckBox 165, 20, 60, 10, "MMIS updated", MMIS_updated_checkbox
@@ -131,7 +131,7 @@ If action_option = "Close" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-    Call write_variable_in_CASE_NOTE("**MA Needy child closed effective " & effective_date & "**")
+    Call write_variable_in_CASE_NOTE("**Non IV-E Medical child closed effective " & effective_date & "**")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s)", reason_close)
     Call write_bullet_and_variable_in_CASE_NOTE("placement ended", placement_ended)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by)
@@ -144,7 +144,7 @@ END IF
 
 If action_option = "ER" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 286, 175, "MA needy child ER"
+    BeginDialog dialog1, 0, 0, 286, 175, "Non IV-E Medical child ER"
       EditBox 45, 10, 40, 15, ER_date
       EditBox 155, 10, 60, 15, HCAPP_date
       EditBox 240, 10, 40, 15, child_age
@@ -191,7 +191,7 @@ If action_option = "ER" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**MA Needy child ER rec'd for " & ER_date & "**")
+	Call write_variable_in_CASE_NOTE("**Non IV-E Medical child ER rec'd for " & ER_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("HCAPP rec'd date", HCAPP_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client age", child_age)
 	Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
@@ -204,7 +204,7 @@ END IF
 
 If action_option = "Open" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 296, 240, "MA needy child open"
+    BeginDialog dialog1, 0, 0, 296, 240, "Non IV-E Medical child open"
       EditBox 70, 10, 70, 15, HCAPP_date
       EditBox 200, 10, 90, 15, HH_comp
       EditBox 70, 30, 70, 15, effective_date
@@ -260,7 +260,7 @@ If action_option = "Open" then
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**MA Needy child opened effective " & effective_date & "**")
+	Call write_variable_in_CASE_NOTE("**Non IV-E Medical child opened effective " & effective_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("HCAPP rec'd date", HCAPP_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 	Call write_bullet_and_variable_in_CASE_NOTE("ER date", ER_date)
