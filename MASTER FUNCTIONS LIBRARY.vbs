@@ -11290,6 +11290,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "PERSON HAS HC RENEWAL OR HRF DUE") OR _
         instr(dail_msg, "GA: REVIEW DUE FOR JANUARY - NOT AUTO") OR _
         instr(dail_msg, "GA: HRF DUE FOR JANUARY - NOT AUTO-APPROVED") OR _
+        instr(dail_msg, "GA: REVIEW DUE - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS PENDING - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GA: STATUS IS REIN OR SUSPEND - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "GRH: REVIEW DUE - NOT AUTO") or _
