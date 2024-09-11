@@ -1,6 +1,6 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 'TO DO - update CLOS accordingly
-name_of_script = "NOTES - DECEASED RESIDENT SUMMARY.vbs"
+name_of_script = "NOTES - DECEASED CLIENT SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 150                	'manual run time in seconds
