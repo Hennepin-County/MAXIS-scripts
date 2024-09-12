@@ -132,15 +132,6 @@ const last_const					= 69
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
-
-'HERE we are declaring some information about the questions that we ask. '
-' Generally:
-' - question number
-' - question wording
-' - caf answer yes/no
-' - caf write in
-' - interview notes
-' - verifications
 '===========================================================================================================================
 
 'FUNCTIONS =================================================================================================================
@@ -246,34 +237,9 @@ function check_for_errors(interview_questions_clear)
 	If InStr(UCASE(who_are_we_completing_the_interview_with), "AREP") <> 0 OR InStr(UCASE(who_are_we_completing_the_interview_with), "AUTHORIZED REP") <> 0 Then
 		If trim(arep_interview_id_information) = "" Then err_msg = err_msg & "~!~" & "1 ^* Detail AREP Identity Document##~##   - It appears the interview was completed with an AREP (in the field 'Who are you interviewing with?' above). Since identity of the AREP is required if the AREP is the one completing the interview, enter the details about identity of the AREP in the field 'Detail AREP Identity Document'.##~##"
 	End If
-	' If snap_status <> "ACTIVE" Then
-	' 	intv_app_month_income = trim(intv_app_month_income)
-	' 	intv_app_month_asset = trim(intv_app_month_asset)
-	' 	intv_app_month_housing_expense = trim(intv_app_month_housing_expense)
-	'
-	' 	If intv_app_month_income = "" Then intv_app_month_income = 0
-	' 	If intv_app_month_asset = "" Then intv_app_month_asset = 0
-	' 	If intv_app_month_housing_expense = "" Then intv_app_month_housing_expense = 0
-	'
-	' 	If IsNumeric(intv_app_month_income) = False Then err_msg = err_msg & "~!~" & "1 ^* What is the total of the income received in the month of application?##~##   - Enter the amount of income in the month of application as a number. We MUST gather the income in the application month.##~##"
-	' 	If IsNumeric(intv_app_month_asset) = False Then err_msg = err_msg & "~!~" & "1 ^* Use the best detail of assets the resident has available. Liquid Asset amount?##~##   - Enter the total assets in the month of application as a number. We MUST gather the assets in the application month.##~##"
-	' 	If IsNumeric(intv_app_month_housing_expense) = False Then err_msg = err_msg & "~!~" & "1 ^* What is the housing expense (Rend, Mortgage, etc)##~##   - Enter the rent/mortgage in the month of application as a number. We MUST gather the expenses in the application month.##~##"
-	'
-	' 	'If Interview utilities have no checkmarks - then we need a checkmoark - if none - then check none
-	' 	If intv_exp_pay_heat_checkbox = unchecked AND intv_exp_pay_ac_checkbox = unchecked AND intv_exp_pay_electricity_checkbox = unchecked AND intv_exp_pay_phone_checkbox = unchecked AND intv_exp_pay_none_checkbox = unchecked Then err_msg = err_msg & "~!~" & "1^* What utilities expenses exist?##~##   - You must indicate which utilities expenses the household has. If there are none, check the box for 'NONE'"
-	' 	 		'If non is checked and others are checked - we need to resolve
-	' 	If intv_exp_pay_none_checkbox = checked AND (intv_exp_pay_heat_checkbox = checked OR intv_exp_pay_ac_checkbox = checked OR intv_exp_pay_electricity_checkbox = checked OR intv_exp_pay_phone_checkbox = checked) Then err_msg = err_msg & "~!~" & "1^* What utilities expenses exist?##~##   - You have selected 'None' for utilities expenses and also selected one or more of the utilities. If 'None' you must not select one of utilities, but if there is utilities expense, you should not select 'None'."
-	' End If
 
-
-	' If current_listing = "2"  Then tagline = ": CAF ADDR"
-		'If living situation is 'Blank' or 'Unknown' - ask it and update
 	If living_situation = "10 - Unknown" OR living_situation = "Blank" or living_situation = "Select" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
 
-	' If current_listing = "3"  Then tagline = ": CAF MEMBs"
-		'If IMIG Statis is not blank - require sponsor information
-		'require 'intends to reside in MN
-		'ID for 01? Other caregiver?
 	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
             HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
@@ -283,61 +249,41 @@ function check_for_errors(interview_questions_clear)
         End If
 	Next
 
-	' If current_listing = "10" Then tagline = ": CAF QUAL Q"
-		'if any question is 'Yes' Then must have a person selected
-		qual_memb_one = trim(qual_memb_one)
-		qual_memb_two = trim(qual_memb_two)
-		qual_memb_there = trim(qual_memb_there)
-		qual_memb_four = trim(qual_memb_four)
-		qual_memb_five = trim(qual_memb_five)
-		If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
-			If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_two = "?" OR (qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
-			If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
-			If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
-			If qual_question_four = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
-		If qual_question_five = "?" OR (qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type")) Then
-			err_msg = err_msg & "~!~" & "10^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
-			If qual_question_five = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
-			If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
-		End If
+	qual_memb_one = trim(qual_memb_one)
+	qual_memb_two = trim(qual_memb_two)
+	qual_memb_there = trim(qual_memb_there)
+	qual_memb_four = trim(qual_memb_four)
+	qual_memb_five = trim(qual_memb_five)
+	If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & "10^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+		If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_two = "?" OR (qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & "10^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+		If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & "10^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+		If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & "10^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
+		If qual_question_four = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
+	If qual_question_five = "?" OR (qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type")) Then
+		err_msg = err_msg & "~!~" & "10^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+		If qual_question_five = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
+		If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
+	End If
 
+	If expedited_determination_needed = True Then
+		If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & "13 ^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
+	End If
 
-		'THERE WILL BE MORE ONCE THE BENEFIT DETAILS ARE ENTERED
-
-	' If current_listing = "12" Then tagline = ": Discrepancies"
-		'If no phone number - confirm no phone number
-		'If homeless and no mailing address - confirm and explain about mail
-		'If out of county - confirm and explain transfer
-		'rent on CAF1 and Q14 do not match
-		'utilities on CAF1 and Q15 do not match
-	'
-	'
-	' If current_listing = "13" Then tagline = ": Expedited"
-		If expedited_determination_needed = True Then
-			If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & "13 ^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
-		End If
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
-	' If  =  Then err_msg = err_msg & vbNewLine & "* "
 	If err_msg = "" Then interview_questions_clear = TRUE
 
 	If interview_questions_clear = TRUE Then
@@ -374,31 +320,6 @@ function check_for_errors(interview_questions_clear)
 			If DateDiff("d", date, interview_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - The date of the interview cannot be in the future."
 		End If
 
-		'If APP Date is too far away - explain delays
-		'If APP Date is blank - add app date, deny date, or explain delays
-		'If Deny date exists - explain denial
-
-
-		' If snap_status = "PENDING" Then
-		' 	If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
-		' 		err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
-		' 	ElseIf IsDate(snap_denial_date) = TRUE Then
-		' 		If DateDiff("d", date, snap_denial_date) > 0 Then err_msg = err_msg & "~!~11^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
-		' 		If trim(snap_denial_explain) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DENIAL ##~##   - Since you have a denial date listed, add some detail to explain the denial reason or other information."
-		' 	ElseIf trim(snap_denial_date) = "" Then
-		' 		If case_is_expedited = True Then
-		' 			If IsDate(exp_snap_approval_date) = TRUE Then
-		' 				If DateDiff("d", date, exp_snap_approval_date) > 0 Then
-		' 					err_msg = err_msg & "~!~11^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
-		' 				ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
-		' 					err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
-		' 				End If
-		' 			Else
-		' 				If trim(exp_snap_delays) = "" Then err_msg = err_msg & "~!~11^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
-		' 			End If
-		' 		End If
-		' 	End If
-		' End If
 		If snap_status = "INACTIVE" AND case_is_expedited = True Then
 			If pend_snap_on_case = "?" Then err_msg = err_msg & "~!~11^* SHOULD SNAP BE PENDED ##~##   - Since SNAP is not active on this case, review for possible program eligibility."
 		End If
@@ -411,7 +332,6 @@ function check_for_errors(interview_questions_clear)
 			End If
  		End If
 	End If
-
 end function
 
 function define_main_dialog()
@@ -469,30 +389,7 @@ function define_main_dialog()
 		    Text 310, 320, 25, 10, "What?"
 		    Text 35, 340, 135, 10, "6. Is anyone in your household pregnant?"
 		    Text 225, 340, 45, 10, "If yes, who?"
-			' GroupBox 5, 200, 475, 160, "Expedited Determination"
-		    ' Text 15, 210, 190, 10, "Confirm the Income received in the application month. "
-		    ' Text 20, 220, 230, 10, "What is the total of the income recevied in the month of application?"
-		    ' EditBox 250, 215, 55, 15, intv_app_month_income
-		    ' PushButton 320, 215, 145, 15, "Resident is unsure of App Month Income", exp_income_guidance_btn
-		    ' Text 15, 240, 115, 10, "Confirm the Assets the resident has."
-		    ' Text 20, 250, 245, 10, "Use the best detail of assets the resident has available. Liquid Asset amount?"
-		    ' EditBox 270, 245, 50, 15, intv_app_month_asset
-		    ' Text 15, 270, 195, 10, "Confirm Expenses the resident has in the application month."
-		    ' Text 20, 280, 180, 10, "What is the housing expense? (Rent, Mortgage, ectc.)"
-		    ' EditBox 210, 275, 50, 15, intv_app_month_housing_expense
-		    ' Text 20, 295, 115, 10, "What utilities expenses exist?"
-		    ' CheckBox 130, 295, 30, 10, "Heat", intv_exp_pay_heat_checkbox
-		    ' CheckBox 165, 295, 65, 10, "Air Conditioning", intv_exp_pay_ac_checkbox
-		    ' CheckBox 235, 295, 45, 10, "Electricity", intv_exp_pay_electricity_checkbox
-		    ' CheckBox 285, 295, 35, 10, "Phone", intv_exp_pay_phone_checkbox
-		    ' CheckBox 330, 295, 35, 10, "None", intv_exp_pay_none_checkbox
-		    ' Text 15, 315, 105, 10, "Do we have an ID verification?"
-		    ' DropListBox 125, 310, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", id_verif_on_file
-		    ' Text 195, 315, 165, 10, "Check ECF, SOL-Q, and check in with the resident."
-		    ' Text 15, 330, 240, 10, "Is the household active SNAP in another state for the application month?"
-		    ' DropListBox 255, 325, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", snap_active_in_other_state
-		    ' Text 15, 345, 270, 10, "Was the last SNAP benefit for this case 'Expedited' with postponed verifications?"
-		    ' DropListBox 285, 340, 45, 45, "?"+chr(9)+"No"+chr(9)+"Yes", last_snap_was_exp
+
 		ElseIf page_display = show_pg_one_address Then
 			Text 504, 32, 60, 10, "CAF ADDR"
 			If update_addr = FALSE Then
@@ -602,22 +499,6 @@ function define_main_dialog()
 				Else
 					Text 70, 185, 110, 10, HH_MEMB_ARRAY(id_verif, selected_memb)
 				End If
-
-						' CheckBox 330, 165, 30, 10, "Asian", HH_MEMB_ARRAY(selected_memb).race_a_checkbox
-						' CheckBox 330, 175, 30, 10, "Black", HH_MEMB_ARRAY(selected_memb).race_b_checkbox
-						' CheckBox 330, 185, 120, 10, "American Indian or Alaska Native", HH_MEMB_ARRAY(selected_memb).race_n_checkbox
-						' CheckBox 330, 195, 130, 10, "Pacific Islander and Native Hawaiian", HH_MEMB_ARRAY(selected_memb).race_p_checkbox
-						' CheckBox 330, 205, 130, 10, "White", HH_MEMB_ARRAY(selected_memb).race_w_checkbox
-						' CheckBox 70, 200, 50, 10, "SNAP (food)", HH_MEMB_ARRAY(selected_memb).snap_req_checkbox
-						' CheckBox 125, 200, 65, 10, "Cash programs", HH_MEMB_ARRAY(selected_memb).cash_req_checkbox
-						' CheckBox 195, 200, 85, 10, "Emergency Assistance", HH_MEMB_ARRAY(selected_memb).emer_req_checkbox
-						' CheckBox 280, 200, 30, 10, "NONE", HH_MEMB_ARRAY(selected_memb).none_req_checkbox
-						' DropListBox 15, 230, 80, 45, "Yes"+chr(9)+"No", HH_MEMB_ARRAY(selected_memb).intend_to_reside_in_mn
-						' EditBox 100, 230, 205, 15, HH_MEMB_ARRAY(selected_memb).imig_status
-						' DropListBox 310, 230, 55, 45, "No"+chr(9)+"Yes", HH_MEMB_ARRAY(selected_memb).clt_has_sponsor
-						' DropListBox 15, 260, 80, 50, "Not Needed"+chr(9)+"Requested"+chr(9)+"On File", HH_MEMB_ARRAY(selected_memb).client_verification
-						' EditBox 100, 260, 435, 15, HH_MEMB_ARRAY(selected_memb).client_verification_details
-						' EditBox 15, 290, 350, 15, HH_MEMB_ARRAY(selected_memb).client_notes
 				PushButton 385, 225, 95, 15, "Update Information", update_information_btn
 			End If
 			If update_pers = TRUE Then
@@ -702,7 +583,7 @@ function define_main_dialog()
 			Text 330, 135, 35, 10, "Hispanic?"
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
-			Text 70, 255, 80, 10, "Intends to reside in MN"
+			Text 70, 255, 55, 10, "Intends to reside in MN"
 			Text 155, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 280, 50, 10, "Notes:"
@@ -844,41 +725,6 @@ function define_main_dialog()
 					y_pos = y_pos + 20
 				End If
 			End If
-			' If snap_status = "ACTIVE" Then
-			' 	Text 15, y_pos, 450, 10, "SNAP is active on this case - Expedited Determination not needed."
-			' 	y_pos = y_pos + 15
-			' Else
-			' 	If case_is_expedited = True Then Text 15, y_pos, 325, 10, "Case appears to meet Expedited Criteria and needs to be processed using Expedited Standards."
-			' 	If case_is_expedited = False Then Text 15, y_pos, 325, 10, "Case does not appear to be expedited, if that seems incorrect - review EXP Quesitons."
-			' 	Text 350, y_pos, 120, 10, "CAF Date: " & CAF_datestamp
-			' 	y_pos = y_pos + 10
-			'
-			' 	Text 25, y_pos, 120, 10, "App Month - Income: $" & intv_app_month_income
-			' 	Text 150, y_pos, 75, 10, "Assets: $" & intv_app_month_asset
-			' 	Text 225, y_pos, 75, 10, "Expenses: $" & app_month_expenses
-			' 	y_pos = y_pos + 20
-			'
-			' 	If snap_status = "PENDING" Then
-			' 		Text 20, y_pos, 65, 10, "EXP Approval Date:"
-			' 		EditBox 90, y_pos - 5, 35, 15, exp_snap_approval_date
-			' 		Text 135, y_pos, 55, 10, "Explain Delays:"
-			' 		EditBox 190, y_pos - 5, 275, 15, exp_snap_delays
-			' 		y_pos = y_pos + 20
-			' 		Text 20, y_pos, 75, 10, "SNAP Denial Date:"
-			' 		EditBox 90, y_pos - 5, 35, 15, snap_denial_date
-			' 		Text 135, y_pos, 55, 10, "Explain denial:"
-			' 		EditBox 190, y_pos - 5, 275, 15, snap_denial_explain
-			' 		y_pos = y_pos + 20
-			'
-			' 	ElseIf snap_status = "INACTIVE" Then
-			' 		Text 25, y_pos, 90, 10, "Review case, should SNAP be pended?"
-			' 		DropListBox 115, y_pos - 5, 75, 45, "?"+chr(9)+"Yes"+chr(9)+"No", pend_snap_on_case
-			' 		y_pos = y_pos + 20
-			'
-			' 	End If
-			' 	Text 15, y_pos, 400, 10, "(Income, Assets, and Expenses are determined on the 'Expedited' page of this dialog.)"
-			' 	y_pos = y_pos + 15
-			' End If
 
 			IF family_cash_case = True OR adult_cash_case = True OR unknown_cash_pending = True Then
 				Text 15, y_pos, 100, 10, "Is this a Family Cash case?"
@@ -897,33 +743,6 @@ function define_main_dialog()
 				End If
 
 			End If
-			' expedited_info_does_not_match
-			' mismatch_explanation
-
-			' Call determine_program_and_case_status_from_CASE_CURR(
-			' case_active
-			' case_pending
-			' case_rein
-			' family_cash_case
-			' mfip_case
-			' dwp_case
-			' adult_cash_case
-			' ga_case
-			' msa_case
-			' grh_case
-			' snap_case
-			' ma_case
-			' msp_case
-			' unknown_cash_pending
-			' unknown_hc_pending
-			' ga_status
-			' msa_status
-			' mfip_status
-			' dwp_status
-			' grh_status
-			' snap_status
-			' ma_status
-			' msp_status
 
 	    ElseIf page_display = show_arep_page Then
 			If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
@@ -1042,8 +861,6 @@ function define_main_dialog()
 			If discrepancies_exist = True Then btn_pos = btn_pos + 15
 			Text 505, btn_pos+2, 60, 10, "EXPEDITED"
 
-		' ElseIf page_display =  Then
-
 		End If
 
 		Text 485, 5, 75, 10, "---   DIALOGS   ---"
@@ -1074,8 +891,6 @@ function define_main_dialog()
 end function
 
 function dialog_movement()
-	' case_has_imig = FALSE
-	' MsgBox ButtonPressed
 	If page_display = show_arep_page Then
 		arep_exists = True
 		If arep_in_MAXIS = True Then
@@ -1242,39 +1057,6 @@ function dialog_movement()
 
 		ButtonPressed = save_button
 	End If
-
-	If ButtonPressed = q_12_all_no_btn Then
-		question_12_rsdi_yn = "No"
-		question_12_rsdi_amt = ""
-		question_12_ssi_yn = "No"
-		question_12_ssi_amt = ""
-		question_12_va_yn = "No"
-		question_12_va_amt = ""
-		question_12_ui_yn = "No"
-		question_12_ui_amt = ""
-		question_12_wc_yn = "No"
-		question_12_wc_amt = ""
-		question_12_ret_yn = "No"
-		question_12_ret_amt = ""
-		question_12_trib_yn = "No"
-		question_12_trib_amt = ""
-		question_12_cs_yn = "No"
-		question_12_cs_amt = ""
-		question_12_other_yn = "No"
-		question_12_other_amt = ""
-
-	End If
-
-	If ButtonPressed = q_14_all_no_btn Then
-		question_14_rent_yn = "No"
-		question_14_subsidy_yn = "No"
-		question_14_mortgage_yn = "No"
-		question_14_association_yn = "No"
-		question_14_insurance_yn = "No"
-		question_14_room_yn = "No"
-		question_14_taxes_yn = "No"
-	End If
-
 end function
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
@@ -1334,34 +1116,23 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
 		If page_display = show_pg_last AND ButtonPressed <> finish_interview_btn Then show_msg = False
-		' If show_err_msg_during_movement = False AND ButtonPressed = finish_interview_btn Then show_msg = True
 
-		' for i = 0 to UBound(HH_MEMB_ARRAY, 2)
-		' 	If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then show_msg = False
-		' next
-		' If ButtonPressed = update_information_btn Then show_msg = False
-		' If ButtonPressed = save_information_btn Then show_msg = False
-		' If ButtonPressed = add_person_btn Then show_msg = False
 		If ButtonPressed = exp_income_guidance_btn Then show_msg = False
 		If ButtonPressed = verif_button Then show_msg = False
 		If ButtonPressed = open_hsr_manual_transfer_page_btn Then show_msg = False
 		If ButtonPressed >= 500 AND ButtonPressed < 1200 Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
-		' If show_err_msg_during_movement = True AND (ButtonPressed = next_btn OR ButtonPressed = -1) Then show_msg = True
+
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = finish_interview_btn Then show_msg = True
 		If expedited_determination_needed = True Then
-			' MsgBox "3" & vbCr & "Page Display - ~" & page_display & "~" & vbCr & "LAST Page - ~" & show_pg_last & "~" & vbCr & "exp complete - ~" & expedited_determination_completed& "~"
 			If expedited_determination_completed = True AND page_display = show_pg_last Then
-				' MsgBox "4"
 				If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 			End If
 		ElseIf page_display = show_pg_last Then
-			' MsgBox "5"
 			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 		End If
-		' MsgBox "Page Display - " & page_display & vbCr & "disc - " & discrepancies_exist & vbCr & "exp det - " & expedited_determination_needed & vbCr & "exp complete - " & expedited_determination_completed & vbCR & "ButtonPressed - " & ButtonPressed & vbCr & "SHOW MSG - " & show_msg
-		' MsgBox "Button - " & ButtonPressed & vbCr & "Show? " & show_msg & vbCr & vbCr & "Errors: " & err_msg
+
 		If show_msg = True Then view_errors = MsgBox("In order to complete the script and CASE/NOTE, additional details need to be added or refined. Please review and update." & vbNewLine & error_message, vbCritical, "Review detail required in Dialogs")
 		If show_msg = False then the_err_msg = ""
         'The function can be operated without moving to a different dialog or not. The only time this will be activated is at the end of dialog 8.
@@ -1413,7 +1184,6 @@ function display_expedited_dialog()
 
 	exp_page_display = show_exp_pg_amounts
 
-
 	Do
 		err_msg = ""
 		If exp_page_display = show_exp_pg_determination Then Call determine_calculations(determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test, is_elig_XFS)
@@ -1450,11 +1220,7 @@ function display_expedited_dialog()
 				Text 195, 50, 65, 10, "Utilities from CAF1: $ "
 				Text 270, 50, 75, 10, exp_q_4_utilities_this_month
 				Text 15, 65, 160, 10, expedited_screening
-				' End If
-				' If exp_screening_note_found = False Then
-				' 	Text 10, 20, 350, 10, "CASE:NOTE for Expedited Screening could not be found. No information to Display."
-				' 	Text 10, 30, 350, 10, "Review Application for screening answers"
-				' End If
+
 				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
 				GroupBox 5, 105, 390, 110, "Information about Income, Resources, and Expenses"
 				Text 15, 125, 60, 10, "Gross Income:    $"
@@ -1591,14 +1357,9 @@ function display_expedited_dialog()
 			If exp_page_display <> show_exp_pg_review then PushButton 485, 40, 65, 13, "Review", review_btn
 			If exp_page_display <> show_exp_pg_review then PushButton 500, 365, 50, 15, "Next", next_btn
 			If exp_page_display = show_exp_pg_review then PushButton 500, 365, 50, 15, "Return", finish_btn
-			' CancelButton 500, 365, 50, 15
-			' OkButton 500, 350, 50, 15
 		EndDialog
 
 		Dialog Dialog1
-
-		' cancel_confirmation
-		' MsgBox "1 - ButtonPressed is " & ButtonPressed
 
 		If ButtonPressed = -1 Then
 			If exp_page_display <> show_exp_pg_review then ButtonPressed = next_btn
@@ -1622,19 +1383,12 @@ function display_expedited_dialog()
 		End If
 		If ButtonPressed = te_02_10_01_btn Then Call view_poli_temp("02", "10", "01", "")
 
-		' MsgBox "2 - ButtonPressed is " & ButtonPressed
-
-		' If page_display = show_exp_pg_amounts Then
-		'
-		' End If
 		If exp_page_display = show_exp_pg_determination Then
 			delay_due_to_interview = False
 			do_we_have_applicant_id = "UNKNOWN"
 			If applicant_id_on_file_yn = "Yes" OR applicant_id_through_SOLQ = "Yes" Then do_we_have_applicant_id = True
 			If applicant_id_on_file_yn = "No" AND applicant_id_through_SOLQ = "No" Then do_we_have_applicant_id = False
 
-			' If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbCr & "* The date of application needs to be entered as a valid date."
-			' If IsDate(interview_date) = False Then err_msg = err_msg & vbCr & "* The interview date needs to be entered as a valid date. An Expedited Determination cannot be completed without the interview."
 			If IsDate(snap_denial_date) = True Then
 				If DateDiff("d", date, snap_denial_date) > 0 Then err_msg = err_msg & vbCr & "* Future Date denials or 'Possible' denials are not what the 'SNAP Denial Date' field is for." & vbCr &_
 																						  "* Only indicate a denial if you already have enough information to determine that the SNAP application should be denied." & vbCr &_
@@ -1697,9 +1451,6 @@ function display_expedited_dialog()
 			If postponed_verifs_yn = "Yes" AND trim(list_postponed_verifs) = "" Then err_msg = err_msg & vbCr & "* Since you have Postponed Verifications indicated, list what they are for the NOTE."
 		End If
 
-		' MsgBox "3 - ButtonPressed is " & ButtonPressed
-
-
 		If ButtonPressed = next_btn AND err_msg = "" Then exp_page_display = exp_page_display + 1
 		If ButtonPressed = amounts_btn Then exp_page_display = show_exp_pg_amounts
 		If ButtonPressed = determination_btn AND err_msg = "" Then exp_page_display = show_exp_pg_determination
@@ -1714,7 +1465,6 @@ function display_expedited_dialog()
 
 		If ButtonPressed <> finish_btn Then err_msg = "LOOP"
 		If ButtonPressed = 0 then err_msg = ""
-		' MsgBox "4 - ButtonPressed is " & ButtonPressed
 
 		If ButtonPressed >= 1000 Then
 			If ButtonPressed = hsr_manual_expedited_snap_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Expedited_SNAP.aspx"
@@ -1766,8 +1516,8 @@ function evaluate_for_expedited(app_month_income, app_month_assets, app_month_ho
 	app_month_housing_cost = app_month_housing_cost & ""
 end function
 
-function save_your_work()
 'This function records the variables into a txt file so that it can be retrieved by the script if run later.
+function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
@@ -2464,8 +2214,8 @@ function save_your_work()
 	End with
 end function
 
-function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
+function restore_your_work(vars_filled)
 
 	'Now determines name of file
 	save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
@@ -3027,21 +2777,6 @@ end function
 function verification_dialog()
     If ButtonPressed = verif_button Then
         If second_call <> TRUE Then
-            ' income_source_list = "Select or Type Source"
-
-            ' For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-            '     If ALL_JOBS_PANELS_ARRAY(employer_name, each_job) <> "" Then income_source_list = income_source_list+chr(9)+"JOB - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
-            ' Next
-            ' For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-            '     If ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) <> "" Then
-            '         If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then
-            '             income_source_list = income_source_list+chr(9)+"Self Emp - " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
-            '         Else
-            '             income_source_list = income_source_list+chr(9)+"Self Employment"
-            '         End If
-            '     End If
-            ' Next
-            ' employment_source_list = income_source_list
             income_source_list = "Select or Type Source"+chr(9)+"Job"+chr(9)+"Self Employment"+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
             income_verif_time = "[Enter Time Frame]"
             bank_verif_time = "[Enter Time Frame]"
@@ -3050,7 +2785,6 @@ function verification_dialog()
 
         Do
             verif_err_msg = ""
-			' BeginDialog Dialog1, 0, 0, 555, 385, "Full Interview Questions"
 
             BeginDialog Dialog1, 0, 0, 610, 385, "Select Verifications"
               Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
@@ -3181,7 +2915,6 @@ function verification_dialog()
 
               ButtonGroup ButtonPressed
                 PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
-              ' Text 10, 340, 580, 50, verifs_needed
             EndDialog
 
             dialog Dialog1
@@ -3390,19 +3123,8 @@ function write_interview_CASE_NOTE()
 	' 'Now we case note!
 	STATS_manualtime = STATS_manualtime + 600
 	Call start_a_blank_case_note
-	' Call write_variable_in_CASE_NOTE("CAF Form completed via Phone")
-	' Call write_variable_in_CASE_NOTE("Form information taken verbally per COVID Waiver Allowance.")
-	' Call write_variable_in_CASE_NOTE("Form information taken on " & caf_form_date)
-	' Call write_variable_in_CASE_NOTE("CAF for application date: " & application_date)
-	' Call write_variable_in_CASE_NOTE("CAF information saved and will be added to ECF within a few days. Detail can be viewed in 'Assignments Folder'.")
-	' Call write_variable_in_CASE_NOTE("---")
-	' Call write_variable_in_CASE_NOTE(worker_signature)
 
-	If create_incomplete_note_checkbox = checked then
-		CALL write_variable_in_CASE_NOTE("Partial Interview Information from " & interview_date)
-	Else
-		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
-	End If
+	CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
     Call write_bullet_and_variable_in_CASE_NOTE("Case Information", case_summary)
     If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
         Call write_variable_in_CASE_NOTE("Family Cash Program Selection Details")
@@ -3534,10 +3256,7 @@ function write_interview_CASE_NOTE()
 	If renewal_info_checkbox = checked Then info_reviewed = info_reviewed & "-Information about Renewals; "
 	info_reviewed = trim(info_reviewed)
 	If right(info_reviewed, 1) = ";" Then info_reviewed = left(info_reviewed, len(info_reviewed)-1)
-
 	Call write_bullet_and_variable_in_CASE_NOTE("Discussed", info_reviewed)
-
-
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -4157,7 +3876,6 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 
 	If interview_note_details_exists = True Then dlg_len = dlg_len + intvw_notes_len + 5
 
-
 	Do
 		prvt_err_msg = ""
 
@@ -4233,7 +3951,6 @@ function app_month_housing_detail(determined_shel, shel_review_completed, rent_a
 	If IsNumeric(tax_amount) = True Then determined_shel = determined_shel + tax_amount
 	If IsNumeric(room_amount) = True Then determined_shel = determined_shel + room_amount
 	If IsNumeric(garage_amount) = True Then determined_shel = determined_shel + garage_amount
-	' If IsNumeric(subsidy_amount) = True Then determined_shel = determined_shel + subsidy_amount
 
 	If shel_review_completed = False Then determined_shel = original_shel
 
@@ -4635,15 +4352,6 @@ function snap_in_another_state_detail(CAF_datestamp, day_30_from_application, ot
 			Else
 				action_due_to_out_of_state_benefits = "APPROVE"
 				mn_elig_begin_date = DateAdd("d", 1, other_state_verified_benefit_end_date)
-				' If DateDiff("d", mn_elig_begin_date, CAF_datestamp) > 0 Then
-				' 	mn_elig_begin_date = CAF_datestamp
-				' 	expedited_package = original_expedited_package
-				' Else
-				' 	MN_elig_month = DatePart("m", mn_elig_begin_date)
-				' 	MN_elig_month = right("0"&MN_elig_month, 2)
-				' 	MN_elig_year = right(DatePart("yyyy", mn_elig_begin_date), 2)
-				' 	expedited_package = MN_elig_month & "/" & MN_elig_year
-				' End If
 			End If
 		ElseIf IsDate(other_state_reported_benefit_end_date) = True Then
 			If DateDiff("d", day_30_from_application, other_state_reported_benefit_end_date) >= 0 Then
@@ -4651,15 +4359,6 @@ function snap_in_another_state_detail(CAF_datestamp, day_30_from_application, ot
 			Else
 				action_due_to_out_of_state_benefits = "APPROVE"
 				mn_elig_begin_date = DateAdd("d", 1, other_state_reported_benefit_end_date)
-				' If DateDiff("d", mn_elig_begin_date, CAF_datestamp) > 0 Then
-				' 	mn_elig_begin_date = CAF_datestamp
-				' 	expedited_package = original_expedited_package
-				' Else
-				' 	MN_elig_month = DatePart("m", mn_elig_begin_date)
-				' 	MN_elig_month = right("0"&MN_elig_month, 2)
-				' 	MN_elig_year = right(DatePart("yyyy", mn_elig_begin_date), 2)
-				' 	expedited_package = MN_elig_month & "/" & MN_elig_year
-				' End If
 			End If
 		ElseIf other_state_benefits_not_ended_checkbox = checked Then
 			action_due_to_out_of_state_benefits = "FOLLOW UP"
@@ -5266,16 +4965,6 @@ Do
 	DO
 		err_msg = ""
 
-		' EditBox 245, 50, 50, 15, CAF_datestamp
-		' CheckBox 230, 80, 30, 10, "CASH", CASH_on_CAF_checkbox
-		' CheckBox 270, 80, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-		' CheckBox 310, 80, 35, 10, "EMER", EMER_on_CAF_checkbox
-		' Text 155, 55, 90, 10, "Date Application Received:"
-		' GroupBox 225, 70, 125, 25, "Programs marked on CAF"
-
-		' PushButton 205, 35, 155, 10, "NOTES - Interview Script Instructions", msg_show_instructions_btn
-		' PushButton 205, 35, 155, 10, "Interview Quick Start Guide", msg_show_quick_start_guide_btn
-		' PushButton 205, 35, 155, 10, "Interview FAQ", msg_show_faq_btn
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
@@ -5926,25 +5615,16 @@ clear_phone_two_btn			= 1042
 clear_phone_three_btn		= 1043
 add_person_btn				= 1050
 
-open_r_and_r_btn 			= 1200
 caf_page_one_btn			= 1300
 caf_addr_btn				= 1400
 caf_membs_btn				= 1500
 case_details_btn			= 1600
-caf_q_1_6_btn				= 1600
-caf_q_7_11_btn				= 1700
-caf_q_12_13_btn				= 1800
-caf_q_14_15_btn				= 1900
-caf_q_16_20_btn				= 2000
-caf_q_21_24_btn				= 2100
 caf_qual_q_btn				= 2200
 caf_last_page_btn			= 2300
 finish_interview_btn		= 2400
 exp_income_guidance_btn 	= 2500
 open_hsr_manual_transfer_page_btn = 2610
 verif_button				= 2800
-q_12_all_no_btn				= 2900
-q_14_all_no_btn				= 3000
 expedited_determination_btn	= 3010
 return_btn 					= 900
 enter_btn					= 901
@@ -5957,19 +5637,6 @@ fill_button					= 907
 calculate_btn				= 908
 update_btn					= 909
 add_verif_button			= 910
-
-msg_mfip_orientation_btn		= 930
-cm_05_12_12_06_btn				= 931
-cm_28_12_btn					= 932
-open_dhs_4163_btn				= 933
-open_dhs_3477_btn				= 934
-open_dhs_3323_btn				= 935
-open_dhs_3366_btn				= 936
-open_dhs_bulletin_21_11_01_btn	= 937
-open_dhs_1826_btn				= 938
-open_hsr_manual_btn				= 939
-mfip_orientation_word_doc_btn	= 940
-emps_update_complete_btn		= 941
 
 add_another_jobs_btn			= 800
 remove_one_jobs_btn				= 801
@@ -6003,34 +5670,6 @@ determination_btn				= 828
 return_to_dialog_button			= 829
 fn_review_btn					= 830
 
-open_r_and_r_btn				= 700
-accounting_service_desk_btn		= 701
-accounting_in_hsr_manual_btn	= 702
-open_ebt_brochure_btn			= 703
-open_npp_doc					= 704
-open_IEVS_doc					= 705
-open_appeal_rights_doc			= 706
-open_civil_rights_rights_doc	= 707
-open_program_info_doc			= 708
-open_DV_doc						= 709
-open_disa_doc					= 710
-open_cs_2647_doc				= 711
-open_cs_2929_doc				= 712
-open_cs_3323_doc				= 713
-open_cs_3393_doc				= 714
-open_cs_3163B_doc				= 715
-open_cs_2338_doc				= 716
-open_cs_5561_doc				= 717
-open_cs_2961_doc				= 718
-open_cs_2887_doc				= 719
-open_cs_3238_doc				= 720
-open_cs_2625_doc				= 721
-explain_six_month_rept			= 722
-explain_change_rept				= 723
-explain_monthly_rept			= 724
-open_cs_2707_doc				= 725
-open_cs_7635_doc				= 726
-
 btn_placeholder = 4000
 For btn_count = 0 to UBound(HH_MEMB_ARRAY, 2)
 	HH_MEMB_ARRAY(button_one, btn_count) = 500 + btn_count
@@ -6049,40 +5688,30 @@ Do
 	Do
 		Do
 			Do
-				' MsgBox page_display
-				' MsgBox update_arep & " - before define dlg"
-				Dialog1 = Empty
+
+			Dialog1 = Empty
 				call define_main_dialog
 
 				err_msg = ""
 
 				prev_page = page_display
 				previous_button_pressed = ButtonPressed
-				' MsgBox update_arep & " - before display dlg"
 
 				dialog Dialog1
 				save_your_work
 				cancel_confirmation
-				' MsgBox  HH_MEMB_ARRAY(0).ans_imig_status
-				' Call review_information
 				Call assess_caf_1_expedited_questions(expedited_screening)
-				' Call review_for_discrepancies
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
-				' If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
                 If ButtonPressed = interpreter_servicves_btn Then
                     run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
                 Else
                     Call display_errors(err_msg, False, show_err_msg_during_movement)
                 End If
-				' If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
 
 				If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
-
 			Loop until err_msg = ""
-
 			call dialog_movement
-
 		Loop until leave_loop = TRUE
 		proceed_confirm = MsgBox("Have you completed the Interview?" & vbCr & vbCr &_
 								 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE or in the Interview Notes PDF." & vbCr & vbCr &_
@@ -6165,12 +5794,10 @@ Do
     				PushButton 390, y_pos, 70, 10, "SSN SEARCH", HH_MEMB_ARRAY(button_one, the_memb)
     				PushButton 460, y_pos, 70, 10, "NAME SEARCH", HH_MEMB_ARRAY(button_two, the_memb)
     				If HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE Then
-    					' GroupBox 15, y_pos - 15, 520, 50, "MEMB " & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
     					Text 30, y_pos + 20, 45, 10, "EDRs Notes:"
     		  		    EditBox 80, y_pos + 15, 450, 15, HH_MEMB_ARRAY(edrs_notes, the_memb)
     					y_pos = y_pos + 20
     				End If
-    				' If HH_MEMB_ARRAY(edrs_match, the_memb) = FALSE Then GroupBox 15, y_pos - 15, 520, 30, "MEMB XX - MEMBER NAME"
     				y_pos = y_pos + 20
                 End If
 			Next
@@ -6896,62 +6523,9 @@ If expedited_determination_completed = True Then
 	End If
 
 	Call write_variable_in_case_note ("---")
-
 	Call write_variable_in_case_note(worker_signature)
-
-
-
-
-	' Call start_a_blank_CASE_NOTE
-	'
-	' If IsDate(snap_denial_date) = TRUE Then
-	'     case_note_header_text = "Expedited Determination: SNAP to be denied"
-	' Else
-	'     IF case_is_expedited = True then
-	'     	case_note_header_text = "Expedited Determination: SNAP appears expedited"
-	'     ELSEIF case_is_expedited = False then
-	'     	case_note_header_text = "Expedited Determination: SNAP does not appear expedited"
-	'     END IF
-	' End If
-	' Call write_variable_in_CASE_NOTE(case_note_header_text)
-	' If interview_date <> "" Then Call write_variable_in_case_note ("* Interview completed on: " & interview_date & " and full Expedited Determination Done")
-	' If IsDate(snap_denial_date) = TRUE Then
-	'     Call write_variable_in_CASE_NOTE("* SNAP to be denied on " & snap_denial_date & ". Since case is not SNAP eligible, case cannot receive Expedited issuance.")
-	'     If case_is_expedited = True Then
-	'         Call write_variable_with_indent_in_CASE_NOTE("Case is determined to meet criteria based upon income alone.")
-	'         Call write_variable_with_indent_in_CASE_NOTE("Expedited approval requires case to be otherwise eligble for SNAP and this does not meet this criteria.")
-	'     ElseIf case_is_expedited = False Then
-	'         Call write_variable_with_indent_in_CASE_NOTE("Expedited SNAP cannot be approved as case does not meet all criteria")
-	'     End If
-	'     Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
-	' Else
-	'     IF case_is_expedited = True Then
-	'         If trim(exp_snap_approval_date) <> "" Then
-	'             Call write_variable_in_case_note ("* Case is determined to meet criteria and Expedited SNAP can be approved.")
-	'         Else
-	'             Call write_variable_in_case_note ("* Case is determined to meet expedited SNAP criteria, approval not yet completed.")
-	'         End If
-	'     End If
-	'     IF case_is_expedited = False Then Call write_variable_in_case_note ("* Expedited SNAP cannot be approved as case does not meet all criteria")
-	'     If case_is_expedited = True Then
-	'         If IsDate(exp_snap_approval_date) = TRUE Then Call write_variable_in_CASE_NOTE("* SNAP EXP approved on " & exp_snap_approval_date & " - " & DateDiff("d", CAF_datestamp, exp_snap_approval_date) & " days after the date of application.")
-	'         Call write_bullet_and_variable_in_CASE_NOTE("Reason for delay", exp_snap_delays)
-	'     End If
-	' End If
-	' If trim(intv_app_month_income) <> "" OR trim(intv_app_month_asset) <> "" OR trim(app_month_expenses) <> "" Then
-	'     Call write_variable_in_CASE_NOTE("* Expedited Determination is based on information from application month:")
-	'     Call write_variable_with_indent_in_CASE_NOTE("Income: $" & intv_app_month_income)
-	'     Call write_variable_with_indent_in_CASE_NOTE("Assets: $" & intv_app_month_asset)
-	'     Call write_variable_with_indent_in_CASE_NOTE("Expenses (Shelter & Utilities): $" & app_month_expenses)
-	' End If
-	'
-	' Call write_variable_in_CASE_NOTE("---")
-	' Call write_variable_in_CASE_NOTE(worker_signature)
-
 	PF3
 End If
-
-
 
 qual_questions_yes = FALSE
 If qual_question_one = "Yes" Then qual_questions_yes = TRUE
