@@ -37,7 +37,7 @@ Dim objFSO
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
-Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number		'Declares this for Option Explicit users
+Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number, item		'Declares this for Option Explicit users
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
@@ -61,6 +61,16 @@ If worker_county_code   = "" then worker_county_code = "MULTICOUNTY"
 IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...THEN CONDITION BECAUSE PRISM IS STILL USING THIS VARIABLE IN ALL SCRIPTS.vbs. IT WILL BE REMOVED AND THIS CAN BE RESTORED.
 
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
+
+function cancel_without_confirmation()
+'--- This function ends a script after a user presses cancel. There is no confirmation message box but the end message for statistical information that cancel was pressed.
+'===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
+	If ButtonPressed = 0 then
+        script_end_procedure("~PT: user pressed cancel")
+        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
+        'Left the If...End If in the tier in case we want more stats or error handling, or if we need specialty processing for workflows
+    End if
+end function
 
 function script_end_procedure(closing_message)
 '--- This function is how all user stats are collected when a script ends.
@@ -121,26 +131,6 @@ function script_end_procedure(closing_message)
 		objConnection.Close
 	End if
 	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
-end function
-
-function cancel_confirmation()
-'--- This function asks if the user if they want to cancel. If you say yes, the script will end. If no, the dialog will appear for the user again.
-'===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
-	If ButtonPressed = 0 then
-		cancel_confirm = MsgBox("Are you sure you want to cancel the script? Press YES to cancel. Press NO to return to the script.", vbYesNo)
-		If cancel_confirm = vbYes then script_end_procedure("~PT: user pressed cancel")
-        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
-	End if
-end function
-
-function cancel_without_confirmation()
-'--- This function ends a script after a user presses cancel. There is no confirmation message box but the end message for statistical information that cancel was pressed.
-'===== Keywords: MAXIS, PRISM, MMIS, cancel, script_end_procedure
-	If ButtonPressed = 0 then
-        script_end_procedure("~PT: user pressed cancel")
-        'script_end_procedure text added for statistical purposes. If script was canceled prior to completion, the statistics will reflect this.
-        'Left the If...End If in the tier in case we want more stats or error handling, or if we need specialty processing for workflows
-    End if
 end function
 
 EMConnect ""
