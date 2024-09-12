@@ -133,7 +133,7 @@ If action_option = "Close" then
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("**Non IV-E Medical child closed effective " & effective_date & "**")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s)", reason_close)
-    Call write_bullet_and_variable_in_CASE_NOTE("placement ended", placement_ended)
+    Call write_bullet_and_variable_in_CASE_NOTE("Placement ended", placement_ended)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by)
     call write_bullet_and_variable_in_CASE_NOTE("Over income", over_income)
     Call write_bullet_and_variable_in_CASE_NOTE("Fail to provide", fail_to_provide)
