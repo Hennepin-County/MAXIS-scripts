@@ -36,7 +36,7 @@ Dim objFSO
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 
 'GLOBAL CONSTANTS----------------------------------------------------------------------------------------------------
-Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number		'Declares this for Option Explicit users
+Dim checked, unchecked, cancel, OK, blank, t_drive, STATS_counter, STATS_manualtime, STATS_denomination, script_run_lowdown, testing_run, MAXIS_case_number, item	'Declares this for Option Explicit users
 
 checked = 1			'Value for checked boxes
 unchecked = 0		'Value for unchecked boxes
@@ -1425,6 +1425,13 @@ function script_end_procedure(closing_message)
 		objConnection.Close
 	End if
 	If disable_StopScript = FALSE or disable_StopScript = "" then stopscript
+end function
+
+function transmit()
+'--- This function sends or hits the transmit key.
+ '===== Keywords: MAXIS, MMIS, PRISM, transmit
+  EMSendKey "<enter>"
+  EMWaitReady 0, 0
 end function
 
 function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
