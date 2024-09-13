@@ -219,6 +219,9 @@ For each worker in worker_array
                 dail_row = dail_row + 1
             End if
 
+			EMReadScreen message_error, 11, 24, 2		'Cases can also NAT out for whatever reason if the no messages instruction comes up.
+			If message_error = "NO MESSAGES" then exit do
+
 			'...going to the next page if necessary
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
