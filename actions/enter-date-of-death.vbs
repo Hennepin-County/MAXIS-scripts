@@ -56,11 +56,9 @@ get_county_code
 Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-msgbox "pause here!"
-
 'Initial Case Number Dialog 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 125, "Job Change Reported Case Number Dialog"
+BeginDialog Dialog1, 0, 0, 221, 125, "Enter Date of Death for Household Member"
   EditBox 75, 5, 50, 15, MAXIS_case_number
   EditBox 75, 25, 20, 15, MAXIS_footer_month
   EditBox 105, 25, 20, 15, MAXIS_footer_year
@@ -93,7 +91,40 @@ Do
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-'End dialog section-----------------------------------------------------------------------------------------------
+
+'Create list of household members
+Call generate_client_list(list_of_household_members, "Select One ...")          'Using the client list functionality the script will read STAT for all the household members to populate droplist box
+
+'Date of Death for Household Member Dialog 
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 256, 75, "Enter Date of Death for Household Member"
+  EditBox 110, 25, 40, 15, date_of_death
+  ButtonGroup ButtonPressed
+    OkButton 155, 55, 45, 15
+    CancelButton 205, 55, 45, 15
+  Text 5, 5, 100, 10, "Household Member that Died:"
+  Text 55, 30, 50, 10, "Date of Death:"
+  DropListBox 110, 5, 140, 20, list_of_household_members, household_member_that_died
+  Text 152, 28, 50, 10, "(MM/DD/YYYY)"
+EndDialog
+
+Do 
+    Do
+        err_msg = ""
+        Dialog Dialog1
+        cancel_without_confirmation
+        If household_member_that_died = "Select One ..." THEN err_msg = err_msg & vbCr & "* Please select the household member that has died."
+        If len(date_of_death) <> 10 or IsDate(date_of_death) = False THEN err_msg = err_msg & vbCr & "* Please enter the date of death in the format MM/DD/YYYY."
+        
+        If ButtonPressed = msg_show_instructions_btn Then 
+            err_msg = "LOOP"
+            'Add in link to instructions once created
+            ' run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
+        End If
+        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Checks to see if in MAXIS
 Call check_for_MAXIS(False)
