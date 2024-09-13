@@ -184,9 +184,7 @@ function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_c
 
 		EMReadScreen forms_to_arep, 1, 10, 45
 		EMReadScreen mmis_mail_to_arep, 1, 10, 77
-
 	End If
-
 end function
 
 function assess_caf_1_expedited_questions(expedited_screening)
@@ -218,15 +216,9 @@ function assess_caf_1_expedited_questions(expedited_screening)
 	exp_q_1_income_this_month = exp_q_1_income_this_month & ""
 	exp_q_2_assets_this_month = exp_q_2_assets_this_month & ""
 	exp_q_3_rent_this_month = exp_q_3_rent_this_month & ""
-
 end function
 
-full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
-
 function check_for_errors(interview_questions_clear)
-	' If  Then err_msg = err_msg & "~!~" & "1^* FIELD##~##   - "
-	' page_display = show_pg_one_memb01_and_exp
-	' If current_listing = "1"  Then tagline = ": Expedited"        'Adding a specific tagline to the header for the errors
 	who_are_we_completing_the_interview_with = trim(who_are_we_completing_the_interview_with)
 	If who_are_we_completing_the_interview_with = "Select or Type" Or who_are_we_completing_the_interview_with = "" Then err_msg = err_msg & "~!~" & "1 ^* Who are you interviewing with?##~##   - Select or enter the name of the person you are completing the interview with.##~##"
 	If how_are_we_completing_the_interview = "Select or Type" Or how_are_we_completing_the_interview = "" Then err_msg = err_msg & "~!~" & "1 ^* Interview via##~##   - Select or enter the method the interview is being conducted.##~##"
@@ -287,7 +279,6 @@ function check_for_errors(interview_questions_clear)
 	If err_msg = "" Then interview_questions_clear = TRUE
 
 	If interview_questions_clear = TRUE Then
-		' If current_listing = "11" Then tagline = ": CAF Last Page"
 		'Both signatures - cannot be select or type or blank
 		signature_detail = trim(signature_detail)
 		second_signature_detail = trim(second_signature_detail)
@@ -313,7 +304,6 @@ function check_for_errors(interview_questions_clear)
 			End If
 		End If
 		'Interview date must be a date and not in the future
-		' If  Then err_msg = err_msg & "~!~" & "11^* FIELD##~##   - "
 		If IsDate(interview_date) = False Then
 			err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - Enter the date of the interview as a valid date."
 		Else
@@ -583,11 +573,11 @@ function define_main_dialog()
 			Text 330, 135, 35, 10, "Hispanic?"
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
-			Text 70, 255, 55, 10, "Intends to reside in MN"
+			Text 70, 255, 70, 10, "Intends to reside in MN"
 			Text 155, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 280, 50, 10, "Notes:"
-		ElseIf page_display = show_case_info Then
+		ElseIf page_display = show_case_info Then																	' THIS SECTION IS THE VARIATION FROM THE FULL INTERVIEW SCRIPT
 			Text 505, 62, 60, 10, "DETAILS"
 			GroupBox 5, 5, 475, 255, "Case Information"
 			Text 10, 20, 190, 10, "Household Information (School, Disability, Absense):"
@@ -711,18 +701,27 @@ function define_main_dialog()
 					Text 15, y_pos, 450, 10, "COMPLETE THE EXPEDITED DETERMINATION - press the button 'EXPEDITED' on the right."
 					y_pos = y_pos + 15
 				Else
+					If case_assesment_text <> "" Then
+						Text 15, y_pos, 450, 10, case_assesment_text
+						y_pos = y_pos + 10
+					End If
 
-					Text 15, y_pos, 450, 10, case_assesment_text
-					y_pos = y_pos + 10
-
-					Text 20, y_pos, 450, 20, next_steps_one
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_two
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_three
-					y_pos = y_pos + 20
-					Text 20, y_pos, 450, 20, next_steps_four
-					y_pos = y_pos + 20
+					If next_steps_one <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_one
+						y_pos = y_pos + 20
+					End If
+					If next_steps_two <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_two
+						y_pos = y_pos + 20
+					End If
+					If next_steps_three <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_three
+						y_pos = y_pos + 20
+					End If
+					If next_steps_four <> "" Then
+						Text 20, y_pos, 450, 20, next_steps_four
+						y_pos = y_pos + 20
+					End If
 				End If
 			End If
 
@@ -743,6 +742,39 @@ function define_main_dialog()
 				End If
 
 			End If
+
+			' THIS SECTION IS NORMALLY AT THE END OF THE INTERVIEW SCRIPT BUT MOVED HERE FOR SUMMARY
+		  	grp_len = 20
+			grp_box_y_pos = y_pos
+			y_pos = y_pos + 15
+			If verifs_selected <> "" Then
+
+				verifs_selected = trim(verifs_selected)
+				If right(verifs_selected, 1) = ";" Then
+					verifs_to_view = left(verifs_selected, len(verifs_selected)-1)
+				Else
+					verifs_to_view = verifs_selected
+				End If
+
+				If verifs_to_view <> "" Then
+					array_of_verifs_selected = ""
+					If InStr(verifs_to_view, ";") = 0 Then
+						array_of_verifs_needed = array(verifs_to_view)
+					Else
+						array_of_verifs_needed = split(verifs_to_view, ";")
+					End If
+
+					for each verif_item in array_of_verifs_needed
+						Text 17, y_pos, 445, 10, trim(verif_item)
+						y_pos = y_pos + 10
+						grp_len = grp_len + 10
+					next
+				End If
+			Else
+				Text 10, y_pos, 500, 10, "NO VERIFICATIONS HAVE BEEN LISTED YET"
+				grp_len = grp_len + 15
+			End If
+			GroupBox 10, grp_box_y_pos, 455, grp_len, "Verifications Entered"
 
 	    ElseIf page_display = show_arep_page Then
 			If arep_addr_state = "" Then arep_addr_state = "MN Minnesota"
@@ -3165,18 +3197,20 @@ function write_interview_CASE_NOTE()
             CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
     		If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
     		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
-    		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then
-    			If HH_MEMB_ARRAY(client_verification, the_members) = "On File" Then
-    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(client_verification_details, the_members))
-    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & ".")
-    			Else
-    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information - " & HH_MEMB_ARRAY(client_verification_details, the_members))
-    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information")
-    			End If
-    		End If
+			'REMOVED CLIENT VERIFICATION INFORMATION FOR SUMMARY SCRIPT - it had been here
         End If
 	Next
 	CALL write_bullet_and_variable_in_CASE_NOTE("Household Info", household_info)
+	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
+	If edrs_match_found = True Then
+		Call write_variable_in_CASE_NOTE("eDRS run for all Household Members:")
+		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+			If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+                If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb))
+    			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
+            End If
+		Next
+	End If
 
 	CALL write_variable_in_CASE_NOTE("----- ADDR Information -----")
 	CALL write_variable_in_CASE_NOTE("Residence Address:")
@@ -3211,32 +3245,14 @@ function write_interview_CASE_NOTE()
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes_info)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Verbal Changes to " & CAF_form_name, form_changes_info)
 
-	If edrs_match_found = False Then Call write_variable_in_CASE_NOTE("eDRS run for all Household Members: No DISQ Matches Found")
-	If edrs_match_found = True Then
-		Call write_variable_in_CASE_NOTE("eDRS run for all Household Members:")
-		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-			If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
-                If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb))
-    			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
-            End If
-		Next
-	End If
-
-	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No verifications were indicated at this time.")
 
-    If IsArray(note_detail_array) = True Then
-    	first_resource = True
-    	For each note_line in note_detail_array
-    		IF note_line <> "" Then
-    			If first_resource = True Then
-    				call write_variable_in_CASE_NOTE("Additional resource information given to resident")
-    				first_resource = False
-    			End If
-    			Call write_variable_in_CASE_NOTE(note_line)
-    		End If
-    	Next
-    End If
+	IF create_verif_note = True Then
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
+	End If
+	Call write_variable_in_CASE_NOTE("---")
+	' RESOURCE NOTIFIER REMOVED FROM HERE
 
 	If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 
@@ -3263,8 +3279,19 @@ function write_interview_CASE_NOTE()
 
 end function
 
+
+function create_verifs_needed_list(verifs_selected, verifs_needed)
+	verifs_needed = verifs_selected
+	If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+	If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+
+	verifs_needed = trim(verifs_needed)
+end function
+
 function write_verification_CASE_NOTE(create_verif_note)
 	create_verif_note = False
+
+	Call create_verifs_needed_list(verifs_selected, verifs_needed)
 
 	If trim(verifs_needed) <> "" Then
 		create_verif_note = True
