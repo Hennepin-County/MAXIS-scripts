@@ -2500,6 +2500,7 @@ function define_grh_elig_dialog()
 				Text 15, y_pos+20, 150, 10, "COUNTABLE INCOME"
 				Text 20, y_pos+30, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
 				Text 20, y_pos+40, 185, 10, "Supp. Hsg Disregard   .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard
+				If GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = True Then Text 145, y_pos+40, 75, 10, "*** WCOM to be sent"
 				Text 20, y_pos+50, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
 
 				Text 230, y_pos, 185, 10, "PASS Disregard .  .  .  .  .  . - $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_PASS_disregard
@@ -2526,6 +2527,7 @@ function define_grh_elig_dialog()
 				Text 15, y_pos+40, 150, 10, "COUNTABLE INCOME"
 				Text 20, y_pos+50, 185, 10, "Total Deductions  .  .  .   -  $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_deductions
 				Text 20, y_pos+60, 185, 10, "Supp. Hsg Disregard   .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard
+				If GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = True Then Text 145, y_pos+60, 75, 10, "*** WCOM to be sent"
 				Text 20, y_pos+70, 185, 10, "Counted Income .  .  .  .  = $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income
 
 				ded_y_pos = 45
@@ -6722,6 +6724,7 @@ function grh_elig_case_note()
 			End if
 			Call write_variable_in_CASE_NOTE("  Inc Unavail 1st Month     $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_inc_unavail_1st_month, 8) & "      |     Counted Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income, 8))
 		End If
+		If GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("* WCOM added to explain Supportive Housing Disregard of $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard)
 
 	End If
 
@@ -26254,25 +26257,27 @@ const pact_wcom_sent				= 18
 const snap_over_130_wcom_needed		= 19
 const snap_over_130_wcom_sent		= 20
 const snap_130_percent_fpg_amt		= 21
-const denial_due_to_verif			= 22
-const btn_ei						= 23
-const btn_uei						= 24
-const btn_deem						= 25
-const allocation_notes				= 26
-const elig_details_notes			= 27
-const inelig_details_notes			= 28
-const wcom_details_one				= 29
-const wcom_details_two				= 30
-const wcom_details_three			= 31
-const ref_numb_for_hc_app			= 32
-const major_prog_for_hc_app			= 33
-const process_for_note 				= 34
-const changes_for_note				= 35
-const designated_provider_info		= 36
-const l_budg						= 37
-const proration_reason				= 38
-const fiat_reason					= 39
-const approval_confirmed			= 40
+const grh_supp_hsg_disrgd_wcom_needed	= 22
+const grh_supp_hsg_disrgd_wcom_sent		= 23
+const denial_due_to_verif			= 24
+const btn_ei						= 25
+const btn_uei						= 26
+const btn_deem						= 27
+const allocation_notes				= 28
+const elig_details_notes			= 29
+const inelig_details_notes			= 30
+const wcom_details_one				= 31
+const wcom_details_two				= 32
+const wcom_details_three			= 33
+const ref_numb_for_hc_app			= 34
+const major_prog_for_hc_app			= 35
+const process_for_note 				= 36
+const changes_for_note				= 37
+const designated_provider_info		= 38
+const l_budg						= 39
+const proration_reason				= 40
+const fiat_reason					= 41
+const approval_confirmed			= 42
 date_of_1503 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -28570,6 +28575,17 @@ If enter_CNOTE_for_GRH = True Then
 			End If
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_exists = False Then GRH_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 
+			GRH_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
+			GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = False
+
+			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard <> "" Then
+				GRH_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+				GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, approval_selected) = True
+
+				If GRH_ELIG_APPROVALS(elig_ind).grh_elig_source_of_info = "FIAT" Then GRH_UNIQUE_APPROVALS(fiat_reason, approval_selected) = "Required to add GRH Supportive Housing Disregard to the budget as this process is not yet automated in the system."
+			End If
+			GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_sent, approval_selected) = False
+
 			ei_count = 0
 			unea_count = 0
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -30346,6 +30362,12 @@ If enter_CNOTE_for_GRH = True Then
 								GRH_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
 							End if
 
+							If GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_needed, unique_app) = True Then
+								If GRH_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then CALL write_variable_in_SPEC_MEMO("---")
+								CALL write_variable_in_SPEC_MEMO("You are eligible to receive a supportive housing disregard because you have unearned income and living in a community-based supportive housing location.")
+								CALL write_variable_in_SPEC_MEMO("Disregard amount $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_supp_hsg_disregard)
+								GRH_UNIQUE_APPROVALS(grh_supp_hsg_disrgd_wcom_sent, unique_app) = True
+							End If
 							PF4
 							PF3
 						End If
