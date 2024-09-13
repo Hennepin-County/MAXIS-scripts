@@ -6492,6 +6492,8 @@ function grh_elig_case_note()
 		Else
 			Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
 			Call write_variable_in_CASE_NOTE("* Budget Type: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info)
+			' Call write_variable_in_CASE_NOTE("* Budget Type: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info) & " - SSI Fed Benefit Rate is used as "
+			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then Call write_variable_in_CASE_NOTE("  For SSI Budget, the gross unearned income is the Fed Benefit Rate (FBR)")
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_income = "FAILED" Then Call write_variable_in_CASE_NOTE("  COUNTED INCOME EXCEEDS THE TOTAL PAYMENT AMOUNT")
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info <> "MFIP" Then Call write_variable_in_CASE_NOTE("Income:                                     |")
 
@@ -6629,60 +6631,60 @@ function grh_elig_case_note()
 				If EARNED_info = "|      Earned Income: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_earned_income, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Earned Income "& spaces_45, 44) & EARNED_info)
 
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "SSI" Then
-				SSI_info =  "| SSI Standard (FBR): $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr, 8)
+				UNEA_SSI_info =  "| SSI Standard (FBR): $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr, 8)
 				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_grh(each_memb) = True and left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 3) = "SSI" Then
+					If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_grh(each_memb) = True Then
 						list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
 						If InStr(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
 							unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".")
 							list_unea_amt = unea_amt_array(0)
 						End If
 						unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
-						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & SSI_info)
-						SSI_info = "|"
+						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & UNEA_SSI_info)
+						UNEA_SSI_info = "|"
 					End If
-					If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_grh(each_memb) = True and left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 3) = "SSI" Then
+					If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_grh(each_memb) = True Then
 						list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
 						If InStr(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
 							unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".")
 							list_unea_amt = unea_amt_array(0)
 						End If
 						unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
-						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & SSI_info)
-						SSI_info = "|"
+						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & UNEA_SSI_info)
+						UNEA_SSI_info = "|"
 					End If
-					If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_grh(each_memb) = True and left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 3) = "SSI" Then
+					If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_grh(each_memb) = True Then
 						list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
 						If InStr(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
 							unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".")
 							list_unea_amt = unea_amt_array(0)
 						End If
 						unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
-						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & SSI_info)
-						SSI_info = "|"
+						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & UNEA_SSI_info)
+						UNEA_SSI_info = "|"
 					End If
-					If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_grh(each_memb) = True and left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 3) = "SSI" Then
+					If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_grh(each_memb) = True Then
 						list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
 						If InStr(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
 							unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".")
 							list_unea_amt = unea_amt_array(0)
 						End If
 						unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
-						Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & SSI_info)
-						SSI_info = "|"
+						Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & UNEA_SSI_info)
+						UNEA_SSI_info = "|"
 					End If
-					If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_grh(each_memb) = True and left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 3) = "SSI" Then
+					If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_grh(each_memb) = True Then
 						list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
 						If InStr(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
 							unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".")
 							list_unea_amt = unea_amt_array(0)
 						End If
 						unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
-						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & SSI_info)
-						SSI_info = "|"
+						Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & UNEA_SSI_info)
+						UNEA_SSI_info = "|"
 					End If
 				Next
-				If SSI_info =  "| SSI Standard (FBR): $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr, 8) Then Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & SSI_info)
+				If UNEA_SSI_info =  "| SSI Standard (FBR): $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_SSI_standard_fbr, 8) Then Call write_variable_in_CASE_NOTE(left(spaces_45, 44) & SSI_info)
 
 				Call write_variable_in_CASE_NOTE(left(spaces_45, 44) &"|     Other PA Grant: $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_other_countable_PA_grant, 8))
 			ElseIf GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_elig_type_info = "MFIP" Then
@@ -18019,62 +18021,83 @@ class hc_eligibility_detail
 													EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 	6, 14, 46
 												End If
 
-												Call write_value_and_transmit("X", 7, 3)				'Assets'
-												EMReadScreen assets_pop_up_check, 6, 6, 35
-												If assets_pop_up_check = "Assets" Then
-													'TODO read asset information'
-													transmit
-												Else
-													EMWriteScreen " ", 7, 3
-												End If
+												' Call write_value_and_transmit("X", 7, 3)				'Assets'
+												' If assets_pop_up_check = "Assets" Then
+												' 	'TODO read asset information'
+												' 	transmit
+												' Else
+												' 	EMWriteScreen " ", 7, 3
+												' End If
 
-												Call write_value_and_transmit("X", 10, 3)				'Cooperration'
-												Call write_value_and_transmit("X", 10, 26)				'Cooperration'
-												EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
-												EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
-												transmit
-												EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-												EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-												EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-												EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-												EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-												EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-												EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
-												transmit
-
-												Call write_value_and_transmit("X", 14, 3)				'Fail to File'
-												EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
-												EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
-												EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
-												EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
-												EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
-												transmit
+												' MARK ALL OF THE POSSIBLE POPUPS
 												EMReadScreen ema_person_test_check, 3, 3, 27
-												If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
-												If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
-												EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
-												EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
-												EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
-												EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
-												EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
-												EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
-												EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
-												EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
-												EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
-												EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
-												EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
-												EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
-												EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
-												EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
-												EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
-												EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
+												EMWriteScreen "X", 7, 3				'Assets'
+												EMWriteScreen "X", 10, 3			'Cooperration'
+												EMWriteScreen "X", 14, 3			'Fail to File'
+												If ema_person_test_check <> "EMA" Then EMWriteScreen "X", 14, 44							'Verification'
+												If ema_person_test_check = "EMA" Then EMWriteScreen "X", 13, 44			'Verification'
+												EMWriteScreen "X", 18, 3			'Uncompensated Transfer
+												' MsgBox "Check the Xes"
 												transmit
 
-												Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
-												transmit
+												Do
+													' MsgBox "Pause"
+													EMReadScreen assets_pop_up_check, 6, 6, 35
+													EMReadScreen coop_pop_up_check, 11, 8, 43
+													EMReadScreen fail_to_file_pop_up_check, 12, 12, 43
+													EMReadScreen verif_pop_up_check, 12, 3, 24
+													EMReadScreen uncomp_xfer_pop_up_check, 13, 5, 23
+													If UCase(assets_pop_up_check) = "ASSETS" Then
+														'TODO read asset information'
+														' MsgBox "ONE"
+													ElseIf UCase(fail_to_file_pop_up_check) = "FAIL TO FILE" Then
+														' MsgBox "THREE"
+														EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
+														EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
+														EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
+														EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
+														EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
+													ElseIf UCase(coop_pop_up_check) = "COOPERATION" Then
+														' MsgBox "TWO"
+														Call write_value_and_transmit("X", 10, 26)				'Cooperration'
+														EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
+														EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
+														transmit
+														EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
+														EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
+														EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
+														EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
+														EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
+														EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
+														EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+													ElseIf UCase(uncomp_xfer_pop_up_check) = "UNCOMPENSATED" Then
+														' MsgBox "FIVE"
+													ElseIf UCase(verif_pop_up_check) = "VERIFICATION" Then
+														' MsgBox "FOUR"
+														EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
+														EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
+														EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
+														EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
+														EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
+														EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
+														EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
+														EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
+														EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
+														EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
+														EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
+														EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
+														EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
+														EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
+														EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
+														EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
 
-												' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
-												' transmit
+													End If
+
+													transmit
+													EMReadScreen BSUM_check, 4, 3, 57
+													' MsgBox "BSUM_check - `" & BSUM_check & "`"
+												Loop Until BSUM_check = "BSUM"
+												' MsgBox "OUT"
 											End If
 
 											If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
@@ -18097,18 +18120,20 @@ class hc_eligibility_detail
 												EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 	6, 13, 44
 												EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 					6, 14, 44
 												EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
+
+												transmit
 											End If
 
-											transmit
 
 											Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
-
+											' MsgBox "IN HH COunt"
 											EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
 											hc_prog_elig_hh_size(hc_prog_count) = trim(hc_prog_elig_hh_size(hc_prog_count))
 											hc_prog_elig_hh_size(hc_prog_count) = replace(hc_prog_elig_hh_size(hc_prog_count), "_", "")
 
 											hh_row = 12
 											Do
+												' MsgBox "hh_row - " & hh_row
 												EMReadScreen inc_count_ind, 1, hh_row, 61
 												If inc_count_ind = "Y" Then
 													EMReadScreen memb_numb_income_count, 2, hh_row, 13
@@ -18116,11 +18141,13 @@ class hc_eligibility_detail
 												End If
 												hh_row = hh_row + 1
 												EMReadScreen next_inc_count_ind, 1, hh_row, 61
-											Loop until next_inc_count_ind = " "
+												' MsgBox "next_inc_count_ind - " & next_inc_count_ind
+											Loop until next_inc_count_ind = "_" or next_inc_count_ind = " "
 											hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
 											hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
 											hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
 											transmit
+											' MsgBox "Out of HH Count and back to BSUM"
 											If hc_prog_elig_method(hc_prog_count) <> "X" Then
 												Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
 												EMReadScreen budget_exist, 22, 24, 15
@@ -18429,6 +18456,7 @@ class hc_eligibility_detail
 												If budget_found = false Then MsgBox "Budget not coded:" & vbCr & budg_panel & vbCr & vbCr & elig_footer_month & "/" & elig_footer_year
 
 												transmit
+												' MsgBox "BACK TO BSUM"
 											End If
 
 											Call write_value_and_transmit("X", 18, 3)				'MOBL
