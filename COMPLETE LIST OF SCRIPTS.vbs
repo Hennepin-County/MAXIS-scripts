@@ -2779,20 +2779,6 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "MA Needy Child"																		'Script name
-script_array(script_num).category               = "IV-E"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("")
-script_array(script_num).dlg_keys               = array("Cn")
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #11/25/2019#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
-
-script_num = script_num + 1						'Increment by one
-ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "MA-EPD EI FIAT"
 ' script_array(script_num).description 			= "FIATs MA-EPD earned income (JOBS income) to be even across an entire budget period."
 script_array(script_num).category               = "ACTIONS"
@@ -3090,13 +3076,41 @@ script_array(script_num).script_name			= "New Job Reported"
 script_array(script_num).category               = "ACTIONS"
 script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "Income", "MFIP", "Reviews", "SNAP")
-script_array(script_num).dlg_keys               = array("Cn", "Ti", "Up")
+script_array(script_num).dlg_keys               = array("Cn", "Tk", "Up")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).retirement_date		= #09/25/2020#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Non IV-E Medical"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #11/25/2019#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Northstar Kinship Assistance"																		'Script name
+script_array(script_num).category               = "IV-E"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("")
+script_array(script_num).dlg_keys               = array("Cn", "Tk")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/11/2024#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("EPM Medical_Assistance_for_Children_Receiving_Northstar_Kinship_Assistance_(MA-NKA) https://hcopub.dhs.state.mn.us/epm/2_5_6_2.htm")						'SEE Line 58 for format'
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it

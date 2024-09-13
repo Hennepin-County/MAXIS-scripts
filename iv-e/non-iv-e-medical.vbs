@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - IV-E-MA NEEDY CHILD"
+name_of_script = "NOTES - IV-E-NON IV-E MEDICAL CHILD"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 0         	'manual run time in seconds
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/09/2024", "Removed the due date from the 'Open' option.", "Casey Love, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -55,10 +56,11 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog dialog1, 0, 0, 181, 75, "Select a MA needy child option"
+BeginDialog dialog1, 0, 0, 181, 75, "Select a Non IV-E Medical child option"
   EditBox 95, 10, 60, 15, MAXIS_case_number
   DropListBox 95, 30, 60, 10, "Select one..."+chr(9)+"Close"+chr(9)+"ER"+chr(9)+"Open", action_option
   ButtonGroup ButtonPressed
@@ -73,17 +75,19 @@ DO
 	DO
 		err_msg = ""
 		Dialog dialog1
-        cancel_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a MA needy child option."
+        cancel_without_confirmation
+
+		call validate_MAXIS_case_number(err_msg, "*")
+		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a Non IV-E Medical child option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+Call check_for_MAXIS(False)
 
 If action_option = "Close" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 291, 195, "MA needy child closed"
+    BeginDialog dialog1, 0, 0, 291, 195, "Non IV-E Medical child closed"
       EditBox 65, 10, 70, 15, effective_date
       CheckBox 165, 5, 115, 10, "MAXIS/ECF case to closed files", closed_files_checkbox
       CheckBox 165, 20, 60, 10, "MMIS updated", MMIS_updated_checkbox
@@ -113,6 +117,7 @@ If action_option = "Close" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_confirmation
+
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
             IF reason_close = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for closure."
 			If placement_ended = "" then err_msg = err_msg & vbNewLine & "* Enter information about the placement ending."
@@ -122,12 +127,13 @@ If action_option = "Close" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-    Call write_variable_in_CASE_NOTE("**MA Needy child closed effective " & effective_date & "**")
+    Call write_variable_in_CASE_NOTE("**Non IV-E Medical child closed effective " & effective_date & "**")
     Call write_bullet_and_variable_in_CASE_NOTE("Reason(s)", reason_close)
-    Call write_bullet_and_variable_in_CASE_NOTE("placement ended", placement_ended)
+    Call write_bullet_and_variable_in_CASE_NOTE("Placement ended", placement_ended)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified by", notified_by)
     call write_bullet_and_variable_in_CASE_NOTE("Over income", over_income)
     Call write_bullet_and_variable_in_CASE_NOTE("Fail to provide", fail_to_provide)
@@ -138,7 +144,7 @@ END IF
 
 If action_option = "ER" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 286, 175, "MA needy child ER"
+    BeginDialog dialog1, 0, 0, 286, 175, "Non IV-E Medical child ER"
       EditBox 45, 10, 40, 15, ER_date
       EditBox 155, 10, 60, 15, HCAPP_date
       EditBox 240, 10, 40, 15, child_age
@@ -169,6 +175,7 @@ If action_option = "ER" then
 			err_msg = ""
 			Dialog dialog1
 			cancel_confirmation
+
 			If isDate(HCAPP_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid HCAPP date."
 			If ER_date = "" then err_msg = err_msg & vbNewLine & "* Enter the ER date."
 			if IsNumeric(child_age) = False then err_msg = err_msg & vbNewLine & "* Enter a valid age for the client."
@@ -180,10 +187,11 @@ If action_option = "ER" then
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**MA Needy child ER rec'd for " & ER_date & "**")
+	Call write_variable_in_CASE_NOTE("**Non IV-E Medical child ER rec'd for " & ER_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("HCAPP rec'd date", HCAPP_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Client age", child_age)
 	Call write_bullet_and_variable_in_CASE_NOTE("AREP", AREP)
@@ -196,7 +204,7 @@ END IF
 
 If action_option = "Open" then
     dialog1 = ""
-    BeginDialog dialog1, 0, 0, 296, 240, "MA needy child open"
+    BeginDialog dialog1, 0, 0, 296, 240, "Non IV-E Medical child open"
       EditBox 70, 10, 70, 15, HCAPP_date
       EditBox 200, 10, 90, 15, HH_comp
       EditBox 70, 30, 70, 15, effective_date
@@ -209,7 +217,6 @@ If action_option = "Open" then
       EditBox 45, 135, 245, 15, placed
       EditBox 45, 155, 245, 15, results
       EditBox 45, 175, 115, 15, Rule_five
-      EditBox 205, 175, 85, 15, due_date
       EditBox 45, 195, 245, 15, other_notes
       EditBox 70, 215, 110, 15, worker_signature
       ButtonGroup ButtonPressed
@@ -228,13 +235,13 @@ If action_option = "Open" then
       Text 15, 140, 25, 10, "Placed: "
       Text 15, 35, 50, 10, "Effective date:"
       Text 20, 120, 20, 10, "AREP:"
-      Text 170, 180, 35, 10, "Due date:"
     EndDialog
 	DO
 		DO
 			err_msg = ""
 			Dialog dialog1
 			cancel_confirmation
+
 			If isDate(HCAPP_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid HCAPP date."
 			IF HH_comp = "" then err_msg = err_msg & vbNewLine & "* Enter the case's HH composition."
 			If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."
@@ -244,16 +251,16 @@ If action_option = "Open" then
             If placed = "" then err_msg = err_msg & vbNewLine & "* Enter the placement information."
 			If Results = "" then err_msg = err_msg & vbNewLine & "* Enter the results information."
 			If Rule_five = "" then err_msg = err_msg & vbNewLine & "* Enter the Rule 5 information."
-			If isDate(due_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid due date."
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
+	Call check_for_MAXIS(False)
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	Call write_variable_in_CASE_NOTE("**MA Needy child opened effective " & effective_date & "**")
+	Call write_variable_in_CASE_NOTE("**Non IV-E Medical child opened effective " & effective_date & "**")
 	Call write_bullet_and_variable_in_CASE_NOTE("HCAPP rec'd date", HCAPP_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
 	Call write_bullet_and_variable_in_CASE_NOTE("ER date", ER_date)
@@ -264,7 +271,6 @@ If action_option = "Open" then
     call write_bullet_and_variable_in_CASE_NOTE("Placed", Placed)
 	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
     Call write_bullet_and_variable_in_CASE_NOTE("Rule 5", Rule_five)
-	Call write_bullet_and_variable_in_CASE_NOTE("Due date", due_date)
     If TPL_updated = 1 then Call write_variable_in_CASE_NOTE("* TPL updated.")
 END IF
 
