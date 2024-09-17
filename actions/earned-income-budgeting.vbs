@@ -293,9 +293,10 @@ function save_your_work()
 end function
 
 function dialog_for_bimonthly_pay(first_pay, second_pay)
-	first_pay = first_pay & ""
+'function to display and allow for change to the 2 days identified as the bimonthly pay dates.
+	first_pay = first_pay & ""		'make the variables viewable in an EditBox
 	second_pay = second_pay & ""
-	If second_pay = "LAST" Then
+	If second_pay = "LAST" Then		'aligning the internal process with the dialog information
 		last_day_checkbox = checked
 		second_pay = ""
 	End If
@@ -311,15 +312,17 @@ function dialog_for_bimonthly_pay(first_pay, second_pay)
 		Text 10, 30, 35, 10, "First Day"
 		Text 10, 50, 45, 10, "Second Day"
 	EndDialog
+
 	Do
 		the_err = ""
 
-		dialog Dialog1
+		dialog Dialog1						'show the dialog
 		save_your_work
 
-		first_pay = trim(first_pay)
+		first_pay = trim(first_pay)			'format the entries
 		second_pay = trim(second_pay)
 
+		'ensuring all information is entered and correct
 		If first_pay = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the first paycheck comes on."
 		If IsNumeric(first_pay) = False Then the_err = the_err & vbNewLine & "* The day for the first paycheck should be entered as a number, the day of the month first check is received."
 		If second_pay = "" Then
@@ -330,6 +333,7 @@ function dialog_for_bimonthly_pay(first_pay, second_pay)
 		If the_err <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & the_err
 	Loop until the_err = ""
 
+	'format the variables to be numbers
 	first_pay = first_pay * 1
 	If IsNumeric(second_pay) = TRUE Then second_pay = second_pay * 1
 	If last_day_checkbox = checked Then
@@ -337,7 +341,7 @@ function dialog_for_bimonthly_pay(first_pay, second_pay)
 	ElseIf second_pay = 30 OR second_pay = 31 Then
 		second_pay = "LAST"
 	End If
-	save_your_work
+	save_your_work		'record this information
 end function
 
 
