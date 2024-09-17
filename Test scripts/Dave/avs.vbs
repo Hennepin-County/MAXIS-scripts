@@ -205,9 +205,11 @@ const signer_fill_button = 2
 const signer_first_name = 3 
 Const signer_last_name = 4
 Const signer_ssn = 5
-Const signer_role = 6
-const signer_status = 7
-const signer_form_status = 8
+const signer_dob = 6
+const member_role = 7
+Const signer_role = 8
+const signer_status = 9
+const form_date = 10 
 
 const last_name_const  = 1
 const first_name_const = 2
@@ -559,37 +561,38 @@ Do
     'TODO - create Y_pos math, add the lines
     For this_memb = 0 to UBound(avs_members_array, 2)
         dim signer_array
-        redim signer_array(5, 9)
-        BeginDialog Dialog1, 0, 0, 610, 250, "Dialog" 
+        redim signer_array(5, 11)
+        BeginDialog Dialog1, 0, 0, 635, 280, "Dialog" 
          Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
          ButtonGroup ButtonPressed
          
        
-         GroupBox 5, 20, 600, 125, "Member Number & Name" 
+         Text 5, 20, 625, 125, "*** Household Member: " & "Member Number & Name" 
          Text 15, 30, 90, 20, "Select member and press arrow to prefill"
          Text 135, 35, 20, 10, "First"
-         Text 225, 35, 20, 10, "Last"
-         Text 305, 35, 20, 10, "SSN"
-         Text 350, 35, 20, 10, "Role"
-         Text 420, 35, 40, 10, "Signer Role"
-         Text 465, 35, 20, 10, "Status"
-         Text 560, 35, 35, 10, "Form Date"
+         Text 210, 35, 20, 10, "Last"
+         Text 285, 35, 20, 10, "SSN"
+         Text 330, 35, 20, 10, "DOB"
+         Text 380, 35, 20, 10, "Role"
+         Text 445, 35, 40, 10, "Signer Role"
+         Text 490, 35, 20, 10, "Status"
+         Text 585, 35, 35, 10, "Form Date"
          y_pos = 50
          For signer_line = 0 to 5
             DropListBox 15, y_pos, 90, 15, member_droplist, signer_array(signer_line, signer_member_drop)
             PushButton 110, y_pos, 20, 10, "-->", signer_array(signer_line, signer_fill_button)
-            EditBox 135, y_pos, 70, 15, signer_array(signer_line, signer_first_name)
-            EditBox 207, y_pos, 10, 15, signer_array(signer_line, signer_middle_initial)
-            EditBox 220, y_pos, 75, 15, signer_array(signer_line, signer_last_name) 
-            EditBox 300, y_pos, 45, 15, signer_array(signer_line, signer_ssn) 
-            DropListBox 350, y_pos, 65, 15, ""+chr(9)+"1 Enrollee"+chr(9)+"2 Spouse"+chr(9)+"3 Sponsor"+chr(9)+"4 Sponsor's Spouse"+chr(9)+"5 Sponsor 2"+chr(9)+"6 Sponsor 2 Spouse", signer_array(signer_line, member_role)
-            DropListBox 420, y_pos, 35, 15, ""+chr(9)+"1 AREP"+chr(9)+"2 POA"+chr(9)+"3 Guardian"+chr(9)+"4 Self", signer_array(signer_line, signer_role)
-            DropListBox 460, y_pos, 95, 15, ""+chr(9)+"R Requested"+chr(9)+"I Invalid"+chr(9)+"V Valid"+chr(9)+"E Spouse Exempt(live apart)"+chr(9)+"W Spouse Exempt(Waiver)", signer_array(signer_line, signer_status)               
-            EditBox 560, y_pos, 40, 15, signer_array(signer_line, signer_form_date)
+            EditBox 135, y_pos, 60, 15, signer_array(signer_line, signer_first_name)
+            EditBox 197, y_pos, 10, 15, signer_array(signer_line, signer_middle_initial)
+            EditBox 210, y_pos, 65, 15, signer_array(signer_line, signer_last_name) 
+            EditBox 280, y_pos, 45, 15, signer_array(signer_line, signer_ssn) 
+            EditBox 330, y_pos, 40, 15, signer_array(signer_line, signer_dob)
+            DropListBox 375, y_pos, 65, 15, ""+chr(9)+"1 Enrollee"+chr(9)+"2 Spouse"+chr(9)+"3 Sponsor"+chr(9)+"4 Sponsor's Spouse"+chr(9)+"5 Sponsor 2"+chr(9)+"6 Sponsor 2 Spouse", signer_array(signer_line, member_role)
+            DropListBox 445, y_pos, 35, 15, ""+chr(9)+"1 AREP"+chr(9)+"2 POA"+chr(9)+"3 Guardian"+chr(9)+"4 Self", signer_array(signer_line, signer_role)
+            DropListBox 485, y_pos, 95, 15, ""+chr(9)+"R Requested"+chr(9)+"I Invalid"+chr(9)+"V Valid"+chr(9)+"E Spouse Exempt(live apart)"+chr(9)+"W Spouse Exempt(Waiver)", signer_array(signer_line, signer_status)               
+            EditBox 585, y_pos, 40, 15, signer_array(signer_line, form_date)
             y_pos = y_pos + 20
          next 
-
-
+         
         'DropListBox 15, 70, 90, 15, member_droplist, member_select_2
         'PushButton 110, 70, 20, 10, "-->", fill_button_2
         'EditBox 135, 70, 70, 15, first_name_2
@@ -636,54 +639,100 @@ Do
                     End If 
                 Next
             'Next
-
+            'TODO run through members - any AREP or POA needs a popup for their name to be entered.
+            'Dialog data validation
+            'Exempt spouse - name and role only - TODO - validate whether marital status in maxis causes issue if not added to AVSA
         Loop Until err_msg = ""
         'Now Create the panel for this member
-        msgbox signer_array(0, signer_ssn)
-        msgbox signer_array(0, signer_role)
+      
         
-        memb_role = stuff
-        first_name = stuff
-        last_name = stuff
-        
+        enrollee_position = "" 'reset variable that will tell us which member requires special handling
         For signer_to_enter = 0 to 5
-            fixed_ssn = left(signer_array(signer_to_enter, signer_ssn), 3) & " " & mid(signer_array(signer_to_enter, signer_ssn), 4, 2) & " " & right(signer_array(signer_to_enter, signer_ssn), 4) 'TODO: remove space and dash from SSN elsewhere
+            left_ssn = left(signer_array(signer_to_enter, signer_ssn), 3)
+            mid_ssn =  mid(signer_array(signer_to_enter, signer_ssn), 4, 2) 
+            right_ssn = right(signer_array(signer_to_enter, signer_ssn), 4) 'TODO: remove space and dash from SSN elsewhere
             'TODO - dim these?
             Call navigate_to_MAXIS_screen("STAT", "AVSA")
             'check if exists
             call write_value_and_transmit(avs_members_array(member_number_const, this_memb), 20, 76) 'TODO - see how this works with 1 member existing, does it still show 0 or should we read error below?
             EMReadScreen panel_exists, 1, 2, 78 
             If panel_exists = 0 Then 'New panel section - functions different after adding initial signer
-                'We need to start with the enrolee, so find out which array position that is
-                enrolee_position = ""
-                For position = 0 to ubound(signer_array, 2)
-                    If signer_array(member_role, position) = "1 Enrollee" Then enrolee_position = position
+               'We need to start with the enrollee, so find out which array position that is
+                
+                For position = 0 to ubound(signer_array, 1)
+                    If signer_array(position, member_role) = "1 Enrollee" Then enrollee_position = position   
                 Next 
-                call write_value_and_transmit(avs_members_array(member_number_const, this_memb) & " nn", 20, 76)
+                EMWriteScreen avs_members_array(member_number_const, this_memb), 20, 76
+                Call write_value_and_transmit("NN", 20, 79)
+
                 EMReadScreen auth_screen_check, 5, 1, 33
                 If auth_screen_check = "AVS A" Then
                     If ref_number_exists = true Then
                         EmWriteScreen (avs_members_array(member_number_const, this_memb)), 6, 55
                         Transmist
                     Else
-                        EmWriteScreen signer_array(member_role, enrolee_position), 6, 14
-                        EMWriteScreen signer_array(last_name, enrolee_position), 7, 14
-                        EmWriteScreen signer_array(first_name, enrolee_position), 7, 53
-                        call create_mainframe_friendly_date(birthdate, 8, 19, 0)
-                        EmWriteScreen fixed_SSN, 8, 51
+                        EmWriteScreen left(signer_array(enrollee_position, member_role), 1), 6, 14
+                        EMWriteScreen signer_array(enrollee_position, signer_last_name), 7, 14
+                        EmWriteScreen signer_array(enrollee_position, Signer_first_name), 7, 53
+                        'call create_mainframe_friendly_date(signer_array(enrollee_position, dob), 8, 19, 0)
+                        EmWriteScreen left_ssn, 8, 51
+                        EmWriteScreen mid_ssn, 8, 55
+                        EMWriteScreen right_ssn, 8, 58
                     End If 
-                    EMWriteScreen signer_role, 13, 14
-                    If signer_role <> "4" Then 
-                        EMWriteScreen signer_last_name, 14, 14
-                        EMWriteScreen signer_first_name, 14, 53
+                    EMWriteScreen left(signer_array(enrollee_position, signer_role), 1), 13, 14
+                    If left(signer_array(enrollee_position, signer_role), 1) <> "4" Then 
+                        EMWriteScreen signer_array(enrollee_position, signer_last_name), 14, 14
+                        EMWriteScreen signer_array(enrollee_position, signer_first_name), 14, 53
                     End If 
-                    Call create_mainframe_friendly_date(form_date, 17, 28)
-                    EMWriteScreen form_status, 18, 28
-                    If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
+                    If signer_array(enrollee_position, form_date) <> "" Then Call create_mainframe_friendly_date(signer_array(enrollee_position, form_date), 17, 28, 0)
+                    EMWriteScreen signer_array(enrollee_position, signer_status), 18, 28
+                    'If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
+                    msgbox "how's it look boss?"
+                    Transmit
+                    PF3
+                End If 
+            Elseif signer_to_enter <> enrollee_position Then'handling for all other members
+                msgbox signer_to_enter & ":" & enrollee_position
+                EMREadScreen screen_check, 6, 2, 58 'make sure we are on AVSA main panel
+                If screen_check <> "(AVSA)" Then 
+                    call navigate_to_MAXIS_screen("STAT", "AVSA")
+                    call write_value_and_transmit(avs_members_array(member_number_const, this_memb), 20, 76)
+                End If 
+                'Find the correct line to write on
+                For this_line = 9 to 14
+                    EMREadScreen line_check, 1, this_line, 62
+                    If line_check = "_" Then
+                        line_to_write = this_line
+                        exit For
+                    End If 
+                Next 
+                Call write_value_and_transmit("A", line_to_write, 25)
+                EMReadScreen auth_screen_check, 5, 1, 33
+                If auth_screen_check = "AVS A" Then
+                    If ref_number_exists = true Then
+                        EmWriteScreen (avs_members_array(member_number_const, this_memb)), 6, 55
+                        Transmist
+                    Else
+                        EmWriteScreen left(signer_array(signer_to_enter, member_role), 1), 6, 14
+                        EMWriteScreen signer_array(signer_to_enter, signer_last_name), 7, 14
+                        EmWriteScreen signer_array(signer_to_enter, Signer_first_name), 7, 53
+                        'call create_mainframe_friendly_date(signer_array(signer_to_enter, dob), 8, 19, 0)
+                        EmWriteScreen left_ssn, 8, 51
+                        EmWriteScreen mid_ssn, 8, 55
+                        EMWriteScreen right_ssn, 8, 58
+                    End If 
+                    EMWriteScreen left(signer_array(signer_to_enter, signer_role), 1), 13, 14
+                    If left(signer_array(signer_to_enter, signer_role), 1) <> "4" Then 
+                        EMWriteScreen signer_array(signer_to_enter, signer_last_name), 14, 14
+                        EMWriteScreen signer_array(signer_to_enter, signer_first_name), 14, 53
+                    End If 
+                    If signer_array(signer_to_enter, form_date) <> "" Then Call create_mainframe_friendly_date(signer_array(signer_to_enter, form_date), 17, 28, 0)
+                    EMWriteScreen signer_array(signer_to_enter, signer_status), 18, 28
+                   ' If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
+                    msgbox "how's it look boss?"
                     Transmit
                 End If 
             End If 
-  
         Next 
     Next
     '------------Compare values from table and avsa
