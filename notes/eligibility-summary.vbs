@@ -829,6 +829,7 @@ function define_mf_special_diet_dialog()
 end function
 
 function define_mfip_elig_dialog()
+	snap_notes_showed = False
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 	  ButtonGroup ButtonPressed
@@ -950,7 +951,7 @@ function define_mfip_elig_dialog()
 			Text 345, 65, 100, 10, "New Spouse Income: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income
 			Text 345, 75, 100, 10, "Fail QC Coop:       " & MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
 
-			GroupBox 5, 105, 450, 60, "Ineligible Details"
+			GroupBox 5, 105, 450, 70, "Ineligible Details"
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" or (MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" and STAT_INFORMATION(month_ind).stat_pact_exists = True) Then
 				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
 				Editbox 180, 115, 50, 15, MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
@@ -967,6 +968,12 @@ function define_mfip_elig_dialog()
 			Else
 				Text 15, 125, 300, 20, "This case is ineligible because it hasn't met the requirements for MFIP Eligibility. The case tests above show what requirements have not been met."
 			End if
+			If MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = True Then
+				Text 15, 150, 50, 10, "SNAP Notes:"
+				EditBox 65, 145, 385, 15, MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected)
+				Text 65, 160, 385, 10, "When MFIP is Ineligible, we should assess SNAP. Explain your SNAP review/assessment here."
+				snap_notes_showed = True
+			End If
 
 		End if
 
@@ -1041,7 +1048,13 @@ function define_mfip_elig_dialog()
 			y_pos = y_pos + 15
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MFIP Standard and no benefit to be issued."
+			If MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = True and snap_notes_showed = False Then
+				Text 15, 170, 50, 10, "SNAP Notes:"
+				EditBox 65, 165, 385, 15, MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected)
+				Text 65, 180, 385, 10, "When MFIP is Ineligible, we should assess SNAP. Explain your SNAP review/assessment here."
+			End If
 			y_pos = y_pos + 55
+
 		End If
 
 		GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
@@ -4958,7 +4971,7 @@ function mfip_elig_case_note()
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
 	If add_new_note_for_MFIP = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	Call write_bullet_and_variable_in_CASE_NOTE("FIAT Reason", MFIP_UNIQUE_APPROVALS(fiat_reason, unique_app))
-
+	Call write_bullet_and_variable_in_CASE_NOTE("SNAP Assessment", MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, unique_app))
 	If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
@@ -26277,7 +26290,9 @@ const designated_provider_info		= 38
 const l_budg						= 39
 const proration_reason				= 40
 const fiat_reason					= 41
-const approval_confirmed			= 42
+const mfip_inelig_assess_SNAP		= 42
+const mfip_inelig_SNAP_note			= 43
+const approval_confirmed			= 44
 date_of_1503 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
@@ -26909,6 +26924,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				MFIP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 				MFIP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 				MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+				MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, unique_app_count) = False
 
 				last_caregiver_count = MFIP_ELIG_APPROVALS(approval).mfip_case_asst_unit_caregivers
 				last_child_count = MFIP_ELIG_APPROVALS(approval).mfip_case_asst_unit_children
@@ -26957,6 +26973,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					MFIP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 					MFIP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 					MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+					MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, unique_app_count) = False
 
 					last_caregiver_count = MFIP_ELIG_APPROVALS(approval).mfip_case_asst_unit_caregivers
 					last_child_count = MFIP_ELIG_APPROVALS(approval).mfip_case_asst_unit_children
@@ -27041,6 +27058,33 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 				If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+
+				'If MFIP is Ineligible we should review SNAP and document that it was reviewed.
+				'If MFIP is INELIG for death of applicant, cooperation, revw or month, state residency, strike, verification or QC Cooperation - SNAP is also Ineligible and we don't need to add a note
+				MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = True
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_residence = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_strike = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc = "FAILED" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = False
+			End If
+
+			'Checking to see if SNAP has been processed for the same month. If so the MFIP entry about SNAP will be defaulted to reference another CASE/NOTE
+			If MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = True Then
+				If enter_CNOTE_for_SNAP = True Then
+					start_capturing_approvals = False
+					unique_app_count = 0
+					For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+						If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_SNAP_approval Then start_capturing_approvals = True
+						If start_capturing_approvals = True Then
+							If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+								If MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected) = "" Then MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected) = "SNAP approval detailed in another CASE/NOTE."
+							End If
+						End If
+					Next
+				End If
 			End If
 
 			show_pact = False
@@ -27113,6 +27157,11 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 						End If
 					End If
 				End If
+			End If
+
+			If MFIP_UNIQUE_APPROVALS(mfip_inelig_assess_SNAP, approval_selected) = True Then
+				MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected) = trim(MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected))
+				If MFIP_UNIQUE_APPROVALS(mfip_inelig_SNAP_note, approval_selected) = "" Then err_msg = err_msg & vbNewLine & "* Information about SNAP assessment must be entered for an Ineligible MFIP approval."
 			End If
 
 			If show_pact = True Then
