@@ -292,6 +292,54 @@ function save_your_work()
 	End with
 end function
 
+function dialog_for_bimonthly_pay(first_pay, second_pay)
+	first_pay = first_pay & ""
+	second_pay = second_pay & ""
+	If second_pay = "LAST" Then
+		last_day_checkbox = checked
+		second_pay = ""
+	End If
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 186, 90, "Days of Pay for Bimonthly"
+		EditBox 55, 25, 25, 15, first_pay
+		EditBox 55, 45, 25, 15, second_pay
+		ButtonGroup ButtonPressed
+			OkButton 130, 70, 50, 15
+		Text 5, 10, 150, 10, "Dates of Pay for BiMonthly Pay Frequency"
+		Text 10, 30, 35, 10, "First Day"
+		Text 10, 50, 45, 10, "Second Day"
+		CheckBox 85, 50, 95, 10, "Second Day is LAST Day", last_day_checkbox
+	EndDialog
+	Do
+		the_err = ""
+
+		dialog Dialog1
+		save_your_work
+
+		first_pay = trim(first_pay)
+		second_pay = trim(second_pay)
+
+		If first_pay = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the first paycheck comes on."
+		If IsNumeric(first_pay) = False Then the_err = the_err & vbNewLine & "* The day for the first paycheck should be entered as a number, the day of the month first check is received."
+		If second_pay = "" Then
+			If last_day_checkbox = unchecked Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the second paycheck comes on. Or check the box indicating the second check falls on the last day of the month."
+		Else
+			If IsNumeric(second_pay) = False Then the_err = the_err & vbNewLine & "* The day for the secon paycheck should be entered as a number, the day of the month first check is received. If this is always the last day of the month, check the box for the LAST day."
+		End If
+		If the_err <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & the_err
+	Loop until the_err = ""
+
+	first_pay = first_pay * 1
+	If IsNumeric(second_pay) = TRUE Then second_pay = second_pay * 1
+	If last_day_checkbox = checked Then
+		second_pay = "LAST"
+	ElseIf second_pay = 30 OR second_pay = 31 Then
+		second_pay = "LAST"
+	End If
+	save_your_work
+end function
+
 
 function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
@@ -2669,47 +2717,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 End If
 
                                 If third_paydate = TRUE OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" OR EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then
-                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) & ""
-                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) & ""
-                                    If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST" Then
-                                        last_day_checkbox = checked
-                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = ""
-                                    End If
-                                    Dialog1 = ""
-                                    BeginDialog Dialog1, 0, 0, 106, 115, "Days of Pay for Bimonthly"
-										EditBox 55, 35, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel)
-										EditBox 55, 55, 25, 15, EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)
-										ButtonGroup ButtonPressed
-											OkButton 50, 95, 50, 15
-										Text 10, 10, 95, 20, "Dates of Pay for BiMonthly Pay Frequency"
-										Text 10, 40, 35, 10, "First Day"
-										Text 10, 60, 45, 10, "Second Day"
-										CheckBox 10, 80, 95, 10, "Second Day is LAST Day", last_day_checkbox
-                                    EndDialog
-
-                                    Do
-                                        the_err = ""
-
-                                        dialog Dialog1
-										save_your_work
-
-                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel))
-                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel))
-                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = "" Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the first paycheck comes on."
-                                        If EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "" Then
-                                            If last_day_checkbox = unchecked Then the_err = the_err & vbNewLine & "* Enter the DAY of the month the second paycheck comes on. Or check the box indicating the second check falls on the last day of the month."
-                                        End If
-                                        If the_err <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & the_err
-                                    Loop until the_err = ""
-
-                                    EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel) * 1
-                                    If IsNumeric(EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel)) = TRUE Then EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) * 1
-                                    If last_day_checkbox = checked Then
-                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
-                                    ElseIf EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 28 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 29 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 30 OR EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = 31 Then
-                                        EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel) = "LAST"
-                                    End If
-									save_your_work
+                                    Call dialog_for_bimonthly_pay(EARNED_INCOME_PANELS_ARRAY(bimonthly_first, ei_panel),  EARNED_INCOME_PANELS_ARRAY(bimonthly_second, ei_panel))
                                 End If
 
                             End If
