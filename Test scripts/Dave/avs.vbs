@@ -210,6 +210,9 @@ const member_role = 7
 Const signer_role = 8
 const signer_status = 9
 const form_date = 10 
+const alt_signer_first_name = 11
+const alt_signer_mi = 12
+const alt_signer_last_name = 13
 
 const last_name_const  = 1
 const first_name_const = 2
@@ -561,7 +564,7 @@ Do
     'TODO - create Y_pos math, add the lines
     For this_memb = 0 to UBound(avs_members_array, 2)
         dim signer_array
-        redim signer_array(5, 11)
+        redim signer_array(5, 13)
         BeginDialog Dialog1, 0, 0, 635, 280, "Dialog" 
          Text 15, 5, 410, 10, "*** AVSA Panel not found for the following member(s). Complete information below and press OK to create AVSA panel(s). ***"
          ButtonGroup ButtonPressed
@@ -592,35 +595,6 @@ Do
             EditBox 585, y_pos, 40, 15, signer_array(signer_line, form_date)
             y_pos = y_pos + 20
          next 
-         
-        'DropListBox 15, 70, 90, 15, member_droplist, member_select_2
-        'PushButton 110, 70, 20, 10, "-->", fill_button_2
-        'EditBox 135, 70, 70, 15, first_name_2
-        'EditBox 210, 70, 100, 15, last_name_2
-        'EditBox 315, 70, 45, 15, signer_ssn_2
-        'DropListBox 415, 70, 45, 15, "", member_role_2
-        'DropListBox 365, 70, 45, 15, "", Signer_role_2
-        'DropListBox 465, 70, 35, 15, "", signer_status_2               
-        'EditBox 505, 70, 45, 15, form_date_2
-        'DropListBox 15, 90, 90, 15, member_droplist, member_select_3
-        'PushButton 110, 90, 20, 10, "-->", fill_button_3
-        'EditBox 135, 90, 70, 15, first_name_3
-        'EditBox 210, 90, 100, 15, last_name_3
-        'EditBox 315, 90, 45, 15, signer_ssn_3
-        'DropListBox 415, 90, 45, 15, "", member_role_3
-        'DropListBox 365, 90, 45, 15, "", Signer_role_3
-        'DropListBox 465, 90, 35, 15, "", signer_status_3               
-        'EditBox 505, 90, 45, 15, form_date_3
-        'DropListBox 15, 110, 90, 15, member_droplist, member_select_4
-        'PushButton 110, 110, 20, 10, "-->", fill_button_4
-        'EditBox 135, 110, 70, 15, first_name_4
-        'EditBox 210, 110, 100, 15, last_name_4
-        'EditBox 315, 110, 45, 15, signer_ssn_4
-        'DropListBox 415, 110, 45, 15, "", member_role_4
-        'DropListBox 365, 110, 45, 15, "", Signer_role_4
-        'DropListBox 465, 110, 35, 15, "", signer_status_4               
-        'EditBox 505, 110, 45, 15, form_date_4
-
          OkButton 460, 200, 50, 15
          CancelButton 515, 200, 50, 15
          PushButton 500, 5, 70, 15, "AVSA Instructions", avsa_instructions_button
@@ -639,10 +613,33 @@ Do
                     End If 
                 Next
             'Next
-            'TODO run through members - any AREP or POA needs a popup for their name to be entered.
+            
             'Dialog data validation
             'Exempt spouse - name and role only - TODO - validate whether marital status in maxis causes issue if not added to AVSA
         Loop Until err_msg = ""
+        'run through members - any AREP or POA needs a popup for their name to be entered.
+        For signer = 0 to 5
+            If left(signer_array(signer, signer_role), 1) <> "4" AND trim(signer_array(signer, signer_role)) <> "" Then
+                BeginDialog Dialog1, 0, 0, 206, 105, "Info Needed"
+                ButtonGroup ButtonPressed
+                  OkButton 80, 85, 50, 15
+                  CancelButton 130, 85, 50, 15
+                Text 5, 15, 200, 10, "You selected " & signer_array(signer, signer_role) & " signed the form for: " & signer_array(signer, signer_first_name) & " " & signer_array(signer, signer_last_name)
+                Text 51, 0, 100, 10, "**** Information Needed ****"
+                Text 5, 30, 185, 10, "Enter the name of the " & signer_array(signer, signer_role) & " below:"
+                EditBox 5, 55, 70, 15, signer_array(signer, alt_signer_first_name)
+                EditBox 80, 55, 15, 15, signer_array(signer, alt_signer_mi)
+                EditBox 100, 55, 100, 15, signer_array(signer, alt_signer_last_name)
+                Text 10, 45, 40, 10, "First"
+                Text 100, 45, 40, 10, "Last"
+                EndDialog
+                Do 
+                    err_msg = ""
+                    Dialog Dialog1
+                Loop Until err_msg = ""
+            End If 
+        Next 
+        
         'Now Create the panel for this member
       
         
@@ -687,14 +684,14 @@ Do
                     If signer_array(enrollee_position, form_date) <> "" Then Call create_mainframe_friendly_date(signer_array(enrollee_position, form_date), 17, 28, 0)
                     EMWriteScreen signer_array(enrollee_position, signer_status), 18, 28
                     'If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
-                    msgbox "how's it look boss?"
+                    Transmit
                     Transmit
                     PF3
                 End If 
             Elseif signer_to_enter <> enrollee_position Then'handling for all other members
-                msgbox signer_to_enter & ":" & enrollee_position
                 EMREadScreen screen_check, 6, 2, 58 'make sure we are on AVSA main panel
                 If screen_check <> "(AVSA)" Then 
+                    PF3
                     call navigate_to_MAXIS_screen("STAT", "AVSA")
                     call write_value_and_transmit(avs_members_array(member_number_const, this_memb), 20, 76)
                 End If 
@@ -722,21 +719,22 @@ Do
                         EMWriteScreen right_ssn, 8, 58
                     End If 
                     EMWriteScreen left(signer_array(signer_to_enter, signer_role), 1), 13, 14
-                    If left(signer_array(signer_to_enter, signer_role), 1) <> "4" Then 
-                        EMWriteScreen signer_array(signer_to_enter, signer_last_name), 14, 14
-                        EMWriteScreen signer_array(signer_to_enter, signer_first_name), 14, 53
+                    If left(signer_array(signer_to_enter, signer_role), 1) <> "4" AND trim(signer_array(signer_to_enter, signer_role)) <> "" Then 'If we have a POA or AREP signing, need to enter their name
+                        EMWriteScreen signer_array(signer_to_enter, alt_signer_last_name), 14, 14
+                        EMWriteScreen signer_array(signer_to_enter, alt_signer_first_name), 14, 53
                     End If 
                     If signer_array(signer_to_enter, form_date) <> "" Then Call create_mainframe_friendly_date(signer_array(signer_to_enter, form_date), 17, 28, 0)
                     EMWriteScreen signer_array(signer_to_enter, signer_status), 18, 28
                    ' If avsa_invalid_reason <> "" Then EMWriteScreen avsa_invalid_reason, 19, 28
-                    msgbox "how's it look boss?"
                     Transmit
+                    Transmit
+                    PF3
                 End If 
             End If 
         Next 
     Next
     '------------Compare values from table and avsa
-    
+    'TODO If status is requested on AVSA, create a string of members needed to sign for next dialog / case note
 
 
     '----------------------------------------------------------------------------------------------------Adding in information about the AVS Members selected
