@@ -19145,6 +19145,7 @@ class stat_detail
 	public stat_memb_rel_to_applct_info()
 	public stat_memb_date_of_death()
 	public stat_memi_spouse_ref_numb()
+	public stat_memi_military_service_yn()
 	public stat_memi_citizenship_yn()
 	public stat_memi_citizenship_verif_code()
 	public stat_memi_citizenship_verif_info()
@@ -19958,6 +19959,7 @@ class stat_detail
 		ReDim stat_memb_rel_to_applct_info(0)
 		ReDim stat_memb_date_of_death(0)
 		ReDim stat_memi_spouse_ref_numb(0)
+		ReDim stat_memi_military_service_yn(0)
 		ReDim stat_memi_citizenship_yn(0)
 		ReDim stat_memi_citizenship_verif_code(0)
 		ReDim stat_memi_citizenship_verif_info(0)
@@ -20636,6 +20638,7 @@ class stat_detail
 			ReDim preserve stat_memb_rel_to_applct_info(memb_count)
 			ReDim preserve stat_memb_date_of_death(memb_count)
 			ReDim preserve stat_memi_spouse_ref_numb(memb_count)
+			ReDim preserve stat_memi_military_service_yn(memb_count)
 			ReDim preserve stat_memi_citizenship_yn(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_code(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_info(memb_count)
@@ -21365,6 +21368,7 @@ class stat_detail
 
 			EMReadScreen stat_memi_citizenship_yn(each_memb), 1, 11, 49
 			EMReadScreen stat_memi_citizenship_verif_code(each_memb), 2, 11, 78
+			EMReadScreen stat_memi_military_service_yn(memb_count), 1, 12, 78
 
 			If stat_memi_citizenship_verif_code(each_memb) = "BC" Then stat_memi_citizenship_verif_info(each_memb) = "Birth Certificate"
 			If stat_memi_citizenship_verif_code(each_memb) = "RE" Then stat_memi_citizenship_verif_info(each_memb) = "Religious Record"
@@ -30773,7 +30777,7 @@ If enter_CNOTE_for_SNAP = True Then
 					If SNAP_ELIG_APPROVALS(each_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(each_month).elig_footer_year = STAT_INFORMATION(stat_month).footer_month & "/" & STAT_INFORMATION(stat_month).footer_year Then
 						For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 							If InStr(SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) <> 0 Then
-								If STAT_INFORMATION(month_ind).stat_wreg_fset_status_code(each_memb) = "30" and STAT_INFORMATION(month_ind).stat_wreg_abawd_status_code(each_memb) = "09" Then
+								If STAT_INFORMATION(month_ind).stat_wreg_fset_status_code(each_memb) = "30" and STAT_INFORMATION(month_ind).stat_wreg_abawd_status_code(each_memb) = "09" and STAT_INFORMATION(month_ind).stat_memi_military_service_yn(each_memb) <> "Y" Then
 									If InStr(QCR_SNAP_ABAWD_30_09_String, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) = 0 Then
 										QCR_SNAP_ABAWD_30_09_String = QCR_SNAP_ABAWD_30_09_String & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " "
 									End If
