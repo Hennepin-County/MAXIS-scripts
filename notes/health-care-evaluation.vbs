@@ -5889,6 +5889,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		updated_hc_renewal_month = CM_plus_2_mo
 		updated_hc_renewal_year = CM_plus_2_yr
+		If datepart("d", date) >= 15 Then 
+			updated_hc_renewal_month = CM_plus_3_mo
+			updated_hc_renewal_year = CM_plus_3_yr
+		End If 
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 351, 230, "Phase 2 - Ex Parte Denied"
@@ -5965,8 +5969,8 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 				Text 10, 10, 230, 20, "To reschedule the Renewal Month for a standard Renewal, the STAT/REVW panel should be reviewed and updated correctly."
 				Text 10, 40, 210, 10, "This is what the STAT/REVW HC Pop-Up should look like:"
 				GroupBox 10, 55, 280, 40, "HEALTH CARE RENEWALS"
-				Text 20, 70, 110, 10, "Income Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
-				Text 150, 70, 125, 10, "Income/Asset Renewal Date: __ __ __"
+				Text 20, 70, 110, 10, "Income Renewal Date: __ __ __"
+				Text 150, 70, 125, 10, "Income/Asset Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 30, 80, 110, 10, "Elig Renewal Date: " & updated_hc_renewal_month & " 01 " & updated_hc_renewal_year
 				Text 175, 80, 85, 10, "Exempt from 6 Mo IR: N"
 				Text 20, 100, 260, 10, "Update ExParte fields on STAT/HCMI for each individual renewing as follows:"
@@ -6004,11 +6008,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 					'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 					EMReadScreen income_renewal_date, 8, 8, 27
 					EMReadScreen income_asset_renewal_date, 8, 8, 71
-					If income_renewal_date <> "__ __ __" Then
-						sr_date = income_renewal_date
-					ElseIf	income_asset_renewal_date <> "__ __ __" Then
-						sr_date = income_asset_renewal_date
-					End If
+					sr_date = income_asset_renewal_date
 					sr_month = left(sr_date, 2)
 					sr_year = right(sr_date, 2)
 					EMReadScreen elig_renewal_month, 2, 9, 27
@@ -6086,7 +6086,7 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 			Call write_variable_in_CASE_NOTE(updated_hc_renewal_month & "/" & updated_hc_renewal_year & " HC ER Scheduled - Ex Parte Could not be Processed")
 			Call write_variable_in_CASE_NOTE("Unable to complete all necessary Verifications to continue HC.")
 			Call write_variable_in_CASE_NOTE("Health Care Enrollees will need to complete a standard Renewal for " & updated_hc_renewal_month & "/" & updated_hc_renewal_year)
-			Call write_variable_in_CASE_NOTE(updated_hc_renewal_month & "/" & updated_hc_renewal_year & " is the next available month for and Eligibility Review.")
+			Call write_variable_in_CASE_NOTE(updated_hc_renewal_month & "/" & updated_hc_renewal_year & " is the next available month for an Eligibility Review.")
 			Call write_variable_in_CASE_NOTE("---")
 			CALL write_bullet_and_variable_in_case_note("Changes since Phase 1", phase_1_changes_summary)
 			CALL write_bullet_and_variable_in_case_note("Additional notes", phase_2_notes)
