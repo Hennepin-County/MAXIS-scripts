@@ -98,15 +98,16 @@ Call generate_client_list(list_of_household_members, "Select One ...")          
 'Date of Death for Household Member Dialog 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 75, "Enter Date of Death for Household Member"
-  EditBox 110, 25, 40, 15, date_of_death
+  DropListBox 110, 5, 140, 20, list_of_household_members, household_member_that_died
+  EditBox 110, 25, 45, 15, date_of_death
   ButtonGroup ButtonPressed
     OkButton 155, 55, 45, 15
     CancelButton 205, 55, 45, 15
   Text 5, 5, 100, 10, "Household Member that Died:"
   Text 55, 30, 50, 10, "Date of Death:"
-  DropListBox 110, 5, 140, 20, list_of_household_members, household_member_that_died
-  Text 152, 28, 50, 10, "(MM/DD/YYYY)"
+  Text 160, 25, 50, 10, "(MM/DD/YYYY)"
 EndDialog
+
 
 Do 
     Do
@@ -126,11 +127,25 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+'Navigate to STAT/MEMB to determine if DOD entered already
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
+EMReadScreen DOD_memb_panel, 10, 19, 42
+If DOD_memb_panel = "__ __ ____" Then 
+  DOD_already_entered = True
+Else
+  DOD_already_entered = False
+End If
+
+'Navigate to STAT/REMO to determine if HH Memb removed already
+Call navigate_to_MAXIS_screen("STAT", "REMO")
+If left(household_member_that_died, 2) = "01" Then 
+  'add handling here
+End If
+
 'Checks to see if in MAXIS
 Call check_for_MAXIS(False)
 
 'Do you need to check for PRIV status
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
 
 'Do you need to check to see if case is out of county? Add Out-of-County handling here:
 'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
