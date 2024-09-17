@@ -3684,16 +3684,24 @@ function define_emer_elig_dialog()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 555, 385, "EMER Approval"
 		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
-			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE for $ " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
-			y_pos = 40
+			GroupBox 5, 10, 425, 110, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE for $ " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
+			y_pos = 35
 			If EMER_ELIG_APPROVAL.mony_check_found = True Then
 				Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
 				For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
 					Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
 					y_pos = y_pos + 10
-					If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
-						Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
-						EditBox 115, y_pos, 75, 15, emer_excel_account_number
+					If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "CENTER POINT ENERGY") <> 0 Then
+						acct_numb_labels = " Account Number:"
+						If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 Then
+							acct_numb_labels = "XCEL" & acct_numb_labels
+						ElseIf Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
+							acct_numb_labels = "NSP" & acct_numb_labels
+						ElseIf Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "CENTER POINT ENERGY") <> 0 Then
+							acct_numb_labels = "CP" & acct_numb_labels
+						End If
+						Text 30, y_pos+5, 85, 10, acct_numb_labels
+						EditBox 115, y_pos, 75, 15, emer_excel_account_number(each_chck)
 						y_pos = y_pos + 20
 
 					End If
@@ -3707,10 +3715,10 @@ function define_emer_elig_dialog()
 				EditBox 95, y_pos, 325, 15, TEMP_bus_ticket_info
 				y_pos = y_pos + 20
 			End If
-			Text 15, 80, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
-			Text 15, 90, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
-			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
-			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
+			Text 15, y_pos, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
+			Text 15, y_pos+10, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 285, y_pos, 100, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 285, y_pos, 100, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
 
 			GroupBox 5, 125, 535, 90, "Emergency"
 			Text 15, 140, 85, 10, "Emergency to Resolve:"
@@ -7472,8 +7480,8 @@ function emer_elig_case_note()
 		If EMER_ELIG_APPROVAL.mony_check_found = True Then
 			Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
 			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 AND Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
-				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
+				If emer_excel_account_number(each_chck) = "" Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+				If emer_excel_account_number(each_chck) <> "" Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number(each_chck))
 				Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
 			Next
 		End If
@@ -29452,7 +29460,7 @@ If enter_CNOTE_for_EMER = True Then
 	emer_ongoing_shelter_expense = ""
 	emer_ongoing_utility_expense = ""
 	emer_past_30_days_income = ""
-	emer_excel_account_number = ""
+	Dim emer_excel_account_number()
 	emer_available_assets = ""
 	emer_emer_resolve_notes = ""
 
@@ -29466,6 +29474,9 @@ If enter_CNOTE_for_EMER = True Then
 	TEMP_bus_ticket_info = EMER_ELIG_APPROVAL.bus_ticket_detail
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
 	If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then emer_test_verif_detail = verifs_in_case_note
+
+	check_numb_ubound = UBound(EMER_ELIG_APPROVAL.emer_check_program)
+	ReDim emer_excel_account_number(check_numb_ubound)
 
 	'Identifies if the approval amount in ELIG/EMER is different from the total of MONY/CHCKs issued.
 	'We are prioritizing the amount in MONY/CHCK as that is the amount that will actually issue on the behalf of the resident.
