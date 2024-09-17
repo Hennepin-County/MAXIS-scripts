@@ -5988,6 +5988,9 @@ If vars_filled = False Then
 				If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
 					PROG_interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
 					emer_interview_missing = False
+                ElseIf unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" Then
+                    'If other programs are pending besides EMER, then the script will proceed even if EMER interview has NOT been completed
+                    emer_interview_missing = False
 				End If
 			End If
 		End If
