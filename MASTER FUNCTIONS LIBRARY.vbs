@@ -5620,7 +5620,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 						If MFIP_orientation_step = mf_completion Then
 						  GroupBox 10, 10, 450, 140, "Document MFIP Orientation Completion"
 						  Text 20, 30, 135, 10, "For " & CAREGIVER_ARRAY(memb_name_const, caregiver) & ":"
-						  Text 25, 50, 215, 10, "Did you verbally review all information in the MFIP Oreientation?"
+						  Text 25, 50, 215, 10, "Did you verbally review all information in the MFIP Orientation?"
 						  DropListBox 240, 45, 210, 45, "Select One..."+chr(9)+"Yes - all information has been reviewed"+chr(9)+"No - could not complete", CAREGIVER_ARRAY(orientation_done_const, caregiver)
 						  Text 25, 65, 240, 10, "Notes from any questions/conversation during the MFIP Orientation:"
 						  EditBox 25, 75, 425, 15, CAREGIVER_ARRAY(orientation_notes, caregiver)
