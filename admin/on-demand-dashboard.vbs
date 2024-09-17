@@ -388,6 +388,7 @@ function assign_a_case()
         case_review_notes                 = "TrackingNotes"
     End If
     end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number		'saving and formatting the information
+	case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
     assigned_tracking_notes = "STS-IP-"&user_ID_for_validation & " " & case_review_notes
 
 	'if not a demo case, the updated information should be saved to SQL
@@ -618,7 +619,8 @@ function complete_admin_functions()
                                 case_tracking_notes = replace(case_tracking_notes, "STS-HD-"&worker_number_to_resolve, "")
                                 case_tracking_notes = replace(case_tracking_notes, "STS-RC-"&worker_number_to_resolve, "")
                                 case_tracking_notes = replace(case_tracking_notes, "STS-RC", "")
-                                case_tracking_notescase_tracking_notescase_tracking_notes = trim(case_tracking_notes)
+                                case_tracking_notes = trim(case_tracking_notes)
+								case_tracking_notes = replace(case_tracking_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
                                 case_tracking_notes = "STS-NR " & case_tracking_notes
                                 case_tracking_notes = trim(case_tracking_notes)
                                 Exit Do
@@ -750,6 +752,7 @@ function create_assignment_report()
 			case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
 			case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
 			case_review_notes = replace(case_review_notes, "STS-RC", "")
+			case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
 			case_review_notes = trim(case_review_notes)
 
 			ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker
@@ -2033,6 +2036,7 @@ If worker_on_task = True Then
         case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
         case_review_notes = replace(case_review_notes, "STS-RC", "")
         case_review_notes = trim(case_review_notes)
+		case_review_notes = replace(case_review_notes, "'", "")								'remove any single quote from the string because it is a reserved character in SQL
         case_review_notes = "STS-HD-"&user_ID_for_validation & " " & case_review_notes
         Call update_tracking_cookie("HOLD")
 	End If

@@ -30726,31 +30726,32 @@ If enter_CNOTE_for_SNAP = True Then
 		Next
 
 		QCR_SNAP_ABAWD_30_09_String = trim(QCR_SNAP_ABAWD_30_09_String)
-		If MX_region = "TRAINING" Then QCR_SNAP_ABAWD_30_09_String = ""
+		If MX_region = "TRAINING" and user_ID_for_validation <> "CALO001" Then QCR_SNAP_ABAWD_30_09_String = ""
 		If developer_mode = True Then QCR_SNAP_ABAWD_30_09_String = ""
 
 		If QCR_SNAP_ABAWD_30_09_String <> "" Then
-			'RECORD QCR Cookie here
-			txt_file_name = "SNAP_WREG_30_09_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
-			qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+			If MX_region <> "TRAINING" Then
+				'RECORD QCR Cookie here
+				txt_file_name = "SNAP_WREG_30_09_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+				qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
 
-			'CREATING THE TESTING REPORT
-			With (CreateObject("Scripting.FileSystemObject"))
-				'Creating an object for the stream of text which we'll use frequently
-				Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+				'CREATING THE TESTING REPORT
+				With (CreateObject("Scripting.FileSystemObject"))
+					'Creating an object for the stream of text which we'll use frequently
+					Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
 
-				objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
-				objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
-				objTextStream.WriteLine "RunDateTime^&*^&*" & now
-				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
-				objTextStream.WriteLine "ELIGProgram^&*^&*SNAP"
-				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
-				objTextStream.WriteLine "ABAWDMembs^&*^&*MEMB " & replace(QCR_SNAP_ABAWD_30_09_String, " ", ", MEMB ")
-				objTextStream.WriteLine "POLICY^&*^&*CM 0011_24"
+					objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+					objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+					objTextStream.WriteLine "RunDateTime^&*^&*" & now
+					objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+					objTextStream.WriteLine "ELIGProgram^&*^&*SNAP"
+					objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+					objTextStream.WriteLine "ABAWDMembs^&*^&*MEMB " & replace(QCR_SNAP_ABAWD_30_09_String, " ", ", MEMB ")
+					objTextStream.WriteLine "POLICY^&*^&*CM 0011_24"
 
-				objTextStream.Close
-			End With
-
+					objTextStream.Close
+				End With
+			End If
 			email_subject = "TEST - SNAP Case with WREG coded 30/09 - Case: " & MAXIS_case_number
 			email_body = "A case was just approved with an eligible member coded as residing in a waivered area."
 			email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
@@ -30763,7 +30764,8 @@ If enter_CNOTE_for_SNAP = True Then
 
 			email_recip = "kerry.walsh@hennepin.us; brooke.reilley@hennepin.us"
 			email_recip_CC = "tanya.payne@hennepin.us"
-			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+			If MX_region <> "TRAINING" Then Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+			If MX_region = "TRAINING" Then Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", False)
 		End If
 	End If
 End If
