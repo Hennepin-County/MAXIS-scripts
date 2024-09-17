@@ -628,8 +628,8 @@ function create_expected_check_array()
 	' MsgBox "expected_check_array - " & expected_check_array
 end function
 
-
 function create_snap_anticipated_pay_array()
+'function to identify a list of anticipated pay dates for display in the dialog
 	snap_anticipated_pay_array = ""     'blanking these out because of looping
 	checks_list = ""
 	save_dates = FALSE
@@ -697,7 +697,7 @@ function create_snap_anticipated_pay_array()
 	'Formatting the list and making it an array
 	If left(checks_list, 1) = "%" Then checks_list = right(checks_list, len(checks_list)-1)
 	If InStr(checks_list, "%") <> 0 Then
-		snap_anticipated_pay_array = Split(checks_list,"%")
+		snap_anticipated_pay_array = Split(checks_list,"%")			'this is the array that is used in the confirmation dialog of the anticipated pay dates
 	Else
 		snap_anticipated_pay_array = Array(checks_list)
 	End If
@@ -3170,6 +3170,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                 End If
                             Next
                         Next
+						EARNED_INCOME_PANELS_ARRAY(default_start_date, ei_panel) = EARNED_INCOME_PANELS_ARRAY(panel_first_check, ei_panel)
 						save_your_work
                     End If          'If actual_checks_provided = TRUE Then
 
@@ -3375,7 +3376,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "3 - Every Other Week" Then word_for_freq = "biweekly"
 	                        If EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel) = "4 - Every Week" Then word_for_freq = "weekly"
 
-							Call create_snap_anticipated_pay_array()
+							If EARNED_INCOME_PANELS_ARRAY(pick_one, ei_panel) = use_estimate Then Call create_snap_anticipated_pay_array()
 
 	                        dlg_len = 70        'starting with this dialog
 	                        'FUTURE FUNCTIONALITY - maybe we add some information that summarizes what was entered on ENTER PAY Dialog - but we might not have reoom
