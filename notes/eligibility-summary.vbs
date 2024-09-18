@@ -94,6 +94,10 @@ QCR_UHFS_SHEL_Expense = True
 	QCR_UHFS_SHEL_Potential_Error = False
 QCR_HC_with_Remedial_Care_Deduction = True
 	QCR_HC_Remedial_Care_Review_Needed = False
+QCR_MSA_Shelter_Needy = True
+	QCR_MSA_Shelter_Needy_Amount = ""
+QCR_MSA_SSI_Ended = True
+	QCR_MSA_SSI_Ended_String = ""
 ' ------------------------------------------------------------------------------
 
 
@@ -30177,7 +30181,90 @@ if enter_CNOTE_for_MSA = True Then
 			Msgbox "You forgot - but the NOTE is gone"
 		End If
 		PF3
+
+
+		If QCR_MSA_Shelter_Needy = True Then
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+				For each_spec = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_code)
+					If MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_code(each_spec) = "SN" Then
+						QCR_MSA_Shelter_Needy_Found = True
+						If InStr(QCR_MSA_Shelter_Needy_Amount, MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_ref_numb(each_spec)) = 0 Then
+							QCR_MSA_Shelter_Needy_Amount = QCR_MSA_Shelter_Needy_Amount & "MEMB " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_ref_numb(each_spec) & " $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_amount(each_spec)
+						End If
+					End If
+				Next
+			End If
+		End If
+
+		If QCR_MSA_SSI_Ended = True	Then
+
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+				unea_44_found = False
+				For msa_memb = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs)
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(msa_memb) = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
+							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_memb) = "44" Then unea_44_found = True
+							If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_memb) = "44" Then unea_44_found = True
+							If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_memb) = "44" Then unea_44_found = True
+							If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_memb) = "44" Then unea_44_found = True
+							If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_memb) = "44" Then unea_44_found = True
+							If unea_44_found = True Then
+								If InStr(QCR_MSA_SSI_Ended_String, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) = 0 Then
+									QCR_MSA_SSI_Ended_String = QCR_MSA_SSI_Ended_String & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " "
+								End If
+							End If
+						End If
+					Next
+				Next
+			End If
+		End If
 	Next
+	If QCR_MSA_Shelter_Needy_Amount <> "" Then
+		If MX_region <> "TRAINING" Then
+			'RECORD QCR Cookie here
+			txt_file_name = "MSA_Shelter_Needy_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+			qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+			'CREATING THE TESTING REPORT
+			With (CreateObject("Scripting.FileSystemObject"))
+				'Creating an object for the stream of text which we'll use frequently
+				Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+				objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+				objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+				objTextStream.WriteLine "RunDateTime^&*^&*" & now
+				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+				objTextStream.WriteLine "ELIGProgram^&*^&*MSA with Shelter Needy"
+				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+				objTextStream.WriteLine "ShelterNeedyAmount^&*^&*" & trim(QCR_MSA_Shelter_Needy_Amount)
+
+				objTextStream.Close
+			End With
+		End If
+	End If
+	If QCR_MSA_SSI_Ended_String <> "" Then
+		If MX_region <> "TRAINING" Then
+			'RECORD QCR Cookie here
+			txt_file_name = "MSA_UNEA_44_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+			qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+			'CREATING THE TESTING REPORT
+			With (CreateObject("Scripting.FileSystemObject"))
+				'Creating an object for the stream of text which we'll use frequently
+				Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+				objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+				objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+				objTextStream.WriteLine "RunDateTime^&*^&*" & now
+				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+				objTextStream.WriteLine "ELIGProgram^&*^&*MSA with UNEA 44"
+				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+				objTextStream.WriteLine "UNEA44Membs^&*^&*MEMB " & replace(trim(QCR_MSA_SSI_Ended_String), " ", ", MEMB ")
+
+				objTextStream.Close
+			End With
+		End If
+	End If
 End If
 
 if enter_CNOTE_for_GA = True Then
