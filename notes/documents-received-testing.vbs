@@ -315,6 +315,48 @@ total_paid_by_others 		= 0
 
 
 'FUNCTIONS DEFINED===========================================================================
+
+'Copied from ELIG SUMM 
+function determine_thrifty_food_plan(footer_month, footer_year, hh_size, thrifty_food_plan)
+'--- This function outputs the dollar amount (as a number) of the Thrifty Food Plan on HH Size as needed by SNAP. Info Source: CM0022.12.01 HOW TO CALCULATE BENEFIT LEVEL - SNAP/MSA/GRH - https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00221201
+'~~~~~ footer_month: relevant footer month - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every October and we need to ensure we are pulling the correct amount
+'~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
+'~~~~~ thrifty_food_plan: NUMBER - this will output a number with the amount of the thrifty food plan based on footer month and HH Size
+'===== Keywords: SNAP, calculation, Income Test
+	month_to_review = footer_month & "/1/" & footer_year		'making this a date
+	month_to_review = DateAdd("d", 0, month_to_review)
+
+	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+		hh_size = hh_size*1
+		If DateDiff("d", #10/1/2023#, month_to_review) >= 0 Then				'on or after 10/1/23
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 291
+			If hh_size = 2 Then thrifty_food_plan = 535
+			If hh_size = 3 Then thrifty_food_plan = 766
+			If hh_size = 4 Then thrifty_food_plan = 973
+			If hh_size = 5 Then thrifty_food_plan = 1155
+			If hh_size = 6 Then thrifty_food_plan = 1386
+			If hh_size = 7 Then thrifty_food_plan = 1532
+			If hh_size = 8 Then thrifty_food_plan = 1751
+
+			If hh_size > 8 Then thrifty_food_plan = 1751 + (219 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then			'between 10/22-09/23
+			If hh_size = 0 Then thrifty_food_plan = 0
+			If hh_size = 1 Then thrifty_food_plan = 250
+			If hh_size = 2 Then thrifty_food_plan = 459
+			If hh_size = 3 Then thrifty_food_plan = 658
+			If hh_size = 4 Then thrifty_food_plan = 835
+			If hh_size = 5 Then thrifty_food_plan = 992
+			If hh_size = 6 Then thrifty_food_plan = 1190
+			If hh_size = 7 Then thrifty_food_plan = 1316
+			If hh_size = 8 Then thrifty_food_plan = 1504
+
+			If hh_size > 8 Then thrifty_food_plan = 1504 + (188 * (hh_size-8))
+		End If
+	End If
+end function
+
 'ASSET CODE-START
 function update_ACCT_panel_from_dialog()
     EMWriteScreen "                    ", 7, 44
@@ -2338,7 +2380,7 @@ function form_specific_error_handling()	'Error handling for main dialog of forms
 			If form_type_array(form_type_const, form_errors) = mof_form_name then 'Error handling for MOF Form 
 				If IsDate(mof_date_received) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid Document date."
 				If mof_hh_memb = "Select" Then mof_err_msg = mof_err_msg & vbNewLine & "* Select the member from the dropdown."
-				IF trim(mof_actions_taken) = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
+				If (mof_TTL_to_update_checkbox = unchecked and MOF_TTL_email_checkbox = unchecked) and trim(mof_actions_taken) = "" THEN mof_err_msg = mof_err_msg & vbCr & "* Enter your actions taken."		'checks that notes were entered
 				If MOF_TTL_email_checkbox = checked Then
 					If IsDate(mof_TTL_email_date) = FALSE Then mof_err_msg = mof_err_msg & vbNewLine & "* Enter a valid date for the date an email about this MOF was sent to TTL."
 				End If
@@ -3299,6 +3341,8 @@ For maxis_panel_read = 0 to Ubound(form_type_array, 2)
 			diet_mfip_msa_status = "MFIP/MSA Not Active/Pending - DIET Panel will NOT update"
 		End If
 		'MsgBox "dialog mfip/msa" & diet_mfip_msa_status
+
+		diet_mfip_msa_status = "MSA-Active - DIET Panel will update" 'todo delete
 	End IF 
 
 	If form_type_array(form_type_const, maxis_panel_read) = sf_form_name Then	'MAXIS NAVIGATION FOR PSN: READ MEMB, ADDR, HEST, SHEL
@@ -4460,10 +4504,196 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 	End If
 
 	If form_type_array(form_type_const, maxis_panel_write) = diet_form_name Then		'Write FOR DIET: Only updates DIET Panel from diet_date_received through CM+1 if diet is approved and active/pending MSA/MFIP. 
-
+		
 		If diet_status_dropdown = "Approved" Then			'Only if the diet is approved should we update the pben panel
 			If diet_mfip_msa_status <> "MFIP/MSA Not Active/Pending - DIET Panel will NOT update" Then		'Only if the determine program case status determines the case is active or pending on MSA or MFIP will it fill out the DIET panel. 
+				
 				Call convert_date_into_MAXIS_footer_month(diet_date_received, MAXIS_footer_month, MAXIS_footer_year)
+				Call determine_thrifty_food_plan(MAXIS_footer_month, MAXIS_footer_year, 1, thrifty_food_plan_for_diet)
+
+				'Calculating the value of each diet 
+				If left(diet_1_dropdown, 2) = "02" Then diet_1_amount = thrifty_food_plan_for_diet
+				If left(diet_1_dropdown, 2) = "03" Then diet_1_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_1_dropdown, 2) = "06" Then diet_1_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_1_dropdown, 2) = "07" Then diet_1_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_1_dropdown, 2) = "01" Then diet_1_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_1_dropdown, 2) = "11" Then diet_1_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_1_dropdown, 2) = "08" Then diet_1_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_1_dropdown, 2) = "04" Then diet_1_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_1_dropdown, 2) = "05" Then diet_1_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_1_dropdown, 2) = "10" Then diet_1_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_1_dropdown, 2) = "09" Then diet_1_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_2_dropdown, 2) = "02" Then diet_2_amount = thrifty_food_plan_for_diet
+				If left(diet_2_dropdown, 2) = "03" Then diet_2_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_2_dropdown, 2) = "06" Then diet_2_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_2_dropdown, 2) = "07" Then diet_2_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_2_dropdown, 2) = "01" Then diet_2_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_2_dropdown, 2) = "11" Then diet_2_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_2_dropdown, 2) = "08" Then diet_2_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_2_dropdown, 2) = "04" Then diet_2_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_2_dropdown, 2) = "05" Then diet_2_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_2_dropdown, 2) = "10" Then diet_2_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_2_dropdown, 2) = "09" Then diet_2_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_3_dropdown, 2) = "02" Then diet_3_amount = thrifty_food_plan_for_diet
+				If left(diet_3_dropdown, 2) = "03" Then diet_3_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_3_dropdown, 2) = "06" Then diet_3_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_3_dropdown, 2) = "07" Then diet_3_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_3_dropdown, 2) = "01" Then diet_3_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_3_dropdown, 2) = "11" Then diet_3_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_3_dropdown, 2) = "08" Then diet_3_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_3_dropdown, 2) = "04" Then diet_3_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_3_dropdown, 2) = "05" Then diet_3_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_3_dropdown, 2) = "10" Then diet_3_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_3_dropdown, 2) = "09" Then diet_3_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_4_dropdown, 2) = "02" Then diet_4_amount = thrifty_food_plan_for_diet
+				If left(diet_4_dropdown, 2) = "03" Then diet_4_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_4_dropdown, 2) = "06" Then diet_4_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_4_dropdown, 2) = "07" Then diet_4_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_4_dropdown, 2) = "01" Then diet_4_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_4_dropdown, 2) = "11" Then diet_4_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_4_dropdown, 2) = "08" Then diet_4_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_4_dropdown, 2) = "04" Then diet_4_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_4_dropdown, 2) = "05" Then diet_4_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_4_dropdown, 2) = "10" Then diet_4_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_4_dropdown, 2) = "09" Then diet_4_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_5_dropdown, 2) = "02" Then diet_5_amount = thrifty_food_plan_for_diet
+				If left(diet_5_dropdown, 2) = "03" Then diet_5_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_5_dropdown, 2) = "06" Then diet_5_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_5_dropdown, 2) = "07" Then diet_5_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_5_dropdown, 2) = "01" Then diet_5_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_5_dropdown, 2) = "11" Then diet_5_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_5_dropdown, 2) = "08" Then diet_5_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_5_dropdown, 2) = "04" Then diet_5_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_5_dropdown, 2) = "05" Then diet_5_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_5_dropdown, 2) = "10" Then diet_5_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_5_dropdown, 2) = "09" Then diet_5_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_6_dropdown, 2) = "02" Then diet_6_amount = thrifty_food_plan_for_diet
+				If left(diet_6_dropdown, 2) = "03" Then diet_6_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_6_dropdown, 2) = "06" Then diet_6_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_6_dropdown, 2) = "07" Then diet_6_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_6_dropdown, 2) = "01" Then diet_6_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_6_dropdown, 2) = "11" Then diet_6_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_6_dropdown, 2) = "08" Then diet_6_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_6_dropdown, 2) = "04" Then diet_6_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_6_dropdown, 2) = "05" Then diet_6_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_6_dropdown, 2) = "10" Then diet_6_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_6_dropdown, 2) = "09" Then diet_6_amount = thrifty_food_plan_for_diet*0.15
+
+				If left(diet_7_dropdown, 2) = "02" Then diet_7_amount = thrifty_food_plan_for_diet
+				If left(diet_7_dropdown, 2) = "03" Then diet_7_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_7_dropdown, 2) = "06" Then diet_7_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_7_dropdown, 2) = "07" Then diet_7_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_7_dropdown, 2) = "01" Then diet_7_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_7_dropdown, 2) = "11" Then diet_7_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_7_dropdown, 2) = "08" Then diet_7_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_7_dropdown, 2) = "04" Then diet_7_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_7_dropdown, 2) = "05" Then diet_7_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_7_dropdown, 2) = "10" Then diet_7_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_7_dropdown, 2) = "09" Then diet_7_amount = thrifty_food_plan_for_diet*0.15
+			
+				If left(diet_8_dropdown, 2) = "02" Then diet_8_amount = thrifty_food_plan_for_diet
+				If left(diet_8_dropdown, 2) = "03" Then diet_8_amount = thrifty_food_plan_for_diet*1.25
+				If left(diet_8_dropdown, 2) = "06" Then diet_8_amount = thrifty_food_plan_for_diet*0.35
+				If left(diet_8_dropdown, 2) = "07" Then diet_8_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_8_dropdown, 2) = "01" Then diet_8_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_8_dropdown, 2) = "11" Then diet_8_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_8_dropdown, 2) = "08" Then diet_8_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_8_dropdown, 2) = "04" Then diet_8_amount = thrifty_food_plan_for_diet*0.25
+				If left(diet_8_dropdown, 2) = "05" Then diet_8_amount = thrifty_food_plan_for_diet*0.20
+				If left(diet_8_dropdown, 2) = "10" Then diet_8_amount = thrifty_food_plan_for_diet*0.15
+				IF left(diet_8_dropdown, 2) = "09" Then diet_8_amount = thrifty_food_plan_for_diet*0.15
+				'msgbox diet_1_amount & vbcr & diet_2_amount & vbcr & diet_3_amount & vbcr & diet_4_amount & vbcr & diet_5_amount & vbcr & diet_6_amount & vbcr & diet_7_amount & vbcr & diet_8_amount
+
+
+				'Identifies the highest value of any overlapping diets 
+				diet_1_overlapping = FALSE
+				diet_2_overlapping = FALSE
+				diet_3_overlapping = FALSE
+				diet_4_overlapping = FALSE
+				diet_5_overlapping = FALSE
+				diet_6_overlapping = FALSE
+				diet_7_overlapping = FALSE
+				diet_8_overlapping = FALSE
+
+				maxVal = 0 
+				Dim diet_value ()
+				ReDim diet_value (0)
+				value_count = 0 
+
+				If diet_relationship_1_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_1_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_2_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_2_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_3_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_3_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_4_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_4_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_5_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_5_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_6_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_6_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_7_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_7_amount
+					value_count = value_count + 1
+				End If
+				If diet_relationship_8_dropdown = "Overlapping" Then 
+					ReDim Preserve diet_value (value_count)
+					diet_value(value_count) = diet_8_amount
+					value_count = value_count + 1
+				End If
+
+				For value = 0 to Ubound(diet_value)
+					If diet_value(value) > maxVal Then 
+						maxVal = diet_value(value)
+					End If
+				Next 
+
+				If maxVal = diet_1_amount Then diet_type = left(diet_1_dropdown, 2)
+				If maxVal = diet_2_amount Then diet_type = left(diet_2_dropdown, 2)
+				If maxVal = diet_3_amount Then diet_type = left(diet_3_dropdown, 2)
+				If maxVal = diet_4_amount Then diet_type = left(diet_4_dropdown, 2)
+				If maxVal = diet_5_amount Then diet_type = left(diet_5_dropdown, 2)
+				If maxVal = diet_6_amount Then diet_type = left(diet_6_dropdown, 2)
+				If maxVal = diet_7_amount Then diet_type = left(diet_7_dropdown, 2)
+				If maxVal = diet_8_amount Then diet_type = left(diet_8_dropdown, 2)
+				'msgbox "maxVal" & maxVal & vbcr & "diet_type" & diet_type
+
+				'Using a boolean to define which diets to write into MAXIS. If it is TRUE then it was overlapping but not the maxvalue therefore we do not want to write it into MAXIS
+				If diet_relationship_1_dropdown = "Overlapping" AND maxVal <> diet_1_amount Then diet_1_overlapping = TRUE
+				If diet_relationship_2_dropdown = "Overlapping" AND maxVal <> diet_2_amount Then diet_2_overlapping = TRUE
+				If diet_relationship_3_dropdown = "Overlapping" AND maxVal <> diet_3_amount Then diet_3_overlapping = TRUE
+				If diet_relationship_4_dropdown = "Overlapping" AND maxVal <> diet_4_amount Then diet_4_overlapping = TRUE
+				If diet_relationship_5_dropdown = "Overlapping" AND maxVal <> diet_5_amount Then diet_5_overlapping = TRUE
+				If diet_relationship_6_dropdown = "Overlapping" AND maxVal <> diet_6_amount Then diet_6_overlapping = TRUE
+				If diet_relationship_7_dropdown = "Overlapping" AND maxVal <> diet_7_amount Then diet_7_overlapping = TRUE
+				If diet_relationship_8_dropdown = "Overlapping" AND maxVal <> diet_8_amount Then diet_8_overlapping = TRUE
+				'msgbox "diet_1_overlapping" & diet_1_overlapping & vbcr & "diet_2_overlapping" & diet_2_overlapping & vbcr & "diet_3_overlapping" & diet_3_overlapping & vbcr & "diet_4_overlapping" & diet_4_overlapping & vbcr & "diet_5_overlapping" & diet_5_overlapping & vbcr & "diet_6_overlapping" & diet_6_overlapping & vbcr & "diet_7_overlapping" & diet_7_overlapping & vbcr & "diet_8_overlapping" & diet_8_overlapping
+	
+		
 				Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
 				For each thing in date_array
 					MAXIS_footer_month = datepart("m", thing)
@@ -4489,28 +4719,60 @@ For maxis_panel_write = 0 to Ubound(form_type_array, 2)
 						EMWaitReady 0, 0
 					End If
 					If diet_mfip_msa_status = "MFIP-Active - DIET Panel will update" or diet_mfip_msa_status = "MFIP-Pending - DIET Panel will update" Then		'If MFIP then write in diet, hard coded
-						EMWriteScreen left(diet_1_dropdown, 2), 8, 40
-						EMWriteScreen left(diet_verif_1_dropdown, 1), 8, 51
-						EMWriteScreen left(diet_2_dropdown, 2), 9, 40
-						EMWriteScreen left(diet_verif_2_dropdown, 1), 9, 51	
-						transmit 	
+						row = 8 
+						If diet_1_overlapping = FALSE then 
+							EMWriteScreen left(diet_1_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_1_dropdown, 1), row, 51
+							row = row + 1 
+						End If
+						If diet_2_overlapping = FALSE then
+							EMWriteScreen left(diet_2_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_2_dropdown, 1), row, 51	
+							row = row + 1
+						End If 
+						transmit 
+
 					ElseIf diet_mfip_msa_status = "MSA-Active - DIET Panel will update" or diet_mfip_msa_status = "MSA-Pending - DIET Panel will update" Then 	'If MSA then write in diets, hard coded
-						EMWriteScreen left(diet_1_dropdown, 2), 11, 40
-						EMWriteScreen left(diet_verif_1_dropdown, 1), 11, 51
-						EMWriteScreen left(diet_2_dropdown, 2), 12, 40
-						EMWriteScreen left(diet_verif_2_dropdown, 1), 12, 51
-						EMWriteScreen left(diet_3_dropdown, 2), 13, 40
-						EMWriteScreen left(diet_verif_3_dropdown, 1), 13, 51
-						EMWriteScreen left(diet_4_dropdown, 2), 14, 40
-						EMWriteScreen left(diet_verif_4_dropdown, 1), 14, 51
-						EMWriteScreen left(diet_5_dropdown, 2), 15, 40
-						EMWriteScreen left(diet_verif_5_dropdown, 1), 15, 51
-						EMWriteScreen left(diet_6_dropdown, 2), 16, 40
-						EMWriteScreen left(diet_verif_6_dropdown, 1), 16, 51
-						EMWriteScreen left(diet_7_dropdown, 2), 17, 40
-						EMWriteScreen left(diet_verif_7_dropdown, 1), 17, 51
-						EMWriteScreen left(diet_8_dropdown, 2), 18, 40
-						EMWriteScreen left(diet_verif_8_dropdown, 1), 18, 51
+						row = 11
+						If diet_1_overlapping = FALSE then 
+							EMWriteScreen left(diet_1_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_1_dropdown, 1), row, 51
+							row = row + 1
+						End If 
+						If diet_2_overlapping = FALSE then
+							EMWriteScreen left(diet_2_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_2_dropdown, 1), row, 51
+							row = row + 1 
+						End If
+						If diet_3_overlapping = FALSE then
+							EMWriteScreen left(diet_3_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_3_dropdown, 1), row, 51
+							row = row + 1 
+						End If
+						If diet_4_overlapping = FALSE then
+							EMWriteScreen left(diet_4_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_4_dropdown, 1), row, 51
+							row = row + 1
+						End If
+						If diet_5_overlapping = FALSE then
+							EMWriteScreen left(diet_5_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_5_dropdown, 1), row, 51
+							row = row + 1
+						End If 
+						If diet_6_overlapping = FALSE then
+							EMWriteScreen left(diet_6_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_6_dropdown, 1), row, 51
+							row = row + 1
+						End If 
+						If diet_7_overlapping = FALSE then
+							EMWriteScreen left(diet_7_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_7_dropdown, 1), row, 51
+							row = row + 1
+						End If 
+						If diet_8_overlapping = FALSE then
+							EMWriteScreen left(diet_8_dropdown, 2), row, 40
+							EMWriteScreen left(diet_verif_8_dropdown, 1), row, 51
+						End If
 						transmit
 					End If
 				Next
@@ -5028,6 +5290,15 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_variable_in_case_note("*** SPECIAL DIET FORM RECEIVED ***")	
 		CALL write_bullet_and_variable_in_case_note("Date Received", diet_date_received)	
 		CALL write_bullet_and_variable_in_case_note("Member", diet_ref_number)							'required
+		If diet_mfip_msa_status = "MFIP/MSA Not Active/Pending - DIET Panel will NOT update" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")
+		If diet_status_dropdown = "Incomplete" then
+			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- form returned to client")
+		ElseIf  diet_status_dropdown = "Denied" Then
+			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- The doctor has NOT indicated an eligible diet need.")
+		Else
+			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown)
+			CALL write_bullet_and_variable_in_CASE_NOTE("Updated DIET panel for months", updated_diet_months)
+		End If 
 		If diet_1_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 1", diet_1_dropdown & "- " & diet_relationship_1_dropdown)	'required
 		If diet_2_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 2", diet_2_dropdown & "- " & diet_relationship_2_dropdown)	'required
 		If diet_3_dropdown <> "" Then CALL write_bullet_and_variable_in_case_note("  Diet 3", diet_3_dropdown & "- " & diet_relationship_3_dropdown)	'required
@@ -5039,17 +5310,6 @@ For each_case_note = 0 to Ubound(form_type_array, 2)
 		CALL write_bullet_and_variable_in_case_note("Last exam date", diet_date_last_exam)
 		CALL write_bullet_and_variable_in_case_note("Diet Length", diet_length_diet)							'required
 		CALL write_bullet_and_variable_in_case_note("Person following treatment plan", diet_treatment_plan_dropdown)
-
-		If diet_mfip_msa_status = "MFIP/MSA Not Active/Pending - DIET Panel will NOT update" Then CALL write_variable_in_case_note("* DIET panel NOT updated- case is not active/pending for MSA or MFIP")
-		If diet_status_dropdown = "Incomplete" then
-			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- form returned to client")
-		ElseIf  diet_status_dropdown = "Denied" Then
-			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown & "- The doctor has NOT indicated an eligible diet need.")
-		Else
-			CALL write_bullet_and_variable_in_case_note("Diet status", diet_status_dropdown)
-			CALL write_bullet_and_variable_in_CASE_NOTE("Updated DIET panel for months", updated_diet_months)
-
-		End If 
 		CALL write_bullet_and_variable_in_case_note("Comments",diet_comments)
 		CALL write_variable_in_case_note("---")
 	End If
