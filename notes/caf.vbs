@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/18/2024", "Updated functionality to allow script to proceed if EMER is missing an interview date, but other programs are pending and have completed interviews.", "Mark Riegel, Hennepin County")
 call changelog_update("05/23/2024", "Added 'Pregnant' FSET status and 'ABAWD Banked Months' ABAWD status to TLR/ABAWD Dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/11/2023", "Bug Fix - sometimes there was an issue if the NOTES - CAF script found a program at application and recertification with dealing with potential multiple forms and dates. This update should resolve any errors in these rare situations.", "Casey Love, Hennepin County")
 call changelog_update("07/28/2023", "Two updates to this script:##~####~##1. Added the form DHS-2128 (Renewal for People Receiving MA-LTC) as an option. Be aware the script will not work if SNAP or  cash programs other than GRH are at recertification.##~##2. The script can redirect to the script NOTES - Health Care Evaluation if there is no CAF process found and there is Health Care on the case, and the form can be used on Health Care.##~##", "Casey Love, Hennepin County")
