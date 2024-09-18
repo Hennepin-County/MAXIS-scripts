@@ -90,6 +90,8 @@ QCR_SNAP_ABAWD_30_09_Eligible = True
 QCR_SNAP_ABAWD_30_10_All = False
 QCR_SNAP_Homeless_SHELTER_Expense_All = True
 	SNAP_Homeless_SHELTER_Expense_Min = 179.66
+QCR_UHFS_SHEL_Expense = True
+	QCR_UHFS_SHEL_Potential_Error = False
 QCR_HC_with_Remedial_Care_Deduction = True
 	QCR_HC_Remedial_Care_Review_Needed = False
 ' ------------------------------------------------------------------------------
@@ -30769,6 +30771,69 @@ If enter_CNOTE_for_SNAP = True Then
 		End If
 		PF3
 	Next
+
+	If QCR_UHFS_SHEL_Expense = True Then
+		uhfs_membs_list = " "
+		shel_membs_list = " "
+		For each_month = 0 to UBound(SNAP_ELIG_APPROVALS)
+			shel_exists_on_case = False
+			shel_exists_for_snap_memb = False
+			If SNAP_ELIG_APPROVALS(each_month).snap_uhfs = True Then
+				For stat_month = 0 to UBound(STAT_INFORMATION)
+					If SNAP_ELIG_APPROVALS(each_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(each_month).elig_footer_year = STAT_INFORMATION(stat_month).footer_month & "/" & STAT_INFORMATION(stat_month).footer_year Then
+						For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+							If STAT_INFORMATION(month_ind).stat_shel_exists(each_memb) = True Then
+								shel_exists_on_case = True
+								If InStr(shel_membs_list, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) = 0 Then
+									shel_membs_list = shel_membs_list & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " "
+								End If
+							End If
+							If InStr(SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) <> 0 Then
+								If InStr(uhfs_membs_list, STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)) = 0 Then
+									uhfs_membs_list = uhfs_membs_list & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " "
+								End If
+								If STAT_INFORMATION(month_ind).stat_disa_exists(each_memb) = True Then
+									If STAT_INFORMATION(month_ind).stat_shel_exists(each_memb) = True Then shel_exists_for_snap_memb = True
+								End If
+							End If
+						Next
+					End If
+				Next
+			End If
+			If shel_exists_on_case = True and shel_exists_for_snap_memb = False Then QCR_UHFS_SHEL_Potential_Error = True
+		Next
+		If QCR_UHFS_SHEL_Potential_Error = True Then
+			If MX_region <> "TRAINING" Then
+				'RECORD QCR Cookie here
+				txt_file_name = "SNAP_UHFS_SHEL_Expense_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+				qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+				'CREATING THE TESTING REPORT
+				With (CreateObject("Scripting.FileSystemObject"))
+					'Creating an object for the stream of text which we'll use frequently
+					Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+					objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+					objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+					objTextStream.WriteLine "RunDateTime^&*^&*" & now
+					objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+					objTextStream.WriteLine "ELIGProgram^&*^&*Uncle Harry SNAP"
+					For each_month = 0 to UBound(SNAP_ELIG_APPROVALS)
+						If SNAP_ELIG_APPROVALS(each_month).snap_uhfs = True Then
+							objTextStream.WriteLine "BUDGETED Shelter Expenses for " & SNAP_ELIG_APPROVALS(each_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(each_month).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(each_month).snap_budg_shel_expenses
+						End If
+					Next
+					objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+					objTextStream.WriteLine "UHFSMembs^&*^&*MEMB " & replace(trim(uhfs_membs_list), " ", ", MEMB ")
+					objTextStream.WriteLine "SHELMembs^&*^&*MEMB " & replace(trim(shel_membs_list), " ", ", MEMB ")
+					objTextStream.WriteLine "POLICY^&*^&*CM 0018_15"
+
+					objTextStream.Close
+				End With
+			End If
+		End If
+	End If
+
 
 	If QCR_SNAP_ABAWD_30_09_Eligible = True Then
 		For each_month = 0 to UBound(SNAP_ELIG_APPROVALS)
