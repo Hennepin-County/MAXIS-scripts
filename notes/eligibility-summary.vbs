@@ -29500,23 +29500,23 @@ If enter_CNOTE_for_EMER = True Then
 		Next
 		elig_pymt = EMER_ELIG_APPROVAL.emer_elig_summ_payment *1
 		If elig_pymt <> total_payment Then
-			email_subject = "EMER Case with where EMER and CHCK do not match - Case: " & MAXIS_case_number
-			email_body = "The ELIG/EMER amount in the approval does not match the checks issued for Emergency."
-			email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
-			email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
-			email_body = email_body & vbCr & "EMER Amount: " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
-			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-				If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
-					email_body = email_body & vbCr & "Check: $ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck)
-				End If
-			Next
-			email_body = email_body & vbCr & "EMER Eligible"
-			email_body = email_body & vbCr & ""
-			email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
+			' email_subject = "EMER Case with where EMER and CHCK do not match - Case: " & MAXIS_case_number
+			' email_body = "The ELIG/EMER amount in the approval does not match the checks issued for Emergency."
+			' email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
+			' email_body = email_body & vbCr & "Case Number: " & MAXIS_case_number
+			' email_body = email_body & vbCr & "EMER Amount: " & EMER_ELIG_APPROVAL.emer_elig_summ_payment
+			' For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+			' 	If IsNumeric(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)) = True then
+			' 		email_body = email_body & vbCr & "Check: $ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck)
+			' 	End If
+			' Next
+			' email_body = email_body & vbCr & "EMER Eligible"
+			' email_body = email_body & vbCr & ""
+			' email_body = email_body & vbCr & "Email generated from the NOTES - Eligibility Summary Script, run at " & now
 
-			email_recip = "hsph.ews.bluezonescripts@hennepin.us"
-			email_recip_CC = ""
-			Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
+			' email_recip = "hsph.ews.bluezonescripts@hennepin.us"
+			' email_recip_CC = ""
+			' Call create_outlook_email("", email_recip, email_recip_CC, email_recip_bcc, email_subject, 1, False, "", "", False, "", email_body, False, "", True)
 
 			EMER_ELIG_APPROVAL.emer_elig_summ_payment = total_payment
 
