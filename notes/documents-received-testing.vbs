@@ -2009,7 +2009,7 @@ end function
 Dim  psn_date_received, psn_member_dropdown, psn_section_1_dropdown, psn_section_2_dropdown, psn_section_3_dropdown, psn_section_4_dropdown, psn_section_5_dropdown, psn_cert_prof, psn_facility, psn_udpate_wreg_disa_checkbox, psn_tikl_checkbox, psn_wreg_fs_pwe, psn_wreg_work_wreg_status, psn_wreg_abawd_status, psn_wreg_ga_elig_status, psn_disa_begin_date, psn_disa_end_date, psn_disa_cert_start, psn_disa_cert_end, psn_disa_status, psn_disa_verif, psn_comments
 
 function sf_dialog()	
-  EditBox 395, 0, 45, 15, sf_date_received
+   EditBox 395, 0, 45, 15, sf_date_received
   ComboBox 85, 45, 170, 15, "Select or Type"+chr(9)+"Contract-Deed"+chr(9)+"DHS2952 Auth Release Residence/Shelter Info"+chr(9)+"Lease"+chr(9)+"Mortgage Statement"+chr(9)+"Written Statement", sf_name_of_form
   EditBox 85, 65, 120, 15, sf_tenant_name
   EditBox 85, 85, 45, 15, sf_total_rent
@@ -2027,12 +2027,12 @@ function sf_dialog()
   Text 30, 130, 45, 10, "Adults in Unit"
   Text 30, 150, 55, 10, "Children in Unit"
   Text 30, 170, 35, 10, "Comments"
-  GroupBox 10, 190, 350, 70, "Actions"
   Text 30, 110, 45, 10, "Subsidy Amt"
   Text 30, 50, 40, 10, "Form Name"
   Text 5, 5, 220, 10, sf_form_name
   Text 340, 5, 55, 10, "Document Date:"
   GroupBox 10, 35, 350, 160, "Form Information"
+  GroupBox 10, 190, 350, 55, "Actions"
 end function
 Dim sf_name_of_form, sf_date_received, sf_tenant_name, sf_total_rent, sf_adults, sf_children, sf_subsidy, sf_comments, sf_tikl_nav_check
 
