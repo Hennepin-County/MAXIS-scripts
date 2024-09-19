@@ -29500,6 +29500,8 @@ If enter_CNOTE_for_EMER = True Then
 		Next
 		elig_pymt = EMER_ELIG_APPROVAL.emer_elig_summ_payment *1
 		If elig_pymt <> total_payment Then
+			'This functionality checks to see if the payment amount listed in EMER matches the total from the checks - if it does not, an email is sent.
+			'Currently commented out as process analysis is on pause.
 			' email_subject = "EMER Case with where EMER and CHCK do not match - Case: " & MAXIS_case_number
 			' email_body = "The ELIG/EMER amount in the approval does not match the checks issued for Emergency."
 			' email_body = email_body & vbCr & vbCr &"Worker: " & script_run_worker & " - " & windows_user_ID
