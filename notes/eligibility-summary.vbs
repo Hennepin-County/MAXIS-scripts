@@ -28920,6 +28920,29 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 												If budget_without_remedial_care = "No, stop the script so ELIG can be updated and ReApproved." Then
 													If QCR_HC_Remedial_Care_Review_Needed = True Then
+														If MX_region <> "TRAINING" Then
+															'RECORD QCR Cookie here
+															txt_file_name = "HC_Remedial_Care_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+															qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+															'CREATING THE TESTING REPORT
+															With (CreateObject("Scripting.FileSystemObject"))
+																'Creating an object for the stream of text which we'll use frequently
+																Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+																objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+																objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+																objTextStream.WriteLine "RunDateTime^&*^&*" & now
+																objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+																objTextStream.WriteLine "ELIGProgram^&*^&*HC"
+																objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(HC_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+																objTextStream.WriteLine "HCBudgNoRemedialCareInput^&*^&*MEMB " & budget_without_remedial_care
+																objTextStream.WriteLine "POLICY^&*^&*EPM 2.4.2.5.1"
+
+																objTextStream.Close
+															End With
+														End If
+
 														email_subject = "TEST - HC Case in FACI Type (55 or 56): " & MAXIS_case_number
 														email_body = "A case was processed that appears to have Health Care and an OPEN FACI of Type 55 or 56."
 														email_body = email_body & vbCr & "budget_without_remedial_care: " & budget_without_remedial_care
@@ -30237,7 +30260,7 @@ if enter_CNOTE_for_MSA = True Then
 				objTextStream.WriteLine "RunDateTime^&*^&*" & now
 				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
 				objTextStream.WriteLine "ELIGProgram^&*^&*MSA with Shelter Needy"
-				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(MSA_UNIQUE_APPROVALS(months_in_approval, 0), 5)
 				objTextStream.WriteLine "ShelterNeedyAmount^&*^&*" & trim(QCR_MSA_Shelter_Needy_Amount)
 
 				objTextStream.Close
@@ -30260,7 +30283,7 @@ if enter_CNOTE_for_MSA = True Then
 				objTextStream.WriteLine "RunDateTime^&*^&*" & now
 				objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
 				objTextStream.WriteLine "ELIGProgram^&*^&*MSA with UNEA 44"
-				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(SNAP_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+				objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(MSA_UNIQUE_APPROVALS(months_in_approval, 0), 5)
 				objTextStream.WriteLine "UNEA44Membs^&*^&*MEMB " & replace(trim(QCR_MSA_SSI_Ended_String), " ", ", MEMB ")
 
 				objTextStream.Close
@@ -31413,6 +31436,29 @@ If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = 
 end_msg_info = end_msg_info & "Eligibility Approvals review and documentation script run is complete."
 
 If QCR_HC_Remedial_Care_Review_Needed = True Then
+	If MX_region <> "TRAINING" Then
+		'RECORD QCR Cookie here
+		txt_file_name = "HC_Remedial_Care_" & MAXIS_case_number & "_" & windows_user_ID & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+		qcr_file_path = t_drive & "\Eligibility Support\Assignments\QCR Logs\" & txt_file_name
+
+		'CREATING THE TESTING REPORT
+		With (CreateObject("Scripting.FileSystemObject"))
+			'Creating an object for the stream of text which we'll use frequently
+			Set objTextStream = .OpenTextFile(qcr_file_path, ForWriting, true)
+
+			objTextStream.WriteLine "WorkerNumber^&*^&*" & windows_user_ID
+			objTextStream.WriteLine "WorkerName^&*^&*" & script_run_worker
+			objTextStream.WriteLine "RunDateTime^&*^&*" & now
+			objTextStream.WriteLine "Case Number^&*^&*" & MAXIS_case_number
+			objTextStream.WriteLine "ELIGProgram^&*^&*HC"
+			objTextStream.WriteLine "InitialELIGMonthInPackage^&*^&*" & left(HC_UNIQUE_APPROVALS(months_in_approval, 0), 5)
+			objTextStream.WriteLine "HCBudgNoRemedialCareInput^&*^&*MEMB " & budget_without_remedial_care
+			objTextStream.WriteLine "POLICY^&*^&*EPM 2.4.2.5.1"
+
+			objTextStream.Close
+		End With
+	End If
+
 	email_subject = "TEST - HC Case in FACI Type (55 or 56): " & MAXIS_case_number
 	email_body = "A case was processed that appears to have Health Care and an OPEN FACI of Type 55 or 56."
 	email_body = email_body & vbCr & "budget_without_remedial_care: " & budget_without_remedial_care
