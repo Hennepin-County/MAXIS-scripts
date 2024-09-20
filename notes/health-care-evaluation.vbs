@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2024", "Added a reminder to review Remedial Care for any person in a type 55 or 56 Facility.", "Casey Love, Hennepin County")
 call changelog_update("07/08/2024", "Updated the script to handle ex parte phase 1 for households with 3 or more members on health care.", "Dave Courtright, Hennepin County")
 call changelog_update("07/02/2024", "Added Asset total by member to case note.", "Megan Geissler, Hennepin County")
 call changelog_update("04/15/2024", "Updated the script to handle changes to STAT/REVW HC popup and STAT/HCMI.", "Dave Courtright, Hennepin County")
@@ -218,91 +219,91 @@ function check_for_errors(eval_questions_clear)
 
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb))) = "" then
 				busi_income_note_added = busi_income_note_added & "*empty"
 			Else
 				busi_income_note_added = busi_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb))) = "" then
 				busi_income_note_added = busi_income_note_added & "*empty"
 			Else
 				busi_income_note_added = busi_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb))) = "" then
 				busi_income_note_added = busi_income_note_added & "*empty"
 			Else
 				busi_income_note_added = busi_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_one_notes(each_memb))) = "" then
 				jobs_income_note_added = jobs_income_note_added & "*empty"
 			Else
 				jobs_income_note_added = jobs_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_two_notes(each_memb))) = "" then
 				jobs_income_note_added = jobs_income_note_added & "*empty"
 			Else
 				jobs_income_note_added = jobs_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_three_notes(each_memb))) = "" then
 				jobs_income_note_added = jobs_income_note_added & "*empty"
 			Else
 				jobs_income_note_added = jobs_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_four_notes(each_memb))) = "" then
 				jobs_income_note_added = jobs_income_note_added & "*empty"
 			Else
 				jobs_income_note_added = jobs_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_jobs_five_notes(each_memb))) = "" then
 				jobs_income_note_added = jobs_income_note_added & "*empty"
 			Else
 				jobs_income_note_added = jobs_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb))) = "" then
 				unea_income_note_added = unea_income_note_added & "*empty"
 			Else
 				unea_income_note_added = unea_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb))) = "" then
 				unea_income_note_added = unea_income_note_added & "*empty"
 			Else
 				unea_income_note_added = unea_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb))) = "" then
 				unea_income_note_added = unea_income_note_added & "*empty"
 			Else
 				unea_income_note_added = unea_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb))) = "" then
 				unea_income_note_added = unea_income_note_added & "*empty"
 			Else
 				unea_income_note_added = unea_income_note_added & "*updated"
 			End if
 		End If
 		If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))) = "" then 
+			If trim(EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb))) = "" then
 				unea_income_note_added = unea_income_note_added & "*empty"
 			Else
 				unea_income_note_added = unea_income_note_added & "*updated"
@@ -1693,6 +1694,9 @@ function define_main_dialog()
 					Text 55, y_pos, 200, 10, "Facility Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
 					Text 260, y_pos, 200, 10, "Facility Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
 					y_pos = y_pos + 10
+					IF STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "55" or STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "56" Then
+						Text 260, y_pos, 200, 10, "* * * Review for Remedial Care Expense."
+					End If
 					If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
 						Text 55, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
 						y_pos = y_pos + 10
@@ -1873,6 +1877,10 @@ function define_main_dialog()
 									End If
 									If excluded_time_case = True Then
 										Text 55, y_pos, 300, 10, "EXCLUDED TIME CASE   -   County of Financial Responsibility: " & county_of_financial_responsibility
+										y_pos = y_pos + 10
+									End If
+									IF STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "55" or STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "56" Then
+										Text 55, y_pos, 200, 10, "* * * Review for Remedial Care Expense."
 										y_pos = y_pos + 10
 									End If
 									y_pos = y_pos + 10
@@ -2084,6 +2092,10 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
 						Text 55, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					IF STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "55" or STAT_INFORMATION(month_ind).stat_faci_type_code(each_memb) = "56" Then
+						Text 55, y_pos, 150, 10, "* * * Review for Remedial Care Expense."
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
@@ -2508,7 +2520,7 @@ function dialog_movement()
 	If ButtonPressed = cars_rest_btn Then page_display = show_cars_rest_page
 	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
 	If ButtonPressed = other_btn Then page_display = show_other_page
-	If ButtonPressed = bils_btn Then 
+	If ButtonPressed = bils_btn Then
 		page_display = bils_page
 		bils_viewed = True
 	End If
@@ -5131,6 +5143,11 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 								Text x_pos+20, y_pos+20, 150, 10, "Entry Date: " & MEMBER_INFO_ARRAY(FACI_date_in, each_memb)
 								Text x_pos+14, y_pos+30, 200, 10,"Facility Type: " & MEMBER_INFO_ARRAY(FACI_type_info, each_memb)
 								y_pos = y_pos + 45
+								IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "55" or MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "56" Then
+									MsgBox "It should be there"
+									Text x_pos+14, y_pos-5, 150, 10, "* * * Facility type 55 or 56 - Review for Remedial Care Expense."
+									y_pos = y_pos + 10
+								End If
 							Else
 								Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - Does not appear to be in a facility"
 								y_pos = y_pos + 10
@@ -5305,6 +5322,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 							Text x_pos+20, y_pos+20, 150, 10, "Entry Date: " & MEMBER_INFO_ARRAY(FACI_date_in, each_memb)
 							Text x_pos+14, y_pos+30, 200, 10,"Facility Type: " & MEMBER_INFO_ARRAY(FACI_type_info, each_memb)
 							y_pos = y_pos + 45
+							IF MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "55" or MEMBER_INFO_ARRAY(FACI_type_code, each_memb) = "56" Then
+								Text x_pos+14, y_pos-5, 200, 10, "* * * Review for Remedial Care Expense."
+								y_pos = y_pos + 10
+							End If
 						Else
 							Text x_pos, y_pos, 200, 10, MEMBER_INFO_ARRAY(memb_name_const, each_memb) & " - Does not appear to be in a facility"
 							y_pos = y_pos + 10
@@ -5889,10 +5910,10 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
 		updated_hc_renewal_month = CM_plus_2_mo
 		updated_hc_renewal_year = CM_plus_2_yr
-		If datepart("d", date) >= 15 Then 
+		If datepart("d", date) >= 15 Then
 			updated_hc_renewal_month = CM_plus_3_mo
 			updated_hc_renewal_year = CM_plus_3_yr
-		End If 
+		End If
 
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 351, 230, "Phase 2 - Ex Parte Denied"
