@@ -247,33 +247,33 @@ function check_for_errors(interview_questions_clear)
 	qual_memb_four = trim(qual_memb_four)
 	qual_memb_five = trim(qual_memb_five)
 	If qual_question_one = "?" OR (qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type")) Then
-		err_msg = err_msg & "~!~" & "10^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
+		err_msg = err_msg & "~!~" & "5^* Has a court or any other civil or administrative process in Minnesota or any other state found anyone in the household guilty or has anyone been disqualified from receiving public assistance for breaking any of the rules listed in the CAF?"
 		If qual_question_one = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_one = "Yes" AND (qual_memb_one = "" OR qual_memb_one = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 	If qual_question_two = "?" OR (qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type")) Then
-		err_msg = err_msg & "~!~" & "10^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
+		err_msg = err_msg & "~!~" & "5^* Has anyone in the household been convicted of making fraudulent statements about their place of residence to get cash or SNAP benefits from more than one state?"
 		If qual_question_two = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_two = "Yes" AND (qual_memb_two = "" OR qual_memb_two = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 	If qual_question_three = "?" OR (qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type")) Then
-		err_msg = err_msg & "~!~" & "10^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
+		err_msg = err_msg & "~!~" & "5^* Is anyone in your household hiding or running from the law to avoid prosecution being taken into custody, or to avoid going to jail for a felony?"
 		If qual_question_three = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_three = "Yes" AND (qual_memb_there = "" OR qual_memb_there = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 	If qual_question_four = "?" OR (qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type")) Then
-		err_msg = err_msg & "~!~" & "10^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
+		err_msg = err_msg & "~!~" & "5^* Has anyone in your household been convicted of a drug felony in the past 10 years?"
 		If qual_question_four = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_four = "Yes" AND (qual_memb_four = "" OR qual_memb_four = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 	If qual_question_five = "?" OR (qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type")) Then
-		err_msg = err_msg & "~!~" & "10^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
+		err_msg = err_msg & "~!~" & "5^* Is anyone in your household currently violating a condition of parole, probation or supervised release?"
 		If qual_question_five = "?" Then err_msg = err_msg & "##~##   - Select 'Yes' or 'No' based on what the resident has entered on the CAF. If this is blank, ask the resident now."
 		If qual_question_five = "Yes" AND (qual_memb_five = "" OR qual_memb_five = "Select or Type") Then err_msg = err_msg & "##~##   - Since this was answered 'Yes' you must indicate the person(s) who this 'Yes' applies to."
 	End If
 
 	If expedited_determination_needed = True Then
-		If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & "13 ^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
+		If expedited_determination_completed = False Then err_msg = err_msg & "~!~" & "7^* Expedited##~##   - You must complete the process for the Expedited Determination. Press the 'EXPEDITED' button on the right and complete all steps."
 	End If
 
 	If err_msg = "" Then interview_questions_clear = TRUE
@@ -284,30 +284,30 @@ function check_for_errors(interview_questions_clear)
 		second_signature_detail = trim(second_signature_detail)
 		signature_person = trim(signature_person)
 		second_signature_person = trim(second_signature_person)
-		If signature_detail = "Select or Type" OR signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult##~##   - Indicate how the signature information has been received (or not received)."
-		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received). If no second adult is on the case or the signature of the second adult is not required, select 'Not Required'."
+		If signature_detail = "Select or Type" OR signature_detail = "" Then err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult##~##   - Indicate how the signature information has been received (or not received)."
+		If second_signature_detail = "Select or Type" OR second_signature_detail = "" Then err_msg = err_msg & "~!~" & "6^* Signature of Other Adult##~##   - Indicate how the second signature information has been received (or not received). If no second adult is on the case or the signature of the second adult is not required, select 'Not Required'."
 		'If signatires are signed or verbal - then person and date must be completed
 		If signature_detail = "Signature Completed" OR signature_detail  = "Accepted Verbally" Then
-			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
+			If signature_person = "" AND signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - person##~##   - Since the signature was completed, indicate whose sigature it is."
 			If IsDate(signature_date) = False Then
-				err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
+				err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - date##~##   - Enter the date of the signature as a valid date."
 			Else
-				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
+				If DateDiff("d", date, signature_date) > 0 Then err_msg = err_msg & "~!~" & "6^* Signature of Primary Adult - date##~##   - The date of the primary signature cannot be in the future."
 			End If
 		End If
 		If second_signature_detail = "Signature Completed" OR second_signature_detail  = "Accepted Verbally" Then
-			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
+			If second_signature_person = "" AND second_signature_person = "Select or Type" Then err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - person##~##   - Since the secondary adult signature was completed, indicate whose sigature it is."
 			If IsDate(second_signature_date) = False Then
-				err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
+				err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - date##~##   - Enter the date of the signature as a valid date."
 			Else
-				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
+				If DateDiff("d", date, second_signature_date) > 0 Then err_msg = err_msg & "~!~" & "6^* Signature of Other Adult - date##~##   - The date of the primary signature cannot be in the future."
 			End If
 		End If
 		'Interview date must be a date and not in the future
 		If IsDate(interview_date) = False Then
-			err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - Enter the date of the interview as a valid date."
+			err_msg = err_msg & "~!~" & "6^* Interview Date##~##   - Enter the date of the interview as a valid date."
 		Else
-			If DateDiff("d", date, interview_date) > 0 Then err_msg = err_msg & "~!~" & "11^* Interview Date##~##   - The date of the interview cannot be in the future."
+			If DateDiff("d", date, interview_date) > 0 Then err_msg = err_msg & "~!~" & "6^* Interview Date##~##   - The date of the interview cannot be in the future."
 		End If
 
 		If snap_status = "INACTIVE" AND case_is_expedited = True Then
@@ -573,7 +573,7 @@ function define_main_dialog()
 			Text 330, 135, 35, 10, "Hispanic?"
 			Text 330, 160, 50, 10, "Race"
 			Text 70, 200, 145, 10, "Which programs is this person requesting?"
-			Text 70, 255, 70, 10, "Intends to reside in MN"
+			Text 70, 255, 80, 10, "Intends to reside in MN"
 			Text 155, 255, 65, 10, "Immigration Status"
 			Text 365, 255, 50, 10, "Sponsor?"
 			Text 70, 280, 50, 10, "Notes:"
@@ -3171,7 +3171,7 @@ function write_interview_CASE_NOTE()
 	End If
 	If trim(arep_interview_id_information) <> "" Then CALL write_variable_in_CASE_NOTE("AREP Identity Verification: " & arep_interview_id_information)
 	If trim(non_applicant_interview_info) <> "" Then CALL write_variable_in_CASE_NOTE("Interviewee Information: " & non_applicant_interview_info)
-	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date & " at " & interview_started_time & " (" & interview_time & " min)")
+	CALL write_variable_in_CASE_NOTE("Completed on " & interview_date)
 	CALL write_variable_in_CASE_NOTE("Interview using form: " & CAF_form_name & ", received on " & CAF_datestamp)
 
 	CALL write_variable_in_CASE_NOTE("Interview Programs:")
