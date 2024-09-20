@@ -12652,7 +12652,8 @@ class msa_eligibility_detail
 						End If
 					Next
 
-					EMReadScreen info_code, 2, 8, msa_col
+					msa_row = 8
+					EMReadScreen info_code, 2, msa_row, msa_col
 					Do while info_code <> "__"
 						ReDim preserve msa_elig_budg_spec_standard_ref_numb(spec_needs_count)
 						ReDim preserve msa_elig_budg_spec_standard_type_code(spec_needs_count)
@@ -30207,7 +30208,6 @@ if enter_CNOTE_for_MSA = True Then
 		End If
 		PF3
 
-
 		If QCR_MSA_Shelter_Needy = True Then
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 				For each_spec = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_code)
@@ -30222,10 +30222,9 @@ if enter_CNOTE_for_MSA = True Then
 		End If
 
 		If QCR_MSA_SSI_Ended = True	Then
-
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
-				unea_44_found = False
 				For msa_memb = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs)
+					unea_44_found = False
 					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 						If MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(msa_memb) = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
 							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_memb) = "44" Then unea_44_found = True
@@ -30244,6 +30243,7 @@ if enter_CNOTE_for_MSA = True Then
 			End If
 		End If
 	Next
+
 	If QCR_MSA_Shelter_Needy_Amount <> "" Then
 		If MX_region <> "TRAINING" Then
 			'RECORD QCR Cookie here
