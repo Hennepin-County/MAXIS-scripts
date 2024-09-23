@@ -213,8 +213,11 @@ If restart_checkbox <> checked Then
 		EMWriteScreen worker, 21, 16
 		transmit
 
+		EMReadScreen check_for_NAT_Error, 23, 2, 29
+
 		'Skips workers with no info
 		EMReadScreen has_content_check, 1, 7, 5
+		If check_for_NAT_Error = "MAXIS Application Error" Then has_content_check = " "
 		If has_content_check <> " " then
 			Do
 				EMReadScreen last_page_check, 21, 24, 2	'because on REPT/EOMC it displays right away, instead of when the second F8 is sent
