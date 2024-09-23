@@ -108,7 +108,6 @@ BeginDialog Dialog1, 0, 0, 256, 75, "Enter Date of Death for Household Member"
   Text 160, 25, 50, 10, "(MM/DD/YYYY)"
 EndDialog
 
-
 Do 
     Do
         err_msg = ""
@@ -127,19 +126,61 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+msgbox household_member_that_died
+
+'Navigate to STAT/TYPE to determine applicable programs
+Call navigate_to_MAXIS_screen("STAT", "TYPE")
+'Read programs for HH Memb
+stat_type_row = 6
+Do
+  EMReadScreen type_panel_HH_memb, 2, stat_type_row, 3
+  msgbox "type_panel_HH_memb " & type_panel_HH_memb
+  msgbox "left(household_member_that_died, 2) " & left(household_member_that_died, 2)
+  If type_panel_HH_memb = left(household_member_that_died, 2) Then
+    EMReadScreen stat_type_cash, 1, stat_type_row, 28
+    EMReadScreen stat_type_hc, 1, stat_type_row, 37
+    EMReadScreen stat_type_snap, 1, stat_type_row, 46
+    EMReadScreen stat_type_emer, 1, stat_type_row, 55
+    EMReadScreen stat_type_grh, 1, stat_type_row, 64
+    EMReadScreen stat_type_iv-e, 1, stat_type_row, 73
+    msgbox "stat_type_cash " & stat_type_cash
+    msgbox "stat_type_hc " & stat_type_hc
+    msgbox "stat_type_snap " & stat_type_snap 
+    msgbox "stat_type_emer " & stat_type_emer
+    msgbox "stat_type_grh " & stat_type_grh
+    msgbox "stat_type_iv-e " & stat_type_iv-e
+    Exit Do
+  Else
+    stat_type_row = stat_type_row + 1
+    If stat_type_row = 19 Then Exit Do
+  End If
+Loop
+
 'Navigate to STAT/MEMB to determine if DOD entered already
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadScreen DOD_memb_panel, 10, 19, 42
 If DOD_memb_panel = "__ __ ____" Then 
-  DOD_already_entered = True
+  DOD_entered_memb = True
 Else
-  DOD_already_entered = False
+  DOD_entered_memb = False
 End If
 
 'Navigate to STAT/REMO to determine if HH Memb removed already
-Call navigate_to_MAXIS_screen("STAT", "REMO")
-If left(household_member_that_died, 2) = "01" Then 
-  'add handling here
+'STAT/REMO should only be updated if HH MEMB OTHER than 01 has died
+If left(household_member_that_died, 2) <> "01" Then
+  Call navigate_to_MAXIS_screen("STAT", "REMO")
+  EMReadScreen DOD_remo_panel, 8, 8, 53
+  EMReadScreen reason_code_remo_panel, 2, 8, 71
+  If DOD_remo_panel = "__ __ __" then 
+    DOD_remo_panel_blank = True 
+  Else
+    DOD_remo_panel_blank = False
+  End If
+  If reason_code_remo_panel <> "01" Then 
+    DOD_remo_reason_01 = False 
+  Else
+    DOD_remo_reason_01 = True
+  End If
 End If
 
 'Checks to see if in MAXIS
