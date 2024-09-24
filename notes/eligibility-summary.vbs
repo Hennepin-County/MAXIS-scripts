@@ -1018,7 +1018,22 @@ function define_mfip_elig_dialog()
 		End If
 
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
-			GroupBox 5, y_pos, 445, 65, "MFIP Benefits Issued for the Approval Package"
+			grp_len = 65
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_sig_change = True Then
+				y_pos = y_pos-2
+				Text 10, y_pos, 200, 10, "*  *  *  Significant Change Approved  *  *  *"
+				If MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_one_of_sig_change = "" Then
+					Text 300, y_pos, 120, 10, "Sig Change Month: " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_two_of_sig_change
+				ElseIF MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_two_of_sig_change = "" Then
+					Text 300, y_pos, 120, 10, "Sig Change Month: " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_one_of_sig_change
+				Else
+					Text 300, y_pos, 145, 10, "Sig Change Months: " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_one_of_sig_change & " and " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_month_two_of_sig_change
+				End If
+				Text 10, y_pos+10, 400, 10, "Total Budget Month Income $ " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_budg_mo_total_inc  & "     ---      Total Payment Month Income $ " & MFIP_ELIG_APPROVALS(elig_ind).mfsc_pay_mo_total_inc
+				y_pos = y_pos + 22
+				grp_len = 45
+			End If
+			GroupBox 5, y_pos, 445, grp_len, "MFIP Benefits Issued for the Approval Package"
 			app_y_pos = y_pos + 15
 			' app_y_pos = 150
 			app_x_pos = 10
@@ -1049,7 +1064,7 @@ function define_mfip_elig_dialog()
 					End If
 				End If
 			Next
-			y_pos = y_pos + 70
+			y_pos = y_pos + grp_len + 5
 		Else
 			y_pos = y_pos + 15
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
@@ -9886,7 +9901,24 @@ class mfip_eligibility_detail
 	public mfip_deemed_income_exists
 	public mfip_counted_memb_allocation_exists
 	public mfip_deemer_allocation_exists
-	'TODO - add significant change functionality
+
+	public mfip_sig_change
+	public mfsc_month_one_of_sig_change
+	public mfsc_month_one_of_sig_change_mo
+	public mfsc_month_one_of_sig_change_yr
+	public mfsc_month_two_of_sig_change
+	public mfsc_month_two_of_sig_change_mo
+	public mfsc_month_two_of_sig_change_yr
+	public mfsc_budg_mo_earned_inc
+	public mfsc_budg_mo_deemed_inc
+	public mfsc_budg_mo_unearned_inc
+	public mfsc_budg_mo_total_inc
+	public mfsc_budg_mo_net_inc
+	public mfsc_pay_mo_earned_inc
+	public mfsc_pay_mo_deemed_inc
+	public mfsc_pay_mo_unearned_inc
+	public mfsc_pay_mo_total_inc
+
 	public mfip_mony_check_found
 	public mfip_check_issue_date()
 	public mfip_check_program()
@@ -10286,6 +10318,7 @@ class mfip_eligibility_detail
 		mfip_deemed_income_exists = False
 		mfip_counted_memb_allocation_exists = False
 		mfip_deemer_allocation_exists = False
+		mfip_sig_change = False
 
 		approved_today = False
 		approved_version_found = False
@@ -10486,8 +10519,39 @@ class mfip_eligibility_detail
 			EMReadScreen significant_change_check, 18, 4, 3
 			If significant_change_check = "SIGNIFICANT CHANGE" Then
 				Call write_value_and_transmit("MFSC", 20, 71)						'navigate to this panel manually to read sig change details
-				sig_change = True
-				'TODO - add reading of sig change details for specific handling.
+				mfip_sig_change = True
+
+				EMReadScreen mfsc_month_one_of_sig_change, 		7, 13, 40
+				EMReadScreen mfsc_month_one_of_sig_change_mo, 	2, 13, 40
+				EMReadScreen mfsc_month_one_of_sig_change_yr, 	2, 13, 45
+				EMReadScreen mfsc_month_two_of_sig_change,		7, 13, 52
+				EMReadScreen mfsc_month_two_of_sig_change_mo, 	2, 13, 52
+				EMReadScreen mfsc_month_two_of_sig_change_yr, 	2, 13, 57
+				mfsc_month_one_of_sig_change = replace(mfsc_month_one_of_sig_change, " ", "")
+				If mfsc_month_one_of_sig_change = "/" Then mfsc_month_one_of_sig_change = ""
+				mfsc_month_two_of_sig_change = replace(mfsc_month_two_of_sig_change, " ", "")
+				If mfsc_month_two_of_sig_change = "/" Then mfsc_month_two_of_sig_change = ""
+
+				EMReadScreen mfsc_budg_mo_earned_inc, 	9,  6, 34
+				EMReadScreen mfsc_budg_mo_deemed_inc, 	9,  7, 34
+				EMReadScreen mfsc_budg_mo_unearned_inc, 9,  8, 34
+				EMReadScreen mfsc_budg_mo_total_inc, 	9,  9, 34
+				EMReadScreen mfsc_budg_mo_net_inc, 		9, 11, 34
+				mfsc_budg_mo_earned_inc = trim(mfsc_budg_mo_earned_inc)
+				mfsc_budg_mo_deemed_inc = trim(mfsc_budg_mo_deemed_inc)
+				mfsc_budg_mo_unearned_inc = trim(mfsc_budg_mo_unearned_inc)
+				mfsc_budg_mo_total_inc = trim(mfsc_budg_mo_total_inc)
+				mfsc_budg_mo_net_inc = trim(mfsc_budg_mo_net_inc)
+
+				EMReadScreen mfsc_pay_mo_earned_inc, 	9,  6, 53
+				EMReadScreen mfsc_pay_mo_deemed_inc, 	9,  7, 53
+				EMReadScreen mfsc_pay_mo_unearned_inc,	9,  8, 53
+				EMReadScreen mfsc_pay_mo_total_inc, 	9,  9, 53
+				mfsc_pay_mo_earned_inc = trim(mfsc_pay_mo_earned_inc)
+				mfsc_pay_mo_deemed_inc = trim(mfsc_pay_mo_deemed_inc)
+				mfsc_pay_mo_unearned_inc = trim(mfsc_pay_mo_unearned_inc)
+				mfsc_pay_mo_total_inc = trim(mfsc_pay_mo_total_inc)
+
 				Call write_value_and_transmit("MFPR", 20, 71)						'now we get to the panel that most ELIG/MFIP starts with
 			End If
 
@@ -24768,6 +24832,7 @@ first_month_not_created_today = ""
 first_year_not_created_today = ""
 first_prog_not_created_today = ""
 special_diet_check_exists = False
+sig_change_months = " "
 
 For each footer_month in MONTHS_ARRAY
 	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
@@ -24863,6 +24928,7 @@ For each footer_month in MONTHS_ARRAY
 			approval_found_for_this_month = True
 			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 			SPECIAL_PROCESSES_BY_MONTH(MFIP_app_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
+			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_sig_change = True Then sig_change_months = sig_change_months & MAXIS_footer_month & "/" & MAXIS_footer_year & " "
 		ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, MFIP_ELIG_APPROVALS(mfip_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MFIP approved today." & vbCr
@@ -26925,6 +26991,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 	last_amount_already_issued = ""
 	last_food_portion_deduct = ""
 	last_info_source = ""
+	last_sig_change = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -26959,6 +27026,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 				last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
 				last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
+				last_sig_change = MFIP_ELIG_APPROVALS(approval).mfip_sig_change
 
 				unique_app_count = unique_app_count + 1
 			Else
@@ -26978,6 +27046,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_amount_already_issued <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued Then match_last_benefit_amounts = False
 				If last_food_portion_deduct <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction Then match_last_benefit_amounts = False
 				If last_info_source <> MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info Then match_last_benefit_amounts = False
+				If last_sig_change <> MFIP_ELIG_APPROVALS(approval).mfip_sig_change Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
 					MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
@@ -27008,6 +27077,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 					last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
 					last_info_source = MFIP_ELIG_APPROVALS(approval).mfip_case_source_of_info
+					last_sig_change = MFIP_ELIG_APPROVALS(approval).mfip_sig_change
 
 					unique_app_count = unique_app_count + 1
 				End If
@@ -31218,6 +31288,69 @@ If denials_found_on_pnd2 = True Then
 				Call write_variable_in_CASE_NOTE("---")
 				Call write_variable_in_CASE_NOTE(worker_signature)
 			End If
+		End If
+	End If
+End If
+
+If enter_CNOTE_for_MFIP = True Then
+	sig_change_months = trim(sig_change_months)
+	If sig_change_months <> "" Then
+		case_note_sig_change = False
+		elig_month_one = ""
+		elig_month_two = ""
+		If len(sig_change_months) = 5 Then
+			For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year = sig_change_months Then
+					elig_month_one = approval
+					case_note_sig_change = True
+				End If
+			Next
+		ElseIf len(sig_change_months) = 11 Then
+			For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+				If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year = sig_change_months Then
+					If elig_month_one = "" Then
+						elig_month_one = approval
+					Else
+						elig_month_two = approval
+					End If
+					case_note_sig_change = True
+				End If
+			Next
+		End If
+		If case_note_sig_change = True Then
+			end_msg_info = end_msg_info & "NOTE for MFIP Significant Change Approved" & vbCr
+
+			sig_change_header_months = replace(sig_change_months, " ", " and ")
+			Call start_a_blank_CASE_NOTE
+			Call write_variable_in_CASE_NOTE("Significant Change APPROVED for " & sig_change_header_months)
+			Call write_variable_in_CASE_NOTE("  MFIP budget adjusted due to a")
+			Call write_variable_in_CASE_NOTE("  Significant Change between the Budget Month and Payment Month.")
+
+			Call write_variable_in_CASE_NOTE("---")
+			Call write_bullet_and_variable_in_CASE_NOTE("Benefit Month", MFIP_ELIG_APPROVALS(elig_month_one).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(elig_month_one).elig_footer_year)
+			months_used = MFIP_ELIG_APPROVALS(elig_month_one).mfsc_month_one_of_sig_change & " " & MFIP_ELIG_APPROVALS(elig_month_one).mfsc_month_two_of_sig_change
+			months_used = replace(trim(months_used), " ", " and ")
+			Call write_bullet_and_variable_in_CASE_NOTE("Sig Change Months Used", months_used)
+			Call write_variable_in_CASE_NOTE("* Budget Month Total Income  - $ " & MFIP_ELIG_APPROVALS(elig_month_one).mfsc_budg_mo_total_inc)
+			Call write_variable_in_CASE_NOTE("* Payment Month Total Income - $ " & MFIP_ELIG_APPROVALS(elig_month_one).mfsc_pay_mo_total_inc)
+			If elig_month_two <> "" Then
+				Call write_variable_in_CASE_NOTE("---")
+				Call write_bullet_and_variable_in_CASE_NOTE("Benefit Month", MFIP_ELIG_APPROVALS(elig_month_two).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(elig_month_two).elig_footer_year)
+				months_used = MFIP_ELIG_APPROVALS(elig_month_two).mfsc_month_one_of_sig_change & " " & MFIP_ELIG_APPROVALS(elig_month_two).mfsc_month_two_of_sig_change
+				months_used = replace(trim(months_used), " ", " and ")
+				Call write_bullet_and_variable_in_CASE_NOTE("Sig Change Months Used", months_used)
+				Call write_variable_in_CASE_NOTE("* Budget Month Total Income  - $ " & MFIP_ELIG_APPROVALS(elig_month_two).mfsc_budg_mo_total_inc)
+				Call write_variable_in_CASE_NOTE("* Payment Month Total Income - $ " & MFIP_ELIG_APPROVALS(elig_month_two).mfsc_pay_mo_total_inc)
+			End If
+			Call write_variable_in_CASE_NOTE("---")
+			Call write_variable_in_CASE_NOTE(worker_signature)
+
+			If developer_mode = True Then
+				MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result		'TESTING OPTION'
+				PF10
+				Msgbox "You forgot - but the NOTE is gone"
+			End If
+			PF3
 		End If
 	End If
 End If
