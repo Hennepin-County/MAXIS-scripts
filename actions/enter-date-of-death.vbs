@@ -126,16 +126,12 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-msgbox household_member_that_died
-
 'Navigate to STAT/TYPE to determine applicable programs
 Call navigate_to_MAXIS_screen("STAT", "TYPE")
 'Read programs for HH Memb
 stat_type_row = 6
 Do
   EMReadScreen type_panel_HH_memb, 2, stat_type_row, 3
-  msgbox "type_panel_HH_memb " & type_panel_HH_memb
-  msgbox "left(household_member_that_died, 2) " & left(household_member_that_died, 2)
   If type_panel_HH_memb = left(household_member_that_died, 2) Then
     EMReadScreen stat_type_cash, 1, stat_type_row, 28
     EMReadScreen stat_type_hc, 1, stat_type_row, 37
@@ -143,12 +139,6 @@ Do
     EMReadScreen stat_type_emer, 1, stat_type_row, 55
     EMReadScreen stat_type_grh, 1, stat_type_row, 64
     EMReadScreen stat_type_iv-e, 1, stat_type_row, 73
-    msgbox "stat_type_cash " & stat_type_cash
-    msgbox "stat_type_hc " & stat_type_hc
-    msgbox "stat_type_snap " & stat_type_snap 
-    msgbox "stat_type_emer " & stat_type_emer
-    msgbox "stat_type_grh " & stat_type_grh
-    msgbox "stat_type_iv-e " & stat_type_iv-e
     Exit Do
   Else
     stat_type_row = stat_type_row + 1
@@ -156,13 +146,36 @@ Do
   End If
 Loop
 
-'Navigate to STAT/MEMB to determine if DOD entered already
+'Determine what programs apply to HH Memb
+If (stat_type_cash = "Y" OR stat_type_snap = "Y") and stat_type_hc <> "Y" Then
+  'If CASH or SNAP case, but not HC case
+  cash_snap_only = true
+  msgbox "cash_snap_only " & cash_snap_only
+ElseIf stat_type_hc = "Y" Then
+  'If HC case, doesn't matter if CASH or SNAP is active because steps are the same
+  hc_case = True
+  msgbox "hc_case " & hc_case
+Else
+  msgbox "No CASH, SNAP, or HC??"
+End If
+
+
+'Navigate to STAT/MEMB to determine if: 
+  'DOD entered already
+  'DOD and DOB are the same
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
+'Navigate to HH Memb that died
+EMWriteScreen left(household_member_that_died, 2), 20, 76
+transmit
+EMReadScreen DOB_memb_panel, 10, 8, 42
+'Convert DOB to MM/DD/YYYY format
+DOB_memb_panel = replace(DOB_memb_panel, " ", "/")
+If DOB_memb_panel = date_of_death then death_same_day_as_birth = True
 EMReadScreen DOD_memb_panel, 10, 19, 42
 If DOD_memb_panel = "__ __ ____" Then 
-  DOD_entered_memb = True
+  DOD_memb_panel_blank = True
 Else
-  DOD_entered_memb = False
+  DOD_memb_panel_blank = False
 End If
 
 'Navigate to STAT/REMO to determine if HH Memb removed already
@@ -181,6 +194,48 @@ If left(household_member_that_died, 2) <> "01" Then
   Else
     DOD_remo_reason_01 = True
   End If
+End If
+
+'If CASH or SNAP only, then Create a dialog that confirms whether updates have been made already
+If cash_snap_only = true Then
+  'If HH Memb 01 died, only updates STAT/MEMB
+  If left(household_member_that_died, 2) = "01" Then
+    If DOD_memb_panel_blank = True Then
+      'STAT/MEMB has not been updated and should be updated
+      'Navigate to SELF to update footer month to month of death
+      back_to_SELF
+      EmWriteScreen left(date_of_death,2), 20, 43
+      Call navigate_to_MAXIS_screen("STAT", "MEMB")
+      'Navigate to HH Memb that died
+      EMWriteScreen left(household_member_that_died, 2), 20, 76
+      transmit
+      'Put panel in edit mode and enter date of death
+      PF9
+      EMWriteScreen replace(date_of_death, "/", " "), 19, 42
+    End If
+  Else
+    If DOD_memb_panel_blank = True Then
+      'STAT/MEMB has not been updated and should be updated
+      Call navigate_to_MAXIS_screen("STAT", "MEMB")
+      'Navigate to HH Memb that died
+      EMWriteScreen left(household_member_that_died, 2), 20, 76
+      transmit
+      'Put panel in edit mode and enter date of death
+      PF9
+      EMWriteScreen replace(date_of_death, "/", " "), 19, 42
+      msgbox "pause here!!"
+    End If
+  End If
+  'If HH Memb other than Memb 01 died, then updates STAT/MEMB and STAT/REMO
+  'Determine if updates have been completed already
+  If DOD_memb_panel_blank = True and left(household_member_that_died, 2) <> "01" Then
+    'add here
+  End If
+ElseIf hc_case = True
+  'If HC case steps
+
+Else
+  msgbox "Not HC, CASH, or SNAP"
 End If
 
 'Checks to see if in MAXIS
