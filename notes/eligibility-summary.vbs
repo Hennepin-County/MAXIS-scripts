@@ -21570,7 +21570,7 @@ class stat_detail
 				stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_one_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb))
 				If stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
-				If stat_jobs_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_one_employer_name(each_memb) & " not verified.; "
+				If stat_jobs_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_one_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21664,7 +21664,7 @@ class stat_detail
 
 				stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_two_employer_name(each_memb) & " not verified.; "
+				If stat_jobs_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_two_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21758,7 +21758,7 @@ class stat_detail
 
 				stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_three_employer_name(each_memb) & " not verified.; "
+				If stat_jobs_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_three_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21852,7 +21852,7 @@ class stat_detail
 
 				stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_four_employer_name(each_memb) & " not verified.; "
+				If stat_jobs_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_four_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 
@@ -21946,7 +21946,7 @@ class stat_detail
 
 				stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb))
-				If stat_jobs_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(memb_count) & " employment at " & stat_jobs_five_employer_name(each_memb) & " not verified.; "
+				If stat_jobs_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Memb " & stat_memb_ref_numb(each_memb) & " employment at " & stat_jobs_five_employer_name(each_memb) & " not verified.; "
 				PF3
 			End If
 		Next
@@ -22049,7 +22049,7 @@ class stat_detail
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "6" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Other Document"
 				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then stat_busi_one_snap_expense_verif_info(each_memb) = "No Verif Provided"
 
-				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22150,7 +22150,7 @@ class stat_detail
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then stat_busi_two_snap_expense_verif_info(each_memb) = "No Verif Provided"
 
 				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
-					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(each_memb)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 				End If
 			End If
 
@@ -22252,7 +22252,7 @@ class stat_detail
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then stat_busi_three_snap_expense_verif_info(each_memb) = "No Verif Provided"
 
 				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
-					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(memb_count)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+					If InStr(panels_not_verif_string, "Self Employment for Memb " & stat_memb_ref_numb(each_memb)) = 0 Then panels_not_verif_string = panels_not_verif_string & "Self Employment for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 				End If
 			End If
 
@@ -22361,7 +22361,7 @@ class stat_detail
 				stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_one_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
-				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_unea_one_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_one_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22465,7 +22465,7 @@ class stat_detail
 				stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_two_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
-				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_unea_two_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_two_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22570,7 +22570,7 @@ class stat_detail
 				stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_three_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
-				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_unea_three_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_three_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22674,7 +22674,7 @@ class stat_detail
 				stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_four_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
-				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_unea_four_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_four_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22778,7 +22778,7 @@ class stat_detail
 				stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) = trim(stat_unea_five_snap_pic_prosp_monthly_inc(each_memb))
 				PF3
 
-				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not verified.; "
+				If stat_unea_five_verif_code(each_memb) = "N" Then panels_not_verif_string = panels_not_verif_string & "Income from " & stat_unea_five_type_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not verified.; "
 			End If
 
 		Next
@@ -22820,7 +22820,7 @@ class stat_detail
 
 				EMReadScreen stat_acct_one_count_cash_yn(each_memb), 1, 14, 50
 				EMReadScreen stat_acct_one_verif(each_memb), 1, 10, 64
-				If stat_acct_one_verif(each_memb) = "N" and stat_acct_one_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_one_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+				If stat_acct_one_verif(each_memb) = "N" and stat_acct_one_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_one_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22858,7 +22858,7 @@ class stat_detail
 
 				EMReadScreen stat_acct_two_count_cash_yn(each_memb), 1, 14, 50
 				EMReadScreen stat_acct_two_verif(each_memb), 1, 10, 64
-				If stat_acct_two_verif(each_memb) = "N" and stat_acct_two_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_two_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+				If stat_acct_two_verif(each_memb) = "N" and stat_acct_two_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_two_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22896,7 +22896,7 @@ class stat_detail
 
 				EMReadScreen stat_acct_three_count_cash_yn(each_memb), 1, 14, 50
 				EMReadScreen stat_acct_three_verif(each_memb), 1, 10, 64
-				If stat_acct_three_verif(each_memb) = "N" and stat_acct_three_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_three_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+				If stat_acct_three_verif(each_memb) = "N" and stat_acct_three_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_three_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22934,7 +22934,7 @@ class stat_detail
 
 				EMReadScreen stat_acct_four_count_cash_yn(each_memb), 1, 14, 50
 				EMReadScreen stat_acct_four_verif(each_memb), 1, 10, 64
-				If stat_acct_four_verif(each_memb) = "N" and stat_acct_four_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_four_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+				If stat_acct_four_verif(each_memb) = "N" and stat_acct_four_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_four_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -22972,7 +22972,7 @@ class stat_detail
 
 				EMReadScreen stat_acct_five_count_cash_yn(each_memb), 1, 14, 50
 				EMReadScreen stat_acct_five_verif(each_memb), 1, 10, 64
-				If stat_acct_five_verif(each_memb) = "N" and stat_acct_five_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_five_info(each_memb) & " for Memb " & stat_memb_ref_numb(memb_count) & " not received.; "
+				If stat_acct_five_verif(each_memb) = "N" and stat_acct_five_count_cash_yn(each_memb) = "Y" Then panels_not_verif_string = panels_not_verif_string & "Verification of " & stat_acct_five_info(each_memb) & " for Memb " & stat_memb_ref_numb(each_memb) & " not received.; "
 			End If
 		Next
 
