@@ -13030,8 +13030,32 @@ function start_a_blank_CASE_NOTE()
 		PF9
 		EMReadScreen case_note_open_check, 8, 1, 72
 		If case_note_open_check <> "FMCAMAM2" then
-            EMReadScreen mode_error_check, 1, 20, 9
-			EMReadScreen PW_error_check, 7, 21, 14
+			'Check MAXIS mode
+			row = 1
+			col = 1
+			EMSearch "Mode: ", row, col   
+			If row <> 0 and col <> 0 then EMReadScreen mode_error_check, 1, row, col + 6
+
+			'Check PW or User
+			row = 1
+			col = 1
+			EMSearch "PW: ", row, col
+			If row = 0 and col = 0 then 
+				row = 1
+				col = 1
+				EMSearch "User: ", row, col
+				EMReadScreen PW_error_check, 7, row, col + 6
+			ElseIf row <> 0 and col <> 0 then 
+				EMReadScreen PW_error_check, 7, row, col + 4
+			End If
+
+			'Check MAXIS environment, if on panel
+			row = 1
+			col = 1
+			EMSearch "Environment: ", row, col
+			If row <> 0 and col <> 0 then EMReadScreen environment_error_check, 12, row, col + 13
+			environment_error_check = trim(environment_error_check)
+			
 			EMReadScreen error_message_check, 79, 24, 2
 			error_message_check = trim(error_message_check)
 
@@ -13051,6 +13075,7 @@ function start_a_blank_CASE_NOTE()
 			If ButtonPressed = report_error_button Then
 				script_run_lowdown = script_run_lowdown & vbCr & "The screen code was: " & case_note_open_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS environment was: " & environment_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
 				script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
