@@ -74,22 +74,22 @@ BeginDialog Dialog1, 0, 0, 221, 125, "Enter Date of Death for Household Member"
 EndDialog
 
 Do 
-    Do
-        err_msg = ""
-        Dialog Dialog1
-        cancel_without_confirmation
-        Call validate_MAXIS_case_number(err_msg, "*")
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
-        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-        
-        If ButtonPressed = msg_show_instructions_btn Then 
-            err_msg = "LOOP"
-            'Add in link to instructions once created
-            ' run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
-        End If
-        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Do
+    err_msg = ""
+    Dialog Dialog1
+    cancel_with_confirmation
+    Call validate_MAXIS_case_number(err_msg, "*")
+    Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+    If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+    
+    If ButtonPressed = msg_show_instructions_btn Then 
+      err_msg = "LOOP"
+      'Add in link to instructions once created
+      ' run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
+    End If
+    IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+  Loop until err_msg = ""
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Create list of household members
@@ -109,21 +109,21 @@ BeginDialog Dialog1, 0, 0, 256, 75, "Enter Date of Death for Household Member"
 EndDialog
 
 Do 
-    Do
-        err_msg = ""
-        Dialog Dialog1
-        cancel_without_confirmation
-        If household_member_that_died = "Select One ..." THEN err_msg = err_msg & vbCr & "* Please select the household member that has died."
-        If len(date_of_death) <> 10 or IsDate(date_of_death) = False THEN err_msg = err_msg & vbCr & "* Please enter the date of death in the format MM/DD/YYYY."
-        
-        If ButtonPressed = msg_show_instructions_btn Then 
-            err_msg = "LOOP"
-            'Add in link to instructions once created
-            ' run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
-        End If
-        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+  Do
+    err_msg = ""
+    Dialog Dialog1
+    cancel_with_confirmation
+    If household_member_that_died = "Select One ..." THEN err_msg = err_msg & vbCr & "* Please select the household member that has died."
+    If len(date_of_death) <> 10 or IsDate(date_of_death) = False THEN err_msg = err_msg & vbCr & "* Please enter the date of death in the format MM/DD/YYYY."
+    
+    If ButtonPressed = msg_show_instructions_btn Then 
+      err_msg = "LOOP"
+      'Add in link to instructions once created
+      ' run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ACTIONS/ACTIONS%20-%20ENTER%20DATE%20OF%20DEATH.docx"
+    End If
+    IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+  Loop until err_msg = ""
+  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Navigate to STAT/TYPE to determine applicable programs
@@ -196,12 +196,32 @@ If left(household_member_that_died, 2) <> "01" Then
   End If
 End If
 
+'Dialog will update based on situation
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 256, 60, "Enter Date of Death for Household Member"
+ButtonGroup ButtonPressed
+  OkButton 155, 40, 45, 15
+  CancelButton 205, 40, 45, 15
+'Text will change depending on situation
+If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+If left(household_member_that_died, 2) = "01" and DOD_memb_panel_blank = True Then Text 10, 10, 240, 20, "Since HH Memb 01 has died, the script will update STAT/MEMB with the date of death."
+
+EndDialog
+
 'If CASH or SNAP only, then Create a dialog that confirms whether updates have been made already
 If cash_snap_only = true Then
   'If HH Memb 01 died, only updates STAT/MEMB
   If left(household_member_that_died, 2) = "01" Then
     If DOD_memb_panel_blank = True Then
       'STAT/MEMB has not been updated and should be updated
+
+      Do
+        Dialog Dialog1
+        cancel_with_confirmation
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+      Loop until are_we_passworded_out = false					'loops until user passwords back in
+
       'Navigate to SELF to update footer month to month of death
       back_to_SELF
       EmWriteScreen left(date_of_death,2), 20, 43
@@ -212,9 +232,15 @@ If cash_snap_only = true Then
       'Put panel in edit mode and enter date of death
       PF9
       EMWriteScreen replace(date_of_death, "/", " "), 19, 42
+
+    Else
+
+      'STAT/MEMB has already been updated, the script will end
+      script_end_procedure("It appears that the date of death has already been updated on STAT/MEMB. The script will now end.")
+
     End If
   Else
-    If DOD_memb_panel_blank = True Then
+    If DOD_memb_panel_blank = True and DOD_remo_panel_blank = True Then
       'STAT/MEMB has not been updated and should be updated
       Call navigate_to_MAXIS_screen("STAT", "MEMB")
       'Navigate to HH Memb that died
@@ -223,7 +249,6 @@ If cash_snap_only = true Then
       'Put panel in edit mode and enter date of death
       PF9
       EMWriteScreen replace(date_of_death, "/", " "), 19, 42
-      msgbox "pause here!!"
     End If
   End If
   'If HH Memb other than Memb 01 died, then updates STAT/MEMB and STAT/REMO
@@ -233,6 +258,14 @@ If cash_snap_only = true Then
   End If
 ElseIf hc_case = True
   'If HC case steps
+
+  BeginDialog Dialog1, 0, 0, 256, 80, "Enter Date of Death for Household Member"
+    ButtonGroup ButtonPressed
+      OkButton 155, 60, 45, 15
+      CancelButton 205, 60, 45, 15
+    Text 10, 10, 240, 25, "This is a HC Case. Therefore, the death must be confirmed with a first party or trusted electronic data source before acting on the information. See EPM 1.3.2.1.1."
+    CheckBox 10, 45, 240, 10, "Death confirmed with first part or trusted electronic data source", Check1
+  EndDialog
 
 Else
   msgbox "Not HC, CASH, or SNAP"
