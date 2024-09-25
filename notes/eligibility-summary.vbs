@@ -2985,6 +2985,7 @@ end function
 
 function define_hc_elig_dialog()
 	Dialog1 = ""
+	faci_comm_form_needed = False
 	BeginDialog Dialog1, 0, 0, 555, 385, "HC Approval Packages"
 
 	  ButtonGroup ButtonPressed
@@ -3001,6 +3002,9 @@ function define_hc_elig_dialog()
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
+
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind) = "L" Then faci_comm_form_needed = True
+
 				dp_option_selected = False
 				If STAT_INFORMATION(month_ind).no_stat_data = False Then
 					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -3021,11 +3025,7 @@ function define_hc_elig_dialog()
 					Text 30, y_pos+35, 95, 10, "Method: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind)
 				End If
 				x_pos = 155
-				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_method(memb_ind) = "L" Then
-					HC_UNIQUE_APPROVALS(l_budg, approval_selected) = True
-					Text 20, y_pos+50, 60, 10, "1503 Sent Date:"
-					EditBox 80, y_pos+45, 50, 15, date_of_1503
-				End If
+
 
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" Then
 					GroupBox x_pos, y_pos+10, 130, 30, "Waiver Approved"
@@ -3364,6 +3364,11 @@ function define_hc_elig_dialog()
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) = "DP" Then grp_hgt = grp_hgt + 55
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then grp_hgt = grp_hgt + 55
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
+			If faci_comm_form_needed = True Then
+				HC_UNIQUE_APPROVALS(l_budg, approval_selected) = True
+				Text 275, 10, 125, 10, "Facility Communication Form Sent Date:"		'script is no longer referencing a specific form as HC process is not documented and has diverged from DHS forms
+				EditBox 400, 5, 45, 15, date_of_3050
+			End If
 			If STAT_INFORMATION(month_ind).no_stat_data = True Then Text 200, 10, 120, 10, "HC Retro Month Request"
 		End If
 
@@ -6902,7 +6907,7 @@ function hc_elig_case_note()
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Enter a new NOTE of approval. Eligibilty reapproved." Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	If HC_UNIQUE_APPROVALS(l_budg, unique_app) = True Then
-		Call write_bullet_and_variable_in_CASE_NOTE("Date 1503 Sent", date_of_1503)
+		Call write_bullet_and_variable_in_CASE_NOTE("Date Communication Form Sent to Facility", date_of_3050)			'script is no longer referencing a specific form as HC process is not documented and has diverged from DHS forms
 	End If
 	If STAT_INFORMATION(month_ind).no_stat_data = True Then Call write_variable_in_CASE_NOTE("Health Care Retro Month Approval")
 
@@ -26378,7 +26383,7 @@ const fiat_reason					= 41
 const mfip_inelig_assess_SNAP		= 42
 const mfip_inelig_SNAP_note			= 43
 const approval_confirmed			= 44
-date_of_1503 = ""
+date_of_3050 = ""
 
 Dim DWP_UNIQUE_APPROVALS()
 ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -29270,13 +29275,13 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 				If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
 				If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
-				missing_1503_date = False
+				missing_3050_date = False
 
 				If err_msg = "" Then
 
 					all_hc_approvals_confirmed = True
 					hc_approval_is_incorrect = False
-					date_of_1503 = trim(date_of_1503)
+					date_of_3050 = trim(date_of_3050)
 
 					If HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 						HC_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
@@ -29297,10 +29302,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 						End If
 						If HC_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then hc_approval_is_incorrect = True
 						If HC_UNIQUE_APPROVALS(approval_confirmed, each_app) = True and HC_UNIQUE_APPROVALS(l_budg, each_app) = True Then
-							If date_of_1503 = "" Then
-								missing_1503_date = True
-							ElseIf IsDate(date_of_1503) = False Then
-								missing_1503_date = True
+							If date_of_3050 = "" Then
+								missing_3050_date = True
+							ElseIf IsDate(date_of_3050) = False Then
+								missing_3050_date = True
 							End If
 						End If
 					Next
@@ -29325,8 +29330,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 					MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
 					approval_selected = first_unconfirmed_month
 				End If
-				If missing_1503_date = True and move_from_dialog = True Then
-					MsgBox "*** Need DHS-1503 ***" & vbCr & vbCr & "This case is a Method L budget and a 1503 needs to be sent on the case with a L Budget." & vbCr & vbCr & "Send it now and enter the date of the '1503 Sent Date' field."
+				If missing_3050_date = True and move_from_dialog = True Then
+					MsgBox "*** Need Facility Communication Form Sent Date ***" & vbCr & vbCr & "This case is a Method L budget and approval information needs to be sent to the facility on the case with a L Budget." & vbCr & vbCr & "Send it now and enter the date of the 'Facility Communication Form Sent Date' field."
 					move_from_dialog = False
 				End If
 			Loop until move_from_dialog = True
