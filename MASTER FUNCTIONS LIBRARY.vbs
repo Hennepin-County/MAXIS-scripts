@@ -13055,7 +13055,12 @@ function start_a_blank_CASE_NOTE()
 			EMSearch "Environment: ", row, col
 			If row <> 0 and col <> 0 then EMReadScreen environment_error_check, 12, row, col + 13
 			environment_error_check = trim(environment_error_check)
+
+			'Check panel
+			EmReadScreen panel_error_check, 50, 2, 20
+			panel_error_check = trim(panel_error_check)
 			
+			'Check error message
 			EMReadScreen error_message_check, 79, 24, 2
 			error_message_check = trim(error_message_check)
 
@@ -13076,6 +13081,7 @@ function start_a_blank_CASE_NOTE()
 				script_run_lowdown = script_run_lowdown & vbCr & "The screen code was: " & case_note_open_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS mode was: " & mode_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The MAXIS environment was: " & environment_error_check & "."
+				script_run_lowdown = script_run_lowdown & vbCr & "The panel was: " & panel_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The PW was: " & PW_error_check & "."
 				script_run_lowdown = script_run_lowdown & vbCr & "The error message that appeared when trying to open blank CASE/NOTE was: " & error_message_check & "."
 				script_end_procedure_with_error_report("You indicated that you wanted to report an error with the script being unable to open a CASE/NOTE. Please click 'Yes' below to send the error report.")
