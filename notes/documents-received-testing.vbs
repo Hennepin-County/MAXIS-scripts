@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/12/2024", "Restructured the dialog to be form-based instead of free-text based, unique document date for each form, and added additional forms", "Megan Geissler, Hennepin County")
+call changelog_update("10/01/2024", "Restructured the dialog to be form-based instead of free-text based, unique document date for each form, and added additional forms", "Megan Geissler, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/14/2022", "Added a review of PROG for an interview date for the MTAF option selection.", "Casey Love, Hennepin County")
 call changelog_update("03/16/2022", "Removed Interview Date field and added a link to supports for the MFIP Orientation.", "Casey Love, Hennepin County")
