@@ -61,40 +61,59 @@ ReDim PERSON_ARRAY(last_const, 0)
 
 Call check_for_MAXIS(true)
 
-MAXIS_footer_month = "08"
+MAXIS_footer_month = "09"
 MAXIS_footer_year = "24"
 
-file_url = "C:\Users\calo001\OneDrive - Hennepin County/Projects/2024-10 Legislative Changes/2024-08-08 MFIP Active Assessment.xlsx"
+'file_url = "C:\Users\calo001\OneDrive - Hennepin County/Projects/2024-10 Legislative Changes/2024-08-08 MFIP Active Assessment.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\Lists of Cases\2024-09-24 MFIP Approvals.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 
-ObjExcel.worksheets("RSDI Impacted Cases").Activate
+'ObjExcel.worksheets("RSDI Impacted Cases").Activate
 excel_row = 2
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-	prog_info = trim(ObjExcel.Cells(excel_row, 2).Value)
-	Call back_to_SELF
 
-	If InStr(prog_info, "MF A") <> 0 Then
-		call navigate_to_MAXIS_screen("ELIG", "MFIP")
-		EMReadScreen sig_change_check, 4, 3, 38				'looking to see if the significant change panel is on this case
-		If sig_change_check = "MFSC" Then
-			'this is important because the command line is in a different place on the sig change panel so this call is slightly different
-			Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-		Else
-			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-		End If
-		Call write_value_and_transmit("MFSM", 20, 71)
-		EMReadScreen hrf_reporting, 10, 8, 31
-		objExcel.cells(excel_row, 3).value = trim(hrf_reporting)
-	ElseIf InStr(prog_info, "DW A") <> 0 Then
-		objExcel.cells(excel_row, 3).value = "DWP"
+	sig_change = False
+	call navigate_to_MAXIS_screen("ELIG", "MFIP")
+	EMReadScreen sig_change_check, 4, 3, 38				'looking to see if the significant change panel is on this case
+	If sig_change_check = "MFSC" Then
+		'this is important because the command line is in a different place on the sig change panel so this call is slightly different
+		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 	Else
-		objExcel.cells(excel_row, 3).value = "PENDING"
+		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 	End If
 
+	EMReadScreen significant_change_check, 18, 4, 3
+	If significant_change_check = "SIGNIFICANT CHANGE" Then sig_change = True
+
+	ObjExcel.Cells(excel_row, 2).Value = sig_change
+	Call back_to_SELF
 	excel_row = excel_row + 1
+
+	' prog_info = trim(ObjExcel.Cells(excel_row, 2).Value)
+	' Call back_to_SELF
+
+	' If InStr(prog_info, "MF A") <> 0 Then
+	' 	call navigate_to_MAXIS_screen("ELIG", "MFIP")
+	' 	EMReadScreen sig_change_check, 4, 3, 38				'looking to see if the significant change panel is on this case
+	' 	If sig_change_check = "MFSC" Then
+	' 		'this is important because the command line is in a different place on the sig change panel so this call is slightly different
+	' 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+	' 	Else
+	' 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+	' 	End If
+	' 	Call write_value_and_transmit("MFSM", 20, 71)
+	' 	EMReadScreen hrf_reporting, 10, 8, 31
+	' 	objExcel.cells(excel_row, 3).value = trim(hrf_reporting)
+	' ElseIf InStr(prog_info, "DW A") <> 0 Then
+	' 	objExcel.cells(excel_row, 3).value = "DWP"
+	' Else
+	' 	objExcel.cells(excel_row, 3).value = "PENDING"
+	' End If
+
+	' excel_row = excel_row + 1
 Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
 Call script_end_procedure("Done with reporting status")
 
